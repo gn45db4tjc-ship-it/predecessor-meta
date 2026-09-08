@@ -146,6 +146,35 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(s.load_success(self.state,'gold'),b)
         with self.assertRaises(ValueError): s.validate_public_bundle(b,'silver')
 
+    def test_import_seed_keeps_date_and_does_not_replace_newer_success(self):
+        import gzip
+        seed = self.root/'public.json.gz'
+        old = bundle(); old['generated_at'] = (NOW-dt.timedelta(days=1)).isoformat()
+        seed.write_bytes(gzip.compress(json.dumps(old).encode()))
+        self.assertTrue(s.import_public_seed(seed,self.state))
+        self.assertEqual(s.load_success(self.state,'gold')['generated_at'],old['generated_at'])
+        s.retain_success(bundle(),self.state)
+        self.assertFalse(s.import_public_seed(seed,self.state))
+        self.assertEqual(s.load_success(self.state,'gold')['generated_at'],NOW.isoformat())
+
+    def test_invalid_seed_does_not_destroy_success(self):
+        import gzip
+        s.retain_success(bundle(),self.state)
+        bad=bundle();bad['errors']=[{'severity':'error','detail':'Incomplete source'}]
+        seed=self.root/'bad.json.gz';seed.write_bytes(gzip.compress(json.dumps(bad).encode()))
+        with self.assertRaises(ValueError):s.import_public_seed(seed,self.state)
+        self.assertEqual(s.load_success(self.state,'gold'),bundle())
+
+    def test_paused_collection_checks_patch_without_retry_even_on_manual_run(self):
+        s.retain_success(bundle(),self.state)
+        config=dict(s.CONFIG,cloud_collection_paused_reason='Source access unavailable')
+        with patch.object(s,'CONFIG',config),patch.object(s.base,'fetch_official',return_value=official()),patch.object(s.base,'collect_bundle') as collect:
+            manifest=s.run(self.state,self.out,manual=True)
+        collect.assert_not_called()
+        self.assertEqual(manifest['collection_paused_reason'],'Source access unavailable')
+        self.assertEqual(manifest['patch_check']['status'],'verified')
+        self.assertEqual(manifest['cohorts']['gold']['generated_at'],NOW.isoformat())
+
     def test_zero_rows_and_heroes_are_not_publishable(self):
         for field, value in [('tier_list',[]),('heroes',{})]:
             b=bundle();b[field]=value
@@ -169,7 +198,7 @@ class PublicationTests(unittest.TestCase):
     def test_daily_failure_retains_bundle_and_records_source_error(self):
         s.retain_success(bundle(),self.state)
         bad=bundle();bad['errors']=[{'source':'Pred.gg','severity':'error','detail':'HTTP 503'}]
-        config=dict(s.CONFIG,brackets=['gold'])
+        config=dict(s.CONFIG,brackets=['gold'],cloud_collection_paused_reason=None)
         with patch.object(s,'CONFIG',config),patch.object(s.base,'now_utc',return_value=NOW),patch.object(s.base,'fetch_official',return_value=official()),patch.object(s.base,'collect_bundle',return_value=bad):
             manifest=s.run(self.state,self.out)
         entry=manifest['cohorts']['gold']
@@ -187,7 +216,7 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(manifest['cohorts']['gold']['generated_at'],NOW.isoformat())
 
     def test_exception_is_checkpointed_and_other_cohorts_continue(self):
-        config=dict(s.CONFIG,brackets=['gold','silver'])
+        config=dict(s.CONFIG,brackets=['gold','silver'],cloud_collection_paused_reason=None)
         with patch.object(s,'CONFIG',config),patch.object(s.base,'now_utc',return_value=NOW),patch.object(s.base,'fetch_official',return_value=official()),patch.object(s.base,'collect_bundle',side_effect=[OSError('broken source'),bundle('silver')]):
             manifest=s.run(self.state,self.out)
         self.assertEqual(manifest['cohorts']['gold']['status'],'unavailable')
@@ -207,7 +236,7 @@ class PublicationTests(unittest.TestCase):
             'settings':{'secret':'do not publish'}, 'patch_check':{'status':'verified','raw':'unpublished'},
             'attempts':{'gold':{'status':'ok','errors':[{'private':'unpublished'}]}}})
         result=publication_activity.record(self.root)
-        self.assertEqual(set(result), {'last_full_attempt_at','patch_check_status','brackets'})
+        self.assertEqual(set(result), {'last_full_attempt_at','maintenance_day','patch_check_status','brackets'})
         self.assertNotIn('unpublished',json.dumps(result))
 
     def test_publication_report_names_failure_without_private_payload(self):
