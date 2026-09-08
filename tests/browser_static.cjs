@@ -66,9 +66,15 @@ let previewServer;
    await page.route('**/manifest.json',route=>route.abort());await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
    check(await page.evaluate(()=>!!B&&latestStatus.errors[0].source==='Shared website'),'offline check keeps loaded data and names failure');
    await page.unroute('**/manifest.json');
+   // Exercise an unavailable cohort even after all real rank bundles are published.
+   await page.route('**/manifest.json',async route=>{
+    const response=await route.fetch(),manifest=await response.json();manifest.cohorts.diamond={label:'Diamond+',status:'unavailable'};
+    await route.fulfill({response,json:manifest});
+   });
    await page.locator('#bracket').selectOption('diamond');await page.waitForFunction(()=>!latestStatus.busy);
    check(await page.evaluate(()=>B===null),'unpublished cohort has no substituted data');
    check((await page.locator('#main').textContent()).includes('No successful diamond publication'),'unavailable cohort is visible');
+   await page.unroute('**/manifest.json');
    await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>!!B&&!latestStatus.busy);
    check(await page.evaluate(()=>B.bracket.segment==='gold'&&S.locks.length===2),'return to gold keeps draft');
    await page.route('**/manifest.json',async route=>{

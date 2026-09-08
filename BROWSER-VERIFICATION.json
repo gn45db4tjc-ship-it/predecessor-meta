@@ -8,7 +8,7 @@
           "width": 1440,
           "height": 900
         },
-        "readyMs": 342,
+        "readyMs": 235,
         "checks": [
           "static mode",
           "refresh wording",
@@ -69,7 +69,7 @@
           "width": 390,
           "height": 844
         },
-        "readyMs": 277,
+        "readyMs": 184,
         "checks": [
           "static mode",
           "refresh wording",
@@ -125,9 +125,7 @@
         ],
         "errors": []
       }
-    ],
-    "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/",
-    "public_site": true
+    ]
   },
   "webkit": {
     "engine": "Playwright WebKit on Windows (not native Apple Safari)",
@@ -138,7 +136,7 @@
           "width": 1440,
           "height": 900
         },
-        "readyMs": 282,
+        "readyMs": 266,
         "checks": [
           "static mode",
           "refresh wording",
@@ -199,7 +197,7 @@
           "width": 390,
           "height": 844
         },
-        "readyMs": 251,
+        "readyMs": 246,
         "checks": [
           "static mode",
           "refresh wording",

@@ -16,7 +16,7 @@ on:
         type: boolean
         default: false
   push:
-    branches: [main]
+    branches: [main, data-updates]
 
 permissions:
   contents: read
@@ -40,6 +40,7 @@ jobs:
         with:
           # Used only for the small daily activity record below, never force-pushed.
           persist-credentials: true
+          ref: main
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.13'
@@ -48,6 +49,23 @@ jobs:
           path: .cloud-state
           key: pred-static-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: pred-static-v1-
+      - name: Read the Windows collector data branch without executing its files
+        id: local_feed
+        shell: bash
+        run: |
+          if git ls-remote --exit-code --heads origin data-updates > /dev/null; then
+            git fetch --depth=1 origin data-updates
+            mkdir -p collected-data
+            for file in collector.json gold.json bronze.json silver.json platinum.json diamond.json paragon.json; do
+              if git cat-file -e "FETCH_HEAD:$file" 2>/dev/null; then
+                git show "FETCH_HEAD:$file" > "collected-data/$file"
+              fi
+            done
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+          else
+            result=$?
+            if [ "$result" != "2" ]; then exit "$result"; fi
+          fi
       - name: Validate publication policy
         run: python -B -m unittest discover -s tests -p 'test_static*.py' -v
       - name: Collect only when due; render public bundles separately
@@ -56,6 +74,9 @@ jobs:
           MANUAL_REFRESH: ${{ inputs.refresh }}
           DIAGNOSE_PRED: ${{ inputs.diagnose_pred }}
         run: |
+          if [ -f collected-data/collector.json ]; then
+            python -B import_local_feed.py collected-data
+          fi
           if [ "$DIAGNOSE_PRED" = "true" ]; then
             python -B static_publish.py --diagnose-pred
           elif [ "$MANUAL_REFRESH" = "true" ]; then

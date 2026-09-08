@@ -1,6 +1,6 @@
 # Predecessor Meta — free shared website
 
-Published September 8, 2026. **[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting, with dated Gold+ data. Complete data refreshes need a local collector.**
+Published September 8, 2026. **[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting, with data collected by your Windows PC.**
 
 This is the selected $0 hosting approach. It supersedes the earlier paid Render proposal. It adds static publication to the installed 2.21.0 app; the six original runtime files, including Builds, Live game and the recommendation engine, are unchanged. The installed Windows app and its saved data have not been replaced.
 
@@ -8,15 +8,16 @@ This is the selected $0 hosting approach. It supersedes the earlier paid Render 
 
 - Open a normal website link on your PC, Mac or iPhone. Neither your Windows PC nor the spare iMac needs to remain on.
 - The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your draft stays in that browser; Share plan deliberately transfers it.
-- **Complete cloud data refreshes are paused.** The first cloud pull failed because Pred.gg supplies a client-rendered shell without its statistical JSON. A direct anonymous statistics request returned Forbidden. No bypass is used.
-- The initial public data are the complete Gold+ snapshot generated **September 8, 2026 at 08:36:59 Central**. The source dates are unchanged. Other rank brackets remain unavailable.
-- Official patch notes and embedded hotfix sections continue to be checked every three hours. A changed patch marks old data and guidance for review; it does not manufacture updated builds or samples.
-- The prepared daily/patch-triggered full collection policy remains in the code, but cannot operate until a working collector is connected. A Windows PC or the spare iMac can collect and publish while it is on; it does not need to host the website. That local publishing connection is not yet configured.
+- Your Windows PC collects the data. The small updater starts when you sign in and checks every three hours while the PC is on and connected. Codex does not need to be open; no AI account/API key is used by the updater.
+- Full collection runs once per daily update cycle (17:23 UTC boundary), or after a live patch/hotfix changes. If the PC is off, the website continues serving its last successful data. Missed daily updates are collected when the PC is available again.
+- GitHub checks official patch notes independently every three hours, imports validated public files from the `data-updates` branch, and deploys the site. The cloud does not repeat requests to the unavailable Pred.gg endpoints.
+- The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles and a source-status receipt to `data-updates`; it never force-pushes or modifies `main`.
+- The first complete collection across six brackets is being verified. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
 - Check updates retrieves the latest publication; it does not start another scrape. Open tabs check for published updates every five minutes while visible.
 - Source failures retain the last complete successful bundle for each bracket, with its original timestamp and a visible error. A bracket with no successful bundle is clearly unavailable. No samples are invented or combined across ranks.
 - A new patch invalidates the current status of old written advice. Automatic data collection does not author new strategic judgments or resolve undocumented mechanics.
 
-All six rank brackets are configured, with Gold+ first. Only complete, validated cohorts become available.
+All six rank brackets are configured, with Gold+ first. Only complete, validated cohorts become available. The first full run can take around 25 minutes; the site stays usable throughout.
 
 ## Free hosting and the publication decision
 
@@ -34,9 +35,9 @@ GitHub schedules can be delayed or dropped during busy periods. The website show
 
 Public-repository schedules can stop after 60 days without repository activity. The workflow commits a tiny daily publication-activity record to keep normal repository activity, using its automatic GitHub token. It never force-pushes or rewrites source files. Those token-created pushes do not recursively start the workflow. The cloud activity commit and cache save/restore have been verified. [Workflow trigger behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
 
-Source caches and tier snapshots are kept in GitHub's cache, which can be evicted. The repository includes a public-only compressed Gold+ seed. A cache miss restores this dated seed; it never replaces newer validated data. Complete collection remains paused. If that fails before any complete bundle exists, no empty website replaces the current deployment. Its dated existing publication remains online. Cloud snapshot retention is best-effort; the Windows app's local snapshots and backups remain separate and intact. [Cache limits and eviction](https://github.com/actions/cache#cache-limits).
+Source caches and tier snapshots are kept in GitHub's cache, which can be evicted. The repository includes a public-only compressed Gold+ seed. A cache miss restores this dated seed; it never replaces newer validated data. The latest public data branch is imported after cache recovery; the initial seed cannot replace newer data. If that fails before any complete bundle exists, no empty website replaces the current deployment. Its dated existing publication remains online. Cloud snapshot retention is best-effort; the Windows app's local snapshots and backups remain separate and intact. [Cache limits and eviction](https://github.com/actions/cache#cache-limits).
 
-If a source blocks GitHub's hosting addresses, the app must report that boundary; it does not bypass the block. Nothing has been installed or scheduled on the iMac.
+If a source blocks GitHub's hosting addresses, the app must report that boundary; it does not bypass the block. The iMac is not needed and has not been changed.
 
 ## Files and verification
 
@@ -45,6 +46,9 @@ If a source blocks GitHub's hosting addresses, the app must report that boundary
 - `free_hosting.json`: selected schedule and bracket policy.
 - `.github/workflows/publish.yml`: serialized daily/patch checks and Pages deployment. Actions are pinned to verified commit IDs.
 - `publication_activity.py`: minimal daily activity record; no private state.
+- `local_updater.py`: Windows checks, isolated data cache, public-only export and repository-only publishing.
+- `import_local_feed.py`: verify the data receipt, hashes, bracket and original dates before cloud import.
+- `Install Windows Updater.ps1`: sign-in shortcut and manual update shortcut; no Windows service or administrator task.
 - `public-seed-gold.json.gz`: public game-data snapshot for initial deployment/cache recovery; excluded from the source-only ZIP.
 - `VERIFICATION.md`: what has actually been checked and what still needs a cloud or native-device test.
 
@@ -60,3 +64,13 @@ python -B -m http.server 12926 --bind 127.0.0.1 --directory qa\site
 That preview is a saved-data check. It does not refresh samples. `python -B -m unittest discover -s tests -p "test_static*.py" -v` runs the standard-library publication tests. Browser acceptance uses the existing development Playwright installation; it is not an installation requirement for the user or cloud collector.
 
 To roll back the shared website, redeploy a prior known-good source revision. Preserve its dated data; never relabel an old bundle as newly fetched. The installed Windows tool keeps its existing rollback launcher.
+
+## Using and pausing the Windows updater
+
+Keep this `Predecessor Meta Free Hosting` folder in place. Open **Predecessor Meta Website** on your Desktop to use the app. **Update Predecessor Website** starts an additional full update if wanted; its console shows progress. Normal updates run quietly at Windows sign-in and while signed in, without Codex running. Signing out, shutting down or sleeping stops work until the PC is available again. Website availability does not depend on the PC.
+
+Updater status and errors are in `.local-publisher/updater.json` and `.local-publisher/updater.log`. Failed publishing retains the prepared data for the next check. Source failures retain each bracket's previous successful bundle and remain visible on the website. There is no database or service to maintain.
+
+To pause automatic updating, run `Install Windows Updater.ps1 -Uninstall` in this folder. This removes only the updater shortcuts and requests the process to stop; it preserves the website, data and keys. The repository owner can revoke **Predecessor Meta — Windows data updater** in GitHub Settings → Deploy keys. The source-only ZIP excludes `.local-publisher` entirely.
+
+The updater runs the reviewed source copy installed here. It reads remote **data only**, and does not automatically execute changed GitHub source code. A future application upgrade should update this local source copy deliberately.

@@ -246,7 +246,8 @@ def render_site(folder, out, state):
                 'patch_check': state.get('patch_check', {}), 'cohorts': {},
                 'last_verified_patch_check': state.get('last_verified_patch_check'),
                 'last_full_attempt_at': state.get('last_full_attempt_at')}
-    manifest['collection_paused_reason'] = CONFIG.get('cloud_collection_paused_reason')
+    manifest['local_collector'] = state.get('local_collector')
+    manifest['collection_paused_reason'] = None if state.get('local_collector') else CONFIG.get('cloud_collection_paused_reason')
     for bracket in CONFIG['brackets']:
         bundle = load_success(folder, bracket)
         attempt = state.get('attempts', {}).get(bracket, {})
@@ -313,7 +314,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
             state['last_verified_patch_check'] = copy.deepcopy(state['patch_check'])
         now = base.now_utc()
         paused = CONFIG.get('cloud_collection_paused_reason')
-        output_flag('collection_paused', bool(paused))
+        output_flag('collection_paused', bool(paused and not state.get('local_collector')))
         reason = None if check_only or paused else collection_reason(state, official, now, manual)
         day = now.astimezone(UTC).date().isoformat()
         output_flag('maintenance_record', state.get('maintenance_day') != day)
@@ -369,7 +370,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
         write_json(folder / 'publication-report.json', report)
         base.log('Publication diagnostic: ' + json.dumps(report, ensure_ascii=False))
         manifest = render_site(folder, out, state)
-        failed = official.get('status') != 'verified' or (not paused and any(
+        failed = official.get('status') != 'verified' or ((not paused or bool(state.get('local_collector'))) and any(
             a.get('status') != 'ok' for a in state.get('attempts', {}).values()))
         output_flag('source_failed', failed)
         base.log(json.dumps({'full_collection_reason': reason, 'seconds': round(time.perf_counter()-started, 2),

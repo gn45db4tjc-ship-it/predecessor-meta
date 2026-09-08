@@ -1,10 +1,10 @@
 # Free-hosting verification — September 8, 2026
 
-Status: **public website deployed and verified; complete automatic statistical updates remain blocked**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
+Status: **public website deployed and verified; Windows collector integration in final verification**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
 
 ## Passed
 
-- 33 standard-library Python tests cover daily UTC timing, patch/hotfix changes, future announcements, six-hour patch catch-up limits, stopping extra retries after a source block, retained official verification, source/request deduplication, failed collections, zero-row rejection, rank identity, immutable bundle checksums and owner-data exclusion.
+- 43 standard-library Python tests cover daily UTC timing, patch/hotfix changes, future announcements, six-hour patch catch-up limits, stopping extra retries after a source block, retained official verification, source/request deduplication, failed collections, zero-row rejection, rank identity, immutable bundle checksums and owner-data exclusion.
 - Edge and Playwright WebKit on Windows exercise the static website at **1440×900** and **390×844**, including a `/project/` URL prefix like GitHub Pages uses. Each run includes the existing seven meta/strategy/live/augment/correction/sequences/synthesis acceptance suites (671 assertions), plus the static-host controls and failure scenarios. Machine-readable browser receipts are included.
 - All nine pages render without page overflow or JavaScript errors in those checks. Builds and Live game remain present. Shared links preserve the URL prefix, another visitor previews before importing picks, and draft restoration works after reload.
 - Check updates performs only static GET requests; there are no browser calls to Python API routes or source-scraping endpoints. A bad checksum or unavailable website leaves the loaded data usable. An unavailable cohort is shown explicitly.
@@ -24,7 +24,7 @@ The agent-browser CLI could not maintain its local CDP connection on two attempt
 - A subsequent cache-restored check made no statistical requests. Cloud cache save/restore and the daily GitHub activity commit passed.
 - Isolated one-page diagnostics found HTTP 200 and a 4,300-character JavaScript-only shell, with no embedded responses. A local page contained 344,894 characters and three structured responses.
 - A normal anonymous catalog query succeeded; the statistics query returned Forbidden. This route was stopped, and the experimental query client was not included in the release. Complete cloud refreshes are explicitly paused, including manual full-refresh requests.
-- Dated-seed validation, preservation of newer data, failed-seed rejection, paused collection and continued official checking are covered by the 33 tests.
+- Dated-seed validation, preservation of newer data, failed-seed rejection, paused collection and continued official checking are covered by the publication tests.
 - The initial public Gold+ snapshot was generated September 8 at **08:36:59 Central**, contains 54 heroes and keeps the existing reviewed plans and source uncertainty labels. Its compressed SHA-256 is `281f22d572cb6b7f4071b368b1b64e5c605cd577907a0ea65d76442add6840b8`. The public-only seed is separate from the source-only ZIP.
 
 ## Remaining checks / work
@@ -43,3 +43,12 @@ Cloud caches can be evicted; the public seed restores dated availability. No syn
 - Official check at 10:20:25 Central verified v1.16.4. Cached generation took 4.37 seconds without requesting new statistics. Pages artifact upload, deployment and cache restoration succeeded.
 
 - Public-site Edge acceptance passed all nine routes at 1440×900 and 390×844, with 51 hosting checks and the seven existing suites (671 assertions) per viewport. Ready times were 342 ms and 277 ms on this connection. No JavaScript errors or page overflow were observed. Sharing, draft restoration, export and retained data on update failure passed.
+
+## Windows collector upgrade
+
+- Fresh Gold+ collection passed with no source errors in **270.41 seconds**. Bronze+ and Silver+ also passed. The remaining cohorts are still collecting; final full-run timing will be recorded after completion.
+- Repository-specific SSH authentication succeeded using a key stored under the signed-in Windows account. GitHub's Ed25519 host fingerprint was checked against its official documentation; host checking is required.
+- **43 Python tests pass**, including public-only export, exact checksums/dates, wrong-rank rejection, corruption retaining previous data, path restrictions, due-time handling after being off, and preventing a push of unrelated staged files or any forced/main-branch data push.
+- Edge and Windows WebKit pass the existing 51 hosting checks plus seven existing feature suites per viewport at 1440×900 and 390×844 against the updated adapter. Data availability was simulated only inside the isolated missing-cohort test, so it remains testable after all real cohorts become available.
+- The GitHub workflow checks out application code from `main` explicitly. It imports only the seven known JSON filenames from `data-updates`; it executes no code from that branch.
+- No private key, Windows settings, owner drafts, or collector cache is included in the source ZIP. The installed Documents app remains byte-identical.

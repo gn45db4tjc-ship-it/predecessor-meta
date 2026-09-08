@@ -1,4 +1,5 @@
 .cloud-state/
+.local-publisher/
 _site/
 qa/
 __pycache__/
@@ -6,4 +7,3 @@ __pycache__/
 data/
 backups/
 *.zip
-

@@ -17,7 +17,8 @@ def package(installed=None):
         for name in RUNTIME:
             assert (ROOT/name).read_bytes() == (Path(installed)/name).read_bytes(), 'Installed baseline changed: '+name
     files = [ROOT/name for name in RUNTIME + ['static_publish.py','static_client.js','publication_activity.py',
-        'free_hosting.json','README.md','VERIFICATION.md','.gitignore','package_source.py']]
+        'free_hosting.json','README.md','VERIFICATION.md','.gitignore','package_source.py',
+        'local_updater.py','import_local_feed.py','Install Windows Updater.ps1']]
     files += sorted((ROOT/'.github').rglob('*.yml'))
     files += sorted((ROOT/'tests').rglob('*.py')) + sorted((ROOT/'tests').rglob('*.cjs')) + sorted((ROOT/'tests').rglob('*.js'))
     receipts = {}
@@ -31,7 +32,7 @@ def package(installed=None):
     files.append(ROOT/'BROWSER-VERIFICATION.json')
     for file in files:
         relative = file.relative_to(ROOT).as_posix()
-        assert not any(part in ('data','qa','backups','.cloud-state') for part in file.relative_to(ROOT).parts)
+        assert not any(part in ('data','qa','backups','.cloud-state','.local-publisher') for part in file.relative_to(ROOT).parts)
         hashes[relative] = hashlib.sha256(file.read_bytes()).hexdigest()
     manifest = {'hosting_revision':1,'desktop_baseline':'2.21.0','runtime_unchanged':RUNTIME,
                 'publication_approved':True,'publicly_deployed':True,'files':hashes}
