@@ -197,12 +197,12 @@ def diagnose_pred(folder):
         result = {'status': 'withheld', 'reason': 'Previous source block; no new request sent'}
     else:
         try:
-            raw, headers, seconds = base.http_get(base.PRED_BASE + '/heroes')
+            raw, http_status, seconds = base.http_get(base.PRED_BASE + '/heroes')
             scripts = re.findall(r'<script([^>]*)>', raw, re.I)
             result = {'seconds': seconds, 'characters': len(raw),
                       'title': [base.clean_text(v)[:160] for v in re.findall(r'<title>(.*?)</title>', raw, re.S | re.I)],
                       'script_count': len(scripts), 'embedded_marker_count': raw.count('data-sveltekit-fetched'),
-                      'content_type': headers.get('Content-Type'),
+                      'http_status': http_status,
                       'access_notice_markers': [v for v in ('challenge-platform', 'just a moment', 'access denied',
                                                           'verify you are human', 'enable javascript and cookies') if v in raw.lower()]}
             try:
