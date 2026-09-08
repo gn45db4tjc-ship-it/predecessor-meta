@@ -11,8 +11,8 @@ This is the selected $0 hosting approach. It supersedes the earlier paid Render 
 - Your Windows PC collects the data. The small updater starts when you sign in and checks every three hours while the PC is on and connected. Codex does not need to be open; no AI account/API key is used by the updater.
 - Full collection runs once per daily update cycle (17:23 UTC boundary), or after a live patch/hotfix changes. If the PC is off, the website continues serving its last successful data. Missed daily updates are collected when the PC is available again.
 - GitHub checks official patch notes independently every three hours, imports validated public files from the `data-updates` branch, and deploys the site. The cloud does not repeat requests to the unavailable Pred.gg endpoints.
-- The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles and a source-status receipt to `data-updates`; it never force-pushes or modifies `main`.
-- The first complete collection across six brackets is being verified. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
+- The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles, a source-status receipt and a small reviewed deployment trigger to `data-updates`; it never force-pushes or modifies `main`.
+- The first complete collection across all six brackets passed with no source errors in **23 minutes 56 seconds**. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
 - Check updates retrieves the latest publication; it does not start another scrape. Open tabs check for published updates every five minutes while visible.
 - Source failures retain the last complete successful bundle for each bracket, with its original timestamp and a visible error. A bracket with no successful bundle is clearly unavailable. No samples are invented or combined across ranks.
 - A new patch invalidates the current status of old written advice. Automatic data collection does not author new strategic judgments or resolve undocumented mechanics.
@@ -71,6 +71,6 @@ Keep this `Predecessor Meta Free Hosting` folder in place. Open **Predecessor Me
 
 Updater status and errors are in `.local-publisher/updater.json` and `.local-publisher/updater.log`. Failed publishing retains the prepared data for the next check. Source failures retain each bracket's previous successful bundle and remain visible on the website. There is no database or service to maintain.
 
-To pause automatic updating, run `Install Windows Updater.ps1 -Uninstall` in this folder. This removes only the updater shortcuts and requests the process to stop; it preserves the website, data and keys. The repository owner can revoke **Predecessor Meta — Windows data updater** in GitHub Settings → Deploy keys. The source-only ZIP excludes `.local-publisher` entirely.
+To pause automatic updating, run `Install Windows Updater.ps1 -Uninstall` in this folder. This removes only the updater shortcuts and requests the process to stop after any current update; it preserves the website, data and keys. The repository owner can revoke **Predecessor Meta — Windows data updater** in GitHub Settings → Deploy keys. The source-only ZIP excludes `.local-publisher` entirely.
 
 The updater runs the reviewed source copy installed here. It reads remote **data only**, and does not automatically execute changed GitHub source code. A future application upgrade should update this local source copy deliberately.

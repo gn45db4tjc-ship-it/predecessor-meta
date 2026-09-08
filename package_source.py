@@ -34,7 +34,7 @@ def package(installed=None):
         relative = file.relative_to(ROOT).as_posix()
         assert not any(part in ('data','qa','backups','.cloud-state','.local-publisher') for part in file.relative_to(ROOT).parts)
         hashes[relative] = hashlib.sha256(file.read_bytes()).hexdigest()
-    manifest = {'hosting_revision':1,'desktop_baseline':'2.21.0','runtime_unchanged':RUNTIME,
+    manifest = {'hosting_revision':2,'desktop_baseline':'2.21.0','runtime_unchanged':RUNTIME,
                 'publication_approved':True,'publicly_deployed':True,'files':hashes}
     (ROOT/'SOURCE-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
     archive = ROOT.parent/'Predecessor Meta Tool - Free Hosting Source.zip'

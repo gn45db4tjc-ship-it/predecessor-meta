@@ -1,6 +1,6 @@
 # Free-hosting verification — September 8, 2026
 
-Status: **public website deployed and verified; Windows collector integration in final verification**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
+Status: **public website deployed and verified; Windows collection and upload verified; final automatic deployment verification in progress**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
 
 ## Passed
 
@@ -46,9 +46,12 @@ Cloud caches can be evicted; the public seed restores dated availability. No syn
 
 ## Windows collector upgrade
 
-- Fresh Gold+ collection passed with no source errors in **270.41 seconds**. Bronze+ and Silver+ also passed. The remaining cohorts are still collecting; final full-run timing will be recorded after completion.
+- All six cohorts passed without source errors in **1,436.01 seconds (23 minutes 56 seconds)**. Gold: 270.41s; Bronze: 235.64s; Silver: 218.23s; Platinum: 239.93s; Diamond: 220.86s; Paragon: 230.96s. Each cohort includes 54 complete hero kits, 270 items and 274 perks, with its actual role coverage.
 - Repository-specific SSH authentication succeeded using a key stored under the signed-in Windows account. GitHub's Ed25519 host fingerprint was checked against its official documentation; host checking is required.
 - **43 Python tests pass**, including public-only export, exact checksums/dates, wrong-rank rejection, corruption retaining previous data, path restrictions, due-time handling after being off, and preventing a push of unrelated staged files or any forced/main-branch data push.
 - Edge and Windows WebKit pass the existing 51 hosting checks plus seven existing feature suites per viewport at 1440×900 and 390×844 against the updated adapter. Data availability was simulated only inside the isolated missing-cohort test, so it remains testable after all real cohorts become available.
 - The GitHub workflow checks out application code from `main` explicitly. It imports only the seven known JSON filenames from `data-updates`; it executes no code from that branch.
 - No private key, Windows settings, owner drafts, or collector cache is included in the source ZIP. The installed Documents app remains byte-identical.
+
+- The Windows sign-in and Desktop shortcuts were installed under the normal user account. The same 43 tests also pass using that user’s Python 3.12. Source execution stays local; no Codex process is required.
+- First data upload succeeded as commit `90743cc9fcbbd7139c06a19e8ed12ef4ad17da3b`. A reviewed dispatcher on the data branch invokes the main-branch workflow because GitHub reads push triggers from the pushed branch.

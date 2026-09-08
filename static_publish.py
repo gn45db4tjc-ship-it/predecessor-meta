@@ -338,7 +338,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                     if previous:
                         base.save_bundle(previous, base.DATA_DIR / ('last_successful_' + bracket + '.json'))
                     bundle = base.collect_bundle(dict(base.DEFAULT_SETTINGS, bracket=bracket, open_browser=False,
-                                                       force_history_refresh=changed_patch),
+                                                       force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
                     complete, why = base.bundle_is_complete(bundle)
                     attempt.update(at=base.iso(base.now_utc()), status='ok' if complete else 'failed',

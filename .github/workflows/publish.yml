@@ -1,6 +1,7 @@
 name: Daily data and patch-aware publication
 
 on:
+  workflow_call:
   schedule:
     # UTC. Full daily collection at 17:23; other runs only check official patch content.
     - cron: '23 17 * * *'
@@ -16,7 +17,7 @@ on:
         type: boolean
         default: false
   push:
-    branches: [main, data-updates]
+    branches: [main]
 
 permissions:
   contents: read

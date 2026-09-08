@@ -97,7 +97,12 @@ def publish_feed(state_folder):
         git(['fetch', '--no-tags', 'origin', BRANCH], repo)
         git(['merge', '--ff-only', 'FETCH_HEAD'], repo)
     receipt = export_feed(state_folder, repo)
-    files = ['collector.json'] + [v['file'] for v in receipt['bundles'].values()]
+    # GitHub reads push workflows from the pushed branch. This fixed, reviewed
+    # dispatcher calls the main-branch workflow; it contains no collector code.
+    trigger = '.github/workflows/data-arrived.yml'
+    (repo/trigger).parent.mkdir(parents=True,exist_ok=True)
+    shutil.copyfile(ROOT/trigger,repo/trigger)
+    files = ['collector.json',trigger] + [v['file'] for v in receipt['bundles'].values()]
     git(['add', '--']+files, repo)
     changed = git(['diff', '--cached', '--name-only'], repo).splitlines()
     if not set(changed).issubset(set(files)):
@@ -136,6 +141,7 @@ def run_once(*, force=False, collect_only=False, publish_only=False):
             result = publish_feed(state_folder)
             status.update(status='published', pending_publish=False,
                           last_published_at=publication.base.iso(publication.base.now_utc()), **result)
+            status.setdefault('last_check_at',publication.base.iso(now))
             status.pop('error', None)
         except Exception as error:
             status.update(status='publish failed', pending_publish=True, error=str(error))
@@ -180,7 +186,18 @@ def main():
             sys.stdout=sys.stderr=stream
             try:daemon()
             except RuntimeError as error:print(error)
-    else:print(json.dumps(run_once(force=args.force,collect_only=args.collect_only,publish_only=args.publish_only),ensure_ascii=False))
+    else:
+        try:
+            result=run_once(force=args.force,collect_only=args.collect_only,publish_only=args.publish_only)
+            print(json.dumps(result,ensure_ascii=False))
+            if args.force and result.get('status')=='published':
+                print('Data sent to the website. GitHub usually needs a short time to publish it; then choose Check updates.')
+        except Exception as error:
+            print('The updater could not finish: '+str(error))
+            print('Your website keeps its last successful data. If an update is already running, let it finish.')
+            if sys.stdin.isatty():input('Press Enter to close.')
+            raise SystemExit(1)
+        if args.force and sys.stdin.isatty():input('Press Enter to close.')
 
 
 if __name__=='__main__':main()
