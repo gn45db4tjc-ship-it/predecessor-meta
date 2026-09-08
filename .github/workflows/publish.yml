@@ -1,1 +1,102 @@
+name: Daily data and patch-aware publication
 
+on:
+  schedule:
+    # UTC. Full daily collection at 17:23; other runs only check official patch content.
+    - cron: '23 17 * * *'
+    - cron: '23 2,5,8,11,14,20,23 * * *'
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: 'Collect all configured rank brackets now'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: predecessor-free-publication
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    outputs:
+      publishable: ${{ steps.generate.outputs.publishable }}
+      source_failed: ${{ steps.generate.outputs.source_failed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Used only for the small daily activity record below, never force-pushed.
+          persist-credentials: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .cloud-state
+          key: pred-static-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: pred-static-v1-
+      - name: Validate publication policy
+        run: python -B -m unittest discover -s tests -p 'test_static*.py' -v
+      - name: Collect only when due; render public bundles separately
+        id: generate
+        env:
+          MANUAL_REFRESH: ${{ inputs.refresh }}
+        run: |
+          if [ "$MANUAL_REFRESH" = "true" ]; then
+            python -B static_publish.py --manual
+          else
+            python -B static_publish.py
+          fi
+      - name: Retain dated public source cache and failure state
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .cloud-state
+          key: pred-static-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Record daily repository activity so the schedule does not become inactive
+        if: always() && steps.generate.outputs.full_attempt == 'true'
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          python -B publication_activity.py
+          git add -- publication-activity.json
+          if ! git diff --cached --quiet -- publication-activity.json; then
+            git commit -m 'Record daily publication activity' -- publication-activity.json
+            git push origin HEAD:main || echo '::warning::Activity record could not be pushed; a concurrent source update may have occurred. Data publication continues.'
+          fi
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        if: steps.generate.outputs.publishable == 'true'
+        with:
+          path: _site
+          retention-days: 1
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.publishable == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish complete bundles and visible failure status
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - name: Report source failures after preserving the working site
+        if: needs.build.outputs.source_failed == 'true'
+        run: |
+          echo 'A source check failed. The site retains successful data with its original date and displays the failed source.'
+          exit 1
