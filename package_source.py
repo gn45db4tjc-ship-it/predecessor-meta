@@ -1,6 +1,7 @@
 """Create and verify a source-only hosting archive; never includes owner data."""
 import hashlib
 import json
+import re
 import subprocess
 import sys
 import zipfile
@@ -51,7 +52,8 @@ def package(installed=None):
     (ROOT/'qa'/'clean-tests.txt').write_text(result.stdout+'\n'+result.stderr,encoding='utf8')
     assert result.returncode==0, result.stderr
     receipt={'archive':archive.name,'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
-             'manifest_files':len(hashes),'zip_entries':len(hashes)+1,'clean_unit_tests':'27 passed',
+             'manifest_files':len(hashes),'zip_entries':len(hashes)+1,
+             'clean_unit_tests':re.search(r'Ran (\d+) tests',result.stderr).group(1)+' passed',
              'installed_runtime_unchanged':bool(installed)}
     (ROOT/'qa'/'package-verification.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8')
     print(json.dumps(receipt,indent=2))

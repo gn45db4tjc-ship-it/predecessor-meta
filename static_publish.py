@@ -173,6 +173,22 @@ def output_flag(name, value):
             stream.write(name + '=' + str(value).lower() + '\n')
 
 
+def publication_report(state):
+    """Small public diagnostic: source failures remain inspectable without a website."""
+    report = {key: state.get(key) for key in ('last_full_attempt_at', 'last_full_seconds')}
+    report['patch_check'] = {key: state.get('patch_check', {}).get(key)
+                             for key in ('status', 'checked_at', 'version', 'error')}
+    report['cohorts'] = {}
+    for bracket in CONFIG['brackets']:
+        attempt = state.get('attempts', {}).get(bracket, {})
+        report['cohorts'][bracket] = {
+            key: attempt.get(key) for key in ('status', 'at', 'seconds')}
+        report['cohorts'][bracket]['errors'] = [
+            {key: error.get(key) for key in ('source', 'severity', 'detail')}
+            for error in attempt.get('errors', [])]
+    return report
+
+
 def render_site(folder, out, state):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
@@ -294,6 +310,9 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
             base.log('Official-only maintenance check; no statistics requested.' if check_only else
                      'No daily update due and no changed live patch. Retaining the original sample dates.')
         write_json(folder / 'publication.json', state)
+        report = publication_report(state)
+        write_json(folder / 'publication-report.json', report)
+        base.log('Publication diagnostic: ' + json.dumps(report, ensure_ascii=False))
         manifest = render_site(folder, out, state)
         failed = official.get('status') != 'verified' or any(
             a.get('status') != 'ok' for a in state.get('attempts', {}).values())
