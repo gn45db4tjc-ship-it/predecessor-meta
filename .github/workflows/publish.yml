@@ -34,6 +34,7 @@ jobs:
     outputs:
       publishable: ${{ steps.generate.outputs.publishable }}
       source_failed: ${{ steps.generate.outputs.source_failed }}
+      collection_paused: ${{ steps.generate.outputs.collection_paused }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -107,3 +108,6 @@ jobs:
         run: |
           echo 'A source check failed. The site retains successful data with its original date and displays the failed source.'
           exit 1
+      - name: Show the known collection pause without repeated failure alerts
+        if: needs.build.outputs.collection_paused == 'true'
+        run: echo '::warning::Complete statistics refreshes remain paused because Pred.gg is unavailable to this collector. The public website retains dated verified data. Official patch checks continue.'
