@@ -199,10 +199,18 @@ def diagnose_pred(folder):
         try:
             raw, http_status, seconds = base.http_get(base.PRED_BASE + '/heroes')
             scripts = re.findall(r'<script([^>]*)>', raw, re.I)
+            # Report visible text and asset paths, never inline script values or challenge tokens.
+            visible = re.sub(r'<(script|style)\b[^>]*>.*?</\1>', '', raw, flags=re.S | re.I)
+            asset_paths = [urlsplit(src).path for attrs in scripts
+                           for src in re.findall(r'\bsrc=["\']([^"\']+)["\']', attrs)]
             result = {'seconds': seconds, 'characters': len(raw),
                       'title': [base.clean_text(v)[:160] for v in re.findall(r'<title>(.*?)</title>', raw, re.S | re.I)],
                       'script_count': len(scripts), 'embedded_marker_count': raw.count('data-sveltekit-fetched'),
                       'http_status': http_status,
+                      'headings': [base.clean_text(v)[:240] for v in re.findall(r'<h1\b[^>]*>(.*?)</h1>', visible, re.S | re.I)],
+                      'noscript': [base.clean_text(v)[:240] for v in re.findall(r'<noscript\b[^>]*>(.*?)</noscript>', visible, re.S | re.I)],
+                      'script_paths': asset_paths,
+                      'sveltekit_markers': raw.count('sveltekit'),
                       'access_notice_markers': [v for v in ('challenge-platform', 'just a moment', 'access denied',
                                                           'verify you are human', 'enable javascript and cookies') if v in raw.lower()]}
             try:
