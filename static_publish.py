@@ -313,6 +313,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
             state['last_verified_patch_check'] = copy.deepcopy(state['patch_check'])
         now = base.now_utc()
         paused = CONFIG.get('cloud_collection_paused_reason')
+        output_flag('collection_paused', bool(paused))
         reason = None if check_only or paused else collection_reason(state, official, now, manual)
         day = now.astimezone(UTC).date().isoformat()
         output_flag('maintenance_record', state.get('maintenance_day') != day)
@@ -368,8 +369,8 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
         write_json(folder / 'publication-report.json', report)
         base.log('Publication diagnostic: ' + json.dumps(report, ensure_ascii=False))
         manifest = render_site(folder, out, state)
-        failed = bool(paused) or official.get('status') != 'verified' or any(
-            a.get('status') != 'ok' for a in state.get('attempts', {}).values())
+        failed = official.get('status') != 'verified' or (not paused and any(
+            a.get('status') != 'ok' for a in state.get('attempts', {}).values()))
         output_flag('source_failed', failed)
         base.log(json.dumps({'full_collection_reason': reason, 'seconds': round(time.perf_counter()-started, 2),
                              'available_cohorts': [k for k, v in manifest['cohorts'].items() if v['status']=='available'],

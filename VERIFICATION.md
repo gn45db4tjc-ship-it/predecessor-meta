@@ -1,6 +1,6 @@
 # Free-hosting verification — September 8, 2026
 
-Status: **locally verified; public repository created; website deployment pending**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
+Status: **public website deployed and verified; complete automatic statistical updates remain blocked**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
 
 ## Passed
 
@@ -29,9 +29,17 @@ The agent-browser CLI could not maintain its local CDP connection on two attempt
 
 ## Remaining checks / work
 
-1. First seeded Pages deployment and public URL verification are in progress.
-2. Connect a local collector for complete automatic data updates. No Windows publishing schedule or iMac installation has been added.
-3. Actual Mac/iPhone Safari: Windows WebKit is compatibility evidence, not native-device certification.
-4. Statistical refreshes do not author reviewed strategic advice or resolve undocumented mechanics. Source labels remain visible.
+1. Connect a local collector for complete automatic data updates. No Windows publishing schedule or iMac installation has been added.
+2. Actual Mac/iPhone Safari: Windows WebKit is compatibility evidence, not native-device certification.
+3. Statistical refreshes do not author reviewed strategic advice or resolve undocumented mechanics. Source labels remain visible.
 
 Cloud caches can be evicted; the public seed restores dated availability. No synthetic or relabelled cohort is published. The Windows app and its local history are unchanged.
+
+## Public deployment receipt
+
+- Website: https://gn45db4tjc-ship-it.github.io/predecessor-meta/
+- Pages deployment step passed in run `34244068124` from commit `af5ac2ba790b17575dbe196d0003f1bd4167eaf8`. The later source-status step deliberately failed for the known Pred.gg issue; it did not roll back the successful deployment. Subsequent runs show the known pause as a visible warning, reserving failure status for new failed checks.
+- HTTP 200 for the index, manifest and Gold+ bundle. All 25 source-manifest hashes and the uploaded public seed matched the staged files exactly. The public bundle checksum and original 08:36:59 timestamp matched.
+- Official check at 10:20:25 Central verified v1.16.4. Cached generation took 4.37 seconds without requesting new statistics. Pages artifact upload, deployment and cache restoration succeeded.
+
+- Public-site Edge acceptance passed all nine routes at 1440×900 and 390×844, with 51 hosting checks and the seven existing suites (671 assertions) per viewport. Ready times were 342 ms and 277 ms on this connection. No JavaScript errors or page overflow were observed. Sharing, draft restoration, export and retained data on update failure passed.

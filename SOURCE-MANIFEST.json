@@ -10,7 +10,7 @@
     "shared_server.py"
   ],
   "publication_approved": true,
-  "publicly_deployed": false,
+  "publicly_deployed": true,
   "files": {
     "predecessor_meta.py": "dba1f5aff4b332e089aab7458eec92e7f72b63128771c3d93067fe34bbb390c1",
     "engine.js": "705c899631eda76024eae620df4958a02edf0daf7db9b8461dc3d2501cba3533",
@@ -18,16 +18,16 @@
     "ui.html": "0ad3c27e82f047f9eebe2d4399051de94157cc6cf6c846c4f683b894226163e3",
     "reviewed_guidance.json": "ebabe1d827fbba30d6086ec883f929893d1fed8d2145eec7f42b93ad52e0276b",
     "shared_server.py": "c8aeef02b33849243773a37d1cfc34c8f3f3984a38c564cd288065d1c0b33490",
-    "static_publish.py": "747429ff4248475cf15833384fd234e99537e38a28d423a2cbefcde64f81782a",
+    "static_publish.py": "efbee221122ab105ad34f20fa18bdfa4a22871382be4ec26a11e1dd37a159448",
     "static_client.js": "b3c8e0712e2d35b040f44ca94b678ea193e820993a93c8d124d8c12964e31bd4",
     "publication_activity.py": "fa71f08db1cf77c4361c17bb4c06dee58557771a0425c02854e98b79c3e1d9ad",
     "free_hosting.json": "56f7c7c8ce4b81ddd072beeab92b34e1d570acdb1ea7b1e8f787c1f36f36bde1",
-    "README.md": "7cde91d574234a273f81ec3c43503eabd86ad230228d0362f93d967295c88b5d",
-    "VERIFICATION.md": "c337787c0502cce217cf4728103396806d418d5b9a1fe58e3ba1a79f1544d3c9",
+    "README.md": "46b7373f06dd420b4ee1b0b3b71fcec7000fd42b742006db398b7681d240ffb9",
+    "VERIFICATION.md": "90785ebc4fea3dfa79246dbc0604fb53dc7e4b93cf29eb00871c7831e48bbf52",
     ".gitignore": "1582a24ca69acc94f93fe6c6f15cedbf52b760f2d9dd1ba30b43de7f87fb2dba",
-    "package_source.py": "1859d658207716b09e42a21ddaf3fb5a339695419a2a98585e78959983656b53",
-    ".github/workflows/publish.yml": "6b2dffa3805f487ba43537deaeb0cadbbaa04b063ce900b8e4096429d82a00b4",
-    "tests/test_static_publish.py": "05b749a64ae7722569dff4c2c0b878e1092a121540953a14c8541ec9c292c339",
+    "package_source.py": "57cdf48618da6c0b5eeb79e75f7e908620786c6c7f5203d66899877df333ed34",
+    ".github/workflows/publish.yml": "36bb61b83f7aff59c273d701afa4fb17eec2f905e94f462262c23763ee843fba",
+    "tests/test_static_publish.py": "2b6ae60857200d5c5b9e678e72f2f8ce1b90e88d8b03e93f903e2eb911cd3df6",
     "tests/browser_static.cjs": "dd1005afe93774237353e26f59696b90057418b3a2dad94f021813d91ac292d8",
     "tests/legacy/browser_augment_acceptance.js": "4e40b93d6662db2f3cbe6ba2e12ddcd06cf6b1bbf7cde9009198f6377c3cf069",
     "tests/legacy/browser_correction_acceptance.js": "14d3e25e240565d3d601647cdd4f4804f32cc2e9945fb16d8cd12941e87461b6",
@@ -36,6 +36,6 @@
     "tests/legacy/browser_sequences_acceptance.js": "475646f758137665c08c1b0184d75c35830860cb9dede50bfba7440cdabc7af1",
     "tests/legacy/browser_strategy_acceptance.js": "b9e4b9733833549db20ae45cdd34dd1a515ab5e5a9d4315fc55d13708686aff4",
     "tests/legacy/browser_synthesis_acceptance.js": "a4cdbfec41371e006ff5557647453847e9e6a363551d8c90c6756573bdbaf418",
-    "BROWSER-VERIFICATION.json": "138bccbbf02443572d764e388fae191e0df40b6c26e996d5c7c22626d29ea129"
+    "BROWSER-VERIFICATION.json": "9a8fd4663a9b20872428e402aef0fbc8d79b141f56e4781bb9190159e29554ed"
   }
 }

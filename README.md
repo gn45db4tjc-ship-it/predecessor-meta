@@ -1,6 +1,6 @@
 # Predecessor Meta — free shared website
 
-Prepared on September 8, 2026. **Public publication approved; not published yet. No hosting has been purchased.**
+Published September 8, 2026. **[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting, with dated Gold+ data. Complete data refreshes need a local collector.**
 
 This is the selected $0 hosting approach. It supersedes the earlier paid Render proposal. It adds static publication to the installed 2.21.0 app; the six original runtime files, including Builds, Live game and the recommendation engine, are unchanged. The installed Windows app and its saved data have not been replaced.
 
@@ -24,7 +24,7 @@ Use a **public GitHub repository**, GitHub Pages, standard Ubuntu Actions runner
 
 The app's source code and published game data will be public. Owner settings, drafts, local backups, research conversations and browser profiles are excluded. The prepared source package contains only the runtime, publication scripts, tests and instructions. Do not upload the entire installed Documents folder or the older source/audit archive.
 
-The owner approved making this package and website public on September 8, 2026. The public repository is [gn45db4tjc-ship-it/predecessor-meta](https://github.com/gn45db4tjc-ship-it/predecessor-meta). Website setup and first cloud verification are in progress. The first cloud run must be inspected before calling the service live and verified.
+The owner approved making this package and website public on September 8, 2026. The public repository is [gn45db4tjc-ship-it/predecessor-meta](https://github.com/gn45db4tjc-ship-it/predecessor-meta). GitHub Pages is enabled, HTTPS is active, and the public site was verified on September 8. Its data and source limitations are described above.
 
 Use only standard runners and the free account plan. Do not enable paid cache expansion, larger runners, a paid domain or paid features. The workflow keeps one day's Pages artifacts and uses the ordinary cache limit. Cloud-free allowances and source access are finite; this is not a guarantee of uninterrupted service or unlimited usage. [Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
 
