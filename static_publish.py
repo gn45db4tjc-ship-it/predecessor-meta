@@ -189,6 +189,34 @@ def publication_report(state):
     return report
 
 
+def diagnose_pred(folder):
+    """Explicit maintenance probe: one public page, no statistical collection."""
+    folder = Path(folder)
+    state = read_json(folder / 'publication.json', {})
+    if state.get('blocked_in_last_full'):
+        result = {'status': 'withheld', 'reason': 'Previous source block; no new request sent'}
+    else:
+        try:
+            raw, headers, seconds = base.http_get(base.PRED_BASE + '/heroes')
+            scripts = re.findall(r'<script([^>]*)>', raw, re.I)
+            result = {'seconds': seconds, 'characters': len(raw),
+                      'title': [base.clean_text(v)[:160] for v in re.findall(r'<title>(.*?)</title>', raw, re.S | re.I)],
+                      'script_count': len(scripts), 'embedded_marker_count': raw.count('data-sveltekit-fetched'),
+                      'content_type': headers.get('Content-Type'),
+                      'access_notice_markers': [v for v in ('challenge-platform', 'just a moment', 'access denied',
+                                                          'verify you are human', 'enable javascript and cookies') if v in raw.lower()]}
+            try:
+                result.update(status='ok', payload_count=len(base.pred_payloads(raw)))
+            except ValueError as error:
+                result.update(status='failed', error=str(error))
+        except Exception as error:
+            result = {'status': 'failed', 'error': str(error)}
+    result['checked_at'] = base.iso(base.now_utc())
+    write_json(folder / 'pred-diagnostic.json', result)
+    base.log('Pred.gg diagnostic: ' + json.dumps(result, ensure_ascii=False))
+    return result
+
+
 def render_site(folder, out, state):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
@@ -330,9 +358,15 @@ def main():
     parser.add_argument('--state-dir', type=Path, default=ROOT / '.cloud-state')
     parser.add_argument('--output', type=Path, default=ROOT / '_site')
     parser.add_argument('--manual', action='store_true')
+    parser.add_argument('--diagnose-pred', action='store_true', help='Maintenance: inspect one public Pred.gg response without collecting statistics')
     parser.add_argument('--check-only', action='store_true', help='Developer/maintenance check of official notes without statistical collection')
     parser.add_argument('--preview-seed', type=Path, action='append', default=[])
     args = parser.parse_args()
+    if args.diagnose_pred:
+        if args.manual or args.check_only or args.preview_seed:
+            parser.error('--diagnose-pred cannot be combined with collection or preview flags')
+        diagnose_pred(args.state_dir)
+        return 0
     if args.manual and args.check_only: parser.error('--manual and --check-only cannot be combined')
     result = run(args.state_dir, args.output, manual=args.manual, preview_seeds=args.preview_seed, check_only=args.check_only)
     return 0 if any(c['status']=='available' for c in result['cohorts'].values()) else 1
