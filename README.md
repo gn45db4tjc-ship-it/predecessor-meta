@@ -50,7 +50,7 @@ If a source blocks GitHub's hosting addresses, the app must report that boundary
 - `import_local_feed.py`: verify the data receipt, hashes, bracket and original dates before cloud import.
 - `Install Windows Updater.ps1`: sign-in shortcut and manual update shortcut; no Windows service or administrator task.
 - `public-seed-gold.json.gz`: public game-data snapshot for initial deployment/cache recovery; excluded from the source-only ZIP.
-- `VERIFICATION.md`: what has actually been checked and what still needs a cloud or native-device test.
+- `VERIFICATION.md`: completed local/cloud checks and remaining native-device limitations.
 
 The hosting adapter is injected at the existing UI startup marker. If a future UI removes that marker, generation fails clearly. Desktop source files are not rewritten by the publisher.
 
@@ -68,6 +68,8 @@ To roll back the shared website, redeploy a prior known-good source revision. Pr
 ## Using and pausing the Windows updater
 
 Keep this `Predecessor Meta Free Hosting` folder in place. Open **Predecessor Meta Website** on your Desktop to use the app. **Update Predecessor Website** starts an additional full update if wanted; its console shows progress. Normal updates run quietly at Windows sign-in and while signed in, without Codex running. Signing out, shutting down or sleeping stops work until the PC is available again. Website availability does not depend on the PC.
+
+Installed and verified September 8, 2026: all six brackets were collected, uploaded and published successfully. The updater is running under your normal Windows account, and a second launch exits without starting overlapping work. GitHub's Pages environment allows exactly `main` and `data-updates`; a real automatic data-branch deployment passed after adding the latter rule.
 
 Updater status and errors are in `.local-publisher/updater.json` and `.local-publisher/updater.log`. Failed publishing retains the prepared data for the next check. Source failures retain each bracket's previous successful bundle and remain visible on the website. There is no database or service to maintain.
 

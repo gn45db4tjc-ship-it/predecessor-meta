@@ -1,57 +1,54 @@
 # Free-hosting verification — September 8, 2026
 
-Status: **public website deployed and verified; Windows collection and upload verified; final automatic deployment verification in progress**. The paid hosting proposal is superseded. No paid resources or subscriptions were activated.
+Status: **public website, Windows collector, unattended upload and automatic deployment verified**. All six rank brackets are live. No paid resources or subscriptions were activated. The installed Documents app and its saved data remain unchanged.
 
-## Passed
-
-- 43 standard-library Python tests cover daily UTC timing, patch/hotfix changes, future announcements, six-hour patch catch-up limits, stopping extra retries after a source block, retained official verification, source/request deduplication, failed collections, zero-row rejection, rank identity, immutable bundle checksums and owner-data exclusion.
-- Edge and Playwright WebKit on Windows exercise the static website at **1440×900** and **390×844**, including a `/project/` URL prefix like GitHub Pages uses. Each run includes the existing seven meta/strategy/live/augment/correction/sequences/synthesis acceptance suites (671 assertions), plus the static-host controls and failure scenarios. Machine-readable browser receipts are included.
-- All nine pages render without page overflow or JavaScript errors in those checks. Builds and Live game remain present. Shared links preserve the URL prefix, another visitor previews before importing picks, and draft restoration works after reload.
-- Check updates performs only static GET requests; there are no browser calls to Python API routes or source-scraping endpoints. A bad checksum or unavailable website leaves the loaded data usable. An unavailable cohort is shown explicitly.
-- Standalone HTML exports open with the exact observed statistics and original timestamps. Exports start from a pristine shell and exclude visitor draft markup. Real remote-art failures degrade to readable names; the desktop and phone-sized screenshots were inspected.
-- A changed official patch status updates the official patch cell and marks written guidance for review, while retained source statistics keep their own patch labels. No rates or samples are changed by the hosting adapter.
-- A real official-only check on September 8 at **09:05:25 Central** completed successfully in **16.38 seconds**, identifying official v1.16.4. It did not run a new full statistical pull or advance the saved samples' fetch dates.
-- The original six runtime files are checked byte-for-byte against the installed app during packaging. The installed app, existing data, snapshots and backups remain unchanged.
-- Official GitHub Action tag refs were resolved and pinned. The artifact contains source only; bundles, caches, owner data, local research folders, browser profiles and backups are excluded.
-
-The old live-page acceptance script distinguishes local-server persistence from browser persistence. For this test, its shared-mode condition also accepts static mode; its remaining assertions are unchanged. The other six reused suites are unmodified.
-
-The agent-browser CLI could not maintain its local CDP connection on two attempts. The actual acceptance runs used direct Playwright-controlled Edge and WebKit, both successfully. This was a verification-tool connection issue, not evidence that the site failed to render.
-
-## Cloud findings and current limit
-
-- First complete six-bracket attempt: **111.47 seconds collecting**, approximately 2 minutes 7 seconds for the workflow. Statz, Omeda and official checks ran, but every cohort failed validation because Pred.gg omitted its embedded JSON from the cloud response. No incomplete replacement was deployed.
-- A subsequent cache-restored check made no statistical requests. Cloud cache save/restore and the daily GitHub activity commit passed.
-- Isolated one-page diagnostics found HTTP 200 and a 4,300-character JavaScript-only shell, with no embedded responses. A local page contained 344,894 characters and three structured responses.
-- A normal anonymous catalog query succeeded; the statistics query returned Forbidden. This route was stopped, and the experimental query client was not included in the release. Complete cloud refreshes are explicitly paused, including manual full-refresh requests.
-- Dated-seed validation, preservation of newer data, failed-seed rejection, paused collection and continued official checking are covered by the publication tests.
-- The initial public Gold+ snapshot was generated September 8 at **08:36:59 Central**, contains 54 heroes and keeps the existing reviewed plans and source uncertainty labels. Its compressed SHA-256 is `281f22d572cb6b7f4071b368b1b64e5c605cd577907a0ea65d76442add6840b8`. The public-only seed is separate from the source-only ZIP.
-
-## Remaining checks / work
-
-1. Connect a local collector for complete automatic data updates. No Windows publishing schedule or iMac installation has been added.
-2. Actual Mac/iPhone Safari: Windows WebKit is compatibility evidence, not native-device certification.
-3. Statistical refreshes do not author reviewed strategic advice or resolve undocumented mechanics. Source labels remain visible.
-
-Cloud caches can be evicted; the public seed restores dated availability. No synthetic or relabelled cohort is published. The Windows app and its local history are unchanged.
-
-## Public deployment receipt
+## Current release receipts
 
 - Website: https://gn45db4tjc-ship-it.github.io/predecessor-meta/
-- Pages deployment step passed in run `34244068124` from commit `af5ac2ba790b17575dbe196d0003f1bd4167eaf8`. The later source-status step deliberately failed for the known Pred.gg issue; it did not roll back the successful deployment. Subsequent runs show the known pause as a visible warning, reserving failure status for new failed checks.
-- HTTP 200 for the index, manifest and Gold+ bundle. All 25 source-manifest hashes and the uploaded public seed matched the staged files exactly. The public bundle checksum and original 08:36:59 timestamp matched.
-- Official check at 10:20:25 Central verified v1.16.4. Cached generation took 4.37 seconds without requesting new statistics. Pages artifact upload, deployment and cache restoration succeeded.
+- Application deployment: run `34248490290`, commit `965472d366bb2dc2216bc4103c54b523a2414ae3`, passed.
+- Automatic Windows-data deployment: run `34248498240`, attempt 2, data commit `7931dd7551a378493bdfaa2bdf12327de50a9974`, passed. Both build and deployment succeeded; source-failure and collection-paused steps were skipped because the imported collector had no errors.
+- The first automatic deployment was held by the Pages environment's main-only branch rule. The environment now allows exactly `main` and `data-updates`. Retrying the failed deployment passed; no wildcard branch access or manual approval requirement was added.
+- Public-site Edge acceptance verified every bracket selector and all nine routes with no JavaScript errors. The updater timestamp is visible and the obsolete cloud-pause banner is absent. Local receipts: `qa/public-updater-browser.json` and `qa/public-updater-desktop.png`.
 
-- Public-site Edge acceptance passed all nine routes at 1440×900 and 390×844, with 51 hosting checks and the seven existing suites (671 assertions) per viewport. Ready times were 342 ms and 277 ms on this connection. No JavaScript errors or page overflow were observed. Sharing, draft restoration, export and retained data on update failure passed.
+## Fresh Windows collection
 
-## Windows collector upgrade
+All six cohorts passed with no source errors in **1,436.01 seconds (23 minutes 56 seconds)**. Each includes 54 complete hero kits, 270 items and 274 perks. Role coverage is source-dependent and is not filled with invented samples.
 
-- All six cohorts passed without source errors in **1,436.01 seconds (23 minutes 56 seconds)**. Gold: 270.41s; Bronze: 235.64s; Silver: 218.23s; Platinum: 239.93s; Diamond: 220.86s; Paragon: 230.96s. Each cohort includes 54 complete hero kits, 270 items and 274 perks, with its actual role coverage.
-- Repository-specific SSH authentication succeeded using a key stored under the signed-in Windows account. GitHub's Ed25519 host fingerprint was checked against its official documentation; host checking is required.
-- **43 Python tests pass**, including public-only export, exact checksums/dates, wrong-rank rejection, corruption retaining previous data, path restrictions, due-time handling after being off, and preventing a push of unrelated staged files or any forced/main-branch data push.
-- Edge and Windows WebKit pass the existing 51 hosting checks plus seven existing feature suites per viewport at 1440×900 and 390×844 against the updated adapter. Data availability was simulated only inside the isolated missing-cohort test, so it remains testable after all real cohorts become available.
-- The GitHub workflow checks out application code from `main` explicitly. It imports only the seven known JSON filenames from `data-updates`; it executes no code from that branch.
-- No private key, Windows settings, owner drafts, or collector cache is included in the source ZIP. The installed Documents app remains byte-identical.
+| Bracket | Source bundle timestamp, Central | Collection seconds | Role coverage |
+|---|---|---:|---:|
+| Gold | September 8, 10:38:41 | 270.41 | 85 |
+| Bronze | September 8, 10:42:38 | 235.64 | 85 |
+| Silver | September 8, 10:46:17 | 218.23 | 85 |
+| Platinum | September 8, 10:50:18 | 239.93 | 85 |
+| Diamond | September 8, 10:53:59 | 220.86 | 86 |
+| Paragon | September 8, 10:57:51 | 230.96 | 93 |
 
-- The Windows sign-in and Desktop shortcuts were installed under the normal user account. The same 43 tests also pass using that user’s Python 3.12. Source execution stays local; no Codex process is required.
-- First data upload succeeded as commit `90743cc9fcbbd7139c06a19e8ed12ef4ad17da3b`. A reviewed dispatcher on the data branch invokes the main-branch workflow because GitHub reads push triggers from the pushed branch.
+Official checking identified live v1.16.4. Statistical source labels and their original fetch times remain separate. No samples are pooled across ranks or relabelled as a narrower patch window.
+
+## Windows installation and publishing
+
+- Sign-in and Desktop manual-update shortcuts are installed under the normal Windows account, using Python 3.12. The background updater was started and verified running. A duplicate launch exited while the original process stayed active.
+- Three-hour checks run while the user is signed in and the PC is awake and connected. Full collection follows the daily cycle or a detected live patch/hotfix change. Missed updates are collected when the PC becomes available. Codex does not need to be open.
+- Repository-specific SSH authentication and real source/data pushes passed. GitHub's Ed25519 host fingerprint was checked against official documentation; strict host checking is required. The private key is restricted to the Windows account and excluded from packaging.
+- The collector stages only allowed public bundles, a status receipt and the fixed reviewed deployment dispatcher. It never force-pushes or sends collected data to `main`. Failed uploads retain prepared data for retry.
+- The dispatcher invokes the reusable workflow from `main`. That workflow checks out application code from `main` and imports only seven known JSON filenames from the data branch; it does not execute downloaded data as application code.
+- Cloud import validates hashes, rank identity, dates, size and path restrictions. An invalid or older cohort cannot silently replace newer successful data.
+
+## Tests and preservation
+
+- **43 standard-library Python tests pass**, both in the development runtime and under the user's Python 3.12. Coverage includes daily timing, patch/hotfix changes, future announcements, retry limits, source blocks, retained official verification, request deduplication, partial failures, zero-row rejection, checksums, rank identity, public-only export, corrupted/older feeds, path restrictions and restricted data pushes.
+- Edge and Windows Playwright WebKit passed at **1440×900** and **390×844**, with the `/project/` prefix used by Pages. Each viewport passed 51 hosting checks and seven existing feature suites containing 671 assertions. Ready times for the upgraded local adapter were 184–266 ms on this machine.
+- All nine pages render without overflow or JavaScript errors in those checks. Builds and Live game remain present. Share-plan preview/import, draft restoration, bracket switching, standalone export and retained data after an update failure passed.
+- Update checks use static GET requests, without Python API calls or source scraping from the browser. An unavailable cohort or checksum failure is explicit. Exported HTML keeps the exact observations and timestamps; it excludes visitor draft markup. Remote-art failures leave readable names.
+- A changed official patch status marks written guidance for review while retained statistics keep their source patch labels. The adapter never changes observed rates or counts.
+- The six original runtime files are checked byte-for-byte against the installed app during packaging. Source ZIP hashes and its allowlist are verified, and the clean extracted package passes all 43 Python tests. Owner settings, drafts, local caches, private keys, backups and research conversations are excluded.
+
+## Source boundaries and remaining limitations
+
+GitHub-hosted collection returned a Pred.gg JavaScript shell without the required embedded data; its isolated anonymous statistics query returned Forbidden. Those routes were stopped. Normal Pred.gg pages work on this Windows PC, and the completed collection above uses that ingestion path. GitHub continues independent official-patch checks and publishes the Windows feed; it does not repeat blocked statistical requests.
+
+The website remains online while the PC is off, using the last successful dated data. Actual collection requires the PC to be available. Source errors and data older than 30 hours remain visible. GitHub schedules can be delayed, and cloud caches can be evicted; the latest data branch and a dated public-only Gold seed provide recovery without manufacturing freshness. The iMac has not been changed.
+
+Windows WebKit provides compatibility evidence, not native Mac/iPhone Safari certification. Automatic statistics refreshes do not author new reviewed strategic advice or resolve undocumented mechanics. These limitations remain labelled in the app.
+
+The initial public deployment and its cloud-source failure receipts remain available in GitHub Actions. Local detailed checks are in the `qa` folder; the packaged `BROWSER-VERIFICATION.json` contains the Edge and WebKit acceptance receipts.
