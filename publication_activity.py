@@ -6,7 +6,8 @@ from pathlib import Path
 def record(root):
     root = Path(root)
     state = json.loads((root / '.cloud-state' / 'publication.json').read_text(encoding='utf8'))
-    value = {'last_full_attempt_at': state['last_full_attempt_at'],
+    value = {'last_full_attempt_at': state.get('last_full_attempt_at'),
+             'maintenance_day': state.get('maintenance_day'),
              'patch_check_status': state.get('patch_check', {}).get('status'),
              'brackets': {k: v.get('status') for k, v in state.get('attempts', {}).items()}}
     (root / 'publication-activity.json').write_text(json.dumps(value, indent=2)+'\n', encoding='utf8')

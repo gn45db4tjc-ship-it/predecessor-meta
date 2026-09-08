@@ -167,6 +167,18 @@ def load_success(folder, bracket):
     return validate_public_bundle(json.loads(gzip.decompress(target.read_bytes())), bracket)
 
 
+def import_public_seed(path, folder):
+    """Import a validated public snapshot without changing its date or replacing newer data."""
+    seed = json.loads(gzip.decompress(Path(path).read_bytes()))
+    bracket = seed.get('bracket', {}).get('segment')
+    seed = validate_public_bundle(seed, bracket)
+    previous = load_success(folder, bracket)
+    if previous and utc_time(previous['generated_at']) >= utc_time(seed['generated_at']):
+        return False
+    retain_success(seed, folder)
+    return True
+
+
 def output_flag(name, value):
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf8') as stream:
@@ -234,6 +246,7 @@ def render_site(folder, out, state):
                 'patch_check': state.get('patch_check', {}), 'cohorts': {},
                 'last_verified_patch_check': state.get('last_verified_patch_check'),
                 'last_full_attempt_at': state.get('last_full_attempt_at')}
+    manifest['collection_paused_reason'] = CONFIG.get('cloud_collection_paused_reason')
     for bracket in CONFIG['brackets']:
         bundle = load_success(folder, bracket)
         attempt = state.get('attempts', {}).get(bracket, {})
@@ -299,7 +312,11 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
         if signature:
             state['last_verified_patch_check'] = copy.deepcopy(state['patch_check'])
         now = base.now_utc()
-        reason = None if check_only else collection_reason(state, official, now, manual)
+        paused = CONFIG.get('cloud_collection_paused_reason')
+        reason = None if check_only or paused else collection_reason(state, official, now, manual)
+        day = now.astimezone(UTC).date().isoformat()
+        output_flag('maintenance_record', state.get('maintenance_day') != day)
+        state['maintenance_day'] = day
         if reason:
             changed_patch = live_signature(official) != state.get('last_attempted_signature')
             state['last_full_attempt_at'] = base.iso(now)
@@ -343,14 +360,15 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                 state['last_completed_signature'] = signature
             output_flag('full_attempt', True)
         else:
-            base.log('Official-only maintenance check; no statistics requested.' if check_only else
+            base.log('Statistics collection paused: ' + paused if paused else
+                     'Official-only maintenance check; no statistics requested.' if check_only else
                      'No daily update due and no changed live patch. Retaining the original sample dates.')
         write_json(folder / 'publication.json', state)
         report = publication_report(state)
         write_json(folder / 'publication-report.json', report)
         base.log('Publication diagnostic: ' + json.dumps(report, ensure_ascii=False))
         manifest = render_site(folder, out, state)
-        failed = official.get('status') != 'verified' or any(
+        failed = bool(paused) or official.get('status') != 'verified' or any(
             a.get('status') != 'ok' for a in state.get('attempts', {}).values())
         output_flag('source_failed', failed)
         base.log(json.dumps({'full_collection_reason': reason, 'seconds': round(time.perf_counter()-started, 2),
@@ -369,6 +387,7 @@ def main():
     parser.add_argument('--diagnose-pred', action='store_true', help='Maintenance: inspect one public Pred.gg response without collecting statistics')
     parser.add_argument('--check-only', action='store_true', help='Developer/maintenance check of official notes without statistical collection')
     parser.add_argument('--preview-seed', type=Path, action='append', default=[])
+    parser.add_argument('--import-public-seed', type=Path, action='append', default=[])
     args = parser.parse_args()
     if args.diagnose_pred:
         if args.manual or args.check_only or args.preview_seed:
@@ -376,6 +395,8 @@ def main():
         diagnose_pred(args.state_dir)
         return 0
     if args.manual and args.check_only: parser.error('--manual and --check-only cannot be combined')
+    for path in args.import_public_seed:
+        import_public_seed(path, args.state_dir)
     result = run(args.state_dir, args.output, manual=args.manual, preview_seeds=args.preview_seed, check_only=args.check_only)
     return 0 if any(c['status']=='available' for c in result['cohorts'].values()) else 1
 

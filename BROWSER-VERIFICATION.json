@@ -8,7 +8,7 @@
           "width": 1440,
           "height": 900
         },
-        "readyMs": 202,
+        "readyMs": 247,
         "checks": [
           "static mode",
           "refresh wording",
@@ -69,7 +69,7 @@
           "width": 390,
           "height": 844
         },
-        "readyMs": 183,
+        "readyMs": 180,
         "checks": [
           "static mode",
           "refresh wording",
@@ -136,7 +136,7 @@
           "width": 1440,
           "height": 900
         },
-        "readyMs": 279,
+        "readyMs": 282,
         "checks": [
           "static mode",
           "refresh wording",
@@ -197,7 +197,7 @@
           "width": 390,
           "height": 844
         },
-        "readyMs": 216,
+        "readyMs": 251,
         "checks": [
           "static mode",
           "refresh wording",

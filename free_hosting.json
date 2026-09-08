@@ -6,6 +6,7 @@
   "patch_window_hours": 48,
   "brackets": ["gold", "bronze", "silver", "platinum", "diamond", "paragon"],
   "default_bracket": "gold",
+  "cloud_collection_paused_reason": "Pred.gg cloud pages omit statistical JSON, and its anonymous statistics query returned Forbidden. Complete cloud refreshes are paused. Showing the last verified published bundle with its original dates; official patch checks remain active. A local collector is needed for complete updates.",
   "budget": "Free GitHub Pages and standard Actions runners only",
   "policy": "One full collection daily, plus one extra attempt for a changed live patch or article fingerprint. Future announcements do not trigger full collections. Written guidance requires a separate reviewed update."
 }

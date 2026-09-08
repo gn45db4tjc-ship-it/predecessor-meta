@@ -4,18 +4,19 @@ Prepared on September 8, 2026. **Public publication approved; not published yet.
 
 This is the selected $0 hosting approach. It supersedes the earlier paid Render proposal. It adds static publication to the installed 2.21.0 app; the six original runtime files, including Builds, Live game and the recommendation engine, are unchanged. The installed Windows app and its saved data have not been replaced.
 
-## How it will work
+## Current availability and update limits
 
 - Open a normal website link on your PC, Mac or iPhone. Neither your Windows PC nor the spare iMac needs to remain on.
 - The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your draft stays in that browser; Share plan deliberately transfers it.
-- One full update is targeted daily at **17:23 UTC**: **12:23 PM Central during daylight saving time**, 11:23 AM in winter. This is our chosen update time, not a claimed Omeda release schedule.
-- Official notes are checked every three hours. A changed live patch or hotfix article triggers an extra full collection. Future announcements are shown separately.
-- If statistical sources lag a newly detected patch, a catch-up attempt can run after six hours, within a 48-hour patch window. A source block prevents these extra retries. Ordinary failures wait until the next daily attempt or an explicit maintenance request.
+- **Complete cloud data refreshes are paused.** The first cloud pull failed because Pred.gg supplies a client-rendered shell without its statistical JSON. A direct anonymous statistics request returned Forbidden. No bypass is used.
+- The initial public data are the complete Gold+ snapshot generated **September 8, 2026 at 08:36:59 Central**. The source dates are unchanged. Other rank brackets remain unavailable.
+- Official patch notes and embedded hotfix sections continue to be checked every three hours. A changed patch marks old data and guidance for review; it does not manufacture updated builds or samples.
+- The prepared daily/patch-triggered full collection policy remains in the code, but cannot operate until a working collector is connected. A Windows PC or the spare iMac can collect and publish while it is on; it does not need to host the website. That local publishing connection is not yet configured.
 - Check updates retrieves the latest publication; it does not start another scrape. Open tabs check for published updates every five minutes while visible.
 - Source failures retain the last complete successful bundle for each bracket, with its original timestamp and a visible error. A bracket with no successful bundle is clearly unavailable. No samples are invented or combined across ranks.
 - A new patch invalidates the current status of old written advice. Automatic data collection does not author new strategic judgments or resolve undocumented mechanics.
 
-All six rank brackets are configured, with Gold+ first. The local acceptance preview uses the real saved Gold+ bundle; other cloud cohorts must be collected successfully before appearing as available.
+All six rank brackets are configured, with Gold+ first. Only complete, validated cohorts become available.
 
 ## Free hosting and the publication decision
 
@@ -31,11 +32,11 @@ Use only standard runners and the free account plan. Do not enable paid cache ex
 
 GitHub schedules can be delayed or dropped during busy periods. The website shows the last successful source collection and official check; bundles older than 30 hours receive a warning. [Scheduling behavior](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
-Public-repository schedules can stop after 60 days without repository activity. The workflow commits a tiny daily publication-activity record to keep normal repository activity, using its automatic GitHub token. It never force-pushes or rewrites source files. Those token-created pushes do not recursively start the workflow. This activity step still needs verification in the first cloud deployment. [Workflow trigger behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
+Public-repository schedules can stop after 60 days without repository activity. The workflow commits a tiny daily publication-activity record to keep normal repository activity, using its automatic GitHub token. It never force-pushes or rewrites source files. Those token-created pushes do not recursively start the workflow. The cloud activity commit and cache save/restore have been verified. [Workflow trigger behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
 
-Source caches and tier snapshots are kept in GitHub's cache, which can be evicted. A cache miss causes a cold collection. If that fails before any complete bundle exists, no empty website replaces the current deployment. Its dated existing publication remains online. Cloud snapshot retention is best-effort; the Windows app's local snapshots and backups remain separate and intact. [Cache limits and eviction](https://github.com/actions/cache#cache-limits).
+Source caches and tier snapshots are kept in GitHub's cache, which can be evicted. The repository includes a public-only compressed Gold+ seed. A cache miss restores this dated seed; it never replaces newer validated data. Complete collection remains paused. If that fails before any complete bundle exists, no empty website replaces the current deployment. Its dated existing publication remains online. Cloud snapshot retention is best-effort; the Windows app's local snapshots and backups remain separate and intact. [Cache limits and eviction](https://github.com/actions/cache#cache-limits).
 
-If a source blocks GitHub's hosting addresses, the app must report that boundary; it does not bypass the block. The spare iMac is a possible future place to run the collector and publish bundles while the website stays hosted for free. Nothing has been installed or scheduled on the iMac.
+If a source blocks GitHub's hosting addresses, the app must report that boundary; it does not bypass the block. Nothing has been installed or scheduled on the iMac.
 
 ## Files and verification
 
@@ -44,6 +45,7 @@ If a source blocks GitHub's hosting addresses, the app must report that boundary
 - `free_hosting.json`: selected schedule and bracket policy.
 - `.github/workflows/publish.yml`: serialized daily/patch checks and Pages deployment. Actions are pinned to verified commit IDs.
 - `publication_activity.py`: minimal daily activity record; no private state.
+- `public-seed-gold.json.gz`: public game-data snapshot for initial deployment/cache recovery; excluded from the source-only ZIP.
 - `VERIFICATION.md`: what has actually been checked and what still needs a cloud or native-device test.
 
 The hosting adapter is injected at the existing UI startup marker. If a future UI removes that marker, generation fails clearly. Desktop source files are not rewritten by the publisher.
