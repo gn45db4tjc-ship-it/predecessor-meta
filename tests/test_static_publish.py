@@ -210,6 +210,19 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(set(result), {'last_full_attempt_at','patch_check_status','brackets'})
         self.assertNotIn('unpublished',json.dumps(result))
 
+    def test_publication_report_names_failure_without_private_payload(self):
+        state = {'patch_check': {'status': 'failed', 'error': 'Official check unavailable',
+                                 'raw': 'private payload'},
+                 'settings': {'secret': 'private payload'},
+                 'attempts': {'gold': {'status': 'failed', 'raw': 'private payload',
+                    'errors': [{'source': 'Pred.gg', 'severity': 'error',
+                                'detail': 'HTTP 403', 'raw': 'private payload'}]}}}
+        report = s.publication_report(state)
+        self.assertEqual(report['cohorts']['gold']['errors'][0]['detail'], 'HTTP 403')
+        self.assertEqual(report['patch_check']['error'], 'Official check unavailable')
+        self.assertNotIn('private payload', json.dumps(report))
+        self.assertIsNone(report['cohorts']['silver']['status'])
+
     def test_failed_patch_check_retains_previous_verification_separately(self):
         s.retain_success(bundle(),self.state)
         previous=s.patch_summary(official())
