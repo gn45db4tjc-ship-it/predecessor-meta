@@ -1,0 +1,13 @@
+name: Publish Windows-collected data
+on:
+  push:
+    branches: [data-updates]
+permissions:
+  contents: read
+jobs:
+  publish:
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    uses: gn45db4tjc-ship-it/predecessor-meta/.github/workflows/publish.yml@main
