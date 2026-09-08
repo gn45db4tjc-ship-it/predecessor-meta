@@ -1,0 +1,41 @@
+{
+  "hosting_revision": 1,
+  "desktop_baseline": "2.21.0",
+  "runtime_unchanged": [
+    "predecessor_meta.py",
+    "engine.js",
+    "ui.js",
+    "ui.html",
+    "reviewed_guidance.json",
+    "shared_server.py"
+  ],
+  "publication_approved": true,
+  "publicly_deployed": false,
+  "files": {
+    "predecessor_meta.py": "dba1f5aff4b332e089aab7458eec92e7f72b63128771c3d93067fe34bbb390c1",
+    "engine.js": "705c899631eda76024eae620df4958a02edf0daf7db9b8461dc3d2501cba3533",
+    "ui.js": "afd6a7bf66ce2f07ae91a08b18c266e0cac0fd048c0d2b2d081e9a2d96ddcd86",
+    "ui.html": "0ad3c27e82f047f9eebe2d4399051de94157cc6cf6c846c4f683b894226163e3",
+    "reviewed_guidance.json": "ebabe1d827fbba30d6086ec883f929893d1fed8d2145eec7f42b93ad52e0276b",
+    "shared_server.py": "c8aeef02b33849243773a37d1cfc34c8f3f3984a38c564cd288065d1c0b33490",
+    "static_publish.py": "d7c2da95d8d88de2bcb94440f4057b2b892f47ffc18122c2f5b6fa7afe1b86a5",
+    "static_client.js": "09e92af0fd8c9d19782cd0e7d488e5c519835e45da5f2aee360bfb00d9dde5f6",
+    "publication_activity.py": "0ee14c9d99f783edf0a14db120e29674378334fc54ff216c558efc05ebfbc2b9",
+    "free_hosting.json": "fbe51cf6af79d5783e7a809e71a09bf56ebcdacdea30ae5711a752010dbdff8f",
+    "README.md": "2d217c57f80f20289722f2fe43871f6810237421cd29ce85139cbefce1227092",
+    "VERIFICATION.md": "278dfb58a92ad7387d884b9d709bbc1cfbcf6e3cb46f8632a2f07613d0e9af49",
+    ".gitignore": "1582a24ca69acc94f93fe6c6f15cedbf52b760f2d9dd1ba30b43de7f87fb2dba",
+    "package_source.py": "ec82a05f5edb601727a4c79624d6a8470fe18ce7d06ccdd5b2c4c8b6fba5c370",
+    ".github/workflows/publish.yml": "55c2fdb88b98aedba8e8f0e813c1564e4fb7d64fefe4ce7b23c710be566ddb09",
+    "tests/test_static_publish.py": "e9a9debca9b4bae2fa09e87d5d4f308b93b7d0c7f015609faabcb7a6419aac9e",
+    "tests/browser_static.cjs": "dd1005afe93774237353e26f59696b90057418b3a2dad94f021813d91ac292d8",
+    "tests/legacy/browser_augment_acceptance.js": "4e40b93d6662db2f3cbe6ba2e12ddcd06cf6b1bbf7cde9009198f6377c3cf069",
+    "tests/legacy/browser_correction_acceptance.js": "14d3e25e240565d3d601647cdd4f4804f32cc2e9945fb16d8cd12941e87461b6",
+    "tests/legacy/browser_live_acceptance.js": "3cad8e37fa34ac6ebd70d5f113c3f5844749e420b36180370b98b91910306dfe",
+    "tests/legacy/browser_meta_acceptance.js": "259094208c1cd692c7a6b77d719335efb6074cbc420eda15b388a66d8f77ea21",
+    "tests/legacy/browser_sequences_acceptance.js": "475646f758137665c08c1b0184d75c35830860cb9dede50bfba7440cdabc7af1",
+    "tests/legacy/browser_strategy_acceptance.js": "b9e4b9733833549db20ae45cdd34dd1a515ab5e5a9d4315fc55d13708686aff4",
+    "tests/legacy/browser_synthesis_acceptance.js": "a4cdbfec41371e006ff5557647453847e9e6a363551d8c90c6756573bdbaf418",
+    "BROWSER-VERIFICATION.json": "963abf986c8dea0568a9e8758d7ae48aed716b74edb70c2454eed0fd73251461"
+  }
+}

@@ -1,0 +1,9 @@
+.cloud-state/
+_site/
+qa/
+__pycache__/
+*.pyc
+data/
+backups/
+*.zip
+

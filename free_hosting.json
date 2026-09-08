@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "daily_utc": "17:23",
+  "patch_check_hours": 3,
+  "patch_catchup_hours": 6,
+  "patch_window_hours": 48,
+  "brackets": ["gold", "bronze", "silver", "platinum", "diamond", "paragon"],
+  "default_bracket": "gold",
+  "budget": "Free GitHub Pages and standard Actions runners only",
+  "policy": "One full collection daily, plus one extra attempt for a changed live patch or article fingerprint. Future announcements do not trigger full collections. Written guidance requires a separate reviewed update."
+}
