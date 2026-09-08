@@ -37,13 +37,19 @@ Official checking identified live v1.16.4. Statistical source labels and their o
 ## Tests and preservation
 
 - **43 standard-library Python tests pass**, both in the development runtime and under the user's Python 3.12. Coverage includes daily timing, patch/hotfix changes, future announcements, retry limits, source blocks, retained official verification, request deduplication, partial failures, zero-row rejection, checksums, rank identity, public-only export, corrupted/older feeds, path restrictions and restricted data pushes.
-- Edge and Windows Playwright WebKit passed at **1440×900** and **390×844**, with the `/project/` prefix used by Pages. Each viewport passed 51 hosting checks and seven existing feature suites containing 671 assertions. Ready times for the upgraded local adapter were 184–266 ms on this machine.
+- Edge and Windows Playwright WebKit passed at **1440×900** and **390×844**, with the `/project/` prefix used by Pages. Each viewport passed 51 hosting checks and seven existing feature suites containing 671 assertions. Ready times for the rank-display upgrade were 177–320 ms on this machine.
 - All nine pages render without overflow or JavaScript errors in those checks. Builds and Live game remain present. Share-plan preview/import, draft restoration, bracket switching, standalone export and retained data after an update failure passed.
 - Update checks use static GET requests, without Python API calls or source scraping from the browser. An unavailable cohort or checksum failure is explicit. Exported HTML keeps the exact observations and timestamps; it excludes visitor draft markup. Remote-art failures leave readable names.
 - A changed official patch status marks written guidance for review while retained statistics keep their source patch labels. The adapter never changes observed rates or counts.
 - The six original runtime files are checked byte-for-byte against the installed app during packaging. Source ZIP hashes and its allowlist are verified, and the clean extracted package passes all 43 Python tests. Owner settings, drafts, local caches, private keys, backups and research conversations are excluded.
 
 ## Source boundaries and remaining limitations
+
+### Rank display correction
+
+The six published statistical cohorts were already present and switchable. The previous UI nevertheless put the Gold+ working pool first for every rank and filled other ranks' tier cells with “Review unavailable.” The selected rank now leads with its own observed table; the Gold+ authored tier review remains a collapsed reference, with its scope explicit in the status strip and recommendations. Observations and engine decisions are unchanged.
+
+`tests/browser_ranks.cjs` passed in Edge and Windows WebKit at 1440×900 and 390×844: 30 role/rank tables per viewport, exact displayed rates and game counts, six distinct source rank filters, sorting, hero search, build/counter drill-down, planner labels, rank restoration and a Diamond+ standalone export. The regression specifically checks that other rank tables contain their own observations rather than repeated unavailable-review cells. This correction does not invent authored tiers for unreviewed rank cohorts.
 
 GitHub-hosted collection returned a Pred.gg JavaScript shell without the required embedded data; its isolated anonymous statistics query returned Forbidden. Those routes were stopped. Normal Pred.gg pages work on this Windows PC, and the completed collection above uses that ingestion path. GitHub continues independent official-patch checks and publishes the Windows feed; it does not repeat blocked statistical requests.
 

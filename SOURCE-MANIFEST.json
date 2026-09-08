@@ -1,5 +1,5 @@
 {
-  "hosting_revision": 2,
+  "hosting_revision": 3,
   "desktop_baseline": "2.21.0",
   "runtime_unchanged": [
     "predecessor_meta.py",
@@ -18,14 +18,15 @@
     "ui.html": "0ad3c27e82f047f9eebe2d4399051de94157cc6cf6c846c4f683b894226163e3",
     "reviewed_guidance.json": "ebabe1d827fbba30d6086ec883f929893d1fed8d2145eec7f42b93ad52e0276b",
     "shared_server.py": "c8aeef02b33849243773a37d1cfc34c8f3f3984a38c564cd288065d1c0b33490",
-    "static_publish.py": "c4c5845178d8a55271c58f76c22ac4b8abe97102050399b56a09ed440f89794f",
+    "static_publish.py": "47c772a81b9385c06949817aae3d29884cc4f85e6890ab3f7b4420dd74abca8d",
     "static_client.js": "35762e9aeb1fe2bb3bd15078b92f89310c62dc3fa2c106a141b0db4d95f9f757",
+    "rank_view.js": "cf74c10dfeb32ff8ad249680580a53f20adac3434bb2fa161b50931e78a06957",
     "publication_activity.py": "fa71f08db1cf77c4361c17bb4c06dee58557771a0425c02854e98b79c3e1d9ad",
     "free_hosting.json": "56f7c7c8ce4b81ddd072beeab92b34e1d570acdb1ea7b1e8f787c1f36f36bde1",
-    "README.md": "f270e4e3cef728bb73332084442f62e7bf7165c9a62fd08e1135b9d915b7081f",
-    "VERIFICATION.md": "f92ea261dc1e9dd8aada934c428f21b7c291cebd7b6a5434477f781073e5970f",
+    "README.md": "74ff454cfc000f1f08168d4eb642c737adae4f82973cdb402d87f7558ecec908",
+    "VERIFICATION.md": "ddd73f59902e0ffc2402211ee2f29cef8ad9fcfed216a297f6b71f43f0004a0c",
     ".gitignore": "487e4208ee32a6ed6d3a465af98979d036e3f50680472387f034f4ee4707cf46",
-    "package_source.py": "db5161c54d47b120d4ef1dc152a2c8c9e4fc7b5e306f8b7f2494e4673264bced",
+    "package_source.py": "3bf4ee47e4517fa1d1834cf2bae4388edad035655422ead21a50a67cb1bed045",
     "local_updater.py": "c23d3b10fc21c8b5edb7dda22d9ed4a93ef87f27299fcf9766cddb6b14aeb139",
     "import_local_feed.py": "848102760268b0c37782ae84205aea336e0ce9187757856ea59d340f4dc2469b",
     "Install Windows Updater.ps1": "c4722ec6437d78ff3eca6b820e8fc2570f4370cdcf63b0b78f96021af9a95f92",
@@ -33,6 +34,7 @@
     ".github/workflows/publish.yml": "6e401cbb69bb28d2432bd1694fce0e0a4831651814b352e3ed99089875f6086a",
     "tests/test_static_local_updater.py": "81b22c4c6fcc47c9dc8b82b48c05a48cc8812f14c1c49c9d17217ec7659e928e",
     "tests/test_static_publish.py": "2b6ae60857200d5c5b9e678e72f2f8ce1b90e88d8b03e93f903e2eb911cd3df6",
+    "tests/browser_ranks.cjs": "caf4391b4cc5521a09647cfe10d917b0930741f6b570e7f475d5c0c3e0581cf5",
     "tests/browser_static.cjs": "43a4eff23f22445732d5d87bcdeeda46a4ae95f515e9d70b0f5f930bd3168023",
     "tests/legacy/browser_augment_acceptance.js": "4e40b93d6662db2f3cbe6ba2e12ddcd06cf6b1bbf7cde9009198f6377c3cf069",
     "tests/legacy/browser_correction_acceptance.js": "14d3e25e240565d3d601647cdd4f4804f32cc2e9945fb16d8cd12941e87461b6",
@@ -41,6 +43,6 @@
     "tests/legacy/browser_sequences_acceptance.js": "475646f758137665c08c1b0184d75c35830860cb9dede50bfba7440cdabc7af1",
     "tests/legacy/browser_strategy_acceptance.js": "b9e4b9733833549db20ae45cdd34dd1a515ab5e5a9d4315fc55d13708686aff4",
     "tests/legacy/browser_synthesis_acceptance.js": "a4cdbfec41371e006ff5557647453847e9e6a363551d8c90c6756573bdbaf418",
-    "BROWSER-VERIFICATION.json": "592edbe66e52a3a78b0f3e45d667c58966d7e94ae54e1ab611468e4e6d97d5ef"
+    "BROWSER-VERIFICATION.json": "7b26d469b27cd28833123af286d2c9d596815b116598e148bba1ccdb2b11b643"
   }
 }

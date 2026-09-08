@@ -19,6 +19,8 @@ This is the selected $0 hosting approach. It supersedes the earlier paid Render 
 
 All six rank brackets are configured, with Gold+ first. Only complete, validated cohorts become available. The first full run can take around 25 minutes; the site stays usable throughout.
 
+Choose a rank with the **Rank bracket** control at the top. All six have their own published observations. The authored tier review currently covers Gold+; other ranks lead with their own sortable win rates and games, and keep Gold+ tiers and working pools in a collapsed reference section. Builds, hero pages, counters and planners label the selected statistical rank. The written review is not relabelled as advice reviewed for every rank. Standalone exports retain the selected rank and this distinction.
+
 ## Free hosting and the publication decision
 
 Use a **public GitHub repository**, GitHub Pages, standard Ubuntu Actions runners, and the included github.io address. There is no paid server, custom domain, database, AI API or subscription in this setup. [Pages availability](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages) and [Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
@@ -43,6 +45,7 @@ If a source blocks GitHub's hosting addresses, the app must report that boundary
 
 - `static_publish.py`: source collection decisions, public bundles, separate rendering, per-bracket failure handling.
 - `static_client.js`: published-bundle loading, checksums, bracket selection, read-only update checks, and standalone export.
+- `rank_view.js`: selected-rank tables and explicit separation of rank-specific observations from the Gold+ authored tier review; also runs in exports.
 - `free_hosting.json`: selected schedule and bracket policy.
 - `.github/workflows/publish.yml`: serialized daily/patch checks and Pages deployment. Actions are pinned to verified commit IDs.
 - `publication_activity.py`: minimal daily activity record; no private state.

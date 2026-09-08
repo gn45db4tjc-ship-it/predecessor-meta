@@ -275,7 +275,8 @@ def render_site(folder, out, state):
     marker = '// START CLIENT'
     if html.count(marker) != 1:
         raise ValueError('UI startup marker changed; static adapter needs review')
-    html = html.replace(marker, (ROOT / 'static_client.js').read_text(encoding='utf8') + '\n' + marker, 1)
+    adapters = '\n'.join((ROOT / name).read_text(encoding='utf8') for name in ('rank_view.js', 'static_client.js'))
+    html = html.replace(marker, adapters + '\n' + marker, 1)
     (out / 'index.html').write_text(html, encoding='utf8')
     (out / '.nojekyll').write_text('', encoding='utf8')
     write_json(out / 'manifest.json', manifest)
