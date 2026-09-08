@@ -168,12 +168,14 @@ class PublicationTests(unittest.TestCase):
     def test_paused_collection_checks_patch_without_retry_even_on_manual_run(self):
         s.retain_success(bundle(),self.state)
         config=dict(s.CONFIG,cloud_collection_paused_reason='Source access unavailable')
-        with patch.object(s,'CONFIG',config),patch.object(s.base,'fetch_official',return_value=official()),patch.object(s.base,'collect_bundle') as collect:
+        with patch.object(s,'CONFIG',config),patch.object(s.base,'fetch_official',return_value=official()),patch.object(s.base,'collect_bundle') as collect,patch.object(s,'output_flag') as output:
             manifest=s.run(self.state,self.out,manual=True)
         collect.assert_not_called()
         self.assertEqual(manifest['collection_paused_reason'],'Source access unavailable')
         self.assertEqual(manifest['patch_check']['status'],'verified')
         self.assertEqual(manifest['cohorts']['gold']['generated_at'],NOW.isoformat())
+        output.assert_any_call('collection_paused',True)
+        output.assert_any_call('source_failed',False)
 
     def test_zero_rows_and_heroes_are_not_publishable(self):
         for field, value in [('tier_list',[]),('heroes',{})]:
@@ -273,10 +275,11 @@ class PublicationTests(unittest.TestCase):
         s.retain_success(bundle(),self.state)
         previous=s.patch_summary(official())
         s.write_json(self.state/'publication.json',{'schema':1,'attempts':{},'last_verified_patch_check':previous})
-        with patch.object(s.base,'fetch_official',side_effect=OSError('official source unavailable')):
+        with patch.object(s.base,'fetch_official',side_effect=OSError('official source unavailable')),patch.object(s,'output_flag') as output:
             manifest=s.run(self.state,self.out,check_only=True)
         self.assertEqual(manifest['patch_check']['status'],'failed')
         self.assertEqual(manifest['last_verified_patch_check'],previous)
+        output.assert_any_call('source_failed',True)
 
 
 if __name__=='__main__': unittest.main()
