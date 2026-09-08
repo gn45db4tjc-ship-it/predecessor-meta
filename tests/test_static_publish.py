@@ -225,10 +225,11 @@ class PublicationTests(unittest.TestCase):
 
     def test_explicit_diagnostic_is_one_request_without_hidden_response_data(self):
         raw='<title>Just a moment</title><script src="/challenge-platform/widget"></script><div>private token</div>'
-        with patch.object(s.base,'http_get',return_value=(raw,{'Content-Type':'text/html'},0.1)) as fetch:
+        with patch.object(s.base,'http_get',return_value=(raw,200,0.1)) as fetch:
             report=s.diagnose_pred(self.state)
         fetch.assert_called_once_with('https://pred.gg/heroes')
         self.assertEqual(report['status'],'failed')
+        self.assertEqual(report['http_status'],200)
         self.assertIn('challenge-platform', report['access_notice_markers'])
         self.assertNotIn('private token',json.dumps(report))
 
