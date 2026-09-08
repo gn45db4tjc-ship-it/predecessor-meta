@@ -11,6 +11,10 @@ on:
         description: 'Collect all configured rank brackets now'
         type: boolean
         default: false
+      diagnose_pred:
+        description: 'Maintenance only: inspect one Pred.gg response; do not refresh or publish'
+        type: boolean
+        default: false
   push:
     branches: [main]
 
@@ -49,8 +53,11 @@ jobs:
         id: generate
         env:
           MANUAL_REFRESH: ${{ inputs.refresh }}
+          DIAGNOSE_PRED: ${{ inputs.diagnose_pred }}
         run: |
-          if [ "$MANUAL_REFRESH" = "true" ]; then
+          if [ "$DIAGNOSE_PRED" = "true" ]; then
+            python -B static_publish.py --diagnose-pred
+          elif [ "$MANUAL_REFRESH" = "true" ]; then
             python -B static_publish.py --manual
           else
             python -B static_publish.py
