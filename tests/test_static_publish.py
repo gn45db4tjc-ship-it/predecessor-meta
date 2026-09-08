@@ -223,6 +223,22 @@ class PublicationTests(unittest.TestCase):
         self.assertNotIn('private payload', json.dumps(report))
         self.assertIsNone(report['cohorts']['silver']['status'])
 
+    def test_explicit_diagnostic_is_one_request_without_hidden_response_data(self):
+        raw='<title>Just a moment</title><script src="/challenge-platform/widget"></script><div>private token</div>'
+        with patch.object(s.base,'http_get',return_value=(raw,{'Content-Type':'text/html'},0.1)) as fetch:
+            report=s.diagnose_pred(self.state)
+        fetch.assert_called_once_with('https://pred.gg/heroes')
+        self.assertEqual(report['status'],'failed')
+        self.assertIn('challenge-platform', report['access_notice_markers'])
+        self.assertNotIn('private token',json.dumps(report))
+
+    def test_diagnostic_does_not_retry_after_known_block(self):
+        s.write_json(self.state/'publication.json',{'blocked_in_last_full':True})
+        with patch.object(s.base,'http_get') as fetch:
+            report=s.diagnose_pred(self.state)
+        fetch.assert_not_called()
+        self.assertEqual(report['status'],'withheld')
+
     def test_failed_patch_check_retains_previous_verification_separately(self):
         s.retain_success(bundle(),self.state)
         previous=s.patch_summary(official())
