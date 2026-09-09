@@ -24,20 +24,29 @@ def package(installed=None):
     receipts = {}
     for engine in ['edge','webkit']:
         path = ROOT/'qa'/(engine+'-static-acceptance.json')
+        if engine=='webkit' and not path.exists():
+            receipts['webkit']={'skipped':'WebKit run not available on the packaging machine; Edge receipts are required, WebKit is compatibility evidence only'}
+            continue
         report = json.loads(path.read_text(encoding='utf8'))
         assert len(report['runs']) == 2
         assert all(not run['errors'] and len(run['checks']) >= 51 for run in report['runs'])
         receipts[engine] = report
+    for extra in ['edge-rank-acceptance.json','webkit-rank-acceptance.json','edge-design-acceptance.json','edge-additional-acceptance.json','webkit-additional-acceptance.json']:
+        if (ROOT/'qa'/extra).exists(): receipts[extra.replace('.json','')]=json.loads((ROOT/'qa'/extra).read_text(encoding='utf8'))
     (ROOT/'BROWSER-VERIFICATION.json').write_text(json.dumps(receipts,indent=2)+'\n',encoding='utf8')
     files.append(ROOT/'BROWSER-VERIFICATION.json')
+    for doc in ['CHANGE-REPORT.md','INSTALL-AND-ROLLBACK.md','RELEASE-VERIFICATION.md']:
+        if (ROOT/doc).exists(): files.append(ROOT/doc)
     for file in files:
         relative = file.relative_to(ROOT).as_posix()
         assert not any(part in ('data','qa','backups','.cloud-state','.local-publisher') for part in file.relative_to(ROOT).parts)
         hashes[relative] = hashlib.sha256(file.read_bytes()).hexdigest()
-    manifest = {'hosting_revision':3,'desktop_baseline':'2.21.0','runtime_unchanged':RUNTIME,
-                'publication_approved':True,'publicly_deployed':True,'files':hashes}
+    design_files = ['ui.html','ui.js','rank_view.js','static_client.js']
+    manifest = {'hosting_revision':3,'design_revision':2,'desktop_baseline':'2.21.0','baseline_commit':'ad044213d04163ca19ebb4b4f1df59b93b8d2942',
+                'runtime_unchanged':[n for n in RUNTIME if n not in design_files],'presentation_changed':design_files,
+                'publication_approved':True,'deployment_receipt':'GitHub Actions records deployment of the matching source commit','files':hashes}
     (ROOT/'SOURCE-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
-    archive = ROOT.parent/'Predecessor Meta Tool - Free Hosting Source.zip'
+    archive = ROOT.parent/'Predecessor Meta Tool - Design Revision 2 Verified Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for file in files+[ROOT/'SOURCE-MANIFEST.json']: z.write(file,file.relative_to(ROOT).as_posix())
     clean = ROOT/'qa'/'clean-package'
@@ -49,13 +58,13 @@ def package(installed=None):
             target=(clean/name).resolve()
             assert target.is_relative_to(clean.resolve())
             target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(z.read(name))
-    result=subprocess.run([sys.executable,'-B','-m','unittest','discover','-s','tests','-p','test_static*.py','-v'],cwd=clean,capture_output=True,text=True)
+    result=subprocess.run([sys.executable,'-X','utf8','-B','-m','unittest','discover','-s','tests','-p','test_static*.py','-v'],cwd=clean,capture_output=True,text=True,encoding='utf8')
     (ROOT/'qa'/'clean-tests.txt').write_text(result.stdout+'\n'+result.stderr,encoding='utf8')
     assert result.returncode==0, result.stderr
     receipt={'archive':archive.name,'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
              'manifest_files':len(hashes),'zip_entries':len(hashes)+1,
              'clean_unit_tests':re.search(r'Ran (\d+) tests',result.stderr).group(1)+' passed',
-             'installed_runtime_unchanged':bool(installed)}
+             'installed_runtime_matches_release':bool(installed)}
     (ROOT/'qa'/'package-verification.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8')
     print(json.dumps(receipt,indent=2))
 

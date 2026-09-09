@@ -58,3 +58,11 @@ The website remains online while the PC is off, using the last successful dated 
 Windows WebKit provides compatibility evidence, not native Mac/iPhone Safari certification. Automatic statistics refreshes do not author new reviewed strategic advice or resolve undocumented mechanics. These limitations remain labelled in the app.
 
 The initial public deployment and its cloud-source failure receipts remain available in GitHub Actions. Local detailed checks are in the `qa` folder; the packaged `BROWSER-VERIFICATION.json` contains the Edge and WebKit acceptance receipts.
+
+## Design revision 1
+
+Edge (Playwright 1.63, Microsoft Edge 152) against the isolated preview of the six dated fixtures: `browser_static.cjs` 51 checks at 1440×900 and 390×844 plus the seven legacy suites; `browser_ranks.cjs` 30 role/rank tables per viewport; `browser_design.cjs` 69 checks at 1920×1080, 2560×1440 and 1536×864 at device scale 1.25 (125% scaling emulation, not native). Python static tests: 43. Receipts: `qa/edge-static-acceptance.json`, `qa/edge-rank-acceptance.json`, `qa/edge-design-acceptance.json`, summarised in `BROWSER-VERIFICATION.json`. WebKit results, when present, are compatibility evidence from Playwright WebKit on Windows, not native Safari.
+
+## Design revision 2
+
+Same engines and fixtures. `browser_design.cjs` now runs 71 checks at each desktop viewport, 33 checks at 390×844 (narrow-screen pass) and 35 light-theme checks at 1920×1080 (toggle, persistence, measured contrast floors), all passing; `browser_static.cjs` 51 checks per viewport with the seven legacy suites and `browser_ranks.cjs` 60 role tables passed in Edge and Playwright WebKit; Python static tests 43. Receipts in `qa/` and `BROWSER-VERIFICATION.json`.

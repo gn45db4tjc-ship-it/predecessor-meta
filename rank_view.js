@@ -11,13 +11,13 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   function rankEvidenceNote() {
     if (!B) return '';
     const reference = B.guidance?.meta_review?.bracket_label;
-    return `<div class="note rank-evidence"><strong>Selected statistics: ${esc(selectedRankLabel())} · ${esc(B.scoped_statistics?.patch || 'patch unavailable')}</strong><br>Role, build and matchup observations use this rank selection where the source supplies a sample. Kit-based recommendations have no rank-specific win rate.${reference && !matchingRankReview() ? ` The authored tier review covers ${esc(reference)}; it is reference advice for this selection.` : ''}</div>`;
+    return `<div class="note rank-evidence"><strong>Statistics: ${esc(selectedRankLabel())} · ${esc(B.scoped_statistics?.patch || 'patch unavailable')}</strong> · role, build and matchup samples use this rank where the source supplies one; kit-based recommendations have no rank-specific win rate.${reference && !matchingRankReview() ? ` The authored tier review covers ${esc(reference)} and is reference advice here.` : ''}</div>`;
   }
   chrome = function() {
     rankOriginal.chrome();
     if (!B || matchingRankReview() || !B.guidance?.meta_review) return;
     const cell = $('#patch-strip .patch-cell:last-child');
-    if (cell) cell.innerHTML = `<div><small>WRITTEN GUIDANCE · ${esc(B.guidance.meta_review.bracket_label)} REFERENCE</small><strong>${esc(B.guidance.patch ? 'v'+B.guidance.patch : 'Not reviewed')}</strong></div><span class="status-pill">${esc(B.guidance.status || 'Needs review')} · tiers do not cover ${esc(selectedRankLabel())}</span>`;
+    if (cell) cell.innerHTML = `<div><small>Guidance · ${esc(B.guidance.meta_review.bracket_label)} reference</small><strong>${esc(B.guidance.patch ? 'v'+B.guidance.patch : 'Not reviewed')}</strong></div><span class="status-pill">${esc(B.guidance.status || 'Needs review')} · tiers do not cover ${esc(selectedRankLabel())}</span>`;
   };
   rolePriorityHTML = function() { return matchingRankReview() ? rankOriginal.rolePriorityHTML() : ''; };
   metaTierButton = function(slug, role) {
@@ -43,16 +43,15 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
       if (x == null) return 1; if (y == null) return -1;
       return (typeof x === 'string' ? x.localeCompare(y) : x-y) * direction || name(a.slug).localeCompare(name(b.slug));
     });
-    const sort = (f,t) => `<th aria-sort="${field === f ? (direction === 1 ? 'ascending' : 'descending') : 'none'}"><button data-sort="${f}">${t}${field === f ? (direction === 1 ? ' ↑' : ' ↓') : ''}</button></th>`;
     const review = B.guidance?.meta_review;
-    return head('Selected rank · observed performance', label+' meta', 'These are '+esc(label)+' role samples. Sort win rates or games, then open a hero for builds, partners and counters.') +
-      `<div class="toolbar"><label>Performance source <select id="performance-source">${options([['current','Pred.gg · exact current patch'],['statz','Statz · broader dataset & tier grades']],S.statSource)}</select></label></div>` +
-      `<div class="toolbar"><div class="tabs" role="tablist" aria-label="Role">${roleOrder.map(r=>`<button role="tab" data-meta-role="${r}" aria-selected="${S.role===r}">${labels[r]}</button>`).join('')}</div><input id="hero-search" type="search" placeholder="Find a hero…" aria-label="Search heroes" value="${esc(S.query)}"></div>` +
+    const table = `<div class="toolbar"><span>${esc(c.patch)} · Ranked · ${esc(label)} · ${rows.length} ${labels[S.role].toLowerCase()} entries</span><label><input id="full-metrics" type="checkbox" ${S.full?'checked':''}> Show wins & uncertainty</label></div>` +
+      metaTableHTML(rows, {tier:false, field, direction, emptyText: c.roles?.[S.role]?.error || 'No rows match this role and search.'}) +
+      `<p class="source-line"><span>${link(c.roles?.[S.role]?.url, 'Pred.gg · '+label+' source')} · fetched ${esc(date(c.roles?.[S.role]?.fetched_at))}</span><span>Win-rate order is an observed comparison, not a reviewed tier</span></p>`;
+    const aside = `<aside class="meta-aside">${review ? `<details class="rank-reference"><summary>Separate authored reference · ${esc(review.bracket_label)} tiers and working pool</summary><div class="detail-content"><p>The written tier review was made for ${esc(review.bracket_label)}. It has not been re-reviewed for ${esc(label)}; the table uses ${esc(label)} statistics. Kit and build reasoning remains available on hero pages.</p>${rankOriginal.rolePriorityHTML()}${rankOriginal.metaReviewMethod()}</div></details>` : ''}<details><summary>Statistics source</summary><div class="detail-content"><p class="muted">Pred.gg supplies the exact current-patch cohort for ${esc(label)}. The Statz view shows its broader dataset with tier grades; the two are never pooled.</p><label>Statistics source <select id="performance-source">${options([['current','Pred.gg · exact current patch'],['statz','Statz · broader dataset & tier grades']],S.statSource)}</select></label></div></details><p class="footer">Samples under 100 games are exploratory. ${esc(c.scope_note || '')}</p></aside>`;
+    return head('Meta · '+label, label+' meta', 'These are '+esc(label)+' role samples. Sort win rates or games, then open a hero for partners, builds and counters.') +
+      metaToolbarHTML() +
       (c.status !== 'ok' ? note('Current-patch source '+esc(c.status || 'not collected')+'. Available rows retain their own sample; no other rank is substituted.',true) : '') +
-      `<div class="toolbar"><span>${esc(c.patch)} · Ranked · ${esc(label)} · ${rows.length} hero/role entries</span><label><input id="full-metrics" type="checkbox" ${S.full?'checked':''}> Show wins & uncertainty</label></div>` +
-      `<div class="panel table-panel"><table class="meta-table" data-rank-table="${esc(B.bracket.segment)}"><thead><tr>${sort('hero','Hero')}${sort('winRate','Win rate')}${sort('matches','Games')}${S.full?'<th>Wins</th><th>95% interval · observed rate</th>':''}<th>Explore</th></tr></thead><tbody>${rows.map(r=>`<tr data-rank-hero="${esc(r.slug)}"><td>${heroButton(r.slug,r.role)}</td><td><strong>${pct(r.winRate)}</strong>${r.matches<100?'<small class="warning">Exploratory · under 100 games</small>':''}</td><td>${num(r.matches,0)}</td>${S.full?`<td>${num(r.wonGames,0)}</td><td>${r.interval95?r.interval95.map(pct).join('–'):'Unavailable'}</td>`:''}<td><button class="quiet" data-hero="${esc(r.slug)}" data-role="${r.role}">Builds & pairings ↗</button></td></tr>`).join('')}</tbody></table>${!rows.length?empty(c.roles?.[S.role]?.error || 'No rows match this role and search.'):''}</div>` +
-      `<p class="source-line">${link(c.roles?.[S.role]?.url, 'Pred.gg · '+label+' source')} · fetched ${esc(date(c.roles?.[S.role]?.fetched_at))}</p><p class="footer">Win-rate ordering is an observed comparison, not a reviewed best-pick tier list. Samples under 100 games are exploratory. ${esc(c.scope_note || '')}</p>` +
-      (review ? `<details class="rank-reference"><summary>Separate authored reference · ${esc(review.bracket_label)} tiers and working pool</summary><div class="detail-content"><p>The written tier review was made for ${esc(review.bracket_label)}. It has not been re-reviewed for ${esc(label)}; the table above uses ${esc(label)} statistics. Kit and build reasoning remains available on hero pages.</p>${rankOriginal.rolePriorityHTML()}${rankOriginal.metaReviewMethod()}</div></details>` : '');
+      `<div class="meta-layout"><div>${table}</div>${aside}</div>`;
   };
   buildsPageView = function() { return rankEvidenceNote() + rankOriginal.buildsPageView(); };
   heroView = function() { return rankEvidenceNote() + rankOriginal.heroView(); };

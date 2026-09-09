@@ -1,5 +1,10 @@
 # Predecessor Meta — free shared website
 
+
+## Design revisions 1 and 2 (presentation only)
+
+The interface was redesigned on top of 2.21.0 + hosting revision 3 after a six-critic review: a compact top bar with a global hero finder, a single status strip, a grouped rail, Meta with the table directly under the role tabs and the reviewed pool beside it, hero pages with tabs under the header and one headline figure per partner card, build plans that show six positions plus augment, Eternal, both blessings and crest without opening details, compact catalogue rows, a narrow-screen pass with an always-visible route row, an opt-in light theme (rail button, stored separately from the plan), and a computed trust verdict on Sources & accuracy. Observations, calculations, authored guidance, thresholds, routes, element IDs and saved state are unchanged. See `CHANGE-REPORT.md` and `INSTALL-AND-ROLLBACK.md`; `tests/browser_design.cjs` holds the design acceptance checks.
+
 Published September 8, 2026. **[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting, with data collected by your Windows PC.**
 
 This is the selected $0 hosting approach. It supersedes the earlier paid Render proposal. It adds static publication to the installed 2.21.0 app; the six original runtime files, including Builds, Live game and the recommendation engine, are unchanged. The installed Windows app and its saved data have not been replaced.
