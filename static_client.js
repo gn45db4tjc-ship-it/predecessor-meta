@@ -31,7 +31,7 @@ if (APP_CONFIG.mode === 'static') {
     let result = '';
     if (site.manifest?.collection_paused_reason) result += note(esc(site.manifest.collection_paused_reason), true);
     if (site.manifest?.collection_host !== 'cloud' && site.manifest?.local_collector?.checked_at && Date.now()-Date.parse(site.manifest.local_collector.checked_at)>30*3600000) result += note('The Windows updater has not checked in for over 30 hours. Showing the last successful data. Updates resume when the PC is on, signed in and connected.', true);
-    if (site.manifest?.source_pauses?.pred) result += note('Pred.gg update unavailable: ' + esc(site.manifest.source_pauses.pred), true);
+    if (site.manifest?.source_pauses?.pred && !predAvailability()) result += note('Pred.gg update unavailable: ' + esc(site.manifest.source_pauses.pred), true);
     if (B && Date.now() - Date.parse(B.generated_at) > 30 * 3600000) result += note('This bundle is more than 30 hours old. The scheduled update may have failed or been delayed. Its source dates have not changed.', true);
     if (publicationChanged(entry)) result += note('Official patch content changed after this bundle was collected. Showing the previous dated statistics; written guidance needs review. ' + link(check.url, 'Latest official notes'), true);
     if (check?.announcements?.length) result += note('Upcoming: ' + check.announcements.map(a => link(a.url, 'v' + a.version) + ' · ' + esc(a.release_date || 'release date unconfirmed')).join('; ') + '. Announcements are separate from live data.');
@@ -88,10 +88,10 @@ if (APP_CONFIG.mode === 'static') {
     return data;
   }
   function displayedBundle(raw, entry) {
-    if (site.manifest?.patch_check?.status === 'failed') return {...raw, guidance: {...raw.guidance, status: 'needs verification: latest official patch check failed'}};
+    if (site.manifest?.patch_check?.status === 'failed') return {...raw, recommendation_context: {status:'withheld',reason:'The latest official patch check failed. Saved observations remain inspectable; automatic role comparisons await verification.'}, guidance: {...raw.guidance, status: 'needs verification: latest official patch check failed'}};
     if (!publicationChanged(entry)) return raw;
     // Preserve original source observations. Only the review-status overlay changes.
-    return {...raw, guidance: {...raw.guidance, status: 'needs review: official patch content changed since collection'}};
+    return {...raw, recommendation_context: {status:'withheld',reason:'Official patch or hotfix content changed after this collection. Saved observations remain inspectable; automatic role comparisons await the new data.'}, guidance: {...raw.guidance, status: 'needs review: official patch content changed since collection'}};
   }
   async function checkPublication() {
     const sequence = ++site.sequence, requested = S.bracket;

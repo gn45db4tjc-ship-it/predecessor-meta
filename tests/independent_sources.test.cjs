@@ -9,8 +9,8 @@ function fixture(status='retained') {
       entries:[{slug:'example',role:'jungle',tier:'A',evidence:{winRate:50}}]}},
     pred_game_data:{status,role_data:{example:{jungle:{items:{}}}}}};
 }
-test('retained performance preserves original observations and date',()=>{
-  const r=Meta.create(fixture()).performance({slug:'example',role:'jungle'});
+test('explicit retained performance inspection preserves original observations and date',()=>{
+  const r=Meta.create(fixture()).performance({slug:'example',role:'jungle'},{source:'pred'});
   assert.equal(r.retained,true);assert.equal(r.wr,50);assert.equal(r.played,200);assert.equal(r.fetched_at,'2026-09-08T12:00:00Z');
 });
 test('retained observations cannot silently reaffirm an authored tier',()=>{

@@ -204,20 +204,40 @@
       const out={score:Math.min(10,score),reasons,constraints,evidence:reasons.flatMap(r=>r.abilities),loadouts:[...(ha.loadout_notes||[]),...(hb.loadout_notes||[])]}; fitCache.set(id,out); return out;
     }
     function roles(slug) { return (heroes[slug]?.roles_order || []).filter(r=>ROLES.includes(r)); }
-    function performance(pick) {
-      if(bundle.scoped_statistics){
-        if(bundle.official?.status!=='verified'||bundle.scoped_statistics.patch!==bundle.official?.live?.version)return null;
+    function performancePolicy() {
+      if(!bundle)return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,note:'No data bundle is loaded.'};
+      if(bundle.recommendation_context?.status==='withheld')return {source:null,label:'Role statistics need a new verification',patch:null,fetched_at:null,note:bundle.recommendation_context.reason};
+      const c=bundle.scoped_statistics,live=bundle.official?.live?.version;
+      const exact=bundle.official?.status==='verified'&&['ok','partial'].includes(c?.status)&&c.patch===live;
+      if(exact)return {source:'pred',label:'Pred.gg '+c.patch+' · '+c.bracket_label+' Ranked',patch:c.patch,
+        fetched_at:bundle.sources?.pred_scoped?.fetched_at,note:'Observed exact-patch cohort. Missing roles stay unavailable; sources are not pooled.'};
+      const s=bundle.sources,compatible=bundle.official?.status==='verified'&&typeof bundle.patch==='string'&&
+        (bundle.patch===live||String(live).startsWith(bundle.patch+'.'));
+      const available=s?.statz_tierlist?.status==='ok'&&s?.statz_hero_pages?.status==='ok'&&
+        Number.isFinite(Date.parse(s.statz_tierlist.fetched_at))&&Number.isFinite(Date.parse(s.statz_hero_pages.fetched_at));
+      if(available&&compatible)return {source:'statz',label:'Statz '+(bundle.patch||'dataset unavailable')+' · '+(bundle.bracket?.label||'bracket unavailable'),patch:bundle.patch,
+        fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'};
+      return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,
+        note:'No eligible role-statistics source matches this publication. Saved observations remain inspectable; they do not rank current recommendations.'};
+    }
+    function performance(pick,{source='auto'}={}) {
+      const selected=source==='auto'?performancePolicy().source:source;
+      if(selected==='pred'){
+        if(bundle.official?.status!=='verified'||!bundle.scoped_statistics||bundle.scoped_statistics.patch!==bundle.official?.live?.version)return null;
         const r=bundle.scoped_statistics.roles?.[pick.role]?.rows?.find(x=>x.slug===pick.slug);
-        return r&&finite(r.winRate)&&r.matches>0?{wr:r.winRate,played:r.matches,tier:null,url:r.url,source:'Pred.gg',patch:bundle.scoped_statistics.patch,fetched_at:r.fetched_at,interval95:r.interval95,retained:bundle.scoped_statistics.status==='retained'}:null;
+        return r&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.matches)&&r.matches>0?{wr:r.winRate,played:r.matches,tier:null,url:r.url,source:'Pred.gg',patch:bundle.scoped_statistics.patch,fetched_at:r.fetched_at,interval95:r.interval95,retained:bundle.scoped_statistics.status==='retained'}:null;
       }
-      const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch}:null;
+      if(selected!=='statz')return null;
+      const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.playedGames)&&r.playedGames>0?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch,fetched_at:r.fetched_at||bundle.sources?.statz_hero_pages?.fetched_at,broad_dataset:true,retained:bundle.sources?.statz_hero_pages?.status==='retained'}:null;
     }
     function metaReview(slug,role) {
       const review=bundle.guidance?.meta_review,row=review?.entries?.find(r=>r.slug===slug&&r.role===role);
       if(!row)return null;
       const patchOK=review.patch===bundle.official?.live?.version&&bundle.official?.status==='verified'&&String(bundle.guidance?.status||'').startsWith('reviewed');
       const cohortOK=review.bracket===bundle.bracket?.segment&&review.bracket_label===bundle.scoped_statistics?.bracket_label&&review.patch===bundle.scoped_statistics?.patch&&bundle.scoped_statistics?.gameModes?.length===1&&bundle.scoped_statistics.gameModes[0]===review.mode;
-      const current=performance({slug,role}),sampleOK=!!current&&!current.retained&&current.played>=100,active=patchOK&&cohortOK&&sampleOK;
+      // This authored review used Pred.gg's cohort. A broader Statz observation
+      // cannot reactivate it or be compared with its saved Pred.gg baseline.
+      const current=performance({slug,role},{source:'pred'}),sampleOK=!!current&&bundle.scoped_statistics?.status==='ok'&&!current.retained&&current.played>=100,active=patchOK&&cohortOK&&sampleOK;
       const moved=active&&current?.played>=500&&finite(row.evidence?.winRate)&&Math.abs(current.wr-row.evidence.winRate)>=3;
       return {...row,active:active&&!moved,tier:active&&!moved?row.tier:null,reviewed_tier:row.tier,current,
         patch:review.patch,bracket:review.bracket_label,reviewed_at:review.reviewed_at,
@@ -284,7 +304,7 @@
       const current=bundle?.pred_game_data?.role_data?.[ally.slug]?.[ally.role]?.counters;
       for(const ob of current?.tables?.counters?.cohort_verified?current.tables.counters.rows:[]){
         if(ob.slug===enemy.slug&&finite(ob.wr)&&finite(ob.played)&&ob.played>0)results.push({...ob,calculated:false,inverted:false,source:'Pred.gg',url:current.url,fetched_at:current.fetched_at,patch:current.patch,
-          owner:ally.slug,ownerRole:ally.role,enemyRole:enemy.role||null,label:'Pred.gg '+current.patch+' · '+current.bracket+' Ranked · allied '+ally.role+'; enemy role unspecified',
+          owner:ally.slug,ownerRole:ally.role,enemyRole:enemy.role||null,retained:bundle.pred_game_data?.status==='retained',label:(bundle.pred_game_data?.status==='retained'?'Retained · ':'')+'Pred.gg '+current.patch+' · '+current.bracket+' Ranked · allied '+ally.role+'; enemy role unspecified',
           limitation:'Opponent role is not recorded. This is not a verified '+ally.role+' vs '+(enemy.role||'unknown role')+' lane sample.'});
       }
       const candidates=[{owner:ally,opponent:enemy,inverted:false}, ...(enemy.role?[{owner:enemy,opponent:ally,inverted:true}]:[])];
@@ -297,7 +317,7 @@
           for(const ob of [...(b.lane_counters||[]),...(b.strong_against||[])]) {
             if(ob.name!==c.opponent.slug || seen.has(ob.name) || !finite(ob.winRate)||!finite(ob.playedGames)) continue;
             seen.add(ob.name); results.push({wr:c.inverted?100-ob.winRate:ob.winRate,played:ob.playedGames,variant:i,augment:b.perk,eternal:b.eternal,
-              inverted:c.inverted,calculated:c.inverted,owner:c.owner.slug,ownerRole:c.owner.role,enemyRole:enemy.role||null,url:stats.url,fetched_at:stats.fetched_at,
+              inverted:c.inverted,calculated:c.inverted,source:'Statz',patch:bundle.patch,retained:bundle.sources?.statz_hero_pages?.status==='retained',owner:c.owner.slug,ownerRole:c.owner.role,enemyRole:enemy.role||null,url:stats.url,fetched_at:stats.fetched_at,
               label:c.inverted?'Calculated inversion of enemy-role build observation':'Observed on allied-role build page',
               limitation:'Statz does not identify the opponent role in this row. Do not treat this as a verified role-vs-role sample.'});
           }
@@ -305,15 +325,16 @@
       }
       if(!results.length) {
         for(const ob of [...(heroes[ally.slug].general_strong_against||[]),...(heroes[ally.slug].general_counters||[])]) {
-          if(ob.slug===enemy.slug && finite(ob.wr)&&finite(ob.played)) results.push({...ob,calculated:false,inverted:false,label:'Hero-wide observation; roles unspecified',url:heroes[ally.slug].hero_wide_url,fetched_at:heroes[ally.slug].hero_wide_fetched_at,limitation:'Selected enemy role has no matching lane sample.'});
+          if(ob.slug===enemy.slug && finite(ob.wr)&&finite(ob.played)) results.push({...ob,calculated:false,inverted:false,source:'Statz',patch:bundle.patch,retained:bundle.sources?.statz_hero_pages?.status==='retained',label:'Hero-wide observation; roles unspecified',url:heroes[ally.slug].hero_wide_url,fetched_at:heroes[ally.slug].hero_wide_fetched_at,limitation:'Selected enemy role has no matching lane sample.'});
         }
       }
       return results;
     }
     function currentMatchup(ally,enemy,min=100){
+      if(bundle.recommendation_context?.status==='withheld')return null;
       const rows=matchup(ally,enemy),live=bundle?.official?.live?.version;
       const scope=bundle?.pred_game_data?.role_data?.[ally.slug]?.[ally.role]?.counters;
-      if(bundle?.official?.status!=='verified'||scope?.status!=='ok'||scope.patch!==live||scope.role!==ally.role||scope.mode!=='RANKED'||scope.bracket!==bundle?.scoped_statistics?.bracket_label||scope.version_id!==bundle?.scoped_statistics?.versions?.[0]||!scope.tables?.counters?.cohort_verified)return null;
+      if(!['ok','partial'].includes(bundle.pred_game_data?.status)||!['ok','partial'].includes(bundle.scoped_statistics?.status)||bundle?.official?.status!=='verified'||scope?.status!=='ok'||scope.patch!==live||scope.role!==ally.role||scope.mode!=='RANKED'||scope.bracket!==bundle?.scoped_statistics?.bracket_label||scope.version_id!==bundle?.scoped_statistics?.versions?.[0]||!scope.tables?.counters?.cohort_verified)return null;
       const row=rows.filter(r=>r.source==='Pred.gg'&&r.patch===live&&r.played>=min&&finite(r.wr)).sort((a,b)=>b.played-a.played)[0];
       return row?{...row,retained:bundle.pred_game_data?.status==='retained'}:null;
     }
@@ -619,7 +640,7 @@
     }
     function bestMatchup(ally, enemy) {
       const rows = matchup(ally, enemy); if (!rows.length) return null;
-      return rows.slice().sort((a, b) => (a.source==='Pred.gg'?0:1)-(b.source==='Pred.gg'?0:1) || (a.inverted ? 1 : 0) - (b.inverted ? 1 : 0) || b.played - a.played)[0];
+      return rows.slice().sort((a, b) => Number(!!a.retained)-Number(!!b.retained) || (a.source==='Pred.gg'?0:1)-(b.source==='Pred.gg'?0:1) || (a.inverted ? 1 : 0) - (b.inverted ? 1 : 0) || b.played - a.played)[0];
     }
     function liveBuild(me, allies = [], enemies = [], {variant = null, min = 100, owned = [], priority = ''} = {}) {
       if (!heroes[me.slug]) throw Error('Choose your hero first.');
@@ -692,7 +713,7 @@
         note: 'Reviewed plans are editorial judgment informed by official mechanics and multiple sources. Adaptation is a stated kit/item rule, not a win prediction. Each rate is one labelled Pred.gg or Statz observation; no samples are pooled.'};
     }
     // ==== end BUILDS ====
-    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performance,metaReview,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,performance,metaReview,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

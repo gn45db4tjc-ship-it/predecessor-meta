@@ -1,6 +1,10 @@
-# Predecessor Meta — 2.21.2, daily cloud updates
+# Predecessor Meta — 2.21.3, fresh-source recommendations
 
-## Current release: 2.21.2 (14 September 2026)
+## Current release: 2.21.3 (14 September 2026)
+
+The automatic meta view and recommendation role statistics now use an available, patch-compatible source. While Pred.gg is retained, they use the newly collected Statz dataset and explicitly name its broader, unconfirmed match window and game-mode coverage. Pred.gg remains inspectable as dated evidence. Old Pred.gg counters cannot rank current draft suggestions, and Live game prefers available same-role observations over retained ones. A Statz rate cannot silently reaffirm a tier reviewed against Pred.gg. Daily free cloud collection from 2.21.2 continues. See `RELEASE-2.21.3.md`.
+
+## Previous release: 2.21.2 (14 September 2026)
 
 Available sources now refresh daily in GitHub for all six brackets, even when your PC is off. Only Pred.gg is paused pending authorized access. Its old records remain explicitly dated; they are not called fresh. The daily target is 17:23 UTC, with official patch/hotfix checks every three hours. Calculated rankings and suggestions use the published observations. Written build plans still need a separate strategic review; data collection does not author new advice. See `RELEASE-2.21.2.md`.
 

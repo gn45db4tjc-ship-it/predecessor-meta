@@ -11,7 +11,7 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   function rankEvidenceNote() {
     if (!B) return '';
     const reference = B.guidance?.meta_review?.bracket_label;
-    return `<div class="note rank-evidence"><strong>Statistics: ${esc(selectedRankLabel())} · ${esc(B.scoped_statistics?.patch || 'patch unavailable')}</strong> · role, build and matchup samples use this rank where the source supplies one; kit-based recommendations have no rank-specific win rate.${reference && !matchingRankReview() ? ` The authored tier review covers ${esc(reference)} and is reference advice here.` : ''}</div>`;
+    return `<div class="note rank-evidence"><strong>Selected rank: ${esc(selectedRankLabel())}</strong> · Each observation identifies its own source and dataset. Broader Statz data is not an exact-patch Pred.gg cohort; kit-based recommendations have no rank-specific win rate.${reference && !matchingRankReview() ? ` The authored tier review covers ${esc(reference)} and is reference advice here.` : ''}</div>`;
   }
   chrome = function() {
     rankOriginal.chrome();
@@ -30,7 +30,7 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   };
   metaView = function() {
     // Preserve the existing verified-patch gate and separately labelled Statz view.
-    if (!B || matchingRankReview() || S.statSource === 'statz' || !B.scoped_statistics ||
+    if (!B || matchingRankReview() || effectiveStatSource() === 'statz' || !B.scoped_statistics ||
         B.official?.status !== 'verified' || B.scoped_statistics.patch !== B.official?.live?.version) return rankOriginal.metaView();
     const c = B.scoped_statistics, label = selectedRankLabel();
     const rows = (c.rows || []).filter(r => r.role === S.role && name(r.slug).toLowerCase().includes(S.query.toLowerCase()));
@@ -47,7 +47,7 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
     const table = `<div class="toolbar"><span>${esc(c.patch)} · Ranked · ${esc(label)} · ${rows.length} ${labels[S.role].toLowerCase()} entries</span><label><input id="full-metrics" type="checkbox" ${S.full?'checked':''}> Show wins & uncertainty</label></div>` +
       metaTableHTML(rows, {tier:false, field, direction, emptyText: c.roles?.[S.role]?.error || 'No rows match this role and search.'}) +
       `<p class="source-line"><span>${link(c.roles?.[S.role]?.url, 'Pred.gg · '+label+' source')} · fetched ${esc(date(c.roles?.[S.role]?.fetched_at))}</span><span>Win-rate order is an observed comparison, not a reviewed tier</span></p>`;
-    const aside = `<aside class="meta-aside">${review ? `<details class="rank-reference"><summary>Separate authored reference · ${esc(review.bracket_label)} tiers and working pool</summary><div class="detail-content"><p>The written tier review was made for ${esc(review.bracket_label)}. It has not been re-reviewed for ${esc(label)}; the table uses ${esc(label)} statistics. Kit and build reasoning remains available on hero pages.</p>${rankOriginal.rolePriorityHTML()}${rankOriginal.metaReviewMethod()}</div></details>` : ''}<details><summary>Statistics source</summary><div class="detail-content"><p class="muted">Pred.gg supplies the exact current-patch cohort for ${esc(label)}. The Statz view shows its broader dataset with tier grades; the two are never pooled.</p><label>Statistics source <select id="performance-source">${options([['current','Pred.gg · exact current patch'],['statz','Statz · broader dataset & tier grades']],S.statSource)}</select></label></div></details><p class="footer">Samples under 100 games are exploratory. ${esc(c.scope_note || '')}</p></aside>`;
+    const aside = `<aside class="meta-aside">${review ? `<details class="rank-reference"><summary>Separate authored reference · ${esc(review.bracket_label)} tiers and working pool</summary><div class="detail-content"><p>The written tier review was made for ${esc(review.bracket_label)}. It has not been re-reviewed for ${esc(label)}; the table uses ${esc(label)} statistics. Kit and build reasoning remains available on hero pages.</p>${rankOriginal.rolePriorityHTML()}${rankOriginal.metaReviewMethod()}</div></details>` : ''}<details><summary>Statistics source</summary><div class="detail-content"><p class="muted">Pred.gg supplies the exact current-patch cohort for ${esc(label)}. The Statz view shows its broader dataset with tier grades; the two are never pooled.</p>${statisticsSelectorHTML()}</div></details><p class="footer">Samples under 100 games are exploratory. ${esc(c.scope_note || '')}</p></aside>`;
     return head('Meta · '+label, label+' meta', 'These are '+esc(label)+' role samples. Sort win rates or games, then open a hero for partners, builds and counters.') +
       metaToolbarHTML() +
       (c.status !== 'ok' ? note('Current-patch source '+esc(c.status || 'not collected')+'. Available rows retain their own sample; no other rank is substituted.',true) : '') +
