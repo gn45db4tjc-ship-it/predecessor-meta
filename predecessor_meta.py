@@ -3004,7 +3004,8 @@ def review_saved_sources(bundle):
     Complete or validated independent-source bundles with a raw-source audit
     trail support replay. Retained source partitions keep their status and dates.
     """
-    if bundle.get('tool_version')==VERSION or not bundle.get('pred_game_data',{}).get('heroes') or not bundle_is_publishable(bundle):
+    pred = bundle.get('pred_game_data')
+    if bundle.get('tool_version')==VERSION or not isinstance(pred,dict) or not pred.get('heroes') or not bundle_is_publishable(bundle):
         return bundle
     b=source_records_before_review(bundle)
     enrich_bundle(b,b['official'])

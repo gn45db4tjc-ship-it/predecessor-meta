@@ -50,7 +50,7 @@ class RoleReviewTests(unittest.TestCase):
         self.assertIs(p.base.review_saved_sources(r),r)
 
     def test_no_audit_trail_or_unpublishable_source_skips_replay(self):
-        for b in (partial(),dict(partial(),tier_list=[])):
+        for b in (partial(),dict(partial(),tier_list=[]),dict(partial(),pred_game_data=None)):
             with patch.object(p.base,'enrich_bundle') as enrich:
                 self.assertIs(p.base.review_saved_sources(b),b);enrich.assert_not_called()
 

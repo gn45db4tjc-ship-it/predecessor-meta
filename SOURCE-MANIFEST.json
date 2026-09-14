@@ -5,7 +5,7 @@
   "baseline_commit": "96133845fdef0d5740946bba6f1d20178dd45da8",
   "verification_report": "RELEASE-2.21.5.md",
   "files": {
-    "predecessor_meta.py": "e8d5e3b48906e94eb413abc3e0eef5575c7e2ab785914a3c2c2c812f5fe39ebe",
+    "predecessor_meta.py": "448eb29c53300c5c616afc69a978ce51ef92763246ead0da15d8621a552775e3",
     "engine.js": "5f884c3d374283c3b5f0c5926d44527d85e3fec11136c2a4f2d88dd47bb5d6e1",
     "ui.js": "a1c8ec16708e157b102b9cd91b3f94cd15ee10f9abf201de6e96a8a708faec54",
     "ui.html": "56273f3ccd05c8e30f69ab48f69c14f5faf1b4cb3d8f0ad1fb0ffdf95c9dc118",
@@ -38,7 +38,7 @@
     "tests/test_static_independent_sources.py": "baf93f76435e7698b402e88cc9023eff23044d68fb39636bec1f88fc9af7fda1",
     "tests/test_static_local_updater.py": "81b22c4c6fcc47c9dc8b82b48c05a48cc8812f14c1c49c9d17217ec7659e928e",
     "tests/test_static_publish.py": "2b6ae60857200d5c5b9e678e72f2f8ce1b90e88d8b03e93f903e2eb911cd3df6",
-    "tests/test_static_role_coverage.py": "1fc12be003011d22d9fa8b6beb59cfbd5853b6d34c28737ec09602ebbceaf513",
+    "tests/test_static_role_coverage.py": "9e6eaed1c80d2b6bd2e6c171c1334200069e703085b8f372dc5dd6cf041d8b22",
     "tests/browser_design.cjs": "1d28a7953c7b206a2610395a1f615078872bf81ad5f17c8459b5c1ee163fb459",
     "tests/browser_ranks.cjs": "caf4391b4cc5521a09647cfe10d917b0930741f6b570e7f475d5c0c3e0581cf5",
     "tests/browser_revision2_modes.cjs": "e0b06a84cda004dd3bd0f7ab5945b15a0d2fad5f2558966d6f710851d183d41c",
