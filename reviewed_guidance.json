@@ -9367,6 +9367,2305 @@
           }
         ],
         "review_scope": "Cross-source role review: current role evidence, economy, six purchase reasons, kit delivery, selected loadout, counterplay and composition job. Conditional source build rates are not full-build win probabilities."
+      },
+      {
+        "slug": "akeron",
+        "style": "tank",
+        "damage": "none",
+        "core": [
+          "Dynamo",
+          "Galaxy Greaves",
+          "Enra's Blessing"
+        ],
+        "finish": [
+          "Flux Matrix",
+          "Void Helm",
+          "Stonewall"
+        ],
+        "crest": "Sanctification",
+        "augment": "Death From Above",
+        "eternal": "Krix",
+        "blessings": [
+          "Regenerative Tissue",
+          "Cannibalism"
+        ],
+        "skill_priority": [
+          "Primary",
+          "Alternate",
+          "Secondary"
+        ],
+        "why": "On support income, start with control and protection instead of a farming aura. Web Lash can catch a diver or prepare an allied hit; keep the wall option available when an engage would leave your carry exposed. Follow the first control with Consume only when nearby allies can reach the pulled target. The first three purchases form the useful support package; six items are a late-game option, not an expected timing.",
+        "caution": "This trades ranged shielding and reliable instant peel for conditional melee control. Minions can intercept the direct web, and Consume commits you to a channel. Do not take the carry’s farm to finish a tank build. Move magical defense ahead only against a real magical threat.",
+        "title": "Reserve the web for your carry; build useful defenses early",
+        "role": "support",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Regenerative Tissue supports recovery between lane trades. Cannibalism rewards takedown participation. Predator requires camp-leader kills, so it remains a deliberate jungle-route option rather than the lane default. Both selected blessings fit their Krix slots.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/akeron"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/akeron/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "item_notes": [
+          {
+            "item": "Dynamo",
+            "reason": "Dynamo rewards a confirmed immobilization with a short allied damage window; health and armor help you stay near the catch.",
+            "ability_keys": [
+              "E"
+            ]
+          },
+          {
+            "item": "Galaxy Greaves",
+            "reason": "Greaves supplies both defenses, mana regeneration and repositioning. Use movement to keep an exit and return to your carry.",
+            "ability_keys": [
+              "E"
+            ]
+          },
+          {
+            "item": "Enra's Blessing",
+            "reason": "Enra protects a nearby ally when they are immobilized. Stay in its stated range; a distant initiation cannot also provide this protection.",
+            "ability_keys": [
+              "E",
+              "R"
+            ]
+          },
+          {
+            "item": "Flux Matrix",
+            "reason": "Flux Matrix is useful when nearby allies can follow with magical damage while you remain in aura range.",
+            "ability_keys": [
+              "Q",
+              "R"
+            ]
+          },
+          {
+            "item": "Void Helm",
+            "reason": "Void Helm supports real self-healing from Maw; it does not turn that self-heal into an ally heal.",
+            "ability_keys": [
+              "RMB"
+            ]
+          },
+          {
+            "item": "Stonewall",
+            "reason": "Stonewall is the physical-defense flex slot when you must occupy space against sustained physical pressure.",
+            "ability_keys": [
+              "E",
+              "R"
+            ]
+          }
+        ],
+        "penetration_focus": "mixed",
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Melee basic attack dealing 62/65.01/68.18/71.51/75.01/78.66/82.48/86.46/90.6/94.9/99.36/103.98/108.76/113.71/118.81/124.08/129.51/135.1 (+75% physical power) physical damage.",
+            "RMB": "Akeron deals 70/90/110/130/150 (+65% physical power)(+40% magical power)(+4% health) physical damage in a cone. Enemies close to Akeron take 1.35x damage.\nAkeron also heals for 8/12/16/20/24 (+1.75/2.5/3.25/4/4.75% health). The heal is reduced to 20% for Non-Heroes, and increased by 200% on kill.\nIf an Enemy Hero is killed, Akeron becomes Awakened.\nWhile Akeron is attached to terrain, this ability becomes a roar, affecting the area around him.\nAwakened: Shred 15/17.5/20/22.5/25% Physical Armor and Magical Armor for 5s.",
+            "Q": "Akeron opens his maw and launches the Demon's Eye forward. The Eye moves slowly, firing off 10 (+10% [AbilityHaste]) fireballs around it. Refire the ability to pause the Eye mid-flight.\nEach fireball deals 18/29/40/51/62 (+16% magical power) magical damage and Slows Enemies by 7%, up to a max of 35%. \nIf an Enemy is within range, the Eye will fire an additional homing fireball at them. Each subsequent hit on the same Target deals 20% less damage, stacking up to a 80% reduction.\nWhen Awakened, the number of fireballs is increased by 50%.",
+            "E": "Akeron fires a web, stopping on the first Target hit and causing various effects depending on the Target's type.\nHeroes or Units: Damages for 70/95/120/145/170 (+35% magical power) magical damage and Roots for 1s, also creating a web field that Slows Enemies by 35%.\nWorld: Lashes to it for up to 5s. While attached to terrain, Akeron can use abilities or leap to the ground, dealing 60/85/110/135/160 (+50% physical power)(+35% magical power) physical damage, Knocking Up, and Stunning Enemies for 1s.\nAwakened: Root and Stun Duration increased to 1.25.",
+            "R": "Akeron Slows himself by 35% while Pulling and dealing 15/20/25 (+5% magical power) magical damage to all Enemies in a cone every 0.25s for 3s.\nIf an Enemy Hero collides with Akeron, he bites them, dealing 55/75/95 (+75% physical power)(+40% magical power) physical damage while healing for 2.5/3.5/4.5% Missing Health + 40/50/60% of bite damage dealt.\nAkeron Executes Enemies bitten under 12% (+3.5% physical power)(+2.5% magical power) of their Max Health.\nEach time Akeron successfully executes a Hero, he gains 100/125/150 Maximum Health permanently, also healing for 2.5x the bite value.",
+            "Passive": "Akeron gains up to 100 stacks of Hunger, each granting 0.25% increased healing and lasting 3s and refreshing on application.\nAkeron gains Hunger each time he hits an Enemy Unit with a basic attack or ability. He gains additional Hunger when damaged by an Enemy Hero.\nWhen Akeron reaches max stacks he becomes Awakened for 10s granting him 5/5.75/6.5/7.25/8/8.75/9.5/10.25/11/11.75/12.5/13.25/14/14.75/15.5/16.25/17/17.75% (+0.75% per level) Damage Reduction, and granting his basic abilities extra effects."
+          },
+          "items": {
+            "Dynamo": {
+              "stats": {
+                "Health": "300.0",
+                "Physical armor": "30.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Immobilizer",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Immobilizing an Enemy:",
+                  "text": "• They take 8% more damage for 2.5s."
+                },
+                {
+                  "name": "Adaptive Aggression",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Gain 20 Physical Power.\n• When your Magical Power > Bonus Physical Power.\n• Gain 30 Magical Power instead."
+                }
+              ],
+              "completed_item": true
+            },
+            "Galaxy Greaves": {
+              "stats": {
+                "Physical armor": "30.0",
+                "Magical armor": "30.0",
+                "Base mana regeneration": "100.0%",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "ZeroG",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While moving:",
+                  "text": "• Generate stacks of ZeroG.\n• At 100 stacks your next jump has increased height."
+                },
+                {
+                  "name": "Celerity",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While out of combat:",
+                  "text": "• Gain 7% Movement Speed."
+                }
+              ],
+              "completed_item": true
+            },
+            "Enra's Blessing": {
+              "stats": {
+                "Magical power": "40.0",
+                "Health": "225.0",
+                "Mana": "250.0",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Enra's Protection",
+                  "active": false,
+                  "cooldown": "15s",
+                  "condition": "",
+                  "text": "• When within 1000u of an Ally Hero, if they are Immobilized:\n• Grant them a 50 (+30% magical power)(+8% health) Shield for 3.5s.\n• Cooldown is per Target."
+                }
+              ],
+              "completed_item": true
+            },
+            "Flux Matrix": {
+              "stats": {
+                "Health": "300.0",
+                "Magical armor": "45.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Unstable Shackles",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Nearby Enemy Heroes:",
+                  "text": "• Take 10% additional Magical Damage.\n• Have their Tenacity decreased by 50%."
+                }
+              ],
+              "completed_item": true
+            },
+            "Void Helm": {
+              "stats": {
+                "Health": "400.0",
+                "Magical armor": "45.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Abyssal Gift",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Heal 20% more from all sources."
+                }
+              ],
+              "completed_item": true
+            },
+            "Stonewall": {
+              "stats": {
+                "Health": "275.0",
+                "Physical armor": "70.0",
+                "Base health regeneration": "100.0%"
+              },
+              "effects": [
+                {
+                  "name": "Bulwark",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Mitigate 5 (+5% physical armor)% of Physical Damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Sanctification": {
+              "stats": {
+                "Health": "120.0",
+                "Base health regeneration": "50.0%",
+                "Gold per second": "1.8"
+              },
+              "effects": [
+                {
+                  "name": "Safeguard",
+                  "active": true,
+                  "cooldown": "120s",
+                  "condition": "",
+                  "text": "• Grants yourself and nearby Heroes a 150 (+8% health) Shield for 3s.\n• While the Shield holds, Heroes gain 50% Tenacity."
+                },
+                {
+                  "name": "Visionary",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Gain Solstone.\n• Increase Ward Cap from 2 to 3."
+                },
+                {
+                  "name": "Pacifist",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Receive diminishing Gold from Minion kills."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Death From Above": "Akeron can fire an additional web projectile from the wall or ground once, allowing him to leap from surface to surface or to Root from where he hangs.",
+            "Krix": "Gain 5% (+1% per Level) Max Health and Bonus Size equal to 0.5% of your Max Health.",
+            "Regenerative Tissue": "After not taking Hero Damage for 8s, regenerate 0.2/0.4/0.7/1% Max Health per Second.",
+            "Cannibalism": "Takedowns permanently grant +30 Max Health."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/akeron/build/support/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:53:58+00:00",
+          "playedGames": 9,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "grim-exe",
+        "style": "attack",
+        "damage": "physical",
+        "core": [
+          "Storm Breaker",
+          "Plasma Blade",
+          "Terminus"
+        ],
+        "finish": [
+          "Caustica",
+          "Imperator",
+          "Mesmer"
+        ],
+        "crest": "Liberator",
+        "augment": "System Restore",
+        "eternal": "Weald",
+        "blessings": [
+          "Dryad's Boon",
+          "Wind-Rider"
+        ],
+        "skill_priority": [
+          "Secondary",
+          "Primary",
+          "Alternate"
+        ],
+        "why": "GRIM.exe can farm mid as a sustained magical-damage attacker. Sentry attacks recover mana; spend Assault Mode on a safe wave or a target already held by your jungler. Moving Terminus before the late damage multiplier supports repeated lane trades, but its healing still requires actual attacks. Keep the displacement and Energy Shield for the enemy’s approach instead of spending both for poke.",
+        "caution": "You lack a normal dash and do not replace a reliable initiating mid. Converted attacks still use their stated power and crit scaling; physical penetration is not the answer to magical armor. Mesmer is a flexible spell shield, with partly wasted penetration. The small source sample recorded below does not establish this build’s strength.",
+        "title": "Farm the short lane and preserve the shield for the gank",
+        "role": "midlane",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/grim-exe"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/grim-exe/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "penetration_focus": "magical",
+        "item_notes": [
+          {
+            "item": "Storm Breaker",
+            "reason": "Storm Breaker helps your own attack pattern clear and spread pressure while moving between safe positions.",
+            "ability_keys": [
+              "LMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Plasma Blade",
+            "reason": "Plasma Blade offers both power types plus attack speed and crit for the stated Assault/Sentry pattern. Its extra crit requires attacks on heroes.",
+            "ability_keys": [
+              "E"
+            ]
+          },
+          {
+            "item": "Terminus",
+            "reason": "Terminus moves sustain earlier for the solo lane. Its shield requires overhealing from lifesteal, not merely buying the item.",
+            "ability_keys": [
+              "LMB"
+            ]
+          },
+          {
+            "item": "Caustica",
+            "reason": "Caustica addresses magical armor on converted attacks and spells. Move it before sustain when armor is the binding problem.",
+            "ability_keys": [
+              "LMB",
+              "Q",
+              "R"
+            ]
+          },
+          {
+            "item": "Imperator",
+            "reason": "Imperator is a later attack-damage multiplier once you can actually maintain an attack window.",
+            "ability_keys": [
+              "E"
+            ]
+          },
+          {
+            "item": "Mesmer",
+            "reason": "Mesmer buys one spell-block opportunity while keeping physical power scaling. Do not value its physical penetration as converted-shot penetration.",
+            "ability_keys": [
+              "RMB",
+              "LMB"
+            ]
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "experimental_role": false,
+        "auto_recommend": true,
+        "role_confidence": "Official role; limited current sample",
+        "role_note": "Officially listed role, but this dataset has little evidence; the plan is an editorial starting point.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Ranged basic attack dealing 53/54.68/56.45/58.31/60.26/62.3/64.43/66.65/68.96/71.36/73.85/76.43/79.1/81.86/84.71/87.65/90.68/93.8 (+67.5% physical power) magical damage.",
+            "RMB": "Grim.exe activates a shield for 1.5s that blocks the next incoming enemy ability.\nIf the shield successfully blocks an enemy ability, Grim.exe restores 15/20/25/30/35% of his missing mana.",
+            "Q": "Fire an empowered shot forward that deals 30/75/120/165/210 (+105% physical power)(+100% magical power) magical damage.\nIn Assault Mode, the shot is Lobbed and displaces Enemies away from the centre of the explosion.",
+            "E": "Sentry Mode: Basic Attacks restore 8 mana and grant 6/8.5/11/13.5/16% attack speed for 3s, stacking up to 4 times. Stacks fall off individually.\nAssault Mode: Basic Attacks cost 30 mana, increase to 1650 Range and deal (+10% physical power)(+8% magical power) bonus magical damage on-hit, cleaving for 20/40/60/80/100% damage. This damage can critically strike.",
+            "R": "Grim.exe slows himself by 60% and locks onto an enemy hero. After a short channel, a Gyro Targeted Force Orb is launched. The Orb will pass through the world and non-hero units, but can be blocked by enemy heroes.\nThe Orb deals 300/520/740 (+135% physical power)(+110% magical power) magical damage.",
+            "Passive": "Grim.exe’s basic attacks are modified to deal Magical Damage.\nGrim.exe’s basic attacks and abilities apply Pulsefire to Enemies hit for 4s. The next basic attack or ability will burst the Pulsefire and deal 15 (+15% physical power)(+30% magical power) true damage on-hit."
+          },
+          "items": {
+            "Storm Breaker": {
+              "stats": {
+                "Physical power": "40.0",
+                "Attack speed": "30.0%"
+              },
+              "effects": [
+                {
+                  "name": "Electric Momentum",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While moving or landing Basic Attacks:",
+                  "text": "• Generate stacks of Momentum.\n• At 100 stacks empower your next Basic Attack On-Hit.\n• Release a bolt of lightning that chains to 7 Targets.\n• Deal 70 (+20% physical power) magical damage.\n• Applies On-Hit effects."
+                }
+              ],
+              "completed_item": true
+            },
+            "Plasma Blade": {
+              "stats": {
+                "Physical power": "35.0",
+                "Magical power": "45.0",
+                "Attack speed": "30.0%",
+                "Critical chance": "20.0%"
+              },
+              "effects": [
+                {
+                  "name": "Vibro Cutter",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Basic Attacking Heroes:",
+                  "text": "• Gain 4% Critical Strike Chance for 3s.\n• Stacks up to 5 times."
+                }
+              ],
+              "completed_item": true
+            },
+            "Terminus": {
+              "stats": {
+                "Physical power": "60.0",
+                "Critical chance": "20.0%",
+                "Lifesteal": "15.0%"
+              },
+              "effects": [
+                {
+                  "name": "Anon",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Overhealing from Lifesteal:",
+                  "text": "• Convert excess Healing into a Shield.\n• Max Shield size: (+100% physical power).\n• The Shield slowly decays 15s after leaving combat."
+                }
+              ],
+              "completed_item": true
+            },
+            "Caustica": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "100.0%"
+              },
+              "effects": [
+                {
+                  "name": "Magus",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Ignore 35% of Magical Armor."
+                },
+                {
+                  "name": "Arcane Might",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability magical damage to a Hero:",
+                  "text": "• While they are above 50% Health.\n• For every point of Bonus Magical Armor they possess.\n• Deal 0.2% more magical damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Imperator": {
+              "stats": {
+                "Physical power": "65.0",
+                "Critical chance": "20.0%"
+              },
+              "effects": [
+                {
+                  "name": "Precision",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Critical Strikes deal 30% more damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Mesmer": {
+              "stats": {
+                "Physical power": "55.0",
+                "Health": "250.0",
+                "Physical penetration": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Vengeful Shroud",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "",
+                  "text": "• Gain a Spell Shield that blocks the next Ability."
+                }
+              ],
+              "completed_item": true
+            },
+            "Liberator": {
+              "stats": {
+                "Physical power": "12.0",
+                "Attack speed": "15.0%",
+                "Lifesteal": "7.0%"
+              },
+              "effects": [
+                {
+                  "name": "Purifying Guard",
+                  "active": true,
+                  "cooldown": "180s",
+                  "condition": "",
+                  "text": "• Cleanse all Debuffs.\n• Gain a 80 (+100% physical power) Shield for 2.5s."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "System Restore": "Blocking an Ability with Energy Shield restores 20 (+10% health) Health and grants 20% Decaying Movement Speed over 2s.",
+            "Weald": "Damaging an Enemy Hero below 30% Health fires 4 (+1 per 30% Bonus Attack Speed) Projectiles, each dealing 8 (+1 per Level) True Damage and applying On-Hit effects at 30% Effectiveness (10s CD per Hero). Projectiles pass through walls and disappear after travelling 3000u. The effect correctly triggers on proc damage.",
+            "Dryad's Boon": "Basic Attacks decrease Basic Ability Cooldowns by 0.15s On-Hit.",
+            "Wind-Rider": "Gain 20% (+1% per Level) Bonus Attack Speed for 4s after using a Dash, Leap, Teleport or upon leaving Stealth."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/grim-exe/build/midlane/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:54:09+00:00",
+          "playedGames": 7,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "ikra",
+        "style": "mage",
+        "damage": "magical",
+        "core": [
+          "Dynamo",
+          "Crescelia",
+          "Galaxy Greaves"
+        ],
+        "finish": [
+          "Timewarp",
+          "Tainted Totem",
+          "Enra's Blessing"
+        ],
+        "crest": "Sanctification",
+        "augment": "Cascade",
+        "eternal": "Vesh",
+        "blessings": [
+          "Tithe of Death",
+          "Mind Rot"
+        ],
+        "skill_priority": [
+          "Secondary",
+          "Alternate",
+          "Primary"
+        ],
+        "why": "Treat Ikra support as control and zone pressure on reduced income. Place Hydroclasm where the enemy must walk, keep Narcosis for a catch or diver, and let your carry convert the opening. This keeps Vesh’s selected category from the reviewed mid setup; it does not assume the healing branch of a different Eternal. Cascade and Crescelia reward safe attacks, but neither justifies walking into engage range for a proc.",
+        "caution": "There is no native ally-healing branch in this selected setup. Do not buy healing-trigger items as though every Herald category applies at once. Brine’s kill gold is not permission to take the carry’s last hits. Genesis and charged bubbles require time and aim; the dated source sample is small.",
+        "title": "Use bubbles and suspension to create a safe follow-up",
+        "role": "support",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/ikra"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/ikra/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "item_notes": [
+          {
+            "item": "Dynamo",
+            "reason": "Dynamo gives the confirmed suspension or knock-up a brief team-damage payoff without requiring an expensive mage core.",
+            "ability_keys": [
+              "Q",
+              "R"
+            ]
+          },
+          {
+            "item": "Crescelia",
+            "reason": "Crescelia supports repeated casts and a safe attack between them. The economy proc requires hitting a hero; skip it when the approach is unsafe.",
+            "ability_keys": [
+              "LMB",
+              "RMB"
+            ]
+          },
+          {
+            "item": "Galaxy Greaves",
+            "reason": "Greaves adds defensive utility and mana regeneration for warding and returning to the lane partner.",
+            "ability_keys": [
+              "Q",
+              "E"
+            ]
+          },
+          {
+            "item": "Timewarp",
+            "reason": "Timewarp is a later mana-and-cooldown purchase for repeated control, not an assumed early support spike.",
+            "ability_keys": [
+              "Q",
+              "E"
+            ]
+          },
+          {
+            "item": "Tainted Totem",
+            "reason": "Tainted Totem applies anti-heal through damage. Bring it forward only when healing is an actual problem; no ally-heal trigger is assumed.",
+            "ability_keys": [
+              "RMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Enra's Blessing",
+            "reason": "Enra offers nearby protection against immobilization while your own control is committed or unavailable.",
+            "ability_keys": [
+              "Q",
+              "R"
+            ]
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Ranged basic attack dealing 55/58.08/61.33/64.74/68.31/72.05/75.96/80.02/84.26/88.66/93.23/97.96/102.85/107.91/113.14/118.53/124.08/129.8 (+70% physical power) physical damage.",
+            "RMB": "Ikra fires a quick Hydroblast dealing 80/115/150/185/220 (+45% magical power) magical damage to the first Enemy Target hit or popping the first Bubble it impacts. \nWhenever Brine kills an Enemy, Ikra gains 3/4/5/6/7 additional Gold. Killing Enemies by Popping Bubbles with Brine also grants this Gold.",
+            "Q": "Ikra unleashes a Water Sphere dealing 85/115/145/175/205 (+50% magical power) magical damage.\nThe Sphere pierces through Enemy Units but stops on hitting an Enemy Hero, surrounding and Suspending them for 1.1s.",
+            "E": "Ikra creates an Abyssal Bubble that Slows Enemies by 20% while they are in its radius.\nThe Bubble can be popped by hitting it with either Fathom or Brine, dealing 35/45/55/65/75 (+15% magical power) magical damage to all Targets in a 520 Unit radius and restoring 30 Mana.\nThe Bubble amplifies after 1.1s, increasing the damage dealt to 75/120/165/210/255 (+80% magical power) magical damage whilst Slowing all Targets hit by 40/45/50/55/60% for 1s.\nPopping a Bubble with Brine deals Brine's Damage as well as Hydroclasm's Damage. If the Bubble is amplified when popped by Brine, the total damage penetrates 40% of the Target's Magical Armor.\nMax Charges: 2",
+            "R": "Ikra rises into the sky for 1s and channels the tides before unleashing a surging Waterspout from his Trident that pierces Walls.\nThe Waterspout deals 320/480/640 (+85% magical power) magical damage and Knocks Up Enemies hit.\nWhen Enemy Targets land from the Knock Up, they are Slowed by 50% for 1.25s.",
+            "Passive": "Based on the chosen Eternal Category, empower Ikras abilities.\nHarbingers: Ikra's Fathom deals +(8% magical power) as magical damage. Hitting an Enemy with Fathom reduces the cooldown of Brine by 0.5s.\nPrimarchs: Popping Hydroclasm now displaces Ikra. Gain 1% Movement Speed per 75 magical power.\nDreadnoughts: Narcosis' Suspension duration is increased by 25% and restores 100% Health of the Hero Damage dealt by it.\nSovereigns: Hydroclasm has 25% reduced Cooldown and Genesis is 25% larger.\nDivines: Hydroclasm's Bubbles project an aura that heals Ikra and Allied Heroes for 4/6/8/10/12/6/8/10/12 (+10% magical power) Health every second.\nAnomalies: Brine and Hydroclasm deal 3% of the Target’s Maximum Health over 4s and apply 45% Anti Heal for the same duration."
+          },
+          "items": {
+            "Dynamo": {
+              "stats": {
+                "Health": "300.0",
+                "Physical armor": "30.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Immobilizer",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Immobilizing an Enemy:",
+                  "text": "• They take 8% more damage for 2.5s."
+                },
+                {
+                  "name": "Adaptive Aggression",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Gain 20 Physical Power.\n• When your Magical Power > Bonus Physical Power.\n• Gain 30 Magical Power instead."
+                }
+              ],
+              "completed_item": true
+            },
+            "Crescelia": {
+              "stats": {
+                "Magical power": "45.0",
+                "Base mana regeneration": "125.0%",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Moonblade",
+                  "active": false,
+                  "cooldown": "1.5s",
+                  "condition": "On Ability Cast:",
+                  "text": "• Empower your next Basic Attack within 4s.\n• Deal 50 (+20% magical power) magical damage On-Hit.\n• Damaging a Hero with this effect grants you +12g."
+                }
+              ],
+              "completed_item": true
+            },
+            "Galaxy Greaves": {
+              "stats": {
+                "Physical armor": "30.0",
+                "Magical armor": "30.0",
+                "Base mana regeneration": "100.0%",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "ZeroG",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While moving:",
+                  "text": "• Generate stacks of ZeroG.\n• At 100 stacks your next jump has increased height."
+                },
+                {
+                  "name": "Celerity",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While out of combat:",
+                  "text": "• Gain 7% Movement Speed."
+                }
+              ],
+              "completed_item": true
+            },
+            "Timewarp": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "150.0%",
+                "Ability haste": "25.0"
+              },
+              "effects": [
+                {
+                  "name": "Chime",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Every 8s:",
+                  "text": "• Subtract 1s from Non-Ultimate Cooldowns."
+                }
+              ],
+              "completed_item": true
+            },
+            "Tainted Totem": {
+              "stats": {
+                "Magical power": "45.0",
+                "Health": "200.0",
+                "Base mana regeneration": "125.0%",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Blighted Touch",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing damage:",
+                  "text": "• Reduce the Target's Healing by 45% for 3s."
+                },
+                {
+                  "name": "Blighted Well",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Healing and Shielding Allies:",
+                  "text": "• Grant them Blighted Touch for 4s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Enra's Blessing": {
+              "stats": {
+                "Magical power": "40.0",
+                "Health": "225.0",
+                "Mana": "250.0",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Enra's Protection",
+                  "active": false,
+                  "cooldown": "15s",
+                  "condition": "",
+                  "text": "• When within 1000u of an Ally Hero, if they are Immobilized:\n• Grant them a 50 (+30% magical power)(+8% health) Shield for 3.5s.\n• Cooldown is per Target."
+                }
+              ],
+              "completed_item": true
+            },
+            "Sanctification": {
+              "stats": {
+                "Health": "120.0",
+                "Base health regeneration": "50.0%",
+                "Gold per second": "1.8"
+              },
+              "effects": [
+                {
+                  "name": "Safeguard",
+                  "active": true,
+                  "cooldown": "120s",
+                  "condition": "",
+                  "text": "• Grants yourself and nearby Heroes a 150 (+8% health) Shield for 3s.\n• While the Shield holds, Heroes gain 50% Tenacity."
+                },
+                {
+                  "name": "Visionary",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Gain Solstone.\n• Increase Ward Cap from 2 to 3."
+                },
+                {
+                  "name": "Pacifist",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Receive diminishing Gold from Minion kills."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Cascade": "Fathom hits grant stacks. Upon reaching 5, your next direct Brine hit deals 10 (+20% magical power) Bonus Damage. Dealing Ability damage to Enemies grants 12% Attack Speed for 4s, once per ability, stacking up to 4 times.",
+            "Vesh": "Ability Damage dealt to Enemy Heroes deals +7% (+0.4% per Minute) of that Damage as a 3s DoT.",
+            "Tithe of Death": "Takedowns restore 15% Max Mana and permanently grant 2 Ability Haste. (Max: 30 Ability Haste).",
+            "Mind Rot": "Vesh also deals 2% of the Target's Current Health over the Duration."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/ikra/build/support/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:54:09+00:00",
+          "playedGames": 7,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "maco",
+        "style": "mage",
+        "damage": "magical",
+        "core": [
+          "Combustion",
+          "Timewarp",
+          "Caustica"
+        ],
+        "finish": [
+          "Oblivion Crown",
+          "Spellbreaker",
+          "Lunaria"
+        ],
+        "crest": "Epoch",
+        "augment": "Shatterbloom",
+        "eternal": "Exarch",
+        "blessings": [
+          "Preservation",
+          "Fervour"
+        ],
+        "skill_priority": [
+          "Primary",
+          "Alternate",
+          "Secondary"
+        ],
+        "why": "This is a utility mage mid plan, rather than a support build funded by solo-lane farm. Use Gift and Sparkle for ranged pressure; preserve Fly as an escape unless the enemy position makes a forward landing safe. Rotate after a safe clear, then place Strike’s explosion where allies can use Shatterbloom. Magical power helps both damage and recovery, while the team still needs a sustained attacker.",
+        "caution": "The small-sample observed attack-heavy core is not enough evidence to demand melee-range proc chasing. Maco’s leap shield is self-only. His ultimate displacement can push enemies away from allied damage, so choose its direction. Lunaria is a late team-utility option, with a damage opportunity cost.",
+        "title": "Clear safely, then rotate with damage and recovery",
+        "role": "midlane",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/maco"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/maco/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "item_notes": [
+          {
+            "item": "Combustion",
+            "reason": "Combustion gives mana and a spell-hit burst option for farming and ranged trades. Its proc has a cooldown; every tick is not another explosion.",
+            "ability_keys": [
+              "Q",
+              "RMB"
+            ]
+          },
+          {
+            "item": "Timewarp",
+            "reason": "Timewarp sustains repeated spells and follow-up control without spending Fly merely to activate an attack proc.",
+            "ability_keys": [
+              "Q",
+              "RMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Caustica",
+            "reason": "Caustica is the magical-armor answer once enemies defend against your spell damage.",
+            "ability_keys": [
+              "Q",
+              "R"
+            ]
+          },
+          {
+            "item": "Oblivion Crown",
+            "reason": "Oblivion Crown scales the power investment after the functional mana/haste core; it is not an early support-economy purchase.",
+            "ability_keys": [
+              "Q",
+              "E"
+            ]
+          },
+          {
+            "item": "Spellbreaker",
+            "reason": "Spellbreaker helps survive a caster’s first committed ability. Keep Fly available after the shield is spent.",
+            "ability_keys": [
+              "E"
+            ]
+          },
+          {
+            "item": "Lunaria",
+            "reason": "Lunaria lets safe damage charge a later ally heal. Healing alone does not charge it; trade this slot for defense if you cannot safely participate.",
+            "ability_keys": [
+              "Q",
+              "R"
+            ]
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Ranged basic attack dealing 52/54.73/57.61/60.63/63.8/67.11/70.57/74.18/77.93/81.83/85.88/90.07/94.41/98.9/103.53/108.31/113.23/118.3 (+55% physical power) physical damage.",
+            "RMB": "Maco throws a slow-moving gemstone that explodes at its max range, or when detonated early by reactivating the ability.\nWhen the gemstone explodes, it deals 70/95/120/145/170 (+45% magical power) magical damage and Stuns Enemies for 0.5s.\nStun Duration increases up to 1.1/1.15/1.2/1.25/1.3s, based on the distance it travels.",
+            "Q": "Maco lobs a gemstone that explodes in a small area, dealing damage or healing, based on the Target hit.\nIf Maco hits himself or an Ally, they are Healed for 40/60/80/100/120 (+35% magical power) Health in addition to 1/1.5/2/2.5/3% of their Max Health. Allies also gain 8/9/10/11/12% (+3% magical power) Movement Speed for 2.5s.\nIf Maco hits an Enemy, they take 75/105/135/165/195 (+45% magical power) magical damage.",
+            "E": "Maco leaps high into the air before slamming back down to the ground with his gemstone, dealing 75/105/135/165/195 (+70% magical power) magical damage to Enemies and Slowing them by 30% (+5% magical power) for 1.5s.\nIf Maco hits an Enemy Hero, he gains a 60/115/170/225/280 (+50% magical power) (+4% health) Shield for 3.5s.\nAfter landing, Maco dashes slightly in the direction he is currently moving.",
+            "R": "Maco charges up his gemstone for up to 1s, increasing the range it travels.\nWhen Maco releases the charged gemstone, it barrels forward along the ground, dealing 70/110/150 (+35% magical power) magical damage and Pushing and Stunning all Enemies it hits along with it.\nAt the gemstone's max range, it explodes, dealing 100/160/220 (+50% magical power) magical damage and Stunning all Enemies hit for 0.25-1.4s, based on charge time.",
+            "Passive": "As Maco moves, he gains stacks of Movement Speed up to 10% (+0.6% per level).\nWhen Maco reaches 25 stacks, he gains Mach Speed, which grants him Slow Immunity.\nTaking damage from enemy heroes removes the Mach Speed buffs immediately. When standing still, the buffs remain for 3s before removal."
+          },
+          "items": {
+            "Combustion": {
+              "stats": {
+                "Magical power": "85.0",
+                "Magical penetration": "9.0",
+                "Mana": "400.0"
+              },
+              "effects": [
+                {
+                  "name": "Pyro",
+                  "active": false,
+                  "cooldown": "15s",
+                  "condition": "On dealing Ability Damage:",
+                  "text": "• Deal 50 (+18% magical power) magical damage to the Target and nearby Enemies."
+                },
+                {
+                  "name": "Pyromaniac",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On damaging Heroes:",
+                  "text": "• Reduce the Cooldown of Pyro by 0.5s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Timewarp": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "150.0%",
+                "Ability haste": "25.0"
+              },
+              "effects": [
+                {
+                  "name": "Chime",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Every 8s:",
+                  "text": "• Subtract 1s from Non-Ultimate Cooldowns."
+                }
+              ],
+              "completed_item": true
+            },
+            "Caustica": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "100.0%"
+              },
+              "effects": [
+                {
+                  "name": "Magus",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Ignore 35% of Magical Armor."
+                },
+                {
+                  "name": "Arcane Might",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability magical damage to a Hero:",
+                  "text": "• While they are above 50% Health.\n• For every point of Bonus Magical Armor they possess.\n• Deal 0.2% more magical damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Oblivion Crown": {
+              "stats": {
+                "Magical power": "120.0"
+              },
+              "effects": [
+                {
+                  "name": "Eradicate",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Increase your Magical Power by 25%."
+                }
+              ],
+              "completed_item": true
+            },
+            "Spellbreaker": {
+              "stats": {
+                "Magical power": "75.0",
+                "Magical armor": "40.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Veil",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "",
+                  "text": "• Gain a Spell Shield that blocks the next Ability."
+                },
+                {
+                  "name": "Malefic",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While Veil is active:",
+                  "text": "• Increase your Magical Power by 15%."
+                }
+              ],
+              "completed_item": true
+            },
+            "Lunaria": {
+              "stats": {
+                "Magical power": "55.0",
+                "Ability haste": "10.0",
+                "Heal and shield power": "15.0%"
+              },
+              "effects": [
+                {
+                  "name": "Incandescence",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing damage to Heroes:",
+                  "text": "• Gain charges equal to 25% of damage dealt.\n• Charge Limit: 100-250, based on Level."
+                },
+                {
+                  "name": "Mending",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Healing or Shielding an Ally Hero:",
+                  "text": "• Consume all Incandescence charges.\n• Heal them for the amount.\n• Prioritizes Lowest Health Target."
+                }
+              ],
+              "completed_item": true
+            },
+            "Epoch": {
+              "stats": {
+                "Magical power": "30.0",
+                "Mana": "200.0",
+                "Ability haste": "8.0"
+              },
+              "effects": [
+                {
+                  "name": "Stasis Device",
+                  "active": true,
+                  "cooldown": "165s",
+                  "condition": "",
+                  "text": "• Enter Stasis for 2.5s."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Shatterbloom": "Maco Strike creates a Healing field at the explosion location that Heals 20/30/40 (+4% magical power) every 0.25s for 5s.",
+            "Exarch": "Heals or Shields grant the Target (including self) +10% Total Attack Speed and +10% Magic Damage On-Hit for 4s.",
+            "Preservation": "Healing or Shielding you receive is increased by 10%.",
+            "Fervour": "Basic Attacks against Enemy Heroes heal you and Allies within 1000 Units for 2 (+0.5 per level)(+5% Magical Power)."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/maco/build/midlane/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:53:58+00:00",
+          "playedGames": 8,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "scarlett",
+        "style": "bruiser",
+        "damage": "physical",
+        "core": [
+          "Augmentation",
+          "Basilisk",
+          "Mutilator"
+        ],
+        "finish": [
+          "Legacy",
+          "Salvation",
+          "Citadel"
+        ],
+        "crest": "Iceskorn Talons",
+        "augment": "Scarlet Dawn",
+        "eternal": "Knell",
+        "blessings": [
+          "Frequency",
+          "Resonant Repair"
+        ],
+        "skill_priority": [
+          "Alternate",
+          "Primary",
+          "Secondary"
+        ],
+        "why": "Scarlett mid is a situational physical duelist pick. Preserve health and First Intent through the early ranged wave, then enter when the opponent spends control or your jungler can follow Swan Song. The bruiser core favors surviving the return trade over assuming a single full-damage combo will finish the target. Arrange magical damage elsewhere in the composition.",
+        "caution": "Do not blind-pick this to solve every mage matchup. The route to the target and the exit after restraint matter more than a small-sample role rate. Move Legacy earlier against meaningful magical burst, not automatically against a physical mid. Disputed energy and Ashen Vow fields remain excluded from calculations.",
+        "title": "Survive ranged pressure before committing the restraint",
+        "role": "midlane",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/scarlett"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/scarlett/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "item_notes": [
+          {
+            "item": "Augmentation",
+            "reason": "Augmentation rewards a cast followed by a real basic attack and adds health/haste for repeated trading. Respect its own cooldown.",
+            "ability_keys": [
+              "RMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Basilisk",
+            "reason": "Basilisk fits repeated physical pressure when you can maintain contact; its health supports the return trade.",
+            "ability_keys": [
+              "LMB",
+              "RMB"
+            ]
+          },
+          {
+            "item": "Mutilator",
+            "reason": "Mutilator provides sustain and a stated ability-hit trigger. Do not multiply its once-per-ability trigger by Minueta’s stab count.",
+            "ability_keys": [
+              "RMB"
+            ]
+          },
+          {
+            "item": "Legacy",
+            "reason": "Legacy is a matchup-dependent magical-defense and cleanse purchase; advance or delay it according to the actual enemy threats.",
+            "ability_keys": [
+              "E",
+              "R"
+            ]
+          },
+          {
+            "item": "Salvation",
+            "reason": "Salvation supplies a late emergency shield during a committed duel, without creating a guaranteed escape.",
+            "ability_keys": [
+              "R"
+            ]
+          },
+          {
+            "item": "Citadel",
+            "reason": "Citadel is useful when you must remain near physical threats and allies can exploit nearby armor pressure.",
+            "ability_keys": [
+              "LMB",
+              "RMB"
+            ]
+          }
+        ],
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Melee basic attack chain dealing 61/63.24/65.6/68.08/70.68/73.4/76.24/79.2/82.28/85.48/88.8/92.24/95.8/99.48/103.28/107.2/111.24/115.4 (+80% physical power) physical damage.\nChain Attack Rate: 2x/2x/1.05x.\nChain Damage: 0.5x/0.5x/1.1x.\nThird Strike: Restores 5 Energy On-Hit. Increased to 10/10/15/20 at Levels 1/6/11/16 against Heroes.\nEmpowered: Equip your Lantern for 1 attack, slamming it forward in a line.",
+            "RMB": "Scarlett twirls in her current movement direction, with its speed increasing based on current momentum. \nScarlett then stabs forward 3 times, with each dealing 21/31/41/51/61 (+24/28.5/33/37.5/42% physical power) physical damage. The final stab deals up to 125% bonus damage based on the Target's Missing Health.\nStabs benefit from Lifesteal and can Critically Strike at 60% effectiveness. \nAblaze: Number of Stabs is increased to 4, dealing 15% more damage overall.",
+            "Q": "Scarlett channels for a short duration, before swinging her Lantern around her, dealing 50/75/100/125/150 (+60% physical power) physical damage to all Enemies in the area.\nOuter Edge hits deal 25/50/75/100/125 (+100% physical power) additional damage and Slow targets hit by 35/37.5/40/42.5/45% for 1.25s. \nOuter Edge hits on Enemy Heroes or Camp Leaders Empower Scarlett's next Cindara attack for 4s, causing it to now damage all Enemies in a line in front of her, dealing 15 (+12% physical power) (+3/3.5/4/4.5/5% Target's Max Health) bonus damage, and restoring 35/45/55 Energy upon hitting an Enemy Hero or Camp Leader.\nEmpowered Cindara damage is reduced by 50% against Minions and is capped against Monsters.\nAblaze: Empowered Cindara's bonus damage is increased by 1.5x.",
+            "E": "Scarlett dashes forward with a decisive, fiery strike that deals 65/85/105/125/145 (+80% physical power) physical damage to all Enemies in her path and receives a 30/80/130/180/230 (+40/45/50/55/60% physical power) Shield for 3s.\nEach time Scarlett hits an Enemy Hero or Camp Leader with First Intent she refreshes her Shield's duration and increases its size by 60%, and restores 50 Energy.",
+            "R": "Scarlett strikes forward with her lantern, with its chain Restraining the first Enemy Hero hit for 1.4s, and Slowing nearby Enemies by 65% for 1s.\nScarlett then backflips into the air, becoming Unstoppable for the duration of the Restrain, and ignites her Blade before striking down at her target, dealing 180/280/350 (+100% physical power) physical damage. \nEnemies near the Restrained Hero also receive 100% of the strike's damage.\nAfter striking, Scarlett's Blade remains Ablaze for 8/10/12s, granting her +150 Basic Attack Range, 5 Energy Regen, 20/32/44 (+12% physical power) Physical Power, and enhancing certain abilities for the duration.\nRange is 960u.",
+            "Passive": "Scarlett uses Energy instead of Mana:\n• Max Energy: 200/400/600/800/1000/1200/1400/1600/1800/2000/2200/2400/2600/2800/3000/3200/3400/3600.\n• Energy Regen: 10/20/30/40/50/60/70/80/90/100/110/120/130/140/150/160/170/180 per second.\n• On Takedown: Scarlett restores 100 Energy immediately.\nScarlett also converts every 35 Bonus Mana she acquires into 1 Physical Power."
+          },
+          "items": {
+            "Augmentation": {
+              "stats": {
+                "Physical power": "35.0",
+                "Attack speed": "25.0%",
+                "Health": "225.0",
+                "Ability haste": "20.0"
+              },
+              "effects": [
+                {
+                  "name": "True Strike",
+                  "active": false,
+                  "cooldown": "1.5s",
+                  "condition": "On Ability Cast:",
+                  "text": "• Empower your next Basic Attack within 4s. \n• Deal (+90% Base Physical Power physical power) Damage On-Hit."
+                }
+              ],
+              "completed_item": true
+            },
+            "Basilisk": {
+              "stats": {
+                "Physical power": "40.0",
+                "Health": "300.0",
+                "Ability haste": "20.0"
+              },
+              "effects": [
+                {
+                  "name": "Corrode",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On damaging a Hero:",
+                  "text": "• Reduce their Physical Armor by 4.5% for 3s.\n• Stacks up to 6 times.\n• At 6 stacks they become Eroded."
+                },
+                {
+                  "name": "Eminence",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Upon damaging an Eroded Hero:",
+                  "text": "• Gain 8% Movement Speed for 2s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Mutilator": {
+              "stats": {
+                "Physical power": "45.0",
+                "Ability haste": "15.0",
+                "Omnivamp": "12.0%"
+              },
+              "effects": [
+                {
+                  "name": "Mutilate",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Successsful Basic Attacks:",
+                  "text": "• Deal 1% of their Max Health as physical damage."
+                },
+                {
+                  "name": "Devour",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Ability Hits on Heroes:",
+                  "text": "• Apply Mutilate 3 times (once per ability)."
+                }
+              ],
+              "completed_item": true
+            },
+            "Legacy": {
+              "stats": {
+                "Physical power": "40.0",
+                "Health": "225.0",
+                "Magical armor": "40.0",
+                "Tenacity": "25"
+              },
+              "effects": [
+                {
+                  "name": "Tenacious Bravery",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "On going below 40% Health:",
+                  "text": "• Self Cleanse.\n• Gain CC Immunity for 3s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Salvation": {
+              "stats": {
+                "Physical power": "40.0",
+                "Health": "375.0",
+                "Tenacity": "25"
+              },
+              "effects": [
+                {
+                  "name": "Aegis",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "On going below 30% Health:",
+                  "text": "• Gain a (+25% health) Shield for 6s.\n• Reduced to 50% Effectiveness for Ranged Heroes.\n• Gain 10% Omnivamp for 6s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Citadel": {
+              "stats": {
+                "Physical power": "40.0",
+                "Health": "300.0",
+                "Physical armor": "40.0"
+              },
+              "effects": [
+                {
+                  "name": "Fortification",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "For each nearby Enemy Hero:",
+                  "text": "• Gain 5 Physical Armor."
+                },
+                {
+                  "name": "Intimidation",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Nearby Enemy Heroes:",
+                  "text": "• Have their Physical Armor decreased by 20%."
+                }
+              ],
+              "completed_item": true
+            },
+            "Iceskorn Talons": {
+              "stats": {
+                "Physical power": "12.0",
+                "Health": "100.0",
+                "Omnivamp": "4.0%"
+              },
+              "effects": [
+                {
+                  "name": "Glacial Colosseum",
+                  "active": true,
+                  "cooldown": "45s",
+                  "condition": "",
+                  "text": "• Create an Ice Sheet around you for 8s.\n• Allies on the sheet gain 12% Physical Power for 3s.\n• They also gain 12% Movement Speed for 3s.\n• Enemy Units on the sheet are Slowed by 10%."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Scarlet Dawn": "Ability, Empowered Cindara, and Third Strike hits on Heroes/Camp Leaders reduce First Intent's Cooldown by 8%, reduced to 5% for Minueta hits.",
+            "Knell": "Basic Attacks and Abilities against Enemy Heroes apply a stack of Rust for 5s. Each stack shreds 2% (+0.2% per Level) Physical Armor and Magical Armor, stacking up to 4 times. You gain 75% of the Armors Shredded.\nMulti-hit abilities can apply stacks more than once during the same cast.",
+            "Frequency": "Each currently applied Rust stack grants 2% total attack speed and 2 ability haste.",
+            "Resonant Repair": "Being immobilized restores 3% of maximum health over 4 seconds and grants 20 tenacity for 4 seconds."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/scarlett/build/midlane/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:54:12+00:00",
+          "playedGames": 12,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "the-fey",
+        "style": "mage",
+        "damage": "magical",
+        "core": [
+          "Megacosm",
+          "Timewarp",
+          "Caustica"
+        ],
+        "finish": [
+          "Oblivion Crown",
+          "Spellbreaker",
+          "Dreambinder"
+        ],
+        "crest": "Epoch",
+        "augment": "Natural Infusion",
+        "eternal": "Vesh",
+        "blessings": [
+          "Tithe of Death",
+          "Mind Rot"
+        ],
+        "skill_priority": [
+          "Secondary",
+          "Primary",
+          "Alternate"
+        ],
+        "why": "The Fey in the carry slot remains a spell-based magical threat. Pair her with dependable control or protection, use qualifying Nettles hits for mana efficiency, and layer Growth after a confirmed opening. Timewarp supports repeated lane spells on a shared-experience lane. Ask another role to supply reliable sustained physical and objective damage before choosing this composition.",
+        "caution": "The small observed sample does not show that a mage carry replaces a marksman’s job. Do not add crit merely because the role says carry. Fly Trap is delayed, Growth contains a delayed explosion, and both can be escaped without setup. Avoid stacking an entire team around the same magical burst window.",
+        "title": "Farm the duo lane as a mage, with sustained damage elsewhere",
+        "role": "carry",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/the-fey"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/the-fey/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "item_notes": [
+          {
+            "item": "Megacosm",
+            "reason": "Megacosm supports repeated ability pressure with health for a contested duo lane; reapplications refresh rather than stack the same burn freely.",
+            "ability_keys": [
+              "E",
+              "RMB"
+            ]
+          },
+          {
+            "item": "Timewarp",
+            "reason": "Timewarp adds mana regeneration and repeated-cast uptime. It does not fix the lack of a persistent physical attack threat.",
+            "ability_keys": [
+              "E",
+              "Q"
+            ]
+          },
+          {
+            "item": "Caustica",
+            "reason": "Caustica addresses magical armor once enemies respond to this lane’s damage type.",
+            "ability_keys": [
+              "E",
+              "RMB",
+              "R"
+            ]
+          },
+          {
+            "item": "Oblivion Crown",
+            "reason": "Oblivion Crown pays off after you can deliver the spell sequence reliably; it is a damage choice, not peel.",
+            "ability_keys": [
+              "RMB",
+              "R"
+            ]
+          },
+          {
+            "item": "Spellbreaker",
+            "reason": "Spellbreaker preserves a chance to cast when enemy engage begins with an ability. Coordinate protection after the shield breaks.",
+            "ability_keys": [
+              "Q",
+              "R"
+            ]
+          },
+          {
+            "item": "Dreambinder",
+            "reason": "Dreambinder is a later control/damage option for reachable targets. Its damage-over-time and item-proc restrictions remain relevant.",
+            "ability_keys": [
+              "E",
+              "RMB"
+            ]
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Ranged basic attack dealing 55/57.35/59.82/62.41/65.13/67.98/70.95/74.05/77.28/80.63/84.1/87.7/91.43/95.28/99.26/103.37/107.6/111.95 (+55% physical power) physical damage.",
+            "RMB": "Hurl a small plant that deals 100/150/200/250/300 (+100% magical power) magical damage over time to all Enemies in the area, exploding after 2s.\nUntamed Growth deals 50% of its damage over its lifetime, and 50% upon exploding.",
+            "Q": "Summon a patch of thorny brambles, dealing 90/130/170/210/250 (+70% magical power) magical damage to all Enemies that touch them and Slowing them by 35% for 0.5s. Allies within the brambles gain 15% movement speed for 0.5s.\nBramble Patch persists for 5s before wilting.",
+            "E": "Throw an orb of energy, dealing 80/120/160/200/240 (+55% magical power) magical damage. Hitting the same Target within 8s deals 20% increased damage, stacking up to 4 times.\nHarvest Nettles refunds 75% of its mana cost upon hitting an Enemy Hero or Killing a Unit.",
+            "R": "Plant a magical seedling, awakening a giant fly trap that attaches itself to all nearby Enemy Heroes. \nAfter a brief delay, it Pulls its victims inward, dealing 250/375/500 (+100% magical power) magical damage and Stunning them for 1s.",
+            "Passive": "Each time The Fey achieves a Takedown she spawns an Untamed Growth from the Enemy Hero's corpse and gains 30% movement speed for 3s."
+          },
+          "items": {
+            "Megacosm": {
+              "stats": {
+                "Magical power": "65.0",
+                "Health": "250.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Disintegrate",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability Damage:",
+                  "text": "• Deal 2.5% of Target's Max Health as magical damage over 3s.\n• Additional applications refresh the duration."
+                },
+                {
+                  "name": "Star Killer",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability Damage to Heroes:",
+                  "text": "• Deal 6% of Target's Bonus Health as magical damage over 3s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Timewarp": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "150.0%",
+                "Ability haste": "25.0"
+              },
+              "effects": [
+                {
+                  "name": "Chime",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Every 8s:",
+                  "text": "• Subtract 1s from Non-Ultimate Cooldowns."
+                }
+              ],
+              "completed_item": true
+            },
+            "Caustica": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "100.0%"
+              },
+              "effects": [
+                {
+                  "name": "Magus",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Ignore 35% of Magical Armor."
+                },
+                {
+                  "name": "Arcane Might",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability magical damage to a Hero:",
+                  "text": "• While they are above 50% Health.\n• For every point of Bonus Magical Armor they possess.\n• Deal 0.2% more magical damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Oblivion Crown": {
+              "stats": {
+                "Magical power": "120.0"
+              },
+              "effects": [
+                {
+                  "name": "Eradicate",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Increase your Magical Power by 25%."
+                }
+              ],
+              "completed_item": true
+            },
+            "Spellbreaker": {
+              "stats": {
+                "Magical power": "75.0",
+                "Magical armor": "40.0",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Veil",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "",
+                  "text": "• Gain a Spell Shield that blocks the next Ability."
+                },
+                {
+                  "name": "Malefic",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While Veil is active:",
+                  "text": "• Increase your Magical Power by 15%."
+                }
+              ],
+              "completed_item": true
+            },
+            "Dreambinder": {
+              "stats": {
+                "Magical power": "70.0",
+                "Health": "325.0"
+              },
+              "effects": [
+                {
+                  "name": "Chilling Spells",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability Damage:",
+                  "text": "• Slows by 30% for 1s.\n• Reduced to 20% for DoT Abilities."
+                },
+                {
+                  "name": "",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Restriction: Does not apply with Proc Damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Epoch": {
+              "stats": {
+                "Magical power": "30.0",
+                "Mana": "200.0",
+                "Ability haste": "8.0"
+              },
+              "effects": [
+                {
+                  "name": "Stasis Device",
+                  "active": true,
+                  "cooldown": "165s",
+                  "condition": "",
+                  "text": "• Enter Stasis for 2.5s."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Natural Infusion": "Damaging Heroes with Harvest Nettles grants 10 Ability Haste for 6s, stacking infinitely.",
+            "Vesh": "Ability Damage dealt to Enemy Heroes deals +7% (+0.4% per Minute) of that Damage as a 3s DoT.",
+            "Tithe of Death": "Takedowns restore 15% Max Mana and permanently grant 2 Ability Haste. (Max: 30 Ability Haste).",
+            "Mind Rot": "Vesh also deals 2% of the Target's Current Health over the Duration."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/the-fey/build/carry/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:53:57+00:00",
+          "playedGames": 6,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "wraith",
+        "style": "mage",
+        "damage": "magical",
+        "core": [
+          "Crescelia",
+          "Galaxy Greaves",
+          "Timewarp"
+        ],
+        "finish": [
+          "Tainted Totem",
+          "Enra's Blessing",
+          "Caustica"
+        ],
+        "crest": "Sanctification",
+        "augment": "Mystic Marksman",
+        "eternal": "Lotus",
+        "blessings": [
+          "Flawless",
+          "Immaculate"
+        ],
+        "skill_priority": [
+          "Alternate",
+          "Primary",
+          "Secondary"
+        ],
+        "why": "Wraith support is a specialist pick for vision, harassment and a planned rewind. Let the carry farm; avoid a mana-stacking lane plan that depends on taking those last hits. Use Peekaboo to mark a reachable enemy, take the discounted follow-up shot, and retreat before your camouflage or vision advantage expires. The converted shot makes magical utility items coherent without assuming that his whole kit becomes magical.",
+        "caution": "This is not a replacement for immediate peel or a frontliner. Rewind is delayed and can move a target out of allied follow-up. Stay near allies when relying on Enra or Lotus’s local heal. The dated role sample is not proof that this role works broadly; avoid it when your team needs dependable protection.",
+        "title": "Buy vision access and marked-target pressure, not a farming core",
+        "role": "support",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/wraith"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/wraith/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "penetration_focus": "magical",
+        "item_notes": [
+          {
+            "item": "Crescelia",
+            "reason": "Crescelia supplies mana regeneration and haste; take its hero-hit economy proc only from a safe attack angle after casting.",
+            "ability_keys": [
+              "Q",
+              "RMB",
+              "LMB"
+            ]
+          },
+          {
+            "item": "Galaxy Greaves",
+            "reason": "Greaves gives defensive movement for vision routes instead of requiring a large personal-damage lead.",
+            "ability_keys": [
+              "E",
+              "Passive"
+            ]
+          },
+          {
+            "item": "Timewarp",
+            "reason": "Timewarp supports repeated marks, shots and repositioning on later support income.",
+            "ability_keys": [
+              "Q",
+              "RMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Tainted Totem",
+            "reason": "Tainted Totem provides anti-heal through damage. It does not require a native ally-healing spell.",
+            "ability_keys": [
+              "Q",
+              "RMB"
+            ]
+          },
+          {
+            "item": "Enra's Blessing",
+            "reason": "Enra protects a nearby immobilized ally; the long sniper range does not extend the item’s protection range.",
+            "ability_keys": [
+              "R",
+              "E"
+            ]
+          },
+          {
+            "item": "Caustica",
+            "reason": "Caustica is a late or matchup-driven answer for magical armor on Mystic Marksman’s shot. Ordinary attacks and the grenade’s initial hit remain physical.",
+            "ability_keys": [
+              "RMB",
+              "Q"
+            ]
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Ranged basic attack dealing 57/59.24/61.6/64.08/66.68/69.4/72.24/75.2/78.28/81.48/84.8/88.24/91.8/95.48/99.28/103.2/107.24/111.4 (+90% physical power) (+20% magical power) physical damage.",
+            "RMB": "Fire a long-range sniper shot that deals 20/35/50/65/80 (+110% physical power)(+70% magical power) physical damage to the first Enemy Unit hit. Damage is increased by 100% against Enemy Minions. Knock, Knock! benefits from lifesteal.\nIf Knock, Knock! Kills, or Damages a marked Unit, 35% of the Mana Cost is refunded and its Cooldown is decreased by 75%.",
+            "Q": "Launch a piercing Nanite Grenade that deals 40/60/80/100/120 (+60% physical power)(+50% magical power) physical damage to all Units hit, Slowing them by 35% for 1.25s. Units hit are also Marked for 3.5s, Revealing them.\nKnock, Knock! is enhanced against Marked Units, dealing an extra 5.5/6/6.5/7/7.5% (+1.5% magical power per 100 Magical Power) of their maximum health as bonus magical damage.",
+            "E": "After a short delay, enter Camouflage and gain 25% movement speed and one enhanced Jump for 3s.\nTakedowns will reset the cooldown of Surprise, Surprise!\nPassive: Gain 10/14/18/22/26% Physical Penetration",
+            "R": "Wraith can choose an Enemy Hero he can see up to 1550/1650/1750 units, marking their location from 2s prior. After a 1.5s delay they will enter Limbo and Teleport back to this location.",
+            "Passive": "Wraith's Vision Item becomes a Sonar Drone that will become Camouflaged upon deployment, revealing Enemies within 1000 units. \nSonar Drone can detect Enemy Heroes through walls."
+          },
+          "items": {
+            "Crescelia": {
+              "stats": {
+                "Magical power": "45.0",
+                "Base mana regeneration": "125.0%",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Moonblade",
+                  "active": false,
+                  "cooldown": "1.5s",
+                  "condition": "On Ability Cast:",
+                  "text": "• Empower your next Basic Attack within 4s.\n• Deal 50 (+20% magical power) magical damage On-Hit.\n• Damaging a Hero with this effect grants you +12g."
+                }
+              ],
+              "completed_item": true
+            },
+            "Galaxy Greaves": {
+              "stats": {
+                "Physical armor": "30.0",
+                "Magical armor": "30.0",
+                "Base mana regeneration": "100.0%",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "ZeroG",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While moving:",
+                  "text": "• Generate stacks of ZeroG.\n• At 100 stacks your next jump has increased height."
+                },
+                {
+                  "name": "Celerity",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "While out of combat:",
+                  "text": "• Gain 7% Movement Speed."
+                }
+              ],
+              "completed_item": true
+            },
+            "Timewarp": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "150.0%",
+                "Ability haste": "25.0"
+              },
+              "effects": [
+                {
+                  "name": "Chime",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Every 8s:",
+                  "text": "• Subtract 1s from Non-Ultimate Cooldowns."
+                }
+              ],
+              "completed_item": true
+            },
+            "Tainted Totem": {
+              "stats": {
+                "Magical power": "45.0",
+                "Health": "200.0",
+                "Base mana regeneration": "125.0%",
+                "Ability haste": "10.0"
+              },
+              "effects": [
+                {
+                  "name": "Blighted Touch",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing damage:",
+                  "text": "• Reduce the Target's Healing by 45% for 3s."
+                },
+                {
+                  "name": "Blighted Well",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Healing and Shielding Allies:",
+                  "text": "• Grant them Blighted Touch for 4s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Enra's Blessing": {
+              "stats": {
+                "Magical power": "40.0",
+                "Health": "225.0",
+                "Mana": "250.0",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Enra's Protection",
+                  "active": false,
+                  "cooldown": "15s",
+                  "condition": "",
+                  "text": "• When within 1000u of an Ally Hero, if they are Immobilized:\n• Grant them a 50 (+30% magical power)(+8% health) Shield for 3.5s.\n• Cooldown is per Target."
+                }
+              ],
+              "completed_item": true
+            },
+            "Caustica": {
+              "stats": {
+                "Magical power": "75.0",
+                "Base mana regeneration": "100.0%"
+              },
+              "effects": [
+                {
+                  "name": "Magus",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Ignore 35% of Magical Armor."
+                },
+                {
+                  "name": "Arcane Might",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability magical damage to a Hero:",
+                  "text": "• While they are above 50% Health.\n• For every point of Bonus Magical Armor they possess.\n• Deal 0.2% more magical damage."
+                }
+              ],
+              "completed_item": true
+            },
+            "Sanctification": {
+              "stats": {
+                "Health": "120.0",
+                "Base health regeneration": "50.0%",
+                "Gold per second": "1.8"
+              },
+              "effects": [
+                {
+                  "name": "Safeguard",
+                  "active": true,
+                  "cooldown": "120s",
+                  "condition": "",
+                  "text": "• Grants yourself and nearby Heroes a 150 (+8% health) Shield for 3s.\n• While the Shield holds, Heroes gain 50% Tenacity."
+                },
+                {
+                  "name": "Visionary",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Gain Solstone.\n• Increase Ward Cap from 2 to 3."
+                },
+                {
+                  "name": "Pacifist",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "Receive diminishing Gold from Minion kills."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Mystic Marksman": "Knock, Knock! deals Magical Damage instead.",
+            "Lotus": "Every 2 Minutes and for each Takedown you achieve, randomly gain +1% Damage, +4 Ability Haste, +0.75% Movement Speed, or +1.5% Max Health.",
+            "Flawless": "An ability hit on an enemy hero heals you and allied heroes within 1000 units for 8 plus 10% of magical power, once per cast.",
+            "Immaculate": "Gain 12% damage reduction while above 85% health."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/wraith/build/support/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:53:56+00:00",
+          "playedGames": 10,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
+      },
+      {
+        "slug": "wukong",
+        "style": "bruiser",
+        "damage": "physical",
+        "core": [
+          "Mindrazor",
+          "Augmentation",
+          "Mutilator"
+        ],
+        "finish": [
+          "The Perforator",
+          "Legacy",
+          "Salvation"
+        ],
+        "crest": "Iceskorn Talons",
+        "augment": "Masterful Mimicry",
+        "eternal": "Thraex",
+        "blessings": [
+          "Alpha's Court",
+          "Ferocity"
+        ],
+        "skill_priority": [
+          "Secondary",
+          "Primary",
+          "Alternate"
+        ],
+        "why": "Wukong offlane needs a wave plan and a safe trade cycle before a chase plan. Mindrazor supports your own wave-clearing attacks; use the pressure to reset or rotate rather than pushing without vision. Combine a cast with an attack, then retain the stance tool that answers the enemy’s return. Move toward a teamfight when your control can support allies instead of assuming clones make every side-lane duel favorable.",
+        "caution": "The dated role sample is small. Do not multiply item on-hit effects by clone count: those interactions are not independently verified. High Impact’s minion reduction limits naive wave-clear estimates. Magical defense is a flexible slot; buy for the actual lane and team threats.",
+        "title": "Manage the wave before using a stance to start the trade",
+        "role": "offlane",
+        "author": "Codex role review",
+        "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+        "patch": "1.16.4",
+        "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
+        "sources": [
+          {
+            "title": "Official role description",
+            "url": "https://www.predecessorgame.com/en-US/heroes/wukong"
+          },
+          {
+            "title": "Official 1.16.4 balance context",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
+          },
+          {
+            "title": "Hero definitions collected independently from Omeda City",
+            "url": "https://omeda.city/heroes.json"
+          },
+          {
+            "title": "Item metadata and recipes",
+            "url": "https://omeda.city/items.json"
+          },
+          {
+            "title": "Retained Pred.gg hero definition; original date preserved",
+            "url": "https://pred.gg/heroes/wukong/hero?versions=166&gameMode=RANKED&ranks=36"
+          },
+          {
+            "title": "Retained Pred.gg item definitions; original date preserved",
+            "url": "https://pred.gg/items?version=166"
+          }
+        ],
+        "item_notes": [
+          {
+            "item": "Mindrazor",
+            "reason": "Mindrazor supplies splash from your own attacks, plus mana and haste for lane management; clone proc duplication is not assumed.",
+            "ability_keys": [
+              "LMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Augmentation",
+            "reason": "Augmentation adds health and rewards a personal attack after a cast. A stance sequence still respects the item’s cooldown.",
+            "ability_keys": [
+              "RMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Mutilator",
+            "reason": "Mutilator moves personal sustain ahead of the jungle plan’s extra penetration, helping repeated lane trades. Its ability trigger remains once per ability.",
+            "ability_keys": [
+              "LMB",
+              "E"
+            ]
+          },
+          {
+            "item": "The Perforator",
+            "reason": "The Perforator is the physical-armor answer once the lane opponent or team begins defending against your damage.",
+            "ability_keys": [
+              "RMB",
+              "E"
+            ]
+          },
+          {
+            "item": "Legacy",
+            "reason": "Legacy is the magical-defense flex slot. Spirit’s timed reduction is a separate resource rather than permanent protection.",
+            "ability_keys": [
+              "E"
+            ]
+          },
+          {
+            "item": "Salvation",
+            "reason": "Salvation can buy time during a committed trade; preserve a movement option instead of relying on the shield alone.",
+            "ability_keys": [
+              "Q",
+              "RMB"
+            ]
+          }
+        ],
+        "review_scope": "Role-specific judgment from named kit actions, item triggers, role economy and composition needs. This is not proof of meta strength. Official role pages and patch notes were checked September 14; detailed Pred.gg definitions remain dated September 8. Small Statz samples are context, not the reason to choose these items.",
+        "experimental_role": true,
+        "auto_recommend": false,
+        "role_confidence": "Experimental role; manual planning",
+        "role_note": "An experimental alternative, not a default meta recommendation. It appears in automatic fill only if you deliberately lock it first.",
+        "source_preconditions": {
+          "abilities": {
+            "LMB": "Melee basic attack dealing 60/63.36/66.9/70.62/74.52/78.6/82.86/87.3/91.92/96.72/101.7/106.86/112.2/117.72/123.42/129.3/135.36/141.6 (+80% physical power) physical damage.",
+            "RMB": "Spirit:\nWukong dashes forward dealing 60/90/120/150/180/210 (+90% physical power) damage and Slowing everything hit by 40% for 0.5s.\nBody:\nWukong enlarges his staff sending it forward dealing 60/85/110/135/160/185 (+100% physical power) damage, Slowing for 30% for 0.75s and forcing away all enemies and Clones.",
+            "Q": "Spirit:\nWukong gains 6/7/8/9/10/11% movement speed and creates a trail of cloud, walkable by allies for 4s.\nBody:\nWukong leaps in the current movement direction gaining 20/24/28/32/36/40% (+60% physical penetration) Attack Speed for 4s.",
+            "E": "Spirit:\nWukong spins his staff around himself gaining 25% (+50% physical penetration) Damage Reduction for the duration. Afterwards he throws the staff forward dealing 60/80/100/120/140/160 (+70% physical power) damage and Stunning for 0.8s.\nBody:\nWukong enlarges his staff and slams down to the ground dealing 60/100/140/180/220/260 (+135% physical power) damage and slowing by 40% for 0.75. This damage is increased by drop distance up to 1500 units. Minions receive 60% less damage.",
+            "R": "Switch between Body and Spirit Stances\nUpon damaging Enemies 5 times, a hair leaps from Wukong and lands, spawning a Clone. Clones deal (+12% physical power) physical damage per hit and have 16%( health) Health. Wukong may have up to 2/3/4/5 clones at one time.\nLeaving combat will reset the counter.",
+            "Passive": "Double Jump to leap into the air."
+          },
+          "items": {
+            "Mindrazor": {
+              "stats": {
+                "Physical power": "45.0",
+                "Mana": "300.0",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Razor Cleave",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Successful Basic Attack:",
+                  "text": "• Deal (+40% physical power) physical damage around the Target.\n• Damage decreases from 100% to 50% based on distance."
+                },
+                {
+                  "name": "Technician",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Gain (+2% mana) Physical Power."
+                }
+              ],
+              "completed_item": true
+            },
+            "Augmentation": {
+              "stats": {
+                "Physical power": "35.0",
+                "Attack speed": "25.0%",
+                "Health": "225.0",
+                "Ability haste": "20.0"
+              },
+              "effects": [
+                {
+                  "name": "True Strike",
+                  "active": false,
+                  "cooldown": "1.5s",
+                  "condition": "On Ability Cast:",
+                  "text": "• Empower your next Basic Attack within 4s. \n• Deal (+90% Base Physical Power physical power) Damage On-Hit."
+                }
+              ],
+              "completed_item": true
+            },
+            "Mutilator": {
+              "stats": {
+                "Physical power": "45.0",
+                "Ability haste": "15.0",
+                "Omnivamp": "12.0%"
+              },
+              "effects": [
+                {
+                  "name": "Mutilate",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On Successsful Basic Attacks:",
+                  "text": "• Deal 1% of their Max Health as physical damage."
+                },
+                {
+                  "name": "Devour",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "Ability Hits on Heroes:",
+                  "text": "• Apply Mutilate 3 times (once per ability)."
+                }
+              ],
+              "completed_item": true
+            },
+            "The Perforator": {
+              "stats": {
+                "Physical power": "45.0",
+                "Physical penetration": "8.0",
+                "Ability haste": "15.0"
+              },
+              "effects": [
+                {
+                  "name": "Chilling Spells",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "On dealing Ability Damage:",
+                  "text": "• Slows by 10% for 1s."
+                },
+                {
+                  "name": "Puncture",
+                  "active": false,
+                  "cooldown": null,
+                  "condition": "",
+                  "text": "• Ignore 30% of Physical Armor."
+                }
+              ],
+              "completed_item": true
+            },
+            "Legacy": {
+              "stats": {
+                "Physical power": "40.0",
+                "Health": "225.0",
+                "Magical armor": "40.0",
+                "Tenacity": "25"
+              },
+              "effects": [
+                {
+                  "name": "Tenacious Bravery",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "On going below 40% Health:",
+                  "text": "• Self Cleanse.\n• Gain CC Immunity for 3s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Salvation": {
+              "stats": {
+                "Physical power": "40.0",
+                "Health": "375.0",
+                "Tenacity": "25"
+              },
+              "effects": [
+                {
+                  "name": "Aegis",
+                  "active": false,
+                  "cooldown": "60s",
+                  "condition": "On going below 30% Health:",
+                  "text": "• Gain a (+25% health) Shield for 6s.\n• Reduced to 50% Effectiveness for Ranged Heroes.\n• Gain 10% Omnivamp for 6s."
+                }
+              ],
+              "completed_item": true
+            },
+            "Iceskorn Talons": {
+              "stats": {
+                "Physical power": "12.0",
+                "Health": "100.0",
+                "Omnivamp": "4.0%"
+              },
+              "effects": [
+                {
+                  "name": "Glacial Colosseum",
+                  "active": true,
+                  "cooldown": "45s",
+                  "condition": "",
+                  "text": "• Create an Ice Sheet around you for 8s.\n• Allies on the sheet gain 12% Physical Power for 3s.\n• They also gain 12% Movement Speed for 3s.\n• Enemy Units on the sheet are Slowed by 10%."
+                }
+              ],
+              "completed_item": false
+            }
+          },
+          "perks": {
+            "Masterful Mimicry": "Gain 1 more Max Clone and generate a stack of Hair every 5.5s.",
+            "Thraex": "Basic Attacks Mark an Enemy Hero for 3s. You deal +3% (+0.4% per level) Damage to them and take 1.5% (+0.35% per level) less Damage from them.",
+            "Alpha's Court": "Deal +6% Damage when no Allied Hero is within 800 Units.",
+            "Ferocity": "Gain +1% Total Attack Speed per Second in Hero Combat. Stacks infinitely and resets when Out of Combat."
+          }
+        },
+        "review_evidence": {
+          "source": "Statz",
+          "url": "https://statz.gg/predecessor/heroes/wukong/build/offlane/paragon",
+          "dataset": "1.16",
+          "bracket": "Paragon+",
+          "fetched_at": "2026-09-14T19:53:56+00:00",
+          "playedGames": 21,
+          "note": "One role observation used to identify coverage, not an efficacy claim. Sample counts are not pooled across brackets."
+        }
       }
     ],
     "build_method": "85 individually reviewed hero/role starting plans cover all 54 heroes. Kit interactions determine the playstyle; current official changes and versioned catalogs constrain mechanics. The final three slots are adaptable examples. No rate proves a universal best build. Disputed fields are excluded from decisions, and samples with different cohorts are never combined.",
@@ -14766,6 +17065,54 @@
           ]
         }
       ]
+    },
+    "role_expansion_review": {
+      "reviewed_at": "2026-09-14T15:46:57.391013-05:00",
+      "patch": "1.16.4",
+      "count": 8,
+      "note": "Eight additional role plans reviewed individually. Original 85 plans and their dates are unchanged. Experimental roles are available for deliberate locks, not automatic filling. No role win rate or tier has been authored.",
+      "entries": [
+        {
+          "slug": "akeron",
+          "role": "support",
+          "experimental": true
+        },
+        {
+          "slug": "grim-exe",
+          "role": "midlane",
+          "experimental": false
+        },
+        {
+          "slug": "ikra",
+          "role": "support",
+          "experimental": true
+        },
+        {
+          "slug": "maco",
+          "role": "midlane",
+          "experimental": true
+        },
+        {
+          "slug": "scarlett",
+          "role": "midlane",
+          "experimental": true
+        },
+        {
+          "slug": "the-fey",
+          "role": "carry",
+          "experimental": true
+        },
+        {
+          "slug": "wraith",
+          "role": "support",
+          "experimental": true
+        },
+        {
+          "slug": "wukong",
+          "role": "offlane",
+          "experimental": true
+        }
+      ]
     }
   },
   "corrections": [
@@ -19100,7 +21447,7 @@
       "reason": "The source differs from the 1.16 release description in the third-rank base damage and the flat empowered-hit damage. The explicit 1.16.1 target-health change is corrected, but the other discrepancies remain unverified."
     }
   ],
-  "revision": "2026-09-07-review-9-complete-coverage + meta-260 + builds-290 + strategy-2100 + jungle-2110 + damage-2120 + correction-properties-2160 + pair-sequences-2170 + strategy-synthesis-2180",
+  "revision": "2026-09-07-review-9-complete-coverage + meta-260 + builds-290 + strategy-2100 + jungle-2110 + damage-2120 + correction-properties-2160 + pair-sequences-2170 + strategy-synthesis-2180 + role-coverage-2215",
   "reviewed_definitions": [
     {
       "key": "voracity",

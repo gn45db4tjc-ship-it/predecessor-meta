@@ -299,6 +299,11 @@ def render_site(folder, out, state):
         attempt = state.get('attempts', {}).get(bracket, {})
         entry = {'label': bracket.capitalize() + '+', 'last_attempt': attempt}
         if bundle:
+            reviewed = base.review_saved_sources(bundle)
+            if reviewed is not bundle:
+                # Store the audited replay once; a guidance release never advances
+                # the original collection or source fetch dates.
+                bundle = retain_publication(reviewed, folder)
             raw = json.dumps(bundle, ensure_ascii=False, separators=(',', ':')).encode('utf8')
             digest = hashlib.sha256(raw).hexdigest()
             relative = 'bundles/' + bracket + '-' + digest + '.json'

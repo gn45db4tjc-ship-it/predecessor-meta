@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.21.4"
+VERSION = "2.21.5"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1899,9 +1899,11 @@ def enrich_bundle(bundle, official=None):
             plan['role'] for plan in packet.get('guidance', {}).get('builds', []) if plan['slug'] == slug]
         for r in reviewed_roles:
             if r in ROLES and r not in h.get('roles_order', []):
+                plan = next((p for p in packet.get('guidance', {}).get('builds', []) if p['slug']==slug and p['role']==r), {})
                 h.setdefault('roles_order', []).append(r)
-                h.setdefault('role_evidence', {})[r] = 'Reviewed patch guidance (%s); %s' % (reviewed, 'current' if current else 'needs review')
-                h['roles'].setdefault(r, {'status':'unavailable','error':'Planning role supported by official patch notes; no Statz role sample in this bracket.'})
+                label = 'Experimental editorial planning role' if plan.get('experimental_role') else 'Reviewed planning role'
+                h.setdefault('role_evidence', {})[r] = '%s (%s); %s' % (label, reviewed, 'current' if current else 'needs review')
+                h['roles'].setdefault(r, {'status':'unavailable','error':label+'; no Statz role sample in this bracket.'})
         for ability in h.get('abilities', []):
             ability['text'] = clean_text(ability.get('menu_description') or ability.get('text') or ability.get('game_description'))
             ability['game_text'] = clean_text(ability.get('game_description') or ability.get('game_text'))
@@ -2999,9 +3001,10 @@ def review_saved_sources(bundle):
     """Apply this release's review to retained source records, without a fresh-data claim.
 
     No files are written, observations are untouched and all fetch dates survive.
-    Only complete bundles with the raw-source audit trail support this replay.
+    Complete or validated independent-source bundles with a raw-source audit
+    trail support replay. Retained source partitions keep their status and dates.
     """
-    if bundle.get('tool_version')==VERSION or not bundle.get('pred_game_data') or not (bundle_is_complete(bundle)[0] or bundle_has_current_primary(bundle)):
+    if bundle.get('tool_version')==VERSION or not bundle.get('pred_game_data',{}).get('heroes') or not bundle_is_publishable(bundle):
         return bundle
     b=source_records_before_review(bundle)
     enrich_bundle(b,b['official'])
@@ -3542,6 +3545,23 @@ def validate_guidance_packet(packet,bundle):
             if not tree or any(n not in tree.get('BLESSING_MINOR_'+str(i+1),[]) for i,n in enumerate(build['blessings'])):raise ValueError('Blessing does not belong to the selected Eternal and slot')
         for field in ('title','why','caution','author','reviewed_at','crest','augment','eternal'):
             if not isinstance(build.get(field),str) or not build[field].strip():raise ValueError('Reviewed build missing '+field)
+        if 'source_preconditions' in build:
+            pre=build['source_preconditions']
+            if not isinstance(pre,dict) or set(pre)!= {'abilities','items','perks'}:raise ValueError('Build preconditions require abilities, items and loadout descriptions')
+            if not isinstance(pre['abilities'],dict) or not pre['abilities'] or any(k not in ('LMB','RMB','Q','E','R','Passive') or not isinstance(t,str) or not t.strip() for k,t in pre['abilities'].items()):raise ValueError('Build ability preconditions must contain named descriptions')
+            if not isinstance(pre['items'],dict) or set(pre['items'])!=set(build['core']+build['finish']+[build['crest']]):raise ValueError('Build preconditions must cover all purchases and the crest')
+            for value in pre['items'].values():
+                if not isinstance(value,dict) or set(value)!={'stats','effects','completed_item'} or not isinstance(value['stats'],dict) or not isinstance(value['effects'],list) or not isinstance(value['completed_item'],bool):raise ValueError('Invalid item preconditions')
+            if not isinstance(pre['perks'],dict) or set(pre['perks'])!=set([build['augment'],build['eternal']]+build['blessings']) or any(not isinstance(t,str) or not t.strip() for t in pre['perks'].values()):raise ValueError('Build preconditions must cover the selected loadout')
+        for field in ('experimental_role','auto_recommend'):
+            if field in build and not isinstance(build[field],bool):raise ValueError('Invalid role recommendation policy')
+        if build.get('experimental_role') and build.get('auto_recommend') is not False:raise ValueError('Experimental roles must require manual selection')
+        if 'review_evidence' in build:
+            evidence=build['review_evidence']
+            if not isinstance(evidence,dict) or evidence.get('source')!='Statz' or not str(evidence.get('url','')).startswith('https://statz.gg/predecessor/heroes/'):raise ValueError('Role observation requires its Statz source')
+            checked_number(evidence.get('playedGames'),'role review sample',0)
+            if not isinstance(evidence.get('playedGames'),int) or isinstance(evidence['playedGames'],bool):raise ValueError('Role review sample must be an integer')
+            if timestamp_age(evidence.get('fetched_at')) is None or not evidence.get('dataset') or not evidence.get('bracket'):raise ValueError('Role observation requires a date, dataset and bracket')
         if build.get('damage') not in ('physical','magical','mixed','none') or build.get('style') not in ('tank','bruiser','assassin','attack','mage','enchanter','burst_carry','ability_carry'):raise ValueError('Invalid reviewed playstyle')
         if not build.get('sources') or any(not isinstance(x,dict) or not re.match(r'^https://(?:www\.predecessorgame\.com|omeda\.city|pred\.gg)/',x.get('url','')) for x in build['sources']):raise ValueError('Reviewed builds require named supporting sources')
 

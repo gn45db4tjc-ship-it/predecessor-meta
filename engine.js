@@ -407,7 +407,8 @@
       for(const other of Object.keys(heroes)) {
         if(other===slug || (role&&!roles(other).includes(role)) || (heroRole&&!roles(other).some(r=>r!==heroRole&&(!role||r===role))))continue;
         const p=pair(slug,other,1);
-        const candidateRoles=roles(other).filter(r=>(!heroRole||r!==heroRole)&&(!role||r===role));
+        const candidateRoles=roles(other).filter(r=>(!heroRole||r!==heroRole)&&(!role||r===role)&&automaticRole(other,r));
+        if(!candidateRoles.length)continue;
         const performances=candidateRoles.map(role=>({role,performance:performance({slug:other,role})})).filter(x=>finite(x.performance?.wr)&&x.performance.played>=min).sort((a,b)=>b.performance.wr-a.performance.wr||b.performance.played-a.performance.played);
         const choices=candidateRoles.map(role=>({role,fit:fit(slug,other,heroRole,role),performance:performances.find(p=>p.role===role)?.performance||null}));
         if(bundle.guidance?.sequence_review)choices.sort((a,b)=>(b.fit.score??-1)-(a.fit.score??-1)||(b.performance?.wr??-1)-(a.performance?.wr??-1)||a.role.localeCompare(b.role));
@@ -424,7 +425,7 @@
     function recommend(picks,{role='jungle',bans=[],enemies=[],min=100,metric='lift',includeUnsampled=true}={}) {
       validPicks(picks,{bans,enemies});const blocked=new Set([...picks.map(p=>p.slug),...bans,...enemies.map(p=>p.slug)]);
       if(picks.some(p=>p.role===role)) return [];
-      return Object.keys(heroes).filter(s=>!blocked.has(s)&&roles(s).includes(role)&&(includeUnsampled||performance({slug:s,role}))).map(slug=>{
+      return Object.keys(heroes).filter(s=>!blocked.has(s)&&roles(s).includes(role)&&automaticRole(s,role)&&(includeUnsampled||performance({slug:s,role}))).map(slug=>{
         const c=assess([...picks,{slug,role}],min,enemies),links=c.links.filter(l=>l.a===slug||l.b===slug),observed=links.filter(l=>l.pair),rows=enemies.map(enemy=>{const row=currentMatchup({slug,role},enemy,min);return row?{...row,enemy}:null;}).filter(Boolean).sort((a,b)=>a.wr-b.wr);
         c.candidateMetrics={lift:mean(observed.map(l=>l.pair.lift)),kitFit:mean(links.map(l=>l.fit.score)),meanHeroWR:performance({slug,role})?.wr??null,observed:observed.length,possible:links.length,matchupMin:rows[0]?.wr??null,limitingMatchup:rows[0]||null,matchupCoverage:rows.length,picks:c.picks};
         return c;
@@ -632,13 +633,33 @@
         return {eligible,condition:condition+' '+reason};});
       return checks.find(c=>c.eligible)||checks[0]||{eligible:false,condition:'Anti-heal activation condition is unavailable; inspect only.'};
     }
+    function automaticRole(slug,role){
+      const r=(bundle.guidance?.builds||[]).find(x=>x.slug===slug&&x.role===role);
+      return r?.auto_recommend!==false&&!r?.experimental_role;
+    }
+    // Compare mechanics, not fetch dates or presentation key order. A review is
+    // conditional on its recorded evidence, even within an unchanged patch label.
+    function sameValue(a,b){
+      if(a===b)return true;
+      if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
+      const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(k=>Object.hasOwn(b,k)&&sameValue(a[k],b[k]));
+    }
     function buildReview(slug,role){
       const r=(bundle.guidance?.builds||[]).find(x=>x.slug===slug&&x.role===role);if(!r)return null;
       const current=bundle.guidance?.patch===r.patch&&bundle.official?.live?.version===r.patch&&reviewReady();
       const missing=[...r.core,...r.finish].filter(n=>!item(n)?.completed_item);
       const tree=bundle.loadout_catalog?.eternals?.[r.eternal];
       const invalid=!!bundle.loadout_catalog?.eternals&&(!tree||r.blessings.some((n,i)=>!tree['BLESSING_MINOR_'+(i+1)]?.includes(n)));
-      return {...r,active:current&&!missing.length&&!invalid,status:!current?'needs review':missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':'reviewed',missing};
+      const changed=[],pre=r.source_preconditions;
+      if(pre){
+        for(const [key,text] of Object.entries(pre.abilities||{}))if(heroes[slug]?.abilities?.find(a=>a.key===key)?.text!==text)changed.push('Ability '+key);
+        for(const [name,expected] of Object.entries(pre.items||{})){
+          const actual=item(name);
+          if(!actual||Object.entries(expected).some(([key,value])=>!sameValue(actual[key],value)))changed.push('Item '+name);
+        }
+        for(const [name,text] of Object.entries(pre.perks||{}))if(Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name))?.description!==text)changed.push('Loadout '+name);
+      }
+      return {...r,active:current&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed};
     }
     function plannedBuild(slug,role,{index=null,forceObserved=false}={}){
       const review=buildReview(slug,role),stats=heroes[slug]?.roles?.[role];

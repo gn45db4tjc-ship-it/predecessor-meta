@@ -1,10 +1,12 @@
-# 2.21.4 verification-status repair
+# Predecessor Meta — 2.21.5
+
+There are now 93 reviewed hero/role builds, covering every role sampled in the six September 14 brackets. Seven added roles are labelled experimental and require deliberate selection. Changed supporting mechanics withdraw the new plans from current advice. Daily cloud collection, original source dates and Design Revision 2 remain intact. See RELEASE-2.21.5.md for checks and remaining freshness limits.
+
+## Previous release: 2.21.4 — verification-status repair
 
 Failed or pending official verification leaves saved plans readable but disables current build, strategy and comparison claims. Successful verification restores them. Fresh observed builds remain available when only written guidance needs review. The daily cloud schedule, source dates, saved drafts and themes are preserved. See RELEASE-2.21.4.md.
 
-# Predecessor Meta — 2.21.3, fresh-source recommendations
-
-## Current release: 2.21.3 (14 September 2026)
+## Previous release: 2.21.3 (14 September 2026)
 
 The automatic meta view and recommendation role statistics now use an available, patch-compatible source. While Pred.gg is retained, they use the newly collected Statz dataset and explicitly name its broader, unconfirmed match window and game-mode coverage. Pred.gg remains inspectable as dated evidence. Old Pred.gg counters cannot rank current draft suggestions, and Live game prefers available same-role observations over retained ones. A Statz rate cannot silently reaffirm a tier reviewed against Pred.gg. Daily free cloud collection from 2.21.2 continues. See `RELEASE-2.21.3.md`.
 
