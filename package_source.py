@@ -49,7 +49,7 @@ def package(node=None):
             if js.returncode: raise RuntimeError(js.stdout+'\n'+js.stderr)
     receipt = {'archive':str(archive),'bytes':archive.stat().st_size,'files':len(files),
                'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
-               'clean_python_tests':'81 passed','clean_javascript_tests':'37 passed' if node else 'not run'}
+               'clean_python_tests':'82 passed','clean_javascript_tests':'37 passed' if node else 'not run'}
     print(json.dumps(receipt,indent=2))
     return receipt
 

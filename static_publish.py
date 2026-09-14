@@ -418,6 +418,11 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
                     complete, why = base.bundle_is_complete(bundle)
+                    if not complete and not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
+                        # A small Statz gap may have only per-page warnings. Name
+                        # the structural failure before persisting valid Pred data.
+                        bundle.setdefault('errors', []).append({'source': 'Collection validation',
+                            'severity': 'error', 'detail': why})
                     attempt.update(at=base.iso(base.now_utc()), status='ok' if complete else 'failed',
                                    seconds=bundle.get('timings', {}).get('cold_refresh_secs'),
                                    errors=[e for e in bundle.get('errors', []) if e.get('severity') == 'error'])

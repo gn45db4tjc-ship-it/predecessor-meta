@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 
 import static_publish as p
 from test_static_publish import NOW, official
-from test_static_independent_sources import partial
+from test_static_independent_sources import partial, previous
 
 
 class PublicPredTests(unittest.TestCase):
@@ -118,6 +118,27 @@ class OptionalPublicationTests(unittest.TestCase):
         self.assertFalse(p.required_source_block(a))
         a['errors'].append({'source':'statz.gg','detail':'HTTP 429'})
         self.assertTrue(p.required_source_block(a))
+
+    def test_fresh_pred_survives_statz_gap_with_only_a_page_warning(self):
+        b=previous();b['tool_version']=p.base.VERSION;b['sources']['statz_hero_pages']['status']='partial (1 missing)'
+        b['failed_pages']=[{'slug':'unit-test-fixture','role':'jungle','error':'Timed out'}]
+        b['errors']=[{'source':'statz.gg hero page unit-test-fixture/jungle','severity':'warning','detail':'Timed out'}]
+        self.assertTrue(p.base.bundle_is_publishable(b))
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            saved={k:getattr(p.base,k) for k in ('DATA_DIR','SNAP_DIR','LATEST_BUNDLE','SETTINGS_FILE','OUT_HTML')}
+            try:
+                with patch.dict(p.CONFIG,brackets=['gold']),patch.object(p.base,'now_utc',return_value=NOW), \
+                     patch.object(p.base,'fetch_official',return_value=official()), \
+                     patch.object(p.base,'collect_bundle',return_value=b),patch.object(p,'output_flag') as flags:
+                    m=p.run(root,root/'site')
+                flags.assert_any_call('source_failed',True)
+                self.assertEqual(m['cohorts']['gold']['last_attempt']['status'],'partial')
+                got=p.load_publication(root,'gold')
+                self.assertEqual(got['scoped_statistics'],b['scoped_statistics'])
+                self.assertTrue(any('partial (1 missing)' in e.get('detail','') for e in got['errors']))
+            finally:
+                for k,v in saved.items():setattr(p.base,k,v)
 
     def test_run_reports_optional_gap_without_failure_and_keeps_source_dates(self):
         with tempfile.TemporaryDirectory() as temp:

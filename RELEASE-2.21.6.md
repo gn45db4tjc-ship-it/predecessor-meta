@@ -6,9 +6,11 @@ If a page lacks structured data, its failure is visible and the next daily colle
 
 The website explains this policy in Sources & accuracy. Existing Builds, Live game, all six brackets, 93 authored role plans, experimental-role safeguards, phone layouts and both themes are unchanged. Weekly strategy review with priority for newly live patches/hotfixes remains separately scheduled in Codex; missing optional Pred.gg evidence alone no longer blocks it. No support message, API request, credentials, new paid service or statistical estimate was introduced.
 
+A live refresh also exposed a pre-existing partial-publication edge case: a single Statz page failure could be recorded only as a warning. The publisher now adds the explicit structural validation reason before saving independently valid Pred.gg data. The missing Statz page stays unavailable and still raises a required-source failure.
+
 ## Verification
 
-- 81 Python publication/ingestion tests pass, including 12 new optional-source tests.
+- 82 Python publication/ingestion tests pass, including 13 new optional-source tests.
 - 37 JavaScript recommendation tests pass.
 - Browser: staged 2.21.6 opens; Sources & accuracy displays the optional public-page policy and dated source status.
 - Re-rendering the prior Gold+ bundle preserves observed source projections, original dates and all 93 plans.
