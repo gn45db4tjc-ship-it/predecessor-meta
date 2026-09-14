@@ -1,3 +1,13 @@
+# 2.21.1 upgrade and rollback
+
+The 2.21.1 release updates `predecessor_meta.py`, `engine.js`, `ui.js`, and `shared_server.py` in the installed app. It preserves the Design Revision 2 CSS/template and authored guidance. Publication-side files are updated in the separate website source folder. Keep the existing data directories and settings.
+
+The local installation creates a dated hashed backup and **Roll Back 2.21.1.bat**. To roll back, quit the app and double-click that file. It restores program files and the prior export, leaving all data and settings intact. The release receipt identifies the exact backup directory. Website rollback restores the previous source commit through the existing publication workflow; do not force-reset the data branch.
+
+Use `RELEASE-2.21.1.md` for this release's checks. The instructions below are the historical incoming Design Revision 2 handoff, already completed on September 8; their presentation-only file list does not describe 2.21.1.
+
+---
+
 # Installing design revision 2 later (not done by this handoff)
 
 This package (design revision 2, which supersedes revision 1) changes only `ui.html`, `ui.js`, `rank_view.js`, `static_client.js`, the tests, two capture tools and packaging notes. Revision 2 added the narrow-screen pass and the opt-in light theme; the user authorised both on 8 September 2026 (see CHANGE-REPORT.md). Data, settings, saved drafts, the updater and the publishing key are untouched. Nothing here has been installed or published.

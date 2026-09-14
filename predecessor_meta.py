@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.21.0"
+VERSION = "2.21.1"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2772,6 +2772,128 @@ def bundle_has_current_primary(b):
         b.get('sources',{}).get('omeda_heroes',{}).get('status')=='ok')
 
 
+def bundle_has_fresh_statz(b):
+    """Validate a useful independent update, without certifying the other sources."""
+    try:
+        if b.get('schema') != 3 or b.get('offline') or not b.get('patch'):
+            return False
+        if b.get('bracket', {}).get('segment') not in BRACKETS:
+            return False
+        if b.get('official', {}).get('status') != 'verified':
+            return False
+        if b.get('failed_pages') or b.get('patch_conflicts'):
+            return False
+        for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items'):
+            source = b['sources'][key]
+            age = timestamp_age(source.get('fetched_at'))
+            if source.get('status') != 'ok' or source.get('offline') or age is None:
+                return False
+            # Fresh means fetched in this collection, not recently repackaged.
+            generated = dt.datetime.fromisoformat(b['generated_at'])
+            fetched = dt.datetime.fromisoformat(source['fetched_at'])
+            if generated.tzinfo is None or fetched.tzinfo is None or not 0 <= (generated-fetched).total_seconds() <= 3600:
+                return False
+        pages = b['sources']['statz_hero_pages']
+        if type(pages.get('requested')) is not int or pages['requested'] < 1:
+            return False
+        if pages.get('ok') != pages['requested'] or pages.get('failed') or pages.get('conflicting'):
+            return False
+        rows = b['tier_list']
+        if not isinstance(rows, list) or not rows:
+            return False
+        seen = set()
+        for row in rows:
+            key = (row['slug'], row['role'])
+            if key in seen or row['role'] not in ROLES:
+                return False
+            seen.add(key)
+            role = b['heroes'][row['slug']]['roles'][row['role']]
+            if role.get('status') != 'ok':
+                return False
+            for record, count in ((row, 'matches'), (role, 'playedGames')):
+                if type(record.get(count)) is not int or record[count] <= 0:
+                    return False
+                for field in ('winRate', 'pickRate'):
+                    value = record.get(field)
+                    if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100:
+                        return False
+        return True
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
+def bundle_is_publishable(b):
+    """Partial publications remain labelled and separate from the last full success."""
+    return bundle_is_complete(b)[0] or bundle_has_current_primary(b) or bundle_has_fresh_statz(b)
+
+
+def retain_pred_partition(bundle, previous):
+    """Reuse dated Pred records only for the identical verified patch and bracket.
+
+    The operation is transactional. Fresh Statz/Omeda records are not replaced;
+    previously collected Pred mechanics pass the existing official-field guards.
+    """
+    if not previous or bundle.get('scoped_statistics', {}).get('status') != 'failed' or bundle.get('pred_game_data', {}).get('status') != 'failed':
+        return False
+    try:
+        current = bundle['official']; prior = previous['official']
+        if current.get('status') != 'verified' or prior.get('status') != 'verified':
+            return False
+        live, old_live = current['live'], prior['live']
+        if not live.get('fingerprint') or any(live.get(k) != old_live.get(k) for k in ('version', 'fingerprint')):
+            return False
+        bracket = bundle['bracket']['segment']
+        scoped, game = previous['scoped_statistics'], previous['pred_game_data']
+        if previous['bracket']['segment'] != bracket or scoped.get('bracket') != bracket:
+            return False
+        if scoped.get('patch') != live['version'] or game.get('cohort', {}).get('patch') != live['version']:
+            return False
+        if scoped.get('status') not in ('ok', 'retained') or game.get('status') not in ('ok', 'retained'):
+            return False
+        if set(game.get('heroes', {})) != set(bundle['heroes']) or not scoped.get('rows'):
+            return False
+        for key in ('pred_scoped', 'pred_game_data'):
+            source = previous['sources'][key]
+            if source.get('status') not in ('ok', 'retained') or timestamp_age(source.get('fetched_at')) is None:
+                return False
+        staged = copy.deepcopy(bundle)
+        attempted = iso(now_utc())
+        for field, key in (('scoped_statistics', 'pred_scoped'), ('pred_game_data', 'pred_game_data')):
+            staged[field] = copy.deepcopy(previous[field])
+            staged[field]['status'] = 'retained'
+            staged[field]['attempted_at'] = attempted
+            source = copy.deepcopy(previous['sources'][key])
+            source.update(status='retained', attempted_at=attempted,
+                note='Latest collection failed. Original source dates and observations retained; not a fresh sample.')
+            staged['sources'][key] = source
+        apply_pred_game_data(staged)
+        staged.setdefault('retained_sources', {})['pred'] = {
+            'patch': scoped['patch'], 'bracket': bracket, 'attempted_at': attempted,
+            'statistics_fetched_at': previous['sources']['pred_scoped']['fetched_at'],
+            'mechanics_fetched_at': previous['sources']['pred_game_data']['fetched_at']}
+        staged['errors'].append({'source': 'Pred.gg retained data', 'severity': 'error',
+            'detail': 'Pred.gg could not be refreshed. Its original dated samples and mechanics are retained. '
+                      'Other sources were collected independently; assembly time is not their shared fetch time.'})
+        bundle.clear(); bundle.update(staged)
+        return True
+    except (KeyError, IndexError, TypeError, ValueError) as error:
+        bundle.setdefault('errors', []).append({'source': 'Pred.gg retention validation', 'severity': 'error', 'detail': str(error)})
+        return False
+
+
+def previous_pred_bundle(bracket):
+    candidates = []
+    for name in ('last_available_', 'last_successful_', 'last_primary_'):
+        try:
+            value = load_bundle(DATA_DIR / (name + bracket + '.json'))
+            if value.get('schema') == 3 and value.get('bracket', {}).get('segment') == bracket:
+                age = timestamp_age(value.get('generated_at'))
+                if age is not None: candidates.append((age, value))
+        except (OSError, ValueError, TypeError):
+            pass
+    return min(candidates, key=lambda pair: pair[0])[1] if candidates else None
+
+
 def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     started = time.perf_counter(); bracket = settings['bracket']; ABORT.clear()
     tier_error=None; retained=None; tier_attempt=iso(now_utc())
@@ -2840,6 +2962,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         pred_pages=PredPages(force=settings.get("force_history_refresh",False))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         attach_pred_game_data(bundle,progress,pages=pred_pages)
+        retain_pred_partition(bundle, previous_pred_bundle(bracket))
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})
     bundle['timings']={'cold_refresh_secs':round(time.perf_counter()-started,2),'hero_pages_secs':pull['secs']}
     if not fixture_dir:
@@ -2887,13 +3010,14 @@ def review_saved_sources(bundle):
 
 
 def read_cached(bracket=None):
-    choices=[DATA_DIR/('last_successful_'+bracket+'.json'),DATA_DIR/('last_primary_'+bracket+'.json')] if bracket else []
+    choices=[DATA_DIR/(name+bracket+'.json') for name in ('last_successful_', 'last_primary_', 'last_available_')] if bracket else []
     choices.append(LATEST_BUNDLE)
     # Newest useful collection wins. Full success and partial primary remain separate files.
     def collection_age(path):
         try:
             b=load_bundle(path)
             if path.name.startswith('last_primary_') and not bundle_has_current_primary(b):return float('inf')
+            if path.name.startswith('last_available_') and not bundle_is_publishable(b):return float('inf')
             age=timestamp_age(b.get('generated_at'))
             return age if age is not None else float('inf')
         except (OSError,ValueError,TypeError):return float('inf')
@@ -2902,6 +3026,7 @@ def read_cached(bracket=None):
             try:
                 raw=load_bundle(path)
                 if path.name.startswith('last_primary_') and not bundle_has_current_primary(raw):continue
+                if path.name.startswith('last_available_') and not bundle_is_publishable(raw):continue
                 b=review_saved_sources(raw)
                 if not bracket or b.get('bracket',{}).get('segment')==bracket:
                     b['session_notice']='Saved data from '+b.get('generated_at','an unknown time')+'. A live refresh is required for this opening.'
@@ -3090,6 +3215,7 @@ class AppState:
                 else:
                     save_bundle(b,DATA_DIR/('last_attempt_'+b['bracket']['segment']+'.json'),False)
                     if bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+b['bracket']['segment']+'.json'))
+                    if bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+b['bracket']['segment']+'.json'),False)
                 display=b
                 # Preserve the last complete, explicitly dated review when the
                 # official source disconnects. The failed attempt stays separate.
@@ -3509,6 +3635,7 @@ def main():
         b=collect_bundle(settings,log); complete,reason=bundle_is_complete(b)
         save_bundle(b,DATA_DIR/('last_successful_'+settings['bracket']+'.json') if complete else DATA_DIR/'last_attempt.json',complete)
         if not complete and bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
+        if not complete and bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+settings['bracket']+'.json'),False)
         render(b); log(json.dumps({'complete':complete,'reason':reason,'timings':b['timings'],'heroes':len(b['heroes']),'rows':len(b['tier_list']),'pairs':len(b['pairs'])})); return 0 if complete else 2
     return serve(settings,args.no_open,args.port,args.no_fetch)
 

@@ -1,13 +1,19 @@
-# Predecessor Meta — free shared website
+# Predecessor Meta — 2.21.1, independent source updates
 
 
-## Design revisions 1 and 2 (presentation only)
+## Current release: 2.21.1 (14 September 2026)
+
+An unavailable Pred.gg collection no longer discards successful Statz/Omeda downloads. The app and website can publish a validated partial update, with each source's original date and an explicit warning. The last complete success remains in a separate file. Older Pred.gg records can be reused only for the identical bracket and unchanged verified official patch content. Retained samples cannot silently reaffirm an authored tier or add current item-fit points. No observed rates are adjusted.
+
+Builds, Live game, all six rank brackets, phone layouts and both themes remain. This release does not provide authorized Pred.gg API access, change hosting costs, or make Windows collection independent of the PC. Source freshness and statistical match-window coverage are different facts. See `RELEASE-2.21.1.md` for verification and limits.
+
+## Previous design revisions 1 and 2
 
 The interface was redesigned on top of 2.21.0 + hosting revision 3 after a six-critic review: a compact top bar with a global hero finder, a single status strip, a grouped rail, Meta with the table directly under the role tabs and the reviewed pool beside it, hero pages with tabs under the header and one headline figure per partner card, build plans that show six positions plus augment, Eternal, both blessings and crest without opening details, compact catalogue rows, a narrow-screen pass with an always-visible route row, an opt-in light theme (rail button, stored separately from the plan), and a computed trust verdict on Sources & accuracy. Observations, calculations, authored guidance, thresholds, routes, element IDs and saved state are unchanged. See `CHANGE-REPORT.md` and `INSTALL-AND-ROLLBACK.md`; `tests/browser_design.cjs` holds the design acceptance checks.
 
 Published September 8, 2026. **[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting, with data collected by your Windows PC.**
 
-This is the selected $0 hosting approach. It supersedes the earlier paid Render proposal. It adds static publication to the installed 2.21.0 app; the six original runtime files, including Builds, Live game and the recommendation engine, are unchanged. The installed Windows app and its saved data have not been replaced.
+The selected hosting approach remains $0. The 2.21.1 repair updates collection, publication and provenance labels on the existing Design Revision 2 interface. Installed settings, drafts, historical bundles and rollback files are preserved.
 
 ## Current availability and update limits
 
@@ -19,10 +25,10 @@ This is the selected $0 hosting approach. It supersedes the earlier paid Render 
 - The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles, a source-status receipt and a small reviewed deployment trigger to `data-updates`; it never force-pushes or modifies `main`.
 - The first complete collection across all six brackets passed with no source errors in **23 minutes 56 seconds**. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
 - Check updates retrieves the latest publication; it does not start another scrape. Open tabs check for published updates every five minutes while visible.
-- Source failures retain the last complete successful bundle for each bracket, with its original timestamp and a visible error. A bracket with no successful bundle is clearly unavailable. No samples are invented or combined across ranks.
+- Source failures preserve the last complete success separately. A validated independent update can publish fresh available-source records with retained or missing sources labelled. A bracket without usable evidence remains unavailable. No samples are invented or combined across ranks.
 - A new patch invalidates the current status of old written advice. Automatic data collection does not author new strategic judgments or resolve undocumented mechanics.
 
-All six rank brackets are configured, with Gold+ first. Only complete, validated cohorts become available. The first full run can take around 25 minutes; the site stays usable throughout.
+All six rank brackets are configured, with Gold+ first. Complete cohorts and validated partial updates can become available, with distinct collection statuses. The first full run can take around 25 minutes; the site stays usable throughout.
 
 Choose a rank with the **Rank bracket** control at the top. All six have their own published observations. The authored tier review currently covers Gold+; other ranks lead with their own sortable win rates and games, and keep Gold+ tiers and working pools in a collapsed reference section. Builds, hero pages, counters and planners label the selected statistical rank. The written review is not relabelled as advice reviewed for every rank. Standalone exports retain the selected rank and this distinction.
 
@@ -79,7 +85,7 @@ Keep this `Predecessor Meta Free Hosting` folder in place. Open **Predecessor Me
 
 Installed and verified September 8, 2026: all six brackets were collected, uploaded and published successfully. The updater is running under your normal Windows account, and a second launch exits without starting overlapping work. GitHub's Pages environment allows exactly `main` and `data-updates`; a real automatic data-branch deployment passed after adding the latter rule.
 
-Updater status and errors are in `.local-publisher/updater.json` and `.local-publisher/updater.log`. Failed publishing retains the prepared data for the next check. Source failures retain each bracket's previous successful bundle and remain visible on the website. There is no database or service to maintain.
+Updater status and errors are in `.local-publisher/updater.json` and `.local-publisher/updater.log`. Failed publishing retains the prepared data for the next check. Source failures remain visible. Independently validated source updates can publish without replacing the saved complete success. There is no database or service to maintain.
 
 To pause automatic updating, run `Install Windows Updater.ps1 -Uninstall` in this folder. This removes only the updater shortcuts and requests the process to stop after any current update; it preserves the website, data and keys. The repository owner can revoke **Predecessor Meta — Windows data updater** in GitHub Settings → Deploy keys. The source-only ZIP excludes `.local-publisher` entirely.
 

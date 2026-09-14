@@ -46,7 +46,7 @@ def export_feed(state_folder, out):
         raise ValueError('No completed local check is available to publish')
     publication.utc_time(receipt['checked_at'])
     for bracket in publication.CONFIG['brackets']:
-        bundle = publication.load_success(state_folder, bracket)
+        bundle = publication.load_publication(state_folder, bracket)
         if bundle is None:
             continue
         raw = json.dumps(bundle, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()

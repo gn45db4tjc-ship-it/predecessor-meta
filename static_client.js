@@ -118,7 +118,7 @@ if (APP_CONFIG.mode === 'static') {
       site.originalBundle = raw; site.loadedEntry = entry;
       B = next; revision = entry.sha256;
       if (changed) { E = MetaEngine.create(B); compositions = null; }
-      latestStatus = {busy: false, errors: errs, message: (entry.last_attempt?.status && entry.last_attempt.status !== 'ok' ? 'Latest collection failed. Retaining successful ' : 'Published ') + entry.label + ' data from ' + date(B.generated_at) + '. Your draft is saved in this browser.'};
+      latestStatus = {busy: false, errors: errs, message: (entry.collection_status==='partial'?'Partial update · ':entry.last_attempt?.status && entry.last_attempt.status !== 'ok'?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Each source keeps its own fetch date' + '. Your draft is saved in this browser.'};
       site.lastCheck = Date.now(); if (changed) { render(); checkSharedPlan(); } else chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;

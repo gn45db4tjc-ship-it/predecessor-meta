@@ -208,7 +208,7 @@
       if(bundle.scoped_statistics){
         if(bundle.official?.status!=='verified'||bundle.scoped_statistics.patch!==bundle.official?.live?.version)return null;
         const r=bundle.scoped_statistics.roles?.[pick.role]?.rows?.find(x=>x.slug===pick.slug);
-        return r&&finite(r.winRate)&&r.matches>0?{wr:r.winRate,played:r.matches,tier:null,url:r.url,source:'Pred.gg',patch:bundle.scoped_statistics.patch,fetched_at:r.fetched_at,interval95:r.interval95}:null;
+        return r&&finite(r.winRate)&&r.matches>0?{wr:r.winRate,played:r.matches,tier:null,url:r.url,source:'Pred.gg',patch:bundle.scoped_statistics.patch,fetched_at:r.fetched_at,interval95:r.interval95,retained:bundle.scoped_statistics.status==='retained'}:null;
       }
       const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch}:null;
     }
@@ -217,11 +217,11 @@
       if(!row)return null;
       const patchOK=review.patch===bundle.official?.live?.version&&bundle.official?.status==='verified'&&String(bundle.guidance?.status||'').startsWith('reviewed');
       const cohortOK=review.bracket===bundle.bracket?.segment&&review.bracket_label===bundle.scoped_statistics?.bracket_label&&review.patch===bundle.scoped_statistics?.patch&&bundle.scoped_statistics?.gameModes?.length===1&&bundle.scoped_statistics.gameModes[0]===review.mode;
-      const current=performance({slug,role}),sampleOK=!!current&&current.played>=100,active=patchOK&&cohortOK&&sampleOK;
+      const current=performance({slug,role}),sampleOK=!!current&&!current.retained&&current.played>=100,active=patchOK&&cohortOK&&sampleOK;
       const moved=active&&current?.played>=500&&finite(row.evidence?.winRate)&&Math.abs(current.wr-row.evidence.winRate)>=3;
       return {...row,active:active&&!moved,tier:active&&!moved?row.tier:null,reviewed_tier:row.tier,current,
         patch:review.patch,bracket:review.bracket_label,reviewed_at:review.reviewed_at,
-        status:!patchOK?'Patch or guidance needs review':!cohortOK?'Review covers a different cohort':!sampleOK?'Current role evidence unavailable or below 100 games':moved?'Statistics moved since review':'Dated editorial judgment',
+        status:!patchOK?'Patch or guidance needs review':!cohortOK?'Review covers a different cohort':current?.retained?'Retained sample; refresh required to reassess this tier':!sampleOK?'Current role evidence unavailable or below 100 games':moved?'Statistics moved since review':'Dated editorial judgment',
         evidenceMoved:moved,limitedSample:!!current&&current.played<500,
         definition:review.tier_definitions?.[row.tier],method:review.method};
     }
@@ -314,7 +314,8 @@
       const rows=matchup(ally,enemy),live=bundle?.official?.live?.version;
       const scope=bundle?.pred_game_data?.role_data?.[ally.slug]?.[ally.role]?.counters;
       if(bundle?.official?.status!=='verified'||scope?.status!=='ok'||scope.patch!==live||scope.role!==ally.role||scope.mode!=='RANKED'||scope.bracket!==bundle?.scoped_statistics?.bracket_label||scope.version_id!==bundle?.scoped_statistics?.versions?.[0]||!scope.tables?.counters?.cohort_verified)return null;
-      return rows.filter(r=>r.source==='Pred.gg'&&r.patch===live&&r.played>=min&&finite(r.wr)).sort((a,b)=>b.played-a.played)[0]||null;
+      const row=rows.filter(r=>r.source==='Pred.gg'&&r.patch===live&&r.played>=min&&finite(r.wr)).sort((a,b)=>b.played-a.played)[0];
+      return row?{...row,retained:bundle.pred_game_data?.status==='retained'}:null;
     }
     function assess(picks,min=100,enemies=[]) {
       const links=[];for(let i=0;i<picks.length;i++) for(let j=i+1;j<picks.length;j++) links.push({a:picks[i].slug,b:picks[j].slug,pair:pair(picks[i].slug,picks[j].slug,min),fit:fit(picks[i].slug,picks[j].slug,picks[i].role,picks[j].role)});

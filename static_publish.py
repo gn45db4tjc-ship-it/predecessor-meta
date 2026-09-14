@@ -167,6 +167,50 @@ def load_success(folder, bracket):
     return validate_public_bundle(json.loads(gzip.decompress(target.read_bytes())), bracket)
 
 
+def validate_publication_bundle(bundle, bracket):
+    if base.bundle_is_complete(bundle)[0]:
+        return validate_public_bundle(bundle, bracket)
+    if bracket not in base.BRACKETS or bundle.get('bracket', {}).get('segment') != bracket:
+        raise ValueError('Published bundle has the wrong rank bracket')
+    utc_time(bundle['generated_at'])
+    if not base.bundle_is_publishable(bundle):
+        raise ValueError('Partial collection has no validated independent source update')
+    if not bundle.get('heroes') or not isinstance(bundle.get('tier_list'), list):
+        raise ValueError('Partial collection is missing its roster or tier structure')
+    if not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
+        raise ValueError('Partial collection must name its unavailable source')
+    clean = public_bundle(bundle)
+    clean['refresh_result'] = 'partial: independent sources updated; inspect each source date'
+    return clean
+
+
+def retain_publication(bundle, folder):
+    if base.bundle_is_complete(bundle)[0]:
+        return retain_success(bundle, folder)
+    bracket = bundle.get('bracket', {}).get('segment')
+    clean = validate_publication_bundle(bundle, bracket)
+    target = Path(folder) / 'partial-bundles' / (bracket + '.json.gz')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temp = target.with_suffix('.tmp')
+    raw = json.dumps(clean, ensure_ascii=False, separators=(',', ':')).encode('utf8')
+    temp.write_bytes(gzip.compress(raw, mtime=0))
+    os.replace(temp, target)
+    return clean
+
+
+def load_publication(folder, bracket):
+    complete = load_success(folder, bracket)
+    target = Path(folder) / 'partial-bundles' / (bracket + '.json.gz')
+    partial = None
+    if target.exists():
+        try:
+            partial = validate_publication_bundle(json.loads(gzip.decompress(target.read_bytes())), bracket)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            base.log('Independent update unavailable for ' + bracket + ': ' + str(error))
+    candidates = [b for b in (complete, partial) if b]
+    return max(candidates, key=lambda b: utc_time(b['generated_at'])) if candidates else None
+
+
 def import_public_seed(path, folder):
     """Import a validated public snapshot without changing its date or replacing newer data."""
     seed = json.loads(gzip.decompress(Path(path).read_bytes()))
@@ -249,7 +293,7 @@ def render_site(folder, out, state):
     manifest['local_collector'] = state.get('local_collector')
     manifest['collection_paused_reason'] = None if state.get('local_collector') else CONFIG.get('cloud_collection_paused_reason')
     for bracket in CONFIG['brackets']:
-        bundle = load_success(folder, bracket)
+        bundle = load_publication(folder, bracket)
         attempt = state.get('attempts', {}).get(bracket, {})
         entry = {'label': bracket.capitalize() + '+', 'last_attempt': attempt}
         if bundle:
@@ -261,7 +305,10 @@ def render_site(folder, out, state):
             target.write_bytes(raw)
             entry.update(url=relative, sha256=digest, generated_at=bundle['generated_at'],
                          patch=bundle.get('official', {}).get('live', {}).get('version'),
-                         source_signature=live_signature(bundle.get('official', {})), status='available')
+                         source_signature=live_signature(bundle.get('official', {})), status='available',
+                         collection_status='complete' if base.bundle_is_complete(bundle)[0] else 'partial',
+                         source_dates={k: {'status': v.get('status'), 'fetched_at': v.get('fetched_at')}
+                                       for k, v in bundle.get('sources', {}).items()})
         else:
             entry['status'] = 'unavailable'
         manifest['cohorts'][bracket] = entry
@@ -335,9 +382,10 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
             for bracket in CONFIG['brackets']:
                 attempt = state['attempts'][bracket]
                 try:
-                    previous = load_success(folder, bracket)
+                    previous = load_publication(folder, bracket)
                     if previous:
-                        base.save_bundle(previous, base.DATA_DIR / ('last_successful_' + bracket + '.json'))
+                        name = 'last_successful_' if base.bundle_is_complete(previous)[0] else 'last_available_'
+                        base.save_bundle(previous, base.DATA_DIR / (name + bracket + '.json'))
                     bundle = base.collect_bundle(dict(base.DEFAULT_SETTINGS, bracket=bracket, open_browser=False,
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
@@ -348,6 +396,10 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                     if complete:
                         retain_success(bundle, folder)
                         base.save_bundle(public_bundle(bundle), base.DATA_DIR / ('last_successful_' + bracket + '.json'))
+                    elif base.bundle_is_publishable(bundle):
+                        retain_publication(bundle, folder)
+                        base.save_bundle(public_bundle(bundle), base.DATA_DIR / ('last_available_' + bracket + '.json'), False)
+                        attempt['status'] = 'partial'
                     elif not attempt['errors']:
                         attempt['errors'] = [{'source': 'Collection validation', 'severity': 'error', 'detail': why}]
                 except Exception as error:

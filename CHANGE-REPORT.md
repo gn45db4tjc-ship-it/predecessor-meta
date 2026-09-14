@@ -1,3 +1,7 @@
+# Current release: 2.21.1
+
+The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
+
 # Change report — design revisions 1 and 2 on 2.21.0 + hosting revision 3
 
 Baseline: commit `ad044213d04163ca19ebb4b4f1df59b93b8d2942` (application runtime 2.21.0, website adapter hosting revision 3, rank-display fix). This revision changes presentation only. `engine.js`, `predecessor_meta.py`, `reviewed_guidance.json`, `shared_server.py`, `static_publish.py` and the updater are byte-identical to the baseline. Route identifiers, element IDs, data hooks, the saved-state key and every existing test assertion are unchanged. The runtime version string stays 2.21.0 because the public fixtures carry that version and the correction suite compares the two.

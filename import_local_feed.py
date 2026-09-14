@@ -39,14 +39,14 @@ def import_feed(feed, state_folder):
             raw=path.read_bytes()
             if hashlib.sha256(raw).hexdigest()!=row.get('sha256'):
                 raise ValueError('Local bundle checksum mismatch')
-            bundle=p.validate_public_bundle(json.loads(raw),bracket)
+            bundle=p.validate_publication_bundle(json.loads(raw),bracket)
             if bundle['generated_at']!=row.get('generated_at'):
                 raise ValueError('Local bundle date differs from receipt')
-            old=p.load_success(state_folder,bracket)
+            old=p.load_publication(state_folder,bracket)
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
                 results[bracket]='retained newer or identical bundle'
             else:
-                p.retain_success(bundle,state_folder)
+                p.retain_publication(bundle,state_folder)
                 results[bracket]='imported'
         except Exception as error:
             results[bracket]='failed'

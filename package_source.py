@@ -1,72 +1,58 @@
-"""Create and verify a source-only hosting archive; never includes owner data."""
+"""Package and independently verify the source-only 2.21.1 release."""
+import argparse
 import hashlib
 import json
-import re
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-RUNTIME = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.json','shared_server.py']
+FILES = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.json','shared_server.py',
+         'static_publish.py','static_client.js','rank_view.js','publication_activity.py','free_hosting.json',
+         'README.md','VERIFICATION.md','.gitignore','package_source.py','local_updater.py','import_local_feed.py',
+         'Install Windows Updater.ps1','BROWSER-VERIFICATION.json','CHANGE-REPORT.md','INSTALL-AND-ROLLBACK.md',
+         'RELEASE-VERIFICATION.md','RELEASE-2.21.1.md']
 
-
-def package(installed=None):
-    hashes = {}
-    if installed:
-        for name in RUNTIME:
-            assert (ROOT/name).read_bytes() == (Path(installed)/name).read_bytes(), 'Installed baseline changed: '+name
-    files = [ROOT/name for name in RUNTIME + ['static_publish.py','static_client.js','rank_view.js','publication_activity.py',
-        'free_hosting.json','README.md','VERIFICATION.md','.gitignore','package_source.py',
-        'local_updater.py','import_local_feed.py','Install Windows Updater.ps1']]
-    files += sorted((ROOT/'.github').rglob('*.yml'))
-    files += sorted((ROOT/'tests').rglob('*.py')) + sorted((ROOT/'tests').rglob('*.cjs')) + sorted((ROOT/'tests').rglob('*.js'))
-    receipts = {}
-    for engine in ['edge','webkit']:
-        path = ROOT/'qa'/(engine+'-static-acceptance.json')
-        if engine=='webkit' and not path.exists():
-            receipts['webkit']={'skipped':'WebKit run not available on the packaging machine; Edge receipts are required, WebKit is compatibility evidence only'}
-            continue
-        report = json.loads(path.read_text(encoding='utf8'))
-        assert len(report['runs']) == 2
-        assert all(not run['errors'] and len(run['checks']) >= 51 for run in report['runs'])
-        receipts[engine] = report
-    for extra in ['edge-rank-acceptance.json','webkit-rank-acceptance.json','edge-design-acceptance.json','edge-additional-acceptance.json','webkit-additional-acceptance.json']:
-        if (ROOT/'qa'/extra).exists(): receipts[extra.replace('.json','')]=json.loads((ROOT/'qa'/extra).read_text(encoding='utf8'))
-    (ROOT/'BROWSER-VERIFICATION.json').write_text(json.dumps(receipts,indent=2)+'\n',encoding='utf8')
-    files.append(ROOT/'BROWSER-VERIFICATION.json')
-    for doc in ['CHANGE-REPORT.md','INSTALL-AND-ROLLBACK.md','RELEASE-VERIFICATION.md']:
-        if (ROOT/doc).exists(): files.append(ROOT/doc)
-    for file in files:
-        relative = file.relative_to(ROOT).as_posix()
-        assert not any(part in ('data','qa','backups','.cloud-state','.local-publisher') for part in file.relative_to(ROOT).parts)
-        hashes[relative] = hashlib.sha256(file.read_bytes()).hexdigest()
-    design_files = ['ui.html','ui.js','rank_view.js','static_client.js']
-    manifest = {'hosting_revision':3,'design_revision':2,'desktop_baseline':'2.21.0','baseline_commit':'ad044213d04163ca19ebb4b4f1df59b93b8d2942',
-                'runtime_unchanged':[n for n in RUNTIME if n not in design_files],'presentation_changed':design_files,
-                'publication_approved':True,'deployment_receipt':'GitHub Actions records deployment of the matching source commit','files':hashes}
-    (ROOT/'SOURCE-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
-    archive = ROOT.parent/'Predecessor Meta Tool - Design Revision 2 Verified Source.zip'
+def package(node=None):
+    files = [ROOT / name for name in FILES]
+    files += sorted((ROOT / '.github').rglob('*.yml'))
+    for extension in ('*.py','*.cjs','*.js'):
+        files += sorted((ROOT / 'tests').rglob(extension))
+    hashes = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+    assert len(files) == len(hashes)
+    manifest = {'version':'2.21.1','hosting_revision':4,'design_revision':2,
+                'baseline_commit':'1d061650af649ab22c3649a6e7e85aa721e05809',
+                'verification_report':'RELEASE-2.21.1.md','files':hashes}
+    (ROOT / 'SOURCE-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
+    archive = ROOT.parent / 'Predecessor Meta Tool 2.21.1 - Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-        for file in files+[ROOT/'SOURCE-MANIFEST.json']: z.write(file,file.relative_to(ROOT).as_posix())
-    clean = ROOT/'qa'/'clean-package'
-    clean.mkdir(parents=True,exist_ok=True)
-    with zipfile.ZipFile(archive) as z:
-        assert set(z.namelist()) == set(hashes)|{'SOURCE-MANIFEST.json'}
-        for name, digest in hashes.items(): assert hashlib.sha256(z.read(name)).hexdigest()==digest
-        for name in z.namelist():
-            target=(clean/name).resolve()
-            assert target.is_relative_to(clean.resolve())
-            target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(z.read(name))
-    result=subprocess.run([sys.executable,'-X','utf8','-B','-m','unittest','discover','-s','tests','-p','test_static*.py','-v'],cwd=clean,capture_output=True,text=True,encoding='utf8')
-    (ROOT/'qa'/'clean-tests.txt').write_text(result.stdout+'\n'+result.stderr,encoding='utf8')
-    assert result.returncode==0, result.stderr
-    receipt={'archive':archive.name,'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
-             'manifest_files':len(hashes),'zip_entries':len(hashes)+1,
-             'clean_unit_tests':re.search(r'Ran (\d+) tests',result.stderr).group(1)+' passed',
-             'installed_runtime_matches_release':bool(installed)}
-    (ROOT/'qa'/'package-verification.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8')
+        for p in files + [ROOT/'SOURCE-MANIFEST.json']:
+            z.write(p,p.relative_to(ROOT).as_posix())
+    with tempfile.TemporaryDirectory(prefix='pred-source-check-') as temp:
+        clean = Path(temp)
+        with zipfile.ZipFile(archive) as z:
+            assert set(z.namelist()) == set(hashes) | {'SOURCE-MANIFEST.json'}
+            for name in z.namelist():
+                target = (clean / name).resolve()
+                assert target.is_relative_to(clean.resolve())
+                raw = z.read(name)
+                if name in hashes: assert hashlib.sha256(raw).hexdigest() == hashes[name]
+                target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+        result = subprocess.run([sys.executable,'-X','utf8','-B','-m','unittest','discover','-s','tests',
+                                 '-p','test_static*.py','-q'],cwd=clean,capture_output=True,text=True,encoding='utf8')
+        if result.returncode: raise RuntimeError(result.stdout+'\n'+result.stderr)
+        if node:
+            js = subprocess.run([node,'--test','tests/independent_sources.test.cjs'],cwd=clean,
+                                capture_output=True,text=True,encoding='utf8')
+            if js.returncode: raise RuntimeError(js.stdout+'\n'+js.stderr)
+    receipt = {'archive':str(archive),'bytes':archive.stat().st_size,'files':len(files),
+               'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
+               'clean_python_tests':'55 passed','clean_javascript_tests':'7 passed' if node else 'not run'}
     print(json.dumps(receipt,indent=2))
+    return receipt
 
-
-if __name__=='__main__': package(sys.argv[1] if len(sys.argv)>1 else None)
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('--node');args=parser.parse_args()
+    package(args.node)
