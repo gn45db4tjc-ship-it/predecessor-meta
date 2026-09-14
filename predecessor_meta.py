@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.21.1"
+VERSION = "2.21.2"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2322,12 +2322,15 @@ def apply_mechanics_resolutions(bundle,packet,current):
 
 class PredPages:
     """One in-run fetch per public URL; bounded callers, spaced starts, dated cache."""
-    def __init__(self, force=False, cache_dir=None, fetch=None):
+    def __init__(self, force=False, cache_dir=None, fetch=None, paused_reason=None):
         self.force=force; self.root=Path(cache_dir or DATA_DIR/'pred_pages'); self.fetch=fetch or http_get
+        self.paused_reason=paused_reason
         self.lock=threading.Lock(); self.blocked=threading.Event(); self.memory={}; self.records=[]; self.next_start=0
     def get(self,url,ttl=1800):
         parsed=urllib.parse.urlparse(url)
         if parsed.scheme!='https' or parsed.netloc!='pred.gg': raise ValueError('Unexpected Pred.gg URL')
+        if self.paused_reason:
+            raise FetchError('Pred.gg collection paused: '+self.paused_reason+' No request was sent.')
         # Locks reserve a unique URL and start time. Futures prevent duplicate concurrent fetches.
         with self.lock:
             future=self.memory.get(url)
@@ -2959,7 +2962,8 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     if not fixture_dir:
         progress('Checking current-patch community build alternatives…')
         attach_community_builds(bundle)
-        pred_pages=PredPages(force=settings.get("force_history_refresh",False))
+        pred_pages=PredPages(force=settings.get("force_history_refresh",False),
+                             paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         attach_pred_game_data(bundle,progress,pages=pred_pages)
         retain_pred_partition(bundle, previous_pred_bundle(bracket))

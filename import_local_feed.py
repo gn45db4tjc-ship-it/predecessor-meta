@@ -52,9 +52,20 @@ def import_feed(feed, state_folder):
             results[bracket]='failed'
             attempts[bracket].update(status='failed')
             attempts[bracket]['errors'].append({'source':'Local collector '+bracket,'severity':'error','detail':str(error)})
-    state['attempts']=attempts
-    state['last_full_attempt_at']=receipt.get('last_full_attempt_at')
-    state['last_full_seconds']=receipt.get('last_full_seconds')
+    # A daily cloud attempt must not be reset by importing the same older Windows
+    # receipt on each three-hour patch check. Bundles and attempt clocks each
+    # advance monotonically; a newer assembly never makes an old source fresh.
+    incoming_at=receipt.get('last_full_attempt_at')
+    existing_at=state.get('last_full_attempt_at')
+    newer_attempt=bool(incoming_at and (not existing_at or p.utc_time(incoming_at)>p.utc_time(existing_at)))
+    for bracket,attempt in attempts.items():
+        current=state.setdefault('attempts',{}).get(bracket,{})
+        stamp=attempt.get('at');current_stamp=current.get('at')
+        if not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp))):
+            state['attempts'][bracket]=attempt
+    if newer_attempt:
+        state['last_full_attempt_at']=incoming_at
+        state['last_full_seconds']=receipt.get('last_full_seconds')
     state['local_collector']={'checked_at':receipt['checked_at'],'status':'connected','results':results}
     p.write_json(state_folder/'publication.json',state)
     return state['local_collector']

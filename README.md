@@ -1,7 +1,11 @@
-# Predecessor Meta — 2.21.1, independent source updates
+# Predecessor Meta — 2.21.2, daily cloud updates
+
+## Current release: 2.21.2 (14 September 2026)
+
+Available sources now refresh daily in GitHub for all six brackets, even when your PC is off. Only Pred.gg is paused pending authorized access. Its old records remain explicitly dated; they are not called fresh. The daily target is 17:23 UTC, with official patch/hotfix checks every three hours. Calculated rankings and suggestions use the published observations. Written build plans still need a separate strategic review; data collection does not author new advice. See `RELEASE-2.21.2.md`.
 
 
-## Current release: 2.21.1 (14 September 2026)
+## Previous release: 2.21.1 (14 September 2026)
 
 An unavailable Pred.gg collection no longer discards successful Statz/Omeda downloads. The app and website can publish a validated partial update, with each source's original date and an explicit warning. The last complete success remains in a separate file. Older Pred.gg records can be reused only for the identical bracket and unchanged verified official patch content. Retained samples cannot silently reaffirm an authored tier or add current item-fit points. No observed rates are adjusted.
 
@@ -11,7 +15,7 @@ Builds, Live game, all six rank brackets, phone layouts and both themes remain. 
 
 The interface was redesigned on top of 2.21.0 + hosting revision 3 after a six-critic review: a compact top bar with a global hero finder, a single status strip, a grouped rail, Meta with the table directly under the role tabs and the reviewed pool beside it, hero pages with tabs under the header and one headline figure per partner card, build plans that show six positions plus augment, Eternal, both blessings and crest without opening details, compact catalogue rows, a narrow-screen pass with an always-visible route row, an opt-in light theme (rail button, stored separately from the plan), and a computed trust verdict on Sources & accuracy. Observations, calculations, authored guidance, thresholds, routes, element IDs and saved state are unchanged. See `CHANGE-REPORT.md` and `INSTALL-AND-ROLLBACK.md`; `tests/browser_design.cjs` holds the design acceptance checks.
 
-Published September 8, 2026. **[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting, with data collected by your Windows PC.**
+**[Open Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/) — free hosting and daily cloud collection of available sources.**
 
 The selected hosting approach remains $0. The 2.21.1 repair updates collection, publication and provenance labels on the existing Design Revision 2 interface. Installed settings, drafts, historical bundles and rollback files are preserved.
 
@@ -19,14 +23,14 @@ The selected hosting approach remains $0. The 2.21.1 repair updates collection, 
 
 - Open a normal website link on your PC, Mac or iPhone. Neither your Windows PC nor the spare iMac needs to remain on.
 - The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your draft stays in that browser; Share plan deliberately transfers it.
-- Your Windows PC collects the data. The small updater starts when you sign in and checks every three hours while the PC is on and connected. Codex does not need to be open; no AI account/API key is used by the updater.
-- Full collection runs once per daily update cycle (17:23 UTC boundary), or after a live patch/hotfix changes. If the PC is off, the website continues serving its last successful data. Missed daily updates are collected when the PC is available again.
-- GitHub checks official patch notes independently every three hours, imports validated public files from the `data-updates` branch, and deploys the site. The cloud does not repeat requests to the unavailable Pred.gg endpoints.
+- GitHub collects available sources once per daily update cycle (17:23 UTC boundary), or after live patch/hotfix content changes. Your PC and Codex can be off. Pred.gg alone is paused until authorized access is configured.
+- The Windows updater remains an additional collection route. It starts at sign-in and checks every three hours while the PC is on and connected. Neither collector requires an AI account or API key for the currently enabled sources.
+- GitHub checks official patch notes every three hours, imports newer validated public files from `data-updates`, and deploys the site. Old Windows receipts cannot reset a newer cloud collection clock. The cloud sends no requests to the paused Pred.gg collector.
 - The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles, a source-status receipt and a small reviewed deployment trigger to `data-updates`; it never force-pushes or modifies `main`.
 - The first complete collection across all six brackets passed with no source errors in **23 minutes 56 seconds**. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
 - Check updates retrieves the latest publication; it does not start another scrape. Open tabs check for published updates every five minutes while visible.
 - Source failures preserve the last complete success separately. A validated independent update can publish fresh available-source records with retained or missing sources labelled. A bracket without usable evidence remains unavailable. No samples are invented or combined across ranks.
-- A new patch invalidates the current status of old written advice. Automatic data collection does not author new strategic judgments or resolve undocumented mechanics.
+- A new patch invalidates the current status of old written advice. Pair comparisons, observed builds, counters and composition calculations use the latest loaded evidence, with missing/retained sources labelled. Automatic data collection does not author new strategic judgments or resolve undocumented mechanics. A separate daily Codex review uses existing Codex allowance and requires the host to be available if the owner chooses to enable it.
 
 All six rank brackets are configured, with Gold+ first. Complete cohorts and validated partial updates can become available, with distinct collection statuses. The first full run can take around 25 minutes; the site stays usable throughout.
 

@@ -291,6 +291,8 @@ def render_site(folder, out, state):
                 'last_verified_patch_check': state.get('last_verified_patch_check'),
                 'last_full_attempt_at': state.get('last_full_attempt_at')}
     manifest['local_collector'] = state.get('local_collector')
+    manifest['collection_host'] = 'cloud' if not CONFIG.get('cloud_collection_paused_reason') else 'windows'
+    manifest['source_pauses'] = {'pred': CONFIG['pred_collection_paused_reason']} if CONFIG.get('pred_collection_paused_reason') else {}
     manifest['collection_paused_reason'] = None if state.get('local_collector') else CONFIG.get('cloud_collection_paused_reason')
     for bracket in CONFIG['brackets']:
         bundle = load_publication(folder, bracket)
@@ -387,6 +389,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                         name = 'last_successful_' if base.bundle_is_complete(previous)[0] else 'last_available_'
                         base.save_bundle(previous, base.DATA_DIR / (name + bracket + '.json'))
                     bundle = base.collect_bundle(dict(base.DEFAULT_SETTINGS, bracket=bracket, open_browser=False,
+                                                       pred_collection_paused_reason=CONFIG.get('pred_collection_paused_reason'),
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
                     complete, why = base.bundle_is_complete(bundle)

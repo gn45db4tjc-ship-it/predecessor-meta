@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       refresh:
-        description: 'Collect all configured rank brackets now'
+        description: 'Collect available sources for all six brackets now (source pauses still apply)'
         type: boolean
         default: false
       diagnose_pred:
@@ -122,7 +122,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publish complete bundles and visible failure status
+      - name: Publish available-source updates and visible failure status
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
       - name: Report source failures after preserving the working site

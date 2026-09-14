@@ -13,7 +13,8 @@
     "paragon"
   ],
   "default_bracket": "gold",
-  "cloud_collection_paused_reason": "Complete cloud collection is paused: Pred.gg omits structured page data for the updater and its anonymous statistics API denied access. The Windows updater can refresh available sources independently; retained Pred.gg observations keep their original dates. Authorized source access is still needed for complete updates.",
+  "cloud_collection_paused_reason": null,
+  "pred_collection_paused_reason": "Authorized source access is still needed. Public pages omitted structured statistics and the anonymous statistics API denied access. Other sources continue their daily cloud updates; saved Pred.gg records retain their original dates.",
   "budget": "Free GitHub Pages and standard Actions runners only",
-  "policy": "One full collection daily, plus one extra attempt for a changed live patch or article fingerprint. Future announcements do not trigger full collections. Written guidance requires a separate reviewed update."
+  "policy": "Collect every available source for all six brackets daily in GitHub, plus an extra attempt for changed live patch or hotfix content. Pred.gg alone is paused pending authorized access. Future announcements do not trigger collections. Calculated recommendations use the newly published evidence; authored guidance requires a separate reviewed update."
 }
