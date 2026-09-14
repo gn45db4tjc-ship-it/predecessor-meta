@@ -12,9 +12,24 @@
     const heroes = bundle?.heroes || {}, fitCache = new Map(), plannedKitCache=new Map(), heroIds=new Map(Object.entries(bundle?.heroes||{}).map(([slug,h])=>[h,slug]));
     const pairMap = Array.isArray(bundle?.pairs) ? Object.fromEntries(bundle.pairs.map(p=>[key(p.a,p.b),p])) : bundle?.pairs || {};
     const sequenceIndex=new Map((bundle?.guidance?.sequence_review?.abilities||[]).map(r=>[r.slug+'|'+r.key,r]));
+    // Source verification and editorial review are separate from retained evidence.
+    function verificationCurrent() {
+      return !!bundle&&bundle.official?.status==='verified'&&bundle.recommendation_context?.status!=='withheld'&&
+        !String(bundle.guidance?.status||'').startsWith('reviewed for saved patch');
+    }
+    function reviewReady(patch=bundle?.guidance?.patch) {
+      return verificationCurrent()&&bundle.guidance?.status==='reviewed for current patch'&&
+        !!patch&&patch===bundle.guidance?.patch&&patch===bundle.official?.live?.version;
+    }
+    function statzBuildAvailable(slug,role) {
+      const source=bundle?.sources?.statz_hero_pages,live=bundle?.official?.live?.version;
+      return verificationCurrent()&&source?.status==='ok'&&Number.isFinite(Date.parse(source.fetched_at))&&
+        typeof bundle.patch==='string'&&(bundle.patch===live||String(live).startsWith(bundle.patch+'.'))&&
+        heroes[slug]?.roles?.[role]?.status==='ok';
+    }
     function strategyReady() {
       const r=bundle.guidance?.strategic_review;
-      return !!r&&r.patch===bundle.official?.live?.version&&r.patch===bundle.guidance?.patch&&bundle.official?.status==='verified'&&String(bundle.guidance?.status||'').startsWith('reviewed');
+      return !!r&&r.patch===bundle.official?.live?.version&&r.patch===bundle.guidance?.patch&&bundle.official?.status==='verified'&&reviewReady();
     }
     function matchesAbilities(slug,texts) {return !!heroes[slug]&&Object.entries(texts||{}).length>0&&Object.entries(texts).every(([k,t])=>heroes[slug].abilities?.find(a=>a.key===k)?.text===t);}
     function heroStrategy(slug) {
@@ -46,14 +61,14 @@
     function sequenceReview(slug,abilityKey) {
       const review=bundle.guidance?.sequence_review,r=sequenceIndex.get(slug+'|'+abilityKey);
       if(!r)return null;
-      const current=bundle.official?.status==='verified'&&bundle.official?.live?.version===review.patch&&bundle.guidance?.patch===review.patch&&String(bundle.guidance?.status||'').startsWith('reviewed');
+      const current=bundle.official?.status==='verified'&&bundle.official?.live?.version===review.patch&&bundle.guidance?.patch===review.patch&&reviewReady();
       const matching=heroes[slug]?.abilities?.find(a=>a.key===abilityKey)?.text===r.ability_text;
       const saved=bundle.guidance?.status!=='reviewed for current patch';
       return {...r,active:current&&matching,saved,reviewed_at:review.reviewed_at,status:!current?'Sequence review needs patch verification':!matching?'Sequence review needs an ability-source check':saved?'Reviewed delivery and timing for saved patch; '+bundle.guidance.status.split('; ').slice(1).join('; '):'Reviewed delivery and timing'};
     }
     function sequenceFit(a,b,roleA,roleB) {
       const id='sequence:'+key(a+'@'+roleA,b+'@'+roleB);if(fitCache.has(id))return fitCache.get(id);
-      const review=bundle.guidance.sequence_review,current=bundle.official?.status==='verified'&&bundle.official?.live?.version===review.patch&&bundle.guidance?.patch===review.patch&&String(bundle.guidance?.status||'').startsWith('reviewed');
+      const review=bundle.guidance.sequence_review,current=bundle.official?.status==='verified'&&bundle.official?.live?.version===review.patch&&bundle.guidance?.patch===review.patch&&reviewReady();
       const selectedRoles={[a]:roleA,[b]:roleB};
       const members=[plannedKit(a,roleA),plannedKit(b,roleB)].filter(Boolean).sort((x,y)=>heroIds.get(x).localeCompare(heroIds.get(y)));
       if(!current||members.length!==2)return {score:null,scale:'interaction points',reasons:[{text:'A matching verified patch and reviewed ability sources are required for the sequence rating.'}],constraints:[],evidence:[],loadouts:members.flatMap(h=>h.loadout_notes||[]),method:sequenceMethod};
@@ -206,7 +221,7 @@
     function roles(slug) { return (heroes[slug]?.roles_order || []).filter(r=>ROLES.includes(r)); }
     function performancePolicy() {
       if(!bundle)return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,note:'No data bundle is loaded.'};
-      if(bundle.recommendation_context?.status==='withheld')return {source:null,label:'Role statistics need a new verification',patch:null,fetched_at:null,note:bundle.recommendation_context.reason};
+      if(!verificationCurrent())return {source:null,label:'Verification required',patch:null,fetched_at:null,note:bundle.recommendation_context?.reason||'Live patch verification is pending or failed. Saved observations remain inspectable with their original dates.'};
       const c=bundle.scoped_statistics,live=bundle.official?.live?.version;
       const exact=bundle.official?.status==='verified'&&['ok','partial'].includes(c?.status)&&c.patch===live;
       if(exact)return {source:'pred',label:'Pred.gg '+c.patch+' · '+c.bracket_label+' Ranked',patch:c.patch,
@@ -233,7 +248,7 @@
     function metaReview(slug,role) {
       const review=bundle.guidance?.meta_review,row=review?.entries?.find(r=>r.slug===slug&&r.role===role);
       if(!row)return null;
-      const patchOK=review.patch===bundle.official?.live?.version&&bundle.official?.status==='verified'&&String(bundle.guidance?.status||'').startsWith('reviewed');
+      const patchOK=review.patch===bundle.official?.live?.version&&bundle.official?.status==='verified'&&reviewReady();
       const cohortOK=review.bracket===bundle.bracket?.segment&&review.bracket_label===bundle.scoped_statistics?.bracket_label&&review.patch===bundle.scoped_statistics?.patch&&bundle.scoped_statistics?.gameModes?.length===1&&bundle.scoped_statistics.gameModes[0]===review.mode;
       // This authored review used Pred.gg's cohort. A broader Statz observation
       // cannot reactivate it or be compared with its saved Pred.gg baseline.
@@ -293,7 +308,7 @@
       const h=heroes[slug],review=bundle.guidance?.damage_review,r=review?.profiles?.[slug];
       const ev=h?.capability_evidence||{},present=['physical','magical','true_damage'].filter(t=>ev[t]?.length).map(t=>t==='true_damage'?'true':t);
       if(!review)return {active:false,status:'Legacy kit assessment',primary:[],secondary:present,ability_keys:[],reason:'No separate reviewed damage pattern is stored.'};
-      const current=bundle.official?.status==='verified'&&bundle.official?.live?.version===review.patch&&bundle.guidance?.patch===review.patch&&String(bundle.guidance?.status||'').startsWith('reviewed');
+      const current=bundle.official?.status==='verified'&&bundle.official?.live?.version===review.patch&&bundle.guidance?.patch===review.patch&&reviewReady();
       const matching=!!r&&Object.entries(r.source_abilities||{}).length>0&&Object.entries(r.source_abilities).every(([key,text])=>h?.abilities?.find(a=>a.key===key)?.text===text);
       const active=current&&matching;
       return {active,status:!current?'Damage review needs current patch verification':!matching?'Damage review needs a source check':'Reviewed base-kit pattern',primary:active?r.primary:[],secondary:present.filter(t=>!active||!r.primary.includes(t)),ability_keys:active?r.ability_keys:[],reason:active?r.reason:'Primary damage is unknown until this changed or unreviewed kit is checked.',source:r?.source,reviewed_at:review.reviewed_at};
@@ -331,7 +346,7 @@
       return results;
     }
     function currentMatchup(ally,enemy,min=100){
-      if(bundle.recommendation_context?.status==='withheld')return null;
+      if(!verificationCurrent())return null;
       const rows=matchup(ally,enemy),live=bundle?.official?.live?.version;
       const scope=bundle?.pred_game_data?.role_data?.[ally.slug]?.[ally.role]?.counters;
       if(!['ok','partial'].includes(bundle.pred_game_data?.status)||!['ok','partial'].includes(bundle.scoped_statistics?.status)||bundle?.official?.status!=='verified'||scope?.status!=='ok'||scope.patch!==live||scope.role!==ally.role||scope.mode!=='RANKED'||scope.bracket!==bundle?.scoped_statistics?.bracket_label||scope.version_id!==bundle?.scoped_statistics?.versions?.[0]||!scope.tables?.counters?.cohort_verified)return null;
@@ -574,6 +589,7 @@
       return pool;
     }
     function currentItemPool(slug,role,stats){
+      if(!verificationCurrent())return {pool:{},issues:['Live patch verification is pending or failed. Saved item observations cannot rank automatic purchases.'],status:'verification required'};
       const rows=bundle?.pred_game_data?.role_data?.[slug]?.[role]?.items;
       if(!rows)return {pool:measuredItemPool(stats),issues:['Pred.gg item-position collection unavailable. Historical Statz observations are inspection-only and add no current-patch fit points.'],status:'unavailable'};
       const pool={},issues=[],c=bundle.scoped_statistics,live=bundle.official?.live?.version;
@@ -618,7 +634,7 @@
     }
     function buildReview(slug,role){
       const r=(bundle.guidance?.builds||[]).find(x=>x.slug===slug&&x.role===role);if(!r)return null;
-      const current=bundle.guidance?.patch===r.patch&&bundle.official?.live?.version===r.patch&&String(bundle.guidance?.status||'').startsWith('reviewed');
+      const current=bundle.guidance?.patch===r.patch&&bundle.official?.live?.version===r.patch&&reviewReady();
       const missing=[...r.core,...r.finish].filter(n=>!item(n)?.completed_item);
       const tree=bundle.loadout_catalog?.eternals?.[r.eternal];
       const invalid=!!bundle.loadout_catalog?.eternals&&(!tree||r.blessings.some((n,i)=>!tree['BLESSING_MINOR_'+(i+1)]?.includes(n)));
@@ -627,15 +643,15 @@
     function plannedBuild(slug,role,{index=null,forceObserved=false}={}){
       const review=buildReview(slug,role),stats=heroes[slug]?.roles?.[role];
       if(review?.active&&!forceObserved)return {...review,items:[...review.core,...review.finish],kind:'reviewed',reason:review.why};
-      const variants=stats?.status==='ok'?(stats.builds||[]):[];
+      const variants=stats?.status==='ok'&&(forceObserved||statzBuildAvailable(slug,role))?(stats.builds||[]):[];
       const selected=index!=null?variants[index]:variants.slice().sort((a,b)=>b.playedGames-a.playedGames)[0];
       const sequence=[...(selected?.core_items?.coreItems||[])];
       for(const n of [4,5,6])for(const x of top(selected?.['items'+n],3))if(!sequence.some(a=>NK(a)===NK(x.display_name||x.name)))sequence.push(x.display_name||x.name);
       const names=sequence.filter(n=>item(n)?.completed_item).slice(0,6),crest=top(selected?.best_base_crests,1)[0];
-      return {slug,role,items:names,core:names.slice(0,3),finish:names.slice(3),kind:'provisional',manual:forceObserved,title:forceObserved?'Selected source playstyle':'Provisional starting build',
+      return {slug,role,items:names,core:names.slice(0,3),finish:names.slice(3),kind:'provisional',manual:forceObserved,title:forceObserved?'Selected source playstyle':names.length?'Provisional starting build':'Build recommendation unavailable',
         augment:selected?.perk,eternal:selected?.eternal,crest:crest?top(crest.upgrades,1)[0]?.display_name||crest.display_name:null,
         blessings:[top(selected?.common_perks_1,1)[0]?.name,top(selected?.common_perks_2,1)[0]?.name],skill_priority:selected?.skillUpgradePriority||[],
-        reason:forceObserved?'You selected a source playstyle for this game. Its item choices form a provisional sequence; the reviewed plan remains available.':'No active authored plan for this hero/role. Start from the most-played variant and inspect its mechanics; win rate does not establish the best build.',
+        reason:!names.length?'No verified build evidence is eligible for an automatic starting sequence. Inspect the dated variants or previous reviewed plan below.':forceObserved?'You selected a source playstyle for this game. Its item choices form a provisional sequence; the reviewed plan remains available.':'No active authored plan for this hero/role. Start from the most-played variant and inspect its mechanics; win rate does not establish the best build.',
         caution:review&&!review.active?'Previous advice '+review.status+'.':'The full six combines source choices; no full-loadout win rate is inferred.',review};
     }
     function bestMatchup(ally, enemy) {
@@ -673,7 +689,7 @@
         const coveredBy = core.filter(n => needTrigger(r,item(n),profile).eligible);
         const base = r.prio(E, profile), prio = Math.max(0.5, base - 1.5 * coveredBy.length);
         const candidates = catalogue.filter(it => (!coreKeys.has(NK(it.name))||priority||owned.length) && r.pick(it, profile)).map(it => { const m = pool[NK(it.name)] || null, f = itemFit(it, profile, m); if(profile.style==='burst_carry'&&(statNum(it,'Attack speed')>0)) {f.score-=2;f.why.push('-2 attack speed is not this reviewed firing-window plan');} return {name: it.name, price: it.total_price, stats: it.stats || {}, measured: m, score: f.score, why: f.why, trigger:needTrigger(r,it,profile),evidence: r.manual?r.show(it):(fxText(it) || r.show(it))}; })
-          .sort((a, b) => Number(b.trigger.eligible)-Number(a.trigger.eligible)||b.score - a.score || (b.measured?.played || 0) - (a.measured?.played || 0) || (a.price || 0) - (b.price || 0)).slice(0, 6);
+          .sort((a, b) => Number(b.trigger.eligible)-Number(a.trigger.eligible)||b.score - a.score || (b.measured?.supports_current_fit?b.measured.played:0) - (a.measured?.supports_current_fit?a.measured.played:0) || (a.price || 0) - (b.price || 0)).slice(0, 6);
         return {id: r.id, label: r.label, manual: !!r.manual, priority:r.id===priority,prio, basePrio: base, coveredBy, why: r.id===priority?'You selected this priority from the actual game. Kit counts do not establish enemy purchases.':r.why(E, profile), candidates};
       }).sort((a, b) => Number(b.priority)-Number(a.priority)||b.prio - a.prio);
       const slots=[...owned,...plan.items.filter(n=>!ownedKeys.has(NK(n)))].slice(0,6).map(name=>({name,kind:ownedKeys.has(NK(name))?'owned':coreKeys.has(NK(name))?'core':'baseline',label:ownedKeys.has(NK(name))?'Owned · kept':plan.kind==='reviewed'?(coreKeys.has(NK(name))?'Reviewed core':'Reviewed flexible slot'):'Calculated starting sequence',measured:pool[NK(name)]||null}));

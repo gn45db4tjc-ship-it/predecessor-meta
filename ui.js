@@ -278,6 +278,7 @@ function buildSummaryHTML(s,compact=false){
 }
 
 function plannedBuildHTML(plan,compact=false){
+ if(!plan.items.length)return `<div class="build-head"><h3>Build recommendation unavailable</h3>${badge('Unavailable','warning')}</div>${note(esc(plan.reason),true)}${previousBuildHTML(plan)}`;
  const reviewed=plan.kind==='reviewed';
  const loadout=[['Augment',plan.augment,'perks'],['Eternal',plan.eternal,'perks'],['Blessing 1',plan.blessings?.[0],'perks'],['Blessing 2',plan.blessings?.[1],'perks'],['Crest',plan.crest,'items']];
  const firstSentence=String(plan.reason||'').split(/(?<=[.!?])\s+/)[0]||'';
@@ -303,7 +304,7 @@ function buildsPageView(){
  rows.sort((a,b)=>Number(!!b.review?.active)-Number(!!a.review?.active)||name(a.slug).localeCompare(name(b.slug)));
  return head('Builds · '+esc(B.bracket?.label||''),'Recommended builds','One reviewed starting plan per hero and role: six purchases, augment, Eternal, both blessings and crest. Open a hero for source variants and other guides.')+
  metaToolbarHTML()+`<details><summary>How these plans are made · ${rows.filter(r=>r.review?.active).length} reviewed of ${rows.length} in this role</summary><div class="detail-content"><p>${esc(B.guidance?.build_method||'Reviewed plans are unavailable in this saved bundle. Refresh to collect the new guidance.')}</p></div></details>`+
- `<div class="builds-grid">${rows.map(r=>`<article class="panel build-card"><div class="comp-head">${heroButton(r.slug,r.role)}<small>${r.perf?esc(r.perf.source+' '+r.perf.patch)+': <strong>'+pct(r.perf.wr)+'</strong> · '+games(r.perf.played):'No observed role sample'}</small></div>${plannedBuildHTML(E.plannedBuild(r.slug,r.role),true)}${predBuildsHTML(r.slug,r.role,true)}<div class="flex"><button class="quiet" data-hero-builds="${esc(r.slug)}" data-role="${r.role}">Source variants & other guides</button><button class="quiet" data-hero="${esc(r.slug)}" data-role="${r.role}">Partners</button></div></article>`).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;
+ `<div class="builds-grid">${rows.map(r=>`<article class="panel build-card"><div class="comp-head">${heroButton(r.slug,r.role)}<small>${r.perf?esc(r.perf.source+' '+r.perf.patch)+': <strong>'+pct(r.perf.wr)+'</strong> · '+games(r.perf.played):'Role statistics unavailable'}</small></div>${plannedBuildHTML(E.plannedBuild(r.slug,r.role),true)}${predBuildsHTML(r.slug,r.role,true)}<div class="flex"><button class="quiet" data-hero-builds="${esc(r.slug)}" data-role="${r.role}">Source variants & other guides</button><button class="quiet" data-hero="${esc(r.slug)}" data-role="${r.role}">Partners</button></div></article>`).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;
 }
 function liveContextKey(){const p=S.locks.find(p=>p.slug===S.me);return p?p.slug+'|'+p.role:null;}
 function liveContext(){const value=S.liveContexts?.[liveContextKey()];return value&&typeof value==='object'?value:{owned:[],priority:''};}

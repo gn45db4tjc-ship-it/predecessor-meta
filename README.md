@@ -1,3 +1,7 @@
+# 2.21.4 verification-status repair
+
+Failed or pending official verification leaves saved plans readable but disables current build, strategy and comparison claims. Successful verification restores them. Fresh observed builds remain available when only written guidance needs review. The daily cloud schedule, source dates, saved drafts and themes are preserved. See RELEASE-2.21.4.md.
+
 # Predecessor Meta — 2.21.3, fresh-source recommendations
 
 ## Current release: 2.21.3 (14 September 2026)

@@ -7,7 +7,7 @@ function fixture(){
   sources:{statz_tierlist:{status:'ok',fetched_at:'2026-09-14T19:52:00Z'},statz_hero_pages:{status:'ok',fetched_at:'2026-09-14T19:53:00Z'},pred_scoped:{status:'retained',fetched_at:'2026-09-08T10:00:00Z'}},
   scoped_statistics:{status:'retained',patch:'1.16.4',bracket_label:'Gold+',gameModes:['RANKED'],versions:['166'],roles:{jungle:{rows:[]}}},
   pred_game_data:{status:'retained',role_data:{}},
-  guidance:{status:'reviewed for current patch',meta_review:{patch:'1.16.4',bracket:'gold',bracket_label:'Gold+',mode:'RANKED',entries:[]}}};
+  guidance:{patch:'1.16.4',status:'reviewed for current patch',meta_review:{patch:'1.16.4',bracket:'gold',bracket_label:'Gold+',mode:'RANKED',entries:[]}}};
  for(const [slug,wr,old] of [['one',55,40],['two',45,60]]){
   b.heroes[slug]={slug,display_name:slug,roles_order:['jungle'],abilities:[],capabilities:[],roles:{jungle:{status:'ok',winRate:wr,playedGames:200,tier:'A',fetched_at:'2026-09-14T19:52:20Z',url:'https://statz.gg/fixture/'+slug,builds:[{perk:'test',eternal:'test',lane_counters:[{name:slug==='one'?'two':'one',winRate:wr,playedGames:120}]}]}}};
   b.scoped_statistics.roles.jungle.rows.push({slug,winRate:old,matches:1000,fetched_at:'2026-09-08T10:00:00Z'});

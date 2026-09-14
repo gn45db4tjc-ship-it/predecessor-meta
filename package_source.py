@@ -1,4 +1,4 @@
-"""Package and independently verify the source-only 2.21.3 release."""
+"""Package and independently verify the source-only 2.21.4 release."""
 import argparse
 import hashlib
 import json
@@ -13,7 +13,7 @@ FILES = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.
          'static_publish.py','static_client.js','rank_view.js','publication_activity.py','free_hosting.json',
          'README.md','VERIFICATION.md','.gitignore','package_source.py','local_updater.py','import_local_feed.py',
          'Install Windows Updater.ps1','BROWSER-VERIFICATION.json','CHANGE-REPORT.md','INSTALL-AND-ROLLBACK.md',
-         'RELEASE-VERIFICATION.md','RELEASE-2.21.1.md','RELEASE-2.21.2.md','RELEASE-2.21.3.md']
+         'RELEASE-VERIFICATION.md','RELEASE-2.21.1.md','RELEASE-2.21.2.md','RELEASE-2.21.3.md','RELEASE-2.21.4.md']
 
 def package(node=None):
     files = [ROOT / name for name in FILES]
@@ -22,11 +22,11 @@ def package(node=None):
         files += sorted((ROOT / 'tests').rglob(extension))
     hashes = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     assert len(files) == len(hashes)
-    manifest = {'version':'2.21.3','hosting_revision':5,'design_revision':2,
-                'baseline_commit':'704fa6342541f4172170d6fcf1c14388a8437062',
-                'verification_report':'RELEASE-2.21.3.md','files':hashes}
+    manifest = {'version':'2.21.4','hosting_revision':5,'design_revision':2,
+                'baseline_commit':'6767592217506af5327b4fdb553ef5159ed42038',
+                'verification_report':'RELEASE-2.21.4.md','files':hashes}
     (ROOT / 'SOURCE-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
-    archive = ROOT.parent / 'Predecessor Meta Tool 2.21.3 - Source.zip'
+    archive = ROOT.parent / 'Predecessor Meta Tool 2.21.4 - Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for p in files + [ROOT/'SOURCE-MANIFEST.json']:
             z.write(p,p.relative_to(ROOT).as_posix())
@@ -44,12 +44,12 @@ def package(node=None):
                                  '-p','test_static*.py','-q'],cwd=clean,capture_output=True,text=True,encoding='utf8')
         if result.returncode: raise RuntimeError(result.stdout+'\n'+result.stderr)
         if node:
-            js = subprocess.run([node,'--test','tests/independent_sources.test.cjs','tests/fresh_recommendations.test.cjs'],cwd=clean,
+            js = subprocess.run([node,'--test','tests/independent_sources.test.cjs','tests/fresh_recommendations.test.cjs','tests/verification_guard.test.cjs'],cwd=clean,
                                 capture_output=True,text=True,encoding='utf8')
             if js.returncode: raise RuntimeError(js.stdout+'\n'+js.stderr)
     receipt = {'archive':str(archive),'bytes':archive.stat().st_size,'files':len(files),
                'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
-               'clean_python_tests':'61 passed','clean_javascript_tests':'21 passed' if node else 'not run'}
+               'clean_python_tests':'61 passed','clean_javascript_tests':'29 passed' if node else 'not run'}
     print(json.dumps(receipt,indent=2))
     return receipt
 

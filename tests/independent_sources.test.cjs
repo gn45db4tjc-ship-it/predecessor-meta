@@ -5,7 +5,7 @@ function fixture(status='retained') {
     official:{status:'verified',live:{version:'test-patch'}},bracket:{segment:'gold'},
     scoped_statistics:{status,patch:'test-patch',bracket_label:'Gold+',gameModes:['RANKED'],versions:['test-version'],
       roles:{jungle:{rows:[{slug:'example',winRate:50,matches:200,fetched_at:'2026-09-08T12:00:00Z'}]}}},
-    guidance:{status:'reviewed for current patch',meta_review:{patch:'test-patch',bracket:'gold',bracket_label:'Gold+',mode:'RANKED',
+    guidance:{patch:'test-patch',status:'reviewed for current patch',meta_review:{patch:'test-patch',bracket:'gold',bracket_label:'Gold+',mode:'RANKED',
       entries:[{slug:'example',role:'jungle',tier:'A',evidence:{winRate:50}}]}},
     pred_game_data:{status,role_data:{example:{jungle:{items:{}}}}}};
 }
