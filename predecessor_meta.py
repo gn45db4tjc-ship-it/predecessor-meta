@@ -2982,7 +2982,7 @@ def json_script(value):
 
 def render_html(bundle, config=None):
     return (UI_TEMPLATE.read_text(encoding='utf-8').replace('__BUNDLE_JSON__',json_script(bundle),1)
-            .replace('__APP_CONFIG__',json_script(config or {'mode':'export'}),1)
+            .replace('__APP_CONFIG__',json_script(config or {'mode':'export','tool_version':VERSION}),1)
             .replace('__UI_JS__',(TOOL_DIR/'ui.js').read_text(encoding='utf-8'),1)
             .replace('__ENGINE_JS__',(TOOL_DIR/'engine.js').read_text(encoding='utf-8'),1))
 

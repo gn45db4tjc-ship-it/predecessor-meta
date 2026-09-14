@@ -132,7 +132,7 @@ if (APP_CONFIG.mode === 'static') {
     const root = exportShell.cloneNode(true), script = [...root.querySelectorAll('script')].find(s => s.textContent.startsWith('const INITIAL_BUNDLE='));
     if (!script?.textContent.startsWith('const INITIAL_BUNDLE=')) throw Error('Export template changed; cannot create a safe snapshot');
     const encode = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-    script.textContent = 'const INITIAL_BUNDLE=' + encode(B) + '; const APP_CONFIG=' + encode({mode:'export'}) + ';';
+    script.textContent = 'const INITIAL_BUNDLE=' + encode(B) + '; const APP_CONFIG=' + encode({mode:'export',tool_version:APP_CONFIG.tool_version}) + ';';
     root.querySelectorAll('dialog[open]').forEach(d => d.removeAttribute('open'));
     const blob = new Blob(['<!doctype html>\n', root.outerHTML], {type:'text/html;charset=utf-8'});
     const url = URL.createObjectURL(blob), a = document.createElement('a');
