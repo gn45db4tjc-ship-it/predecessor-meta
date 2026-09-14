@@ -281,6 +281,24 @@ def diagnose_pred(folder):
     return result
 
 
+def optional_pred_only(attempt, bundle):
+    """Nonfatal missing optional source, never a claim of complete/fresh Pred data."""
+    errors = attempt.get('errors', [])
+    return bool(CONFIG.get('pred_optional') and attempt.get('status') == 'partial'
+                and bundle and base.bundle_has_fresh_statz(bundle) and errors
+                and all(re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')) for e in errors))
+
+
+def attempt_satisfied(attempt, bundle):
+    return attempt.get('status') == 'ok' or optional_pred_only(attempt, bundle)
+
+
+def required_source_block(attempt):
+    return any(re.search(r'403|429|blocked|rate.limit', e.get('detail', ''), re.I)
+               and not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')))
+               for e in attempt.get('errors', []))
+
+
 def render_site(folder, out, state):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
@@ -293,6 +311,8 @@ def render_site(folder, out, state):
     manifest['local_collector'] = state.get('local_collector')
     manifest['collection_host'] = 'cloud' if not CONFIG.get('cloud_collection_paused_reason') else 'windows'
     manifest['source_pauses'] = {'pred': CONFIG['pred_collection_paused_reason']} if CONFIG.get('pred_collection_paused_reason') else {}
+    manifest['optional_sources'] = {'pred': {'mode': 'public_pages_only',
+        'note': 'Pred.gg is optional. Use validated data embedded in public pages when available; no API or account is required. Access denials stop further requests. Other sources continue, and retained Pred.gg data keeps its original date.'}} if CONFIG.get('pred_optional') else {}
     manifest['collection_paused_reason'] = None if state.get('local_collector') else CONFIG.get('cloud_collection_paused_reason')
     for bracket in CONFIG['brackets']:
         bundle = load_publication(folder, bracket)
@@ -413,13 +433,11 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                 except Exception as error:
                     attempt.update(status='failed', errors=[{'source': 'Collection: ' + bracket,
                                    'severity': 'error', 'detail': str(error)}])
-                state['blocked_in_last_full'] = state['blocked_in_last_full'] or any(
-                    re.search(r'403|429|blocked|rate.limit', e.get('detail',''), re.I) for e in attempt.get('errors',[]))
+                state['blocked_in_last_full'] = state['blocked_in_last_full'] or required_source_block(attempt)
                 write_json(folder / 'publication.json', state)
             state['last_full_seconds'] = round(time.perf_counter() - started, 2)
-            state['blocked_in_last_full'] = any(re.search(r'403|429|blocked|rate.limit', e.get('detail',''), re.I)
-                for a in state['attempts'].values() for e in a.get('errors',[]))
-            if all(a.get('status') == 'ok' for a in state['attempts'].values()):
+            state['blocked_in_last_full'] = any(required_source_block(a) for a in state['attempts'].values())
+            if all(attempt_satisfied(state['attempts'].get(k, {}), load_publication(folder, k)) for k in CONFIG['brackets']):
                 state['last_completed_signature'] = signature
             output_flag('full_attempt', True)
         else:
@@ -432,7 +450,10 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
         base.log('Publication diagnostic: ' + json.dumps(report, ensure_ascii=False))
         manifest = render_site(folder, out, state)
         failed = official.get('status') != 'verified' or ((not paused or bool(state.get('local_collector'))) and any(
-            a.get('status') != 'ok' for a in state.get('attempts', {}).values()))
+            not attempt_satisfied(a, load_publication(folder, k)) for k, a in state.get('attempts', {}).items()))
+        optional_missing = [k for k, a in state.get('attempts', {}).items() if optional_pred_only(a, load_publication(folder, k))]
+        if optional_missing:
+            base.log('Optional Pred.gg unavailable for '+', '.join(optional_missing)+'. Required sources validated; source gaps and original dates remain visible.')
         output_flag('source_failed', failed)
         base.log(json.dumps({'full_collection_reason': reason, 'seconds': round(time.perf_counter()-started, 2),
                              'available_cohorts': [k for k, v in manifest['cohorts'].items() if v['status']=='available'],

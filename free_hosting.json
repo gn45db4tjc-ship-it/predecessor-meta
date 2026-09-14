@@ -14,7 +14,9 @@
   ],
   "default_bracket": "gold",
   "cloud_collection_paused_reason": null,
-  "pred_collection_paused_reason": "Authorized source access is still needed. Public pages omitted structured statistics and the anonymous statistics API denied access. Other sources continue their daily cloud updates; saved Pred.gg records retain their original dates.",
+  "pred_collection_paused_reason": null,
   "budget": "Free GitHub Pages and standard Actions runners only",
-  "policy": "Collect every available source for all six brackets daily in GitHub, plus an extra attempt for changed live patch or hotfix content. Pred.gg alone is paused pending authorized access. Future announcements do not trigger collections. Calculated recommendations use the newly published evidence; authored guidance requires a separate reviewed update."
+  "policy": "Collect available sources for all six brackets daily in GitHub, plus an extra attempt for changed live patch or hotfix content. Pred.gg is optional and uses only structured data in public game pages; no API or account. Stop after access denial, continue the other sources, and preserve dates on retained data. Future announcements do not trigger collections. Calculated recommendations use the published evidence; authored guidance requires a separate weekly or patch-priority review.",
+  "pred_optional": true,
+  "pred_access_mode": "public_pages_only"
 }

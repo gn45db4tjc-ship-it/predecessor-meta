@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.21.5"
+VERSION = "2.21.6"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2323,14 +2323,29 @@ def apply_mechanics_resolutions(bundle,packet,current):
 # ============================================================================
 
 class PredPages:
-    """One in-run fetch per public URL; bounded callers, spaced starts, dated cache."""
+    """Optional public pages only; no API, credentials or access-control retries."""
     def __init__(self, force=False, cache_dir=None, fetch=None, paused_reason=None):
         self.force=force; self.root=Path(cache_dir or DATA_DIR/'pred_pages'); self.fetch=fetch or http_get
         self.paused_reason=paused_reason
         self.lock=threading.Lock(); self.blocked=threading.Event(); self.memory={}; self.records=[]; self.next_start=0
+        self.access_file=self.root/'public-access.json'
+        if self.access_file.exists():
+            try:
+                access=json.loads(self.access_file.read_text(encoding='utf-8'))
+                if access.get('status')=='blocked':
+                    self.paused_reason='Public access stopped at '+access['checked_at']+': '+access['reason']
+            except (ValueError,KeyError,TypeError):
+                self.paused_reason='Public access state is invalid; review it before requesting this source again.'
+    def stop_access(self,reason):
+        self.blocked.set()
+        atomic_write(self.access_file,json.dumps({'schema':1,'status':'blocked',
+            'checked_at':iso(now_utc()),'reason':str(reason)},ensure_ascii=False))
     def get(self,url,ttl=1800):
         parsed=urllib.parse.urlparse(url)
-        if parsed.scheme!='https' or parsed.netloc!='pred.gg': raise ValueError('Unexpected Pred.gg URL')
+        if (parsed.scheme!='https' or parsed.netloc!='pred.gg' or parsed.fragment
+                or not re.fullmatch(r'/(?:items|eternals|heroes(?:/[a-z0-9-]+(?:/(?:hero|items|counters))?)?)',parsed.path)
+                or set(urllib.parse.parse_qs(parsed.query,keep_blank_values=True))-{'version','versions','gameMode','ranks','role'}):
+            raise ValueError('Pred.gg accepts public game pages only; API and authentication routes are disabled')
         if self.paused_reason:
             raise FetchError('Pred.gg collection paused: '+self.paused_reason+' No request was sent.')
         # Locks reserve a unique URL and start time. Futures prevent duplicate concurrent fetches.
@@ -2354,11 +2369,14 @@ class PredPages:
                 if delay:time.sleep(delay)
                 if self.blocked.is_set():raise SourceBlocked('Pred.gg collection stopped after source block')
                 try:raw,_,secs=self.fetch(url)
-                except SourceBlocked:self.blocked.set();raise
+                except SourceBlocked as e:self.stop_access(e);raise
+                except FetchError as e:
+                    if re.search(r'HTTP 401\b',str(e)):self.stop_access(e)
+                    raise
                 try:ps=pred_payloads(raw)
                 except ValueError as e:
-                    if re.search(r'response returned (403|429)',str(e)):
-                        self.blocked.set();raise SourceBlocked(str(e)) from e
+                    if re.search(r'response returned (401|403|429)',str(e)):
+                        self.stop_access(e);raise SourceBlocked(str(e)) from e
                     raise
                 # Omit auth payloads and site-wide repeated catalogs, retaining game data.
                 if parsed.path=='/heroes':payloads=[p for p in ps if 'NewestVersion' in p or any('currentBalanceStatistic'in h for h in p.get('heroes',[]))]

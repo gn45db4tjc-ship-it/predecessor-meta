@@ -18,10 +18,12 @@ class DailyCloudTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.root=Path(self.tmp.name)
 
-    def test_policy_enables_cloud_for_every_bracket_and_pauses_only_pred(self):
+    def test_policy_enables_cloud_and_optional_public_pred(self):
         self.assertIsNone(p.CONFIG['cloud_collection_paused_reason'])
         self.assertEqual(set(p.CONFIG['brackets']),set(p.base.BRACKETS))
-        self.assertTrue(p.CONFIG['pred_collection_paused_reason'])
+        self.assertIsNone(p.CONFIG['pred_collection_paused_reason'])
+        self.assertTrue(p.CONFIG['pred_optional'])
+        self.assertEqual(p.CONFIG['pred_access_mode'],'public_pages_only')
 
     def test_paused_pred_sends_no_request_even_with_forced_refresh(self):
         fetch=Mock(side_effect=AssertionError('No network permitted'))
@@ -46,7 +48,7 @@ class DailyCloudTests(unittest.TestCase):
 
     def test_all_cohorts_publish_partial_then_next_check_does_not_recollect(self):
         def collect(settings,progress):
-            self.assertTrue(settings['pred_collection_paused_reason'])
+            self.assertIsNone(settings['pred_collection_paused_reason'])
             b=partial();b['bracket']['segment']=settings['bracket']
             return b
         with patch.object(p.base,'fetch_official',return_value=official()), \
@@ -55,7 +57,8 @@ class DailyCloudTests(unittest.TestCase):
             m=p.run(self.root,self.root/'site')
             self.assertEqual(fetch.call_count,6)
             self.assertEqual(m['collection_host'],'cloud')
-            self.assertTrue(m['source_pauses']['pred'])
+            self.assertEqual(m['source_pauses'],{})
+            self.assertEqual(m['optional_sources']['pred']['mode'],'public_pages_only')
             self.assertTrue(all(r['collection_status']=='partial' for r in m['cohorts'].values()))
             for r in m['cohorts'].values():
                 self.assertEqual(r['source_dates']['statz_tierlist']['fetched_at'],NOW.isoformat())
@@ -63,7 +66,7 @@ class DailyCloudTests(unittest.TestCase):
             p.run(self.root,self.root/'site')
             self.assertEqual(fetch.call_count,6)
         state=p.read_json(self.root/'publication.json')
-        self.assertNotIn('last_completed_signature',state)
+        self.assertEqual(state['last_completed_signature'],p.live_signature(official()))
 
     def make_feed(self):
         local=self.root/'local';feed=self.root/'feed'

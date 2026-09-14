@@ -1,4 +1,10 @@
-# Predecessor Meta — 2.21.5
+# Predecessor Meta — 2.21.6
+
+Pred.gg is now an optional public-page source. No API access or account is needed. When its pages expose structured data, the collector validates the patch, ranks, roles and numbers before using them. When unavailable, other sources continue and retained records keep their dates. HTTP 401/403/429 or an embedded denial stops further Pred.gg requests and persists that stop across launches; Refresh Data cannot bypass it. A page without embedded data can be checked on the next daily collection.
+
+Data updates remain daily in the cloud, with official patch checks every three hours. Strategy reviews run weekly with priority for live patch/hotfix changes through the separately configured Codex review task; that task requires an available computer/Codex session. Source data refreshes do not automatically rewrite authored advice. See RELEASE-2.21.6.md.
+
+## Previous release: 2.21.5
 
 There are now 93 reviewed hero/role builds, covering every role sampled in the six September 14 brackets. Seven added roles are labelled experimental and require deliberate selection. Changed supporting mechanics withdraw the new plans from current advice. Daily cloud collection, original source dates and Design Revision 2 remain intact. See RELEASE-2.21.5.md for checks and remaining freshness limits.
 
@@ -33,9 +39,9 @@ The selected hosting approach remains $0. The 2.21.1 repair updates collection, 
 
 - Open a normal website link on your PC, Mac or iPhone. Neither your Windows PC nor the spare iMac needs to remain on.
 - The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your draft stays in that browser; Share plan deliberately transfers it.
-- GitHub collects available sources once per daily update cycle (17:23 UTC boundary), or after live patch/hotfix content changes. Your PC and Codex can be off. Pred.gg alone is paused until authorized access is configured.
+- GitHub collects available sources once per daily update cycle (17:23 UTC boundary), or after live patch/hotfix content changes. Your PC and Codex can be off. Pred.gg is optional and limited to public game pages; missing optional data does not stop the other sources.
 - The Windows updater remains an additional collection route. It starts at sign-in and checks every three hours while the PC is on and connected. Neither collector requires an AI account or API key for the currently enabled sources.
-- GitHub checks official patch notes every three hours, imports newer validated public files from `data-updates`, and deploys the site. Old Windows receipts cannot reset a newer cloud collection clock. The cloud sends no requests to the paused Pred.gg collector.
+- GitHub checks official patch notes every three hours, imports newer validated public files from `data-updates`, and deploys the site. Old Windows receipts cannot reset a newer cloud collection clock. An access denial stops later Pred.gg requests, while the cloud continues other sources.
 - The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles, a source-status receipt and a small reviewed deployment trigger to `data-updates`; it never force-pushes or modifies `main`.
 - The first complete collection across all six brackets passed with no source errors in **23 minutes 56 seconds**. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
 - Check updates retrieves the latest publication; it does not start another scrape. Open tabs check for published updates every five minutes while visible.
