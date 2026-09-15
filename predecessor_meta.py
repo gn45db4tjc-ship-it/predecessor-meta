@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.21.6"
+VERSION = "2.21.7"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -821,12 +821,15 @@ def load_snapshots(bracket):
     for p in sorted(SNAP_DIR.glob("tierlist_*.json")):
         try:
             s = json.loads(p.read_text(encoding="utf-8"))
+            if not isinstance(s,dict):raise ValueError('Snapshot must be an object')
             if s.get("bracket") == bracket and s.get("rows") and not s.get("offline"):
+                history_time(s.get("fetched_at"))
                 s["_file"] = p.name
                 snaps.append(s)
-        except Exception:
+        except (ValueError, TypeError, OSError) as exc:
+            print(f"Snapshot unavailable ({p.name}): {exc}")
             continue
-    snaps.sort(key=lambda s: s["fetched_at"])
+    snaps.sort(key=lambda s: history_time(s["fetched_at"]))
     return snaps
 
 
@@ -856,7 +859,8 @@ def diff_snapshots(old, new):
 
 
 def compute_changes(current, bracket):
-    snaps = [s for s in load_snapshots(bracket) if s["fetched_at"] < current["fetched_at"]]
+    current_time = history_time(current.get("fetched_at"))
+    snaps = [s for s in load_snapshots(bracket) if history_time(s["fetched_at"]) < current_time]
     prev_run = snaps[-1] if snaps else None
     prev_patch = None
     for s in reversed(snaps):
@@ -3357,6 +3361,38 @@ def validate_guidance_packet(packet,bundle):
     if not isinstance(packet,dict): raise ValueError('Reviewed guidance must be an object')
     if not isinstance(packet.get('guidance'),dict) or not re.fullmatch(r'\d+\.\d+(?:\.\d+)?',str(packet.get('patch',''))): raise ValueError('Invalid reviewed guidance packet')
     if not packet.get('reviewed_at') or not isinstance(packet.get('article_fingerprints'),dict): raise ValueError('Review date and official article fingerprints are required')
+    maintenance=packet['guidance'].get('maintenance_review')
+    wording=packet['guidance'].get('perk_wording_reviews',[])
+    if not isinstance(wording,list):raise ValueError('Perk wording reviews must be a list')
+    for row in wording:
+        if not isinstance(row,dict) or row.get('patch')!=packet['patch'] or not row.get('name') or not row.get('reason'):raise ValueError('Perk wording review needs a named patch and reason')
+        history_time(row.get('reviewed_at'))
+        texts=row.get('descriptions',[])
+        if not isinstance(texts,list) or len(texts)<2 or any(not isinstance(t,str) or not t for t in texts) or len(texts)!=len(set(texts)):raise ValueError('Equivalent perk wording requires distinct exact texts')
+        refs=row.get('sources',[])
+        if not isinstance(refs,list) or len(refs)!=len(texts):raise ValueError('Each equivalent wording needs its actual dated source')
+        for ref in refs:
+            history_time(ref.get('fetched_at'))
+            if not str(ref.get('url','')).startswith('https://pred.gg/'):raise ValueError('Equivalent perk wording needs its observed source')
+    if maintenance is not None:
+        history_time(maintenance.get('reviewed_at'))
+        history_time(maintenance.get('next_weekly_review'))
+        results={'changed':0,'checked and retained':0,'unresolved':0}
+        for plan in packet['guidance'].get('builds',[]):
+            review=plan.get('maintenance_review',{})
+            if review.get('result') not in results or not review.get('reason') or not review.get('scope'):raise ValueError('Every maintenance plan needs a result, scope and reason')
+            history_time(review.get('reviewed_at'))
+            if review['result']=='unresolved' and not review.get('limitation'):raise ValueError('Unresolved plan needs an explicit limitation')
+            results[review['result']]+=1
+            rows=review.get('rank_samples',[])
+            if len(rows)!=len(BRACKETS) or {r.get('bracket') for r in rows}!=set(BRACKETS):raise ValueError('Review references must keep all six brackets separate')
+            for row in rows:
+                if row.get('status')=='unavailable':continue
+                n=_games(row.get('matches'));w=_games(row.get('wonGames'));rate=row.get('winRate')
+                if n<=0 or w>n or type(rate) not in (int,float) or not math.isfinite(rate) or abs(rate-100*w/n)>0.05:raise ValueError('Invalid review reference observation')
+                history_time(row.get('fetched_at'))
+                if not str(row.get('url','')).startswith('https://pred.gg/'):raise ValueError('Review reference needs its actual source')
+        if maintenance.get('summary')!=results:raise ValueError('Maintenance totals do not match plan results')
     strategy=packet['guidance'].get('strategic_review')
     if strategy is not None:
         if not isinstance(strategy,dict) or set(strategy)!={'patch','reviewed_at','method','heroes','counter_picks','build_adaptations'} or strategy['patch']!=packet['patch'] or any(not isinstance(strategy[k],str) or not strategy[k].strip() for k in ('reviewed_at','method')):raise ValueError('Invalid strategic review')

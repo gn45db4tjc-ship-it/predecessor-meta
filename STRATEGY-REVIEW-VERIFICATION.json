@@ -1,0 +1,235 @@
+{
+  "version": "2.21.7",
+  "checked_at": "2026-09-14T19:25:57.286736-05:00",
+  "baseline_version": "2.21.6",
+  "python_tests": 89,
+  "javascript_tests": 42,
+  "bundle_checks": [
+    {
+      "bracket": "gold",
+      "reviewedBuilds": 93,
+      "experimentalRoles": 7,
+      "authoredCompositions": 12,
+      "performanceSource": "statz",
+      "liveSlots": 6,
+      "combinationSizes": [
+        2,
+        3,
+        5
+      ],
+      "observationsUnchanged": true,
+      "steelGideonFollowup": true,
+      "forceShieldBurstExcluded": true
+    },
+    {
+      "bracket": "bronze",
+      "reviewedBuilds": 93,
+      "experimentalRoles": 7,
+      "authoredCompositions": 12,
+      "performanceSource": "statz",
+      "liveSlots": 6,
+      "combinationSizes": [
+        2,
+        3,
+        5
+      ],
+      "observationsUnchanged": true,
+      "steelGideonFollowup": true,
+      "forceShieldBurstExcluded": true
+    },
+    {
+      "bracket": "silver",
+      "reviewedBuilds": 93,
+      "experimentalRoles": 7,
+      "authoredCompositions": 12,
+      "performanceSource": "statz",
+      "liveSlots": 6,
+      "combinationSizes": [
+        2,
+        3,
+        5
+      ],
+      "observationsUnchanged": true,
+      "steelGideonFollowup": true,
+      "forceShieldBurstExcluded": true
+    },
+    {
+      "bracket": "platinum",
+      "reviewedBuilds": 93,
+      "experimentalRoles": 7,
+      "authoredCompositions": 12,
+      "performanceSource": "statz",
+      "liveSlots": 6,
+      "combinationSizes": [
+        2,
+        3,
+        5
+      ],
+      "observationsUnchanged": true,
+      "steelGideonFollowup": true,
+      "forceShieldBurstExcluded": true
+    },
+    {
+      "bracket": "diamond",
+      "reviewedBuilds": 93,
+      "experimentalRoles": 7,
+      "authoredCompositions": 12,
+      "performanceSource": "statz",
+      "liveSlots": 6,
+      "combinationSizes": [
+        2,
+        3,
+        5
+      ],
+      "observationsUnchanged": true,
+      "steelGideonFollowup": true,
+      "forceShieldBurstExcluded": true
+    },
+    {
+      "bracket": "paragon",
+      "reviewedBuilds": 93,
+      "experimentalRoles": 7,
+      "authoredCompositions": 12,
+      "performanceSource": "statz",
+      "liveSlots": 6,
+      "combinationSizes": [
+        2,
+        3,
+        5
+      ],
+      "observationsUnchanged": true,
+      "steelGideonFollowup": true,
+      "forceShieldBurstExcluded": true
+    }
+  ],
+  "observation_invariants": [
+    {
+      "bracket": "gold",
+      "observation_and_source_dates_unchanged": true,
+      "review_status": "reviewed for current patch",
+      "pred_status": "retained",
+      "generated_at": "2026-09-14T23:59:27+00:00"
+    },
+    {
+      "bracket": "bronze",
+      "observation_and_source_dates_unchanged": true,
+      "review_status": "reviewed for current patch",
+      "pred_status": "retained",
+      "generated_at": "2026-09-14T23:59:47+00:00"
+    },
+    {
+      "bracket": "silver",
+      "observation_and_source_dates_unchanged": true,
+      "review_status": "reviewed for current patch",
+      "pred_status": "retained",
+      "generated_at": "2026-09-15T00:00:06+00:00"
+    },
+    {
+      "bracket": "platinum",
+      "observation_and_source_dates_unchanged": true,
+      "review_status": "reviewed for current patch",
+      "pred_status": "retained",
+      "generated_at": "2026-09-15T00:00:25+00:00"
+    },
+    {
+      "bracket": "diamond",
+      "observation_and_source_dates_unchanged": true,
+      "review_status": "reviewed for current patch",
+      "pred_status": "retained",
+      "generated_at": "2026-09-15T00:00:43+00:00"
+    },
+    {
+      "bracket": "paragon",
+      "observation_and_source_dates_unchanged": true,
+      "review_status": "reviewed for current patch",
+      "pred_status": "retained",
+      "generated_at": "2026-09-15T00:01:03+00:00"
+    }
+  ],
+  "browser": {
+    "engine": "Codex in-app Chromium on Windows",
+    "preview": "http://127.0.0.1:4191/",
+    "routes": [
+      "Meta",
+      "Builds",
+      "Compositions",
+      "Draft",
+      "Live game",
+      "Items & loadouts",
+      "Reviewed guide",
+      "Changes",
+      "Sources & accuracy"
+    ],
+    "hero_tabs": [
+      "Partners",
+      "Builds",
+      "Counters",
+      "Kit & patch"
+    ],
+    "completed_rank_loads": [
+      "bronze",
+      "silver",
+      "gold",
+      "platinum",
+      "diamond",
+      "paragon"
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "viewport_sizes": [
+      [
+        1920,
+        1080
+      ],
+      [
+        2560,
+        1440
+      ],
+      [
+        1536,
+        864
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "body_horizontal_overflow": false,
+    "console_errors_observed": [],
+    "saved_selection_reload": {
+      "allied_jungle": "steel",
+      "allied_midlane": "gideon",
+      "enemy_jungle": "khaimera",
+      "enemy_carry": "murdock",
+      "owned_item": "Fire Blossom",
+      "theme": "light"
+    },
+    "item_dialog_keyboard_escape": true,
+    "phone_screenshots_inspected": [
+      "dark Builds",
+      "light Meta"
+    ],
+    "limits": "Viewport sizing only; no native Windows scaling change or physical phone test. Scrollable navigation and data tables remain intentional."
+  },
+  "cloud": {
+    "run_id": 34911213594,
+    "job_id": 104198891911,
+    "source_commit": "df558b7c69b3bf01063ceb9d531d3b236affb9cb",
+    "url": "https://github.com/gn45db4tjc-ship-it/predecessor-meta/actions/runs/34911213594",
+    "conclusion": "success",
+    "collector_and_render_seconds": 133.69,
+    "required_sources_refreshed_on_github": true,
+    "pred_refreshed_on_github": false,
+    "pred_limitation": "No structured page responses; original September 14 records retained.",
+    "public_artifact_hashes_verified": true,
+    "release_behavior": "2.21.7 replays new review against these dated source records; it does not claim another collection."
+  },
+  "schedule": {
+    "initial_review": "2026-09-14T19:12:40-05:00",
+    "weekly_due_at": "2026-09-20T13:15:00-05:00",
+    "weekly_review_not_consumed": true,
+    "daily_collection_and_three_hour_patch_checks_unchanged": true
+  }
+}

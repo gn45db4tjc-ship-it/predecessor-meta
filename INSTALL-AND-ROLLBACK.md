@@ -1,4 +1,10 @@
-# 2.21.1 upgrade and rollback
+# 2.21.7 upgrade and rollback
+
+The current release replaces `predecessor_meta.py`, `engine.js`, `ui.js` and `reviewed_guidance.json` in the installed app. The installer verifies the existing 2.21.6 source, creates a dated hashed backup and preserves settings, saved data and snapshots. Quit the app and use **Roll Back 2.21.7.bat** to restore that source. A public rollback should revert the release commit and republish; leave the data branch and cloud source history intact. See [RELEASE-2.21.7.md](RELEASE-2.21.7.md) for the current verification and collection limits.
+
+The sections below describe earlier releases and are retained as historical handoff context.
+
+## 2.21.1 upgrade and rollback
 
 The 2.21.1 release updates `predecessor_meta.py`, `engine.js`, `ui.js`, and `shared_server.py` in the installed app. It preserves the Design Revision 2 CSS/template and authored guidance. Publication-side files are updated in the separate website source folder. Keep the existing data directories and settings.
 

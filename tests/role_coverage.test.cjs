@@ -51,3 +51,13 @@ test('older plans without preconditions retain existing behavior',()=>{
  const b=fixture();delete b.guidance.builds[0].source_preconditions;
  assert.equal(Meta.create(b).buildReview('core','jungle').active,true);
 });
+
+test('only explicitly reviewed equivalent perk wording is accepted',()=>{
+ const b=fixture();b.guidance.perk_wording_reviews=[{name:'Augment',patch:'1.16.4',descriptions:['Synthetic Augment','Equivalent synthetic wording']}];
+ b.perks.Augment.description='Equivalent synthetic wording';
+ assert.equal(Meta.create(b).buildReview('core','jungle').active,true);
+ b.perks.Augment.description='Changed amount';
+ assert.equal(Meta.create(b).buildReview('core','jungle').active,false);
+ b.perks.Augment.description='Equivalent synthetic wording';b.guidance.perk_wording_reviews[0].patch='1.16.3';
+ assert.equal(Meta.create(b).buildReview('core','jungle').active,false);
+});

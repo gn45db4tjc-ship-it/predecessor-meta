@@ -116,15 +116,16 @@
             add('catch','area chain',points,s,{...t,sequence:r},`${x.display_name} sets the opportunity with ${s.ability}; ${y.display_name} follows with ${t.ability}.${caution}${supporting?' This follow-up supports control or protection; the selected tank/enchanter plan does not supply a dedicated damage threat.':''}`,true);
           }
           if(s.sequence.setup!=='boundary')for(const t of refs(y,'burst')){
-            const r=sequenceReview(t.hero,t.key);if(r&&(!r.active||r.followup==='sustained'||r.followup==='none'&&t.key==='R'))continue;
+            const r=sequenceReview(t.hero,t.key);if(r&&(!r.active||r.followup==='sustained'||r.followup==='none'))continue;
             add('catch','catch conversion',Math.min(2,s.quality),s,{...t,sequence:r?.active?r:null},`${x.display_name}'s ${s.ability} creates a short conversion opportunity for ${y.display_name}'s ${t.ability}. Follow the confirmed hit rather than overlap control.`,true);
           }
         }
         for(const s of refs(x,'amplifier'))for(const t of ys)add('amplifier','attack amplifier',3,s,t,`${x.display_name}'s ${s.ability} can amplify ${y.display_name}'s repeated attacks. Commit the buff when a reachable target is available.`);
         for(const s of refs(x,'peel'))for(const t of ys){
           const control=cx.find(c=>c.key===s.key),listed=sequenceIndex.has(refId(s));
-          if(listed&&!control)continue;
-          const from=control||s,points=control?Math.min(3,control.quality):2;
+          const protection=refs(x,'protection').some(p=>p.key===s.key),r=listed?sequenceReview(s.hero,s.key):null;
+          if(listed&&!control&&(!r?.active||!protection))continue;
+          const from=control||{...s,sequence:r},points=control?Math.min(3,control.quality):2;
           add('time','attack time',points,from,t,`${x.display_name}'s ${s.ability} can help ${y.display_name} keep attacking. Reserve this action for the diver if it is not already committed to the opening.`);
         }
         for(const s of refs(x,'protection'))for(const t of refs(y,'initiation')){
@@ -179,7 +180,7 @@
         const perk=Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(r.augment));
         const supplement=Object.values(bundle.reviewed_definitions||{}).find(d=>NK(d.name)===NK(r.augment)&&d.active);
         const description=perk?.description||supplement?.description;
-        const matching=plan.active&&bundle.official?.status==='verified'&&r.patch===bundle.official?.live?.version&&description===r.augment_description&&base.abilities?.find(a=>a.key===r.ability_key)?.text===r.ability_text;
+        const matching=plan.active&&bundle.official?.status==='verified'&&r.patch===bundle.official?.live?.version&&perkTextMatches(r.augment,description,r.augment_description)&&base.abilities?.find(a=>a.key===r.ability_key)?.text===r.ability_text;
         // Changed text cannot justify the old removed or added control effect.
         for(const tag of new Set([...r.remove,...r.add]))h.capability_evidence[tag]=(h.capability_evidence[tag]||[]).filter(e=>e.key!==r.ability_key);
         if(matching)for(const tag of r.add)h.capability_evidence[tag].push({key:r.ability_key,ability:base.abilities.find(a=>a.key===r.ability_key).display_name,reason:r.reason,augment:r.augment});
@@ -657,9 +658,13 @@
           const actual=item(name);
           if(!actual||Object.entries(expected).some(([key,value])=>!sameValue(actual[key],value)))changed.push('Item '+name);
         }
-        for(const [name,text] of Object.entries(pre.perks||{}))if(Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name))?.description!==text)changed.push('Loadout '+name);
+        for(const [name,text] of Object.entries(pre.perks||{}))if(!perkTextMatches(name,Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name))?.description,text))changed.push('Loadout '+name);
       }
       return {...r,active:current&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed};
+    }
+    function perkTextMatches(name,actual,expected){
+      if(actual===expected)return true;
+      return (bundle.guidance?.perk_wording_reviews||[]).some(r=>NK(r.name)===NK(name)&&reviewReady(r.patch)&&r.descriptions.includes(actual)&&r.descriptions.includes(expected));
     }
     function plannedBuild(slug,role,{index=null,forceObserved=false}={}){
       const review=buildReview(slug,role),stats=heroes[slug]?.roles?.[role];

@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.21.6
+# Predecessor Meta — 2.21.7
+
+The September 14 strategy review covers all 93 setups, with 12 changed, 74 retained and 7 experimental roles still unresolved for broad use. Builds now shows each review result and separate dated bracket references. Six editorial tier judgments, jungle openings and several execution/counterplay explanations were updated. A real GitHub runner refreshed Statz and Omeda across all six brackets; optional Pred.gg retained its original records when unavailable. See [the release report](RELEASE-2.21.7.md) and the full `STRATEGY-REVIEW-2026-09-14.json` ledger. September 20 remains the next weekly strategy review.
+
+## Previous release: 2.21.6
 
 Pred.gg is now an optional public-page source. No API access or account is needed. When its pages expose structured data, the collector validates the patch, ranks, roles and numbers before using them. When unavailable, other sources continue and retained records keep their dates. HTTP 401/403/429 or an embedded denial stops further Pred.gg requests and persists that stop across launches; Refresh Data cannot bypass it. A page without embedded data can be checked on the next daily collection.
 
