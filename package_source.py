@@ -1,4 +1,4 @@
-"""Package and independently verify the source-only 2.21.7 release."""
+"""Package and independently verify the source-only 2.21.8 release."""
 import argparse
 import hashlib
 import json
@@ -16,6 +16,7 @@ FILES = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.
          'Install Windows Updater.ps1','BROWSER-VERIFICATION.json','CHANGE-REPORT.md','INSTALL-AND-ROLLBACK.md',
          'RELEASE-VERIFICATION.md','RELEASE-2.21.1.md','RELEASE-2.21.2.md','RELEASE-2.21.3.md','RELEASE-2.21.4.md','RELEASE-2.21.5.md','RELEASE-2.21.6.md']
 FILES += ['RELEASE-2.21.7.md','STRATEGY-REVIEW-2026-09-14.json','STRATEGY-REVIEW-VERIFICATION.json']
+FILES += ['RELEASE-2.21.8.md','app.webmanifest','sw.js','assets/app-icon-192.png','assets/app-icon-512.png']
 
 def package(node=None):
     files = [ROOT / name for name in FILES]
@@ -24,11 +25,11 @@ def package(node=None):
         files += sorted((ROOT / 'tests').rglob(extension))
     hashes = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     assert len(files) == len(hashes)
-    manifest = {'version':'2.21.7','hosting_revision':5,'design_revision':2,
-                'baseline_commit':'df558b7c69b3bf01063ceb9d531d3b236affb9cb',
-                'verification_report':'RELEASE-2.21.7.md','files':hashes}
-    (ROOT / 'SOURCE-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
-    archive = ROOT.parent / 'Predecessor Meta Tool 2.21.7 - Source.zip'
+    manifest = {'version':'2.21.8','hosting_revision':6,'design_revision':2,
+                'baseline_commit':'863c3be2a97142657cf40373a4a5984ad3ef7b2b',
+                'verification_report':'RELEASE-2.21.8.md','files':hashes}
+    (ROOT / 'SOURCE-MANIFEST.json').write_bytes((json.dumps(manifest,indent=2)+'\n').encode('utf8'))
+    archive = ROOT.parent / 'Predecessor Meta Tool 2.21.8 - Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for p in files + [ROOT/'SOURCE-MANIFEST.json']:
             z.write(p,p.relative_to(ROOT).as_posix())

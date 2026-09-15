@@ -191,6 +191,13 @@ class PublicationTests(unittest.TestCase):
         html=(self.out/'index.html').read_text(encoding='utf8')
         self.assertIn('"mode":"static"',html);self.assertIn('function checkPublication()',html)
         self.assertNotIn('Synthetic fixture',html)  # lightweight shell; data separate
+        self.assertIn('<link rel="manifest" href="app.webmanifest">',html)
+        app_manifest=json.loads((self.out/'app.webmanifest').read_text(encoding='utf8'))
+        self.assertEqual(app_manifest['display'],'standalone')
+        self.assertEqual({icon['sizes'] for icon in app_manifest['icons']},{'192x192','512x512'})
+        self.assertIn("networkFirst(request",(self.out/'sw.js').read_text(encoding='utf8'))
+        self.assertTrue((self.out/'assets'/'app-icon-192.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
+        self.assertTrue((self.out/'assets'/'app-icon-512.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
 
     def test_no_success_does_not_publish_blank_site(self):
         manifest=s.render_site(self.state,self.out,{})

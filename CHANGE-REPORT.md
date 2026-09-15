@@ -153,6 +153,14 @@ The theme is an explicit choice: a "Light theme" / "Dark theme" button sits at t
 - The local Windows app and shared-server modes use the same `ui.html`, so they receive the toggle, but only the static and export modes have browser suites; the toggle script is mode-independent and touches nothing else.
 - Native OS light/dark preference is not followed automatically (deliberate, see above).
 
+## Installable shared app (14 September 2026)
+
+The public GitHub Pages site now includes a Web App Manifest, 192px and 512px maskable icons, a native **Install app** control, and a network-first service worker. Installation creates an operating-system app icon and standalone window while keeping the existing public URL as the sharing method. The website remains useful in a normal tab on browsers that do not support installation.
+
+Publication status and bundle requests remain network-first. A successful response is cached using its original content and dates; one latest bundle per bracket is retained on each device. When offline, the installed app can reopen data that device previously loaded. It cannot claim a new collection or update while disconnected.
+
+No executable, app store account, code-signing certificate, paid hosting, database, or new cloud service was added. The Windows batch launcher remains available for the private local app. Browser security requires each recipient to accept the native installation prompt themselves.
+
 
 ## Codex integration review (8 September 2026)
 

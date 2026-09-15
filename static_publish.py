@@ -353,6 +353,11 @@ def render_site(folder, out, state):
     html = html.replace(marker, adapters + '\n' + marker, 1)
     (out / 'index.html').write_text(html, encoding='utf8')
     (out / '.nojekyll').write_text('', encoding='utf8')
+    for name in ('app.webmanifest', 'sw.js'):
+        (out / name).write_bytes((ROOT / name).read_bytes())
+    icons = out / 'assets'; icons.mkdir(exist_ok=True)
+    for name in ('app-icon-192.png', 'app-icon-512.png'):
+        (icons / name).write_bytes((ROOT / 'assets' / name).read_bytes())
     write_json(out / 'manifest.json', manifest)
     return manifest
 

@@ -17,13 +17,24 @@ let previewServer;
  const browser=await (useWebkit?webkit.launch({headless:true}):chromium.launch({headless:true,channel:'msedge'}));
  const report={engine:useWebkit?'Playwright WebKit on Windows (not native Apple Safari)':'Microsoft Edge on Windows',version:browser.version(),runs:[]};
  try{
+  const pwaContext=await browser.newContext({viewport:{width:1280,height:800}}),pwaPage=await pwaContext.newPage();
+  await pwaPage.goto(url,{waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
+  await pwaPage.evaluate(()=>navigator.serviceWorker.ready);await pwaPage.reload({waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy&&!!navigator.serviceWorker.controller,{timeout:45000});
+  const cachedAt=await pwaPage.evaluate(()=>B.generated_at);
+  await pwaContext.setOffline(true);await pwaPage.reload({waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
+  assert.equal(await pwaPage.evaluate(()=>B.generated_at),cachedAt,'installed app reopens its dated cached bundle offline');
+  await pwaContext.close();report.installable={serviceWorker:true,offlineBundle:true};
   for(const viewport of [{width:1440,height:900},{width:390,height:844}]){
-   const context=await browser.newContext({viewport,acceptDownloads:true}),page=await context.newPage();
+   const context=await browser.newContext({viewport,acceptDownloads:true,serviceWorkers:'block'}),page=await context.newPage();
    const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push({url:r.url(),method:r.method()}));
    const started=Date.now();await page.goto(url,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
    const run={viewport,readyMs:Date.now()-started,checks:[],errors};const check=(value,label)=>{assert(value,label);run.checks.push(label);};
    check(await page.evaluate(()=>APP_CONFIG.mode==='static'),'static mode');
+   check(await page.locator('#install-app').isVisible(),'install app control');
+   check(await page.evaluate(()=>document.querySelector('link[rel="manifest"]')?.getAttribute('href')==='app.webmanifest'),'web app manifest linked');
+   const appManifest=await (await page.request.get(new URL('app.webmanifest',url).href)).json();
+   check(appManifest.display==='standalone'&&appManifest.icons.some(i=>i.sizes==='192x192')&&appManifest.icons.some(i=>i.sizes==='512x512'),'install manifest metadata');
    check(await page.locator('#refresh').textContent()==='Check updates','refresh wording');
    check(await page.locator('#quit').isHidden(),'no owner quit');
    const baseline=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}));

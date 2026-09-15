@@ -1,4 +1,10 @@
-# 2.21.7 upgrade and rollback
+# 2.21.8 installable website and rollback
+
+The shared website is now an installable Progressive Web App. No Windows installer or app-store package is required: open the public site, select **Install app**, and accept the browser prompt. Removing the installed app later does not delete the public website. Roll back the public app by reverting the 2.21.8 source commit and allowing the Pages workflow to deploy the prior site; published game-data bundles and their original dates remain separate.
+
+The installed Windows app receives the 2.21.8 version label and matching UI template while keeping its local launcher, data, settings and snapshots. Its new PWA files are publication-only. The 2.21.7 source is retained in the dated `backups\pre-2.21.8-*` folder and restored by **Roll Back 2.21.8.bat**.
+
+## Previous release: 2.21.7
 
 The current release replaces `predecessor_meta.py`, `engine.js`, `ui.js` and `reviewed_guidance.json` in the installed app. The installer verifies the existing 2.21.6 source, creates a dated hashed backup and preserves settings, saved data and snapshots. Quit the app and use **Roll Back 2.21.7.bat** to restore that source. A public rollback should revert the release commit and republish; leave the data branch and cloud source history intact. See [RELEASE-2.21.7.md](RELEASE-2.21.7.md) for the current verification and collection limits.
 

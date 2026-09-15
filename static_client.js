@@ -1,6 +1,7 @@
 // Hosting adapter. Injected before the existing startup; the desktop engine and UI stay intact.
 if (APP_CONFIG.mode === 'static') {
   const site = {manifest: null, sequence: 0, controller: null, originalBundle: null, loadedEntry: null, lastCheck: 0};
+  let pendingInstallPrompt = null;
   // Capture the pristine shell before the UI renders any visitor selections into it.
   const exportShell = document.documentElement.cloneNode(true);
   const originalChrome = chrome;
@@ -9,6 +10,31 @@ if (APP_CONFIG.mode === 'static') {
   const oldDataView = dataView;
   const allowed = ['gold', 'bronze', 'silver', 'platinum', 'diamond', 'paragon'];
   const baseURL = new URL('.', location.href);
+
+  function installedApp() {
+    return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  }
+  function syncInstallButton() {
+    const button = $('#install-app');
+    if (button) button.classList.toggle('hide', installedApp());
+  }
+  async function installSharedApp() {
+    if (installedApp()) return toast('The app is already installed on this device.');
+    if (pendingInstallPrompt) {
+      const prompt = pendingInstallPrompt; pendingInstallPrompt = null;
+      await prompt.prompt();
+      const choice = await prompt.userChoice;
+      syncInstallButton();
+      return toast(choice.outcome === 'accepted' ? 'App installed. Open it from your apps or Start menu.' : 'Installation cancelled.');
+    }
+    const apple = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    detail('Install this app', apple
+      ? '<p>In Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</p><p>The app will open from its own icon and keep using the same daily cloud data.</p>'
+      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta & Planning</strong> or <strong>Apps → Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
+  }
+  window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); pendingInstallPrompt = event; syncInstallButton(); });
+  window.addEventListener('appinstalled', () => { pendingInstallPrompt = null; syncInstallButton(); toast('App installed.'); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('sw.js', baseURL), {scope: './'}).catch(() => {});
 
   function siteURL(path) {
     if (!/^(manifest\.json|bundles\/[a-z]+-[a-f0-9]{64}\.json)$/.test(path || '')) throw Error('Invalid publication path');
@@ -134,6 +160,7 @@ if (APP_CONFIG.mode === 'static') {
     if (!script?.textContent.startsWith('const INITIAL_BUNDLE=')) throw Error('Export template changed; cannot create a safe snapshot');
     const encode = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
     script.textContent = 'const INITIAL_BUNDLE=' + encode(B) + '; const APP_CONFIG=' + encode({mode:'export',tool_version:APP_CONFIG.tool_version}) + ';';
+    root.querySelectorAll('link[rel="manifest"],link[rel="apple-touch-icon"],link[rel="icon"]').forEach(link => link.remove());
     root.querySelectorAll('dialog[open]').forEach(d => d.removeAttribute('open'));
     const blob = new Blob(['<!doctype html>\n', root.outerHTML], {type:'text/html;charset=utf-8'});
     const url = URL.createObjectURL(blob), a = document.createElement('a');
@@ -141,9 +168,11 @@ if (APP_CONFIG.mode === 'static') {
   }
   document.addEventListener('click', event => {
     const id = event.target.closest('button')?.id;
-    if (!['refresh','export'].includes(id)) return;
+    if (!['refresh','export','install-app'].includes(id)) return;
     event.preventDefault(); event.stopImmediatePropagation();
-    if (id === 'refresh') checkPublication(); else try { exportSnapshot(); } catch (error) { toast(error.message); }
+    if (id === 'refresh') checkPublication();
+    else if (id === 'install-app') installSharedApp().catch(error => toast(error.message));
+    else try { exportSnapshot(); } catch (error) { toast(error.message); }
   }, true);
   document.addEventListener('change', async event => {
     const el = event.target;
@@ -168,5 +197,6 @@ if (APP_CONFIG.mode === 'static') {
   window.addEventListener('online', checkPublication);
   setInterval(() => { if (document.visibilityState === 'visible' && !site.controller) checkPublication(); }, 300000);
   // Defer until the existing UI startup has created its shell.
+  syncInstallButton();
   setTimeout(checkPublication, 0);
 }

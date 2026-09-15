@@ -16,7 +16,7 @@
    click('[data-route="meta"]');click('[data-meta-role="'+role+'"]');
   }
  }
- assert(count===85,'All 85 selected role loadouts inspected');
+ assert(count===93,'All 93 selected role loadouts inspected');
  click('[data-route="live"]');click('#clear-locks');click('#clear-enemies');select('[data-slot="allies"][data-slot-role="carry"]','legion');select('#me-hero','legion');
  const s=summary('Selected augment mechanics');assert(s,'Live selected-augment disclosure');s.focus();s.click();assert(s.parentElement.innerText.includes('removes Rally Point’s healing'),'Removed healing is explained');
  const perk=s.parentElement.querySelector('[data-catalog]');perk.focus();perk.click();assert(document.querySelector('#detail-body').innerText.includes('no longer grants Health Regeneration'),'Original Legion augment inspectable');click('#close-detail');assert(document.activeElement===perk,'Augment close restores focus');

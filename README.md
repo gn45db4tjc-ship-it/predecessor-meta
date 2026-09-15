@@ -1,4 +1,10 @@
-# Predecessor Meta — 2.21.7
+# Predecessor Meta — 2.21.8
+
+The shared site is now installable as an app. Open **[Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/)** and choose **Install app**. Edge, Chrome and supported Android browsers use their native install prompt; on iPhone or iPad, Safari shows the **Share → Add to Home Screen** steps. The installed icon opens in its own window and uses the same free daily cloud updates. Anyone can use the public link without Python, a GitHub account or an installer.
+
+The app also keeps the last successfully loaded bracket on that device for offline reopening. It preserves the bundle's original dates and resumes normal cloud checks when the device reconnects. See [the 2.21.8 release report](RELEASE-2.21.8.md).
+
+## Previous release: 2.21.7
 
 The September 14 strategy review covers all 93 setups, with 12 changed, 74 retained and 7 experimental roles still unresolved for broad use. Builds now shows each review result and separate dated bracket references. Six editorial tier judgments, jungle openings and several execution/counterplay explanations were updated. A real GitHub runner refreshed Statz and Omeda across all six brackets; optional Pred.gg retained its original records when unavailable. See [the release report](RELEASE-2.21.7.md) and the full `STRATEGY-REVIEW-2026-09-14.json` ledger. September 20 remains the next weekly strategy review.
 
@@ -80,6 +86,7 @@ If a source blocks GitHub's hosting addresses, the app must report that boundary
 
 - `static_publish.py`: source collection decisions, public bundles, separate rendering, per-bracket failure handling.
 - `static_client.js`: published-bundle loading, checksums, bracket selection, read-only update checks, and standalone export.
+- `app.webmanifest`, `sw.js`, and `assets/app-icon-*.png`: browser installation metadata, app icons, and date-preserving offline reopening of previously loaded data.
 - `rank_view.js`: selected-rank tables and explicit separation of rank-specific observations from the Gold+ authored tier review; also runs in exports.
 - `free_hosting.json`: selected schedule and bracket policy.
 - `.github/workflows/publish.yml`: serialized daily/patch checks and Pages deployment. Actions are pinned to verified commit IDs.
