@@ -29,12 +29,16 @@
   ],
   "shortcuts": [
     {
-      "name": "Heroes",
+      "name": "Meta",
       "url": "./#view=meta"
     },
     {
       "name": "Builds",
       "url": "./#view=builds"
+    },
+    {
+      "name": "Compositions",
+      "url": "./#view=planner"
     },
     {
       "name": "Live game",

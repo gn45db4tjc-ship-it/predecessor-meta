@@ -35,7 +35,7 @@ let previewServer;
    check(await page.evaluate(()=>document.querySelector('link[rel="manifest"]')?.getAttribute('href')==='app.webmanifest'),'web app manifest linked');
    const appManifest=await (await page.request.get(new URL('app.webmanifest',url).href)).json();
    check(appManifest.display==='standalone'&&appManifest.icons.some(i=>i.sizes==='192x192')&&appManifest.icons.some(i=>i.sizes==='512x512'),'install manifest metadata');
-   check(await page.locator('#refresh').textContent()==='Check updates','refresh wording');
+   check(await page.locator('#refresh').textContent()==='Reload latest data','refresh wording');
    check(await page.locator('#quit').isHidden(),'no owner quit');
    const baseline=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}));
    for(const route of ['meta','builds','planner','draft','live','library','guidance','changes','data']){

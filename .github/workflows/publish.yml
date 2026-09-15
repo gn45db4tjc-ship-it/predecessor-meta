@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          # Used only for the small daily activity record below, never force-pushed.
+          # Main is source only. Schedule keepalive state is written to automation-state.
           persist-credentials: true
           ref: main
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
@@ -74,6 +74,7 @@ jobs:
         env:
           MANUAL_REFRESH: ${{ inputs.refresh }}
           DIAGNOSE_PRED: ${{ inputs.diagnose_pred }}
+          COLLECTION_RELEASE: '2.23.0'
         run: |
           if [ -f collected-data/collector.json ]; then
             python -B import_local_feed.py collected-data
@@ -100,10 +101,20 @@ jobs:
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
           python -B publication_activity.py
-          git add -- publication-activity.json
-          if ! git diff --cached --quiet -- publication-activity.json; then
-            git commit -m 'Record daily publication activity' -- publication-activity.json
-            git push origin HEAD:main || echo '::warning::Activity record could not be pushed; a concurrent source update may have occurred. Data publication continues.'
+          rm -rf /tmp/predecessor-automation-state
+          if git ls-remote --exit-code --heads origin automation-state >/dev/null 2>&1; then
+            git fetch --depth=1 origin automation-state
+            git worktree add --detach /tmp/predecessor-automation-state FETCH_HEAD
+          else
+            git worktree add --detach /tmp/predecessor-automation-state HEAD
+            git -C /tmp/predecessor-automation-state checkout --orphan automation-state
+            git -C /tmp/predecessor-automation-state rm -rf .
+          fi
+          cp publication-activity.json /tmp/predecessor-automation-state/publication-activity.json
+          git -C /tmp/predecessor-automation-state add publication-activity.json
+          if ! git -C /tmp/predecessor-automation-state diff --cached --quiet; then
+            git -C /tmp/predecessor-automation-state commit -m 'Record daily publication activity'
+            git -C /tmp/predecessor-automation-state push origin HEAD:automation-state || echo '::warning::Activity record could not be pushed; data publication continues.'
           fi
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         if: steps.generate.outputs.publishable == 'true'

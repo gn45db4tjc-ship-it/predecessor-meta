@@ -1,5 +1,5 @@
 'use strict';
-const CACHE = 'predecessor-meta-v1';
+const CACHE = 'predecessor-meta-v2-23';
 const ROOT = new URL('./', self.location.href);
 const SHELL = ['./', 'app.webmanifest', 'assets/app-icon-192.png', 'assets/app-icon-512.png'];
 

@@ -1,4 +1,4 @@
-"""Package and independently verify the source-only 2.22.0 release."""
+"""Package and independently verify the source-only 2.23.0 release."""
 import argparse
 import hashlib
 import json
@@ -16,7 +16,7 @@ FILES = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.
          'Install Windows Updater.ps1','BROWSER-VERIFICATION.json','CHANGE-REPORT.md','INSTALL-AND-ROLLBACK.md',
          'RELEASE-VERIFICATION.md','RELEASE-2.21.1.md','RELEASE-2.21.2.md','RELEASE-2.21.3.md','RELEASE-2.21.4.md','RELEASE-2.21.5.md','RELEASE-2.21.6.md']
 FILES += ['RELEASE-2.21.7.md','STRATEGY-REVIEW-2026-09-14.json','STRATEGY-REVIEW-VERIFICATION.json']
-FILES += ['RELEASE-2.21.8.md','mobile.js','mobile.css','RELEASE-2.22.0.md','app.webmanifest','sw.js','assets/app-icon-192.png','assets/app-icon-512.png']
+FILES += ['RELEASE-2.21.8.md','mobile.js','mobile.css','RELEASE-2.22.0.md','RELEASE-2.23.0.md','app.webmanifest','sw.js','assets/app-icon-192.png','assets/app-icon-512.png']
 
 def package(node=None):
     files = [ROOT / name for name in FILES]
@@ -25,11 +25,11 @@ def package(node=None):
         files += sorted((ROOT / 'tests').rglob(extension))
     hashes = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     assert len(files) == len(hashes)
-    manifest = {'version':'2.22.0','hosting_revision':6,'design_revision':2,
+    manifest = {'version':'2.23.0','hosting_revision':7,'design_revision':3,
                 'baseline_commit':'cfb96ba7e817d6ae3dbfe3c642a95832f299f1de',
-                'verification_report':'RELEASE-2.22.0.md','files':hashes}
+                'verification_report':'RELEASE-2.23.0.md','files':hashes}
     (ROOT / 'SOURCE-MANIFEST.json').write_bytes((json.dumps(manifest,indent=2)+'\n').encode('utf8'))
-    archive = ROOT.parent / 'Predecessor Meta Tool 2.22.0 - Source.zip'
+    archive = ROOT.parent / 'Predecessor Meta Tool 2.23.0 - Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for p in files + [ROOT/'SOURCE-MANIFEST.json']:
             z.write(p,p.relative_to(ROOT).as_posix())

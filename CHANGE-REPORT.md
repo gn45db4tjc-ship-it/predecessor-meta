@@ -1,4 +1,6 @@
-# Current release: 2.21.1
+# Current release: 2.23.0
+
+See RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -167,3 +169,13 @@ No executable, app store account, code-signing certificate, paid hosting, databa
 The supplied Revision 2 ZIP was hash-verified against its manifest before extraction. The four protected runtime/data files, publishing workflow, ingestion, and updater match the existing baseline. One presentation correction was added: after a failed official patch check, the website labels the retained version **Last verified patch**. The original source ZIP remains intact.
 
 Additional browser checks cover local mode, static mode, saved-file exports, light/dark keyboard toggling, draft restoration, source-failure visibility, and withholding unverified reviewed plans. See RELEASE-VERIFICATION.md for test conditions and release limitations. The package script now includes these receipts and uses a distinct Verified Source archive name.
+# Revision 3 — 2.23.0 mobile Meta and refresh reliability
+
+- Replaced the phone opponent wizard with a Meta-first dashboard: role chips, search, favorites, recent heroes, five leading picks, and valid same-rank movement.
+- Made Build the first hero tab and focused phone Builds, Compositions, Draft, and Live around the first decision.
+- Added layered hero/item image fallbacks and local-only favorites.
+- Added manifest schema 2 health for core statistics, mechanics, patch verification, guidance, optional Pred.gg, run receipt, and next expected attempt.
+- Added two bounded three-hour retries for transient required-source failures. Blocks wait for the next daily run; optional Pred.gg never drives retry or core freshness.
+- Moved the workflow keepalive commit from `main` to `automation-state` to prevent release races.
+- Added strategy-review due status and a downloadable 93-plan review packet. Statistics refresh remains separate from authored strategy review.
+- Verified 95 Python tests, 78 JavaScript tests, mobile browser checks, axe in both themes, and desktop release acceptance.

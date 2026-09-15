@@ -1,6 +1,6 @@
-# 2.22.0 mobile companion installation and rollback
+# 2.23.0 mobile Meta installation and rollback
 
-The mobile companion and Build Coach are described in [RELEASE-2.22.0.md](RELEASE-2.22.0.md). Open the public website and add it to your home screen. The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.22.0.bat**. All existing data and settings are retained.
+The mobile Meta dashboard, Build Coach, and refresh-health changes are described in [RELEASE-2.23.0.md](RELEASE-2.23.0.md). Open the public website and add it to your home screen. The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.23.0.bat**. All existing data and settings are retained.
 
 ## Historical release notes
 

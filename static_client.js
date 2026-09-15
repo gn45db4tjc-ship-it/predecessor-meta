@@ -70,7 +70,7 @@ if (APP_CONFIG.mode === 'static') {
   chrome = function() {
     originalChrome();
     $('#connection').textContent = 'SHARED WEBSITE · YOUR DRAFT STAYS IN THIS BROWSER';
-    $('#refresh').textContent = latestStatus.busy ? 'Checking…' : 'Check updates';
+    $('#refresh').textContent = latestStatus.busy ? 'Checking…' : 'Reload latest data';
     $('#refresh').disabled = !!latestStatus.busy;
     $('#bracket').disabled = false;
     $('#export').disabled = !B;
@@ -80,7 +80,9 @@ if (APP_CONFIG.mode === 'static') {
     stableHTML('#bracket', options(allowed.map(b => [b, (site.manifest?.cohorts?.[b]?.label || b[0].toUpperCase()+b.slice(1)+'+') + (site.manifest && site.manifest.cohorts[b]?.status !== 'available' ? ' · unavailable' : '')]), S.bracket));
     $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every three hours; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every three hours.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every three hours; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
+    if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
     $('#progress').textContent = latestStatus.message || 'Loading the latest published data…';
+    $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>e.severity==='error'&&!/^Pred\.gg(?: |$)/.test(e.source||'')));
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'No successful publication is available for this bracket yet. Choose another bracket.');
   };
   render = function() {
@@ -94,7 +96,7 @@ if (APP_CONFIG.mode === 'static') {
     return response;
   }
   function validateManifest(manifest) {
-    if (manifest?.schema !== 1 || !manifest.cohorts || !Number.isFinite(Date.parse(manifest.published_at))) throw Error('Published status has an invalid format');
+    if (![1,2].includes(manifest?.schema) || !manifest.cohorts || !Number.isFinite(Date.parse(manifest.published_at))) throw Error('Published status has an invalid format');
     for (const [key, entry] of Object.entries(manifest.cohorts)) {
       if (!allowed.includes(key) || !['available', 'unavailable'].includes(entry.status)) throw Error('Invalid published rank bracket');
       if (entry.status === 'available') {
@@ -147,13 +149,14 @@ if (APP_CONFIG.mode === 'static') {
       site.originalBundle = raw; site.loadedEntry = entry;
       B = next; revision = entry.sha256;
       if (changed) { E = MetaEngine.create(B); compositions = null; }
-      latestStatus = {busy: false, errors: errs, message: (entry.collection_status==='partial'?'Partial update · ':entry.last_attempt?.status && entry.last_attempt.status !== 'ok'?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Each source keeps its own fetch date' + '. Your draft is saved in this browser.'};
+      const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
+      latestStatus = {busy: false, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       site.lastCheck = Date.now(); if (changed) { render(); checkSharedPlan(); } else chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); compositions = null; }
-      latestStatus = {busy: false, message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Check updates again.' : error.message}]};
+      latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
       chrome();
     } finally { clearTimeout(timeout); if (sequence === site.sequence) site.controller = null; }
   }
@@ -196,9 +199,10 @@ if (APP_CONFIG.mode === 'static') {
       } catch (error) { toast(error.message); } finally { clearTimeout(timer); }
     }
   }, true);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now()-site.lastCheck > 300000) checkPublication(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now()-site.lastCheck > 900000) checkPublication(); });
+  window.addEventListener('focus', () => { if (Date.now()-site.lastCheck > 900000 && !site.controller) checkPublication(); });
   window.addEventListener('online', checkPublication);
-  setInterval(() => { if (document.visibilityState === 'visible' && !site.controller) checkPublication(); }, 300000);
+  setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine && !site.controller) checkPublication(); }, 1800000);
   // Defer until the existing UI startup has created its shell.
   syncInstallButton();
   setTimeout(checkPublication, 0);

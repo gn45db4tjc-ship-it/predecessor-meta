@@ -4,6 +4,8 @@
   "patch_check_hours": 3,
   "patch_catchup_hours": 6,
   "patch_window_hours": 48,
+  "required_retry_hours": 3,
+  "required_retry_limit": 2,
   "brackets": [
     "gold",
     "bronze",

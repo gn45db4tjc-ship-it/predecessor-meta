@@ -68,6 +68,35 @@ class ScheduleTests(unittest.TestCase):
         self.state['attempts'] = {'gold': {'status':'failed'}}
         self.assertIsNone(s.collection_reason(self.state, self.o, NOW+dt.timedelta(hours=3)))
 
+    def test_transient_required_failure_gets_two_spaced_retries(self):
+        self.state['required_retry']={'pending':True,'blocked':False,'attempts':0}
+        self.assertIsNone(s.collection_reason(self.state,self.o,NOW+dt.timedelta(hours=2,minutes=59)))
+        self.assertEqual(s.collection_reason(self.state,self.o,NOW+dt.timedelta(hours=3)),
+                         'Automatic required-source retry')
+        self.state['required_retry']['attempts']=2
+        self.assertIsNone(s.collection_reason(self.state,self.o,NOW+dt.timedelta(hours=6)))
+
+    def test_blocked_required_source_waits_for_next_daily_window(self):
+        self.state['required_retry']={'pending':False,'blocked':True,'attempts':0}
+        self.assertIsNone(s.collection_reason(self.state,self.o,NOW+dt.timedelta(hours=6)))
+        self.assertEqual(s.collection_reason(self.state,self.o,NOW+dt.timedelta(days=1)), 'Daily update')
+
+    def test_optional_pred_failure_is_not_a_required_failure(self):
+        attempt={'errors':[{'source':'Pred.gg','severity':'error','detail':'HTTP 503'}]}
+        self.assertFalse(s.required_source_failure(attempt))
+        attempt['errors'].append({'source':'Statz tier list','severity':'error','detail':'HTTP 503'})
+        self.assertTrue(s.required_source_failure(attempt))
+
+    def test_retry_limit_also_stops_patch_catchup(self):
+        self.state.update(patch_transition_at=NOW.isoformat(),required_retry={'pending':False,'attempts':2})
+        self.assertIsNone(s.collection_reason(self.state,self.o,NOW+dt.timedelta(hours=6)))
+
+    def test_core_age_boundaries_and_missing_dates(self):
+        for hours,expected in [(0,'Current'),(30,'Current'),(31,'Aging'),(48,'Aging'),(49,'Stale')]:
+            self.assertEqual(s.source_age_state((NOW-dt.timedelta(hours=hours)).isoformat(),NOW)['state'],expected)
+        for stamp in [None,'bad',(NOW+dt.timedelta(hours=1)).isoformat()]:
+            self.assertEqual(s.source_age_state(stamp,NOW)['state'],'Unavailable')
+
     def test_unverified_patch_cannot_trigger_patch_collection(self):
         self.assertIsNone(s.collection_reason(self.state, {'status':'failed'}, NOW))
 

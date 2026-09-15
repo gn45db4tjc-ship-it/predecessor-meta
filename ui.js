@@ -9,7 +9,7 @@ S.route='meta'; S.query='';S.bracket=['bronze','silver','gold','platinum','diamo
 const name=s=>E.heroes[s]?.display_name||s||'Unknown';
 const link=(u,label)=>`<a href="${esc(safe(u))}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
 const badge=(text,type='')=>`<span class="tag ${type}">${esc(text)}</span>`;
-function art(slug,size=''){const h=E.heroes[slug]||{},row=(B?.tier_list||[]).find(r=>r.slug===slug&&r.image),fallback=h.image_url||(h.omeda?.image?'https://omeda.city'+h.omeda.image:null),u=h.pred_image_url|| (row?'https://statz.gg/images/predecessor/hero-image-data/'+encodeURIComponent(row.image):fallback);return `<span class="portrait ${size}" aria-hidden="true">${esc(name(slug).slice(0,2))}${u?`<img src="${esc(safe(u))}" data-fallback="${esc(safe(fallback))}" alt="" loading="lazy">`:''}</span>`;}
+function art(slug,size=''){const h=E.heroes[slug]||{},row=(B?.tier_list||[]).find(r=>r.slug===slug&&r.image),omeda=h.image_url||(h.omeda?.image?'https://omeda.city'+h.omeda.image:null),statz=row?'https://statz.gg/images/predecessor/hero-image-data/'+encodeURIComponent(row.image):null,u=h.pred_image_url||statz||omeda,fallbacks=[omeda,statz].filter((v,i,a)=>v&&v!==u&&a.indexOf(v)===i);return `<span class="portrait ${size}" aria-hidden="true">${esc(name(slug).slice(0,2))}${u?`<img src="${esc(safe(u))}" data-fallbacks="${esc(JSON.stringify(fallbacks))}" alt="" loading="${size==='large'?'eager':'lazy'}" width="64" height="64">`:''}</span>`;}
 function heroButton(slug,role='',small=false){return `<button class="text-button hero-cell" data-hero="${esc(slug)}" data-role="${esc(role)}">${art(slug,small?'tiny':'')}<span class="name">${esc(name(slug))}</span></button>`;}
 function tier(t){return `<span class="tier tier-${esc(String(t||'').toLowerCase()[0])}">${esc(t||'—')}</span>`;}
 function statzAvailability(kind='statz_hero_pages',compact=false){
@@ -46,7 +46,7 @@ function chrome(){
  stableHTML('#navigation',navGroups.map(([title,routes])=>`<div class="nav-group">${title}</div>`+routes.map(r=>{const n=navs.find(x=>x[0]===r)[1];return `<button class="nav" data-route="${r}" ${S.route===r||S.route==='hero'&&r==='meta'?'aria-current="page"':''}>${n}</button>`;}).join('')).join(''));
  $('#connection').innerHTML=stopped?'LOCAL APP STOPPED · SAVED VIEW':local?'<span class="dot"></span>LOCAL APP · LIVE REFRESH ON OPEN':shared?'<span class="dot"></span>SHARED DATA · YOUR DRAFT STAYS IN THIS BROWSER':'STANDALONE EXPORT · SAVED SNAPSHOT';
  stableHTML('#bracket',options((B?.bracket?.options?.length?B.bracket.options:['bronze','silver','gold','platinum','diamond','paragon'].map(v=>[v,v[0].toUpperCase()+v.slice(1)+'+'])),(shared?S.bracket:latestStatus.bracket)||B?.bracket?.segment||'gold'));
- $('#export').disabled=stopped||!B;$('#bracket').disabled=!(local||shared)||(!shared&&latestStatus.busy);$('#refresh').disabled=!(local||shared)||latestStatus.busy;$('#quit').classList.toggle('hide',!local);$('#refresh').textContent=latestStatus.busy?'Refreshing…':local?'Refresh data':shared?'Check updates':'Snapshot export';if($('#share-plan'))$('#share-plan').disabled=!B;
+ $('#export').disabled=stopped||!B;$('#bracket').disabled=!(local||shared)||(!shared&&latestStatus.busy);$('#refresh').disabled=!(local||shared)||latestStatus.busy;$('#quit').classList.toggle('hide',!local);$('#refresh').textContent=latestStatus.busy?'Refreshing…':local?'Refresh sources':shared?'Reload latest data':'Snapshot export';if($('#share-plan'))$('#share-plan').disabled=!B;
  companionChrome();
  const official=B?.official,live=official?.live,g=B?.guidance;if($('#status-toggle'))$('#status-toggle').textContent=(B?.cache?.used?'Saved data':'Source status')+' · '+(B?.scoped_statistics?.patch||'Patch unavailable')+' · '+(B?.bracket?.label||'Loading')+' · Details';
  stableHTML('#source-notices',alerts());
@@ -98,7 +98,7 @@ function heroView(){
  const role=h.roles?.[S.heroRole],perf=E.performance({slug:S.hero,role:S.heroRole}),partners=E.partners(S.hero,{min:S.explore?1:100,role:S.partnerRole,heroRole:S.heroRole,metric:S.pairMetric});
  let html=`<button class="text-button muted" data-route="meta">← Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[S.role])}</button><div class="hero-header">${art(S.hero,'large')}<div class="summary"><div class="eyebrow">${esc(B.bracket?.label)} · ${esc(labels[S.heroRole])}</div><h1>${esc(h.display_name)}</h1><label>Planning role <select id="hero-role">${options(E.roles(S.hero).map(r=>[r,labels[r]+(E.performance({slug:S.hero,role:r})?'':' · no current sample')]),S.heroRole)}</select></label></div><div class="quick-stats"><div>${B.scoped_statistics?metaTierButton(S.hero,S.heroRole):tier(perf?.tier)}<small>${B.scoped_statistics?'Reviewed tier · open reasoning':'Role tier'}</small></div><div><div class="big">${pct(perf?.wr)}</div><small>${games(perf?.played)} · ${esc(perf?.source||'unavailable')} ${esc(perf?.patch||'')}</small></div></div></div>`;
  if(!perf)html+=note(esc(role?.error||'No data for this role.')+' Pair observations are hero-wide; the selected role does not create a role-specific pair sample.',true);
- html+=`<div class="toolbar"><div class="tabs" role="tablist" aria-label="Hero detail">${[['pairings','Partners'],['builds','Builds'],['counters','Counters'],['kit','Kit & patch']].map(([t,n])=>`<button role="tab" data-hero-tab="${t}" aria-selected="${S.heroTab===t}">${n}</button>`).join('')}</div></div>`;
+ html+=`<div class="toolbar"><div class="tabs" role="tablist" aria-label="Hero detail">${[['builds','Build'],['pairings','Partners'],['counters','Counters'],['kit','Kit']].map(([t,n])=>`<button role="tab" data-hero-tab="${t}" aria-selected="${S.heroTab===t}">${n}</button>`).join('')}</div></div>`;
  if(S.heroTab==='pairings'){
   const ordered=S.pairMetric==='kit'?partners.combined:partners.observed;const leading=ordered.slice(0,3);
   html+=`<div class="hero-intro"><h2>What pairs well with ${esc(h.display_name)}?</h2><p>${S.pairMetric==='kit'?'Kit fit first; observed pair rates shown separately.':'Exploratory Statz comparison; kit fit shown separately.'} ${S.explore?'Samples below 100 games included.':'At least 100 games by default.'}</p></div>`+
@@ -128,7 +128,8 @@ function reviewedDefinitionHTML(d){
 }
 function itemButton(value,kind='items'){
  const k=catalogKey(kind,value),it=k?B[kind][k]:null,d=kind==='perks'?reviewedDefinition(value):null,n=it?.display_name||it?.name||d?.name||value,issue=definitionIssue(kind,k,value);
- return `<button class="item-button" data-catalog="${esc(kind)}" data-key="${esc(k||value)}">${it?.image_url?`<img src="${esc(safe(it.image_url))}" alt="" loading="lazy">`:''}<span class="item-name">${esc(n||'Description unavailable')} ${d?.active?(d.uncertainties?.length?'<small class="warning">Partly verified description</small>':'<small class="reviewed">Official reviewed description</small>'):d||issue||!it?`<small class="negative">${d?'Description needs review':issue?.status==='incompatible slot'?'Description conflict':'Description unavailable'}</small>`:''}</span></button>`;
+ const statz=it?.image?'https://statz.gg/images/predecessor/item-images/'+encodeURIComponent(it.image):null,fallbacks=[statz].filter(v=>v&&v!==it?.image_url);
+ return `<button class="item-button" data-catalog="${esc(kind)}" data-key="${esc(k||value)}">${it?.image_url||statz?`<img src="${esc(safe(it?.image_url||statz))}" data-fallbacks="${esc(JSON.stringify(fallbacks))}" alt="" loading="lazy" width="40" height="40">`:''}<span class="item-name">${esc(n||'Description unavailable')} ${d?.active?(d.uncertainties?.length?'<small class="warning">Partly verified description</small>':'<small class="reviewed">Official reviewed description</small>'):d||issue||!it?`<small class="negative">${d?'Description needs review':issue?.status==='incompatible slot'?'Description conflict':'Description unavailable'}</small>`:''}</span></button>`;
 }
 
 function choiceRows(rows,kind='items'){if(!rows?.length)return `<small>No source entries for this slot.</small>`;return rows.map(r=>`<div class="choice">${itemButton(r.name||r.display_name,kind)}<small>${pct(r.winRate)}<br>${games(r.playedGames)}</small></div>`).join('');}
@@ -259,7 +260,7 @@ function showCatalog(kind,key){
 }
 
 function changeRoute(route){document.querySelector('.sidebar')?.classList.remove('menu-open');$('#menu-toggle')?.setAttribute('aria-expanded','false');S.route=route;render();window.scrollTo(0,0);$('#main').focus({preventScroll:true});}
-function openHero(slug,role){if($('#detail')?.open)$('#detail').close();S.hero=slug;S.heroRole=role&&E.roles(slug).includes(role)?role:E.roles(slug).includes(S.role)?S.role:E.roles(slug)[0];S.heroTab='pairings';S.partnerRole='';S.variants=[0,1];changeRoute('hero');}
+function openHero(slug,role){if($('#detail')?.open)$('#detail').close();S.hero=slug;S.heroRole=role&&E.roles(slug).includes(role)?role:E.roles(slug).includes(S.role)?S.role:E.roles(slug)[0];S.heroTab='builds';S.partnerRole='';S.variants=[0,1];changeRoute('hero');}
 function setPick(side,role,slug){let list=side==='allies'?S.locks:S.enemies,other=side==='allies'?S.enemies:S.locks;const next=list.filter(p=>p.role!==role);if(slug){if(next.some(p=>p.slug===slug)||other.some(p=>p.slug===slug)||S.bans.includes(slug)){toast('That hero is already picked or banned. Clear the existing selection first.');render();return;}next.push({slug,role});}if(side==='allies')S.locks=next;else S.enemies=next;compositions=null;S.liveVariant=null;save();render();}
 /* ---- Builds page, recommended build card, and Live game page (observed data first; every calculated choice states its rule) ---- */
 const SKILL_KEYS={Primary:'Q',Secondary:'E',Alternate:'RMB',Ultimate:'R',Basic:'LMB'};
@@ -427,7 +428,7 @@ function sharePlan(){
 }
 function downloadPlan(){const blob=new Blob([JSON.stringify(pendingSharedPlan,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Predecessor plan.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
-document.addEventListener('error',e=>{if(e.target.tagName==='IMG'){const image=e.target,fallback=image.dataset.fallback;delete image.dataset.fallback;if(fallback&&fallback!=='#'&&image.src!==fallback)image.src=fallback;else{image.dataset.failed='true';image.hidden=true;}}},true);
+document.addEventListener('error',e=>{if(e.target.tagName==='IMG'){const image=e.target;let fallbacks=[];try{fallbacks=JSON.parse(image.dataset.fallbacks||'[]');}catch{}const fallback=fallbacks.shift();image.dataset.fallbacks=JSON.stringify(fallbacks);if(fallback&&fallback!=='#'&&image.src!==fallback)image.src=fallback;else{image.dataset.failed='true';image.hidden=true;}}},true);
 document.addEventListener('click',async event=>{
  const el=event.target.closest('button');if(!el)return;const d=el.dataset;
  try{

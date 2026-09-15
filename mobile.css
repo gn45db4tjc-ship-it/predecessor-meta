@@ -1,4 +1,4 @@
-/* Shared Build Coach and accessible phone shell, 2.22.0. */
+/* Mobile-first planning companion, 2.23.0. */
 .coach-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .coach-controls label{display:grid;gap:6px}.coach-controls select{width:100%;min-width:0}
 .coach-date{font-size:.85rem;line-height:1.6}.coach-next h2{margin:0 0 8px}.coach-path{counter-reset:none}
@@ -22,7 +22,8 @@
 button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold-text,#e8c606);outline-offset:3px}
 @media(min-width:701px){.coach-next{position:sticky;top:72px;z-index:3;background:var(--surface,#182531);padding:10px 12px}.install-hint{display:none}}
 @media(max-width:700px){
- body{overflow-wrap:anywhere}.sidebar #navigation,.sidebar .theme-toggle,.topbar #share-plan,.topbar #import-plan,.topbar #export,.topbar #install-app,.topbar .finder{display:none!important}
+ .sidebar #menu-toggle{display:block;margin-left:auto}
+ body{overflow-wrap:anywhere}.sidebar #navigation,.sidebar .theme-toggle,.topbar #share-plan,.topbar #import-plan,.topbar #export,.topbar #install-app,.topbar .finder,#status-toggle,#patch-strip,#freshness,#source-notices{display:none!important}
  .sidebar{padding:12px 16px}.topbar{padding:8px 16px}.topbar .tools label{font-size:14px;line-height:1.4}.topbar .tools label select{font-size:16px;min-height:44px}
  #mobile-navigation{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:20;padding:4px max(4px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));background:var(--surface,#182531);border-top:1px solid var(--border,#526070)}
  #mobile-navigation button{min-width:0;border:0;background:transparent;border-radius:6px;padding:10px 2px;font-size:.8rem;color:var(--text,#d2d3d5)}
@@ -40,6 +41,14 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
  .hero-header h1{font-size:1.8rem}.hero-header select{max-width:100%}.hero-header>div{min-width:0}
  .builds-grid .build-card{min-width:0}.source-line{overflow-wrap:anywhere}.source-table{max-width:none}.table-scroll{overflow-x:auto}
  .large-text .coach-controls label{grid-template-columns:1fr}.large-text #mobile-navigation button{font-size:.75rem}
+ .progress{border-bottom:0;background:var(--surface);padding:6px 16px!important;font-size:.78rem!important}.progress:not(.busy):not(.failed){display:none}
+ .mobile-health{width:100%;display:flex;align-items:center;gap:10px;text-align:left;margin:0 0 14px;padding:10px 12px;border-color:var(--control-line);background:var(--surface)}.mobile-health strong{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}.mobile-health span{font-size:.82rem;color:var(--text-2)}.mobile-health.current strong{color:var(--green)}.mobile-health.aging strong{color:var(--amber)}.mobile-health.stale strong,.mobile-health.unavailable strong{color:var(--red)}
+ .role-choices.compact{display:flex;overflow-x:auto;gap:6px;margin:10px 0 14px;padding:2px}.role-choices.compact button{flex:0 0 auto;padding:8px 14px;border-radius:999px}.role-choices.compact [aria-selected=true]{background:var(--accent-fill);border-color:var(--gold);color:var(--gold-text)}
+ .mobile-search{display:grid;gap:6px;margin:0 0 18px;font-weight:650}.mobile-search input{width:100%}
+ .mobile-card-list{display:grid;gap:8px;margin:8px 0 20px}.mobile-hero-card,.mobile-change{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:10px}.mobile-hero-card .hero-cell{justify-self:start;min-width:0;text-align:left}.mobile-stat{display:grid;grid-template-columns:auto auto;align-items:center;justify-items:end;gap:2px 8px;font-variant-numeric:tabular-nums}.mobile-stat small{grid-column:1/3;color:var(--muted)}.mobile-hero-card .favorite-button{position:absolute;right:4px;top:4px;background:transparent;border:0;color:var(--gold-text)}.mobile-hero-card:has(.favorite-button) .mobile-stat{margin-right:40px}.mobile-change{grid-template-columns:minmax(0,1fr) auto}.mobile-change small{grid-column:1/3;color:var(--muted)}
+ .mobile-hero-head{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:start}.mobile-hero-head .portrait{width:64px;height:80px}.hero-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0}.hero-actions button{padding:7px 5px}
+ .mobile-build-list{display:grid;gap:8px}.mobile-build-row{padding:0!important}.mobile-build-row>summary{padding:10px 12px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px}.mobile-build-row>summary span{display:grid}.mobile-build-row>summary small{color:var(--muted)}.mobile-build-row>.detail-content{padding:12px}.mobile-build-row .build-path{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mobile-focused .page-head{margin-bottom:10px}.mobile-focused .slots{margin:8px 0}.mobile-focused .coverage{margin:8px 0}.mobile-focused .toolbar{margin:10px 0}.mobile-focused .toolbar-group{width:100%}.mobile-focused .toolbar-group>label{width:100%}
 }
 
 #coach-dock[hidden]{display:none}#coach-dock{display:none}

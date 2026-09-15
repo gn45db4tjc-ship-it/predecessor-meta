@@ -70,9 +70,16 @@ def collection_reason(state, official, now, manual=False):
     last = state.get('last_full_attempt_at')
     if not last or utc_time(last) < daily_boundary(now):
         return 'Daily update'
+    retry = state.get('required_retry') or {}
+    if (retry.get('pending') and not retry.get('blocked')
+            and int(retry.get('attempts', 0)) < int(CONFIG.get('required_retry_limit', 2))
+            and now-utc_time(last) >= dt.timedelta(hours=CONFIG.get('required_retry_hours', 3))):
+        return 'Automatic required-source retry'
     # Remember attempts as well as successes: an unavailable source is not hammered every check.
     if signature and signature != state.get('last_attempted_signature'):
         return 'Live patch or hotfix article changed'
+    if retry and (retry.get('blocked') or int(retry.get('attempts', 0)) >= int(CONFIG.get('required_retry_limit', 2))):
+        return None
     transition = state.get('patch_transition_at')
     if (signature and transition and not state.get('blocked_in_last_full')
             and signature != state.get('last_completed_signature')
@@ -299,15 +306,41 @@ def required_source_block(attempt):
                for e in attempt.get('errors', []))
 
 
+def required_source_failure(attempt):
+    """Required-source errors only; optional Pred never controls core refresh health."""
+    return any(not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')))
+               for e in attempt.get('errors', []) if e.get('severity') == 'error')
+
+
+def next_daily_at(now):
+    boundary = daily_boundary(now) + dt.timedelta(days=1)
+    return base.iso(boundary)
+
+
+def source_age_state(when, now=None):
+    now = now or base.now_utc()
+    try:
+        hours = (now-utc_time(when)).total_seconds()/3600
+        if hours < 0: return {'state': 'Unavailable', 'age_hours': None}
+    except (AttributeError, TypeError, ValueError): return {'state': 'Unavailable', 'age_hours': None}
+    return {'state': 'Current' if hours <= 30 else 'Aging' if hours <= 48 else 'Stale',
+            'age_hours': round(hours, 2)}
+
+
 def render_site(folder, out, state):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
-    manifest = {'schema': 1, 'published_at': base.iso(base.now_utc()),
+    now = base.now_utc()
+    manifest = {'schema': 2, 'published_at': base.iso(now),
                 'default_bracket': CONFIG['default_bracket'],
                 'schedule': {'daily_utc': CONFIG['daily_utc'], 'patch_check_hours': CONFIG['patch_check_hours']},
                 'patch_check': state.get('patch_check', {}), 'cohorts': {},
                 'last_verified_patch_check': state.get('last_verified_patch_check'),
-                'last_full_attempt_at': state.get('last_full_attempt_at')}
+                'last_full_attempt_at': state.get('last_full_attempt_at'),
+                'next_expected_attempt_at': (state.get('required_retry') or {}).get('next_at') or next_daily_at(now),
+                'run_id': os.environ.get('GITHUB_RUN_ID'),
+                'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
+                'required_retry': state.get('required_retry', {})}
     manifest['local_collector'] = state.get('local_collector')
     manifest['collection_host'] = 'cloud' if not CONFIG.get('cloud_collection_paused_reason') else 'windows'
     manifest['source_pauses'] = {'pred': CONFIG['pred_collection_paused_reason']} if CONFIG.get('pred_collection_paused_reason') else {}
@@ -336,11 +369,30 @@ def render_site(folder, out, state):
                          collection_status='complete' if base.bundle_is_complete(bundle)[0] else 'partial',
                          source_dates={k: {'status': v.get('status'), 'fetched_at': v.get('fetched_at')}
                                        for k, v in bundle.get('sources', {}).items()})
+            statz = bundle.get('sources', {}).get('statz_hero_pages', {})
+            core = source_age_state(statz.get('fetched_at'), now)
+            core.update(updated_at=statz.get('fetched_at'), source='Statz hero pages',
+                        status='available' if statz.get('status') in ('ok','retained') else 'unavailable')
+            if core['status'] == 'unavailable': core['state'] = 'Unavailable'
+            core['retained'] = statz.get('status') == 'retained'
+            entry['health'] = {'core_statistics': core,
+                'mechanics': {'status': bundle.get('sources', {}).get('omeda_heroes', {}).get('status', 'unavailable'),
+                              'updated_at': bundle.get('sources', {}).get('omeda_heroes', {}).get('fetched_at')},
+                'guidance': {'status': bundle.get('guidance', {}).get('status', 'needs review'),
+                             'reviewed_at': bundle.get('guidance', {}).get('reviewed_at'),
+                             'next_review_at': bundle.get('guidance', {}).get('maintenance_review', {}).get('next_weekly_review')},
+                'optional_pred': {'status': bundle.get('sources', {}).get('pred_scoped', {}).get('status', 'unavailable'),
+                                  'updated_at': bundle.get('sources', {}).get('pred_scoped', {}).get('fetched_at')}}
         else:
             entry['status'] = 'unavailable'
         manifest['cohorts'][bracket] = entry
     # A failed first collection must never deploy an empty replacement over a working site.
     available = any(c['status'] == 'available' for c in manifest['cohorts'].values())
+    default_entry = manifest['cohorts'].get(CONFIG['default_bracket'], {})
+    manifest['health'] = dict(default_entry.get('health', {}),
+        live_patch={'status': manifest['patch_check'].get('status'), 'version': manifest['patch_check'].get('version'),
+                    'checked_at': manifest['patch_check'].get('checked_at')},
+        last_attempt_at=state.get('last_full_attempt_at'), next_expected_attempt_at=manifest['next_expected_attempt_at'])
     output_flag('publishable', available)
     if not available:
         return manifest
@@ -396,14 +448,22 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
         paused = CONFIG.get('cloud_collection_paused_reason')
         output_flag('collection_paused', bool(paused and not state.get('local_collector')))
         reason = None if check_only or paused else collection_reason(state, official, now, manual)
+        release = os.environ.get('COLLECTION_RELEASE')
+        if release and not check_only and not paused and state.get('collection_release') != release:
+            reason = 'Release cloud verification'
         day = now.astimezone(UTC).date().isoformat()
         output_flag('maintenance_record', state.get('maintenance_day') != day)
         state['maintenance_day'] = day
         if reason:
+            if release: state['collection_release'] = release
             changed_patch = live_signature(official) != state.get('last_attempted_signature')
+            prior_retry_count = int((state.get('required_retry') or {}).get('attempts', 0))
+            retry_count = prior_retry_count + 1 if reason == 'Automatic required-source retry' else 0
             state['last_full_attempt_at'] = base.iso(now)
             state['last_attempted_signature'] = live_signature(official)
             state['blocked_in_last_full'] = False
+            state['required_retry'] = {'pending': True, 'blocked': False, 'attempts': retry_count,
+                'next_at': base.iso(now + dt.timedelta(hours=CONFIG.get('required_retry_hours', 3)))}
             # Checkpoint before any slow work. A crash cannot cause a retry storm.
             for bracket in CONFIG['brackets']:
                 state['attempts'][bracket] = {'at': base.iso(now), 'status': 'interrupted',
@@ -447,8 +507,18 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                 write_json(folder / 'publication.json', state)
             state['last_full_seconds'] = round(time.perf_counter() - started, 2)
             state['blocked_in_last_full'] = any(required_source_block(a) for a in state['attempts'].values())
+            required_failed = any(required_source_failure(a) for a in state['attempts'].values())
+            retry_limit = int(CONFIG.get('required_retry_limit', 2))
+            retry_pending = required_failed and not state['blocked_in_last_full'] and retry_count < retry_limit
+            state['required_retry'] = {'pending': retry_pending, 'blocked': state['blocked_in_last_full'],
+                'attempts': retry_count, 'limit': retry_limit,
+                'next_at': base.iso(now + dt.timedelta(hours=CONFIG.get('required_retry_hours', 3))) if retry_pending else None,
+                'reason': 'A required source failed transiently; successful dated data remains published.' if retry_pending else
+                          'A required source blocked collection; wait for the next daily window.' if state['blocked_in_last_full'] else None}
             if all(attempt_satisfied(state['attempts'].get(k, {}), load_publication(folder, k)) for k in CONFIG['brackets']):
                 state['last_completed_signature'] = signature
+                state['required_retry'] = {'pending': False, 'blocked': False, 'attempts': retry_count,
+                                           'limit': retry_limit, 'next_at': None, 'reason': None}
             output_flag('full_attempt', True)
         else:
             base.log('Statistics collection paused: ' + paused if paused else

@@ -21,6 +21,6 @@ class CompanionRendering(unittest.TestCase):
     def test_pwa_shortcuts_are_in_scope(self):
         import json
         data=json.loads((Path(app.__file__).parent/'app.webmanifest').read_text(encoding='utf8'))
-        self.assertEqual([r['url'] for r in data['shortcuts']],['./#view=meta','./#view=builds','./#view=live'])
+        self.assertEqual([r['url'] for r in data['shortcuts']],['./#view=meta','./#view=builds','./#view=planner','./#view=live'])
 
 if __name__=='__main__':unittest.main()

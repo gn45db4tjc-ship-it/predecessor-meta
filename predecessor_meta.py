@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.22.0"
+VERSION = "2.23.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -3012,7 +3012,7 @@ def render_html(bundle, config=None):
     app_config=config or {'mode':'export','tool_version':VERSION}
     pwa_head=('''<link rel="manifest" href="app.webmanifest">\n<link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">\n<link rel="apple-touch-icon" href="assets/app-icon-192.png">'''
               if app_config.get('mode')=='static' else '')
-    return (UI_TEMPLATE.read_text(encoding='utf-8').replace('__PWA_HEAD__',pwa_head,1)
+    return (UI_TEMPLATE.read_text(encoding='utf-8').replace('__TOOL_VERSION__',VERSION,1).replace('__PWA_HEAD__',pwa_head,1)
             .replace('__BUNDLE_JSON__',json_script(bundle),1)
             .replace('__APP_CONFIG__',json_script(app_config),1)
             .replace('__UI_JS__',(TOOL_DIR/'ui.js').read_text(encoding='utf-8').replace('// START CLIENT',(TOOL_DIR/'mobile.js').read_text(encoding='utf-8')+'\n// START CLIENT',1),1)
