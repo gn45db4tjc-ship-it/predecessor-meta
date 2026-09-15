@@ -1,3 +1,9 @@
+# Predecessor Meta — 2.22.0
+
+The mobile companion and Build Coach are described in [RELEASE-2.22.0.md](RELEASE-2.22.0.md). Open the public website and add it to your home screen. The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.22.0.bat**. All existing data and settings are retained.
+
+## Historical release notes
+
 # Predecessor Meta — 2.21.8
 
 The shared site is now installable as an app. Open **[Predecessor Meta](https://gn45db4tjc-ship-it.github.io/predecessor-meta/)** and choose **Install app**. Edge, Chrome and supported Android browsers use their native install prompt; on iPhone or iPad, Safari shows the **Share → Add to Home Screen** steps. The installed icon opens in its own window and uses the same free daily cloud updates. Anyone can use the public link without Python, a GitHub account or an installer.

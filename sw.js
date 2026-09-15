@@ -37,10 +37,15 @@ async function remember(request, response) {
 async function networkFirst(request, fallback) {
   try {
     const response = await fetch(new Request(request, {cache: 'no-store'}));
+    if (!response.ok) throw new Error('Publication unavailable');
     return remember(request, response);
   } catch (error) {
     const cached = await caches.match(request) || (fallback && await caches.match(fallback));
-    if (cached) return cached;
+    if (cached) {
+      const headers = new Headers(cached.headers);
+      headers.set('X-Predecessor-Cache', 'offline');
+      return new Response(cached.body, {status: cached.status, statusText: cached.statusText, headers});
+    }
     throw error;
   }
 }

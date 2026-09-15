@@ -126,7 +126,9 @@ if (APP_CONFIG.mode === 'static') {
     const timeout = setTimeout(() => controller.abort(), 45000);
     latestStatus = {busy: true, message: 'Checking the latest ' + requested + ' publication…'}; chrome();
     try {
-      const manifest = await (await getJSON(siteURL(APP_CONFIG.manifest), controller.signal)).json();
+      const manifestResponse = await getJSON(siteURL(APP_CONFIG.manifest), controller.signal);
+      connectionLost = manifestResponse.headers.get('X-Predecessor-Cache') === 'offline';
+      const manifest = await manifestResponse.json();
       validateManifest(manifest);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       site.manifest = manifest;
@@ -146,6 +148,7 @@ if (APP_CONFIG.mode === 'static') {
       B = next; revision = entry.sha256;
       if (changed) { E = MetaEngine.create(B); compositions = null; }
       latestStatus = {busy: false, errors: errs, message: (entry.collection_status==='partial'?'Partial update · ':entry.last_attempt?.status && entry.last_attempt.status !== 'ok'?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Each source keeps its own fetch date' + '. Your draft is saved in this browser.'};
+      if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       site.lastCheck = Date.now(); if (changed) { render(); checkSharedPlan(); } else chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;

@@ -1,3 +1,9 @@
+# 2.22.0 mobile companion installation and rollback
+
+The mobile companion and Build Coach are described in [RELEASE-2.22.0.md](RELEASE-2.22.0.md). Open the public website and add it to your home screen. The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.22.0.bat**. All existing data and settings are retained.
+
+## Historical release notes
+
 # 2.21.8 installable website and rollback
 
 The shared website is now an installable Progressive Web App. No Windows installer or app-store package is required: open the public site, select **Install app**, and accept the browser prompt. Removing the installed app later does not delete the public website. Roll back the public app by reverting the 2.21.8 source commit and allowing the Pages workflow to deploy the prior site; published game-data bundles and their original dates remain separate.

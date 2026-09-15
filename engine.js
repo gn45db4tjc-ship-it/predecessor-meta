@@ -596,7 +596,7 @@
       if(!rows)return {pool:measuredItemPool(stats),issues:['Pred.gg item-position collection unavailable. Historical Statz observations are inspection-only and add no current-patch fit points.'],status:'unavailable'};
       const pool={},issues=[],c=bundle.scoped_statistics,live=bundle.official?.live?.version;
       let urlHero=null,query={};try{urlHero=decodeURIComponent(rows.url?.match(/^https:\/\/pred\.gg\/heroes\/([^/]+)\/items(?:\?|$)/)?.[1]||'');query=Object.fromEntries((rows.url.split('?')[1]||'').split('&').map(x=>x.split('=').map(decodeURIComponent)));}catch{}
-      if(bundle.official?.status!=='verified'||c?.status!=='ok'||c.patch!==live||rows.status!=='ok'||rows.patch!==live||rows.bracket!==c.bracket_label||rows.mode!=='RANKED'||rows.role!==role||rows.version_id!==c.versions?.[0]||NK(urlHero)!==NK(slug))
+      if(bundle.official?.status!=='verified'||c?.status!=='ok'||(bundle.bracket?.label&&NK(c.bracket_label)!==NK(bundle.bracket.label))||c.patch!==live||rows.status!=='ok'||rows.patch!==live||rows.bracket!==c.bracket_label||rows.mode!=='RANKED'||rows.role!==role||rows.version_id!==c.versions?.[0]||NK(urlHero)!==NK(slug))
         return {pool,issues:['Pred.gg item evidence excluded: hero, role, patch, bracket, mode or version does not match the verified current cohort.'],status:'scope mismatch'};
       const sameSet=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&[...a].sort().join('|')===[...b].sort().join('|');
       if(query.versions!==rows.version_id||query.gameMode!=='RANKED'||query.role!==role.toUpperCase()||!sameSet(query.ranks?.split(','),c.ranks)||(rows.cohort_filter&&(!sameSet(rows.cohort_filter.versions,c.versions)||!sameSet(rows.cohort_filter.ranks,c.ranks)||!sameSet(rows.cohort_filter.gameModes,['RANKED'])||!sameSet(rows.cohort_filter.roles,[role.toUpperCase()]))))
@@ -684,7 +684,7 @@
       const rows = matchup(ally, enemy); if (!rows.length) return null;
       return rows.slice().sort((a, b) => Number(!!a.retained)-Number(!!b.retained) || (a.source==='Pred.gg'?0:1)-(b.source==='Pred.gg'?0:1) || (a.inverted ? 1 : 0) - (b.inverted ? 1 : 0) || b.played - a.played)[0];
     }
-    function liveBuild(me, allies = [], enemies = [], {variant = null, min = 100, owned = [], priority = ''} = {}) {
+    function buildCandidate(me, allies = [], enemies = [], {variant = null, min = 100, owned = [], priority = '', state = 'even', primaryThreat = null, now = Date.now()} = {}) {
       if (!heroes[me.slug]) throw Error('Choose your hero first.');
       if(!Array.isArray(owned)||owned.length>6||owned.some(n=>typeof n!=='string'||!item(n)?.completed_item)||new Set(owned.map(NK)).size!==owned.length)throw Error('Owned items must be up to six different completed items; components and crests do not occupy these slots.');
       owned=owned.map(n=>item(n).name);
@@ -692,6 +692,7 @@
       const stats = heroes[me.slug].roles?.[me.role], ok = stats?.status === 'ok' && !!stats.builds?.length;
       const opponent = enemies.find(e => e.role === me.role) || null;
       const E = enemyProfile(enemies.map(e => e.slug));
+      const threatProfile=primaryThreat?enemyProfile([primaryThreat]):null;
       const choice=ok?variantChoice(me.slug,me.role,{min,opponent:opponent?.slug||null}):null;
       const review=buildReview(me.slug,me.role);
       const preferred=review?.active?stats?.builds?.findIndex(b=>NK(b.perk)===NK(review.augment)&&NK(b.eternal)===NK(review.eternal)):-1;
@@ -709,18 +710,23 @@
       const plan=plannedBuild(me.slug,me.role,{index,forceObserved:variant!=null}),core=plan.core;
       const profile=myProfile(me.slug,me.role,core,plan.kind==='reviewed');
       if(plan.kind==='reviewed'){profile.off=plan.damage;profile.penetration=plan.penetration_focus||(['physical','magical'].includes(heroProfile(me.slug)?.dmg)?heroProfile(me.slug).dmg:plan.damage);profile.tanky=['tank','bruiser'].includes(plan.style);profile.autos=['attack','bruiser'].includes(plan.style);profile.style=plan.style;profile.source='reviewed '+plan.style+' playstyle and current item mechanics';}
-      const itemEvidence=currentItemPool(me.slug,me.role,stats),pool=itemEvidence.pool,coreKeys=new Set(core.map(NK)),ownedKeys=new Set(owned.map(NK));
-      const catalogue=Object.values(bundle?.items||{}).filter(it=>it.completed_item===true&&it.name);
-      const needs = ITEM_NEEDS.filter(r => r.test(E, profile)||r.id===priority).map(r => {
+      const itemEvidence=currentItemPool(me.slug,me.role,stats),pool=itemEvidence.pool;
+      for(const evidence of Object.values(pool)){
+        if(evidence.played<Math.max(100,min)||now-Date.parse(evidence.fetched_at)>30*3600000||Date.parse(evidence.fetched_at)>now+300000){evidence.supports_current_fit=false;}
+      }
+      const coreKeys=new Set(core.map(NK)),ownedKeys=new Set(owned.map(NK));
+      const catalogue=Object.values(bundle?.items||{}).filter(it=>it.completed_item===true&&it.available_current_patch!==false&&it.name&&!bundle.corrections?.some(c=>String(c.status).startsWith('conflict')&&c.path?.[0]==='items'&&bundle.items[c.path[1]]===it));
+      const threatMatches=r=>!!threatProfile&&(r.test(threatProfile,profile)||r.id==='physical_armor'&&threatProfile.phys>0||r.id==='magical_armor'&&threatProfile.mag>0);
+      const needs = ITEM_NEEDS.filter(r => (state!=='ahead'&&(r.test(E, profile)||threatMatches(r)))||r.id===priority).map(r => {
         const coveredBy = core.filter(n => needTrigger(r,item(n),profile).eligible);
-        const base = r.prio(E, profile), prio = Math.max(0.5, base - 1.5 * coveredBy.length);
+        const base = r.prio(E, profile), prio = Math.max(0.5, base - 1.5 * coveredBy.length)+(threatMatches(r)?3:0);
         const candidates = catalogue.filter(it => (!coreKeys.has(NK(it.name))||priority||owned.length) && r.pick(it, profile)).map(it => { const m = pool[NK(it.name)] || null, f = itemFit(it, profile, m); if(profile.style==='burst_carry'&&(statNum(it,'Attack speed')>0)) {f.score-=2;f.why.push('-2 attack speed is not this reviewed firing-window plan');} return {name: it.name, price: it.total_price, stats: it.stats || {}, measured: m, score: f.score, why: f.why, trigger:needTrigger(r,it,profile),evidence: r.manual?r.show(it):(fxText(it) || r.show(it))}; })
           .sort((a, b) => Number(b.trigger.eligible)-Number(a.trigger.eligible)||b.score - a.score || (b.measured?.supports_current_fit?b.measured.played:0) - (a.measured?.supports_current_fit?a.measured.played:0) || (a.price || 0) - (b.price || 0)).slice(0, 6);
         return {id: r.id, label: r.label, manual: !!r.manual, priority:r.id===priority,prio, basePrio: base, coveredBy, why: r.id===priority?'You selected this priority from the actual game. Kit counts do not establish enemy purchases.':r.why(E, profile), candidates};
       }).sort((a, b) => Number(b.priority)-Number(a.priority)||b.prio - a.prio);
       const slots=[...owned,...plan.items.filter(n=>!ownedKeys.has(NK(n)))].slice(0,6).map(name=>({name,kind:ownedKeys.has(NK(name))?'owned':coreKeys.has(NK(name))?'core':'baseline',label:ownedKeys.has(NK(name))?'Owned · kept':plan.kind==='reviewed'?(coreKeys.has(NK(name))?'Reviewed core':'Reviewed flexible slot'):'Calculated starting sequence',measured:pool[NK(name)]||null}));
       const swaps=[],unmet=[],used=new Set(slots.map(s=>NK(s.name))),reserved=new Set();
-      const maxSwaps=profile.tanky?3:2;
+      const maxSwaps=2;
       for(const n of needs){
         const rule=ITEM_NEEDS.find(r=>r.id===n.id);
         if(n.manual){n.answeredBy=[];unmet.push(n.id);continue;}
@@ -728,17 +734,23 @@
         if(n.answeredBy.length){if(n.answeredBy.length===1)reserved.add(NK(n.answeredBy[0]));continue;}
         if(swaps.length>=maxSwaps){unmet.push(n.id);continue;}
         const candidate=n.candidates.find(c=>c.trigger.eligible&&!used.has(NK(c.name))&&c.score>=0);
-        const position=slots.map((_,i)=>i).reverse().find(i=>slots[i].kind!=='owned'&&!reserved.has(NK(slots[i].name))&&(slots[i].kind==='baseline'||n.priority&&(owned.length>0||i>0)));
+        const position=slots.map((_,i)=>i).reverse().find(i=>slots[i].kind!=='owned'&&!reserved.has(NK(slots[i].name))&&slots[i].kind==='baseline');
         if(!candidate||position==null){unmet.push(n.id);continue;}
         const previous=slots[position].name;used.delete(NK(previous));used.add(NK(candidate.name));reserved.add(NK(candidate.name));
         slots[position]={name:candidate.name,kind:'need',label:n.label,need:n.id,candidate,measured:candidate.measured};
         swaps.push({from:previous,to:candidate.name,position:position+1,reason:n.why});
       }
       const timing=[];
-      if(priority){const rule=ITEM_NEEDS.find(r=>r.id===priority),answer=slots.find(s=>needTrigger(rule,item(s.name),profile).eligible);
-        if(answer?.kind==='owned')timing.push(answer.name+' is already owned. Its trigger still needs to reach the relevant enemy.');
-        else if(answer){const from=slots.indexOf(answer),to=owned.length||Math.min(1,from);if(from>to){slots.splice(from,1);slots.splice(to,0,answer);answer.label='Priority purchase · '+rule.label;answer.timing=true;timing.push('Bring '+answer.name+' forward from position '+(from+1)+' to '+(to+1)+'. This delays the original sequence; with no completed items entered, the opening item is retained.');}}
-        else timing.push(owned.length===6?'All six completed items are owned. No automatic sale is suggested; inspect the unresolved priority.':'No suitable automatic purchase answers this priority. Inspect item triggers and the actual game before changing the plan.');
+      const urgent=needs.find(n=>n.priority)|| (state==='behind'?needs.find(n=>['physical_armor','magical_armor','spell_shield','anti_autos','burst_insurance'].includes(n.id)):null);
+      if(urgent){
+        const rule=ITEM_NEEDS.find(r=>r.id===urgent.id),answer=slots.find(s=>needTrigger(rule,item(s.name),profile).eligible);
+        if(answer?.kind==='owned')timing.push(answer.name+' is already owned. Check its activation condition.');
+        else if(answer&&answer.kind!=='core'){
+          const from=slots.indexOf(answer),to=slots.findIndex(s=>s.kind!=='owned'&&s.kind!=='core');
+          // Exchange flexible positions only: never move a core or owned item.
+          const affected=new Set([...swaps.map(s=>s.position-1),from,to]);
+          if(to>=0&&from>to&&affected.size<=2){[slots[to],slots[from]]=[slots[from],slots[to]];answer.timing=true;timing.push('Bring '+answer.name+' to flexible position '+(to+1)+'. Reviewed core order is preserved.');}
+        }else if(!answer)timing.push('No compatible flexible purchase answers this need. Inspect the unresolved need; no core change or sale is suggested.');
       }
       // Recompute coverage after every replacement; a discarded item is never still an answer.
       unmet.length=0;
@@ -754,8 +766,37 @@
       return {me, ok, statsError: ok ? null : (stats?.error || 'No observed build for this hero and role.'), opponent, opponentMatchup: opponent ? bestMatchup(me, opponent) : null, enemyProfile: E, choice, summary, plan, profile, needs, slots, unmet, threats, swaps, teamAdvice,itemEvidence,owned,priority,timing,nextPurchase:slots[owned.length]||null,
         note: 'Reviewed plans are editorial judgment informed by official mechanics and multiple sources. Adaptation is a stated kit/item rule, not a win prediction. Each rate is one labelled Pred.gg or Statz observation; no samples are pooled.'};
     }
+    // BuildContextV2 -> BuildAdvice. All automatic advice requires an active review.
+    function adaptBuild(me,allies=[],enemies=[],context={}){
+      if(!heroes[me?.slug]||!roles(me.slug).includes(me.role))throw Error('Choose an available hero and role.');
+      const state=context.state??'even';if(!['ahead','even','behind'].includes(state))throw Error('Choose ahead, even or behind.');
+      const seen=new Set(),enemyRoles=new Set();
+      for(const e of enemies){if(!heroes[e.slug]||!ROLES.includes(e.role)||seen.has(e.slug)||enemyRoles.has(e.role)||e.slug===me.slug)throw Error('Enemy picks need unique heroes and roles.');seen.add(e.slug);enemyRoles.add(e.role);}
+      let threat=context.primaryThreat;
+      if(threat&&!enemies.some(e=>e.slug===threat))throw Error('The primary threat must be one of the selected enemies.');
+      if(threat===undefined){threat=enemies.find(e=>e.role===me.role)?.slug||enemies.map(e=>({e,m:currentMatchup(me,e,100)})).filter(x=>x.m).sort((a,b)=>a.m.wr-b.m.wr)[0]?.e.slug||null;}
+      const review=buildReview(me.slug,me.role);
+      const L=buildCandidate(me,allies,enemies,{...context,state,primaryThreat:threat,variant:null});
+      const baseline=review?[...review.core,...review.finish]:[];
+      const unavailable=!review?.active||baseline.length!==6||new Set(baseline.map(NK)).size!==6||baseline.some(n=>item(n)?.available_current_patch===false);
+      const expectedCore=baseline.filter(n=>review?.core.includes(n)&&!L.owned.some(o=>NK(o)===NK(n)));
+      const lostCore=expectedCore.some(n=>!L.slots.some(s=>NK(s.name)===NK(n)));
+      const available=!unavailable&&!lostCore;
+      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
+      const threatData=threat?heroProfile(threat):null;
+      const explanations=[state==='ahead'?'Ahead: keep offensive timing unless your selected urgent need requires a flexible answer.':state==='behind'?'Behind: prioritize a compatible survival or utility answer within the flexible slots; preserve the core.':'Even: retain the reviewed core and answer compatible enemy-kit needs.'];
+      if(threatData)explanations.push('Primary threat: '+threatData.name+'. '+(threatData.evidence[0]?threatData.evidence[0].ability+': '+(threatData.evidence[0].reason||threatData.evidence[0].tag):'No supported kit mechanism is available; no damage type is assumed.'));
+      for(const s of L.slots.filter(s=>s.kind==='need'))explanations.push(s.name+': '+s.candidate.trigger.condition+' '+s.candidate.evidence);
+      const changes=L.slots.filter(s=>s.kind!=='owned'&&(!baseline.includes(s.name)||baseline.indexOf(s.name)!==L.slots.indexOf(s))).map(s=>({item:s.name,position:L.slots.indexOf(s)+1,reason:s.candidate?.evidence||L.timing.join(' ')||'Keep owned items and preserve the remaining core.'}));
+      const contingency=L.needs.flatMap(n=>n.candidates.filter(c=>c.trigger.eligible&&c.score>=0&&!L.slots.some(s=>NK(s.name)===NK(c.name))).map(c=>({name:c.name,need:n.label,reason:c.evidence})))[0]||null;
+      return {...L,available,unavailableReason:reason,state,primaryThreat:threat,baseline,changes:available?changes:[],explanations,contingency:available?contingency:null,
+        slots:available?L.slots:[],nextPurchase:available?L.nextPurchase:null,
+        evidence:{reviewed:{patch:review?.patch,date:review?.reviewed_at},bracket:bundle.bracket?.label,observed:L.itemEvidence,calculated:explanations,entered:{state,primaryThreat:threat,priority:context.priority||'',owned:L.owned}},
+        note:'Adapted from a dated reviewed plan. Selected-bracket evidence can only support compatible flexible choices. No samples are pooled and no adapted-build win rate is estimated.'};
+    }
+    function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,performance,metaReview,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,performance,metaReview,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
