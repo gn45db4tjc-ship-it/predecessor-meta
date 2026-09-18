@@ -1,4 +1,8 @@
-# 2.25.0 audit completion release: installation and rollback
+# 2.26.0 phone navigation release: installation and rollback
+
+2.26.0 is the phone navigation release from the 2.23.0 audit (item 09), built from the phone prototype the owner tried and approved: every hero of a role can be browsed on Meta without typing a name, the status line separates the fetch time, the Statz dataset and the game patch, material source limitations are one compact line on every phone screen, Live shows a one-line evidence summary, the Live hero can be replaced in place with a preview and Undo, Draft shows allies and enemies separately with counts, redraws keep open sections open, and a running composition search can be cancelled. See [RELEASE-2.26.0.md](RELEASE-2.26.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.26.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.26.0 merge commit on `main`.
+
+## Previous release: 2.25.0
 
 2.25.0 completes the audit repairs: a fresh collection publishes even when a few hero pages fail (with the gaps named), saved offline ranks survive every release and only verified data is stored, five-hero composition search no longer freezes the page, the strategy review packet carries the official changes and is queued in the cloud for human review, and each published rank records who collected it. See [RELEASE-2.25.0.md](RELEASE-2.25.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.25.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.25.0 merge commit on `main`.
 

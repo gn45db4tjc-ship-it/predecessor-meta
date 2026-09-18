@@ -1,6 +1,6 @@
-# Current release: 2.25.0
+# Current release: 2.26.0
 
-See RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -205,3 +205,11 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - An independent two-stage review of every phase confirmed 20 findings in this release's code (and 3 more whose challenge could not complete); all are fixed with tests that fail on the unfixed code: overlapping update checks during a slow save, offline copies after a website rollback, two tabs saving at once, late worker results, worker tests without bans or enemies, silently accepted page gaps, unreconciled page counts, review-packet flagging and identity, the weekly packet timing, a status revision written as a checksum, Pred.gg dates through uploads, refused uploads moving the cloud schedule, retained-source provenance, and three tests that could not fail. The Windows app now allows the page's own search worker (`worker-src blob:`), with the owner's approval.
 - A third review confirmed 5 more findings (a finished search redrawing mid-typing, a saved copy borrowing the newest statistics date, a failed offline save not retried, a failed published source blocking recovery, retained provenance copied from the wrong record); all fixed with tests that fail on the previous code.
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 39 of 39 audit browser verdicts, 7 of 7 real-browser offline checks including an upgrade from the actual 2.23.0 worker, the release, accessibility and six-bracket suites, and the two legacy suites whose outdated expectations were updated.
+
+# Revision 6 — 2.26.0 phone navigation release
+
+- Audit item 09, built from the approved phone prototype. Meta lists every hero of a role behind one button (no number for a hero without a sample); the status line names fetch time, Statz dataset and game patch separately and its badge fits on one line; material source limitations are one compact line on every phone route with details one tap away; Live shows a one-line evidence summary; the Live hero can be replaced in place with a preview that names any displaced ally, and Undo; "Use in Live" on a hero page uses the same preview; Draft shows allies and enemies as separate lineups with counts; redraws keep opened sections open; a running composition search can be cancelled.
+- Nine browser checks (M1-M9) reproduced each finding on 2.25.0 before the change and enforce it after.
+- An independent review confirmed five defects in the change (sections leaking open across screens and heroes, focus after the Sources link, the Compositions count, Cancel without a background search, and a check that could not fail); all are fixed with checks that fail on the unfixed code (M10-M13, stronger M4).
+- Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 52 of 52 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states in both themes, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; no horizontal overflow at 320 px with large text; clean-room package 178 Python / 146 JavaScript.
+- Not verified: a physical phone, screen readers, native installs. Real-device acceptance by the owner is the remaining checkpoint for item 09.

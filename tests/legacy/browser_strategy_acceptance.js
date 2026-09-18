@@ -18,7 +18,7 @@
  assert(document.querySelector('#main').innerText.includes('Possible sustain depends'),'Conditional Eternal sustain disclosed');
  assert(![...document.querySelectorAll('#main summary')].some(e=>e.innerText.startsWith('Anti-heal')),'No automatic anti-heal for an unknown Eternal');
  select('[data-slot="enemies"][data-slot-role="support"]','narbash');
- [...document.querySelectorAll('#main summary')].find(e=>e.innerText.startsWith('Enemy profile & item needs')).click();
+ const again=[...document.querySelectorAll('#main summary')].find(e=>e.innerText.startsWith('Enemy profile & item needs'));assert(again.parentElement.open,'The opened enemy profile stays open after the lineup changes');
  assert([...document.querySelectorAll('#main summary')].some(e=>e.innerText.startsWith('Anti-heal')),'Actual ally healer creates an anti-heal need');
  select('#live-priority','anti_heal');assert(document.querySelector('#live-priority').value==='anti_heal','Actual-game priority remains usable');
  click('[data-route="builds"]');

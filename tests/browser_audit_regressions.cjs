@@ -1,5 +1,5 @@
 'use strict';
-/* Browser reproductions for the 2.23.0 audit (defects A, B, E, G, H).
+/* Browser reproductions for the 2.23.0 audit (defects A, B, E, G, H) and its phone findings (item 09, M1-M9).
 
    tests/known-defects.json is the ledger. A defect listed as open MUST reproduce and a defect
    not listed MUST NOT; either mismatch fails the run. So this script passes both before a fix
@@ -592,6 +592,213 @@ const probes = {
     assert.equal(state.active, 0, 'probe setup: retained evidence should leave no editorial tier active');
     const claims = ['Reviewed tier guidance leads', 'Reviewed tier, then role performance'].filter(c => state.text.includes(c));
     verdict('H1', claims.length > 0, {active_tiers: state.active, claims_shown: claims});
+    await context.close();
+  },
+  /* Phase H (audit item 09): phone navigation and evidence presentation. */
+  async M1(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); });
+    const eligible = await page.evaluate(() => Object.keys(E.heroes).filter(s => E.roles(s).includes('jungle')).sort());
+    const toggle = page.locator('#mobile-all-heroes');
+    let seen = {listed: [], unsampled_with_numbers: []};
+    if (await toggle.count()) {
+      await toggle.click();
+      seen = await page.evaluate(() => {
+        const cards = [...document.querySelectorAll('#mobile-all-list [data-hero]')];
+        const unsampled = cards.filter(c => !E.performance({slug: c.dataset.hero, role: 'jungle'})).map(c => c.closest('article')?.innerText || '');
+        return {listed: cards.map(c => c.dataset.hero).sort(), unsampled: unsampled.length, unsampled_with_numbers: unsampled.filter(t => /%/.test(t)), expanded: document.querySelector('#mobile-all-heroes')?.getAttribute('aria-expanded')};
+      });
+    }
+    const missing = eligible.filter(s => !seen.listed.includes(s));
+    // The staged data samples every jungle hero, so withhold one hero's role sample and look at its card.
+    const unsampled = seen.listed.length ? await page.evaluate(slug => {
+      const original = E.performance;
+      E.performance = p => p.slug === slug && p.role === 'jungle' ? null : original(p);
+      try { render(); const card = document.querySelector(`#mobile-all-list [data-hero="${slug}"]`)?.closest('article'); return {slug, listed: !!card, text: (card?.innerText || '').replace(/\s+/g, ' ')}; }
+      finally { E.performance = original; render(); }
+    }, eligible[eligible.length - 1]) : {listed: false, text: ''};
+    const invented = !unsampled.listed || /%/.test(unsampled.text) || !/No .*jungle sample/i.test(unsampled.text);
+    verdict('M1', missing.length > 0 || seen.listed.length !== eligible.length || seen.unsampled_with_numbers.length > 0 || invented,
+      {eligible: eligible.length, listed: seen.listed.length, missing: missing.slice(0, 5), unsampled_with_numbers: seen.unsampled_with_numbers.length, expanded: seen.expanded, no_sample_card: unsampled});
+    await context.close();
+  },
+  async M2(browser) {
+    const {context, page} = await session(browser, {...phone, viewport: {width: 320, height: 700}});
+    await page.evaluate(() => { companionPrefs.large = true; companionChrome(); changeRoute('meta'); });
+    const seen = await page.evaluate(() => {
+      const b = document.querySelector('.mobile-health'), strong = b?.querySelector('strong'), size = strong ? parseFloat(getComputedStyle(strong).fontSize) : 0;
+      return {text: (b?.innerText || '').replace(/\s+/g, ' '), badge_height: strong ? Math.round(strong.getBoundingClientRect().height) : 0, one_line_max: Math.round(size * 1.7)};
+    });
+    const named = /Fetched /i.test(seen.text) && /Statz dataset \d/i.test(seen.text) && /Game patch \d/i.test(seen.text);
+    verdict('M2', !named || seen.badge_height > seen.one_line_max, {...seen, named});
+    await context.close();
+  },
+  async M3(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'error', detail: 'A source could not be refreshed for this probe.'}]; Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); });
+    const routes = ['meta', 'builds', 'planner', 'draft', 'live'], seen = {};
+    for (const route of routes) {
+      await page.evaluate(r => changeRoute(r), route);
+      seen[route] = await page.evaluate(() => {
+        const n = document.querySelector('#mobile-limits');
+        if (!n || n.hidden) return {shown: false};
+        const r = n.getBoundingClientRect();
+        return {shown: r.height > 0 && getComputedStyle(n).display !== 'none', height: Math.round(r.height), text: n.innerText.split('\n')[0]};
+      });
+    }
+    const missing = routes.filter(r => !seen[r].shown), tall = routes.filter(r => seen[r].shown && seen[r].height > 96);
+    verdict('M3', missing.length > 0 || tall.length > 0, {missing, tall, meta: seen.meta});
+    await context.close();
+  },
+  async M4(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    const seen = await page.evaluate(() => {
+      const main = document.querySelector('#main'), clone = main.cloneNode(true);
+      clone.querySelectorAll('details:not([open])').forEach(d => [...d.children].forEach(c => { if (c.tagName !== 'SUMMARY') c.remove(); }));
+      const text = clone.textContent.replace(/\s+/g, ' '), all = main.textContent.replace(/\s+/g, ' ');
+      // Any per-source date wording counts: the old "Statistics: <date>" and the new "Statistics fetched <date>".
+      const dated = /(Mechanics|Statistics)(: | fetched )/;
+      return {visible_source_dates: dated.test(text), dates_behind_a_tap: dated.test(all) && !dated.test(text), sample: (text.match(/.{0,40}(Mechanics|Statistics)(: | fetched ).{0,40}/) || [''])[0]};
+    });
+    verdict('M4', seen.visible_source_dates || !seen.dates_behind_a_tap, seen);
+    await context.close();
+  },
+  async M5(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    await page.locator('[data-live-lookup]').first().click();
+    const opened = await page.evaluate(() => ({route: S.route, dialog: !!document.querySelector('#detail')?.open, choices: document.querySelectorAll('#detail [data-pick-live]:not([disabled])').length}));
+    let after = null, undone = null;
+    if (opened.route === 'live' && opened.dialog && opened.choices) {
+      const target = await page.evaluate(() => [...document.querySelectorAll('#detail [data-pick-live]:not([disabled])')].map(b => b.dataset.pickLive).find(v => !v.startsWith('steel|')));
+      await page.locator(`#detail [data-pick-live="${target}"]`).click();
+      const confirm = page.locator('#detail [data-confirm-live]');
+      if (await confirm.count()) {
+        await confirm.click();
+        after = await page.evaluate(() => ({route: S.route, me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role), undo: !!document.querySelector('#undo-banner') && !document.querySelector('#undo-banner').hidden, dialog: !!document.querySelector('#detail')?.open}));
+        after.target = target;
+        if (after.undo) { await page.locator('#undo-action').click(); undone = await page.evaluate(() => ({me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)})); }
+      }
+    }
+    const ok = !!(opened.route === 'live' && opened.dialog && after && after.route === 'live' && !after.dialog && after.me === after.target.split('|')[0] && after.locks.includes(after.target) && !after.locks.includes('steel|jungle') && undone?.me === 'steel' && undone.locks.includes('steel|jungle'));
+    verdict('M5', !ok, {opened, after, undone});
+    await context.close();
+  },
+  async M6(browser) {
+    const {context, page} = await session(browser, phone);
+    const occupant = await page.evaluate(() => { const o = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle')); Object.assign(S, {locks: [{slug: o, role: 'jungle'}], enemies: [], bans: [], me: null}); save(); openHero('steel', 'jungle'); return o; });
+    const button = page.locator('[data-start-live]').first();
+    const enabled = await button.isEnabled();
+    let after = null, undone = null;
+    if (enabled) {
+      await button.click();
+      const confirm = page.locator('#detail [data-confirm-live]');
+      if (await confirm.count()) {
+        const warned = await page.evaluate(o => document.querySelector('#detail').innerText.includes(name(o)), occupant);
+        await confirm.click();
+        after = await page.evaluate(() => ({route: S.route, me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)}));
+        after.warned = warned;
+        if (await page.locator('#undo-banner:not([hidden]) #undo-action').count()) { await page.locator('#undo-action').click(); undone = await page.evaluate(() => ({me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)})); }
+      }
+    }
+    const ok = !!(enabled && after?.warned && after.route === 'live' && after.me === 'steel' && after.locks.includes('steel|jungle') && !after.locks.includes(occupant + '|jungle') && undone?.locks.includes(occupant + '|jungle') && !undone.locks.includes('steel|jungle'));
+    verdict('M6', !ok, {occupant, enabled, after, undone});
+    await context.close();
+  },
+  async M7(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: []}); save(); changeRoute('draft'); });
+    const seen = await page.evaluate(() => {
+      const main = document.querySelector('#main');
+      const lineups = [...main.querySelectorAll('details[data-lineup]')].map(d => ({side: d.dataset.lineup, summary: d.querySelector('summary').innerText.trim(), nested: d.querySelectorAll('details').length, slots: d.querySelectorAll('select[data-slot]').length}));
+      return {lineups, nested_lineup_disclosures: [...main.querySelectorAll('summary')].filter(s => /Edit lineup|other roles/i.test(s.innerText)).length};
+    });
+    const allies = seen.lineups.find(l => l.side === 'allies'), enemies = seen.lineups.find(l => l.side === 'enemies');
+    const ok = !!(seen.lineups.length === 2 && /Allies · 1 of 5 selected/i.test(allies?.summary || '') && /Enemies · 0 of 5 selected/i.test(enemies?.summary || '') && !allies.nested && !enemies.nested && allies.slots === 5 && enemies.slots === 5 && !seen.nested_lineup_disclosures);
+    verdict('M7', !ok, seen);
+    await context.close();
+  },
+  async M8(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { S.role = 'jungle'; S.query = ''; changeRoute('builds'); });
+    await page.locator('#main details.mobile-build-row summary').first().click();
+    const before = await page.evaluate(() => document.querySelector('#main details.mobile-build-row')?.open);
+    await page.evaluate(() => requestRedraw(true));
+    const after = await page.evaluate(() => document.querySelector('#main details.mobile-build-row')?.open);
+    verdict('M8', !(before && after), {before, after});
+    await context.close();
+  },
+  async M9(browser) {
+    const {context, page} = await session(browser, phone);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    const cancel = page.locator('#cancel-generate');
+    const available = !!(await cancel.count()) && await cancel.isVisible();
+    let after = null;
+    if (available) {
+      await cancel.click();
+      await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 10000}).catch(() => {});
+      after = await page.evaluate(() => ({pending: !!search.pending, generate_enabled: !document.querySelector('#generate')?.disabled, label: document.querySelector('#generate')?.textContent, compositions: !!compositions, notice: (document.querySelector('#main').innerText.match(/[^.\n]*cancel[^.\n]*/i) || [null])[0]}));
+    }
+    const ok = !!(available && after && !after.pending && after.generate_enabled && !after.compositions && after.notice);
+    verdict('M9', !ok, {available, after});
+    await context.close();
+  },
+  async M10(browser) {
+    // A section opened on one screen must not open the matching section on another screen or another hero.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size: 3}); save(); changeRoute('draft'); });
+    const draftOpened = await page.evaluate(() => { const d = document.querySelector('#main details[data-lineup="allies"]'); if (d) d.open = true; return !!d?.open; });
+    await page.evaluate(() => changeRoute('planner'));
+    const planner = await page.evaluate(() => document.querySelector('#main details[data-lineup="allies"]')?.open ?? null);
+    const desktopPage = await context.newPage();
+    await desktopPage.setViewportSize({width: 1440, height: 900});
+    await desktopPage.goto(url); await desktopPage.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const hero = await desktopPage.evaluate(() => {
+      openHero('steel', 'jungle'); document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+      const other = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle'));
+      openHero(other, 'jungle');
+      const all = [...document.querySelectorAll('#main details')];
+      return {other, open: all.filter(d => d.open).length, total: all.length};
+    });
+    // Reference: the same hero opened fresh, with nothing opened before.
+    const fresh = await desktopPage.evaluate(o => { changeRoute('meta'); openHero(o, 'jungle'); return [...document.querySelectorAll('#main details')].filter(d => d.open).length; }, hero.other);
+    verdict('M10', !draftOpened || planner !== false || hero.open !== fresh, {draft_opened: draftOpened, planner_allies_open: planner, other_hero_open_sections: hero.open, fresh_open_sections: fresh, total: hero.total});
+    await context.close();
+  },
+  async M11(browser) {
+    // "Open Sources & accuracy" from the limitations list lands the user on that page, not back on the limitations bar.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'warning', detail: 'A source note for this probe.'}]; changeRoute('meta'); });
+    await page.locator('#mobile-limits').click();
+    await page.locator('#detail [data-limits-sources]').click();
+    await page.waitForTimeout(300);
+    const seen = await page.evaluate(() => ({route: S.route, focused: document.activeElement?.id || document.activeElement?.tagName, in_main: !!document.querySelector('#main')?.contains(document.activeElement), dialog: !!document.querySelector('#detail')?.open}));
+    verdict('M11', !(seen.route === 'data' && seen.in_main && !seen.dialog), seen);
+    await context.close();
+  },
+  async M12(browser) {
+    // On Compositions the allied lineup counts against the combination size, as the heading does.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size: 2}); save(); changeRoute('planner'); });
+    const summary = await page.evaluate(() => document.querySelector('#main details[data-lineup="allies"] > summary')?.innerText.trim() || '');
+    verdict('M12', !/1 of 2 selected/.test(summary), {summary});
+    await context.close();
+  },
+  async M13(browser) {
+    // Cancel is offered only while a background search can actually be cancelled (never for the main-thread fallback).
+    const {context, page} = await session(browser, phone);
+    await reset(page, 3);
+    await page.evaluate(() => { stopSearchWorker(true); changeRoute('planner');
+      window.__cancelShown = false; const watch = () => { const c = document.querySelector('#cancel-generate'); if (c && !c.hidden) window.__cancelShown = true; };
+      new MutationObserver(watch).observe(document.querySelector('#main'), {subtree: true, attributes: true, childList: true}); });
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    const seen = await page.evaluate(() => ({fallback: search.unavailable, cancel_shown: window.__cancelShown, alternatives: compositions?.alternatives?.length || 0}));
+    verdict('M13', seen.cancel_shown, seen);
     await context.close();
   }
 };
