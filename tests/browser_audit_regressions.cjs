@@ -128,6 +128,59 @@ const probes = {
     verdict('A4', stale > 0, {alternatives_still_offered: stale});
     await context.close();
   },
+  async A5(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    const expected = await page.evaluate(() => compositions.alternatives[1].picks.map(p => p.role + ':' + p.slug).sort());
+    await page.locator('[data-use-comp="1"]').click();
+    const locks = await page.evaluate(() => S.locks.map(p => p.role + ':' + p.slug).sort());
+    const unique = await page.evaluate(() => new Set(S.locks.map(p => p.slug)).size === S.locks.length && new Set(S.locks.map(p => p.role)).size === S.locks.length);
+    verdict('A5', JSON.stringify(locks) !== JSON.stringify(expected) || !unique, {applied: locks, expected, unique});
+    await context.close();
+  },
+  async A6(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    const target = await page.locator('[data-substitute]').first().getAttribute('data-substitute');
+    await page.locator('[data-substitute="' + target + '"]').first().click();
+    await page.waitForFunction(() => !!compositions?.substitution, null, {timeout: 180000});
+    const state = await page.evaluate(() => ({current: compositionsCurrent(), alternatives: compositions.alternatives.length, role: compositions.substitution.role, locks: S.locks.length, size: S.size}));
+    verdict('A6', !(state.current && state.locks === state.size - 1), state);
+    await context.close();
+  },
+  async A7(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.addInitScript(() => localStorage.setItem('predecessor-planner-v2', JSON.stringify({evidencePolicy: 230, size: 3, bans: ['muriel'], enemies: [{slug: 'gideon', role: 'midlane'}],
+      locks: [{slug: 'steel', role: 'jungle'}, {slug: 'muriel', role: 'support'}, {slug: 'kwang', role: 'offlane'}]})));
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const state = await page.evaluate(() => ({locks: S.locks.map(p => p.slug), bans: S.bans, enemies: S.enemies.map(p => p.slug), toast: document.querySelector('#toast').textContent}));
+    let usable = true; try { await page.evaluate(() => E.validPicks(S.locks, {size: S.size, bans: S.bans, enemies: S.enemies})); } catch { usable = false; }
+    const healed = usable && JSON.stringify(state.locks) === JSON.stringify(['steel', 'kwang']) && state.bans.includes('muriel') && state.enemies.includes('gideon') && /Muriel/.test(state.toast);
+    verdict('A7', !healed, {...state, planner_usable: usable});
+    await context.close();
+  },
+  async A8(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 3, {bans: ['khaimera']}); await generate(page);
+    await page.evaluate(() => changeRoute('draft'));
+    await page.locator('[data-unban="khaimera"]').first().click();
+    await page.evaluate(() => changeRoute('planner'));
+    const text = await page.locator('#compositions').innerText();
+    verdict('A8', !/changed after these alternatives were generated/i.test(text), {panel: text.slice(0, 160)});
+    await context.close();
+  },
+  async A9(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    await page.locator('[data-size="2"]').click();
+    const afterSize = await offered(page);
+    await reset(page); await generate(page);
+    await page.evaluate(() => { S.enemies = [{slug: 'gideon', role: 'midlane'}]; save(); render(); });
+    const afterEnemy = await offered(page);
+    verdict('A9', afterSize > 0 || afterEnemy > 0, {offered_after_size_change: afterSize, offered_after_enemy_change: afterEnemy});
+    await context.close();
+  },
   async B1(browser) {
     const {context, page} = await session(browser, desktop);
     await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); });
