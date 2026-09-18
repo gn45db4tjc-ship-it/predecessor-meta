@@ -8,6 +8,13 @@ if (APP_CONFIG.mode === 'static') {
   const originalRender = render;
   const originalAlerts = alerts;
   const oldDataView = dataView;
+  const originalDefinitionReviewStatus = definitionReviewStatus;
+  definitionReviewStatus = function () {
+    const check = site.manifest?.patch_check, review = B?.definition_review;
+    if (review?.status === 'reviewed for current patch' && check?.status === 'verified' && check.version === review.patch && B?.official?.status === 'verified'
+        && !site.loadedEntry?.saved_copy && navigator.onLine && !connectionLost) return review.status;
+    return originalDefinitionReviewStatus();   // saved copies, offline and unverified checks stay 'live check pending'
+  };
   const allowed = ['gold', 'bronze', 'silver', 'platinum', 'diamond', 'paragon'];
   const baseURL = new URL('.', location.href);
 
@@ -221,7 +228,7 @@ if (APP_CONFIG.mode === 'static') {
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
-      latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
+      latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : !navigator.onLine || connectionLost ? 'This rank is not saved on this device. Open it once while online to keep it for offline use.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
       redrawForEvidence();
     } finally { clearTimeout(timeout); if (sequence === site.sequence) site.controller = null; }
   }

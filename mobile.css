@@ -1,4 +1,4 @@
-/* Mobile-first planning companion, 2.23.0. */
+/* Mobile-first planning companion: phone layout, Build Coach and Live. */
 .coach-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .coach-controls label{display:grid;gap:6px}.coach-controls select{width:100%;min-width:0}
 .coach-date{font-size:.85rem;line-height:1.6}.coach-next h2{margin:0 0 8px}.coach-path{counter-reset:none}
@@ -72,5 +72,6 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
  #mobile-limits{display:flex;align-items:center;gap:8px;width:100%;margin:0;padding:8px 16px;border:0;border-bottom:1px solid var(--amber);border-radius:0;background:var(--surface-2);color:var(--text);text-align:left;font-size:.85rem}
  #mobile-limits[hidden]{display:none}#mobile-limits strong{flex:none;color:var(--amber);white-space:nowrap}
  #mobile-limits span:not([aria-hidden]){flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-2)}#mobile-limits span[aria-hidden]{flex:none;color:var(--gold-text)}
- #undo-banner button{flex:none;white-space:nowrap}.all-heroes{margin:0 0 20px}.lineup{margin:8px 0}.lineup>summary{font-weight:650}
+ #undo-banner button{flex:none;white-space:nowrap}#detail label:has(#live-owned-add){display:grid;gap:6px}#detail #live-owned-add{width:100%}.all-heroes{margin:0 0 20px}.lineup{margin:8px 0}.lineup>summary{font-weight:650}
 }
+@media(max-width:380px){.topbar .tools>label:has(#bracket){flex:1 1 100%;display:flex;align-items:center}.topbar .tools>label:has(#bracket) select{flex:1;min-width:0}}

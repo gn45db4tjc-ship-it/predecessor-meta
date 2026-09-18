@@ -890,8 +890,13 @@ const probes = {
   async P8(browser) {
     // Review dates are shown as dates, not raw timestamps.
     const {context, page} = await session(browser, desktop);
-    const seen = await page.evaluate(() => { const out = {}; for (const r of ['data', 'guidance']) { changeRoute(r); out[r] = (document.querySelector('#main').innerText.match(/.{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.{0,10}/g) || []).slice(0, 3); } return out; });
-    verdict('P8', seen.data.length + seen.guidance.length > 0, seen);
+    const seen = await page.evaluate(() => {
+      const out = {}, find = () => (document.querySelector('#main').innerText.match(/.{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.{0,10}/g) || []).slice(0, 3);
+      for (const r of ['data', 'guidance', 'meta']) { changeRoute(r); document.querySelectorAll('#main details').forEach(d => { d.open = true; }); out[r] = find(); }
+      openHero('steel', 'jungle'); document.querySelectorAll('#main details').forEach(d => { d.open = true; }); out.hero = find();
+      return out;
+    });
+    verdict('P8', Object.values(seen).some(list => list.length > 0), seen);
     await context.close();
   },
   async P9(browser) {
