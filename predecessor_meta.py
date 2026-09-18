@@ -2915,11 +2915,19 @@ def primary_rows_valid(b):
             source = (b.get('sources') or {}).get(key) or {}
             if source.get('status') == 'ok' and timestamp_age(source.get('fetched_at')) is None:
                 return False
-        heroes, observed = b.get('heroes') or {}, []
+        heroes, observed, seen = b.get('heroes') or {}, [], set()
         for row in b.get('tier_list') or []:
+            if not isinstance(row, dict) or not isinstance(row.get('slug'), str) or row.get('role') not in ROLES or (row['slug'], row['role']) in seen:
+                return False
+            seen.add((row['slug'], row['role']))
             role = ((heroes.get(row.get('slug')) or {}).get('roles') or {}).get(row.get('role'))
             if isinstance(role, dict) and role.get('status') in ('failed', 'patch_conflict'):
+                # The hero page was not collected, but the tier-list row itself was, and it is shown as collected.
                 if any(field in role for field in ('winRate', 'pickRate', 'playedGames', 'wonGames')):
+                    return False
+                if type(row.get('matches')) is not int or row['matches'] <= 0:
+                    return False
+                if any(type(row.get(f)) not in (int, float) or not math.isfinite(row[f]) or not 0 <= row[f] <= 100 for f in ('winRate', 'pickRate')):
                     return False
                 continue
             observed.append(row)
@@ -3128,8 +3136,10 @@ def review_saved_sources(bundle):
 def cached_rows_usable(path,b):
     """A saved success or latest bundle is restored only if its rows validate. Pre-schema-3 caches keep
     their existing legacy handling (they are shown as legacy data, never as current)."""
+    if not isinstance(b,dict):return False
     if b.get('schema')!=3:return True
     if path.name.startswith('last_successful_'):return collection_verdict(b)[0]
+    if path.name.startswith('last_primary_'):return bundle_has_current_primary(b) and primary_rows_valid(b)
     if path==LATEST_BUNDLE:return collection_verdict(b)[0] or bundle_is_publishable(b)
     return True
 
@@ -3146,7 +3156,7 @@ def read_cached(bracket=None):
             if not cached_rows_usable(path,b):return float('inf')
             age=timestamp_age(b.get('generated_at'))
             return age if age is not None else float('inf')
-        except (OSError,ValueError,TypeError):return float('inf')
+        except Exception:return float('inf')   # a damaged saved file is skipped, never a reason the app cannot start
     for path in sorted(choices,key=collection_age):
         if path.exists():
             try:
@@ -3337,12 +3347,15 @@ class AppState:
                 complete, reason=collection_verdict(b)
                 b['refresh_result']='complete' if complete else 'partial: '+reason
                 b['cache']={'used':False}
+                rows_failed=False
                 if complete:
                     save_bundle(b,bundle_path(b['patch'],b['bracket']['segment']))
                     save_bundle(b,DATA_DIR/('last_successful_'+b['bracket']['segment']+'.json'),False)
                 else:
+                    rows_failed=bundle_is_complete(b)[0]
+                    if rows_failed:b.setdefault('errors',[]).append({'source':'Collection validation','severity':'error','detail':reason})
                     save_bundle(b,DATA_DIR/('last_attempt_'+b['bracket']['segment']+'.json'),False)
-                    if bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+b['bracket']['segment']+'.json'))
+                    if bundle_has_current_primary(b) and primary_rows_valid(b):save_bundle(b,DATA_DIR/('last_primary_'+b['bracket']['segment']+'.json'))
                     if bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+b['bracket']['segment']+'.json'),False)
                 display=b
                 # Preserve the last complete, explicitly dated review when the
@@ -3355,6 +3368,15 @@ class AppState:
                         display['session_notice']='Official verification failed. Showing saved data from '+display.get('generated_at','an unknown time')+'. See the failed source below.'
                         if str(display.get('guidance',{}).get('status','')).startswith('reviewed'):
                             display['guidance']['status']='reviewed for saved patch; live verification failed'
+                        display.setdefault('errors',[]).extend(copy.deepcopy(b.get('errors',[])))
+                        display['latest_attempt']={'generated_at':b['generated_at'],'result':b['refresh_result']}
+                elif not complete and rows_failed:
+                    # Statuses were clean but rows failed validation: keep the last validated data on screen.
+                    previous=read_cached(self.settings['bracket'])
+                    if previous and previous.get('tool_version')==VERSION:
+                        display=previous
+                        display['cache']={'used':True,'reason':'The new collection failed validation; showing the last validated bundle.'}
+                        display['session_notice']='The new collection failed validation ('+reason+'). Showing saved data from '+display.get('generated_at','an unknown time')+'.'
                         display.setdefault('errors',[]).extend(copy.deepcopy(b.get('errors',[])))
                         display['latest_attempt']={'generated_at':b['generated_at'],'result':b['refresh_result']}
                 render(display)
@@ -3811,7 +3833,7 @@ def main():
     if args.once:
         b=collect_bundle(settings,log); complete,reason=collection_verdict(b)
         save_bundle(b,DATA_DIR/('last_successful_'+settings['bracket']+'.json') if complete else DATA_DIR/'last_attempt.json',complete)
-        if not complete and bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
+        if not complete and bundle_has_current_primary(b) and primary_rows_valid(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
         if not complete and bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+settings['bracket']+'.json'),False)
         render(b); log(json.dumps({'complete':complete,'reason':reason,'timings':b['timings'],'heroes':len(b['heroes']),'rows':len(b['tier_list']),'pairs':len(b['pairs'])})); return 0 if complete else 2
     return serve(settings,args.no_open,args.port,args.no_fetch)

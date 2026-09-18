@@ -247,6 +247,18 @@ def import_public_seed(path, folder):
         # replaces it, instead of stopping every scheduled run before anything is published.
         base.log('Stored complete bundle rejected for ' + str(bracket) + ': ' + str(error))
         previous = None
+        # The run keeps a verified copy of the last publication beside its collector. When that copy is newer than
+        # the seed, restore it (dates unchanged) instead of moving the published date back to the seed's.
+        backup = Path(folder) / 'collector' / ('last_successful_' + str(bracket) + '.json')
+        try:
+            if backup.exists():
+                copy_ = validate_public_bundle(base.load_bundle(backup), bracket)
+                if utc_time(copy_['generated_at']) > utc_time(seed['generated_at']):
+                    retain_success(copy_, folder)
+                    base.log('Restored ' + str(bracket) + ' from the verified collector copy dated ' + copy_['generated_at'] + '.')
+                    return False
+        except STORED_BUNDLE_ERRORS as problem:
+            base.log('Collector copy unusable for ' + str(bracket) + ': ' + str(problem))
     if previous and utc_time(previous['generated_at']) >= utc_time(seed['generated_at']):
         return False
     retain_success(seed, folder)
