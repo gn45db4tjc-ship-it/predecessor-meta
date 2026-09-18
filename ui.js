@@ -186,7 +186,9 @@ function effectiveRequiredRole(){return S.compRole==='auto'?(S.locks.length?'':'
 function compositionInputs(){const pick=p=>p.role+':'+p.slug;return JSON.stringify({locks:S.locks.map(pick).sort(),enemies:S.enemies.map(pick).sort(),bans:[...S.bans].sort(),size:S.size,metric:S.sortComp,required:effectiveRequiredRole(),unsampled:!!S.includeUnsampled,bracket:S.bracket,bundle:B?.generated_at||null,revision:String(revision||''),guidance:B?.guidance?.status||null,withheld:B?.recommendation_context?.status||null});}
 function rememberCompositions(result){compositions=result?{...result,inputs:compositionInputs()}:null;compositionsNotice='';}
 function compositionsCurrent(){return !!compositions&&compositions.inputs===compositionInputs();}
-function dropStaleCompositions(){if(compositions&&!compositionsCurrent()){compositions=null;compositionsNotice='Your picks, bans, enemies or data changed after these alternatives were generated, so they were cleared. Generate again for the current draft.';}}
+const CHANGE_GROUPS=[[['locks','enemies','bans'],'your picks, bans or enemies'],[['size','metric','required','unsampled'],'your search options'],[['bracket','bundle','revision','guidance','withheld'],'the data or its verification']];
+function staleReason(before,after){let a={},b={};try{a=JSON.parse(before||'{}');b=JSON.parse(after);}catch{}const parts=CHANGE_GROUPS.filter(([keys])=>keys.some(k=>JSON.stringify(a[k])!==JSON.stringify(b[k]))).map(([,label])=>label);const text=parts.length?parts.join(' and '):'the inputs';return text[0].toUpperCase()+text.slice(1);}
+function dropStaleCompositions(){if(compositions&&!compositionsCurrent()){const reason=staleReason(compositions.inputs,compositionInputs());compositions=null;compositionsNotice=reason+' changed after these alternatives were generated, so they were cleared. Generate again for the current draft.';}}
 // A saved draft is the user's data: keep every usable selection, remove only entries that cannot be used, and say so.
 function repairDraft(){if(!draftRepaired){draftRepaired=true;const removed=[],list=v=>Array.isArray(v)?v:[],well=p=>!!p&&typeof p.slug==='string'&&typeof p.role==='string'&&roleOrder.includes(p.role),before=JSON.stringify([S.locks,S.enemies,S.bans,S.size]);
  S.bans=[...new Set(list(S.bans).filter(s=>typeof s==='string'))];
@@ -517,11 +519,23 @@ document.addEventListener('change',async event=>{const el=event.target,d=el.data
  else if(el.id==='compare-bracket'){if(!(local||shared))throw Error('Bracket comparison collection is available in the local app.');if(!el.value)return;const r=await fetch('/api/comparison?bracket='+encodeURIComponent(el.value));comparison=await r.json();$('#comparison-output').innerHTML=comparisonHTML();}
  else if(el.id==='guidance-file'&&el.files[0]){const packet=JSON.parse(await el.files[0].text());await post('/api/import-guidance',packet);toast('Reviewed packet imported. Live refresh started.');}
  }catch(e){toast(e.message);}});
-document.addEventListener('input',event=>{const el=event.target;if(el.id==='library-query'){S.libraryQuery=el.value;render();$('#library-query').focus();}if(el.id==='hero-search'){const pos=el.selectionStart;S.query=el.value;render();const n=$('#hero-search');n.focus();if(n.type!=='search')n.setSelectionRange(pos,pos);}if(el.id==='patch-search')$('#patch-results').innerHTML=patchChangesTable(el.value);});
+document.addEventListener('input',event=>{const el=event.target;if(el.id==='library-query'){const pos=el.selectionStart;S.libraryQuery=el.value;render();const n=$('#library-query');n?.focus();n?.setSelectionRange(pos,pos);}if(el.id==='hero-search'){const pos=el.selectionStart;S.query=el.value;render();const n=$('#hero-search');n?.focus();n?.setSelectionRange(pos,pos);}if(el.id==='patch-search')$('#patch-results').innerHTML=patchChangesTable(el.value);});
 document.addEventListener('keydown',e=>{if(e.target.getAttribute('role')==='tab'&&['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){const tabs=[...e.target.parentElement.querySelectorAll('[role=tab]')];let i=tabs.indexOf(e.target);i=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();const group=e.target.parentElement.getAttribute('aria-label');tabs[i].click();document.querySelector('[role=tablist][aria-label="'+group+'"] [aria-selected=true]')?.focus();}});
 document.addEventListener('visibilitychange',()=>{if((local||shared)&&document.visibilityState==='visible')poll();});
 window.addEventListener('hashchange',checkSharedPlan);
 window.addEventListener('online',()=>{if(local||shared)poll();});
+// One rule in every mode: the main view is redrawn when the evidence it shows changes (including the age of the
+// statistics on screen and a lost connection), but never while the user is typing in one of its fields and never
+// in the middle of a click. Every render records what it drew, so a postponed redraw is never lost.
+const evidenceView={drawn:null,pending:false,pointer:false};
+function evidenceSignature(){try{const e=E.evidenceState(),s=B?.sources?.statz_hero_pages;return JSON.stringify([e.statistics.state,e.mechanics.state,e.verification.state,e.guidance.state,e.advice_mode,connectionLost,B?E.sourceCurrency({...s,fetched_at:latestStatus?.health?.core_statistics?.updated_at||s?.fetched_at}).state:'']);}catch{return '';}}
+function typingInMain(target){const main=$('#main');return !!target&&!!main?.contains(target)&&/^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName);}
+function redrawForEvidence(){if(evidenceSignature()===evidenceView.drawn){chrome();return;}if(typingInMain(document.activeElement)||evidenceView.pointer){chrome();evidenceView.pending=true;return;}render();}
+function flushEvidenceRedraw(){if(evidenceView.pending&&!evidenceView.pointer&&!typingInMain(document.activeElement))render();}
+const renderView=render;render=function(){renderView();evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
+document.addEventListener('focusout',event=>{if(evidenceView.pending&&!typingInMain(event.relatedTarget))setTimeout(flushEvidenceRedraw,0);});
+document.addEventListener('pointerdown',()=>{evidenceView.pointer=true;},true);
+for(const type of ['pointerup','pointercancel'])document.addEventListener(type,()=>{evidenceView.pointer=false;if(evidenceView.pending)setTimeout(flushEvidenceRedraw,0);},true);
 async function poll(){
  if(!(local||shared)||poll.running)return;
  poll.running=true;const requested=shared?S.bracket:null;
@@ -535,9 +549,9 @@ async function poll(){
    const br=await fetch(apiPath('/api/bundle'),{signal:controller?.signal});if(!br.ok)throw Error('Updated bundle unavailable');
    const next=await br.json();if(shared&&requested!==S.bracket)return;if(shared&&next&&next.bracket?.segment!==requested)throw Error('The server returned a different rank cohort');if(next!==null&&(!next?.heroes||!Array.isArray(next.tier_list)))throw Error('Updated bundle has an invalid shape');
    const engine=MetaEngine.create(next);B=next;E=engine;revision=latestStatus.revision;render();checkSharedPlan();
-  }else chrome();
+  }else redrawForEvidence();
   if(document.visibilityState==='visible'&&latestStatus.freshness?.due&&Date.now()-(poll.lastAuto||0)>60000){poll.lastAuto=Date.now();await post('/api/ensure-fresh',{},controller?.signal);}
- }catch(e){if(shared&&requested!==S.bracket)return;connectionLost=true;latestStatus={...latestStatus,busy:false,message:(shared?'Shared':'Local')+' connection unavailable. Displayed data is the last loaded snapshot.',errors:[{source:(shared?'Shared':'Local')+' app connection',severity:'error',detail:controller?.signal.aborted?'Local request timed out. The next status check will retry.':e.message}]};chrome();}
+ }catch(e){if(shared&&requested!==S.bracket)return;connectionLost=true;latestStatus={...latestStatus,busy:false,message:(shared?'Shared':'Local')+' connection unavailable. Displayed data is the last loaded snapshot.',errors:[{source:(shared?'Shared':'Local')+' app connection',severity:'error',detail:controller?.signal.aborted?'Local request timed out. The next status check will retry.':e.message}]};redrawForEvidence();}
  finally{if(timer!==null)clearTimeout(timer);poll.running=false;poll.controller=null;}
 }
 async function connect(){try{await post('/api/wake');}catch(e){if(e.status!==409)toast('Could not request live refresh: '+e.message);}await poll();poll.timer=setInterval(poll,1500);}

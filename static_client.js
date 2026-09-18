@@ -88,8 +88,6 @@ if (APP_CONFIG.mode === 'static') {
   render = function() {
     originalRender();
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'Loading the latest published data…');
-    // Whatever caused this render, the main view now reflects the current evidence.
-    site.drawnSignature = evidenceSignature(); site.pendingRedraw = false;
   };
 
   async function getJSON(url, signal) {
@@ -123,22 +121,7 @@ if (APP_CONFIG.mode === 'static') {
     // Preserve original source observations. Only the review-status overlay changes.
     return {...raw, recommendation_context: {status:'withheld',reason:'Official patch or hotfix content changed after this collection. Saved observations remain inspectable; automatic role comparisons await the new data.'}, guidance: {...raw.guidance, status: 'needs review: official patch content changed since collection'}};
   }
-  // The main view must never keep showing advice the engine no longer supports. Redraw when the evidence
-  // state differs from the one the view was drawn with; if the user is typing in the view, wait until focus
-  // leaves the field. Every render records what it drew, so a deferred redraw is never lost, even when a
-  // render replaces the focused field (WebKit fires no blur then) and the 5-minute timer retries it.
-  function evidenceSignature() { try { const e = E.evidenceState(); return JSON.stringify([e.statistics.state, e.mechanics.state, e.verification.state, e.guidance.state, e.advice_mode, connectionLost]); } catch { return ''; } }
-  function typingInMain(target) { const main = $('#main'); return !!target && !!main?.contains(target) && /^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName); }
-  function redrawForEvidence() {
-    if (evidenceSignature() === site.drawnSignature) { chrome(); return; }
-    if (typingInMain(document.activeElement)) { chrome(); site.pendingRedraw = true; return; }
-    render();
-  }
-  document.addEventListener('focusout', event => {
-    // Moving between fields inside the view keeps the user's place; leaving the view's fields redraws.
-    if (!site.pendingRedraw || typingInMain(event.relatedTarget)) return;
-    setTimeout(() => { if (site.pendingRedraw && !typingInMain(document.activeElement)) render(); }, 0);
-  });
+  // Evidence redraws use the shared rule in ui.js (redrawForEvidence): never while typing or mid-click, never lost.
   async function checkPublication() {
     const sequence = ++site.sequence, requested = S.bracket;
     site.controller?.abort();
@@ -163,14 +146,15 @@ if (APP_CONFIG.mode === 'static') {
       if (!raw || raw.bracket.segment !== requested || revision !== entry.sha256) raw = await fetchBundle(entry, requested, controller.signal);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       const next = displayedBundle(raw, entry);
-      const changed = revision !== entry.sha256 || B?.guidance?.status !== next.guidance?.status;
+      const dataChanged = revision !== entry.sha256, changed = dataChanged || B?.guidance?.status !== next.guidance?.status;
       site.originalBundle = raw; site.loadedEntry = entry;
       B = next; revision = entry.sha256;
       if (changed) E = MetaEngine.create(B);
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
       latestStatus = {busy: false, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
-      site.lastCheck = Date.now(); if (changed) { render(); checkSharedPlan(); } else redrawForEvidence();
+      // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
+      site.lastCheck = Date.now(); if (dataChanged) { render(); checkSharedPlan(); } else redrawForEvidence();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
