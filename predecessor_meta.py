@@ -2799,6 +2799,61 @@ def bundle_has_current_primary(b):
         b.get('sources',{}).get('omeda_heroes',{}).get('status')=='ok')
 
 
+def validate_bundle_rows(b):
+    """Structural and numeric checks shared by every publication path: collector output, import,
+    cache restore and publication. Raises ValueError naming the first problem; returns True.
+
+    Statuses alone do not make a bundle publishable. Every tier row must be unique, belong to a known
+    role, point at a collected hero role, and carry a positive integer sample with finite rates in
+    0-100. Where wins are supplied they must agree with the sample and the win rate. A source marked
+    ok must carry a usable fetch date. Nothing is repaired or inferred here."""
+    if (b.get('bracket') or {}).get('segment') not in BRACKETS:
+        raise ValueError('unknown rank bracket')
+    for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes'):
+        source = (b.get('sources') or {}).get(key) or {}
+        if source.get('status') == 'ok' and timestamp_age(source.get('fetched_at')) is None:
+            raise ValueError('source %s is marked ok without a usable fetch date' % key)
+    rows, heroes = b.get('tier_list'), b.get('heroes')
+    if not isinstance(rows, list) or not rows:
+        raise ValueError('tier list is empty')
+    if not isinstance(heroes, dict) or not heroes:
+        raise ValueError('hero roster is empty')
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get('slug'), str) or row.get('role') not in ROLES:
+            raise ValueError('tier row has an unknown hero or role: %r' % (row if not isinstance(row, dict) else (row.get('slug'), row.get('role')),))
+        key = (row['slug'], row['role'])
+        if key in seen:
+            raise ValueError('duplicate tier row %s/%s' % key)
+        seen.add(key)
+        role = ((heroes.get(row['slug']) or {}).get('roles') or {}).get(row['role'])
+        if not isinstance(role, dict):
+            raise ValueError('tier row %s/%s has no hero role record' % key)
+        if role.get('status') != 'ok':
+            raise ValueError('tier row %s/%s points at a role whose status is %r' % (key + (role.get('status'),)))
+        for record, count, label in ((row, 'matches', 'tier row'), (role, 'playedGames', 'hero role')):
+            if type(record.get(count)) is not int or record[count] <= 0:
+                raise ValueError('%s %s/%s has no positive integer sample' % ((label,) + key))
+            for field in ('winRate', 'pickRate'):
+                value = record.get(field)
+                if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100:
+                    raise ValueError('%s %s/%s has an invalid %s: %r' % ((label,) + key + (field, value)))
+        won = role.get('wonGames')
+        if won is not None:
+            if type(won) is not int or not 0 <= won <= role['playedGames']:
+                raise ValueError('hero role %s/%s has wins outside its sample' % key)
+            if abs(role['winRate'] - 100.0 * won / role['playedGames']) > 0.06:
+                raise ValueError('hero role %s/%s wins and sample disagree with its win rate' % key)
+    return True
+
+
+def bundle_rows_valid(b):
+    try:
+        return validate_bundle_rows(b)
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
 def bundle_has_fresh_statz(b):
     """Validate a useful independent update, without certifying the other sources."""
     try:
@@ -2825,25 +2880,7 @@ def bundle_has_fresh_statz(b):
             return False
         if pages.get('ok') != pages['requested'] or pages.get('failed') or pages.get('conflicting'):
             return False
-        rows = b['tier_list']
-        if not isinstance(rows, list) or not rows:
-            return False
-        seen = set()
-        for row in rows:
-            key = (row['slug'], row['role'])
-            if key in seen or row['role'] not in ROLES:
-                return False
-            seen.add(key)
-            role = b['heroes'][row['slug']]['roles'][row['role']]
-            if role.get('status') != 'ok':
-                return False
-            for record, count in ((row, 'matches'), (role, 'playedGames')):
-                if type(record.get(count)) is not int or record[count] <= 0:
-                    return False
-                for field in ('winRate', 'pickRate'):
-                    value = record.get(field)
-                    if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100:
-                        return False
+        validate_bundle_rows(b)
         return True
     except (KeyError, TypeError, ValueError, AttributeError):
         return False
@@ -2851,7 +2888,7 @@ def bundle_has_fresh_statz(b):
 
 def bundle_is_publishable(b):
     """Partial publications remain labelled and separate from the last full success."""
-    return bundle_is_complete(b)[0] or bundle_has_current_primary(b) or bundle_has_fresh_statz(b)
+    return (bundle_is_complete(b)[0] and bundle_rows_valid(b)) or bundle_has_current_primary(b) or bundle_has_fresh_statz(b)
 
 
 def retain_pred_partition(bundle, previous):

@@ -152,6 +152,13 @@ def validate_public_bundle(bundle, bracket):
     good, reason = base.bundle_is_complete(bundle)
     if not good:
         raise ValueError('Bundle is not a complete successful collection: ' + reason)
+    # Clean statuses are not enough: the same row validation guards every publication path.
+    try:
+        base.validate_bundle_rows(bundle)
+    except (KeyError, TypeError, AttributeError) as error:
+        raise ValueError('Bundle failed validation: unexpected structure (%r)' % (error,))
+    except ValueError as error:
+        raise ValueError('Bundle failed validation: ' + str(error))
     return public_bundle(bundle)
 
 
@@ -206,7 +213,12 @@ def retain_publication(bundle, folder):
 
 
 def load_publication(folder, bracket):
-    complete = load_success(folder, bracket)
+    try:
+        complete = load_success(folder, bracket)
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        # A stored bundle that no longer validates is never published and never crashes the run.
+        complete = None
+        base.log('Stored complete bundle rejected for ' + bracket + ': ' + str(error))
     target = Path(folder) / 'partial-bundles' / (bracket + '.json.gz')
     partial = None
     if target.exists():

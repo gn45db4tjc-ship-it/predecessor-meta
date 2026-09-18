@@ -77,61 +77,52 @@ class CompletePathValidation(unittest.TestCase):
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(valid_complete(), 'diamond')
 
-    @unittest.expectedFailure
     def test_sparse_complete_bundle_is_rejected(self):
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(sparse_complete(), 'gold')
 
-    @unittest.expectedFailure
     def test_sparse_complete_bundle_is_never_retained(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(ValueError):
                 s.retain_publication(sparse_complete(), tmp)
             self.assertFalse((Path(tmp) / 'bundles' / 'gold.json.gz').exists())
 
-    @unittest.expectedFailure
     def test_out_of_range_win_rate_is_rejected(self):
         b = valid_complete()
         b['tier_list'][0]['winRate'] = 150.0
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(b, 'gold')
 
-    @unittest.expectedFailure
     def test_non_finite_rate_is_rejected(self):
         b = valid_complete()
         b['heroes']['unit-test-fixture']['roles']['jungle']['winRate'] = float('nan')
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(b, 'gold')
 
-    @unittest.expectedFailure
     def test_zero_sample_is_rejected(self):
         b = valid_complete()
         b['tier_list'][0]['matches'] = 0
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(b, 'gold')
 
-    @unittest.expectedFailure
     def test_duplicate_hero_role_row_is_rejected(self):
         b = valid_complete()
         b['tier_list'].append(copy.deepcopy(b['tier_list'][0]))
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(b, 'gold')
 
-    @unittest.expectedFailure
     def test_tier_row_without_a_hero_role_record_is_rejected(self):
         b = valid_complete()
         b['heroes']['unit-test-fixture']['roles'] = {}
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(b, 'gold')
 
-    @unittest.expectedFailure
     def test_wins_inconsistent_with_sample_are_rejected(self):
         b = valid_complete()
         b['heroes']['unit-test-fixture']['roles']['jungle'].update(wonGames=190, playedGames=200, winRate=50.0)
         with self.assertRaises(ValueError):
             s.validate_publication_bundle(b, 'gold')
 
-    @unittest.expectedFailure
     def test_a_rejected_import_never_replaces_the_last_good_publication(self):
         with tempfile.TemporaryDirectory() as tmp:
             good = s.retain_publication(valid_complete(), tmp)
@@ -167,6 +158,77 @@ class SinglePageFailure(unittest.TestCase):
         b = roster(12, 0)
         b['sources']['statz_hero_pages']['ok'] = 11
         self.assertFalse(base.bundle_has_fresh_statz(b))
+
+
+class OneValidatorEverywhere(unittest.TestCase):
+    """The same row validation guards publication, import, stored-bundle loading and cache restore."""
+
+    def test_cache_restore_rejects_a_number_free_complete_bundle(self):
+        self.assertTrue(base.bundle_is_complete(sparse_complete())[0], 'statuses alone still look complete')
+        self.assertFalse(base.bundle_is_publishable(sparse_complete()))
+        self.assertTrue(base.bundle_is_publishable(valid_complete()))
+
+    def test_a_damaged_stored_bundle_is_skipped_loudly_and_never_crashes_the_run(self):
+        import gzip, json
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / 'bundles' / 'gold.json.gz'
+            target.parent.mkdir(parents=True)
+            target.write_bytes(gzip.compress(json.dumps(sparse_complete()).encode('utf8')))
+            with _captured_log() as messages:
+                self.assertIsNone(s.load_publication(tmp, 'gold'))
+            self.assertTrue(any('Stored complete bundle rejected for gold' in m for m in messages))
+
+    def test_a_damaged_stored_bundle_does_not_hide_a_valid_independent_update(self):
+        import gzip, json
+        with tempfile.TemporaryDirectory() as tmp:
+            kept = s.retain_publication(partial(), tmp)
+            target = Path(tmp) / 'bundles' / 'gold.json.gz'
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(gzip.compress(json.dumps(sparse_complete()).encode('utf8')))
+            with _captured_log():
+                self.assertEqual(s.load_publication(tmp, 'gold')['generated_at'], kept['generated_at'])
+
+    def test_the_committed_public_seed_validates(self):
+        import gzip, json
+        seed = json.loads(gzip.decompress((s.ROOT / 'public-seed-gold.json.gz').read_bytes()))
+        self.assertTrue(base.validate_bundle_rows(seed))
+        self.assertEqual(s.validate_publication_bundle(seed, 'gold')['generated_at'], seed['generated_at'])
+
+    def test_locally_stored_real_bundles_validate_when_present(self):
+        import gzip, json
+        stores = sorted((s.ROOT / '.local-publisher' / 'state' / 'bundles').glob('*.json.gz'))
+        if not stores:
+            self.skipTest('no locally stored publication (expected in CI and clean checkouts)')
+        for path in stores:
+            with self.subTest(bracket=path.name):
+                bundle = json.loads(gzip.decompress(path.read_bytes()))
+                self.assertTrue(base.validate_bundle_rows(bundle))
+
+    def test_validation_names_the_problem(self):
+        b = valid_complete()
+        b['tier_list'][0]['winRate'] = 150.0
+        with self.assertRaisesRegex(ValueError, r'unit-test-fixture/jungle has an invalid winRate: 150\.0'):
+            s.validate_publication_bundle(b, 'gold')
+
+    def test_observations_are_never_altered_by_validation(self):
+        import json
+        b = valid_complete(); before = json.dumps(b, sort_keys=True)
+        base.validate_bundle_rows(b)
+        self.assertEqual(json.dumps(b, sort_keys=True), before)
+
+
+import contextlib
+
+
+@contextlib.contextmanager
+def _captured_log():
+    """predecessor_meta.log prints; capture what it says without changing it."""
+    messages, original = [], base.log
+    base.log = lambda message: messages.append(str(message))
+    try:
+        yield messages
+    finally:
+        base.log = original
 
 
 if __name__ == '__main__':
