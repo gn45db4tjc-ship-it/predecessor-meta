@@ -2,12 +2,8 @@
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite.",
   "baseline": "2.23.0 / 9bac0c2",
   "open": [
-    "B1",
-    "B2",
-    "B3",
     "E1",
-    "G1",
-    "H1"
+    "G1"
   ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
@@ -22,6 +18,10 @@
     "B1": "DESKTOP: failed official verification plus a failed bundle download rebuilds the engine as withheld but never redraws the main view (static_client.js catch path calls chrome() only)",
     "B2": "PHONE: after 49 hours and a successful check with an unchanged bundle hash, the freshness label still reads Current (static_client.js success path updates chrome only; the label lives in the main view)",
     "B3": "PHONE: failed official verification plus a failed bundle download rebuilds the engine as withheld but never redraws the phone main view",
+    "C1": "GUARD: statistics outside the 48-hour window are labelled as saved statistics on desktop and phone, with their original fetch date",
+    "C2": "GUARD: statistics fetched an hour ago are not labelled as saved (no over-flagging)",
+    "C3": "GUARD: a redraw caused by an evidence change never takes focus or text away from a field the user is typing in; it happens after the field loses focus",
+    "C4": "GUARD: when no editorial tier is active the phone Meta page says tiers are paused and why, and orders by role performance",
     "E1": "Composition search for five heroes blocks the main thread for longer than 500 ms (engine.generate called synchronously)",
     "G1": "The strategy review packet exports zero official changes although the bundle carries them (mobile.js reads B.official.changes)",
     "H1": "Mobile Meta says reviewed tier guidance leads while no editorial tier is active (mobile.js guidedHome copy)"

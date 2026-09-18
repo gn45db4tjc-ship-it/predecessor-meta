@@ -19,7 +19,7 @@ function statzBundle(fetched) {
 }
 const withoutDate = policy => ({...policy, fetched_at: undefined});
 
-test('I: eight-month-old statistics are not presented like statistics fetched an hour ago', {todo: 'defect I - fixed by the evidence-state phase'}, () => {
+test('I: eight-month-old statistics are not presented like statistics fetched an hour ago', () => {
   const fresh = Meta.create(statzBundle(new Date(NOW - 3600000).toISOString())).performancePolicy({now: NOW});
   const old = Meta.create(statzBundle('2026-01-10T12:00:00Z')).performancePolicy({now: NOW});
   assert.notDeepEqual(withoutDate(old), withoutDate(fresh), 'apart from the date itself, the two policies are indistinguishable');

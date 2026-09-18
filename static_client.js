@@ -121,6 +121,19 @@ if (APP_CONFIG.mode === 'static') {
     // Preserve original source observations. Only the review-status overlay changes.
     return {...raw, recommendation_context: {status:'withheld',reason:'Official patch or hotfix content changed after this collection. Saved observations remain inspectable; automatic role comparisons await the new data.'}, guidance: {...raw.guidance, status: 'needs review: official patch content changed since collection'}};
   }
+  // The main view must never keep showing advice the engine no longer supports. Redraw when the
+  // evidence state changes; if the user is typing inside the view, wait until that control loses focus.
+  function evidenceSignature() { try { const e = E.evidenceState(); return JSON.stringify([e.statistics.state, e.mechanics.state, e.verification.state, e.guidance.state, e.advice_mode, connectionLost]); } catch { return ''; } }
+  function redrawForEvidence() {
+    const signature = evidenceSignature(), changed = signature !== site.evidenceSignature;
+    site.evidenceSignature = signature;
+    if (!changed) { chrome(); return; }
+    const active = document.activeElement, main = $('#main');
+    if (active && main?.contains(active) && /^(INPUT|SELECT|TEXTAREA)$/.test(active.tagName)) {
+      chrome();
+      if (!site.pendingRedraw) { site.pendingRedraw = true; active.addEventListener('blur', () => { site.pendingRedraw = false; render(); }, {once: true}); }
+    } else render();
+  }
   async function checkPublication() {
     const sequence = ++site.sequence, requested = S.bracket;
     site.controller?.abort();
@@ -152,12 +165,12 @@ if (APP_CONFIG.mode === 'static') {
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
       latestStatus = {busy: false, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
-      site.lastCheck = Date.now(); if (changed) { render(); checkSharedPlan(); } else chrome();
+      site.lastCheck = Date.now(); if (changed) { site.evidenceSignature = evidenceSignature(); render(); checkSharedPlan(); } else redrawForEvidence();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); compositions = null; }
       latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
-      chrome();
+      redrawForEvidence();
     } finally { clearTimeout(timeout); if (sequence === site.sequence) site.controller = null; }
   }
   function exportSnapshot() {
@@ -203,6 +216,8 @@ if (APP_CONFIG.mode === 'static') {
   window.addEventListener('focus', () => { if (Date.now()-site.lastCheck > 900000 && !site.controller) checkPublication(); });
   window.addEventListener('online', checkPublication);
   setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine && !site.controller) checkPublication(); }, 1800000);
+  // Evidence ages even when no check succeeds (for example offline): re-evaluate it every five minutes.
+  setInterval(() => { if (B && document.visibilityState === 'visible' && !site.controller) redrawForEvidence(); }, 300000);
   // Defer until the existing UI startup has created its shell.
   syncInstallButton();
   setTimeout(checkPublication, 0);

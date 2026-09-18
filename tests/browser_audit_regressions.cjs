@@ -220,6 +220,50 @@ const probes = {
     verdict('B2', after === 'current', {before, after_49_hours_and_a_successful_check: after});
     await context.close();
   },
+  async C1(browser) {
+    const d = await session(browser, desktop);
+    const desk = await d.page.evaluate(() => ({saved: E.performancePolicy().saved, strip: document.querySelector('#patch-strip').innerText, fetched: E.performancePolicy().fetched_at}));
+    await d.page.evaluate(() => changeRoute('draft'));
+    const banner = await d.page.locator('#main details.note summary').first().innerText();
+    await d.context.close();
+    const m = await session(browser, phone);
+    const home = await m.page.locator('#main').innerText();
+    await m.context.close();
+    assert.ok(desk.saved, 'probe setup: the committed seed should be older than the 48-hour window');
+    const labelled = /saved statistics/i.test(desk.strip) && /saved role statistics, not a current ranking/i.test(banner) && /saved statistics, fetched/i.test(home) && /\bstale\b/i.test(home);
+    verdict('C1', !labelled, {strip: desk.strip.replace(/\s+/g, ' ').slice(0, 120), banner: banner.slice(0, 90), phone_mentions_saved: /saved statistics, fetched/i.test(home)});
+  },
+  async C2(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    const fetched = await (await context.request.get(url + 'manifest.json')).json().then(m => Date.parse(m.cohorts.gold.generated_at));
+    await page.clock.install({time: new Date(fetched + 3600000)});
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const state = await page.evaluate(() => ({saved: E.performancePolicy().saved, currency: E.performancePolicy().currency, strip: document.querySelector('#patch-strip').innerText}));
+    verdict('C2', state.saved || /saved statistics/i.test(state.strip), {currency: state.currency, strip: state.strip.replace(/\s+/g, ' ').slice(0, 100)});
+    await context.close();
+  },
+  async C3(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('ste');
+    await failTheNextCheck(page, 'd');
+    await checkLikeAReturningTab(page);
+    const during = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#mobile-hero-search')?.value, withheld: B?.recommendation_context?.status === 'withheld'}));
+    assert.ok(during.withheld, 'probe setup: the failed check did not withhold recommendations');
+    await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); document.activeElement.blur(); });
+    const redrawnAfterBlur = await page.evaluate(() => !document.querySelector('#audit-marker'));
+    verdict('C3', !(during.focused === 'mobile-hero-search' && during.value === 'ste' && redrawnAfterBlur), {...during, redrawn_after_blur: redrawnAfterBlur});
+    await context.close();
+  },
+  async C4(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'retained'}}; E = MetaEngine.create(B); S.bracket = 'gold'; changeRoute('builds'); changeRoute('meta'); });
+    const text = await page.locator('#main').innerText();
+    verdict('C4', !(/Editorial tiers are paused for this role/i.test(text) && /ordered by role performance/i.test(text)), {excerpt: (text.match(/Editorial tiers[^\n]*/) || [''])[0].slice(0, 170)});
+    await context.close();
+  },
   async E1(browser) {
     const {context, page} = await session(browser, desktop);
     await reset(page, 5);
