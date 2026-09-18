@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.26.0
+# Predecessor Meta — 2.26.1
+
+2.26.1 fixes the smaller issues found when 2.26.0 was checked live: limitations are counted per source, a cancelled search says so above the earlier alternatives, keyboard focus is kept, the Live picker marks small samples, a wrong device clock is named, every missing number gives its real reason (too few games, a failed page, or paused statistics), the hero page names the source of its numbers, review dates are readable, narrow phones with large text no longer clip the rank selector, pressed build variants meet contrast in the light theme, and offline a rank says whether it is saved on this device. See [RELEASE-2.26.1.md](RELEASE-2.26.1.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.26.1.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.26.1 merge commit on `main`.
+
+## Previous release: 2.26.0
 
 2.26.0 is the phone navigation release from the 2.23.0 audit (item 09), built from the phone prototype the owner tried and approved: every hero of a role can be browsed on Meta without typing a name, the status line separates the fetch time, the Statz dataset and the game patch, material source limitations are one compact line on every phone screen, Live shows a one-line evidence summary, the Live hero can be replaced in place with a preview and Undo, Draft shows allies and enemies separately with counts, redraws keep open sections open, and a running composition search can be cancelled. See [RELEASE-2.26.0.md](RELEASE-2.26.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.26.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.26.0 merge commit on `main`.
 
