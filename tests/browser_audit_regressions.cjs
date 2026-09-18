@@ -1,5 +1,5 @@
 'use strict';
-/* Browser reproductions for the 2.23.0 audit (defects A, B, E, G, H).
+/* Browser reproductions for the 2.23.0 audit (defects A, B, E, G, H) and its phone findings (item 09, M1-M9).
 
    tests/known-defects.json is the ledger. A defect listed as open MUST reproduce and a defect
    not listed MUST NOT; either mismatch fails the run. So this script passes both before a fix
@@ -592,6 +592,149 @@ const probes = {
     assert.equal(state.active, 0, 'probe setup: retained evidence should leave no editorial tier active');
     const claims = ['Reviewed tier guidance leads', 'Reviewed tier, then role performance'].filter(c => state.text.includes(c));
     verdict('H1', claims.length > 0, {active_tiers: state.active, claims_shown: claims});
+    await context.close();
+  },
+  /* Phase H (audit item 09): phone navigation and evidence presentation. */
+  async M1(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); });
+    const eligible = await page.evaluate(() => Object.keys(E.heroes).filter(s => E.roles(s).includes('jungle')).sort());
+    const toggle = page.locator('#mobile-all-heroes');
+    let seen = {listed: [], unsampled_with_numbers: []};
+    if (await toggle.count()) {
+      await toggle.click();
+      seen = await page.evaluate(() => {
+        const cards = [...document.querySelectorAll('#mobile-all-list [data-hero]')];
+        const unsampled = cards.filter(c => !E.performance({slug: c.dataset.hero, role: 'jungle'})).map(c => c.closest('article')?.innerText || '');
+        return {listed: cards.map(c => c.dataset.hero).sort(), unsampled: unsampled.length, unsampled_with_numbers: unsampled.filter(t => /%/.test(t)), expanded: document.querySelector('#mobile-all-heroes')?.getAttribute('aria-expanded')};
+      });
+    }
+    const missing = eligible.filter(s => !seen.listed.includes(s));
+    verdict('M1', missing.length > 0 || seen.listed.length !== eligible.length || seen.unsampled_with_numbers.length > 0,
+      {eligible: eligible.length, listed: seen.listed.length, missing: missing.slice(0, 5), unsampled: seen.unsampled, unsampled_with_numbers: seen.unsampled_with_numbers.length, expanded: seen.expanded});
+    await context.close();
+  },
+  async M2(browser) {
+    const {context, page} = await session(browser, {...phone, viewport: {width: 320, height: 700}});
+    await page.evaluate(() => { companionPrefs.large = true; companionChrome(); changeRoute('meta'); });
+    const seen = await page.evaluate(() => {
+      const b = document.querySelector('.mobile-health'), strong = b?.querySelector('strong'), size = strong ? parseFloat(getComputedStyle(strong).fontSize) : 0;
+      return {text: (b?.innerText || '').replace(/\s+/g, ' '), badge_height: strong ? Math.round(strong.getBoundingClientRect().height) : 0, one_line_max: Math.round(size * 1.7)};
+    });
+    const named = /Fetched /i.test(seen.text) && /Statz dataset \d/i.test(seen.text) && /Game patch \d/i.test(seen.text);
+    verdict('M2', !named || seen.badge_height > seen.one_line_max, {...seen, named});
+    await context.close();
+  },
+  async M3(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'error', detail: 'A source could not be refreshed for this probe.'}]; Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); });
+    const routes = ['meta', 'builds', 'planner', 'draft', 'live'], seen = {};
+    for (const route of routes) {
+      await page.evaluate(r => changeRoute(r), route);
+      seen[route] = await page.evaluate(() => {
+        const n = document.querySelector('#mobile-limits');
+        if (!n || n.hidden) return {shown: false};
+        const r = n.getBoundingClientRect();
+        return {shown: r.height > 0 && getComputedStyle(n).display !== 'none', height: Math.round(r.height), text: n.innerText.split('\n')[0]};
+      });
+    }
+    const missing = routes.filter(r => !seen[r].shown), tall = routes.filter(r => seen[r].shown && seen[r].height > 96);
+    verdict('M3', missing.length > 0 || tall.length > 0, {missing, tall, meta: seen.meta});
+    await context.close();
+  },
+  async M4(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    const seen = await page.evaluate(() => {
+      const clone = document.querySelector('#main').cloneNode(true);
+      clone.querySelectorAll('details:not([open])').forEach(d => [...d.children].forEach(c => { if (c.tagName !== 'SUMMARY') c.remove(); }));
+      const text = clone.textContent.replace(/\s+/g, ' ');
+      return {visible_source_dates: /(Mechanics|Statistics): /.test(text), sample: (text.match(/.{0,40}(Mechanics|Statistics): .{0,40}/) || [''])[0]};
+    });
+    verdict('M4', seen.visible_source_dates, seen);
+    await context.close();
+  },
+  async M5(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    await page.locator('[data-live-lookup]').first().click();
+    const opened = await page.evaluate(() => ({route: S.route, dialog: !!document.querySelector('#detail')?.open, choices: document.querySelectorAll('#detail [data-pick-live]:not([disabled])').length}));
+    let after = null, undone = null;
+    if (opened.route === 'live' && opened.dialog && opened.choices) {
+      const target = await page.evaluate(() => [...document.querySelectorAll('#detail [data-pick-live]:not([disabled])')].map(b => b.dataset.pickLive).find(v => !v.startsWith('steel|')));
+      await page.locator(`#detail [data-pick-live="${target}"]`).click();
+      const confirm = page.locator('#detail [data-confirm-live]');
+      if (await confirm.count()) {
+        await confirm.click();
+        after = await page.evaluate(() => ({route: S.route, me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role), undo: !!document.querySelector('#undo-banner') && !document.querySelector('#undo-banner').hidden, dialog: !!document.querySelector('#detail')?.open}));
+        after.target = target;
+        if (after.undo) { await page.locator('#undo-action').click(); undone = await page.evaluate(() => ({me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)})); }
+      }
+    }
+    const ok = !!(opened.route === 'live' && opened.dialog && after && after.route === 'live' && !after.dialog && after.me === after.target.split('|')[0] && after.locks.includes(after.target) && !after.locks.includes('steel|jungle') && undone?.me === 'steel' && undone.locks.includes('steel|jungle'));
+    verdict('M5', !ok, {opened, after, undone});
+    await context.close();
+  },
+  async M6(browser) {
+    const {context, page} = await session(browser, phone);
+    const occupant = await page.evaluate(() => { const o = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle')); Object.assign(S, {locks: [{slug: o, role: 'jungle'}], enemies: [], bans: [], me: null}); save(); openHero('steel', 'jungle'); return o; });
+    const button = page.locator('[data-start-live]').first();
+    const enabled = await button.isEnabled();
+    let after = null, undone = null;
+    if (enabled) {
+      await button.click();
+      const confirm = page.locator('#detail [data-confirm-live]');
+      if (await confirm.count()) {
+        const warned = await page.evaluate(o => document.querySelector('#detail').innerText.includes(name(o)), occupant);
+        await confirm.click();
+        after = await page.evaluate(() => ({route: S.route, me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)}));
+        after.warned = warned;
+        if (await page.locator('#undo-banner:not([hidden]) #undo-action').count()) { await page.locator('#undo-action').click(); undone = await page.evaluate(() => ({me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)})); }
+      }
+    }
+    const ok = !!(enabled && after?.warned && after.route === 'live' && after.me === 'steel' && after.locks.includes('steel|jungle') && !after.locks.includes(occupant + '|jungle') && undone?.locks.includes(occupant + '|jungle') && !undone.locks.includes('steel|jungle'));
+    verdict('M6', !ok, {occupant, enabled, after, undone});
+    await context.close();
+  },
+  async M7(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: []}); save(); changeRoute('draft'); });
+    const seen = await page.evaluate(() => {
+      const main = document.querySelector('#main');
+      const lineups = [...main.querySelectorAll('details[data-lineup]')].map(d => ({side: d.dataset.lineup, summary: d.querySelector('summary').innerText.trim(), nested: d.querySelectorAll('details').length, slots: d.querySelectorAll('select[data-slot]').length}));
+      return {lineups, nested_lineup_disclosures: [...main.querySelectorAll('summary')].filter(s => /Edit lineup|other roles/i.test(s.innerText)).length};
+    });
+    const allies = seen.lineups.find(l => l.side === 'allies'), enemies = seen.lineups.find(l => l.side === 'enemies');
+    const ok = !!(seen.lineups.length === 2 && /Allies · 1 of 5 selected/i.test(allies?.summary || '') && /Enemies · 0 of 5 selected/i.test(enemies?.summary || '') && !allies.nested && !enemies.nested && allies.slots === 5 && enemies.slots === 5 && !seen.nested_lineup_disclosures);
+    verdict('M7', !ok, seen);
+    await context.close();
+  },
+  async M8(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { S.role = 'jungle'; S.query = ''; changeRoute('builds'); });
+    await page.locator('#main details.mobile-build-row summary').first().click();
+    const before = await page.evaluate(() => document.querySelector('#main details.mobile-build-row')?.open);
+    await page.evaluate(() => requestRedraw(true));
+    const after = await page.evaluate(() => document.querySelector('#main details.mobile-build-row')?.open);
+    verdict('M8', !(before && after), {before, after});
+    await context.close();
+  },
+  async M9(browser) {
+    const {context, page} = await session(browser, phone);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    const cancel = page.locator('#cancel-generate');
+    const available = !!(await cancel.count()) && await cancel.isVisible();
+    let after = null;
+    if (available) {
+      await cancel.click();
+      await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 10000}).catch(() => {});
+      after = await page.evaluate(() => ({pending: !!search.pending, generate_enabled: !document.querySelector('#generate')?.disabled, label: document.querySelector('#generate')?.textContent, compositions: !!compositions, notice: (document.querySelector('#main').innerText.match(/[^.\n]*cancel[^.\n]*/i) || [null])[0]}));
+    }
+    const ok = !!(available && after && !after.pending && after.generate_enabled && !after.compositions && after.notice);
+    verdict('M9', !ok, {available, after});
     await context.close();
   }
 };
