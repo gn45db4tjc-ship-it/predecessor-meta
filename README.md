@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.24.0
+# Predecessor Meta — 2.25.0
+
+2.25.0 completes the audit repairs: a fresh collection publishes even when a few hero pages fail (with the gaps named), saved offline ranks survive every release and only verified data is stored, five-hero composition search no longer freezes the page, the strategy review packet carries the official changes and is queued in the cloud for human review, and each published rank records who collected it. See [RELEASE-2.25.0.md](RELEASE-2.25.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.25.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.25.0 merge commit on `main`.
+
+## Previous release: 2.24.0
 
 2.24.0 is a reliability release: composition results always match the current draft, evidence age is described once and redrawn when it changes, and every publication path validates rows the same way. See [RELEASE-2.24.0.md](RELEASE-2.24.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.24.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.24.0 merge commit on `main`.
 
