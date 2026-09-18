@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -48,14 +49,16 @@ def package(node=None):
         result = subprocess.run([sys.executable,'-X','utf8','-B','-m','unittest','discover','-s','tests',
                                  '-p','test_static*.py','-q'],cwd=clean,capture_output=True,text=True,encoding='utf8')
         if result.returncode: raise RuntimeError(result.stdout+'\n'+result.stderr)
-        if node:
-            js = subprocess.run([node,'--test',*[p.relative_to(clean).as_posix() for p in sorted((clean/'tests').glob('*.test.cjs'))]],cwd=clean,
-                                capture_output=True,text=True,encoding='utf8')
-            if js.returncode: raise RuntimeError(js.stdout+'\n'+js.stderr)
+        # The JavaScript suite is mandatory: a package whose engine tests were skipped is not verified.
+        node = node or shutil.which('node')
+        if not node: raise RuntimeError('Node.js was not found. Install Node 22 or newer, or pass --node <path>; the JavaScript suite cannot be skipped.')
+        js = subprocess.run([node,'--test',*[p.relative_to(clean).as_posix() for p in sorted((clean/'tests').glob('*.test.cjs'))]],cwd=clean,
+                            capture_output=True,text=True,encoding='utf8')
+        if js.returncode: raise RuntimeError(js.stdout+'\n'+js.stderr)
     receipt = {'archive':str(archive),'bytes':archive.stat().st_size,'files':len(files),
                'sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
                'clean_python_tests':re.search(r'Ran (\d+) tests',result.stderr).group(1)+' passed',
-               'clean_javascript_tests':re.search(r'(?:#|ℹ) pass (\d+)',js.stdout).group(1)+' passed' if node else 'not run'}
+               'clean_javascript_tests':re.search(r'(?:#|ℹ) pass (\d+)',js.stdout).group(1)+' passed'}
     print(json.dumps(receipt,indent=2))
     return receipt
 
