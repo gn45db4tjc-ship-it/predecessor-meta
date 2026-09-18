@@ -1,4 +1,4 @@
-"""Package and independently verify the source-only 2.25.0 release."""
+"""Package and independently verify the source-only 2.26.0 release."""
 import argparse
 import hashlib
 import json
@@ -19,7 +19,7 @@ FILES = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.
 FILES += ['RELEASE-2.21.7.md','STRATEGY-REVIEW-2026-09-14.json','STRATEGY-REVIEW-VERIFICATION.json']
 FILES += ['RELEASE-2.21.8.md','mobile.js','mobile.css','RELEASE-2.22.0.md','RELEASE-2.23.0.md','app.webmanifest','sw.js','assets/app-icon-192.png','assets/app-icon-512.png']
 # Verification tooling: pinned development dependencies and the audit-regression ledger.
-FILES += ['package.json','package-lock.json','tests/known-defects.json','RELEASE-2.24.0.md','review_queue.cjs','RELEASE-2.25.0.md']
+FILES += ['package.json','package-lock.json','tests/known-defects.json','RELEASE-2.24.0.md','review_queue.cjs','RELEASE-2.25.0.md','RELEASE-2.26.0.md']
 
 def package(node=None):
     files = [ROOT / name for name in FILES]
@@ -28,11 +28,11 @@ def package(node=None):
         files += sorted((ROOT / 'tests').rglob(extension))
     hashes = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     assert len(files) == len(hashes)
-    manifest = {'version':'2.25.0','hosting_revision':9,'design_revision':3,
+    manifest = {'version':'2.26.0','hosting_revision':10,'design_revision':4,
                 'baseline_commit':'cfb96ba7e817d6ae3dbfe3c642a95832f299f1de',
-                'verification_report':'RELEASE-2.25.0.md','files':hashes}
+                'verification_report':'RELEASE-2.26.0.md','files':hashes}
     (ROOT / 'SOURCE-MANIFEST.json').write_bytes((json.dumps(manifest,indent=2)+'\n').encode('utf8'))
-    archive = ROOT.parent / 'Predecessor Meta Tool 2.25.0 - Source.zip'
+    archive = ROOT.parent / 'Predecessor Meta Tool 2.26.0 - Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for p in files + [ROOT/'SOURCE-MANIFEST.json']:
             z.write(p,p.relative_to(ROOT).as_posix())
