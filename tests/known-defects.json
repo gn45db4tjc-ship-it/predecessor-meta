@@ -50,6 +50,10 @@
     "M6": "PHONE: \"Use in Live\" on a hero page replaces an ally holding that role after a preview that names them, instead of sending the user to Draft; Undo restores the ally",
     "M7": "PHONE: Draft shows allies and enemies as two separate lineups with selected counts, without nested \"Edit lineup\" disclosures",
     "M8": "PHONE: a redraw keeps disclosures the user opened",
-    "M9": "A running composition search can be cancelled; the button returns, no result is applied and the page says it was cancelled"
+    "M9": "A running composition search can be cancelled; the button returns, no result is applied and the page says it was cancelled",
+    "M10": "PHONE/DESKTOP: a section opened on one screen or hero never opens the matching section on another screen or hero",
+    "M11": "PHONE: \"Open Sources & accuracy\" from the limitations list leaves focus on the Sources page, not on the limitations bar",
+    "M12": "PHONE: the Compositions lineup counts allied picks against the combination size (\"1 of 2 selected\")",
+    "M13": "Cancel is offered only while a background search can be cancelled, never for the main-thread fallback"
   }
 }

@@ -654,12 +654,14 @@ const probes = {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
     const seen = await page.evaluate(() => {
-      const clone = document.querySelector('#main').cloneNode(true);
+      const main = document.querySelector('#main'), clone = main.cloneNode(true);
       clone.querySelectorAll('details:not([open])').forEach(d => [...d.children].forEach(c => { if (c.tagName !== 'SUMMARY') c.remove(); }));
-      const text = clone.textContent.replace(/\s+/g, ' ');
-      return {visible_source_dates: /(Mechanics|Statistics): /.test(text), sample: (text.match(/.{0,40}(Mechanics|Statistics): .{0,40}/) || [''])[0]};
+      const text = clone.textContent.replace(/\s+/g, ' '), all = main.textContent.replace(/\s+/g, ' ');
+      // Any per-source date wording counts: the old "Statistics: <date>" and the new "Statistics fetched <date>".
+      const dated = /(Mechanics|Statistics)(: | fetched )/;
+      return {visible_source_dates: dated.test(text), dates_behind_a_tap: dated.test(all) && !dated.test(text), sample: (text.match(/.{0,40}(Mechanics|Statistics)(: | fetched ).{0,40}/) || [''])[0]};
     });
-    verdict('M4', seen.visible_source_dates, seen);
+    verdict('M4', seen.visible_source_dates || !seen.dates_behind_a_tap, seen);
     await context.close();
   },
   async M5(browser) {
@@ -743,6 +745,60 @@ const probes = {
     }
     const ok = !!(available && after && !after.pending && after.generate_enabled && !after.compositions && after.notice);
     verdict('M9', !ok, {available, after});
+    await context.close();
+  },
+  async M10(browser) {
+    // A section opened on one screen must not open the matching section on another screen or another hero.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size: 3}); save(); changeRoute('draft'); });
+    const draftOpened = await page.evaluate(() => { const d = document.querySelector('#main details[data-lineup="allies"]'); if (d) d.open = true; return !!d?.open; });
+    await page.evaluate(() => changeRoute('planner'));
+    const planner = await page.evaluate(() => document.querySelector('#main details[data-lineup="allies"]')?.open ?? null);
+    const desktopPage = await context.newPage();
+    await desktopPage.setViewportSize({width: 1440, height: 900});
+    await desktopPage.goto(url); await desktopPage.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const hero = await desktopPage.evaluate(() => {
+      openHero('steel', 'jungle'); document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+      const other = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle'));
+      openHero(other, 'jungle');
+      const all = [...document.querySelectorAll('#main details')];
+      return {other, open: all.filter(d => d.open).length, total: all.length};
+    });
+    // Reference: the same hero opened fresh, with nothing opened before.
+    const fresh = await desktopPage.evaluate(o => { changeRoute('meta'); openHero(o, 'jungle'); return [...document.querySelectorAll('#main details')].filter(d => d.open).length; }, hero.other);
+    verdict('M10', !draftOpened || planner !== false || hero.open !== fresh, {draft_opened: draftOpened, planner_allies_open: planner, other_hero_open_sections: hero.open, fresh_open_sections: fresh, total: hero.total});
+    await context.close();
+  },
+  async M11(browser) {
+    // "Open Sources & accuracy" from the limitations list lands the user on that page, not back on the limitations bar.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'warning', detail: 'A source note for this probe.'}]; changeRoute('meta'); });
+    await page.locator('#mobile-limits').click();
+    await page.locator('#detail [data-limits-sources]').click();
+    await page.waitForTimeout(300);
+    const seen = await page.evaluate(() => ({route: S.route, focused: document.activeElement?.id || document.activeElement?.tagName, in_main: !!document.querySelector('#main')?.contains(document.activeElement), dialog: !!document.querySelector('#detail')?.open}));
+    verdict('M11', !(seen.route === 'data' && seen.in_main && !seen.dialog), seen);
+    await context.close();
+  },
+  async M12(browser) {
+    // On Compositions the allied lineup counts against the combination size, as the heading does.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size: 2}); save(); changeRoute('planner'); });
+    const summary = await page.evaluate(() => document.querySelector('#main details[data-lineup="allies"] > summary')?.innerText.trim() || '');
+    verdict('M12', !/1 of 2 selected/.test(summary), {summary});
+    await context.close();
+  },
+  async M13(browser) {
+    // Cancel is offered only while a background search can actually be cancelled (never for the main-thread fallback).
+    const {context, page} = await session(browser, phone);
+    await reset(page, 3);
+    await page.evaluate(() => { stopSearchWorker(true); changeRoute('planner');
+      window.__cancelShown = false; const watch = () => { const c = document.querySelector('#cancel-generate'); if (c && !c.hidden) window.__cancelShown = true; };
+      new MutationObserver(watch).observe(document.querySelector('#main'), {subtree: true, attributes: true, childList: true}); });
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    const seen = await page.evaluate(() => ({fallback: search.unavailable, cancel_shown: window.__cancelShown, alternatives: compositions?.alternatives?.length || 0}));
+    verdict('M13', seen.cancel_shown, seen);
     await context.close();
   }
 };
