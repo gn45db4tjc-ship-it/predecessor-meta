@@ -147,6 +147,7 @@ class RunFetchCache:
 COLLECTOR_HOST = None   # the Windows updater sets this to 'windows'; GitHub Actions is detected; anything else is 'local'
 COLLECTOR_HOSTS = ('cloud', 'windows', 'local')
 CORE_SOURCES = ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items')
+DATED_SOURCES = CORE_SOURCES + ('pred_scoped', 'pred_game_data')
 
 
 def collector_identity():
@@ -164,20 +165,23 @@ def validate_collector(bundle):
     collector = bundle.get('collector')
     if collector is None:
         return   # collected before provenance was recorded; the manifest says so
-    if not isinstance(collector, dict) or collector.get('host') not in COLLECTOR_HOSTS or set(collector) - {'host', 'run_id', 'run_attempt', 'tool_version'}:
+    if not isinstance(collector, dict) or collector.get('host') not in COLLECTOR_HOSTS or set(collector) - {'host', 'run_id', 'run_attempt', 'tool_version', 'retained_from'}:
         raise ValueError('Bundle carries an invalid collector record')
+    if 'retained_from' in collector and collector['retained_from'] not in COLLECTOR_HOSTS + ('unrecorded',):
+        raise ValueError('Bundle carries an invalid collector retained_from')
     for key in ('run_id', 'run_attempt', 'tool_version'):
         value = collector.get(key)
         if value is not None and (not isinstance(value, str) or not re.fullmatch(r'[0-9A-Za-z._-]{1,40}', value)):
             raise ValueError('Bundle carries an invalid collector ' + key)
 
 
-def older_core_sources(previous, incoming):
-    """Core sources whose fetch date in an incoming bundle is older than what is already published.
+def older_sources(previous, incoming):
+    """Dated sources (Statz, Omeda and Pred.gg) whose fetch date in an incoming bundle is older than, or missing
+    compared with, what is already published.
 
     A newer assembly date never makes an older source fresh, so such a bundle must not replace the publication."""
     older = []
-    for key in CORE_SOURCES:
+    for key in DATED_SOURCES:
         before = (previous.get('sources') or {}).get(key) or {}
         after = (incoming.get('sources') or {}).get(key) or {}
         try:
@@ -592,7 +596,17 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
                     bundle['collector'] = collector_identity()
+                    if any(((bundle.get('sources') or {}).get(key) or {}).get('status') == 'retained' for key in DATED_SOURCES):
+                        # Retained sources keep their original dates; name who collected them, not only who assembled this.
+                        prior = (previous or {}).get('collector') or {}
+                        bundle['collector']['retained_from'] = prior.get('retained_from') or prior.get('host') or 'unrecorded'
                     complete, why = base.bundle_is_complete(bundle)
+                    pages = (bundle.get('sources') or {}).get('statz_hero_pages') or {}
+                    if not complete and pages.get('failed') and not any(e.get('severity') == 'error' and str(e.get('source', '')).startswith('statz.gg hero pages') for e in bundle.get('errors', [])):
+                        # A tolerated gap is still a required-source failure: it is named, retried and reported the
+                        # same way whether or not Pred.gg is also unavailable, while the collected roles publish.
+                        bundle.setdefault('errors', []).append({'source': 'statz.gg hero pages', 'severity': 'error',
+                            'detail': '%d of %d hero/role pages failed. The collected roles were published; the failed roles have no hero-page statistics until a later collection succeeds.' % (pages['failed'], pages.get('requested') or 0)})
                     if not complete and not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
                         # A small Statz gap may have only per-page warnings. Name
                         # the structural failure before persisting valid Pred data.

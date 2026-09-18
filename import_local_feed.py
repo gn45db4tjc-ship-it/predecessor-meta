@@ -45,7 +45,7 @@ def import_feed(feed, state_folder):
             if (bundle.get('collector') or {}).get('host')=='cloud':
                 raise ValueError('A Windows feed cannot carry a bundle that claims cloud collection')
             old=p.load_publication(state_folder,bracket)
-            older=p.older_core_sources(old,bundle) if old else []
+            older=p.older_sources(old,bundle) if old else []
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
                 results[bracket]='retained newer or identical bundle'
             elif older:
@@ -61,10 +61,14 @@ def import_feed(feed, state_folder):
     # A daily cloud attempt must not be reset by importing the same older Windows
     # receipt on each three-hour patch check. Bundles and attempt clocks each
     # advance monotonically; a newer assembly never makes an old source fresh.
+    # Only an upload that was imported (or that failed validation, which the owner must see) speaks for a bracket;
+    # a refused or absent upload never replaces the cloud's attempt or moves its collection clock.
+    imported=[b for b,r in results.items() if r=='imported']
     incoming_at=receipt.get('last_full_attempt_at')
     existing_at=state.get('last_full_attempt_at')
-    newer_attempt=bool(incoming_at and (not existing_at or p.utc_time(incoming_at)>p.utc_time(existing_at)))
+    newer_attempt=bool(imported and incoming_at and (not existing_at or p.utc_time(incoming_at)>p.utc_time(existing_at)))
     for bracket,attempt in attempts.items():
+        if results.get(bracket) not in ('imported','failed'):continue
         current=state.setdefault('attempts',{}).get(bracket,{})
         stamp=attempt.get('at');current_stamp=current.get('at')
         if not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp))):

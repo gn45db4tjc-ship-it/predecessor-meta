@@ -127,11 +127,13 @@ def run_once(*, force=False, collect_only=False, publish_only=False):
             publication.write_json(status_path, status)
             config = publication.CONFIG
             try:
+                host = publication.COLLECTOR_HOST
                 publication.CONFIG = dict(config, cloud_collection_paused_reason=None)
                 publication.COLLECTOR_HOST = 'windows'
                 publication.run(state_folder, PRIVATE/'preview', manual=force)
             finally:
                 publication.CONFIG = config
+                publication.COLLECTOR_HOST = host
             status.update(status='collected', pending_publish=True)
             publication.write_json(status_path, status)
         if collect_only:
