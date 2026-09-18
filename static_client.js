@@ -123,9 +123,14 @@ if (APP_CONFIG.mode === 'static') {
   // release's worker deletes this cache (and this release's shell) instead of serving a frozen copy from it.
   const DATA_CACHE = 'predecessor-meta-data-v1';
   const savedBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/) || [])[1];
-  // true or false when the offline store can be read, null when it cannot (the answer is then not claimed either way).
+  // {saved, worker} when the offline store can be read, null when it cannot (then nothing is claimed either way).
   async function savedOnThisDevice(bracket) {
-    try { if (!globalThis.caches) return null; return (await (await caches.open(DATA_CACHE)).keys()).some(r => savedBracket(r.url) === bracket); } catch { return null; }
+    try {
+      if (!globalThis.caches) return null;
+      const saved = (await (await caches.open(DATA_CACHE)).keys()).some(r => savedBracket(r.url) === bracket);
+      const worker = !!(await navigator.serviceWorker?.getRegistration?.().catch(() => null));
+      return {saved, worker};
+    } catch { return null; }
   }
   async function commitPublication(manifest, bracket, entry, bytes) {
     if (!globalThis.caches || connectionLost) return;
@@ -227,7 +232,7 @@ if (APP_CONFIG.mode === 'static') {
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
       const savedHere = !B && (!navigator.onLine || connectionLost) ? await savedOnThisDevice(requested) : null;
       if (sequence !== site.sequence || requested !== S.bracket) return;
-      latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : savedHere === true ? 'This rank is saved on this device, but the page could not open the saved copy. Reload the page to use it.' : savedHere === false ? 'This rank is not saved on this device. Open it once while online to keep it for offline use.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
+      latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : savedHere?.saved ? (savedHere.worker ? 'A copy of this rank is saved on this device. Reload the page to open it.' : 'A copy of this rank is saved on this device, but offline support is not active in this browser, so it cannot be opened while offline.') : savedHere ? 'This rank is not saved on this device. Open it once while online to keep it for offline use.' : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
       redrawForEvidence();
     } finally { clearTimeout(timeout); if (sequence === site.sequence) site.controller = null; }
   }

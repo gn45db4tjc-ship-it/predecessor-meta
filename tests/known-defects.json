@@ -59,13 +59,15 @@
     "P2": "Cancelling a new search while earlier alternatives are shown says so in the panel and keeps them; the note is gone while a new search runs and after an alternative is used",
     "P3": "PHONE: the Live hero picker marks a sample under 100 games, as the Meta list does",
     "P4": "PHONE: a fetch time ahead of the device clock is never described as \"less than 1h ago\"",
-    "P5": "PHONE: Top five explains an empty or short list with the real reason (too few games, or statistics paused), in correct grammar; a paused list never claims there is no sample",
+    "P5": "PHONE: Top five and the hero list give the real reason for missing numbers (too few games, a page that failed to load, statistics paused or unavailable), in correct grammar, and a paused page never claims an ordering by performance",
     "P6": "PHONE: the hero page names the source of the numbers shown next to the review status",
     "P7": "GUARD: the website never calls the definition review current when official patch content changed after the collection",
     "P8": "Review dates are shown as dates, not raw timestamps, on the pages and in the tier-decision and reviewed-definition dialogs",
     "P9": "PHONE: at 320 px with large text the rank select shows its whole label and the Situation item picker is full width",
     "P10": "Light theme: pressed build-variant buttons on the hero page meet WCAG AA contrast",
-    "P11": "Offline, choosing a rank says truthfully whether it is saved on this device (saved but unreachable: reload; not saved: open it online)",
-    "P12": "Keyboard focus moves to Cancel while a search runs and back to Generate after cancelling"
+    "P11": "Offline, choosing a rank says truthfully whether it is saved on this device and never promises that a reload opens it when offline support is not active",
+    "P12": "A second Enter on Generate never cancels the search it started; after Cancel focus returns to Generate and the toast agrees with the panel",
+    "P13": "A redraw keeps keyboard focus on the lineup select the user was on",
+    "P14": "When only the search options change during a search, the discarded result names the search options, not the picks"
   }
 }
