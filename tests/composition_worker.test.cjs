@@ -10,7 +10,15 @@ function synthetic() {
   const roles = ['jungle', 'midlane', 'support', 'offlane', 'carry'], heroes = {}, pairs = {};
   for (let i = 0; i < 20; i++) {
     const role = roles[i % 5], slug = 'hero' + String(i).padStart(2, '0');
-    heroes[slug] = {slug, display_name: 'Fixture ' + i, roles_order: [role], abilities: [], capabilities: [], roles: {[role]: {status: 'ok', tier: 'A', winRate: 45 + (i * 7) % 11, pickRate: 3, playedGames: 300 + i}}};
+    heroes[slug] = {slug, display_name: 'Fixture ' + i, roles_order: [role], abilities: [], capabilities: [], roles: {[role]: {status: 'ok', tier: 'A', winRate: 45 + (i * 7) % 11, pickRate: 3, playedGames: 300 + i}},
+      hero_wide: {winRate: 46 + (i * 5) % 9}};
+  }
+  // Pair observations with varied lift, so 'lift' and 'meta' order alternatives differently even without the seed.
+  const slugs = Object.keys(heroes);
+  for (let i = 0; i < slugs.length; i++) for (let j = i + 1; j < slugs.length; j++) {
+    if (i % 5 === j % 5) continue;
+    const [a, b] = [slugs[i], slugs[j]].sort();
+    pairs[a + '|' + b] = {a, b, wr: 44 + ((i * 7 + j * 3) % 15), played: 150 + ((i + j) * 11) % 90};
   }
   return {patch: '1.16', bracket: {segment: 'gold', label: 'Gold+'}, pairs, heroes, items: {}, perks: {},
     official: {status: 'verified', live: {version: '1.16.4'}},
@@ -23,6 +31,17 @@ function seed() {
 }
 const jungler = b => Object.keys(b.heroes).find(slug => b.heroes[slug].roles?.jungle?.status === 'ok');
 const cases = b => [2, 3, 5].flatMap(size => ['lift', 'meta'].map(metric => ({locks: [{slug: jungler(b), role: 'jungle'}], options: {size, bans: [], enemies: [], metric, preferredRole: 'jungle', requiredRole: '', includeUnsampled: false}})));
+/* Every option the page sends: bans and an enemy pick taken from the unconstrained result, a required role and unsampled heroes. */
+function constrainedCases(b) {
+  const E = Meta.create(b), locks = [{slug: jungler(b), role: 'jungle'}];
+  const first = E.generate(locks, {size: 3, metric: 'lift', preferredRole: 'jungle'}).alternatives[0].picks.filter(p => p.slug !== locks[0].slug);
+  const [banned, enemy] = first;
+  return [
+    {locks, options: {size: 3, bans: [banned.slug], enemies: [enemy], metric: 'lift', preferredRole: 'jungle', requiredRole: '', includeUnsampled: false}, banned: banned.slug, enemy: enemy.slug},
+    {locks, options: {size: 5, bans: [banned.slug], enemies: [enemy], metric: 'meta', preferredRole: 'jungle', requiredRole: 'support', includeUnsampled: true}, banned: banned.slug, enemy: enemy.slug},
+    {locks, options: {size: 2, bans: [], enemies: [enemy], metric: 'lift', preferredRole: 'jungle', requiredRole: 'carry', includeUnsampled: false}, banned: null, enemy: enemy.slug},
+  ];
+}
 
 /* The harness string from ui.js, run as a worker would run it: engine source first, then the harness. */
 function workerFromPage() {
@@ -56,6 +75,30 @@ for (const [name, make] of [['synthetic roster', synthetic], ['committed public 
       const reply = worker.posted.filter(m => m.id === index + 1 && m.type !== 'progress');
       assert.deepEqual(reply.map(m => m.type), ['result']);
       assert.equal(JSON.stringify(reply[0].result), JSON.stringify(E.generate(locks, options)));
+    });
+  });
+}
+
+test('the metric changes the order on the synthetic roster, so metric parity is really tested without the seed', () => {
+  const b = synthetic(), E = Meta.create(b), locks = [{slug: jungler(b), role: 'jungle'}];
+  const order = metric => E.generate(locks, {size: 3, metric}).alternatives.map(c => c.picks.map(p => p.slug).join('+'));
+  assert.notDeepEqual(order('lift'), order('meta'));
+});
+
+for (const [name, make] of [['synthetic roster', synthetic], ['committed public seed', seed]]) {
+  test('bans, enemy picks, a required role and unsampled heroes reach the worker unchanged (' + name + ')', t => {
+    const b = make(); if (!b) return t.skip('the public seed is not part of the source package');
+    const E = Meta.create(b), worker = workerFromPage();
+    worker.send({type: 'bundle', bundle: b, generation: 1});
+    constrainedCases(b).forEach(({locks, options, banned, enemy}, index) => {
+      worker.send({type: 'generate', id: 100 + index, generation: 1, locks, options});
+      const reply = worker.posted.filter(m => m.id === 100 + index && m.type !== 'progress');
+      assert.deepEqual(reply.map(m => m.type), ['result']);
+      assert.equal(JSON.stringify(reply[0].result), JSON.stringify(E.generate(locks, options)));
+      const offered = reply[0].result.alternatives.flatMap(c => c.picks.map(p => p.slug));
+      assert.ok(offered.length > 0, 'the fixture should still produce alternatives');
+      assert.ok(!offered.includes(banned) && !offered.includes(enemy), 'a banned or enemy-picked hero was offered');
+      if (options.requiredRole) assert.ok(reply[0].result.alternatives.every(c => c.picks.some(p => p.role === options.requiredRole)));
     });
   });
 }
