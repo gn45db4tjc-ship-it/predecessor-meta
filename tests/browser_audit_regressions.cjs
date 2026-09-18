@@ -800,6 +800,132 @@ const probes = {
     const seen = await page.evaluate(() => ({fallback: search.unavailable, cancel_shown: window.__cancelShown, alternatives: compositions?.alternatives?.length || 0}));
     verdict('M13', seen.cancel_shown, seen);
     await context.close();
+  },
+  /* 2.26.1: findings from the live verification of 2.26.0. */
+  async P1(browser) {
+    // Two sources that fail with the same text are two limitations, not one.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      B.errors = [...(B.errors || []), {source: 'Probe source A', severity: 'error', detail: 'Same failure text.'}, {source: 'Probe source B', severity: 'error', detail: 'Same failure text.'}];
+      changeRoute('builds'); changeRoute('meta');
+      const items = limitationItems();
+      return {a: items.some(i => i.source === 'Probe source A'), b: items.some(i => i.source === 'Probe source B'), line: document.querySelector('#mobile-limits strong')?.innerText || ''};
+    });
+    verdict('P1', !(seen.a && seen.b), seen);
+    await context.close();
+  },
+  async P2(browser) {
+    // Cancelling a new search while earlier alternatives are shown says so in the panel, and keeps them.
+    const {context, page} = await session(browser, phone);
+    await reset(page, 5);
+    await generate(page);
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    const cancel = page.locator('#cancel-generate');
+    if (await cancel.isVisible()) await cancel.click();
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 20000}).catch(() => {});
+    const seen = await page.evaluate(() => ({kept: compositions?.alternatives?.length || 0, panel: (document.querySelector('#main').innerText.match(/[^.\n]*cancel[^.\n]*/i) || [null])[0]}));
+    verdict('P2', !(seen.kept > 0 && seen.panel), seen);
+    await context.close();
+  },
+  async P3(browser) {
+    // The Live hero picker marks a sample under 100 games, as the Meta list does.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live');
+      const slug = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle'));
+      const original = E.performance;
+      E.performance = p => { const r = original(p); return p.slug === slug && p.role === 'jungle' && r ? {...r, played: 42} : r; };
+      try { showLivePicker('jungle', true); const row = document.querySelector(`#detail [data-pick-live="${slug}|jungle"]`); return {slug, text: (row?.innerText || '').replace(/\s+/g, ' ')}; }
+      finally { E.performance = original; document.querySelector('#detail').close(); }
+    });
+    verdict('P3', !/small sample/i.test(seen.text), seen);
+    await context.close();
+  },
+  async P4(browser) {
+    // A fetch time ahead of this device's clock is never described as "less than 1h ago".
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      const s = B.sources.statz_hero_pages, saved = s.fetched_at, health = latestStatus.health;
+      s.fetched_at = new Date(Date.now() + 2 * 3600000).toISOString(); latestStatus.health = null;
+      try { changeRoute('builds'); changeRoute('meta'); return {text: (document.querySelector('.mobile-health')?.innerText || '').replace(/\s+/g, ' ')}; }
+      finally { s.fetched_at = saved; latestStatus.health = health; }
+    });
+    verdict('P4', /less than 1h ago/i.test(seen.text) || !/Fetched/i.test(seen.text), seen);
+    await context.close();
+  },
+  async P5(browser) {
+    // When no hero reaches 100 games in a role, Top five says why instead of showing nothing.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      const original = E.performance;
+      E.performance = p => { const r = original(p); return p.role === 'jungle' && r ? {...r, played: Math.min(r.played, 60)} : r; };
+      try {
+        S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta');
+        const section = [...document.querySelectorAll('#main section')].find(s => /Top five/.test(s.querySelector('h2')?.innerText || ''));
+        return {tiles: section ? section.querySelectorAll('.mobile-hero-card').length : null, text: (section?.innerText || '').replace(/\s+/g, ' ')};
+      } finally { E.performance = original; render(); }
+    });
+    verdict('P5', !(seen.tiles === 0 && /100 or more/i.test(seen.text)), seen);
+    await context.close();
+  },
+  async P6(browser) {
+    // The hero page names the source of the numbers next to a paused or retained review status.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => { openHero('steel', 'jungle'); const p = E.performance({slug: 'steel', role: 'jungle'}); return {source: p?.source || null, line: (document.querySelector('.mobile-hero-head p')?.innerText || '').replace(/\s+/g, ' ')}; });
+    verdict('P6', !(seen.source && seen.line.includes(seen.source + ' ')), seen);
+    await context.close();
+  },
+  async P7(browser) {
+    // On the website, a verified patch check this session is not described as "live check pending"; offline it still is.
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(() => {
+      changeRoute('data'); const text = document.querySelector('#main').innerText;
+      const online = definitionReviewStatus(); connectionLost = true; const offline = definitionReviewStatus(); connectionLost = false; render();
+      return {verified: B.official?.status, reviewed: B.definition_review?.status, online, offline, shown_pending: /live check pending/.test(text)};
+    });
+    verdict('P7', seen.verified === 'verified' && seen.reviewed === 'reviewed for current patch' && (seen.shown_pending || !/pending/.test(seen.offline)), seen);
+    await context.close();
+  },
+  async P8(browser) {
+    // Review dates are shown as dates, not raw timestamps.
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(() => { const out = {}; for (const r of ['data', 'guidance']) { changeRoute(r); out[r] = (document.querySelector('#main').innerText.match(/.{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.{0,10}/g) || []).slice(0, 3); } return out; });
+    verdict('P8', seen.data.length + seen.guidance.length > 0, seen);
+    await context.close();
+  },
+  async P9(browser) {
+    // At 320 px with large text the rank select shows its whole label and the Situation item picker is full width.
+    const {context, page} = await session(browser, {...phone, viewport: {width: 320, height: 700}});
+    await page.evaluate(() => { companionPrefs.large = true; companionChrome(); Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    const rank = await page.evaluate(() => { const s = document.querySelector('#bracket'); return {width: Math.round(s.getBoundingClientRect().width), text: s.options[s.selectedIndex]?.text || ''}; });
+    await page.locator('[data-edit-situation]').first().click();
+    const dialog = await page.evaluate(() => ({select: Math.round(document.querySelector('#detail #live-owned-add')?.getBoundingClientRect().width || 0), body: Math.round(document.querySelector('#detail-body')?.getBoundingClientRect().width || 0)}));
+    verdict('P9', rank.width < 140 || dialog.select < dialog.body * 0.7, {rank, dialog});
+    await context.close();
+  },
+  async P10(browser) {
+    // Light theme: the pressed build-variant buttons on the hero page meet WCAG AA contrast.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => localStorage.setItem('predecessor-theme', 'light'));
+    await page.reload(); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    // Open the first hero whose build tab offers at least two variants, with two pressed.
+    await page.evaluate(() => { for (const slug of Object.keys(E.heroes).sort()) for (const role of E.roles(slug)) { S.variants = [0, 1]; save(); openHero(slug, role); if (document.querySelectorAll('[data-variant][aria-pressed="true"]').length >= 2) return; } });
+    await page.addScriptTag({path: process.env.AXE_PATH || require.resolve('axe-core/axe.min.js')});
+    const seen = await page.evaluate(async () => { const r = await axe.run(document.querySelector('#main'), {runOnly: {type: 'rule', values: ['color-contrast']}}); return {theme: document.documentElement.dataset.theme, pressed: document.querySelectorAll('[data-variant][aria-pressed="true"]').length, violations: r.violations.flatMap(v => v.nodes.map(n => n.target.join(' '))).slice(0, 5)}; });
+    verdict('P10', seen.violations.length > 0 || !seen.pressed, seen);
+    await context.close();
+  },
+  async P11(browser) {
+    // Offline, choosing a rank that is not saved on this device says so, instead of a generic failure.
+    const {context, page} = await session(browser, phone);
+    await context.setOffline(true);
+    await page.evaluate(() => { const s = document.querySelector('#bracket'); s.value = 'diamond'; s.dispatchEvent(new Event('change', {bubbles: true})); });
+    await page.waitForTimeout(1500);
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 30000}).catch(() => {});
+    const seen = await page.evaluate(() => ({loaded: !!B, bracket: S.bracket, text: document.querySelector('#main').innerText.replace(/\s+/g, ' ').slice(0, 240)}));
+    verdict('P11', !/not saved on this device/i.test(seen.text), seen);
+    await context.close();
   }
 };
 
