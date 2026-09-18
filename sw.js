@@ -5,9 +5,11 @@
 //   release. This worker never writes network responses into it. The page stores a bundle there only
 //   after verifying its checksum and structure (static_client.js, commitPublication), so an unverified
 //   or malformed response can never replace a verified bracket.
-const SHELL_CACHE = 'predecessor-shell-v2-25';
-const DATA_CACHE = 'predecessor-data-v1';
-const LEGACY_PREFIX = 'predecessor-meta-';   // releases up to 2.24 kept shell and data together
+// Both names keep the 'predecessor-meta-' prefix on purpose: if the website is rolled back to 2.24 or earlier,
+// that release's worker deletes them on activation and starts saving afresh, instead of serving a frozen copy.
+const SHELL_CACHE = 'predecessor-meta-shell-v2-25';
+const DATA_CACHE = 'predecessor-meta-data-v1';
+const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shell and data together in one cache
 const ROOT = new URL('./', self.location.href);
 const SHELL = ['./', 'app.webmanifest', 'assets/app-icon-192.png', 'assets/app-icon-512.png'];
 const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-([a-f0-9]{64})\.json$/;
@@ -75,11 +77,11 @@ async function reconcileManifest(data, reference) {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    for (const key of keys.filter(key => key.startsWith(LEGACY_PREFIX))) {
+    for (const key of keys.filter(key => LEGACY.test(key))) {
       // Delete a legacy cache only after its saved brackets have been moved. If the move fails, keep it.
       try { await migrateLegacy(key); await caches.delete(key); } catch (error) { console.warn('Saved brackets were left in place:', error); }
     }
-    await Promise.all(keys.filter(key => key.startsWith('predecessor-shell-') && key !== SHELL_CACHE).map(key => caches.delete(key)));
+    await Promise.all(keys.filter(key => key.startsWith('predecessor-meta-shell-') && key !== SHELL_CACHE).map(key => caches.delete(key)));
     await self.clients.claim();
   })());
 });
@@ -106,6 +108,11 @@ async function networkFirst(request, {data = false, fallback = null} = {}) {
     if (!response.ok) throw new Error('Publication unavailable');
     return data ? response : rememberShell(request, response);   // data is stored by the page, after verification
   } catch (error) {
+    // Before serving the saved manifest, make sure it describes bundles that are actually saved (a backstop for
+    // browsers without Web Locks, where two tabs could commit at the same moment).
+    if (data && new URL(request.url).pathname.endsWith('/manifest.json')) {
+      try { await reconcileManifest(await caches.open(DATA_CACHE), null); } catch (problem) { console.warn('Saved manifest left as is:', problem); }
+    }
     const cached = await caches.match(request) || (fallback && await caches.match(fallback));
     if (cached) return offlineCopy(cached);
     throw error;

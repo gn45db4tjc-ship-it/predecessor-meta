@@ -119,40 +119,49 @@ if (APP_CONFIG.mode === 'static') {
   // Offline copies are written here, by the page, and only for a bundle that passed its checksum and structure
   // checks. Order matters: save the new bundle, then a manifest that describes exactly what is saved, and only
   // then remove this bracket's older bundle. A failure at any step leaves the previous saved copy usable.
-  const DATA_CACHE = 'predecessor-data-v1';
-  async function commitPublication(manifest, bracket, entry) {
+  // Named with the 'predecessor-meta-' prefix on purpose: if the website is ever rolled back to 2.24 or earlier, that
+  // release's worker deletes this cache (and this release's shell) instead of serving a frozen copy from it.
+  const DATA_CACHE = 'predecessor-meta-data-v1';
+  const savedBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/) || [])[1];
+  async function commitPublication(manifest, bracket, entry, bytes) {
     if (!globalThis.caches || connectionLost) return;
+    // One commit at a time across every open tab, so no tab writes a manifest from an outdated view of what is saved.
+    const commit = () => commitNow(manifest, bracket, entry, bytes);
     try {
-      const data = await caches.open(DATA_CACHE), bundleURL = siteURL(entry.url), manifestURL = siteURL(APP_CONFIG.manifest), fresh = site.verifiedBytes;
-      if (fresh?.url === entry.url) { await data.put(bundleURL, new Response(fresh.bytes, {headers: {'Content-Type': 'application/json'}})); site.verifiedBytes = null; }
-      const saved = new Set((await data.keys()).map(key => key.url));
-      if (!saved.has(bundleURL)) return;   // nothing verified is saved for this bracket, so there is nothing to describe
-      let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
-      const has = value => value?.status === 'available' && /^[a-f0-9]{64}$/.test(value.sha256 || '') && typeof value.url === 'string' && saved.has(siteURL(value.url));
-      const cohorts = {};
-      for (const [key, value] of Object.entries(manifest.cohorts)) {
-        const old = previous?.cohorts?.[key];
-        // A bracket whose newest bundle is not saved keeps the entry for the bundle that IS saved, with its own dates.
-        if (value.status !== 'available' || has(value)) { cohorts[key] = value; continue; }
-        if (has(old)) { cohorts[key] = {...old, saved_copy: true}; continue; }
-        cohorts[key] = value;
-        const other = [...saved].find(url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/) || [])[1] === key);
-        if (!other) continue;   // nothing is saved for this bracket; it stays as published
-        try {
-          // Saved by an earlier release and not described yet: describe it from the bundle itself. Its patch
-          // signature is unknown, so it is treated as possibly out of date, never as current.
-          const bundle = await (await data.match(other)).json(), digest = other.match(/-([a-f0-9]{64})\.json$/)[1];
-          cohorts[key] = {label: value.label, status: 'available', sha256: digest, url: 'bundles/' + key + '-' + digest + '.json', generated_at: bundle.generated_at, source_signature: 'unverified-saved-copy', saved_copy: true,
-            source_dates: Object.fromEntries(Object.entries(bundle.sources || {}).map(([k, v]) => [k, {status: v?.status, fetched_at: v?.fetched_at}]))};
-        } catch { cohorts[key] = value; }
-      }
-      await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
-      for (const url of saved) { const match = new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/); if (match && match[1] === bracket && url !== bundleURL) await data.delete(url); }
+      await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : commit());
       site.offlineProblem = null;
     } catch (error) {
       site.offlineProblem = error?.name === 'QuotaExceededError' ? 'This device is out of storage for offline copies. The app still works online; free some space to keep ranks available offline.'
         : 'The offline copy could not be saved. The app still works online.';
     }
+  }
+  async function commitNow(manifest, bracket, entry, bytes) {
+    const data = await caches.open(DATA_CACHE), bundleURL = siteURL(entry.url), manifestURL = siteURL(APP_CONFIG.manifest);
+    // A bundle's address contains its checksum, so a copy already saved at that address holds these exact bytes.
+    if (bytes && !(await data.match(bundleURL))) await data.put(bundleURL, new Response(bytes, {headers: {'Content-Type': 'application/json'}}));
+    const saved = new Set((await data.keys()).map(key => key.url));
+    if (!saved.has(bundleURL)) return;   // nothing verified is saved for this bracket, so there is nothing to describe
+    let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
+    const has = value => value?.status === 'available' && /^[a-f0-9]{64}$/.test(value.sha256 || '') && typeof value.url === 'string' && saved.has(siteURL(value.url));
+    const cohorts = {};
+    for (const [key, value] of Object.entries(manifest.cohorts)) {
+      const old = previous?.cohorts?.[key];
+      // A bracket whose newest bundle is not saved keeps the entry for the bundle that IS saved, with its own dates.
+      if (value.status !== 'available' || has(value)) { cohorts[key] = value; continue; }
+      if (has(old)) { cohorts[key] = {...old, saved_copy: true}; continue; }
+      cohorts[key] = value;
+      const other = [...saved].find(url => savedBracket(url) === key);
+      if (!other) continue;   // nothing is saved for this bracket; it stays as published
+      try {
+        // Saved by an earlier release and not described yet: describe it from the bundle itself. Its patch
+        // signature is unknown, so it is treated as possibly out of date, never as current.
+        const bundle = await (await data.match(other)).json(), digest = other.match(/-([a-f0-9]{64})\.json$/)[1];
+        cohorts[key] = {label: value.label, status: 'available', sha256: digest, url: 'bundles/' + key + '-' + digest + '.json', generated_at: bundle.generated_at, source_signature: 'unverified-saved-copy', saved_copy: true,
+          source_dates: Object.fromEntries(Object.entries(bundle.sources || {}).map(([k, v]) => [k, {status: v?.status, fetched_at: v?.fetched_at}]))};
+      } catch { cohorts[key] = value; }
+    }
+    await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
+    for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL) await data.delete(url);
   }
   function displayedBundle(raw, entry) {
     if (site.manifest?.patch_check?.status === 'failed') return {...raw, recommendation_context: {status:'withheld',reason:'The latest official patch check failed. Saved observations remain inspectable; automatic role comparisons await verification.'}, guidance: {...raw.guidance, status: 'needs verification: latest official patch check failed'}};
@@ -187,17 +196,20 @@ if (APP_CONFIG.mode === 'static') {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       const next = displayedBundle(raw, entry);
       const dataChanged = revision !== entry.sha256, changed = dataChanged || B?.guidance?.status !== next.guidance?.status;
+      // Bundle, revision and engine change together, so the page never ranks from another publication than it shows.
       site.originalBundle = raw; site.loadedEntry = entry;
       B = next; revision = entry.sha256;
-      await commitPublication(manifest, requested, entry);
-      if (sequence !== site.sequence || requested !== S.bracket) return;
       if (changed) E = MetaEngine.create(B);
+      const verified = site.verifiedBytes?.url === entry.url ? site.verifiedBytes.bytes : null; site.verifiedBytes = null;
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
       latestStatus = {busy: false, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
-      if (site.offlineProblem) latestStatus.message += ' ' + site.offlineProblem;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
       site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else redrawForEvidence();
+      // Saving the offline copy never delays or gates what is shown; a storage problem is reported once known.
+      commitPublication(manifest, requested, entry, verified).then(() => {
+        if (site.offlineProblem && sequence === site.sequence && !latestStatus.busy && !String(latestStatus.message).includes(site.offlineProblem)) { latestStatus.message += ' ' + site.offlineProblem; chrome(); }
+      });
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }

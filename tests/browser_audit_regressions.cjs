@@ -506,6 +506,27 @@ const probes = {
     verdict('E4', !(seen.kept === false && seen.shown), {banned, ...seen, notice: seen.notice.slice(0, 80)});
     await context.close();
   },
+  /* E#1/F#1 from the review: with a slow offline save, a second update check used to leave the new bundle on screen
+     with the previous engine. The page is given a slow Cache API and two checks overlap. */
+  async E5(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.addInitScript(() => { const open = caches.open.bind(caches); caches.open = name => new Promise(r => setTimeout(r, 1500)).then(() => open(name)); });
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const manifest = await (await context.request.get(url + 'manifest.json')).json(), entry = manifest.cohorts.gold;
+    const bundle = await (await context.request.get(url + entry.url)).json();
+    bundle.generated_at = new Date(Date.parse(bundle.generated_at) + 60000).toISOString();
+    const bytes = Buffer.from(JSON.stringify(bundle)), sha = require('crypto').createHash('sha256').update(bytes).digest('hex');
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); Object.assign(m.cohorts.gold, {sha256: sha, url: 'bundles/gold-' + sha + '.json', generated_at: bundle.generated_at}); await route.fulfill({response, json: m}); });
+    await page.route('**/bundles/gold-' + sha + '.json', route => route.fulfill({status: 200, contentType: 'application/json', body: bytes}));
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(generated => B?.generated_at === generated, bundle.generated_at, {timeout: 60000});
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));   // a second check overlaps the slow save
+    await page.waitForTimeout(4000);
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+    const seen = await page.evaluate(() => ({shown: B.generated_at, engine_matches_shown: E.heroes === B.heroes}));
+    verdict('E5', !seen.engine_matches_shown, seen);
+    await context.close();
+  },
   async G1(browser) {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => changeRoute('more'));
