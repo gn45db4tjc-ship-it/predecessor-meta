@@ -2744,14 +2744,16 @@ def retained_statz_bundle(bracket):
     candidates=[]
     for path in (DATA_DIR/('last_successful_'+bracket+'.json'),LATEST_BUNDLE):
         try:
-            b=load_bundle(path);sources=b.get('sources',{})
-            if b.get('schema')!=3 or b.get('bracket',{}).get('segment')!=bracket or not b.get('patch'):continue
+            b=load_bundle(path)
+            if not isinstance(b,dict):continue
+            sources=b.get('sources') or {}
+            if b.get('schema')!=3 or (b.get('bracket') or {}).get('segment')!=bracket or not b.get('patch'):continue
             if not b.get('tier_list') or b.get('failed_pages') or b.get('patch_conflicts'):continue
             if not bundle_rows_valid(b):continue
             if any(sources.get(k,{}).get('status')!='ok' or not sources[k].get('fetched_at') for k in ('statz_tierlist','statz_hero_pages')):continue
             age=timestamp_age(sources['statz_tierlist']['fetched_at'])
             if age is not None:candidates.append((age,b))
-        except (OSError,ValueError,TypeError,KeyError):continue
+        except Exception:continue   # a damaged saved file is skipped
     for _,candidate in sorted(candidates,key=lambda x:x[0]):
         try:return source_records_before_review(candidate)
         except (KeyError,IndexError,TypeError,ValueError) as e:log('Retained Statz audit unavailable: '+str(e))
@@ -2901,6 +2903,19 @@ def bundle_has_fresh_statz(b):
         return False
 
 
+def primary_rows_problem(b):
+    """The first reason primary_rows_valid(b) fails, or None."""
+    if primary_rows_valid(b):
+        return None
+    try:
+        heroes = b.get('heroes') or {}
+        observed = [r for r in b.get('tier_list') or [] if (((heroes.get(r.get('slug')) or {}).get('roles') or {}).get(r.get('role')) or {}).get('status') not in ('failed', 'patch_conflict')]
+        validate_bundle_rows(dict(b, tier_list=observed))
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        return 'its rows failed validation (%s)' % error
+    return 'a tier row of a failed page, a source date or the bracket failed validation'
+
+
 def primary_rows_valid(b):
     """Row checks for an update that is publishable because its Pred.gg partition is current.
 
@@ -3002,10 +3017,10 @@ def previous_pred_bundle(bracket):
     for name in ('last_available_', 'last_successful_', 'last_primary_'):
         try:
             value = load_bundle(DATA_DIR / (name + bracket + '.json'))
-            if value.get('schema') == 3 and value.get('bracket', {}).get('segment') == bracket:
+            if isinstance(value, dict) and value.get('schema') == 3 and (value.get('bracket') or {}).get('segment') == bracket:
                 age = timestamp_age(value.get('generated_at'))
                 if age is not None: candidates.append((age, value))
-        except (OSError, ValueError, TypeError):
+        except Exception:   # a damaged saved file is skipped, never a reason every refresh fails
             pass
     return min(candidates, key=lambda pair: pair[0])[1] if candidates else None
 
@@ -3352,8 +3367,8 @@ class AppState:
                     save_bundle(b,bundle_path(b['patch'],b['bracket']['segment']))
                     save_bundle(b,DATA_DIR/('last_successful_'+b['bracket']['segment']+'.json'),False)
                 else:
-                    rows_failed=bundle_is_complete(b)[0]
-                    if rows_failed:b.setdefault('errors',[]).append({'source':'Collection validation','severity':'error','detail':reason})
+                    rows_failed=bundle_is_complete(b)[0] or not primary_rows_valid(b)
+                    if rows_failed:b.setdefault('errors',[]).append({'source':'Collection validation','severity':'error','detail':reason if bundle_is_complete(b)[0] else primary_rows_problem(b)})
                     save_bundle(b,DATA_DIR/('last_attempt_'+b['bracket']['segment']+'.json'),False)
                     if bundle_has_current_primary(b) and primary_rows_valid(b):save_bundle(b,DATA_DIR/('last_primary_'+b['bracket']['segment']+'.json'))
                     if bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+b['bracket']['segment']+'.json'),False)
@@ -3387,7 +3402,7 @@ class AppState:
                     self.last_attempt_at=checkpoint['finished_at']
                     self.retry_blocked=any(re.search(r'403|429|blocked|rate.limit',e['detail'],re.I) for e in checkpoint['errors'])
                     self.status.update({'revision':self.revision,'errors':b.get('errors',[]), 'last_refresh':b['generated_at'],
-                        'message':('Live refresh complete' if complete else 'Official verification failed — showing dated saved data' if display is not b else 'Refresh has missing or unverified data — see source alerts')+' · %.1fs'%b['timings']['cold_refresh_secs']})
+                        'message':('Live refresh complete' if complete else 'New collection failed validation — showing the last validated data' if display is not b and rows_failed else 'Official verification failed — showing dated saved data' if display is not b else 'Refresh has missing or unverified data — see source alerts')+' · %.1fs'%b['timings']['cold_refresh_secs']})
             except Exception as e:
                 self.refresh_failed(e,started,self.settings['bracket'])
             finally:
@@ -3832,6 +3847,8 @@ def main():
         path=render(b); log('Exported '+str(path)); return 0
     if args.once:
         b=collect_bundle(settings,log); complete,reason=collection_verdict(b)
+        if not complete and (bundle_is_complete(b)[0] or not primary_rows_valid(b)):
+            b.setdefault('errors',[]).append({'source':'Collection validation','severity':'error','detail':reason if bundle_is_complete(b)[0] else primary_rows_problem(b)})
         save_bundle(b,DATA_DIR/('last_successful_'+settings['bracket']+'.json') if complete else DATA_DIR/'last_attempt.json',complete)
         if not complete and bundle_has_current_primary(b) and primary_rows_valid(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
         if not complete and bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+settings['bracket']+'.json'),False)
