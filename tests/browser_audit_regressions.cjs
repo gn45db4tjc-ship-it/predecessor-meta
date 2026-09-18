@@ -800,6 +800,283 @@ const probes = {
     const seen = await page.evaluate(() => ({fallback: search.unavailable, cancel_shown: window.__cancelShown, alternatives: compositions?.alternatives?.length || 0}));
     verdict('M13', seen.cancel_shown, seen);
     await context.close();
+  },
+  /* 2.26.1: findings from the live verification of 2.26.0. */
+  async P1(browser) {
+    // Two sources that fail with the same text are two limitations, not one.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      B.errors = [...(B.errors || []), {source: 'Probe source A', severity: 'error', detail: 'Same failure text.'}, {source: 'Probe source B', severity: 'error', detail: 'Same failure text.'}];
+      changeRoute('builds'); changeRoute('meta');
+      const items = limitationItems();
+      return {a: items.some(i => i.source === 'Probe source A'), b: items.some(i => i.source === 'Probe source B'), line: document.querySelector('#mobile-limits strong')?.innerText || ''};
+    });
+    verdict('P1', !(seen.a && seen.b), seen);
+    await context.close();
+  },
+  async P2(browser) {
+    // Cancelling a new search while earlier alternatives are shown says so in the panel and keeps them; the note
+    // disappears while a new search runs and once the alternatives are used.
+    const {context, page} = await session(browser, phone);
+    await reset(page, 5);
+    await generate(page);
+    const cancelSearchNow = async () => {
+      await page.locator('#generate').click();
+      await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+      if (await page.locator('#cancel-generate').isVisible()) await page.locator('#cancel-generate').click();
+      await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 20000}).catch(() => {});
+    };
+    const panel = () => page.evaluate(() => document.querySelector('#compositions')?.innerText || '');
+    await cancelSearchNow();
+    const kept = await page.evaluate(() => compositions?.alternatives?.length || 0), said = /Search cancelled/i.test(await panel());
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    const duringNewSearch = /Search cancelled/i.test(await panel());
+    await page.waitForFunction(() => !search.pending && !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    await cancelSearchNow();
+    await page.locator('[data-use-comp]').first().click();
+    const afterUse = /previous search/i.test(await panel());
+    const seen = {kept, said, duringNewSearch, afterUse};
+    verdict('P2', !(kept > 0 && said && !duringNewSearch && !afterUse), seen);
+    await context.close();
+  },
+  async P3(browser) {
+    // The Live hero picker marks a sample under 100 games, as the Meta list does.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live');
+      const slug = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle'));
+      const original = E.performance;
+      E.performance = p => { const r = original(p); return p.slug === slug && p.role === 'jungle' && r ? {...r, played: 42} : r; };
+      try { showLivePicker('jungle', true); const row = document.querySelector(`#detail [data-pick-live="${slug}|jungle"]`); return {slug, text: (row?.innerText || '').replace(/\s+/g, ' ')}; }
+      finally { E.performance = original; document.querySelector('#detail').close(); }
+    });
+    verdict('P3', !/small sample/i.test(seen.text), seen);
+    await context.close();
+  },
+  async P4(browser) {
+    // A fetch time ahead of this device's clock is never described as "less than 1h ago".
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      const s = B.sources.statz_hero_pages, saved = s.fetched_at, health = latestStatus.health;
+      s.fetched_at = new Date(Date.now() + 2 * 3600000).toISOString(); latestStatus.health = null;
+      try { changeRoute('builds'); changeRoute('meta'); return {text: (document.querySelector('.mobile-health')?.innerText || '').replace(/\s+/g, ' ')}; }
+      finally { s.fetched_at = saved; latestStatus.health = health; }
+    });
+    verdict('P4', /less than 1h ago/i.test(seen.text) || !/Fetched/i.test(seen.text), seen);
+    await context.close();
+  },
+  async P5(browser) {
+    // Top five, the lead and the hero list give the real reason for missing numbers: too few games, a statistics page
+    // that failed to load or was never collected (Pred.gg or Statz), statistics paused or unavailable.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      const topFive = () => { const s = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || '')); return {tiles: s ? s.querySelectorAll('.mobile-hero-card').length : null, text: (s?.innerText || '').replace(/\s+/g, ' ')}; };
+      const lead = () => (document.querySelector('#main .page-head p')?.innerText || '').replace(/\s+/g, ' ');
+      const list = () => { document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click(); return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
+      const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: topFive(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
+      const saved = B, original = E.performance, out = {};
+      try {
+        E.performance = p => { const r = original(p); return p.role === 'jungle' && r ? {...r, played: Math.min(r.played, 60)} : r; };
+        out.none = view('jungle').top;
+        let first = null;
+        E.performance = p => { const r = original(p); if (p.role !== 'jungle' || !r) return r; first = first || p.slug; return {...r, played: p.slug === first ? Math.max(r.played, 150) : Math.min(r.played, 60)}; };
+        out.one = view('jungle').top;
+        E.performance = original;
+        // Pred.gg source: jungle failed, support never collected (the collector stops after a block).
+        const roles = {...(B.scoped_statistics.roles || {}), jungle: {status: 'failed'}}; delete roles.support;
+        B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'partial', roles}}; E = MetaEngine.create(B);
+        out.pred_source = E.performancePolicy().source;
+        out.pred_failed = view('jungle'); out.pred_missing = view('support');
+        // Statz source (Pred.gg failed): every jungle hero page failed.
+        B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'failed'}, heroes: Object.fromEntries(Object.entries(saved.heroes).map(([slug, h]) => [slug, h.roles?.jungle ? {...h, roles: {...h.roles, jungle: {...h.roles.jungle, status: 'failed'}}} : h]))};
+        E = MetaEngine.create(B); out.statz_source = E.performancePolicy().source;
+        out.statz_failed = view('jungle');
+        B = {...saved, recommendation_context: {status: 'withheld', reason: 'Probe: the official patch check failed.'}}; E = MetaEngine.create(B);
+        out.withheld = view('jungle');
+        B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
+        out.unavailable = view('jungle'); out.unavailable_verification = E.evidenceState().verification.state;
+      } finally { E.performance = original; B = saved; E = MetaEngine.create(B); render(); }
+      return out;
+    });
+    const failedOK = v => v.reason === 'failed' && v.top.tiles === 0 && /failed to load/i.test(v.top.text) && !/100 or more/i.test(v.top.text) && /failed to load/i.test(v.list) && !/No [^ ]+ [a-z]+ sample/i.test(v.list) && !/ordered by role performance/i.test(v.lead);
+    const ok = seen.none.tiles === 0 && /100 or more/i.test(seen.none.text) && /Only 1 jungle hero has /.test(seen.one.text)
+      && seen.pred_source === 'pred' && failedOK(seen.pred_failed) && failedOK(seen.pred_missing)
+      && seen.statz_source === 'statz' && failedOK(seen.statz_failed)
+      && /paused/i.test(seen.withheld.top.text) && !/100 or more/i.test(seen.withheld.top.text) && !/ordered by role performance/i.test(seen.withheld.lead) && !/Role performance in/i.test(seen.withheld.top.text) && /paused/i.test(seen.withheld.list)
+      && seen.unavailable_verification === 'verified' && /unavailable/i.test(seen.unavailable.top.text) && !/paused/i.test(seen.unavailable.top.text + ' ' + seen.unavailable.list);
+    verdict('P5', !ok, seen);
+    await context.close();
+  },
+  async P6(browser) {
+    // The hero page names the source of the numbers next to a paused or retained review status.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => { openHero('steel', 'jungle'); const p = E.performance({slug: 'steel', role: 'jungle'}); return {source: p?.source || null, line: (document.querySelector('.mobile-hero-head p')?.innerText || '').replace(/\s+/g, ' ')}; });
+    verdict('P6', !(seen.source && seen.line.includes(seen.source + ' ')), seen);
+    await context.close();
+  },
+  async P7(browser) {
+    // GUARD: the website never calls the definition review current when the official patch content changed after
+    // this collection (a hotfix edits the article; the version number stays the same).
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), manifest = await response.json(); manifest.patch_check = {...manifest.patch_check, signature: 'f'.repeat(64)}; await route.fulfill({response, json: manifest}); });
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const seen = await page.evaluate(() => { changeRoute('data'); return {reviewed: B.definition_review?.status || null, guidance: B.guidance?.status || null, status: definitionReviewStatus(), shown_current: /reviewed for current patch · v/i.test(document.querySelector('#main').innerText)}; });
+    assert.equal(seen.reviewed, 'reviewed for current patch', 'probe setup: the seed carries a current definition review');
+    verdict('P7', !/pending/.test(seen.status) || seen.shown_current, seen);
+    await context.close();
+  },
+  async P8(browser) {
+    // Review dates are shown as dates, not raw timestamps: on the pages and in the two review dialogs.
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(() => {
+      const iso = /.{0,30}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}.{0,10}/g, out = {}, find = el => ((el?.innerText || '').match(iso) || []).slice(0, 3);
+      for (const r of ['data', 'guidance', 'meta']) { changeRoute(r); document.querySelectorAll('#main details').forEach(d => { d.open = true; }); out[r] = find(document.querySelector('#main')); }
+      changeRoute('meta'); const decision = document.querySelector('[data-meta-decision]'); if (decision) { decision.click(); out.tier_dialog = find(document.querySelector('#detail-body')); document.querySelector('#detail').close(); } else out.tier_dialog = ['probe setup: no tier decision'];
+      let opened = false;
+      for (const key of Object.keys(B.perks || {})) { showCatalog('perks', key); if (/reviewed/i.test(document.querySelector('#detail-body')?.innerText || '')) { opened = true; out.definition_dialog = find(document.querySelector('#detail-body')); document.querySelector('#detail').close(); break; } document.querySelector('#detail').close(); }
+      if (!opened) out.definition_dialog = ['probe setup: no reviewed definition'];
+      openHero('steel', 'jungle'); document.querySelectorAll('#main details').forEach(d => { d.open = true; }); out.hero = find(document.querySelector('#main'));
+      return out;
+    });
+    verdict('P8', Object.values(seen).some(list => list.length > 0), seen);
+    await context.close();
+  },
+  async P9(browser) {
+    // At 320 px with large text the rank select shows its whole label, the Situation item picker is full width, and a
+    // hero tile with a long reason text keeps a readable name column.
+    const {context, page} = await session(browser, {...phone, viewport: {width: 320, height: 700}});
+    await page.evaluate(() => { companionPrefs.large = true; companionChrome(); Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    const rank = await page.evaluate(() => { const s = document.querySelector('#bracket'); return {width: Math.round(s.getBoundingClientRect().width), text: s.options[s.selectedIndex]?.text || ''}; });
+    await page.locator('[data-edit-situation]').first().click();
+    const dialog = await page.evaluate(() => ({select: Math.round(document.querySelector('#detail #live-owned-add')?.getBoundingClientRect().width || 0), body: Math.round(document.querySelector('#detail-body')?.getBoundingClientRect().width || 0)}));
+    await page.keyboard.press('Escape');
+    const tile = await page.evaluate(() => {
+      const saved = B; B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
+      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
+        const name = document.querySelector('#mobile-all-list .mobile-hero-card .hero-cell .name'); return {text: name?.closest('article')?.innerText.replace(/\s+/g, ' '), nameWidth: Math.round(name?.getBoundingClientRect().width || 0)}; }
+      finally { B = saved; E = MetaEngine.create(B); render(); }
+    });
+    const rate = await page.evaluate(() => {
+      companionPrefs.favorites = ['akeron|jungle']; S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+      return [...document.querySelectorAll('#main .mobile-hero-card .mobile-stat strong')].map(s => { const lh = parseFloat(getComputedStyle(s).lineHeight) || parseFloat(getComputedStyle(s).fontSize) * 1.3; return {text: s.innerText, lines: Math.round(s.getBoundingClientRect().height / lh)}; }).filter(r => r.lines > 1).slice(0, 3);
+    });
+    verdict('P9', rank.width < 140 || dialog.select < dialog.body * 0.7 || tile.nameWidth < 60 || rate.length > 0, {rank, dialog, tile, split_rates: rate});
+    await context.close();
+  },
+  async P10(browser) {
+    // Light theme: the pressed build-variant buttons on the hero page meet WCAG AA contrast.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => localStorage.setItem('predecessor-theme', 'light'));
+    await page.reload(); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    // Open the first hero whose build tab offers at least two variants, with two pressed.
+    await page.evaluate(() => { for (const slug of Object.keys(E.heroes).sort()) for (const role of E.roles(slug)) { S.variants = [0, 1]; save(); openHero(slug, role); if (document.querySelectorAll('[data-variant][aria-pressed="true"]').length >= 2) return; } });
+    await page.addScriptTag({path: process.env.AXE_PATH || require.resolve('axe-core/axe.min.js')});
+    const seen = await page.evaluate(async () => { const r = await axe.run(document.querySelector('#main'), {runOnly: {type: 'rule', values: ['color-contrast']}}); return {theme: document.documentElement.dataset.theme, pressed: document.querySelectorAll('[data-variant][aria-pressed="true"]').length, violations: r.violations.flatMap(v => v.nodes.map(n => n.target.join(' '))).slice(0, 5)}; });
+    verdict('P10', seen.violations.length > 0 || !seen.pressed, seen);
+    await context.close();
+  },
+  async P11(browser) {
+    // Offline, choosing a rank says truthfully whether it is saved on this device, and never promises offline use
+    // (a reload that opens it, or saving it for later) when offline support is not active in this browser.
+    const offlineChoice = async prepare => {
+      const {context, page} = await session(browser, phone);
+      await page.evaluate(prepare);
+      await context.setOffline(true);
+      await page.evaluate(() => { const s = document.querySelector('#bracket'); s.value = 'diamond'; s.dispatchEvent(new Event('change', {bubbles: true})); });
+      await page.waitForTimeout(1500);
+      await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 30000}).catch(() => {});
+      const seen = await page.evaluate(async () => ({loaded: !!B, worker: !!(await navigator.serviceWorker?.getRegistration?.()), text: document.querySelector('#main').innerText.replace(/\s+/g, ' ').slice(0, 260)}));
+      await context.close();
+      return seen;
+    };
+    const unsaved = await offlineChoice(() => {});
+    const saved = await offlineChoice(async () => { const c = await caches.open('predecessor-meta-data-v1'); await c.put(new URL('bundles/diamond-' + 'a'.repeat(64) + '.json', location.href).href, new Response('{}')); });
+    assert.equal(saved.worker, false, 'probe setup: no service worker in these contexts');
+    const bad = !/not saved on this device/i.test(unsaved.text) || /keep it for offline use/i.test(unsaved.text) || !/offline support is not active/i.test(unsaved.text)
+      || /not saved on this device/i.test(saved.text) || !/saved on this device/i.test(saved.text) || /reload/i.test(saved.text);
+    verdict('P11', bad, {unsaved, saved});
+  },
+  async P12(browser) {
+    // A second Enter on Generate never cancels the search it started; after Cancel focus returns to Generate and the
+    // toast agrees with the panel; a search started by a click leaves focus alone when it finishes.
+    const {context, page} = await session(browser, phone);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').focus();
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(150);
+    const secondEnter = await page.evaluate(() => ({pending: !!search.pending, cancelled: /cancel/i.test(document.querySelector('#toast')?.textContent || '') || /cancel/i.test(document.querySelector('#compositions')?.innerText || '')}));
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending && !document.querySelector('#cancel-generate')?.hidden, null, {timeout: 30000});
+    await page.locator('#cancel-generate').click();
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 20000}).catch(() => {});
+    await page.waitForTimeout(150);
+    const after = await page.evaluate(() => ({focused: document.activeElement?.id || document.activeElement?.tagName, toast: document.querySelector('#toast')?.textContent || ''}));
+    await page.evaluate(() => document.activeElement?.blur());
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    await page.waitForTimeout(150);
+    const clicked = await page.evaluate(() => document.activeElement?.id || document.activeElement?.tagName);
+    verdict('P12', secondEnter.cancelled || after.focused !== 'generate' || /unchanged/i.test(after.toast) || clicked === 'generate', {secondEnter, after, clicked});
+    await context.close();
+  },
+  async P13(browser) {
+    // A redraw keeps keyboard focus on the control the user was on (lineup selects have no id), and never moves it to
+    // another copy of the same hero elsewhere on the page.
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: []}); save(); changeRoute('planner'); document.querySelector('#main details[data-lineup]')?.setAttribute('open', ''); });
+    await page.locator('select[data-slot="allies"][data-slot-role="midlane"]').focus();
+    await page.evaluate(() => requestRedraw(true));
+    const slot = await page.evaluate(() => ({slot: document.activeElement?.dataset?.slot || null, role: document.activeElement?.dataset?.slotRole || null}));
+    const hero = await page.evaluate(() => {
+      S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
+      const inTop = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      const copy = inTop && [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === inTop.dataset.hero);
+      copy?.focus(); requestRedraw(true);
+      const a = document.activeElement;
+      return {hero: copy?.dataset.hero || null, inList: !!a?.closest('#mobile-all-list'), inTopFive: !!a?.closest('section') && !a.closest('#mobile-all-list') && !!a.dataset?.hero};
+    });
+    const moved = await page.evaluate(() => {
+      const top = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      const hero = top?.dataset.hero, copy = [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === hero);
+      copy?.focus();
+      const original = E.performance; E.performance = p => { const r = original(p); return p.slug === hero && p.role === 'jungle' && r ? {...r, played: 50} : r; };
+      try { requestRedraw(true); const a = document.activeElement; return {hero, focused: a?.dataset?.hero || a?.tagName, inList: !!a?.closest('#mobile-all-list')}; }
+      finally { E.performance = original; }
+    });
+    verdict('P13', !(slot.slot === 'allies' && slot.role === 'midlane') || !hero.hero || !hero.inList || hero.inTopFive || !(moved.focused === moved.hero && moved.inList), {slot, hero, moved});
+    await context.close();
+  },
+  async P15(browser) {
+    // When only the live check is pending (a saved copy in the Windows app), the phone status chip says Paused and why,
+    // in agreement with the rest of the page.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      const saved = B, chipFor = status => { B = {...saved, guidance: {...saved.guidance, status}}; E = MetaEngine.create(B); changeRoute('builds'); changeRoute('meta'); return (document.querySelector('.mobile-health')?.innerText || '').replace(/\s+/g, ' '); };
+      try { const chip = chipFor('reviewed for saved patch; live check pending'), policy = E.performancePolicy().label, verification = E.evidenceState().verification.state; const failedChip = chipFor('reviewed for saved patch; live verification failed'); return {policy, verification, chip, failedChip}; }
+      finally { B = saved; E = MetaEngine.create(B); render(); }
+    });
+    assert.equal(seen.policy, 'Verification required', 'probe setup: a saved-patch guidance status pauses statistics');
+    verdict('P15', !/paused/i.test(seen.chip) || !/live check pending/i.test(seen.chip) || !/paused/i.test(seen.failedChip) || !/failed/i.test(seen.failedChip) || /pending/i.test(seen.failedChip), seen);
+    await context.close();
+  },
+  async P14(browser) {
+    // When only the search options change while a search runs, the discarded result names the options, not the picks.
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    await page.evaluate(() => { const s = document.querySelector('#comp-sort'); s.value = [...s.options].find(o => o.value !== s.value).value; s.dispatchEvent(new Event('change', {bubbles: true})); });
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    const notice = await page.evaluate(() => (document.querySelector('#compositions')?.innerText || '').split('\n')[0]);
+    verdict('P14', !/search options/i.test(notice) || /picks/i.test(notice), {notice});
+    await context.close();
   }
 };
 

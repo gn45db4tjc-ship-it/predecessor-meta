@@ -54,6 +54,21 @@
     "M10": "PHONE/DESKTOP: a section opened on one screen or hero never opens the matching section on another screen or hero",
     "M11": "PHONE: \"Open Sources & accuracy\" from the limitations list leaves focus on the Sources page, not on the limitations bar",
     "M12": "PHONE: the Compositions lineup counts allied picks against the combination size (\"1 of 2 selected\")",
-    "M13": "Cancel is offered only while a background search can be cancelled, never for the main-thread fallback"
+    "M13": "Cancel is offered only while a background search can be cancelled, never for the main-thread fallback",
+    "P1": "PHONE: two sources failing with the same text are listed as two limitations (the count is not reduced)",
+    "P2": "Cancelling a new search while earlier alternatives are shown says so in the panel and keeps them; the note is gone while a new search runs and after an alternative is used",
+    "P3": "PHONE: the Live hero picker marks a sample under 100 games, as the Meta list does",
+    "P4": "PHONE: a fetch time ahead of the device clock is never described as \"less than 1h ago\"",
+    "P5": "PHONE: Top five, the lead and the hero list give the real reason for missing numbers (too few games, a statistics page that failed or was never collected, statistics paused or unavailable), in correct grammar",
+    "P6": "PHONE: the hero page names the source of the numbers shown next to the review status",
+    "P7": "GUARD: the website never calls the definition review current when official patch content changed after the collection",
+    "P8": "Review dates are shown as dates, not raw timestamps, on the pages and in the tier-decision and reviewed-definition dialogs",
+    "P9": "PHONE: at 320 px with large text the rank select shows its whole label, the Situation item picker is full width, a hero tile keeps a readable name column and a win rate never splits from its % sign",
+    "P10": "Light theme: pressed build-variant buttons on the hero page meet WCAG AA contrast",
+    "P11": "Offline, choosing a rank says truthfully whether it is saved on this device and never promises offline use when offline support is not active",
+    "P12": "A second Enter never cancels the search it started; after Cancel focus returns to Generate and the toast agrees; a click-started search leaves focus alone",
+    "P13": "A redraw keeps keyboard focus on the control the user was on, including the same copy of a repeated hero button",
+    "P14": "When only the search options change during a search, the discarded result names the search options, not the picks",
+    "P15": "PHONE: when a saved copy is shown because the live check is pending or failed (Windows app), the status chip says Paused and names which"
   }
 }
