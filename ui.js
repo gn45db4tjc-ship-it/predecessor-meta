@@ -232,7 +232,7 @@ function changesView(){
  return head('Changes','What changed','Source observations over time, with official balance changes kept separate. A movement does not establish its cause.')+
  `<div class="toolbar"><label>History source <select id="history-source">${options([['pred','Pred.gg · exact patch and rank cohort'],['statz','Statz · broader dataset history']],current?'pred':'statz')}</select></label></div>`+
  (current?scopedHistoryHTML():note('Statz history uses its broader dataset label and observed tier grades. These samples are separate from the current-patch Pred.gg tables.')+statzHistoryHTML())+
- publisherNewsHTML()+`<div class="section-title"><h2>Official balance changes</h2>${link(B.official?.live?.url,'Official notes ↗')}</div><input id="patch-search" type="search" placeholder="Search hero, item, blessing, or change…" aria-label="Search official patch changes"><div id="patch-results">${patchChangesTable('')}</div>`;
+ publisherNewsHTML()+`<div class="section-title"><h2>Official balance changes</h2>${link(B.official?.live?.url,'Official notes ↗')}</div><input id="patch-search" type="search" value="${esc(S.patchQuery||'')}" placeholder="Search hero, item, blessing, or change…" aria-label="Search official patch changes"><div id="patch-results">${patchChangesTable(S.patchQuery||'')}</div>`;
 }
 function patchChangesTable(query){const rows=(B.official_changes||[]).filter(c=>(c.name+' '+c.field+' '+c.change).toLowerCase().includes(query.toLowerCase()));return `<p class="footer">${rows.length} factual change notes · announcements are not applied as live changes. Unmapped entries remain visible.</p><div class="panel table-panel"><table class="table-small"><thead><tr><th>Content</th><th>Field / ability</th><th>Official change</th></tr></thead><tbody>${rows.map(c=>`<tr><td>${esc(c.name)}<br><small>${esc(c.kind)}</small></td><td>${esc(c.field)}</td><td>${esc(c.change)} ${link(c.source,'↗')}</td></tr>`).join('')}</tbody></table>${!rows.length?empty('No matching official changes available.'):''}</div>`;}
 function dataView(){
@@ -519,23 +519,34 @@ document.addEventListener('change',async event=>{const el=event.target,d=el.data
  else if(el.id==='compare-bracket'){if(!(local||shared))throw Error('Bracket comparison collection is available in the local app.');if(!el.value)return;const r=await fetch('/api/comparison?bracket='+encodeURIComponent(el.value));comparison=await r.json();$('#comparison-output').innerHTML=comparisonHTML();}
  else if(el.id==='guidance-file'&&el.files[0]){const packet=JSON.parse(await el.files[0].text());await post('/api/import-guidance',packet);toast('Reviewed packet imported. Live refresh started.');}
  }catch(e){toast(e.message);}});
-document.addEventListener('input',event=>{const el=event.target;if(el.id==='library-query'){const pos=el.selectionStart;S.libraryQuery=el.value;render();const n=$('#library-query');n?.focus();n?.setSelectionRange(pos,pos);}if(el.id==='hero-search'){const pos=el.selectionStart;S.query=el.value;render();const n=$('#hero-search');n?.focus();n?.setSelectionRange(pos,pos);}if(el.id==='patch-search')$('#patch-results').innerHTML=patchChangesTable(el.value);});
+document.addEventListener('input',event=>{const el=event.target;if(el.id==='library-query'){const pos=el.selectionStart;S.libraryQuery=el.value;render();const n=$('#library-query');n?.focus();n?.setSelectionRange(pos,pos);}if(el.id==='hero-search'){const pos=el.selectionStart;S.query=el.value;render();const n=$('#hero-search');n?.focus();n?.setSelectionRange(pos,pos);}if(el.id==='patch-search'){S.patchQuery=el.value;$('#patch-results').innerHTML=patchChangesTable(el.value);}});
 document.addEventListener('keydown',e=>{if(e.target.getAttribute('role')==='tab'&&['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){const tabs=[...e.target.parentElement.querySelectorAll('[role=tab]')];let i=tabs.indexOf(e.target);i=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();const group=e.target.parentElement.getAttribute('aria-label');tabs[i].click();document.querySelector('[role=tablist][aria-label="'+group+'"] [aria-selected=true]')?.focus();}});
 document.addEventListener('visibilitychange',()=>{if((local||shared)&&document.visibilityState==='visible')poll();});
 window.addEventListener('hashchange',checkSharedPlan);
 window.addEventListener('online',()=>{if(local||shared)poll();});
-// One rule in every mode: the main view is redrawn when the evidence it shows changes (including the age of the
-// statistics on screen and a lost connection), but never while the user is typing in one of its fields and never
-// in the middle of a click. Every render records what it drew, so a postponed redraw is never lost.
-const evidenceView={drawn:null,pending:false,pointer:false};
-function evidenceSignature(){try{const e=E.evidenceState(),s=B?.sources?.statz_hero_pages;return JSON.stringify([e.statistics.state,e.mechanics.state,e.verification.state,e.guidance.state,e.advice_mode,connectionLost,B?E.sourceCurrency({...s,fetched_at:latestStatus?.health?.core_statistics?.updated_at||s?.fetched_at}).state:'']);}catch{return '';}}
-function typingInMain(target){const main=$('#main');return !!target&&!!main?.contains(target)&&/^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName);}
-function redrawForEvidence(){if(evidenceSignature()===evidenceView.drawn){chrome();return;}if(typingInMain(document.activeElement)||evidenceView.pointer){chrome();evidenceView.pending=true;return;}render();}
-function flushEvidenceRedraw(){if(evidenceView.pending&&!evidenceView.pointer&&!typingInMain(document.activeElement))render();}
+// One scheduler for every automatic redraw, in every mode (website, phone, Windows app): new data, evidence changes
+// (including the age of the statistics on screen, a lost connection or going offline) and finished searches.
+//  - It never lands in the middle of a click: while a pointer is down it waits for the click to finish.
+//  - While the user is actively typing in a text field of the view (a keystroke in the last few seconds) it waits
+//    until they pause or leave the field. Selects and checkboxes are not typing, and no wait is indefinite.
+//  - When it redraws, the focused control and its caret are put back, so nothing typed is lost.
+//  - Every render records the evidence it drew, so a postponed redraw is never lost.
+const TYPING_PAUSE_MS=4000,evidenceView={drawn:null,pending:false,pointer:false,pointerAt:0,lastInput:0,timer:0};
+function evidenceSignature(){try{const e=E.evidenceState(),s=B?.sources?.statz_hero_pages;return JSON.stringify([e.statistics.state,e.mechanics.state,e.verification.state,e.guidance.state,e.advice_mode,connectionLost,navigator.onLine,B?E.sourceCurrency({...s,fetched_at:latestStatus?.health?.core_statistics?.updated_at||s?.fetched_at}).state:'']);}catch{return '';}}
+function textEntry(el){return !!el&&(el.tagName==='TEXTAREA'||el.tagName==='INPUT'&&/^(text|search|number|email|url|tel)$/i.test(el.type||'text'));}
+function typingInMain(target){return textEntry(target)&&!!$('#main')?.contains(target)&&Date.now()-evidenceView.lastInput<TYPING_PAUSE_MS;}
+function pointerHeld(){if(evidenceView.pointer&&Date.now()-evidenceView.pointerAt>3000)evidenceView.pointer=false;return evidenceView.pointer;}
+function redrawKeepingFocus(){const main=$('#main'),a=document.activeElement,id=a&&main?.contains(a)?a.id:'',text=textEntry(a),start=text?a.selectionStart:null,end=text?a.selectionEnd:null;render();if(!id)return;const n=document.getElementById(id);if(!n||n===document.activeElement)return;n.focus({preventScroll:true});if(text&&textEntry(n)&&start!==null)try{n.setSelectionRange(start,end);}catch{}}
+function scheduleRedraw(delay){clearTimeout(evidenceView.timer);evidenceView.timer=setTimeout(flushEvidenceRedraw,delay);}
+function requestRedraw(dataChanged){if(!dataChanged&&!evidenceView.pending&&evidenceSignature()===evidenceView.drawn){chrome();return;}if(pointerHeld()||typingInMain(document.activeElement)){chrome();evidenceView.pending=true;scheduleRedraw(TYPING_PAUSE_MS);return;}redrawKeepingFocus();}
+function redrawForEvidence(){requestRedraw(false);}
+function flushEvidenceRedraw(){if(!evidenceView.pending)return;if(pointerHeld()||typingInMain(document.activeElement)){scheduleRedraw(TYPING_PAUSE_MS);return;}redrawKeepingFocus();}
 const renderView=render;render=function(){renderView();evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
-document.addEventListener('focusout',event=>{if(evidenceView.pending&&!typingInMain(event.relatedTarget))setTimeout(flushEvidenceRedraw,0);});
-document.addEventListener('pointerdown',()=>{evidenceView.pointer=true;},true);
+document.addEventListener('input',event=>{if(textEntry(event.target))evidenceView.lastInput=Date.now();},true);
+document.addEventListener('focusout',event=>{if(evidenceView.pending&&!(textEntry(event.relatedTarget)&&$('#main')?.contains(event.relatedTarget)))setTimeout(flushEvidenceRedraw,0);});
+document.addEventListener('pointerdown',()=>{evidenceView.pointer=true;evidenceView.pointerAt=Date.now();},true);
 for(const type of ['pointerup','pointercancel'])document.addEventListener(type,()=>{evidenceView.pointer=false;if(evidenceView.pending)setTimeout(flushEvidenceRedraw,0);},true);
+window.addEventListener('blur',()=>{evidenceView.pointer=false;});
 async function poll(){
  if(!(local||shared)||poll.running)return;
  poll.running=true;const requested=shared?S.bracket:null;
@@ -548,7 +559,7 @@ async function poll(){
   if(latestStatus.revision!==revision){
    const br=await fetch(apiPath('/api/bundle'),{signal:controller?.signal});if(!br.ok)throw Error('Updated bundle unavailable');
    const next=await br.json();if(shared&&requested!==S.bracket)return;if(shared&&next&&next.bracket?.segment!==requested)throw Error('The server returned a different rank cohort');if(next!==null&&(!next?.heroes||!Array.isArray(next.tier_list)))throw Error('Updated bundle has an invalid shape');
-   const engine=MetaEngine.create(next);B=next;E=engine;revision=latestStatus.revision;render();checkSharedPlan();
+   const engine=MetaEngine.create(next);B=next;E=engine;revision=latestStatus.revision;requestRedraw(true);checkSharedPlan();
   }else redrawForEvidence();
   if(document.visibilityState==='visible'&&latestStatus.freshness?.due&&Date.now()-(poll.lastAuto||0)>60000){poll.lastAuto=Date.now();await post('/api/ensure-fresh',{},controller?.signal);}
  }catch(e){if(shared&&requested!==S.bracket)return;connectionLost=true;latestStatus={...latestStatus,busy:false,message:(shared?'Shared':'Local')+' connection unavailable. Displayed data is the last loaded snapshot.',errors:[{source:(shared?'Shared':'Local')+' app connection',severity:'error',detail:controller?.signal.aborted?'Local request timed out. The next status check will retry.':e.message}]};redrawForEvidence();}
