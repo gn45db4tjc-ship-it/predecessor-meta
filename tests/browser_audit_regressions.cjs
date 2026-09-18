@@ -299,13 +299,16 @@ const probes = {
     await page.evaluate(() => changeRoute('meta'));
     await page.locator('#mobile-hero-search').click();
     await page.keyboard.type('ste');
-    await failTheNextCheck(page, 'd');
+    await failTheNextCheck(page, 'd', () => markMain(page));
     await checkLikeAReturningTab(page);
     const during = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#mobile-hero-search')?.value, withheld: B?.recommendation_context?.status === 'withheld'}));
     assert.ok(during.withheld, 'probe setup: the failed check did not withhold recommendations');
-    await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); document.activeElement.blur(); });
-    const redrawnAfterBlur = await page.evaluate(() => !document.querySelector('#audit-marker'));
-    verdict('C3', !(during.focused === 'mobile-hero-search' && during.value === 'ste' && redrawnAfterBlur), {...during, redrawn_after_blur: redrawnAfterBlur});
+    await page.keyboard.type('e');
+    const typed = await page.evaluate(() => document.querySelector('#mobile-hero-search')?.value);
+    await page.evaluate(() => document.activeElement.blur());
+    await page.clock.fastForward(5000);
+    const redrawn = await page.evaluate(() => !document.querySelector('#audit-marker'));
+    verdict('C3', !(during.focused === 'mobile-hero-search' && during.value === 'ste' && typed === 'stee' && redrawn), {...during, after_typing_on: typed, redrawn_for_the_new_evidence: redrawn});
     await context.close();
   },
   /* C#1 from the review: WebKit fires no blur or focusout when a render replaces the focused field. A pending
@@ -325,12 +328,13 @@ const probes = {
       for (const type of ['blur', 'focusout']) window.removeEventListener(type, stop, {capture: true});
     });
     await page.locator('#mobile-hero-search').click();
-    // Second evidence change while still typing: the same statistics become 'stale' (49 h).
+    await markMain(page);
+    // Second evidence change while the field still has focus: the same statistics become 'stale' (49 h).
     await checkLikeAReturningTab(page, '18:00:00');
     const during = await page.evaluate(() => ({focused: document.activeElement?.id, state: E.evidenceState().statistics.state}));
     assert.equal(during.state, 'stale', 'probe setup: the statistics did not become stale');
-    await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); document.activeElement.blur(); });
-    await page.waitForTimeout(100);
+    await page.evaluate(() => document.activeElement.blur());
+    await page.clock.fastForward(5000);
     const redrawn = await page.evaluate(() => !document.querySelector('#audit-marker'));
     verdict('C5', !(during.focused === 'mobile-hero-search' && redrawn), {...during, redrawn_after_leaving_the_field: redrawn});
     await context.close();
@@ -379,14 +383,13 @@ const probes = {
   },
   async C8(browser) {
     const {context, page} = await clockSession(browser, desktop);
-    await page.evaluate(() => { changeRoute('meta'); document.querySelector('#hero-search')?.focus(); });
-    await page.keyboard.type('s');
-    await failTheNextCheck(page, 'a');
-    await checkLikeAReturningTab(page);
-    assert.ok(await page.evaluate(() => B?.recommendation_context?.status === 'withheld'), 'probe setup: the failed check did not withhold recommendations');
+    await page.evaluate(() => changeRoute('meta'));
     const target = page.locator('#main [data-hero]').first(), slug = await target.getAttribute('data-hero'), box = await target.boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.down(); await page.waitForTimeout(120); await page.mouse.up();   // a real press lasts about 100 ms
+    await page.mouse.down();
+    // An evidence change arrives while the button is held down (a real press lasts about 100 ms).
+    await page.evaluate(() => { connectionLost = !connectionLost; redrawForEvidence(); });
+    await page.waitForTimeout(120); await page.mouse.up();
     await page.waitForTimeout(150);
     const seen = await page.evaluate(() => ({route: S.route, hero: S.hero}));
     verdict('C8', !(seen.route === 'hero' && seen.hero === slug), {clicked: slug, ...seen});
@@ -398,6 +401,54 @@ const probes = {
     await page.keyboard.type('steel');
     const value = await page.evaluate(() => document.querySelector('#hero-search')?.value);
     verdict('C9', value !== 'steel', {typed: 'steel', field: value});
+    await context.close();
+  },
+  /* Third review round. */
+  async C10(browser) {
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
+    const id = await page.evaluate(() => { const select = document.querySelector('#main select[id]'); select?.focus(); return select?.id || null; });
+    assert.ok(id, 'probe setup: the hero build view has no select to focus');
+    await failTheNextCheck(page, '9', () => markMain(page));
+    await checkLikeAReturningTab(page);
+    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, redrawn: !document.querySelector('#audit-marker'), withheld: B?.recommendation_context?.status === 'withheld'}));
+    assert.ok(seen.withheld, 'probe setup: the failed check did not withhold recommendations');
+    verdict('C10', !(seen.redrawn && seen.focused === id), {select: id, ...seen});
+    await context.close();
+  },
+  async C11(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('st');
+    await context.setOffline(true);
+    await page.waitForTimeout(200);
+    await page.keyboard.type('e');
+    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#mobile-hero-search')?.value}));
+    await context.setOffline(false);
+    verdict('C11', !(seen.focused === 'mobile-hero-search' && seen.value === 'ste'), seen);
+    await context.close();
+  },
+  async C12(browser) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(() => changeRoute('changes'));
+    await page.locator('#patch-search').click();
+    await page.keyboard.type('steel');
+    await page.evaluate(() => document.activeElement.blur());
+    await page.evaluate(() => { connectionLost = !connectionLost; redrawForEvidence(); });   // an evidence redraw
+    const value = await page.evaluate(() => document.querySelector('#patch-search')?.value);
+    verdict('C12', value !== 'steel', {filter_after_redraw: value});
+    await context.close();
+  },
+  async C13(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    // The patch check succeeds but finds new official content: the badge must not say the check failed.
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...(m.patch_check || {}), status: 'verified', signature: 'new-official-content'}; await route.fulfill({response, json: m}); });
+    await checkLikeAReturningTab(page);
+    const seen = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', badge: document.querySelector('.mobile-health')?.innerText || ''}));
+    assert.ok(seen.withheld, 'probe setup: new official content did not pause recommendations');
+    verdict('C13', /check failed/i.test(seen.badge) || !/new official content/i.test(seen.badge), {badge: seen.badge.replace(/\s+/g, ' ')});
     await context.close();
   },
   async E1(browser) {

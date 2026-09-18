@@ -482,6 +482,43 @@ class SeedNeverMovesADateBack(unittest.TestCase):
             self.assertTrue(any('Restored gold from the verified collector copy' in m for m in messages))
 
 
+class ThirdReviewRound(unittest.TestCase):
+    """Windows app display and saved-file readers (third review round)."""
+
+    def setUp(self):
+        from unittest.mock import patch
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        folder = Path(self.tmp.name)
+        for name, value in (('DATA_DIR', folder), ('LATEST_BUNDLE', folder / 'latest_bundle.json'), ('SNAP_DIR', folder / 'snapshots'),
+                            ('OUT_HTML', folder / 'export.html'), ('SETTINGS_FILE', folder / 'settings.json')):
+            patcher = patch.object(base, name, value); patcher.start(); self.addCleanup(patcher.stop)
+
+    def test_readers_of_saved_bundles_skip_damaged_shapes(self):
+        import json
+        for damage in (None, [1, 2], {'schema': 3, 'bracket': None}):
+            with self.subTest(saved=repr(damage)[:30]):
+                for name in ('last_available_gold.json', 'last_successful_gold.json', 'last_primary_gold.json', 'latest_bundle.json'):
+                    (base.DATA_DIR / name).write_text(json.dumps(damage), encoding='utf8')
+                self.assertIsNone(base.previous_pred_bundle('gold'))
+                self.assertIsNone(base.retained_statz_bundle('gold'))
+
+    def test_once_names_a_row_failure_in_a_partial_collection_before_exporting(self):
+        import sys as _sys
+        from unittest.mock import patch
+        b = pred_primary(); b['tier_list'][0]['winRate'] = 250.0; b['timings'] = {}
+        exported = []
+        with patch.object(base, 'collect_bundle', return_value=b), patch.object(base, 'render', side_effect=lambda x: exported.append(x)), \
+             patch.object(_sys, 'argv', ['predecessor_meta.py', '--once', '--data-dir', str(base.DATA_DIR)]), _captured_log():
+            self.assertEqual(base.main(), 2)
+        self.assertTrue(any(e.get('source') == 'Collection validation' and 'winRate' in e.get('detail', '') for e in exported[0]['errors']))
+        self.assertFalse((base.DATA_DIR / 'last_primary_gold.json').exists())
+
+    def test_primary_rows_problem_names_the_row(self):
+        b = pred_primary(); b['tier_list'][0]['winRate'] = 250.0
+        self.assertIn('invalid winRate: 250.0', base.primary_rows_problem(b))
+        self.assertIsNone(base.primary_rows_problem(pred_primary()))
+
+
 import contextlib
 
 
