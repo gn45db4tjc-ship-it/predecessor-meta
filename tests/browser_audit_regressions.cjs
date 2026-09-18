@@ -77,6 +77,16 @@ async function generate(page) {
 const offered = page => page.evaluate(() => document.querySelectorAll('[data-use-comp]').length);
 const bannedLocks = page => page.evaluate(() => S.locks.filter(l => S.bans.includes(l.slug) || S.enemies.some(e => e.slug === l.slug)).map(l => l.slug));
 
+/* Runs in the page: mark one role failed the way a validated publication with a gap arrives. */
+const GAP = `(slug, role) => {
+  const pages = B.sources.statz_hero_pages, requested = pages.requested, heroes = {...B.heroes};
+  heroes[slug] = {...heroes[slug], roles: {...heroes[slug].roles, [role]: {status: 'failed', error: 'FetchError: timed out (probe)'}}};
+  B = {...B, heroes, failed_pages: [{slug, role, error: 'FetchError: timed out (probe)'}],
+    sources: {...B.sources, statz_hero_pages: {...pages, status: 'partial (1 missing)', ok: requested - 1, failed: 1,
+      coverage: {requested, ok: requested - 1, failed: 1, conflicting: 0, max_failed_share: 0.1, usable: true}}}};
+  E = MetaEngine.create(B);
+}`;
+
 const probes = {
   async A1(browser) {
     const {context, page} = await session(browser, desktop);
@@ -471,6 +481,34 @@ const probes = {
     const packet = JSON.parse(fs.readFileSync(file, 'utf8')), inBundle = await page.evaluate(() => (B.official_changes || []).length);
     assert.ok(inBundle > 0, 'probe setup: the seed bundle carries no official changes');
     verdict('G1', (packet.official_changes || []).length === 0, {bundle_official_changes: inBundle, packet_official_changes: (packet.official_changes || []).length, packet_schema: packet.schema});
+    await context.close();
+  },
+  /* D: one failed Statz hero page. The page marks a role failed exactly as the publisher would
+     (failed role, declared failed page, reconciled coverage) and rebuilds the engine from it. */
+  async D1(browser) {
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(gap => {
+      const row = B.tier_list.find(r => r.role === 'jungle'), other = B.tier_list.find(r => r.role === 'jungle' && r.slug !== row.slug);
+      const before = E.performance({slug: other.slug, role: 'jungle'}, {source: 'statz'});
+      eval(gap)(row.slug, 'jungle');
+      openHero(row.slug, 'jungle');
+      return {failed: row.slug, other: other.slug, before, after: E.performance({slug: other.slug, role: 'jungle'}, {source: 'statz'}),
+        failedRole: E.performance({slug: row.slug, role: 'jungle'}, {source: 'statz'}), policy: E.performancePolicy().source,
+        gap: E.statzGap(), text: document.querySelector('#main').innerText};
+    }, GAP);
+    assert.deepEqual(seen.after, seen.before, 'a collected role must keep exactly the numbers it had');
+    const stated = /Statz observations partial \u00b7 1 of \d+ hero pages failed/.test(seen.text);
+    verdict('D1', !(seen.failedRole === null && seen.gap?.failed === 1 && stated), {failed_role: seen.failed, failed_role_numbers: seen.failedRole, gap: seen.gap, stated});
+    await context.close();
+  },
+  async D2(browser) {
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(gap => {
+      const row = B.tier_list.find(r => r.role === 'jungle');
+      eval(gap)(row.slug, 'jungle'); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+      return {slug: row.slug, health: document.querySelector('.mobile-health')?.innerText || '', text: document.querySelector('#main').innerText};
+    }, GAP);
+    verdict('D2', !/1 hero page failed/.test(seen.health), {health: seen.health.replace(/\s+/g, ' ')});
     await context.close();
   },
   async H1(browser) {

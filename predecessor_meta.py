@@ -1325,6 +1325,7 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
                                  "status": "offline (read from disk)" if offline else hero_pages_status,
                                  "total_secs": None if offline else pull_timing["secs"], "concurrency": settings["concurrency"], "stagger_secs": REQUEST_STAGGER,
                                  "ok": ok_pages, "failed": len(failed_pages), "conflicting": len(patch_conflicts), "requested": len(page_results),
+                                 "coverage": hero_page_coverage(len(page_results), ok_pages, len(failed_pages), len(patch_conflicts)),
                                  "mean_secs": None if offline else round(sum((r.get("secs") or 0) for r in page_results.values() if r.get("ok")) / max(1, ok_pages), 2),
                                  "offline": offline, "blocked": blocked},
             "omeda_heroes": {"url": OMEDA_BASE + "/heroes.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("heroes_secs"),
@@ -2802,6 +2803,20 @@ def bundle_has_current_primary(b):
         b.get('sources',{}).get('omeda_heroes',{}).get('status')=='ok')
 
 
+def hero_page_coverage(requested, ok, failed=0, conflicting=0):
+    """How much of the requested Statz hero-page roster was collected, and whether a collection
+    with gaps is still usable. One definition serves the collector, the publisher and the apps.
+
+    A few failed pages (at most FAILED_PAGE_ERROR_SHARE of the roster) leave the collected roles
+    usable; each failed role stays explicitly failed and is never filled in. A page from another
+    patch is never tolerated, so patches cannot blend. Counts must reconcile exactly."""
+    counts = [requested, ok, failed or 0, conflicting or 0]
+    sound = all(type(n) is int and n >= 0 for n in counts) and counts[0] >= 1 and counts[1] + counts[2] + counts[3] == counts[0]
+    usable = bool(sound and counts[1] >= 1 and counts[3] == 0 and counts[2] <= FAILED_PAGE_ERROR_SHARE * counts[0])
+    return {'requested': requested, 'ok': ok, 'failed': failed or 0, 'conflicting': conflicting or 0,
+            'max_failed_share': FAILED_PAGE_ERROR_SHARE, 'usable': usable}
+
+
 def validate_bundle_rows(b):
     """Structural and numeric checks shared by every publication path: collector output, import,
     cache restore and publication. Raises ValueError naming the first problem; returns True.
@@ -2822,6 +2837,13 @@ def validate_bundle_rows(b):
     if not isinstance(heroes, dict) or not heroes:
         raise ValueError('hero roster is empty')
     seen = set()
+    # A failed hero page is tolerated only when the collection declares it; its role stays failed.
+    declared = {(p.get('slug'), p.get('role')) for p in (b.get('failed_pages') or []) if isinstance(p, dict)}
+    for slug, role_name in declared:
+        if (((heroes.get(slug) or {}).get('roles') or {}).get(role_name) or {}).get('status') != 'failed':
+            raise ValueError('failed page %s/%s is not recorded as a failed role' % (slug, role_name))
+    if len(declared) > FAILED_PAGE_ERROR_SHARE * len(rows):
+        raise ValueError('%d of %d hero pages failed, more than the publishable share' % (len(declared), len(rows)))
     for row in rows:
         if not isinstance(row, dict) or not isinstance(row.get('slug'), str) or row.get('role') not in ROLES:
             raise ValueError('tier row has an unknown hero or role: %r' % (row if not isinstance(row, dict) else (row.get('slug'), row.get('role')),))
@@ -2832,16 +2854,19 @@ def validate_bundle_rows(b):
         role = ((heroes.get(row['slug']) or {}).get('roles') or {}).get(row['role'])
         if not isinstance(role, dict):
             raise ValueError('tier row %s/%s has no hero role record' % key)
-        if role.get('status') != 'ok':
+        failed = role.get('status') == 'failed' and key in declared
+        if role.get('status') != 'ok' and not failed:
             raise ValueError('tier row %s/%s points at a role whose status is %r' % (key + (role.get('status'),)))
-        for record, count, label in ((row, 'matches', 'tier row'), (role, 'playedGames', 'hero role')):
+        if failed and any(field in role for field in ('winRate', 'pickRate', 'playedGames', 'wonGames')):
+            raise ValueError('failed hero role %s/%s carries numbers it cannot have observed' % key)
+        for record, count, label in ((row, 'matches', 'tier row'),) + (() if failed else ((role, 'playedGames', 'hero role'),)):
             if type(record.get(count)) is not int or record[count] <= 0:
                 raise ValueError('%s %s/%s has no positive integer sample' % ((label,) + key))
             for field in ('winRate', 'pickRate'):
                 value = record.get(field)
                 if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100:
                     raise ValueError('%s %s/%s has an invalid %s: %r' % ((label,) + key + (field, value)))
-        won = role.get('wonGames')
+        won = None if failed else role.get('wonGames')
         if won is not None:
             if type(won) is not int or not 0 <= won <= role['playedGames']:
                 raise ValueError('hero role %s/%s has wins outside its sample' % key)
@@ -2880,23 +2905,23 @@ def bundle_has_fresh_statz(b):
             return False
         if b.get('official', {}).get('status') != 'verified':
             return False
-        if b.get('failed_pages') or b.get('patch_conflicts'):
+        if b.get('patch_conflicts'):
+            return False   # a page from another patch is never published, however small the share
+        pages = b['sources']['statz_hero_pages']
+        coverage = hero_page_coverage(pages.get('requested'), pages.get('ok'), pages.get('failed'), pages.get('conflicting'))
+        if not coverage['usable'] or len(b.get('failed_pages') or []) != coverage['failed']:
             return False
+        expected = {'statz_hero_pages': 'ok' if not coverage['failed'] else 'partial (%d missing)' % coverage['failed']}
         for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items'):
             source = b['sources'][key]
             age = timestamp_age(source.get('fetched_at'))
-            if source.get('status') != 'ok' or source.get('offline') or age is None:
+            if source.get('status') != expected.get(key, 'ok') or source.get('offline') or age is None:
                 return False
             # Fresh means fetched in this collection, not recently repackaged.
             generated = dt.datetime.fromisoformat(b['generated_at'])
             fetched = dt.datetime.fromisoformat(source['fetched_at'])
             if generated.tzinfo is None or fetched.tzinfo is None or not 0 <= (generated-fetched).total_seconds() <= 3600:
                 return False
-        pages = b['sources']['statz_hero_pages']
-        if type(pages.get('requested')) is not int or pages['requested'] < 1:
-            return False
-        if pages.get('ok') != pages['requested'] or pages.get('failed') or pages.get('conflicting'):
-            return False
         validate_bundle_rows(b)
         return True
     except (KeyError, TypeError, ValueError, AttributeError):
@@ -2946,7 +2971,9 @@ def primary_rows_valid(b):
                     return False
                 continue
             observed.append(row)
-        return not observed or validate_bundle_rows(dict(b, tier_list=observed))
+        # The rows left out are the failed and conflicting pages, so their declarations go with them: the
+        # fresh-Statz share limit does not apply to an update published for its current Pred.gg partition.
+        return not observed or validate_bundle_rows(dict(b, tier_list=observed, failed_pages=[], patch_conflicts=[]))
     except (KeyError, TypeError, ValueError, AttributeError):
         return False
 

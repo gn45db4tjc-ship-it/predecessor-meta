@@ -35,6 +35,8 @@
     "C11": "GUARD: going offline while typing on the phone keeps focus and every keystroke",
     "C12": "GUARD: a redraw keeps the official patch-change search filter",
     "C13": "GUARD: when the patch check succeeds and finds new official content, the phone badge says so and does not claim the check failed",
+    "D1": "GUARD: with one failed Statz hero page, collected roles keep their exact numbers, the failed role shows none, and the desktop source note states the gap",
+    "D2": "GUARD: with one failed Statz hero page, the phone status line states the gap",
     "E1": "Composition search for five heroes blocks the main thread for longer than 500 ms (engine.generate called synchronously)",
     "G1": "The strategy review packet exports zero official changes although the bundle carries them (mobile.js reads B.official.changes)",
     "H1": "Mobile Meta says reviewed tier guidance leads while no editorial tier is active (mobile.js guidedHome copy)"

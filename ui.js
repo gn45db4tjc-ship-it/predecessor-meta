@@ -13,7 +13,7 @@ function art(slug,size=''){const h=E.heroes[slug]||{},row=(B?.tier_list||[]).fin
 function heroButton(slug,role='',small=false){return `<button class="text-button hero-cell" data-hero="${esc(slug)}" data-role="${esc(role)}">${art(slug,small?'tiny':'')}<span class="name">${esc(name(slug))}</span></button>`;}
 function tier(t){return `<span class="tier tier-${esc(String(t||'').toLowerCase()[0])}">${esc(t||'—')}</span>`;}
 function statzAvailability(kind='statz_hero_pages',compact=false){
- const source=B?.sources?.[kind];if(!source||source.status==='ok')return '';
+ const source=B?.sources?.[kind];if(!source||source.status==='ok')return '';const gap=kind==='statz_hero_pages'?E?.statzGap?.():null;if(gap){const text='Statz observations partial · '+gap.failed+' of '+gap.requested+' hero pages failed';return compact?`<small class="warning">${esc(text)}</small>`:note(`${esc(text)}. Roles whose page failed show no Statz numbers; nothing was filled in. Collected roles keep their own sample and date.`,true);}
  const retained=source.status==='retained',text=retained?'Retained Statz observations · fetched '+date(source.fetched_at):'Statz observations unavailable';
  return compact?`<small class="warning">${esc(text)}</small>`:note(`${esc(text)}. ${esc(retained?'Latest Statz attempt failed. These numbers keep their original sample and date.':'No successful sample is available for this view.')} Pred.gg evidence has its own source status.`,true);
 }
