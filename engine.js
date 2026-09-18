@@ -21,9 +21,16 @@
       return verificationCurrent()&&bundle.guidance?.status==='reviewed for current patch'&&
         !!patch&&patch===bundle.guidance?.patch&&patch===bundle.official?.live?.version;
     }
+    // A collection with a few failed hero pages stays usable only when the publisher (or collector) reports
+    // reconciled coverage inside the failure share. Each failed role is still excluded by its own status.
+    function statzPagesUsable(source) {
+      const c=source?.coverage;
+      return source?.status==='ok'||(/^partial \(\d+ missing\)$/.test(String(source?.status))&&c?.usable===true&&c.conflicting===0&&
+        Number.isInteger(c.ok)&&c.ok>0&&Number.isInteger(c.failed)&&c.failed>0&&c.ok+c.failed===c.requested);
+    }
     function statzBuildAvailable(slug,role) {
       const source=bundle?.sources?.statz_hero_pages,live=bundle?.official?.live?.version;
-      return verificationCurrent()&&source?.status==='ok'&&Number.isFinite(Date.parse(source.fetched_at))&&
+      return verificationCurrent()&&statzPagesUsable(source)&&Number.isFinite(Date.parse(source.fetched_at))&&
         typeof bundle.patch==='string'&&(bundle.patch===live||String(live).startsWith(bundle.patch+'.'))&&
         heroes[slug]?.roles?.[role]?.status==='ok';
     }
@@ -229,10 +236,10 @@
         fetched_at:bundle.sources?.pred_scoped?.fetched_at,note:'Observed exact-patch cohort. Missing roles stay unavailable; sources are not pooled.'};
       const s=bundle.sources,compatible=bundle.official?.status==='verified'&&typeof bundle.patch==='string'&&
         (bundle.patch===live||String(live).startsWith(bundle.patch+'.'));
-      const available=s?.statz_tierlist?.status==='ok'&&s?.statz_hero_pages?.status==='ok'&&
+      const available=s?.statz_tierlist?.status==='ok'&&statzPagesUsable(s?.statz_hero_pages)&&
         Number.isFinite(Date.parse(s.statz_tierlist.fetched_at))&&Number.isFinite(Date.parse(s.statz_hero_pages.fetched_at));
       if(available&&compatible)return {source:'statz',label:'Statz '+(bundle.patch||'dataset unavailable')+' · '+(bundle.bracket?.label||'bracket unavailable'),patch:bundle.patch,
-        fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'};
+        fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'+statzGapNote(s.statz_hero_pages)};
       return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,
         note:'No eligible role-statistics source matches this publication. Saved observations remain inspectable; they do not rank current recommendations.'};
     }
@@ -240,9 +247,13 @@
     // statistics outside the aging window are labelled as saved and never presented as current rankings.
     // Observations, ordering and eligibility rules above are unchanged: this only describes them.
     const EVIDENCE_HOURS={current:30,aging:48},FUTURE_TOLERANCE_MS=300000;
+    function statzGapNote(source) {
+      const c=source?.coverage;return source?.status!=='ok'&&statzPagesUsable(source)?' '+c.failed+' of '+c.requested+' Statz hero pages failed in this collection; those roles show no Statz numbers and nothing was filled in.':'';
+    }
+    function statzGap() {const s=bundle?.sources?.statz_hero_pages;return s?.status!=='ok'&&statzPagesUsable(s)?{requested:s.coverage.requested,ok:s.coverage.ok,failed:s.coverage.failed}:null;}
     function sourceCurrency(source,now=Date.now()) {
       const at=Date.parse(source?.fetched_at),age=(now-at)/3600000;
-      if(!source||!['ok','partial','retained'].includes(source.status)||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
+      if(!source||(!['ok','partial','retained'].includes(source.status)&&!statzPagesUsable(source))||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
       const state=source.status==='retained'?'retained':age<=EVIDENCE_HOURS.current?'current':age<=EVIDENCE_HOURS.aging?'aging':'stale';
       return {state,fetched_at:source.fetched_at,age_hours:Math.max(0,Math.round(age*100)/100)};
     }
@@ -270,6 +281,7 @@
       if(statistics.state==='retained')limitations.push('Role statistics are retained from an earlier collection.');
       if(!policy.source&&verification.state==='verified')limitations.push(policy.note);
       else if(policy.source&&statistics.state==='unavailable')limitations.push('The role-statistics fetch date is missing or in the future, so they are not treated as current.');
+      if(statzGap()){if(policy.source==='statz')statistics.coverage=statzGap();limitations.push(statzGapNote(s.statz_hero_pages).trim());}
       if(guidance.state!=='reviewed')limitations.push('Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
       return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
     }
@@ -833,7 +845,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,statzGap,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

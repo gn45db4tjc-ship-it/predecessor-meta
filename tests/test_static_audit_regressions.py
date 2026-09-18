@@ -134,12 +134,14 @@ class CompletePathValidation(unittest.TestCase):
 
 
 class SinglePageFailure(unittest.TestCase):
-    """Defect D: one failed Statz page discards an otherwise fresh, validated collection."""
+    """Defect D (fixed): a few failed Statz pages no longer discard a fresh, validated collection.
+
+    The collected roles publish; each failed role stays explicitly failed and is never filled in.
+    Too many failures, any patch conflict, or counts that do not reconcile are still rejected."""
 
     def test_clean_roster_is_publishable(self):
         self.assertTrue(base.bundle_has_fresh_statz(roster(12, 0)))
 
-    @unittest.expectedFailure
     def test_one_failed_page_keeps_the_fresh_collection_publishable(self):
         b = roster(11, 1)
         self.assertTrue(base.bundle_has_fresh_statz(b))
@@ -158,6 +160,87 @@ class SinglePageFailure(unittest.TestCase):
         b = roster(12, 0)
         b['sources']['statz_hero_pages']['ok'] = 11
         self.assertFalse(base.bundle_has_fresh_statz(b))
+
+    def test_the_failure_share_is_the_collector_s_existing_threshold(self):
+        self.assertTrue(base.bundle_has_fresh_statz(roster(18, 2)), 'exactly 10% missing is still publishable')
+        self.assertFalse(base.bundle_has_fresh_statz(roster(17, 3)), '15% missing is not')
+
+    def test_a_single_patch_conflict_in_a_large_roster_is_still_rejected(self):
+        self.assertFalse(base.bundle_has_fresh_statz(roster(99, 0, conflicts=1)))
+        self.assertFalse(base.bundle_has_fresh_statz(roster(98, 1, conflicts=1)))
+
+    def test_a_failed_role_may_not_carry_numbers(self):
+        b = roster(11, 1)
+        b['heroes']['fixture-11']['roles'][base.ROLES[11 % len(base.ROLES)]].update(winRate=50.0, playedGames=200)
+        with self.assertRaisesRegex(ValueError, 'carries numbers it cannot have observed'):
+            base.validate_bundle_rows(b)
+        self.assertFalse(base.bundle_has_fresh_statz(b))
+
+    def test_an_undeclared_failed_role_is_rejected(self):
+        b = roster(11, 1)
+        b['failed_pages'] = []
+        self.assertFalse(base.bundle_has_fresh_statz(b))
+        with self.assertRaisesRegex(ValueError, "status is 'failed'"):
+            base.validate_bundle_rows(b)
+
+    def test_a_declared_failure_must_match_a_failed_role_record(self):
+        b = roster(12, 0)
+        b['failed_pages'] = [{'slug': 'fixture-00', 'role': base.ROLES[0], 'error': 'claimed'}]
+        with self.assertRaisesRegex(ValueError, 'is not recorded as a failed role'):
+            base.validate_bundle_rows(b)
+
+    def test_the_publisher_states_the_gap_and_stamps_its_own_coverage(self):
+        clean = s.validate_publication_bundle(roster(11, 1), 'gold')
+        self.assertIn('1 of 12 Statz hero pages failed', clean['refresh_result'])
+        self.assertEqual(clean['sources']['statz_hero_pages']['status'], 'partial (1 missing)')
+        self.assertEqual(clean['sources']['statz_hero_pages']['coverage'],
+                         {'requested': 12, 'ok': 11, 'failed': 1, 'conflicting': 0, 'max_failed_share': 0.1, 'usable': True})
+        self.assertEqual([(p['slug'], p['role']) for p in clean['failed_pages']], [('fixture-11', base.ROLES[11 % len(base.ROLES)])])
+
+    def test_a_collector_cannot_declare_its_own_gaps_usable(self):
+        b = roster(6, 6)
+        b['sources']['statz_hero_pages']['coverage'] = {'requested': 12, 'ok': 6, 'failed': 6, 'conflicting': 0, 'usable': True}
+        stamped = s.stamp_page_coverage(s.public_bundle(b), b)
+        self.assertFalse(stamped['sources']['statz_hero_pages']['coverage']['usable'])
+        self.assertTrue(b['sources']['statz_hero_pages']['coverage']['usable'], 'the input is never edited in place')
+
+    def test_a_gap_free_source_record_is_published_exactly_as_collected(self):
+        b = roster(12, 0)
+        self.assertEqual(s.validate_publication_bundle(b, 'gold')['sources'], b['sources'])
+
+    def test_a_stored_update_with_a_gap_reloads_with_the_role_still_failed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            s.retain_publication(roster(11, 1), tmp)
+            again = s.load_publication(tmp, 'gold')
+            role = again['heroes']['fixture-11']['roles'][base.ROLES[11 % len(base.ROLES)]]
+            self.assertEqual(role['status'], 'failed')
+            self.assertFalse({'winRate', 'pickRate', 'playedGames'} & set(role))
+
+    def test_the_manifest_reports_fresh_statistics_with_named_gaps(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            s.retain_publication(roster(11, 1), root)
+            with patch.object(s, 'CONFIG', dict(s.CONFIG, brackets=['gold'])):
+                entry = s.render_site(root, root / 'site', {'attempts': {'gold': {'status': 'partial'}}})['cohorts']['gold']
+        self.assertEqual(entry['collection_status'], 'partial')
+        core = entry['health']['core_statistics']
+        self.assertEqual(core['status'], 'available')
+        self.assertEqual(core['coverage'], {'requested': 12, 'ok': 11, 'failed': 1})
+        self.assertEqual(entry['failed_roles'], [{'slug': 'fixture-11', 'role': base.ROLES[11 % len(base.ROLES)]}])
+        self.assertEqual(entry['source_dates']['statz_hero_pages']['status'], 'partial (1 missing)')
+
+    def test_a_newer_update_with_a_gap_never_erases_the_last_complete_collection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            complete = s.retain_publication(valid_complete(), tmp)
+            gap = roster(11, 1)
+            gap['generated_at'] = (NOW + dt.timedelta(hours=3)).isoformat()
+            for source in gap['sources'].values():
+                if source.get('fetched_at'):
+                    source['fetched_at'] = (NOW + dt.timedelta(hours=3) - dt.timedelta(minutes=1)).isoformat()
+            s.retain_publication(gap, tmp)
+            self.assertEqual(s.load_publication(tmp, 'gold')['generated_at'], gap['generated_at'])
+            self.assertEqual(s.load_success(tmp, 'gold')['generated_at'], complete['generated_at'])
 
 
 class OneValidatorEverywhere(unittest.TestCase):
@@ -323,6 +406,13 @@ class PredPrimaryRows(unittest.TestCase):
         self.assertTrue(base.bundle_is_publishable(b))
         b['heroes']['unit-test-fixture']['roles']['jungle'].update(winRate=50.0, playedGames=200)
         self.assertFalse(base.bundle_is_publishable(b), 'a failed role may not carry numbers')
+
+    def test_a_large_statz_gap_does_not_block_a_current_pred_primary_update(self):
+        b = pred_primary()
+        b['heroes']['unit-test-fixture']['roles']['jungle'] = {'status': 'failed', 'error': 'FetchError: timed out'}
+        b['failed_pages'] = [{'slug': 'unit-test-fixture', 'role': 'jungle', 'error': 'FetchError: timed out'}]
+        self.assertFalse(base.bundle_has_fresh_statz(b), 'every Statz page failed: not a fresh Statz update')
+        self.assertTrue(base.bundle_is_publishable(b), 'the 10% share applies to fresh Statz updates, not to a current Pred.gg update')
 
     def test_a_pred_primary_update_with_no_statz_rows_at_all_stays_publishable(self):
         b = pred_primary()

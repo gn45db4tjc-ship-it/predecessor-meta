@@ -198,8 +198,27 @@ def validate_publication_bundle(bundle, bracket):
         raise ValueError('Partial collection is missing its roster or tier structure')
     if not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
         raise ValueError('Partial collection must name its unavailable source')
-    clean = public_bundle(bundle)
-    clean['refresh_result'] = 'partial: independent sources updated; inspect each source date'
+    clean = stamp_page_coverage(public_bundle(bundle), bundle)
+    coverage = clean['sources'].get('statz_hero_pages', {}).get('coverage') or {}
+    clean['refresh_result'] = ('partial: %d of %d Statz hero pages failed; those roles are unavailable and nothing was filled in; inspect each source date'
+                               % (coverage['failed'], coverage['requested']) if coverage.get('usable') and coverage.get('failed')
+                               else 'partial: independent sources updated; inspect each source date')
+    return clean
+
+
+def stamp_page_coverage(clean, bundle):
+    """Publish the publisher's own verdict on hero-page coverage, never the collector's claim.
+
+    The apps use Statz roles from a collection with failed pages only when this says usable, which
+    requires the counts to reconcile within the failure share AND the whole update to validate."""
+    pages = (clean.get('sources') or {}).get('statz_hero_pages')
+    if not isinstance(pages, dict):
+        return clean
+    coverage = base.hero_page_coverage(pages.get('requested'), pages.get('ok'), pages.get('failed'), pages.get('conflicting'))
+    if not coverage['failed'] and not coverage['conflicting'] and 'coverage' not in pages:
+        return clean   # nothing is missing: the source record is published exactly as collected
+    coverage['usable'] = bool(coverage['usable'] and base.bundle_has_fresh_statz(bundle))
+    clean['sources'] = dict(clean['sources'], statz_hero_pages=dict(pages, coverage=coverage))
     return clean
 
 
@@ -406,8 +425,15 @@ def render_site(folder, out, state):
                                        for k, v in bundle.get('sources', {}).items()})
             statz = bundle.get('sources', {}).get('statz_hero_pages', {})
             core = source_age_state(statz.get('fetched_at'), now)
+            coverage = statz.get('coverage') if isinstance(statz.get('coverage'), dict) else {}
+            gaps = bool(coverage.get('usable') and coverage.get('failed'))
             core.update(updated_at=statz.get('fetched_at'), source='Statz hero pages',
-                        status='available' if statz.get('status') in ('ok','retained') else 'unavailable')
+                        status='available' if statz.get('status') in ('ok','retained') or gaps else 'unavailable')
+            if gaps:
+                # Fresh statistics with named gaps: the failed roles are listed, never filled in.
+                core['coverage'] = {key: coverage.get(key) for key in ('requested', 'ok', 'failed')}
+                entry['failed_roles'] = [{'slug': page.get('slug'), 'role': page.get('role')}
+                                         for page in bundle.get('failed_pages') or []]
             if core['status'] == 'unavailable': core['state'] = 'Unavailable'
             core['retained'] = statz.get('status') == 'retained'
             entry['health'] = {'core_statistics': core,
@@ -456,7 +482,8 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
     configure_collector(folder / 'collector')
     if preview_seeds:
         for path in preview_seeds:
-            clean = retain_success(base.load_bundle(Path(path)), folder)
+            # The same validation as production: a complete seed, or a validated independent update.
+            clean = retain_publication(base.load_bundle(Path(path)), folder)
             if clean['bracket']['segment'] == CONFIG['default_bracket']:
                 state['patch_check'] = patch_summary(clean.get('official', {}))
         # A seed is a dated preview, never a claim that a source was checked now.
