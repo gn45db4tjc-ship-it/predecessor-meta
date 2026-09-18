@@ -1,6 +1,6 @@
-# Current release: 2.23.0
+# Current release: 2.24.0
 
-See RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -179,3 +179,14 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - Moved the workflow keepalive commit from `main` to `automation-state` to prevent release races.
 - Added strategy-review due status and a downloadable 93-plan review packet. Statistics refresh remains separate from authored strategy review.
 - Verified 95 Python tests, 78 JavaScript tests, mobile browser checks, axe in both themes, and desktop release acceptance.
+
+# Revision 4 — 2.24.0 audit reliability release
+
+- Added reproducible checks for every confirmed audit defect, recorded as expected failures until fixed, and a `verify` workflow for pull requests and release branches.
+- Composition alternatives carry an input fingerprint; stale alternatives are cleared with an explanation, and Apply/Substitute re-validate bans and enemy picks. A wedged saved draft repairs itself once and keeps every usable selection.
+- One engine definition of evidence age (Current 30 h, Aging 48 h, Stale after) drives every label. Failed checks and ageing statistics redraw the page without disturbing a focused field. Saved statistics are labelled as saved, never as a current ranking; inactive editorial tiers are described as paused.
+- Complete collections, partial updates, imports, stored bundles and cache restores share one row validator. A rejected collection never replaces the last good publication.
+- Publication and packaging now require the JavaScript suite as well as the Python suite.
+- `sw.js` and its cache name were deliberately left unchanged so saved offline brackets survive this release.
+- Verified 120 Python tests (1 recorded expected failure, defect D), 99 JavaScript tests (2 recorded todo, defect F), 19 of 19 audit browser verdicts, release acceptance, axe in both themes, and six-bracket companion checks on a build staged without network access.
+- Open and scheduled for 2.25.0: defects D, E, F and G. Not verified: physical phones, screen readers, native installs.
