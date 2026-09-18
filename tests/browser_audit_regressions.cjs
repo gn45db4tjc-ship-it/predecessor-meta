@@ -31,6 +31,35 @@ async function session(browser, options) {
   await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
   return {context, page};
 }
+/* A controlled clock, started one hour after the publication was generated unless told otherwise. */
+async function clockSession(browser, options, offsetMs = 3600000) {
+  const context = await browser.newContext({serviceWorkers: 'block', acceptDownloads: true, ...options}), page = await context.newPage();
+  const generated = await (await context.request.get(url + 'manifest.json')).json().then(m => Date.parse(m.cohorts.gold.generated_at));
+  await page.clock.install({time: new Date(generated + offsetMs)});
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+  return {context, page};
+}
+/* Trigger an update check the way a phone does: the tab becomes visible again after more than 15 minutes.
+   (The 'online' event is NOT used: the phone code redraws on it, which would hide a missing redraw.) */
+async function checkLikeAReturningTab(page, forward = '00:16:00') {
+  // Listen first: a long jump also fires the site's own 30-minute check, and either trigger is realistic.
+  const checked = page.waitForResponse(response => response.url().includes('manifest.json'), {timeout: 60000});
+  await page.clock.fastForward(forward);
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await checked;
+  await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 120000});
+}
+const failTheNextCheck = async (page, fill) => {
+  const fake = fill.repeat(64);
+  await page.route('**/manifest.json', async route => {
+    const response = await route.fetch(), manifest = await response.json();
+    manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
+    Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
+    await route.fulfill({response, json: manifest});
+  });
+  await page.route('**/bundles/gold-' + fake + '.json', route => route.abort());
+};
 const desktop = {viewport: {width: 1920, height: 1080}};
 const phone = {viewport: {width: 390, height: 844}, isMobile: true, hasTouch: true};
 async function reset(page, size = 3, extra = {}) {
@@ -118,39 +147,22 @@ const probes = {
     await context.close();
   },
   async B3(browser) {
-    const {context, page} = await session(browser, phone);
+    const {context, page} = await clockSession(browser, phone);
     await page.evaluate(() => { changeRoute('meta'); const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); });
-    const fake = 'e'.repeat(64);
-    await page.route('**/manifest.json', async route => {
-      const response = await route.fetch(), manifest = await response.json();
-      manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
-      Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
-      await route.fulfill({response, json: manifest});
-    });
-    await page.route('**/bundles/gold-' + fake + '.json', route => route.abort());
-    await page.evaluate(() => window.dispatchEvent(new Event('online')));
-    await page.waitForFunction(() => !latestStatus.busy && !!latestStatus.errors?.length, null, {timeout: 120000});
+    await failTheNextCheck(page, 'e');
+    await checkLikeAReturningTab(page);
     const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', marker: !!document.querySelector('#audit-marker')}));
     assert.ok(state.withheld, 'probe setup: the failed check did not withhold recommendations');
     verdict('B3', state.marker, {...state, meaning: 'marker survives only when the phone main view was not redrawn'});
     await context.close();
   },
   async B2(browser) {
-    const context = await browser.newContext({serviceWorkers: 'block', ...phone}), page = await context.newPage();
-    const fetched = await (await context.request.get(url + 'manifest.json')).json().then(m => Date.parse(m.cohorts.gold.generated_at));
-    await page.clock.install({time: new Date(fetched + 3600000)});
-    await page.goto(url);
-    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const {context, page} = await clockSession(browser, phone);
     await page.evaluate(() => changeRoute('meta'));
-    const label = () => page.evaluate(() => (document.querySelector('#main').innerText.match(/\b(current|aging|stale|unavailable)\b/i) || [''])[0].toLowerCase());
+    const label = () => page.evaluate(() => (document.querySelector('.mobile-health strong')?.textContent || '').trim().toLowerCase());
     const before = await label();
     assert.equal(before, 'current', 'probe setup: a one-hour-old publication should read Current');
-    await page.clock.fastForward('49:00:00');
-    // The site re-checks the publication whenever the browser reports it is back online.
-    const checked = page.waitForResponse(response => response.url().includes('manifest.json'), {timeout: 60000});
-    await page.evaluate(() => window.dispatchEvent(new Event('online')));
-    await checked;
-    await page.waitForFunction(() => !latestStatus.busy);
+    await checkLikeAReturningTab(page, '49:00:00');
     const after = await label();
     verdict('B2', after === 'current', {before, after_49_hours_and_a_successful_check: after});
     await context.close();
