@@ -19,7 +19,7 @@ FILES = ['predecessor_meta.py','engine.js','ui.js','ui.html','reviewed_guidance.
 FILES += ['RELEASE-2.21.7.md','STRATEGY-REVIEW-2026-09-14.json','STRATEGY-REVIEW-VERIFICATION.json']
 FILES += ['RELEASE-2.21.8.md','mobile.js','mobile.css','RELEASE-2.22.0.md','RELEASE-2.23.0.md','app.webmanifest','sw.js','assets/app-icon-192.png','assets/app-icon-512.png']
 # Verification tooling: pinned development dependencies and the audit-regression ledger.
-FILES += ['package.json','package-lock.json','tests/known-defects.json','RELEASE-2.24.0.md']
+FILES += ['package.json','package-lock.json','tests/known-defects.json','RELEASE-2.24.0.md','review_queue.cjs']
 
 def package(node=None):
     files = [ROOT / name for name in FILES]

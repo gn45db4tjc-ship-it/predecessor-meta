@@ -135,6 +135,7 @@ if (APP_CONFIG.mode === 'static') {
       validateManifest(manifest);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       site.manifest = manifest;
+      globalThis.publishedCohorts = manifest.cohorts;   // read-only reference for the strategy review packet
       const entry = manifest.cohorts[requested];
       const errs = [...(entry?.last_attempt?.errors || [])];
       if (manifest.patch_check?.status === 'failed') errs.push({source: 'Official patch check', severity: 'error', detail: manifest.patch_check.error || 'Official patch check failed'});
