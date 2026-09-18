@@ -62,3 +62,15 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
  .large-text #live-owned-add{width:100%}
  .large-text main label:has(#live-owned-add){display:grid;gap:8px}
 }
+/* Phase H (2.26.0): phone navigation and evidence presentation. */
+#mobile-limits{display:none}
+.swap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;text-align:center;margin:8px 0 12px}.swap>div{display:grid;gap:2px;border:1px solid var(--line);border-radius:10px;padding:10px 6px;min-width:0}.swap small{color:var(--text-2)}
+.picker-list{display:grid;gap:6px;margin:10px 0;max-height:52dvh;overflow-y:auto;padding:2px}.picker-hero{display:flex;align-items:center;gap:10px;width:100%;text-align:left}.picker-hero>span{display:grid;min-width:0}.picker-hero small{color:var(--text-2)}
+.limits-list{padding-left:18px}.limits-list li{margin:6px 0}.block-button{width:100%}.coach-date>summary{font-size:.85rem}
+@media(max-width:700px){
+ .mobile-health strong{flex:none;white-space:nowrap}.mobile-health span{min-width:0}
+ #mobile-limits{display:flex;align-items:center;gap:8px;width:100%;margin:0;padding:8px 16px;border:0;border-bottom:1px solid var(--amber);border-radius:0;background:var(--surface-2);color:var(--text);text-align:left;font-size:.85rem}
+ #mobile-limits[hidden]{display:none}#mobile-limits strong{flex:none;color:var(--amber);white-space:nowrap}
+ #mobile-limits span:not([aria-hidden]){flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-2)}#mobile-limits span[aria-hidden]{flex:none;color:var(--gold-text)}
+ #undo-banner button{flex:none;white-space:nowrap}.all-heroes{margin:0 0 20px}.lineup{margin:8px 0}.lineup>summary{font-weight:650}
+}
