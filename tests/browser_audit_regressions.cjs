@@ -867,43 +867,44 @@ const probes = {
     await context.close();
   },
   async P5(browser) {
-    // Top five and the hero list give the real reason for missing numbers: too few games, a page that failed to
-    // load, statistics paused (verification) or unavailable (no eligible source), in correct grammar.
+    // Top five, the lead and the hero list give the real reason for missing numbers: too few games, a statistics page
+    // that failed to load or was never collected (Pred.gg or Statz), statistics paused or unavailable.
     const {context, page} = await session(browser, phone);
     const seen = await page.evaluate(() => {
       const topFive = () => { const s = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || '')); return {tiles: s ? s.querySelectorAll('.mobile-hero-card').length : null, text: (s?.innerText || '').replace(/\s+/g, ' ')}; };
       const lead = () => (document.querySelector('#main .page-head p')?.innerText || '').replace(/\s+/g, ' ');
       const list = () => { document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click(); return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
-      const redraw = () => { S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); };
-      const original = E.performance, out = {};
+      const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: topFive(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
+      const saved = B, original = E.performance, out = {};
       try {
         E.performance = p => { const r = original(p); return p.role === 'jungle' && r ? {...r, played: Math.min(r.played, 60)} : r; };
-        redraw(); out.none = topFive();
+        out.none = view('jungle').top;
         let first = null;
         E.performance = p => { const r = original(p); if (p.role !== 'jungle' || !r) return r; first = first || p.slug; return {...r, played: p.slug === first ? Math.max(r.played, 150) : Math.min(r.played, 60)}; };
-        redraw(); out.one = topFive();
-      } finally { E.performance = original; }
-      const saved = B;
-      try {
-        // The jungle statistics page of the current source failed to load in this collection.
-        const source = E.performancePolicy().source;
-        B = source === 'pred' ? {...B, scoped_statistics: {...B.scoped_statistics, roles: {...(B.scoped_statistics.roles || {}), jungle: {status: 'failed'}}}}
-          : {...B, heroes: Object.fromEntries(Object.entries(B.heroes).map(([slug, h]) => [slug, h.roles?.jungle ? {...h, roles: {...h.roles, jungle: {...h.roles.jungle, status: 'failed'}}} : h]))};
-        E = MetaEngine.create(B); const failedPerf = E.performance; E.performance = p => p.role === 'jungle' ? null : failedPerf(p);
-        redraw(); out.failed = topFive(); out.failed_list = list();
-        // Verification withheld: statistics paused.
+        out.one = view('jungle').top;
+        E.performance = original;
+        // Pred.gg source: jungle failed, support never collected (the collector stops after a block).
+        const roles = {...(B.scoped_statistics.roles || {}), jungle: {status: 'failed'}}; delete roles.support;
+        B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'partial', roles}}; E = MetaEngine.create(B);
+        out.pred_source = E.performancePolicy().source;
+        out.pred_failed = view('jungle'); out.pred_missing = view('support');
+        // Statz source (Pred.gg failed): every jungle hero page failed.
+        B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'failed'}, heroes: Object.fromEntries(Object.entries(saved.heroes).map(([slug, h]) => [slug, h.roles?.jungle ? {...h, roles: {...h.roles, jungle: {...h.roles.jungle, status: 'failed'}}} : h]))};
+        E = MetaEngine.create(B); out.statz_source = E.performancePolicy().source;
+        out.statz_failed = view('jungle');
         B = {...saved, recommendation_context: {status: 'withheld', reason: 'Probe: the official patch check failed.'}}; E = MetaEngine.create(B);
-        redraw(); out.withheld = topFive(); out.withheld_lead = lead(); out.withheld_list = list();
-        // No eligible source while verification is fine: statistics unavailable, not paused.
+        out.withheld = view('jungle');
         B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
-        redraw(); out.unavailable = topFive(); out.unavailable_list = list(); out.unavailable_verification = E.evidenceState().verification.state;
-      } finally { B = saved; E = MetaEngine.create(B); render(); }
+        out.unavailable = view('jungle'); out.unavailable_verification = E.evidenceState().verification.state;
+      } finally { E.performance = original; B = saved; E = MetaEngine.create(B); render(); }
       return out;
     });
+    const failedOK = v => v.reason === 'failed' && v.top.tiles === 0 && /failed to load/i.test(v.top.text) && !/100 or more/i.test(v.top.text) && /failed to load/i.test(v.list) && !/No [^ ]+ [a-z]+ sample/i.test(v.list) && !/ordered by role performance/i.test(v.lead);
     const ok = seen.none.tiles === 0 && /100 or more/i.test(seen.none.text) && /Only 1 jungle hero has /.test(seen.one.text)
-      && seen.failed.tiles === 0 && /failed to load/i.test(seen.failed.text) && !/100 or more/i.test(seen.failed.text) && /failed to load/i.test(seen.failed_list) && !/No [^ ]+ jungle sample/i.test(seen.failed_list)
-      && /paused/i.test(seen.withheld.text) && !/100 or more/i.test(seen.withheld.text) && !/ordered by role performance/i.test(seen.withheld_lead) && !/Role performance in/i.test(seen.withheld.text) && /paused/i.test(seen.withheld_list)
-      && seen.unavailable_verification === 'verified' && /unavailable/i.test(seen.unavailable.text) && !/paused/i.test(seen.unavailable.text + ' ' + seen.unavailable_list);
+      && seen.pred_source === 'pred' && failedOK(seen.pred_failed) && failedOK(seen.pred_missing)
+      && seen.statz_source === 'statz' && failedOK(seen.statz_failed)
+      && /paused/i.test(seen.withheld.top.text) && !/100 or more/i.test(seen.withheld.top.text) && !/ordered by role performance/i.test(seen.withheld.lead) && !/Role performance in/i.test(seen.withheld.top.text) && /paused/i.test(seen.withheld.list)
+      && seen.unavailable_verification === 'verified' && /unavailable/i.test(seen.unavailable.top.text) && !/paused/i.test(seen.unavailable.top.text + ' ' + seen.unavailable.list);
     verdict('P5', !ok, seen);
     await context.close();
   },
@@ -942,13 +943,21 @@ const probes = {
     await context.close();
   },
   async P9(browser) {
-    // At 320 px with large text the rank select shows its whole label and the Situation item picker is full width.
+    // At 320 px with large text the rank select shows its whole label, the Situation item picker is full width, and a
+    // hero tile with a long reason text keeps a readable name column.
     const {context, page} = await session(browser, {...phone, viewport: {width: 320, height: 700}});
     await page.evaluate(() => { companionPrefs.large = true; companionChrome(); Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
     const rank = await page.evaluate(() => { const s = document.querySelector('#bracket'); return {width: Math.round(s.getBoundingClientRect().width), text: s.options[s.selectedIndex]?.text || ''}; });
     await page.locator('[data-edit-situation]').first().click();
     const dialog = await page.evaluate(() => ({select: Math.round(document.querySelector('#detail #live-owned-add')?.getBoundingClientRect().width || 0), body: Math.round(document.querySelector('#detail-body')?.getBoundingClientRect().width || 0)}));
-    verdict('P9', rank.width < 140 || dialog.select < dialog.body * 0.7, {rank, dialog});
+    await page.keyboard.press('Escape');
+    const tile = await page.evaluate(() => {
+      const saved = B; B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
+      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
+        const name = document.querySelector('#mobile-all-list .mobile-hero-card .hero-cell .name'); return {text: name?.closest('article')?.innerText.replace(/\s+/g, ' '), nameWidth: Math.round(name?.getBoundingClientRect().width || 0)}; }
+      finally { B = saved; E = MetaEngine.create(B); render(); }
+    });
+    verdict('P9', rank.width < 140 || dialog.select < dialog.body * 0.7 || tile.nameWidth < 60, {rank, dialog, tile});
     await context.close();
   },
   async P10(browser) {
@@ -964,8 +973,8 @@ const probes = {
     await context.close();
   },
   async P11(browser) {
-    // Offline, choosing a rank says truthfully whether it is saved on this device, and never promises that a reload
-    // will open it when offline support (a service worker) is not active in this browser.
+    // Offline, choosing a rank says truthfully whether it is saved on this device, and never promises offline use
+    // (a reload that opens it, or saving it for later) when offline support is not active in this browser.
     const offlineChoice = async prepare => {
       const {context, page} = await session(browser, phone);
       await page.evaluate(prepare);
@@ -978,14 +987,15 @@ const probes = {
       return seen;
     };
     const unsaved = await offlineChoice(() => {});
-    // A rank saved on this device in a browser where no service worker runs (these contexts block it).
     const saved = await offlineChoice(async () => { const c = await caches.open('predecessor-meta-data-v1'); await c.put(new URL('bundles/diamond-' + 'a'.repeat(64) + '.json', location.href).href, new Response('{}')); });
-    assert.equal(saved.worker, false, 'probe setup: no service worker in this context');
-    verdict('P11', !/not saved on this device/i.test(unsaved.text) || /not saved on this device/i.test(saved.text) || !/saved on this device/i.test(saved.text) || /reload/i.test(saved.text), {unsaved, saved});
+    assert.equal(saved.worker, false, 'probe setup: no service worker in these contexts');
+    const bad = !/not saved on this device/i.test(unsaved.text) || /keep it for offline use/i.test(unsaved.text) || !/offline support is not active/i.test(unsaved.text)
+      || /not saved on this device/i.test(saved.text) || !/saved on this device/i.test(saved.text) || /reload/i.test(saved.text);
+    verdict('P11', bad, {unsaved, saved});
   },
   async P12(browser) {
-    // A second Enter on Generate never cancels the search it started; after Cancel, focus returns to Generate, and
-    // the toast agrees with the panel.
+    // A second Enter on Generate never cancels the search it started; after Cancel focus returns to Generate and the
+    // toast agrees with the panel; a search started by a click leaves focus alone when it finishes.
     const {context, page} = await session(browser, phone);
     await reset(page, 5);
     await page.evaluate(() => changeRoute('planner'));
@@ -1001,18 +1011,33 @@ const probes = {
     await page.locator('#cancel-generate').click();
     await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 20000}).catch(() => {});
     await page.waitForTimeout(150);
-    const after = await page.evaluate(() => ({focused: document.activeElement?.id || document.activeElement?.tagName, toast: document.querySelector('#toast')?.textContent || '', panel: (document.querySelector('#compositions')?.innerText.match(/Search cancelled[^\n]*/) || [''])[0]}));
-    verdict('P12', secondEnter.cancelled || after.focused !== 'generate' || /unchanged/i.test(after.toast), {secondEnter, after});
+    const after = await page.evaluate(() => ({focused: document.activeElement?.id || document.activeElement?.tagName, toast: document.querySelector('#toast')?.textContent || ''}));
+    await page.evaluate(() => document.activeElement?.blur());
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    await page.waitForTimeout(150);
+    const clicked = await page.evaluate(() => document.activeElement?.id || document.activeElement?.tagName);
+    verdict('P12', secondEnter.cancelled || after.focused !== 'generate' || /unchanged/i.test(after.toast) || clicked === 'generate', {secondEnter, after, clicked});
     await context.close();
   },
   async P13(browser) {
-    // A redraw keeps keyboard focus on the lineup select the user was on (these selects have no id).
+    // A redraw keeps keyboard focus on the control the user was on (lineup selects have no id), and never moves it to
+    // another copy of the same hero elsewhere on the page.
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: []}); save(); changeRoute('planner'); document.querySelector('#main details[data-lineup]')?.setAttribute('open', ''); });
     await page.locator('select[data-slot="allies"][data-slot-role="midlane"]').focus();
     await page.evaluate(() => requestRedraw(true));
-    const seen = await page.evaluate(() => ({focused: document.activeElement?.tagName, slot: document.activeElement?.dataset?.slot || null, role: document.activeElement?.dataset?.slotRole || null}));
-    verdict('P13', !(seen.slot === 'allies' && seen.role === 'midlane'), seen);
+    const slot = await page.evaluate(() => ({slot: document.activeElement?.dataset?.slot || null, role: document.activeElement?.dataset?.slotRole || null}));
+    const hero = await page.evaluate(() => {
+      S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
+      const inTop = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      const copy = inTop && [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === inTop.dataset.hero);
+      copy?.focus(); requestRedraw(true);
+      const a = document.activeElement;
+      return {hero: copy?.dataset.hero || null, inList: !!a?.closest('#mobile-all-list'), inTopFive: !!a?.closest('section') && !a.closest('#mobile-all-list') && !!a.dataset?.hero};
+    });
+    verdict('P13', !(slot.slot === 'allies' && slot.role === 'midlane') || !hero.hero || hero.inTopFive, {slot, hero});
     await context.close();
   },
   async P14(browser) {

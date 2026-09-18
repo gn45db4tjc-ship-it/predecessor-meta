@@ -206,7 +206,7 @@ function searchWorker(){
 // Cancel the running worker search: the worker is stopped, nothing is applied, and the next search starts a fresh worker.
 function cancelSearch(){const request=search.pending;if(!request)return false;search.pending=null;stopSearchWorker(false);request.reject(Error('Search cancelled. Nothing was applied.'));return true;}
 function compositionsNoticeHTML(){return compositionsNotice?`<div id="compositions-notice">${note(esc(compositionsNotice))}</div>`:'';}
-function searchIdle(){const c=$('#cancel-generate');if(!c)return;const focused=c===document.activeElement||document.activeElement===document.body;c.hidden=true;if(focused)setTimeout(()=>{const g=$('#generate');if(g&&!g.disabled&&(document.activeElement===document.body||!document.activeElement))g.focus({preventScroll:true});},0);}
+function searchIdle(){const c=$('#cancel-generate');if(!c)return;const focused=c===document.activeElement;c.hidden=true;if(focused)setTimeout(()=>{const g=$('#generate');if(g&&!g.disabled&&(document.activeElement===document.body||!document.activeElement))g.focus({preventScroll:true});},0);}
 function generateCompositions(locks,options,onProgress){
  return new Promise((resolve,reject)=>{
   const request={id:++search.seq,locks,options,onProgress,resolve,reject};
@@ -573,7 +573,7 @@ function textEntry(el){return !!el&&(el.tagName==='TEXTAREA'||el.tagName==='INPU
 function typingInMain(target){return textEntry(target)&&!!$('#main')?.contains(target)&&Date.now()-evidenceView.lastInput<TYPING_PAUSE_MS;}
 function pointerHeld(){if(evidenceView.pointer&&Date.now()-evidenceView.pointerAt>3000)evidenceView.pointer=false;return evidenceView.pointer;}
 function focusKey(a){if(a.id)return '#'+CSS.escape(a.id);const attrs=[...a.attributes].filter(x=>x.name.startsWith('data-')).map(x=>'['+x.name+'="'+CSS.escape(x.value)+'"]').join('');return attrs?a.tagName.toLowerCase()+attrs:'';}
-function redrawKeepingFocus(){const main=$('#main'),a=document.activeElement,key=a&&a!==main&&main?.contains(a)?focusKey(a):'',text=textEntry(a),start=text?a.selectionStart:null,end=text?a.selectionEnd:null;render();if(!key)return;const n=$('#main')?.querySelector(key);if(!n||n===document.activeElement)return;n.focus({preventScroll:true});if(text&&textEntry(n)&&start!==null)try{n.setSelectionRange(start,end);}catch{}}
+function redrawKeepingFocus(){const main=$('#main'),a=document.activeElement,key=a&&a!==main&&main?.contains(a)?focusKey(a):'',before=key?[...main.querySelectorAll(key)]:[],index=before.indexOf(a),text=textEntry(a),start=text?a.selectionStart:null,end=text?a.selectionEnd:null;render();if(!key)return;const after=$('#main')?.querySelectorAll(key)||[],n=after.length===before.length?after[index]:null;if(!n||n===document.activeElement)return;n.focus({preventScroll:true});if(text&&textEntry(n)&&start!==null)try{n.setSelectionRange(start,end);}catch{}}
 function scheduleRedraw(delay){clearTimeout(evidenceView.timer);evidenceView.timer=setTimeout(flushEvidenceRedraw,delay);}
 function requestRedraw(dataChanged){if(!dataChanged&&!evidenceView.pending&&evidenceSignature()===evidenceView.drawn){chrome();return;}if(pointerHeld()||typingInMain(document.activeElement)){chrome();evidenceView.pending=true;scheduleRedraw(TYPING_PAUSE_MS);return;}redrawKeepingFocus();}
 function redrawForEvidence(){requestRedraw(false);}
