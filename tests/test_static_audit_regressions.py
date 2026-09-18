@@ -190,7 +190,10 @@ class OneValidatorEverywhere(unittest.TestCase):
 
     def test_the_committed_public_seed_validates(self):
         import gzip, json
-        seed = json.loads(gzip.decompress((s.ROOT / 'public-seed-gold.json.gz').read_bytes()))
+        path = s.ROOT / 'public-seed-gold.json.gz'
+        if not path.exists():
+            self.skipTest('the public seed is not part of the source package')
+        seed = json.loads(gzip.decompress(path.read_bytes()))
         self.assertTrue(base.validate_bundle_rows(seed))
         self.assertEqual(s.validate_publication_bundle(seed, 'gold')['generated_at'], seed['generated_at'])
 
