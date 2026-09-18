@@ -2747,6 +2747,7 @@ def retained_statz_bundle(bracket):
             b=load_bundle(path);sources=b.get('sources',{})
             if b.get('schema')!=3 or b.get('bracket',{}).get('segment')!=bracket or not b.get('patch'):continue
             if not b.get('tier_list') or b.get('failed_pages') or b.get('patch_conflicts'):continue
+            if not bundle_rows_valid(b):continue
             if any(sources.get(k,{}).get('status')!='ok' or not sources[k].get('fetched_at') for k in ('statz_tierlist','statz_hero_pages')):continue
             age=timestamp_age(sources['statz_tierlist']['fetched_at'])
             if age is not None:candidates.append((age,b))
@@ -2847,6 +2848,20 @@ def validate_bundle_rows(b):
     return True
 
 
+def collection_verdict(b):
+    """(complete, reason) for saving a collection as a success: clean statuses AND valid rows.
+
+    Statuses alone never make a success. A collection whose rows fail validation is kept as an attempt."""
+    complete, reason = bundle_is_complete(b)
+    if not complete:
+        return complete, reason
+    try:
+        validate_bundle_rows(b)
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        return False, 'its rows failed validation (%s)' % error
+    return True, reason
+
+
 def bundle_rows_valid(b):
     try:
         return validate_bundle_rows(b)
@@ -2886,9 +2901,38 @@ def bundle_has_fresh_statz(b):
         return False
 
 
+def primary_rows_valid(b):
+    """Row checks for an update that is publishable because its Pred.gg partition is current.
+
+    Statz may have failed in such a collection. A tier row whose hero role was not collected (failed page or
+    patch conflict) is not an observation: it must carry no role numbers and is left out of the row checks.
+    Every other tier row gets the same checks as any publication. With no Statz rows at all there is nothing
+    to check beyond the bracket and the source dates."""
+    try:
+        if (b.get('bracket') or {}).get('segment') not in BRACKETS:
+            return False
+        for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes'):
+            source = (b.get('sources') or {}).get(key) or {}
+            if source.get('status') == 'ok' and timestamp_age(source.get('fetched_at')) is None:
+                return False
+        heroes, observed = b.get('heroes') or {}, []
+        for row in b.get('tier_list') or []:
+            role = ((heroes.get(row.get('slug')) or {}).get('roles') or {}).get(row.get('role'))
+            if isinstance(role, dict) and role.get('status') in ('failed', 'patch_conflict'):
+                if any(field in role for field in ('winRate', 'pickRate', 'playedGames', 'wonGames')):
+                    return False
+                continue
+            observed.append(row)
+        return not observed or validate_bundle_rows(dict(b, tier_list=observed))
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
 def bundle_is_publishable(b):
-    """Partial publications remain labelled and separate from the last full success."""
-    return (bundle_is_complete(b)[0] and bundle_rows_valid(b)) or bundle_has_current_primary(b) or bundle_has_fresh_statz(b)
+    """Partial publications remain labelled and separate from the last full success.
+
+    Every branch validates rows: a complete collection, a Pred.gg-primary update, and a fresh Statz update."""
+    return (bundle_is_complete(b)[0] and bundle_rows_valid(b)) or (bundle_has_current_primary(b) and primary_rows_valid(b)) or bundle_has_fresh_statz(b)
 
 
 def retain_pred_partition(bundle, previous):
@@ -3081,6 +3125,15 @@ def review_saved_sources(bundle):
     return b
 
 
+def cached_rows_usable(path,b):
+    """A saved success or latest bundle is restored only if its rows validate. Pre-schema-3 caches keep
+    their existing legacy handling (they are shown as legacy data, never as current)."""
+    if b.get('schema')!=3:return True
+    if path.name.startswith('last_successful_'):return collection_verdict(b)[0]
+    if path==LATEST_BUNDLE:return collection_verdict(b)[0] or bundle_is_publishable(b)
+    return True
+
+
 def read_cached(bracket=None):
     choices=[DATA_DIR/(name+bracket+'.json') for name in ('last_successful_', 'last_primary_', 'last_available_')] if bracket else []
     choices.append(LATEST_BUNDLE)
@@ -3090,6 +3143,7 @@ def read_cached(bracket=None):
             b=load_bundle(path)
             if path.name.startswith('last_primary_') and not bundle_has_current_primary(b):return float('inf')
             if path.name.startswith('last_available_') and not bundle_is_publishable(b):return float('inf')
+            if not cached_rows_usable(path,b):return float('inf')
             age=timestamp_age(b.get('generated_at'))
             return age if age is not None else float('inf')
         except (OSError,ValueError,TypeError):return float('inf')
@@ -3099,6 +3153,8 @@ def read_cached(bracket=None):
                 raw=load_bundle(path)
                 if path.name.startswith('last_primary_') and not bundle_has_current_primary(raw):continue
                 if path.name.startswith('last_available_') and not bundle_is_publishable(raw):continue
+                if not cached_rows_usable(path,raw):
+                    log('Saved data in '+path.name+' failed validation and was not used.');continue
                 b=review_saved_sources(raw)
                 if not bracket or b.get('bracket',{}).get('segment')==bracket:
                     b['session_notice']='Saved data from '+b.get('generated_at','an unknown time')+'. A live refresh is required for this opening.'
@@ -3278,7 +3334,7 @@ class AppState:
             try:
                 b=collect_bundle(dict(self.settings,force_history_refresh=force_history),self.update)
                 # Partial results are visible as a separate attempt; never overwrite last success.
-                complete, reason=bundle_is_complete(b)
+                complete, reason=collection_verdict(b)
                 b['refresh_result']='complete' if complete else 'partial: '+reason
                 b['cache']={'used':False}
                 if complete:
@@ -3753,7 +3809,7 @@ def main():
         if not b: raise ValueError('No saved bundle available to export')
         path=render(b); log('Exported '+str(path)); return 0
     if args.once:
-        b=collect_bundle(settings,log); complete,reason=bundle_is_complete(b)
+        b=collect_bundle(settings,log); complete,reason=collection_verdict(b)
         save_bundle(b,DATA_DIR/('last_successful_'+settings['bracket']+'.json') if complete else DATA_DIR/'last_attempt.json',complete)
         if not complete and bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
         if not complete and bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+settings['bracket']+'.json'),False)

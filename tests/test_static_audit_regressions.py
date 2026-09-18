@@ -220,6 +220,155 @@ class OneValidatorEverywhere(unittest.TestCase):
         self.assertEqual(json.dumps(b, sort_keys=True), before)
 
 
+class StoredFileDamage(unittest.TestCase):
+    """A stored file damaged in any way is treated as absent, logged, and never stops the run."""
+
+    @staticmethod
+    def damaged():
+        import gzip, json
+        good = gzip.compress(json.dumps(valid_complete()).encode('utf8'))
+        return {'truncated gzip': good[:len(good) // 2],
+                'corrupt deflate data': good[:12] + bytes(b ^ 0x5A for b in good[12:40]) + good[40:],
+                'not gzip at all': b'{"schema": 3',
+                'JSON null': gzip.compress(b'null'),
+                'JSON list': gzip.compress(b'[1, 2, 3]'),
+                'empty file': b''}
+
+    def test_a_damaged_complete_bundle_is_skipped_loudly(self):
+        for label, raw in self.damaged().items():
+            with self.subTest(damage=label), tempfile.TemporaryDirectory() as tmp:
+                target = Path(tmp) / 'bundles' / 'gold.json.gz'
+                target.parent.mkdir(parents=True)
+                target.write_bytes(raw)
+                with _captured_log() as messages:
+                    self.assertIsNone(s.load_publication(tmp, 'gold'))
+                self.assertTrue(any('Stored complete bundle rejected for gold' in m for m in messages))
+
+    def test_a_damaged_partial_bundle_is_skipped_loudly_and_the_complete_one_still_loads(self):
+        for label, raw in self.damaged().items():
+            with self.subTest(damage=label), tempfile.TemporaryDirectory() as tmp:
+                kept = s.retain_publication(valid_complete(), tmp)
+                target = Path(tmp) / 'partial-bundles' / 'gold.json.gz'
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+                with _captured_log() as messages:
+                    self.assertEqual(s.load_publication(tmp, 'gold')['generated_at'], kept['generated_at'])
+                self.assertTrue(any('Independent update unavailable for gold' in m for m in messages))
+
+    def test_rendering_the_site_survives_a_damaged_stored_bundle(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            kept = s.retain_publication(partial(), root)
+            (root / 'bundles').mkdir(exist_ok=True)
+            (root / 'bundles' / 'gold.json.gz').write_bytes(self.damaged()['truncated gzip'])
+            with patch.object(s, 'CONFIG', dict(s.CONFIG, brackets=['gold'])), _captured_log():
+                manifest = s.render_site(root, root / 'site', {'attempts': {'gold': {'status': 'partial'}}})
+            self.assertEqual(manifest['cohorts']['gold']['status'], 'available')
+            self.assertEqual(manifest['cohorts']['gold']['generated_at'], kept['generated_at'])
+
+    def test_a_rejected_stored_gold_bundle_never_stops_the_seed_import(self):
+        seed = s.ROOT / 'public-seed-gold.json.gz'
+        if not seed.exists():
+            self.skipTest('the public seed is not part of the source package')
+        import gzip, json
+        for label, raw in [('fails validation', gzip.compress(json.dumps(sparse_complete()).encode('utf8'))),
+                           ('truncated gzip', self.damaged()['truncated gzip'])]:
+            with self.subTest(stored=label), tempfile.TemporaryDirectory() as tmp:
+                target = Path(tmp) / 'bundles' / 'gold.json.gz'
+                target.parent.mkdir(parents=True)
+                target.write_bytes(raw)
+                with _captured_log() as messages:
+                    self.assertTrue(s.import_public_seed(seed, tmp))
+                self.assertTrue(any('Stored complete bundle rejected for gold' in m for m in messages))
+                expected = json.loads(gzip.decompress(seed.read_bytes()))['generated_at']
+                self.assertEqual(s.load_success(tmp, 'gold')['generated_at'], expected, 'the dated seed replaced the unusable file, date unchanged')
+
+
+def pred_primary(statz='failed'):
+    """A valid update whose Pred.gg partition is current while Statz failed: publishable as a Pred-primary partial."""
+    from test_static_independent_sources import previous
+    b = previous()
+    b['generated_at'] = (NOW + dt.timedelta(minutes=5)).isoformat()
+    b['sources']['statz_hero_pages'].update(status=statz)
+    b['errors'] = [{'source': 'statz.gg hero pages', 'severity': 'error', 'detail': 'Synthetic failure'}]
+    return b
+
+
+class PredPrimaryRows(unittest.TestCase):
+    """The Pred.gg-primary publication branch validates the rows that are observations (release-notes #1)."""
+
+    def test_a_valid_pred_primary_update_is_publishable(self):
+        b = pred_primary()
+        self.assertFalse(base.bundle_is_complete(b)[0])
+        self.assertTrue(base.bundle_has_current_primary(b))
+        self.assertTrue(base.bundle_is_publishable(b))
+        self.assertIn('partial', s.validate_publication_bundle(b, 'gold')['refresh_result'])
+
+    def test_damaged_rows_on_the_pred_primary_branch_are_rejected(self):
+        for label, damage in [('win rate 250', lambda b: b['tier_list'][0].update(winRate=250.0)),
+                              ('zero sample', lambda b: b['tier_list'][0].update(matches=0)),
+                              ('duplicate row', lambda b: b['tier_list'].append(copy.deepcopy(b['tier_list'][0]))),
+                              ('NaN role rate', lambda b: b['heroes']['unit-test-fixture']['roles']['jungle'].update(winRate=float('nan')))]:
+            with self.subTest(damage=label):
+                b = pred_primary(); damage(b)
+                self.assertTrue(base.bundle_has_current_primary(b), 'statuses alone still look like a current Pred.gg update')
+                self.assertFalse(base.bundle_is_publishable(b))
+                with self.assertRaises(ValueError):
+                    s.validate_publication_bundle(b, 'gold')
+
+    def test_a_role_whose_statz_page_failed_is_not_an_observation_and_stays_publishable(self):
+        b = pred_primary()
+        b['heroes']['unit-test-fixture']['roles']['jungle'] = {'status': 'failed', 'error': 'FetchError: timed out'}
+        self.assertTrue(base.bundle_is_publishable(b))
+        b['heroes']['unit-test-fixture']['roles']['jungle'].update(winRate=50.0, playedGames=200)
+        self.assertFalse(base.bundle_is_publishable(b), 'a failed role may not carry numbers')
+
+    def test_a_pred_primary_update_with_no_statz_rows_at_all_stays_publishable(self):
+        b = pred_primary()
+        b['tier_list'] = []
+        self.assertTrue(base.bundle_is_publishable(b))
+
+
+class DesktopCacheRestore(unittest.TestCase):
+    """The Windows app restores, saves and retains a 'success' only when its rows validate (D1#3)."""
+
+    def setUp(self):
+        from unittest.mock import patch
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        folder = Path(self.tmp.name)
+        for name, value in (('DATA_DIR', folder), ('LATEST_BUNDLE', folder / 'latest_bundle.json')):
+            patcher = patch.object(base, name, value); patcher.start(); self.addCleanup(patcher.stop)
+
+    def test_a_number_free_success_is_not_a_success(self):
+        complete, reason = base.collection_verdict(sparse_complete())
+        self.assertFalse(complete)
+        self.assertIn('rows failed validation', reason)
+        self.assertTrue(base.collection_verdict(valid_complete())[0])
+
+    def test_a_number_free_saved_success_is_never_restored_or_retained(self):
+        import json
+        for name in ('last_successful_gold.json', 'latest_bundle.json'):
+            (base.DATA_DIR / name).write_text(json.dumps(sparse_complete()), encoding='utf8')
+        with _captured_log() as messages:
+            self.assertIsNone(base.read_cached('gold'))
+        self.assertTrue(any('failed validation and was not used' in m for m in messages))
+        self.assertIsNone(base.retained_statz_bundle('gold'))
+
+    def test_a_valid_saved_success_is_still_restored(self):
+        import gzip, json
+        seed = s.ROOT / 'public-seed-gold.json.gz'
+        if not seed.exists():
+            self.skipTest('the public seed is not part of the source package')
+        raw = json.loads(gzip.decompress(seed.read_bytes()))
+        (base.DATA_DIR / 'last_successful_gold.json').write_text(json.dumps(raw), encoding='utf8')
+        with _captured_log():
+            restored = base.read_cached('gold')
+        self.assertIsNotNone(restored)
+        self.assertEqual(restored['cache']['file'], 'last_successful_gold.json')
+        self.assertEqual(restored['generated_at'], raw['generated_at'])
+
+
 import contextlib
 
 
