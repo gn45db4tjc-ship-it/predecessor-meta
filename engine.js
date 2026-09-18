@@ -520,7 +520,7 @@
         return c;
       }).sort((a,b)=>compare(a.candidateMetrics,b.candidateMetrics,metric));
     }
-    function generate(locks,{size=3,bans=[],enemies=[],min=100,metric='lift',preferredRole='jungle',requiredRole='',width=48,includeUnsampled=false}={}) {
+    function generate(locks,{size=3,bans=[],enemies=[],min=100,metric='lift',preferredRole='jungle',requiredRole='',width=48,includeUnsampled=false,onProgress=null}={}) {
       if(![2,3,5].includes(size))throw Error('Choose 2, 3, or 5 heroes.'); validPicks(locks,{size,bans,enemies});
       if(requiredRole&&!ROLES.includes(requiredRole))throw Error('Choose a valid required role.');
       if(!Number.isInteger(width)||width<1||width>200)throw Error('Search width must be between 1 and 200.');
@@ -534,7 +534,7 @@
       choose(0,size-locks.length,[]);
       if(!roleSets.length)throw Error('The locked picks fill the combination without the required role. Reopen a slot or change the role filter.');
       // Preserve a beam per role set, so an initially strong partial team cannot erase another role pairing.
-      const finalists=[],searchedRoleSets=[];
+      const finalists=[],searchedRoleSets=[],steps=roleSets.length*(size-locks.length);let step=0;   // progress only reports; it never changes the search
       for(const fillRoles of roleSets){
         let beams=[assess(locks,min,enemies)];
         for(const role of fillRoles) {
@@ -544,6 +544,7 @@
           }
           next.sort((a,b)=>compare(a,b,metric));const seen=new Set();beams=[];
           for(const n of next) {const id=n.picks.map(p=>p.role+':'+p.slug).sort().join('|');if(seen.has(id))continue;seen.add(id);beams.push(n);if(beams.length>=width)break;}
+          step++;if(typeof onProgress==='function')onProgress({done:step,total:steps});
         }
         searchedRoleSets.push([...usedRoles,...fillRoles]);finalists.push(...beams);
       }

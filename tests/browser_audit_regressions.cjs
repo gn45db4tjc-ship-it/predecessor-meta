@@ -471,6 +471,41 @@ const probes = {
     verdict('E1', gap > 500, {longest_main_thread_stall_ms: gap, threshold_ms: 500});
     await context.close();
   },
+  /* E guards: the worker must return exactly what the engine returns, and the page must still work without one. */
+  async E2(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5); await generate(page);
+    const seen = await page.evaluate(() => {
+      const direct = E.generate(S.locks, {size: S.size, bans: S.bans, enemies: S.enemies, metric: S.sortComp, preferredRole: 'jungle', requiredRole: effectiveRequiredRole(), includeUnsampled: S.includeUnsampled});
+      const {inputs, ...fromWorker} = compositions;
+      return {usedWorker: !!search.worker && !search.unavailable, same: JSON.stringify(fromWorker) === JSON.stringify(direct), alternatives: direct.alternatives.length};
+    });
+    assert.ok(seen.usedWorker, 'probe setup: the search did not run in a worker on the published site');
+    verdict('E2', !seen.same, seen);
+    await context.close();
+  },
+  async E3(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.addInitScript(() => { window.Worker = class { constructor() { setTimeout(() => this.onerror?.({preventDefault() {}}), 0); } postMessage() {} terminate() {} }; });   // a blocked worker reports an error event
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    await reset(page, 3); await generate(page);
+    const seen = await page.evaluate(() => ({alternatives: compositions?.alternatives?.length || 0, fellBack: search.unavailable === true, current: compositionsCurrent()}));
+    verdict('E3', !(seen.alternatives > 0 && seen.fellBack && seen.current), seen);
+    await context.close();
+  },
+  async E4(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    // While the worker is searching, the draft changes: the finished result no longer answers the question on screen.
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});   // the search has started with the old inputs
+    const banned = await page.evaluate(() => { const slug = Object.keys(B.heroes).find(s => s !== 'steel'); S.bans = [slug]; save(); return slug; });
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    const seen = await page.evaluate(() => ({kept: !!compositions, notice: compositionsNotice, shown: /was discarded/.test(document.querySelector('#main').innerText)}));
+    verdict('E4', !(seen.kept === false && seen.shown), {banned, ...seen, notice: seen.notice.slice(0, 80)});
+    await context.close();
+  },
   async G1(browser) {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => changeRoute('more'));
