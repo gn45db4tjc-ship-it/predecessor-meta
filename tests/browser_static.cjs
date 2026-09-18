@@ -4,7 +4,6 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {spawn}=require('node:child_process');
 const root=path.resolve(__dirname,'..'),reportDir=path.join(root,'qa'),url=process.env.PREVIEW_URL||'http://127.0.0.1:12926/';
-const previewPath=path.join(root,'qa','site',decodeURIComponent(new URL(url).pathname.replace(/^\/+|\/+$/g,'')));
 const previous=process.env.BASELINE_TESTS||path.join(__dirname,'legacy');
 let previewServer;
 (async()=>{
@@ -30,8 +29,11 @@ let previewServer;
    const started=Date.now();await page.goto(url,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
    const run={viewport,readyMs:Date.now()-started,checks:[],errors};const check=(value,label)=>{assert(value,label);run.checks.push(label);};
+   // At 700px and below the app renders its phone presentation: the sidebar actions (install, share, export) move under More.
+   const phone=viewport.width<=700,openMore=async()=>{if(phone)await page.locator('#menu-toggle').click();};
    check(await page.evaluate(()=>APP_CONFIG.mode==='static'),'static mode');
-   check(await page.locator('#install-app').isVisible(),'install app control');
+   if(phone){await openMore();check(await page.locator('#companion-install').isVisible(),'install and offline help under More on the phone');}
+   else check(await page.locator('#install-app').isVisible(),'install app control');
    check(await page.evaluate(()=>document.querySelector('link[rel="manifest"]')?.getAttribute('href')==='app.webmanifest'),'web app manifest linked');
    const appManifest=await (await page.request.get(new URL('app.webmanifest',url).href)).json();
    check(appManifest.display==='standalone'&&appManifest.icons.some(i=>i.sizes==='192x192')&&appManifest.icons.some(i=>i.sizes==='512x512'),'install manifest metadata');
@@ -45,7 +47,11 @@ let previewServer;
    }
    await page.locator('#compare-bracket').selectOption('gold');await page.waitForSelector('#comparison-output table');
    check((await page.locator('#comparison-output').textContent()).includes('gold'),'separate published comparison');
-   if(previous){
+   if(previous&&phone){
+    // The legacy suites drive desktop controls (role tabs, the sortable table, lineup slots). At 700px and below the app
+    // renders its phone presentation instead, which tests/browser_companion.cjs covers. Record the skip; do not count it.
+    run.skipped=['seven legacy desktop-control suites: the phone presentation is covered by tests/browser_companion.cjs'];
+   }else if(previous){
     for(const suite of ['meta','strategy','live','augment','correction','sequences','synthesis']){
      // Static and shared modes both keep planner state in localStorage. Adapt only that test boundary.
      const code=fs.readFileSync(path.join(previous,'browser_'+suite+'_acceptance.js'),'utf8').replace("if(APP_CONFIG.mode==='shared')", "if(APP_CONFIG.mode==='shared'||APP_CONFIG.mode==='static')");
@@ -59,7 +65,7 @@ let previewServer;
    check(await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'refresh preserves original observations and date');
    await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy);
    check(await page.evaluate(()=>S.locks.length===2&&S.locks[0].role==='jungle'),'draft restored after reload');
-   await page.locator('#share-plan').click();const planLink=await page.locator('#plan-link').inputValue();
+   await openMore();await page.locator('#share-plan:visible').click();const planLink=await page.locator('#plan-link').inputValue();
    check(new URL(planLink).pathname===new URL(url).pathname,'shared plan preserves repository URL prefix');
    const packet=await page.evaluate(()=>MetaEngine.decodePlan(new URL(document.querySelector('#plan-link').value).hash));
    check(!Object.hasOwn(packet,'liveContexts'),'shared plan excludes inventory');await page.locator('#close-detail').click();
@@ -68,7 +74,7 @@ let previewServer;
    check(await visitorPage.evaluate(()=>S.locks.length===0),'another visitor previews without replacing draft');
    await visitorPage.locator('#use-shared-plan').click();
    check(await visitorPage.evaluate(()=>S.locks.length===2&&S.locks[0].slug==='steel'),'another visitor can import shared picks');await visitor.close();
-   const downloadPromise=page.waitForEvent('download');await page.locator('#export').click();const download=await downloadPromise;
+   await openMore();const downloadPromise=page.waitForEvent('download');await page.locator('#export:visible').click();const download=await downloadPromise;
    const exported=path.join(reportDir,(useWebkit?'webkit':'edge')+'-'+viewport.width+'-snapshot.html');await download.saveAs(exported);
    check(/<main id="main" tabindex="-1"><\/main>/.test(fs.readFileSync(exported,'utf8')),'export does not serialize visitor draft into page markup');
    const snapshot=await context.newPage();await snapshot.goto('file:///'+exported.replace(/\\/g,'/'));
@@ -92,8 +98,10 @@ let previewServer;
     const response=await route.fetch(),manifest=await response.json();manifest.cohorts.gold.sha256='a'.repeat(64);manifest.cohorts.gold.url='bundles/gold-'+('a'.repeat(64))+'.json';
     await route.fulfill({response,json:manifest});
    });
-   const realManifest=JSON.parse(fs.readFileSync(path.join(previewPath,'manifest.json'),'utf8'));
-   await page.route('**/bundles/gold-'+('a'.repeat(64))+'.json',route=>route.fulfill({contentType:'application/json',body:fs.readFileSync(path.join(previewPath,realManifest.cohorts.gold.url))}));
+   // Take the real gold bundle from the preview under test: the staged folder is not always qa/site (six brackets stage to qa/six-site).
+   const realManifest=await (await page.request.get(new URL('manifest.json',url).href)).json();
+   const realGold=await (await page.request.get(new URL(realManifest.cohorts.gold.url,url).href)).body();
+   await page.route('**/bundles/gold-'+('a'.repeat(64))+'.json',route=>route.fulfill({contentType:'application/json',body:realGold}));
    await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
    check(await page.evaluate(()=>!!B&&latestStatus.errors[0].detail.includes('checksum')),'checksum mismatch preserves previous data');
    await page.unroute('**/manifest.json');await page.unroute('**/bundles/gold-'+('a'.repeat(64))+'.json');
@@ -115,6 +123,6 @@ let previewServer;
    report.runs.push(run);await context.close();
   }
   fs.writeFileSync(path.join(reportDir,(useWebkit?'webkit':'edge')+'-static-acceptance.json'),JSON.stringify(report,null,2));
-  console.log(JSON.stringify({engine:report.engine,runs:report.runs.map(r=>({viewport:r.viewport,readyMs:r.readyMs,checks:r.checks.length}))}));
+  console.log(JSON.stringify({engine:report.engine,runs:report.runs.map(r=>({viewport:r.viewport,readyMs:r.readyMs,checks:r.checks.length,...(r.skipped?{skipped:r.skipped}:{})}))}));
  }finally{await browser.close();previewServer?.kill();}
 })().catch(error=>{previewServer?.kill();console.error(error);process.exitCode=1;});

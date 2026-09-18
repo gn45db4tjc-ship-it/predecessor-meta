@@ -6,10 +6,15 @@
  const text=()=>document.querySelector('#main').innerText;
  click('[data-route="live"]');click('#clear-locks');click('#clear-enemies');
  select('[data-slot="allies"][data-slot-role="jungle"]','steel');select('#me-hero','steel');
- select('[data-slot="enemies"][data-slot-role="support"]','narbash');select('#live-priority','anti_heal');
+ select('[data-slot="enemies"][data-slot-role="support"]','narbash');
+ // Since 2.22 a chosen priority moves its answer into the first flexible position; reviewed core and owned items are never displaced.
+ const slot=n=>[...[...document.querySelectorAll('.build-path')].at(-1).children].findIndex(e=>e.innerText.includes(n));
+ const late=slot('Tainted Charm');select('#live-priority','anti_heal');
  select('#live-owned-add','Fire Blossom');
  assert(document.querySelector('[data-owned-remove="0"]').innerText.includes('Fire Blossom'),'Entered item is visible');
- assert(text().includes('Next completed purchase: Tainted Charm'),'Early anti-heal is the next completed purchase');
+ assert(late>3&&slot('Tainted Charm')===3,'Anti-heal priority brings Tainted Charm forward to the first flexible position');
+ assert(text().includes('Next completed purchase: Dynamo'),'Reviewed core stays the next completed purchase');
+ assert(document.querySelector('#main').textContent.includes('Bring Tainted Charm to flexible position 4. Reviewed core order is preserved.'),'Priority timing is explained');
  for(const label of ['Enemy profile & item needs','Anti-heal']){const summary=[...document.querySelectorAll('#main summary')].find(e=>e.innerText.startsWith(label));assert(summary,'Item explanation control '+label);summary.click();}
  assert(text().includes('Reactive only'),'Reactive condition is displayed');
  select('#live-owned-add','Dynamo');assert(document.activeElement.id==='live-owned-add','Keyboard focus restored after inventory change');click('[data-owned-remove="1"]');
@@ -32,12 +37,12 @@
  assert(text().includes('No additional purchase or automatic sale'),'No seventh item or automatic sale');
  click('[data-owned-remove="5"]');assert(!document.querySelector('#live-owned-add').disabled,'Remove restores item entry');
  click('#live-context-clear');assert(!document.querySelectorAll('[data-owned-remove]').length,'Clear game context');
- assert(document.activeElement.id==='live-priority','Clear restores keyboard focus');
+ assert(document.querySelector('#main').contains(document.activeElement),'Clear keeps keyboard focus inside the main region');
  select('#live-owned-add','Fire Blossom');select('#live-priority','anti_heal');
  // Exercise the actual save queue, then confirm the local server accepted this QA state.
  await new Promise(r=>setTimeout(r,600));
  assert(!document.querySelector('#toast').textContent.includes('Could not save planner'),'Rapid controls produce no save failure');
- if(APP_CONFIG.mode==='shared'){const saved=JSON.parse(localStorage.getItem('predecessor-planner-v2'));assert(saved.liveContexts['steel|jungle']?.owned.includes('Fire Blossom'),'Inventory is saved in this browser');}else{const page=await(await fetch('/')).text();assert(page.includes('steel|jungle')&&page.includes('liveContexts'),'Saved inventory included in reload state');}
+ if(APP_CONFIG.mode==='shared'){const match=JSON.parse(sessionStorage.getItem('predecessor-match-v2')),saved=JSON.parse(localStorage.getItem('predecessor-planner-v2'));assert(match.contexts['steel|jungle']?.owned.includes('Fire Blossom'),'Inventory is saved for this match session');assert(!Object.keys(saved.liveContexts).length,'Inventory stays out of the long-lived planner save');}else{const page=await(await fetch('/')).text();assert(page.includes('steel|jungle')&&page.includes('liveContexts'),'Saved inventory included in reload state');}
  assert(!text().includes('could not render'),'No app rendering failure');
  assert(document.documentElement.scrollWidth<=innerWidth+2,'No page overflow');
  document.querySelector('[aria-label="Current game purchases"]').scrollIntoView();
