@@ -1,0 +1,509 @@
+'use strict';
+/* Browser reproductions for the 2.23.0 audit (defects A, B, E, G, H).
+
+   tests/known-defects.json is the ledger. A defect listed as open MUST reproduce and a defect
+   not listed MUST NOT; either mismatch fails the run. So this script passes both before a fix
+   (the defect is recorded and still real) and after it (the ledger entry was removed and the
+   defect is gone), and it fails if a fix is claimed without working or a defect returns.
+
+   Run against a preview staged from the committed seed (no network, no date changes):
+     python -B tests/stage_preview.py
+     python -B -m http.server 12940 --bind 127.0.0.1 --directory qa/audit-site
+     node tests/browser_audit_regressions.cjs
+   or let the script do both with START_PREVIEW=1. PLAYWRIGHT_PATH and BROWSER_CHANNEL are honoured. */
+const {chromium} = require(process.env.PLAYWRIGHT_PATH || 'playwright');
+const assert = require('node:assert/strict'), fs = require('fs'), path = require('path'), {spawn, spawnSync} = require('child_process');
+const root = path.resolve(__dirname, '..');
+const port = Number(process.env.PREVIEW_PORT || 12940);
+const url = process.env.PREVIEW_URL || 'http://127.0.0.1:' + port + '/';
+const ledger = JSON.parse(fs.readFileSync(path.join(__dirname, 'known-defects.json'), 'utf8'));
+const open = new Set(ledger.open), results = [];
+const only = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
+
+function verdict(id, reproduced, detail) {
+  const expectedOpen = open.has(id);
+  results.push({id, title: ledger.defects[id], reproduced, recorded_open: expectedOpen, ok: reproduced === expectedOpen, detail});
+}
+async function session(browser, options) {
+  const context = await browser.newContext({serviceWorkers: 'block', acceptDownloads: true, ...options});
+  const page = await context.newPage();
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+  return {context, page};
+}
+/* A controlled clock, started one hour after the publication was generated unless told otherwise. */
+async function clockSession(browser, options, offsetMs = 3600000) {
+  const context = await browser.newContext({serviceWorkers: 'block', acceptDownloads: true, ...options}), page = await context.newPage();
+  const generated = await (await context.request.get(url + 'manifest.json')).json().then(m => Date.parse(m.cohorts.gold.generated_at));
+  await page.clock.install({time: new Date(generated + offsetMs)});
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+  return {context, page};
+}
+/* Trigger an update check the way a phone does: the tab becomes visible again after more than 15 minutes.
+   (The 'online' event is NOT used: the phone code redraws on it, which would hide a missing redraw.) */
+async function checkLikeAReturningTab(page, forward = '00:16:00') {
+  // Listen first: a long jump also fires the site's own 30-minute check, and either trigger is realistic.
+  const checked = page.waitForResponse(response => response.url().includes('manifest.json'), {timeout: 60000});
+  await page.clock.fastForward(forward);
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await checked;
+  await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 120000});
+}
+/* A marker placed in #main at the moment the failing manifest is served: it disappears only if the view is
+   redrawn AFTER the check started to fail, so an earlier, unrelated redraw cannot pass for a fix. */
+const markMain = page => page.evaluate(() => { document.querySelector('#audit-marker')?.remove(); const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); });
+const failTheNextCheck = async (page, fill, beforeReply) => {
+  const fake = fill.repeat(64);
+  await page.route('**/manifest.json', async route => {
+    const response = await route.fetch(), manifest = await response.json();
+    manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
+    Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
+    if (beforeReply) await beforeReply();
+    await route.fulfill({response, json: manifest});
+  });
+  await page.route('**/bundles/gold-' + fake + '.json', route => route.abort());
+};
+const desktop = {viewport: {width: 1920, height: 1080}};
+const phone = {viewport: {width: 390, height: 844}, isMobile: true, hasTouch: true};
+async function reset(page, size = 3, extra = {}) {
+  await page.evaluate(({size, extra}) => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size, compRole: 'auto'}, extra); compositions = null; save(); }, {size, extra});
+}
+async function generate(page) {
+  await page.evaluate(() => changeRoute('planner'));
+  await page.locator('#generate').click();
+  await page.waitForFunction(() => !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+}
+const offered = page => page.evaluate(() => document.querySelectorAll('[data-use-comp]').length);
+const bannedLocks = page => page.evaluate(() => S.locks.filter(l => S.bans.includes(l.slug) || S.enemies.some(e => e.slug === l.slug)).map(l => l.slug));
+
+const probes = {
+  async A1(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    const target = await page.evaluate(() => compositions.alternatives[0].picks.find(p => p.slug !== 'steel').slug);
+    await page.evaluate(() => changeRoute('draft'));
+    await page.selectOption('#ban-hero', target);
+    assert.ok(await page.evaluate(slug => S.bans.includes(slug), target), 'probe setup: the ban control did not record the ban');
+    await page.evaluate(() => changeRoute('planner'));
+    if (await page.locator('[data-use-comp="0"]').count()) await page.locator('[data-use-comp="0"]').click();
+    const bad = await bannedLocks(page);
+    verdict('A1', bad.length > 0, {banned: target, locked_while_banned: bad});
+    await context.close();
+  },
+  async A2(browser) {
+    const {context, page} = await session(browser, phone);
+    await reset(page, 2); await generate(page);
+    const target = await page.evaluate(() => compositions.alternatives[0].picks.find(p => p.slug !== 'steel').slug);
+    await reset(page, 2, {bans: [target]});
+    await page.evaluate(() => changeRoute('draft'));
+    await page.locator('[data-unban="' + target + '"]').first().click();
+    assert.deepEqual(await page.evaluate(() => S.bans), [], 'probe setup: unban did not clear the ban');
+    await generate(page);
+    const index = await page.evaluate(slug => compositions.alternatives.findIndex(c => c.picks.some(p => p.slug === slug)), target);
+    assert.ok(index >= 0, 'probe setup: the unbanned hero did not return to the alternatives');
+    assert.ok(await page.locator('#undo-action').count(), 'probe setup: the Undo control expired before it could be used');
+    await page.locator('#undo-action').click();
+    assert.ok(await page.evaluate(slug => S.bans.includes(slug), target), 'probe setup: Undo did not restore the ban');
+    await page.evaluate(() => changeRoute('planner'));
+    const button = page.locator('[data-use-comp="' + index + '"]');
+    if (await button.count()) await button.click();
+    const bad = await bannedLocks(page);
+    verdict('A2', bad.length > 0, {restored_ban: target, locked_while_banned: bad});
+    await context.close();
+  },
+  async A3(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 3, {enemies: [{slug: 'gideon', role: 'midlane'}]}); await generate(page);
+    await page.evaluate(() => changeRoute('draft'));
+    await page.locator('#clear-enemies').click();
+    await page.evaluate(() => changeRoute('planner'));
+    const stale = await offered(page);
+    verdict('A3', stale > 0, {alternatives_still_offered: stale});
+    await context.close();
+  },
+  async A4(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 3, {bans: ['khaimera']}); await generate(page);
+    await page.evaluate(() => changeRoute('draft'));
+    await page.locator('[data-unban="khaimera"]').first().click();
+    await page.evaluate(() => changeRoute('planner'));
+    const stale = await offered(page);
+    verdict('A4', stale > 0, {alternatives_still_offered: stale});
+    await context.close();
+  },
+  async A5(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    const expected = await page.evaluate(() => compositions.alternatives[1].picks.map(p => p.role + ':' + p.slug).sort());
+    await page.locator('[data-use-comp="1"]').click();
+    const locks = await page.evaluate(() => S.locks.map(p => p.role + ':' + p.slug).sort());
+    const unique = await page.evaluate(() => new Set(S.locks.map(p => p.slug)).size === S.locks.length && new Set(S.locks.map(p => p.role)).size === S.locks.length);
+    verdict('A5', JSON.stringify(locks) !== JSON.stringify(expected) || !unique, {applied: locks, expected, unique});
+    await context.close();
+  },
+  async A6(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    const target = await page.locator('[data-substitute]').first().getAttribute('data-substitute');
+    await page.locator('[data-substitute="' + target + '"]').first().click();
+    await page.waitForFunction(() => !!compositions?.substitution, null, {timeout: 180000});
+    const state = await page.evaluate(() => ({current: compositionsCurrent(), alternatives: compositions.alternatives.length, role: compositions.substitution.role, locks: S.locks.length, size: S.size}));
+    verdict('A6', !(state.current && state.locks === state.size - 1), state);
+    await context.close();
+  },
+  async A7(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.addInitScript(() => localStorage.setItem('predecessor-planner-v2', JSON.stringify({evidencePolicy: 230, size: 3, bans: ['muriel'], enemies: [{slug: 'gideon', role: 'midlane'}],
+      locks: [{slug: 'steel', role: 'jungle'}, {slug: 'muriel', role: 'support'}, {slug: 'kwang', role: 'offlane'}]})));
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const state = await page.evaluate(() => ({locks: S.locks.map(p => p.slug), bans: S.bans, enemies: S.enemies.map(p => p.slug), toast: document.querySelector('#toast').textContent}));
+    let usable = true; try { await page.evaluate(() => E.validPicks(S.locks, {size: S.size, bans: S.bans, enemies: S.enemies})); } catch { usable = false; }
+    const healed = usable && JSON.stringify(state.locks) === JSON.stringify(['steel', 'kwang']) && state.bans.includes('muriel') && state.enemies.includes('gideon') && /Muriel/.test(state.toast);
+    verdict('A7', !healed, {...state, planner_usable: usable});
+    await context.close();
+  },
+  async A8(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 3, {bans: ['khaimera']}); await generate(page);
+    await page.evaluate(() => changeRoute('draft'));
+    await page.locator('[data-unban="khaimera"]').first().click();
+    await page.evaluate(() => changeRoute('planner'));
+    const text = await page.locator('#compositions').innerText();
+    verdict('A8', !/changed after these alternatives were generated/i.test(text), {panel: text.slice(0, 160)});
+    await context.close();
+  },
+  async A10(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    await failTheNextCheck(page, 'd');
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy && !!latestStatus.errors?.length, null, {timeout: 120000});
+    await page.evaluate(() => changeRoute('planner'));
+    const seen = await page.evaluate(() => ({kept: !!compositions, text: document.querySelector('#compositions')?.innerText || ''}));
+    verdict('A10', seen.kept || !/changed after these alternatives were generated/i.test(seen.text), {kept: seen.kept, panel: seen.text.slice(0, 140)});
+    await context.close();
+  },
+  async A11(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 3, {locks: [], bans: ['sparrow']});
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'pairings'; render(); });
+    const seen = await page.evaluate(() => {
+      const button = [...document.querySelectorAll('[data-plan-pair]')].find(b => b.dataset.planPair.split('|')[1] === 'sparrow');
+      const disabled = !button || button.disabled;
+      if (button) { button.disabled = false; button.click(); }   // even a forced click must not lock a banned hero
+      return {offered: !!button, disabled, locks: S.locks.map(p => p.slug), bans: [...S.bans]};
+    });
+    const enemy = await page.evaluate(() => {
+      Object.assign(S, {locks: [], bans: [], enemies: [{slug: 'sparrow', role: 'carry'}]}); save(); openHero('steel', 'jungle'); S.heroTab = 'pairings'; render();
+      const button = [...document.querySelectorAll('[data-plan-pair]')].find(b => b.dataset.planPair.split('|')[1] === 'sparrow');
+      const disabled = !button || button.disabled;
+      if (button) { button.disabled = false; button.click(); }
+      return {offered: !!button, disabled, locks: S.locks.map(p => p.slug), enemies: S.enemies.map(p => p.slug)};
+    });
+    assert.ok(seen.offered && enemy.offered, 'probe setup: no Sparrow pair card was offered');
+    verdict('A11', seen.locks.includes('sparrow') || !seen.bans.includes('sparrow') || !seen.disabled || enemy.locks.includes('sparrow') || !enemy.enemies.includes('sparrow') || !enemy.disabled, {banned: seen, enemy_picked: enemy});
+    await context.close();
+  },
+  async A12(browser) {
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(() => {
+      B = {...B, guidance: {...B.guidance, strategic_review: undefined}}; E = MetaEngine.create(B);
+      const index = B.guidance.compositions.findIndex(c => c.picks.length >= 2), target = B.guidance.compositions[index].picks[1].slug;
+      Object.assign(S, {locks: [], enemies: [], bans: [target]}); save(); changeRoute('guidance');
+      const button = document.querySelector('[data-guided-comp="' + index + '"]'), disabled = !button || button.disabled;
+      if (button) { button.disabled = false; button.click(); }
+      return {target, disabled, locks: S.locks.map(p => p.slug), bans: [...S.bans]};
+    });
+    const enemy = await page.evaluate(target => {
+      const index = B.guidance.compositions.findIndex(c => c.picks.some(p => p.slug === target)), pick = B.guidance.compositions[index].picks.find(p => p.slug === target);
+      Object.assign(S, {locks: [], bans: [], enemies: [{slug: target, role: pick.role}]}); save(); changeRoute('guidance');
+      const button = document.querySelector('[data-guided-comp="' + index + '"]'), disabled = !button || button.disabled;
+      if (button) { button.disabled = false; button.click(); }
+      return {disabled, locks: S.locks.map(p => p.slug), enemies: S.enemies.map(p => p.slug)};
+    }, seen.target);
+    verdict('A12', seen.locks.includes(seen.target) || !seen.bans.includes(seen.target) || !seen.disabled || enemy.locks.includes(seen.target) || !enemy.enemies.includes(seen.target) || !enemy.disabled, {banned: seen, enemy_picked: enemy});
+    await context.close();
+  },
+  async A9(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    await page.locator('[data-size="2"]').click();
+    const afterSize = await offered(page);
+    await reset(page); await generate(page);
+    await page.evaluate(() => { S.enemies = [{slug: 'gideon', role: 'midlane'}]; save(); render(); });
+    const afterEnemy = await offered(page);
+    verdict('A9', afterSize > 0 || afterEnemy > 0, {offered_after_size_change: afterSize, offered_after_enemy_change: afterEnemy});
+    await context.close();
+  },
+  async B1(browser) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(() => changeRoute('meta'));
+    await failTheNextCheck(page, 'f', () => markMain(page));
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy && !!latestStatus.errors?.length, null, {timeout: 120000});
+    const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', policy: E.performancePolicy().label, marker: !!document.querySelector('#audit-marker'),
+      shows_review_state: /Patch or guidance needs review/.test(document.querySelector('#main').innerText)}));
+    assert.ok(state.withheld, 'probe setup: the failed check did not withhold recommendations');
+    verdict('B1', state.marker || !state.shows_review_state, {...state, meaning: 'fixed only if #main was redrawn after the failing manifest arrived AND shows the review-needed state'});
+    await context.close();
+  },
+  async B3(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await failTheNextCheck(page, 'e', () => markMain(page));
+    await checkLikeAReturningTab(page);
+    const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', marker: !!document.querySelector('#audit-marker'),
+      shows_paused_tiers: /Editorial tiers are paused/.test(document.querySelector('#main').innerText) && /paused/i.test(document.querySelector('.mobile-health')?.innerText || '')}));
+    assert.ok(state.withheld, 'probe setup: the failed check did not withhold recommendations');
+    verdict('B3', state.marker || !state.shows_paused_tiers, {...state, meaning: 'fixed only if the phone view was redrawn after the failing manifest arrived AND says tiers are paused'});
+    await context.close();
+  },
+  async B2(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    const label = () => page.evaluate(() => (document.querySelector('.mobile-health strong')?.textContent || '').trim().toLowerCase());
+    const before = await label();
+    assert.equal(before, 'current', 'probe setup: a one-hour-old publication should read Current');
+    await checkLikeAReturningTab(page, '49:00:00');
+    const after = await label();
+    verdict('B2', after === 'current', {before, after_49_hours_and_a_successful_check: after});
+    await context.close();
+  },
+  async C1(browser) {
+    const d = await session(browser, desktop);
+    const desk = await d.page.evaluate(() => ({saved: E.performancePolicy().saved, strip: document.querySelector('#patch-strip').innerText, fetched: E.performancePolicy().fetched_at}));
+    await d.page.evaluate(() => changeRoute('draft'));
+    const banner = await d.page.locator('#main details.note summary').first().innerText();
+    await d.context.close();
+    const m = await session(browser, phone);
+    const home = await m.page.locator('#main').innerText();
+    await m.context.close();
+    assert.ok(desk.saved, 'probe setup: the committed seed should be older than the 48-hour window');
+    const labelled = /saved statistics/i.test(desk.strip) && /saved role statistics, not a current ranking/i.test(banner) && /saved statistics, fetched/i.test(home) && /\bstale\b/i.test(home) && !/current role samples/i.test(home);
+    verdict('C1', !labelled, {strip: desk.strip.replace(/\s+/g, ' ').slice(0, 120), banner: banner.slice(0, 90), phone_mentions_saved: /saved statistics, fetched/i.test(home)});
+  },
+  async C2(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    const fetched = await (await context.request.get(url + 'manifest.json')).json().then(m => Date.parse(m.cohorts.gold.generated_at));
+    await page.clock.install({time: new Date(fetched + 3600000)});
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const state = await page.evaluate(() => ({saved: E.performancePolicy().saved, currency: E.performancePolicy().currency, strip: document.querySelector('#patch-strip').innerText}));
+    verdict('C2', state.saved || /saved statistics/i.test(state.strip), {currency: state.currency, strip: state.strip.replace(/\s+/g, ' ').slice(0, 100)});
+    await context.close();
+  },
+  async C3(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('ste');
+    await failTheNextCheck(page, 'd', () => markMain(page));
+    await checkLikeAReturningTab(page);
+    const during = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#mobile-hero-search')?.value, withheld: B?.recommendation_context?.status === 'withheld'}));
+    assert.ok(during.withheld, 'probe setup: the failed check did not withhold recommendations');
+    await page.keyboard.type('e');
+    const typed = await page.evaluate(() => document.querySelector('#mobile-hero-search')?.value);
+    await page.evaluate(() => document.activeElement.blur());
+    await page.clock.fastForward(5000);
+    const redrawn = await page.evaluate(() => !document.querySelector('#audit-marker'));
+    verdict('C3', !(during.focused === 'mobile-hero-search' && during.value === 'ste' && typed === 'stee' && redrawn), {...during, after_typing_on: typed, redrawn_for_the_new_evidence: redrawn});
+    await context.close();
+  },
+  /* C#1 from the review: WebKit fires no blur or focusout when a render replaces the focused field. A pending
+     redraw must survive that, so the NEXT evidence change while typing is still redrawn when focus leaves. */
+  async C5(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('st');
+    // First evidence change while typing: the unchanged statistics become 'aging' (31 h), so a redraw is deferred.
+    await checkLikeAReturningTab(page, '30:00:00');
+    // Re-render while focus is in the field, with focus events suppressed the way WebKit behaves.
+    await page.evaluate(() => {
+      const stop = event => event.stopImmediatePropagation();
+      for (const type of ['blur', 'focusout']) window.addEventListener(type, stop, {capture: true});
+      render();
+      for (const type of ['blur', 'focusout']) window.removeEventListener(type, stop, {capture: true});
+    });
+    await page.locator('#mobile-hero-search').click();
+    await markMain(page);
+    // Second evidence change while the field still has focus: the same statistics become 'stale' (49 h).
+    await checkLikeAReturningTab(page, '18:00:00');
+    const during = await page.evaluate(() => ({focused: document.activeElement?.id, state: E.evidenceState().statistics.state}));
+    assert.equal(during.state, 'stale', 'probe setup: the statistics did not become stale');
+    await page.evaluate(() => document.activeElement.blur());
+    await page.clock.fastForward(5000);
+    const redrawn = await page.evaluate(() => !document.querySelector('#audit-marker'));
+    verdict('C5', !(during.focused === 'mobile-hero-search' && redrawn), {...during, redrawn_after_leaving_the_field: redrawn});
+    await context.close();
+  },
+  async C4(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'retained'}}; E = MetaEngine.create(B); S.bracket = 'gold'; changeRoute('builds'); changeRoute('meta'); });
+    const text = await page.locator('#main').innerText();
+    verdict('C4', !(/Editorial tiers are paused for this role/i.test(text) && /ordered by role performance/i.test(text)), {excerpt: (text.match(/Editorial tiers[^\n]*/) || [''])[0].slice(0, 170)});
+    await context.close();
+  },
+  /* Second review round. */
+  async A13(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    await page.selectOption('#comp-sort', await page.evaluate(() => [...document.querySelectorAll('#comp-sort option')].map(o => o.value).find(v => v !== S.sortComp)));
+    const text = await page.locator('#compositions').innerText();
+    verdict('A13', !/^Your search options changed after these alternatives were generated/m.test(text) || /picks, bans, enemies or data/.test(text), {panel: text.slice(0, 120)});
+    await context.close();
+  },
+  async C6(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await failTheNextCheck(page, 'b');
+    await checkLikeAReturningTab(page);
+    const paused = await page.evaluate(() => document.querySelector('.mobile-health')?.innerText || '');
+    await checkLikeAReturningTab(page, '49:00:00');   // still failing, and the statistics on screen are now 50 hours old
+    const later = await page.evaluate(() => document.querySelector('.mobile-health')?.innerText || '');
+    verdict('C6', !/paused/i.test(paused) || /1h ago/.test(later), {badge_after_failure: paused.replace(/\s+/g, ' '), badge_after_49_hours: later.replace(/\s+/g, ' ')});
+    await context.close();
+  },
+  async C7(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('ste');
+    // The patch check fails while the bundle itself is unchanged: only the displayed overlay changes.
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...(m.patch_check || {}), status: 'failed'}; await route.fulfill({response, json: m}); });
+    await checkLikeAReturningTab(page);
+    const during = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#mobile-hero-search')?.value, withheld: B?.recommendation_context?.status === 'withheld'}));
+    assert.ok(during.withheld, 'probe setup: the failed patch check did not withhold recommendations');
+    await page.keyboard.type('e');
+    const typed = await page.evaluate(() => document.querySelector('#mobile-hero-search')?.value);
+    verdict('C7', !(during.focused === 'mobile-hero-search' && typed === 'stee'), {...during, after_typing_on: typed});
+    await context.close();
+  },
+  async C8(browser) {
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => changeRoute('meta'));
+    const target = page.locator('#main [data-hero]').first(), slug = await target.getAttribute('data-hero'), box = await target.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    // An evidence change arrives while the button is held down (a real press lasts about 100 ms).
+    await page.evaluate(() => { connectionLost = !connectionLost; redrawForEvidence(); });
+    await page.waitForTimeout(120); await page.mouse.up();
+    await page.waitForTimeout(150);
+    const seen = await page.evaluate(() => ({route: S.route, hero: S.hero}));
+    verdict('C8', !(seen.route === 'hero' && seen.hero === slug), {clicked: slug, ...seen});
+    await context.close();
+  },
+  async C9(browser) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(() => { changeRoute('meta'); document.querySelector('#hero-search')?.focus(); });
+    await page.keyboard.type('steel');
+    const value = await page.evaluate(() => document.querySelector('#hero-search')?.value);
+    verdict('C9', value !== 'steel', {typed: 'steel', field: value});
+    await context.close();
+  },
+  /* Third review round. */
+  async C10(browser) {
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
+    const id = await page.evaluate(() => { const select = document.querySelector('#main select[id]'); select?.focus(); return select?.id || null; });
+    assert.ok(id, 'probe setup: the hero build view has no select to focus');
+    await failTheNextCheck(page, '9', () => markMain(page));
+    await checkLikeAReturningTab(page);
+    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, redrawn: !document.querySelector('#audit-marker'), withheld: B?.recommendation_context?.status === 'withheld'}));
+    assert.ok(seen.withheld, 'probe setup: the failed check did not withhold recommendations');
+    verdict('C10', !(seen.redrawn && seen.focused === id), {select: id, ...seen});
+    await context.close();
+  },
+  async C11(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('st');
+    await context.setOffline(true);
+    await page.waitForTimeout(200);
+    await page.keyboard.type('e');
+    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#mobile-hero-search')?.value}));
+    await context.setOffline(false);
+    verdict('C11', !(seen.focused === 'mobile-hero-search' && seen.value === 'ste'), seen);
+    await context.close();
+  },
+  async C12(browser) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(() => changeRoute('changes'));
+    await page.locator('#patch-search').click();
+    await page.keyboard.type('steel');
+    await page.evaluate(() => document.activeElement.blur());
+    await page.evaluate(() => { connectionLost = !connectionLost; redrawForEvidence(); });   // an evidence redraw
+    const value = await page.evaluate(() => document.querySelector('#patch-search')?.value);
+    verdict('C12', value !== 'steel', {filter_after_redraw: value});
+    await context.close();
+  },
+  async C13(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    // The patch check succeeds but finds new official content: the badge must not say the check failed.
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...(m.patch_check || {}), status: 'verified', signature: 'new-official-content'}; await route.fulfill({response, json: m}); });
+    await checkLikeAReturningTab(page);
+    const seen = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', badge: document.querySelector('.mobile-health')?.innerText || ''}));
+    assert.ok(seen.withheld, 'probe setup: new official content did not pause recommendations');
+    verdict('C13', /check failed/i.test(seen.badge) || !/new official content/i.test(seen.badge), {badge: seen.badge.replace(/\s+/g, ' ')});
+    await context.close();
+  },
+  async E1(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5);
+    await page.evaluate(() => { changeRoute('planner'); window.__gap = 0; let last = performance.now(); const tick = () => { const now = performance.now(); window.__gap = Math.max(window.__gap, now - last); last = now; requestAnimationFrame(tick); }; requestAnimationFrame(tick); });
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    const gap = await page.evaluate(() => Math.round(window.__gap));
+    verdict('E1', gap > 500, {longest_main_thread_stall_ms: gap, threshold_ms: 500});
+    await context.close();
+  },
+  async G1(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => changeRoute('more'));
+    const waiting = page.waitForEvent('download');
+    await page.locator('#download-review-packet').click();
+    const file = path.join(root, 'qa', 'audit-review-packet.json');
+    await (await waiting).saveAs(file);
+    const packet = JSON.parse(fs.readFileSync(file, 'utf8')), inBundle = await page.evaluate(() => (B.official_changes || []).length);
+    assert.ok(inBundle > 0, 'probe setup: the seed bundle carries no official changes');
+    verdict('G1', (packet.official_changes || []).length === 0, {bundle_official_changes: inBundle, packet_official_changes: (packet.official_changes || []).length, packet_schema: packet.schema});
+    await context.close();
+  },
+  async H1(browser) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => { B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'retained'}}; E = MetaEngine.create(B); S.bracket = 'gold'; changeRoute('builds'); changeRoute('meta'); });
+    const state = await page.evaluate(() => ({active: Object.keys(B.heroes).filter(slug => (B.heroes[slug].roles_order || []).some(role => E.metaReview(slug, role)?.active)).length, text: document.querySelector('#main').innerText}));
+    assert.equal(state.active, 0, 'probe setup: retained evidence should leave no editorial tier active');
+    const claims = ['Reviewed tier guidance leads', 'Reviewed tier, then role performance'].filter(c => state.text.includes(c));
+    verdict('H1', claims.length > 0, {active_tiers: state.active, claims_shown: claims});
+    await context.close();
+  }
+};
+
+(async () => {
+  let server = null;
+  if (process.env.START_PREVIEW === '1') {
+    const python = process.env.PYTHON_EXE || 'python';
+    const staged = spawnSync(python, ['-B', path.join('tests', 'stage_preview.py')], {cwd: root, encoding: 'utf8'});
+    if (staged.status) throw Error('Preview staging failed: ' + staged.stderr);
+    server = spawn(python, ['-B', '-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', path.join('qa', 'audit-site')], {cwd: root, stdio: 'ignore'});
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  fs.mkdirSync(path.join(root, 'qa'), {recursive: true});
+  const browser = await chromium.launch({channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true});
+  try {
+    for (const [id, probe] of Object.entries(probes)) {
+      if (only && !only.has(id)) continue;
+      try { await probe(browser); }
+      catch (error) { results.push({id, title: ledger.defects[id], ok: false, error: String(error.message || error).split('\n')[0]}); }
+    }
+  } finally { await browser.close(); if (server) server.kill(); }
+  const failed = results.filter(r => !r.ok);
+  fs.writeFileSync(path.join(root, 'qa', 'audit-regressions-browser.json'), JSON.stringify({baseline: ledger.baseline, url, checked_at: new Date().toISOString(), results}, null, 2));
+  for (const r of results) console.log((r.ok ? 'ok   ' : 'FAIL ') + r.id + ' ' + (r.error ? 'probe error: ' + r.error : (r.reproduced ? 'reproduced' : 'not reproduced') + (r.recorded_open ? ' (recorded open)' : ' (recorded fixed)')) + ' ' + JSON.stringify(r.detail || {}));
+  if (failed.length) process.exit(1);
+})().catch(error => { console.error(error); process.exit(1); });

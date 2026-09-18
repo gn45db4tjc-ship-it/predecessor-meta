@@ -45,6 +45,9 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.13'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .cloud-state
@@ -69,12 +72,14 @@ jobs:
           fi
       - name: Validate publication policy
         run: python -B -m unittest discover -s tests -p 'test_static*.py' -v
+      - name: Validate the recommendation engine
+        run: node --test tests/*.test.cjs
       - name: Collect only when due; render public bundles separately
         id: generate
         env:
           MANUAL_REFRESH: ${{ inputs.refresh }}
           DIAGNOSE_PRED: ${{ inputs.diagnose_pred }}
-          COLLECTION_RELEASE: '2.23.0'
+          COLLECTION_RELEASE: '2.24.0'
         run: |
           if [ -f collected-data/collector.json ]; then
             python -B import_local_feed.py collected-data

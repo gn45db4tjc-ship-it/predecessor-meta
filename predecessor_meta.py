@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.23.0"
+VERSION = "2.24.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2744,13 +2744,16 @@ def retained_statz_bundle(bracket):
     candidates=[]
     for path in (DATA_DIR/('last_successful_'+bracket+'.json'),LATEST_BUNDLE):
         try:
-            b=load_bundle(path);sources=b.get('sources',{})
-            if b.get('schema')!=3 or b.get('bracket',{}).get('segment')!=bracket or not b.get('patch'):continue
+            b=load_bundle(path)
+            if not isinstance(b,dict):continue
+            sources=b.get('sources') or {}
+            if b.get('schema')!=3 or (b.get('bracket') or {}).get('segment')!=bracket or not b.get('patch'):continue
             if not b.get('tier_list') or b.get('failed_pages') or b.get('patch_conflicts'):continue
+            if not bundle_rows_valid(b):continue
             if any(sources.get(k,{}).get('status')!='ok' or not sources[k].get('fetched_at') for k in ('statz_tierlist','statz_hero_pages')):continue
             age=timestamp_age(sources['statz_tierlist']['fetched_at'])
             if age is not None:candidates.append((age,b))
-        except (OSError,ValueError,TypeError,KeyError):continue
+        except Exception:continue   # a damaged saved file is skipped
     for _,candidate in sorted(candidates,key=lambda x:x[0]):
         try:return source_records_before_review(candidate)
         except (KeyError,IndexError,TypeError,ValueError) as e:log('Retained Statz audit unavailable: '+str(e))
@@ -2799,6 +2802,75 @@ def bundle_has_current_primary(b):
         b.get('sources',{}).get('omeda_heroes',{}).get('status')=='ok')
 
 
+def validate_bundle_rows(b):
+    """Structural and numeric checks shared by every publication path: collector output, import,
+    cache restore and publication. Raises ValueError naming the first problem; returns True.
+
+    Statuses alone do not make a bundle publishable. Every tier row must be unique, belong to a known
+    role, point at a collected hero role, and carry a positive integer sample with finite rates in
+    0-100. Where wins are supplied they must agree with the sample and the win rate. A source marked
+    ok must carry a usable fetch date. Nothing is repaired or inferred here."""
+    if (b.get('bracket') or {}).get('segment') not in BRACKETS:
+        raise ValueError('unknown rank bracket')
+    for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes'):
+        source = (b.get('sources') or {}).get(key) or {}
+        if source.get('status') == 'ok' and timestamp_age(source.get('fetched_at')) is None:
+            raise ValueError('source %s is marked ok without a usable fetch date' % key)
+    rows, heroes = b.get('tier_list'), b.get('heroes')
+    if not isinstance(rows, list) or not rows:
+        raise ValueError('tier list is empty')
+    if not isinstance(heroes, dict) or not heroes:
+        raise ValueError('hero roster is empty')
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get('slug'), str) or row.get('role') not in ROLES:
+            raise ValueError('tier row has an unknown hero or role: %r' % (row if not isinstance(row, dict) else (row.get('slug'), row.get('role')),))
+        key = (row['slug'], row['role'])
+        if key in seen:
+            raise ValueError('duplicate tier row %s/%s' % key)
+        seen.add(key)
+        role = ((heroes.get(row['slug']) or {}).get('roles') or {}).get(row['role'])
+        if not isinstance(role, dict):
+            raise ValueError('tier row %s/%s has no hero role record' % key)
+        if role.get('status') != 'ok':
+            raise ValueError('tier row %s/%s points at a role whose status is %r' % (key + (role.get('status'),)))
+        for record, count, label in ((row, 'matches', 'tier row'), (role, 'playedGames', 'hero role')):
+            if type(record.get(count)) is not int or record[count] <= 0:
+                raise ValueError('%s %s/%s has no positive integer sample' % ((label,) + key))
+            for field in ('winRate', 'pickRate'):
+                value = record.get(field)
+                if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100:
+                    raise ValueError('%s %s/%s has an invalid %s: %r' % ((label,) + key + (field, value)))
+        won = role.get('wonGames')
+        if won is not None:
+            if type(won) is not int or not 0 <= won <= role['playedGames']:
+                raise ValueError('hero role %s/%s has wins outside its sample' % key)
+            if abs(role['winRate'] - 100.0 * won / role['playedGames']) > 0.06:
+                raise ValueError('hero role %s/%s wins and sample disagree with its win rate' % key)
+    return True
+
+
+def collection_verdict(b):
+    """(complete, reason) for saving a collection as a success: clean statuses AND valid rows.
+
+    Statuses alone never make a success. A collection whose rows fail validation is kept as an attempt."""
+    complete, reason = bundle_is_complete(b)
+    if not complete:
+        return complete, reason
+    try:
+        validate_bundle_rows(b)
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        return False, 'its rows failed validation (%s)' % error
+    return True, reason
+
+
+def bundle_rows_valid(b):
+    try:
+        return validate_bundle_rows(b)
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
 def bundle_has_fresh_statz(b):
     """Validate a useful independent update, without certifying the other sources."""
     try:
@@ -2825,33 +2897,65 @@ def bundle_has_fresh_statz(b):
             return False
         if pages.get('ok') != pages['requested'] or pages.get('failed') or pages.get('conflicting'):
             return False
-        rows = b['tier_list']
-        if not isinstance(rows, list) or not rows:
-            return False
-        seen = set()
-        for row in rows:
-            key = (row['slug'], row['role'])
-            if key in seen or row['role'] not in ROLES:
-                return False
-            seen.add(key)
-            role = b['heroes'][row['slug']]['roles'][row['role']]
-            if role.get('status') != 'ok':
-                return False
-            for record, count in ((row, 'matches'), (role, 'playedGames')):
-                if type(record.get(count)) is not int or record[count] <= 0:
-                    return False
-                for field in ('winRate', 'pickRate'):
-                    value = record.get(field)
-                    if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100:
-                        return False
+        validate_bundle_rows(b)
         return True
     except (KeyError, TypeError, ValueError, AttributeError):
         return False
 
 
+def primary_rows_problem(b):
+    """The first reason primary_rows_valid(b) fails, or None."""
+    if primary_rows_valid(b):
+        return None
+    try:
+        heroes = b.get('heroes') or {}
+        observed = [r for r in b.get('tier_list') or [] if (((heroes.get(r.get('slug')) or {}).get('roles') or {}).get(r.get('role')) or {}).get('status') not in ('failed', 'patch_conflict')]
+        validate_bundle_rows(dict(b, tier_list=observed))
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        return 'its rows failed validation (%s)' % error
+    return 'a tier row of a failed page, a source date or the bracket failed validation'
+
+
+def primary_rows_valid(b):
+    """Row checks for an update that is publishable because its Pred.gg partition is current.
+
+    Statz may have failed in such a collection. A tier row whose hero role was not collected (failed page or
+    patch conflict) is not an observation: it must carry no role numbers and is left out of the row checks.
+    Every other tier row gets the same checks as any publication. With no Statz rows at all there is nothing
+    to check beyond the bracket and the source dates."""
+    try:
+        if (b.get('bracket') or {}).get('segment') not in BRACKETS:
+            return False
+        for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes'):
+            source = (b.get('sources') or {}).get(key) or {}
+            if source.get('status') == 'ok' and timestamp_age(source.get('fetched_at')) is None:
+                return False
+        heroes, observed, seen = b.get('heroes') or {}, [], set()
+        for row in b.get('tier_list') or []:
+            if not isinstance(row, dict) or not isinstance(row.get('slug'), str) or row.get('role') not in ROLES or (row['slug'], row['role']) in seen:
+                return False
+            seen.add((row['slug'], row['role']))
+            role = ((heroes.get(row.get('slug')) or {}).get('roles') or {}).get(row.get('role'))
+            if isinstance(role, dict) and role.get('status') in ('failed', 'patch_conflict'):
+                # The hero page was not collected, but the tier-list row itself was, and it is shown as collected.
+                if any(field in role for field in ('winRate', 'pickRate', 'playedGames', 'wonGames')):
+                    return False
+                if type(row.get('matches')) is not int or row['matches'] <= 0:
+                    return False
+                if any(type(row.get(f)) not in (int, float) or not math.isfinite(row[f]) or not 0 <= row[f] <= 100 for f in ('winRate', 'pickRate')):
+                    return False
+                continue
+            observed.append(row)
+        return not observed or validate_bundle_rows(dict(b, tier_list=observed))
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
 def bundle_is_publishable(b):
-    """Partial publications remain labelled and separate from the last full success."""
-    return bundle_is_complete(b)[0] or bundle_has_current_primary(b) or bundle_has_fresh_statz(b)
+    """Partial publications remain labelled and separate from the last full success.
+
+    Every branch validates rows: a complete collection, a Pred.gg-primary update, and a fresh Statz update."""
+    return (bundle_is_complete(b)[0] and bundle_rows_valid(b)) or (bundle_has_current_primary(b) and primary_rows_valid(b)) or bundle_has_fresh_statz(b)
 
 
 def retain_pred_partition(bundle, previous):
@@ -2913,10 +3017,10 @@ def previous_pred_bundle(bracket):
     for name in ('last_available_', 'last_successful_', 'last_primary_'):
         try:
             value = load_bundle(DATA_DIR / (name + bracket + '.json'))
-            if value.get('schema') == 3 and value.get('bracket', {}).get('segment') == bracket:
+            if isinstance(value, dict) and value.get('schema') == 3 and (value.get('bracket') or {}).get('segment') == bracket:
                 age = timestamp_age(value.get('generated_at'))
                 if age is not None: candidates.append((age, value))
-        except (OSError, ValueError, TypeError):
+        except Exception:   # a damaged saved file is skipped, never a reason every refresh fails
             pass
     return min(candidates, key=lambda pair: pair[0])[1] if candidates else None
 
@@ -3044,6 +3148,17 @@ def review_saved_sources(bundle):
     return b
 
 
+def cached_rows_usable(path,b):
+    """A saved success or latest bundle is restored only if its rows validate. Pre-schema-3 caches keep
+    their existing legacy handling (they are shown as legacy data, never as current)."""
+    if not isinstance(b,dict):return False
+    if b.get('schema')!=3:return True
+    if path.name.startswith('last_successful_'):return collection_verdict(b)[0]
+    if path.name.startswith('last_primary_'):return bundle_has_current_primary(b) and primary_rows_valid(b)
+    if path==LATEST_BUNDLE:return collection_verdict(b)[0] or bundle_is_publishable(b)
+    return True
+
+
 def read_cached(bracket=None):
     choices=[DATA_DIR/(name+bracket+'.json') for name in ('last_successful_', 'last_primary_', 'last_available_')] if bracket else []
     choices.append(LATEST_BUNDLE)
@@ -3053,15 +3168,18 @@ def read_cached(bracket=None):
             b=load_bundle(path)
             if path.name.startswith('last_primary_') and not bundle_has_current_primary(b):return float('inf')
             if path.name.startswith('last_available_') and not bundle_is_publishable(b):return float('inf')
+            if not cached_rows_usable(path,b):return float('inf')
             age=timestamp_age(b.get('generated_at'))
             return age if age is not None else float('inf')
-        except (OSError,ValueError,TypeError):return float('inf')
+        except Exception:return float('inf')   # a damaged saved file is skipped, never a reason the app cannot start
     for path in sorted(choices,key=collection_age):
         if path.exists():
             try:
                 raw=load_bundle(path)
                 if path.name.startswith('last_primary_') and not bundle_has_current_primary(raw):continue
                 if path.name.startswith('last_available_') and not bundle_is_publishable(raw):continue
+                if not cached_rows_usable(path,raw):
+                    log('Saved data in '+path.name+' failed validation and was not used.');continue
                 b=review_saved_sources(raw)
                 if not bracket or b.get('bracket',{}).get('segment')==bracket:
                     b['session_notice']='Saved data from '+b.get('generated_at','an unknown time')+'. A live refresh is required for this opening.'
@@ -3241,15 +3359,18 @@ class AppState:
             try:
                 b=collect_bundle(dict(self.settings,force_history_refresh=force_history),self.update)
                 # Partial results are visible as a separate attempt; never overwrite last success.
-                complete, reason=bundle_is_complete(b)
+                complete, reason=collection_verdict(b)
                 b['refresh_result']='complete' if complete else 'partial: '+reason
                 b['cache']={'used':False}
+                rows_failed=False
                 if complete:
                     save_bundle(b,bundle_path(b['patch'],b['bracket']['segment']))
                     save_bundle(b,DATA_DIR/('last_successful_'+b['bracket']['segment']+'.json'),False)
                 else:
+                    rows_failed=bundle_is_complete(b)[0] or not primary_rows_valid(b)
+                    if rows_failed:b.setdefault('errors',[]).append({'source':'Collection validation','severity':'error','detail':reason if bundle_is_complete(b)[0] else primary_rows_problem(b)})
                     save_bundle(b,DATA_DIR/('last_attempt_'+b['bracket']['segment']+'.json'),False)
-                    if bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+b['bracket']['segment']+'.json'))
+                    if bundle_has_current_primary(b) and primary_rows_valid(b):save_bundle(b,DATA_DIR/('last_primary_'+b['bracket']['segment']+'.json'))
                     if bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+b['bracket']['segment']+'.json'),False)
                 display=b
                 # Preserve the last complete, explicitly dated review when the
@@ -3264,6 +3385,15 @@ class AppState:
                             display['guidance']['status']='reviewed for saved patch; live verification failed'
                         display.setdefault('errors',[]).extend(copy.deepcopy(b.get('errors',[])))
                         display['latest_attempt']={'generated_at':b['generated_at'],'result':b['refresh_result']}
+                elif not complete and rows_failed:
+                    # Statuses were clean but rows failed validation: keep the last validated data on screen.
+                    previous=read_cached(self.settings['bracket'])
+                    if previous and previous.get('tool_version')==VERSION:
+                        display=previous
+                        display['cache']={'used':True,'reason':'The new collection failed validation; showing the last validated bundle.'}
+                        display['session_notice']='The new collection failed validation ('+reason+'). Showing saved data from '+display.get('generated_at','an unknown time')+'.'
+                        display.setdefault('errors',[]).extend(copy.deepcopy(b.get('errors',[])))
+                        display['latest_attempt']={'generated_at':b['generated_at'],'result':b['refresh_result']}
                 render(display)
                 checkpoint=write_refresh_checkpoint(b['bracket']['segment'],started,'complete' if complete else 'partial',b.get('errors',[]))
                 with self.lock:
@@ -3272,7 +3402,7 @@ class AppState:
                     self.last_attempt_at=checkpoint['finished_at']
                     self.retry_blocked=any(re.search(r'403|429|blocked|rate.limit',e['detail'],re.I) for e in checkpoint['errors'])
                     self.status.update({'revision':self.revision,'errors':b.get('errors',[]), 'last_refresh':b['generated_at'],
-                        'message':('Live refresh complete' if complete else 'Official verification failed — showing dated saved data' if display is not b else 'Refresh has missing or unverified data — see source alerts')+' · %.1fs'%b['timings']['cold_refresh_secs']})
+                        'message':('Live refresh complete' if complete else 'New collection failed validation — showing the last validated data' if display is not b and rows_failed else 'Official verification failed — showing dated saved data' if display is not b else 'Refresh has missing or unverified data — see source alerts')+' · %.1fs'%b['timings']['cold_refresh_secs']})
             except Exception as e:
                 self.refresh_failed(e,started,self.settings['bracket'])
             finally:
@@ -3716,9 +3846,11 @@ def main():
         if not b: raise ValueError('No saved bundle available to export')
         path=render(b); log('Exported '+str(path)); return 0
     if args.once:
-        b=collect_bundle(settings,log); complete,reason=bundle_is_complete(b)
+        b=collect_bundle(settings,log); complete,reason=collection_verdict(b)
+        if not complete and (bundle_is_complete(b)[0] or not primary_rows_valid(b)):
+            b.setdefault('errors',[]).append({'source':'Collection validation','severity':'error','detail':reason if bundle_is_complete(b)[0] else primary_rows_problem(b)})
         save_bundle(b,DATA_DIR/('last_successful_'+settings['bracket']+'.json') if complete else DATA_DIR/'last_attempt.json',complete)
-        if not complete and bundle_has_current_primary(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
+        if not complete and bundle_has_current_primary(b) and primary_rows_valid(b):save_bundle(b,DATA_DIR/('last_primary_'+settings['bracket']+'.json'))
         if not complete and bundle_is_publishable(b):save_bundle(b,DATA_DIR/('last_available_'+settings['bracket']+'.json'),False)
         render(b); log(json.dumps({'complete':complete,'reason':reason,'timings':b['timings'],'heroes':len(b['heroes']),'rows':len(b['tier_list']),'pairs':len(b['pairs'])})); return 0 if complete else 2
     return serve(settings,args.no_open,args.port,args.no_fetch)

@@ -220,7 +220,7 @@
       const out={score:Math.min(10,score),reasons,constraints,evidence:reasons.flatMap(r=>r.abilities),loadouts:[...(ha.loadout_notes||[]),...(hb.loadout_notes||[])]}; fitCache.set(id,out); return out;
     }
     function roles(slug) { return (heroes[slug]?.roles_order || []).filter(r=>ROLES.includes(r)); }
-    function performancePolicy() {
+    function basePerformancePolicy() {
       if(!bundle)return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,note:'No data bundle is loaded.'};
       if(!verificationCurrent())return {source:null,label:'Verification required',patch:null,fetched_at:null,note:bundle.recommendation_context?.reason||'Live patch verification is pending or failed. Saved observations remain inspectable with their original dates.'};
       const c=bundle.scoped_statistics,live=bundle.official?.live?.version;
@@ -235,6 +235,43 @@
         fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'};
       return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,
         note:'No eligible role-statistics source matches this publication. Saved observations remain inspectable; they do not rank current recommendations.'};
+    }
+    // One definition of evidence age for every route. Saved advice stays usable with its original date;
+    // statistics outside the aging window are labelled as saved and never presented as current rankings.
+    // Observations, ordering and eligibility rules above are unchanged: this only describes them.
+    const EVIDENCE_HOURS={current:30,aging:48},FUTURE_TOLERANCE_MS=300000;
+    function sourceCurrency(source,now=Date.now()) {
+      const at=Date.parse(source?.fetched_at),age=(now-at)/3600000;
+      if(!source||!['ok','partial','retained'].includes(source.status)||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
+      const state=source.status==='retained'?'retained':age<=EVIDENCE_HOURS.current?'current':age<=EVIDENCE_HOURS.aging?'aging':'stale';
+      return {state,fetched_at:source.fetched_at,age_hours:Math.max(0,Math.round(age*100)/100)};
+    }
+    function performancePolicy({now=Date.now()}={}) {
+      const policy=basePerformancePolicy(),key=policy.source==='pred'?'pred_scoped':policy.source==='statz'?'statz_hero_pages':null;
+      const c=key?sourceCurrency(bundle.sources?.[key],now):{state:'unavailable',age_hours:null};
+      return {...policy,currency:c.state,age_hours:c.age_hours,saved:!!policy.source&&!['current','aging'].includes(c.state)};
+    }
+    function metaReviewSummary(role) {
+      const rows=(bundle?.guidance?.meta_review?.entries||[]).filter(r=>!role||r.role===role).map(r=>metaReview(r.slug,r.role)).filter(Boolean);
+      const counts={};for(const r of rows)if(!r.active)counts[r.status]=(counts[r.status]||0)+1;
+      const active=rows.filter(r=>r.active).length;
+      return {entries:rows.length,active,reason:Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||null};
+    }
+    function evidenceState({now=Date.now()}={}) {
+      const policy=performancePolicy({now}),s=bundle?.sources||{},g=bundle?.guidance||{};
+      // Statistics that no eligible source supplies are unavailable for ranking, whatever their own age.
+      const statistics=policy.source?{source:policy.source,...sourceCurrency(policy.source==='pred'?s.pred_scoped:s.statz_hero_pages,now)}:{source:null,state:'unavailable',fetched_at:null,age_hours:null};
+      const mechanics=sourceCurrency(s.pred_game_data||s.omeda_heroes,now);
+      const verification={state:!bundle?'unavailable':bundle.recommendation_context?.status==='withheld'?'withheld':bundle.official?.status==='verified'?'verified':'failed',checked_at:bundle?.official?.checked_at||null,reason:bundle?.recommendation_context?.reason||null};
+      const guidance={state:reviewReady()?'reviewed':String(g.status||'').startsWith('reviewed for saved patch')?'saved':'needs-review',status:g.status||null,patch:g.patch||null,reviewed_at:g.reviewed_at||null,next_review_at:g.maintenance_review?.next_weekly_review||null};
+      const rankingCurrent=verification.state==='verified'&&!!policy.source&&['current','aging'].includes(statistics.state),limitations=[];
+      if(verification.state!=='verified')limitations.push(verification.reason||'Live patch verification is pending or failed.');
+      if(statistics.state==='stale')limitations.push('Role statistics were fetched more than '+EVIDENCE_HOURS.aging+' hours ago. They are shown as saved statistics, not current rankings.');
+      if(statistics.state==='retained')limitations.push('Role statistics are retained from an earlier collection.');
+      if(!policy.source&&verification.state==='verified')limitations.push(policy.note);
+      else if(policy.source&&statistics.state==='unavailable')limitations.push('The role-statistics fetch date is missing or in the future, so they are not treated as current.');
+      if(guidance.state!=='reviewed')limitations.push('Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
+      return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
     }
     function performance(pick,{source='auto'}={}) {
       const selected=source==='auto'?performancePolicy().source:source;
@@ -796,7 +833,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,performance,metaReview,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
