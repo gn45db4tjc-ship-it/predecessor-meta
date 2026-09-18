@@ -23,11 +23,13 @@ def official(version='1.2', fingerprint='a'):
 def bundle(bracket='gold'):
     return {'schema': 3, 'generated_at': NOW.isoformat(), 'patch': '1.2',
             'bracket': {'segment': bracket, 'label': bracket.capitalize()+'+'},
-            'heroes': {'unit-test-fixture': {'display_name': 'Synthetic fixture'}},
-            'tier_list': [{'slug': 'unit-test-fixture', 'role': 'jungle'}],
+            # A complete collection carries real rows: clean statuses alone are not publishable (audit C).
+            'heroes': {'unit-test-fixture': {'display_name': 'Synthetic fixture', 'roles': {'jungle': {
+                'status': 'ok', 'winRate': 50.0, 'pickRate': 10.0, 'playedGames': 200}}}},
+            'tier_list': [{'slug': 'unit-test-fixture', 'role': 'jungle', 'winRate': 50.0, 'pickRate': 10.0, 'matches': 200}],
             'official': official(), 'errors': [], 'pairs': {},
-            'sources': {'statz_tierlist': {'status': 'ok'}, 'statz_hero_pages': {'status': 'ok'},
-                        'omeda_heroes': {'status': 'ok'}}}
+            'sources': {key: {'status': 'ok', 'fetched_at': NOW.isoformat()}
+                        for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes')}}
 
 
 class ScheduleTests(unittest.TestCase):
