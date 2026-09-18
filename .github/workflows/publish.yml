@@ -91,6 +91,12 @@ jobs:
           else
             python -B static_publish.py --import-public-seed public-seed-gold.json.gz
           fi
+      - name: Prepare the strategy review packet for human review
+        # Read-only with respect to the publication: never changes a bundle, the manifest, a review
+        # status or a review date. A problem here must not stop the daily data publication.
+        if: steps.generate.outputs.publishable == 'true'
+        continue-on-error: true
+        run: node review_queue.cjs --state-dir .cloud-state --site _site
       - name: Retain dated public source cache and failure state
         if: always()
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
