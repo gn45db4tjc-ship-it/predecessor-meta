@@ -1,6 +1,6 @@
-# Current release: 2.26.0
+# Current release: 2.26.1
 
-See RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -213,3 +213,10 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - An independent review confirmed five defects in the change (sections leaking open across screens and heroes, focus after the Sources link, the Compositions count, Cancel without a background search, and a check that could not fail); all are fixed with checks that fail on the unfixed code (M10-M13, stronger M4).
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 52 of 52 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states in both themes, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; no horizontal overflow at 320 px with large text; clean-room package 178 Python / 146 JavaScript.
 - Not verified: a physical phone, screen readers, native installs. Real-device acceptance by the owner is the remaining checkpoint for item 09.
+
+# Revision 7 — 2.26.1 fixes from the live check of 2.26.0
+
+- After 2.26.0 was published, independent agents checked the live site in real browsers (data, the four phone tasks at 390 px and at 320 px with large text in both themes, offline with the real service worker, desktop). Nothing high or medium was found; this release fixes the confirmed low-severity items: limitations counted per source, cancel notes that say what happened and expire, the Live picker marking small samples, a wrong device clock named, every missing number given its real reason, the hero page naming its source, readable review dates, narrow-phone layout, light-theme contrast of pressed build variants, keyboard focus kept on the same control, the phone status chip agreeing with the page, and truthful offline messages about saved ranks.
+- Four independent review rounds of the patch (each finding challenged by a second agent) confirmed one high finding, withdrawn (an earlier draft could overstate the official description review after a hotfix), three medium findings (false reasons for missing numbers) and several low ones; all are fixed with checks that fail on the unfixed code (P1-P15).
+- Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; clean-room package 178 Python / 146 JavaScript.
+- Not verified: a physical phone, screen readers, native installs.
