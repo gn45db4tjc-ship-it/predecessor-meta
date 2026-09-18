@@ -480,7 +480,8 @@ const probes = {
     await (await waiting).saveAs(file);
     const packet = JSON.parse(fs.readFileSync(file, 'utf8')), inBundle = await page.evaluate(() => (B.official_changes || []).length);
     assert.ok(inBundle > 0, 'probe setup: the seed bundle carries no official changes');
-    verdict('G1', (packet.official_changes || []).length === 0, {bundle_official_changes: inBundle, packet_official_changes: (packet.official_changes || []).length, packet_schema: packet.schema});
+    const complete = (packet.official_changes || []).length === inBundle && packet.schema === 2 && Array.isArray(packet.brackets) && packet.brackets.some(b => b.bracket === 'gold' && /^[a-f0-9]{64}$/.test(b.sha256 || '')) && /^[a-f0-9]{64}$/.test(packet.reference_bundle?.sha256 || '');
+    verdict('G1', !complete, {bundle_official_changes: inBundle, packet_official_changes: (packet.official_changes || []).length, packet_schema: packet.schema, plans: (packet.plans || []).length, brackets: (packet.brackets || []).length, reference_sha: !!packet.reference_bundle?.sha256});
     await context.close();
   },
   /* D: one failed Statz hero page. The page marks a role failed exactly as the publisher would

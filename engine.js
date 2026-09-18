@@ -285,6 +285,45 @@
       if(guidance.state!=='reviewed')limitations.push('Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
       return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
     }
+    // ---- Strategy review: packets are prepared for a human reviewer. Building one is read-only: it never
+    // changes a review status, a review date, a recommendation or an observation. ----
+    function strategyReviewDue({now=Date.now()}={}) {
+      const g=bundle?.guidance,next=Date.parse(g?.maintenance_review?.next_weekly_review),reasons=[];
+      if(g?.patch!==bundle?.official?.live?.version)reasons.push('Guidance was reviewed for patch '+(g?.patch||'unknown')+'; the live patch is '+(bundle?.official?.live?.version||'unverified')+'.');
+      if(bundle?.recommendation_context)reasons.push(bundle.recommendation_context.reason||'Recommendations are currently withheld.');
+      if(Number.isFinite(next)&&next<=now)reasons.push('The scheduled review date '+g.maintenance_review.next_weekly_review+' has passed.');
+      return {due:reasons.length>0,reasons};
+    }
+    function isoWeek(ms) {
+      const d=new Date(ms),t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));
+      const week=Math.ceil(((t-Date.UTC(t.getUTCFullYear(),0,1))/86400000+1)/7);return t.getUTCFullYear()+'-W'+String(week).padStart(2,'0');
+    }
+    function reviewPacket({now=Date.now(),revision=null,cohorts=null,toolVersion=null}={}) {
+      const plain=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,''),g=bundle?.guidance||{},live=bundle?.official?.live||{};
+      const change=(c,hotfix)=>({patch:c.patch??null,kind:c.kind??null,key:c.key??null,name:c.name??null,field:c.field??null,change:c.change??null,source:c.source??null,fetched_at:c.fetched_at??null,hotfix,historical:!!c.historical});
+      const official=(bundle?.official_changes||[]).map(c=>change(c,false)),hotfixes=(bundle?.official_hotfix_changes||[]).map(c=>change(c,true)),all=[...official,...hotfixes];
+      const plans=(g.builds||[]).map(p=>{
+        const parts=new Set([heroes[p.slug]?.display_name,...(p.core||[]),...(p.finish||[]),p.crest,p.augment,p.eternal,...(p.blessings||[])].map(plain).filter(Boolean));
+        const reviewedPatch=p.maintenance_review?.patch||p.patch||g.patch||null;const affected=all.filter(c=>(c.kind==='hero'&&c.key===p.slug)||(plain(c.name)&&parts.has(plain(c.name)))).map(c=>({...c,published_after_review_patch:!c.historical&&c.patch!==reviewedPatch}));
+        return {slug:p.slug,role:p.role,title:p.title||null,plan_patch:p.patch||null,result:p.maintenance_review?.result||'unresolved',reviewed_at:p.maintenance_review?.reviewed_at||p.reviewed_at||null,
+          reason:p.maintenance_review?.reason||'No maintenance result recorded',limitation:p.maintenance_review?.limitation||'',
+          reviewed_parts:{core:p.core||[],finish:p.finish||[],crest:p.crest||null,augment:p.augment||null,eternal:p.eternal||null,blessings:p.blessings||[]},
+          reviewed_for_patch:reviewedPatch,affected_by:affected,needs_attention:affected.some(c=>c.published_after_review_patch)||(p.maintenance_review?.result||'unresolved')==='unresolved'};
+      });
+      const week=isoWeek(now),identity={live_version:live.version||null,live_fingerprint:live.fingerprint||null,guidance_reviewed_at:g.reviewed_at||null,iso_week:week};
+      identity.id=[String(live.version||'unverified').replace(/[^0-9a-z.]/gi,''),String(live.fingerprint||'nofingerprint').slice(0,12),String(g.reviewed_at||'unreviewed').slice(0,10),week].join('_');
+      const dates=sources=>Object.fromEntries(Object.entries(sources||{}).map(([k,v])=>[k,{status:v?.status??null,fetched_at:v?.fetched_at??null}]));
+      return {schema:2,kind:'strategy-review-packet',generated_at:new Date(now).toISOString(),tool_version:toolVersion||bundle?.tool_version||null,identity,
+        purpose:'Prepared for human review. Creating this packet changes no review status, review date, recommendation or observation.',
+        live_patch:{version:live.version||null,title:live.title||null,release_date:live.release_date||null,url:live.url||null,fingerprint:live.fingerprint||null,verification:bundle?.official?.status||null,checked_at:bundle?.official?.checked_at||null},
+        guidance:{patch:g.patch||null,status:g.status||null,reviewed_at:g.reviewed_at||null,review_revision:g.review_revision??null,next_review_at:g.maintenance_review?.next_weekly_review||null,summary:g.maintenance_review?.summary||null,...strategyReviewDue({now})},
+        evidence:evidenceState({now}),
+        official_changes:official,hotfix_changes:hotfixes,unmapped_changes:all.filter(c=>c.kind==='unmapped').length,
+        plans,plans_needing_attention:plans.filter(p=>p.needs_attention).map(p=>p.slug+'/'+p.role),
+        definition_conflicts:bundle?.definition_issues||[],
+        reference_bundle:{bracket:bundle?.bracket?.segment||null,label:bundle?.bracket?.label||null,generated_at:bundle?.generated_at||null,sha256:revision||null,refresh_result:bundle?.refresh_result||null,source_dates:dates(bundle?.sources)},
+        brackets:cohorts?Object.entries(cohorts).map(([key,c])=>({bracket:key,label:c?.label||null,status:c?.status||null,collection_status:c?.collection_status||null,sha256:c?.sha256||null,generated_at:c?.generated_at||null,patch:c?.patch||null,source_dates:c?.source_dates||null})):null};
+    }
     function performance(pick,{source='auto'}={}) {
       const selected=source==='auto'?performancePolicy().source:source;
       if(selected==='pred'){
@@ -845,7 +884,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,statzGap,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
