@@ -8,6 +8,7 @@ import concurrent.futures
 import copy
 import datetime as dt
 import gzip
+import zlib
 import hashlib
 import json
 import os
@@ -174,6 +175,10 @@ def retain_success(bundle, folder):
     return clean
 
 
+# Everything reading a stored file can raise when the file is truncated, corrupted, or not a JSON object.
+STORED_BUNDLE_ERRORS = (OSError, ValueError, KeyError, TypeError, AttributeError, EOFError, zlib.error)
+
+
 def load_success(folder, bracket):
     target = Path(folder) / 'bundles' / (bracket + '.json.gz')
     if not target.exists():
@@ -215,7 +220,7 @@ def retain_publication(bundle, folder):
 def load_publication(folder, bracket):
     try:
         complete = load_success(folder, bracket)
-    except (OSError, ValueError, KeyError, TypeError) as error:
+    except STORED_BUNDLE_ERRORS as error:
         # A stored bundle that no longer validates is never published and never crashes the run.
         complete = None
         base.log('Stored complete bundle rejected for ' + bracket + ': ' + str(error))
@@ -224,7 +229,7 @@ def load_publication(folder, bracket):
     if target.exists():
         try:
             partial = validate_publication_bundle(json.loads(gzip.decompress(target.read_bytes())), bracket)
-        except (OSError, ValueError, KeyError, TypeError) as error:
+        except STORED_BUNDLE_ERRORS as error:
             base.log('Independent update unavailable for ' + bracket + ': ' + str(error))
     candidates = [b for b in (complete, partial) if b]
     return max(candidates, key=lambda b: utc_time(b['generated_at'])) if candidates else None
@@ -235,7 +240,25 @@ def import_public_seed(path, folder):
     seed = json.loads(gzip.decompress(Path(path).read_bytes()))
     bracket = seed.get('bracket', {}).get('segment')
     seed = validate_public_bundle(seed, bracket)
-    previous = load_success(folder, bracket)
+    try:
+        previous = load_success(folder, bracket)
+    except STORED_BUNDLE_ERRORS as error:
+        # A stored bundle that fails validation is unusable: treat it as absent so the validated, dated seed
+        # replaces it, instead of stopping every scheduled run before anything is published.
+        base.log('Stored complete bundle rejected for ' + str(bracket) + ': ' + str(error))
+        previous = None
+        # The run keeps a verified copy of the last publication beside its collector. When that copy is newer than
+        # the seed, restore it (dates unchanged) instead of moving the published date back to the seed's.
+        backup = Path(folder) / 'collector' / ('last_successful_' + str(bracket) + '.json')
+        try:
+            if backup.exists():
+                copy_ = validate_public_bundle(base.load_bundle(backup), bracket)
+                if utc_time(copy_['generated_at']) > utc_time(seed['generated_at']):
+                    retain_success(copy_, folder)
+                    base.log('Restored ' + str(bracket) + ' from the verified collector copy dated ' + copy_['generated_at'] + '.')
+                    return False
+        except STORED_BUNDLE_ERRORS as problem:
+            base.log('Collector copy unusable for ' + str(bracket) + ': ' + str(problem))
     if previous and utc_time(previous['generated_at']) >= utc_time(seed['generated_at']):
         return False
     retain_success(seed, folder)

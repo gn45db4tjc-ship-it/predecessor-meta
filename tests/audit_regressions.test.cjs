@@ -1,11 +1,22 @@
 'use strict';
 /* Reproductions for the 2.23.0 audit that need no browser: stale evidence (I) and the
    offline cache lifecycle (F). Each reproduction asserts the CORRECT behaviour. While its
-   defect is open it is marked {todo}, which node:test reports without failing the run; the
-   change that fixes the defect removes the marker. Tests without it are guards that pass
-   today and must keep passing. Every number is a synthetic fixture. */
+   defect is open it is wrapped in knownDefect(), which passes only while the reproduction still
+   fails an assertion and FAILS the run once it passes (like Python's expectedFailure), so a fixed
+   defect cannot keep its marker and a marker cannot hide a regression. Tests without it are guards
+   that pass today and must keep passing. Every number is a synthetic fixture. */
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const Meta = require('../engine.js');
+
+/* A recorded open defect. Only an assertion failure counts as reproducing it; any other error means the
+   harness broke and fails the run. */
+function knownDefect(name, reason, fn) {
+  test(name + ' [recorded open: ' + reason + ']', async () => {
+    let reproduced = false;
+    try { await fn(); } catch (error) { if (!(error instanceof assert.AssertionError)) throw error; reproduced = true; }
+    assert.ok(reproduced, 'This recorded defect no longer reproduces. Remove its knownDefect() marker in the change that fixed it.');
+  });
+}
 
 /* ---------------- I: a source date that only has to parse ---------------- */
 const NOW = Date.parse('2026-09-18T12:00:00Z');
@@ -74,14 +85,14 @@ async function releaseWithSavedBracket(storage) {
   return url;
 }
 
-test('F: activating the next release keeps the brackets saved for offline use', {todo: 'defect F - fixed by the offline-cache phase'}, async () => {
+knownDefect('F: activating the next release keeps the brackets saved for offline use', 'defect F - fixed by the offline-cache phase', async () => {
   const storage = cacheStorage(), saved = await releaseWithSavedBracket(storage);
   const next = worker(nextRelease(SW), storage, async () => { throw new Error('offline'); });
   await next.install(); await next.activate();
   assert.ok(await stored(storage, saved), 'the saved bracket was deleted when the new release activated');
 });
 
-test('F: a malformed HTTP 200 bundle never evicts the last verified bracket', {todo: 'defect F - fixed by the offline-cache phase'}, async () => {
+knownDefect('F: a malformed HTTP 200 bundle never evicts the last verified bracket', 'defect F - fixed by the offline-cache phase', async () => {
   const storage = cacheStorage(), saved = await releaseWithSavedBracket(storage);
   const sw = worker(SW, storage, async () => new Response('<html>captive portal</html>', {status: 200}));
   await (await sw.fetch(bundleURL('gold', 'b')))?.text();

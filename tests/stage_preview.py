@@ -27,10 +27,10 @@ def stage(output, state_dir, seeds=()):
     output, state_dir = Path(output).resolve(), Path(state_dir).resolve()
     seeds = [Path(s) for s in seeds] or [ROOT / 'public-seed-gold.json.gz']
     for folder in (output, state_dir):
-        # Only ever clear folders this helper owns, inside the repository's ignored qa/ area.
+        # Only ever write or clear folders inside the repository's ignored qa/ area.
+        if ROOT / 'qa' not in folder.parents:
+            raise SystemExit('Refusing to write outside qa/: ' + str(folder))
         if folder.exists():
-            if ROOT / 'qa' not in folder.parents:
-                raise SystemExit('Refusing to clear a folder outside qa/: ' + str(folder))
             shutil.rmtree(folder)
     with tempfile.TemporaryDirectory() as tmp:
         plain = []
