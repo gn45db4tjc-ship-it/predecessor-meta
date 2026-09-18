@@ -1057,12 +1057,12 @@ const probes = {
     // in agreement with the rest of the page.
     const {context, page} = await session(browser, phone);
     const seen = await page.evaluate(() => {
-      const saved = B; B = {...B, guidance: {...B.guidance, status: 'reviewed for saved patch; live check pending'}}; E = MetaEngine.create(B);
-      try { changeRoute('builds'); changeRoute('meta'); return {policy: E.performancePolicy().label, verification: E.evidenceState().verification.state, chip: (document.querySelector('.mobile-health')?.innerText || '').replace(/\s+/g, ' '), lead: (document.querySelector('#main .page-head p')?.innerText || '').slice(0, 80)}; }
+      const saved = B, chipFor = status => { B = {...saved, guidance: {...saved.guidance, status}}; E = MetaEngine.create(B); changeRoute('builds'); changeRoute('meta'); return (document.querySelector('.mobile-health')?.innerText || '').replace(/\s+/g, ' '); };
+      try { const chip = chipFor('reviewed for saved patch; live check pending'), policy = E.performancePolicy().label, verification = E.evidenceState().verification.state; const failedChip = chipFor('reviewed for saved patch; live verification failed'); return {policy, verification, chip, failedChip}; }
       finally { B = saved; E = MetaEngine.create(B); render(); }
     });
     assert.equal(seen.policy, 'Verification required', 'probe setup: a saved-patch guidance status pauses statistics');
-    verdict('P15', !/paused/i.test(seen.chip) || !/live check pending/i.test(seen.chip), seen);
+    verdict('P15', !/paused/i.test(seen.chip) || !/live check pending/i.test(seen.chip) || !/paused/i.test(seen.failedChip) || !/failed/i.test(seen.failedChip) || /pending/i.test(seen.failedChip), seen);
     await context.close();
   },
   async P14(browser) {

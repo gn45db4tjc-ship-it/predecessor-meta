@@ -69,6 +69,6 @@
     "P12": "A second Enter never cancels the search it started; after Cancel focus returns to Generate and the toast agrees; a click-started search leaves focus alone",
     "P13": "A redraw keeps keyboard focus on the control the user was on, including the same copy of a repeated hero button",
     "P14": "When only the search options change during a search, the discarded result names the search options, not the picks",
-    "P15": "PHONE: when only the live check is pending (saved copy in the Windows app), the status chip says Paused and why"
+    "P15": "PHONE: when a saved copy is shown because the live check is pending or failed (Windows app), the status chip says Paused and names which"
   }
 }
