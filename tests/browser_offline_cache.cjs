@@ -73,7 +73,8 @@ async function check(name, run) {
     await page.goto(origin); await ready(page); await controlled(page);
 
     await check('only verified data is saved, and only by the page', async () => {
-      await until(page, async name => (await caches.keys()).includes(name) && (await (await caches.open(name)).keys()).length >= 2, DATA_CACHE);
+      // No waiting: once the page reports the check complete, the offline copy must already be saved.
+      assert.ok(await page.evaluate(async name => (await caches.keys()).includes(name) && (await (await caches.open(name)).keys()).length >= 2, DATA_CACHE), 'the check completed before the offline copy was saved');
       const caches = await storage(page), data = caches[DATA_CACHE], shell = Object.keys(caches).find(n => n.startsWith('predecessor-meta-shell-'));
       assert.ok(shell, 'no release shell cache');
       assert.deepEqual(data.filter(n => n.startsWith('bundles/')), ['bundles/gold-' + published.cohorts.gold.sha256 + '.json']);

@@ -2947,9 +2947,9 @@ def primary_rows_valid(b):
     """Row checks for an update that is publishable because its Pred.gg partition is current.
 
     Statz may have failed in such a collection. A tier row whose hero role was not collected (failed page or
-    patch conflict) is not an observation: it must carry no role numbers and is left out of the row checks.
-    Every other tier row gets the same checks as any publication. With no Statz rows at all there is nothing
-    to check beyond the bracket and the source dates."""
+    patch conflict) keeps only its own tier-list checks (unique, known role, positive sample, rates 0-100), and
+    its missing role record must carry no numbers. Every other tier row gets the same checks as any publication.
+    With no Statz rows at all there is nothing to check beyond the bracket and the source dates."""
     try:
         if (b.get('bracket') or {}).get('segment') not in BRACKETS:
             return False

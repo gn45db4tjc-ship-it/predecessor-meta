@@ -202,14 +202,17 @@ if (APP_CONFIG.mode === 'static') {
       if (changed) E = MetaEngine.create(B);
       const verified = site.verifiedBytes?.url === entry.url ? site.verifiedBytes.bytes : null; site.verifiedBytes = null;
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
-      latestStatus = {busy: false, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
+      latestStatus = {busy: true, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
       site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else redrawForEvidence();
-      // Saving the offline copy never delays or gates what is shown; a storage problem is reported once known.
-      commitPublication(manifest, requested, entry, verified).then(() => {
-        if (site.offlineProblem && sequence === site.sequence && !latestStatus.busy && !String(latestStatus.message).includes(site.offlineProblem)) { latestStatus.message += ' ' + site.offlineProblem; chrome(); }
-      });
+      // The new data is already shown; the check itself completes once the offline copy is saved (or after ten
+      // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
+      await Promise.race([commitPublication(manifest, requested, entry, verified), new Promise(resolve => setTimeout(resolve, 10000))]);
+      if (sequence !== site.sequence || requested !== S.bracket) return;
+      latestStatus.busy = false;
+      if (site.offlineProblem) latestStatus.message += ' ' + site.offlineProblem;
+      chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
