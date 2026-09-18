@@ -197,6 +197,60 @@ class SinglePageFailure(unittest.TestCase):
                          {'requested': 12, 'ok': 11, 'failed': 1, 'conflicting': 0, 'max_failed_share': 0.1, 'usable': True})
         self.assertEqual([(p['slug'], p['role']) for p in clean['failed_pages']], [('fixture-11', base.ROLES[11 % len(base.ROLES)])])
 
+    def test_an_in_share_gap_is_not_stamped_usable_when_the_update_fails_validation(self):
+        # In-share counts alone would pass; only the publisher's own validation keeps this from being usable.
+        b = roster(11, 1)
+        b['tier_list'][0]['winRate'] = 150.0
+        self.assertTrue(base.hero_page_coverage(12, 11, 1, 0)['usable'])
+        stamped = s.stamp_page_coverage(s.public_bundle(b), b)
+        self.assertFalse(stamped['sources']['statz_hero_pages']['coverage']['usable'])
+        stale = roster(11, 1)
+        for source in stale['sources'].values():
+            if source.get('fetched_at'):
+                source['fetched_at'] = (NOW - dt.timedelta(days=6)).isoformat()
+        self.assertFalse(s.stamp_page_coverage(s.public_bundle(stale), stale)['sources']['statz_hero_pages']['coverage']['usable'], 'repackaged old pages are not a fresh gap')
+
+    def test_declared_failures_are_measured_against_the_tier_rows_not_the_claimed_page_count(self):
+        b = roster(8, 2)
+        b['sources']['statz_hero_pages'].update(requested=40, ok=38, failed=2)
+        with self.assertRaisesRegex(ValueError, 'more than the publishable share'):
+            base.validate_bundle_rows(b)
+
+    def test_a_tolerated_gap_is_named_retried_and_reported_even_when_pred_is_down(self):
+        from unittest.mock import patch
+        b = roster(11, 1)   # Pred.gg is also unavailable in this fixture
+        b['tool_version'] = base.VERSION
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            saved = {k: getattr(base, k) for k in ('DATA_DIR', 'SNAP_DIR', 'LATEST_BUNDLE', 'SETTINGS_FILE', 'OUT_HTML')}
+            try:
+                with patch.dict(s.CONFIG, brackets=['gold']), patch.object(base, 'now_utc', return_value=NOW), patch.object(base, 'fetch_official', return_value=official()), patch.object(base, 'collect_bundle', return_value=b), patch.object(s, 'output_flag') as flags:
+                    s.run(root, root / 'site')
+                state = s.read_json(root / 'publication.json')
+                published = s.load_publication(root, 'gold')
+            finally:
+                for k, v in saved.items(): setattr(base, k, v)
+        attempt = state['attempts']['gold']
+        self.assertEqual(attempt['status'], 'partial', 'the collected roles were still published')
+        self.assertTrue(any(e['source'] == 'statz.gg hero pages' and e['detail'].startswith('1 of 12') for e in attempt['errors']))
+        self.assertFalse(s.attempt_satisfied(attempt, published), 'a Statz gap is not an optional-source gap')
+        self.assertTrue(state['required_retry']['pending'], 'the gap is retried like any required-source failure')
+        flags.assert_any_call('source_failed', True)
+
+    def test_the_collector_counts_a_page_that_failed_parsing_as_failed(self):
+        now = NOW.isoformat()
+        tier = {'patch': '1.16', 'rows': [{'slug': s, 'role': 'jungle', 'display_name': s.title(), 'image': None, 'tier': 'A',
+                                           'winRate': 50.0, 'pickRate': 5.0, 'matches': 300, 'patch': '1.16'} for s in ('alpha', 'bravo', 'charlie')]}
+        pages = {'alpha|jungle': {'ok': True, 'secs': 0.1, 'data': {'patch': '1.16', 'laneStats': 'not a mapping'}},   # downloads, fails parsing
+                 'bravo|jungle': {'ok': False, 'secs': 0.1, 'error': 'FetchError: timed out'},
+                 'charlie|jungle': {'ok': True, 'secs': 0.1, 'data': {'patch': '1.15', 'laneStats': {}}}}             # another patch
+        b = base.build_bundle(tier, {'fetched_at': now, 'secs': 0.1}, pages, [], [], {'fetched_at': now}, dict(base.DEFAULT_SETTINGS), 'gold', {'fetched_at': now, 'secs': 0.1})
+        record = b['sources']['statz_hero_pages']
+        self.assertEqual((record['ok'], record['failed'], record['conflicting'], record['requested']), (0, 2, 1, 3), 'a page that failed parsing is failed, not ok')
+        self.assertEqual(record['status'], 'failed')
+        coverage = record['coverage']
+        self.assertEqual(coverage['ok'] + coverage['failed'] + coverage['conflicting'], coverage['requested'])
+
     def test_a_collector_cannot_declare_its_own_gaps_usable(self):
         b = roster(6, 6)
         b['sources']['statz_hero_pages']['coverage'] = {'requested': 12, 'ok': 6, 'failed': 6, 'conflicting': 0, 'usable': True}

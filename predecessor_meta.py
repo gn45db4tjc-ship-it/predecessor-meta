@@ -1281,7 +1281,9 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
         warnings.append({"source": "statz.gg hero pages", "detail": pool_note})
 
     # ---- errors and warnings ----
-    ok_pages = sum(1 for r in page_results.values() if r.get("ok"))
+    # Collected pages are those that produced a role record: a page that downloaded but failed parsing is failed,
+    # and a page from another patch is conflicting, so ok + failed + conflicting always equals requested.
+    ok_pages = len(page_results) - len(failed_pages) - len(patch_conflicts)
     if ok_pages == 0:
         errors.append({"source": "statz.gg hero pages", "severity": "error", "detail": "0 of %d hero/role pages parsed. Statz build variants, pair observations and matchups are unavailable; independent Pred.gg panels have their own status." % len(page_results)})
     if blocked:
