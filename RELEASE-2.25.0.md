@@ -1,0 +1,41 @@
+# Predecessor Meta 2.25.0 — The remaining audit repairs
+
+This release finishes the repairs from the 2.23.0 audit. It follows 2.24.0 and, like it, adds no features and removes none. Saved selections, all six brackets, reviewed guidance, source rates, samples and dates are unchanged. No number is estimated, no bracket is substituted, and no review status or review date is changed by this release.
+
+## What changed
+
+**One failed hero page no longer discards a fresh collection.** Previously a single Statz hero page that failed to load threw away the whole day's collection for that rank. Now a collection publishes when at most 10% of its hero pages failed (the collector's existing warning threshold). The roles that were collected publish with their own numbers. Each failed role stays marked failed, carries no numbers, is listed in the manifest, and is never filled in from another source or another day. The gap is stated in the evidence state, the desktop source note and the phone status line. A page that reports a different patch is still an absolute reject, so patches can never blend, and the page counts must reconcile exactly. The last complete collection is kept untouched alongside.
+
+**Saved offline ranks survive every release, and only verified data is saved.** The app used one cache, named after the release, for both the page and your saved ranks. Every new release deleted the saved ranks, and the background worker stored any response with status 200 before the page had checked it, so a hotel or airport sign-in page could replace a verified rank. There are now two caches: a release shell, and a permanent data cache that no release deletes. Only the page writes to the data cache, and only after a bundle passes its checksum and structure checks. It saves the new bundle first, then a manifest that describes exactly what is saved (each rank with its own checksum and dates), and only then removes that rank's older bundle. Ranks saved by 2.23 or 2.24 are moved across once on upgrade, each verified against the checksum in its own name. A saved rank whose patch signature cannot be established is treated as possibly out of date, never as current. A full-storage device gets an explanation and keeps working online.
+
+**Five-hero composition search no longer freezes the page.** The search now runs in a background worker built from the engine code already in the page. The button shows progress. A result that finishes after your picks, bans, enemies or data changed is discarded, and the page says why. Where a worker cannot start (the Windows app and saved-file exports do not allow them), the same search runs exactly as before. The recommendations are byte-identical either way; this is enforced by tests.
+
+**Strategy review packets now carry the official changes, and the cloud queues them for you.** The downloadable packet read a field that does not exist and exported zero official changes. It is now built by one engine function and contains the official and hotfix changes, every reviewed plan with the changes that touch its hero, items, crest, augment, Eternal or blessings, definition conflicts, the evidence state, and the checksum and dates of every published rank. A plan is flagged only when a change comes from a later patch than its review or its result is unresolved. The cloud publishes a small review queue (`review/index.json` plus the newest eight packets): a new packet appears for a new patch or hotfix, a new human review, on Sundays, or when the review is due. Preparing a packet is read-only. It never changes a review status, a review date or a recommendation; approving strategy remains a human decision.
+
+**Cloud collection is primary; this PC is manual recovery.** Each collected rank now records who actually collected it (the cloud run and its id, this PC, or a local run), and the manifest reports that per rank instead of inferring it from configuration. Data collected before this release is reported as unrecorded, never guessed. An upload from this PC is imported only when genuinely newer: a later assembly of older sources never replaces the publication, and an upload can never label itself as a cloud run. The Windows updater installer now creates only the Desktop recovery shortcut and removes the sign-in shortcut older versions created.
+
+## Verification (actual results, 18 September 2026, Windows 11, Python 3.12.10, Node 24.19, Edge 153)
+
+- Python: 143 tests, all pass, no expected failures. (2.24.0: 120 with 1 expected failure; 2.23.0: 97.)
+- JavaScript: 136 tests, all pass, no todo. (2.24.0: 99 with 2 todo; 2.23.0: 78.)
+- Audit browser suite on the staged build: 24 of 24 verdicts match the ledger, and the ledger of open defects is empty. Longest main-thread stall while generating five-hero alternatives: 40 ms (2.23.0: 1,398 ms; budget 500 ms).
+- Offline cache suite, real service worker in a real browser, 7 of 7: only verified data saved; all six ranks saved; a captive-portal page served as a newer bundle never replaces a saved rank; a next release keeps all six; restart with the network down opens all six with their original dates; a legacy cache is moved on upgrade; and an upgrade from a cache written by the actual 2.23.0 worker opens all six ranks offline afterwards. The same suite fails 6 of 6 against untouched 2.23.0, which confirms it tests the defect.
+- A synthetic "one hero page failed" publication was staged end to end and opened on desktop and phone: the failed role shows no Statz numbers, collected roles are unchanged, the gap is stated, no page errors.
+- `browser_release_222`, `browser_companion_accessibility` (axe WCAG 2.1 A/AA, both themes, no violations) and `browser_companion` (six brackets, no page errors) pass on the staged build.
+- The review queue was run twice against the staged six-bracket site: first run prepared one packet (241 official changes, 38 hotfix changes, 93 plans, 7 needing attention, all seven being the plans already recorded as unresolved); second run added nothing.
+- Clean-room source package (88 files, unpacked into an empty folder and tested there): 143 Python tests run with 2 skipped, and 134 JavaScript tests pass with 2 skipped. The skips are the checks that need the public seed or the local bundle store, which are not part of the package.
+- The Windows app was started from an isolated data folder: the worker is blocked there by design and the search completed through the fallback.
+
+## Known gaps
+
+- Not tested on a physical phone, with VoiceOver or TalkBack, or as a natively installed app. The offline upgrade was verified in desktop Edge with the real service worker, not on iOS Safari, whose storage eviction rules differ.
+- The worker holds a second copy of the loaded rank's data while it exists. It is created only when you first generate alternatives. Memory on older phones was not measured.
+- The Windows app still runs the search on the main thread (about 1.4 s for five heroes on this PC), because its security policy forbids blob workers. Allowing them is a one-line policy change that was deliberately not made without your decision.
+- The cloud review queue and collector records are verified locally and in tests. They are only proven in production once a real cloud run publishes them.
+- Retiring the old copy of the publishing key and enabling branch protection are intentionally not done yet. They wait for two consecutive verified cloud receipts and one verified manual recovery run from this PC.
+- Two older suites, `browser_ranks.cjs` and `browser_static.cjs`, still fail on one outdated expectation each, identically to untouched 2.23.0.
+- The suites were last certified on Edge 152; these runs used Edge 153.
+
+## Rollback
+
+Windows app: quit the app, then run **Roll Back 2.25.0.bat**. It verifies the backup's checksums before restoring the previous version and does not touch `data\`, `snapshots\` or `settings.json`. Website: revert the 2.25.0 merge commit on `main`; Pages redeploys the previous release. After a website rollback, saved offline ranks stay in the permanent data cache; the older worker never deletes that cache and can still serve from it offline. Never force-push and never reset the `data-updates` branch.
