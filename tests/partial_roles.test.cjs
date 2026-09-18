@@ -45,7 +45,8 @@ test('the gap is stated wherever the evidence is described', () => {
 for (const [name, pages] of [
   ['no coverage record', {status: 'partial (1 missing)', ok: 11, failed: 1, requested: 12}],
   ['publisher says not usable', {status: 'partial (6 missing)', coverage: coverage({ok: 6, failed: 6, usable: false})}],
-  ['a patch conflict', {status: 'partial (1 missing)', coverage: coverage({ok: 10, conflicting: 1})}],
+  // Counts that reconcile exactly, so only the conflict rule itself can reject this one.
+  ['a patch conflict', {status: 'partial (2 missing)', coverage: coverage({ok: 10, failed: 1, conflicting: 1})}],
   ['counts that do not reconcile', {status: 'partial (1 missing)', coverage: coverage({ok: 9})}],
   ['a usable flag that is not literally true', {status: 'partial (1 missing)', coverage: coverage({usable: 'yes'})}],
   ['an unrecognised status', {status: 'failed', coverage: coverage()}],

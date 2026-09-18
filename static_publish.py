@@ -147,6 +147,7 @@ class RunFetchCache:
 COLLECTOR_HOST = None   # the Windows updater sets this to 'windows'; GitHub Actions is detected; anything else is 'local'
 COLLECTOR_HOSTS = ('cloud', 'windows', 'local')
 CORE_SOURCES = ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items')
+DATED_SOURCES = CORE_SOURCES + ('pred_scoped', 'pred_game_data')
 
 
 def collector_identity():
@@ -164,22 +165,30 @@ def validate_collector(bundle):
     collector = bundle.get('collector')
     if collector is None:
         return   # collected before provenance was recorded; the manifest says so
-    if not isinstance(collector, dict) or collector.get('host') not in COLLECTOR_HOSTS or set(collector) - {'host', 'run_id', 'run_attempt', 'tool_version'}:
+    if not isinstance(collector, dict) or collector.get('host') not in COLLECTOR_HOSTS or set(collector) - {'host', 'run_id', 'run_attempt', 'tool_version', 'retained_from'}:
         raise ValueError('Bundle carries an invalid collector record')
+    if 'retained_from' in collector:
+        origin = collector['retained_from']
+        if not isinstance(origin, dict) or not origin or set(origin) - {'statz', 'pred'} or any(v not in COLLECTOR_HOSTS + ('unrecorded',) for v in origin.values()):
+            raise ValueError('Bundle carries an invalid collector retained_from')
     for key in ('run_id', 'run_attempt', 'tool_version'):
         value = collector.get(key)
         if value is not None and (not isinstance(value, str) or not re.fullmatch(r'[0-9A-Za-z._-]{1,40}', value)):
             raise ValueError('Bundle carries an invalid collector ' + key)
 
 
-def older_core_sources(previous, incoming):
-    """Core sources whose fetch date in an incoming bundle is older than what is already published.
+def older_sources(previous, incoming):
+    """Dated sources (Statz, Omeda and Pred.gg) whose fetch date in an incoming bundle is older than, or missing
+    compared with, what is already published.
 
     A newer assembly date never makes an older source fresh, so such a bundle must not replace the publication."""
     older = []
-    for key in CORE_SOURCES:
+    for key in DATED_SOURCES:
         before = (previous.get('sources') or {}).get(key) or {}
         after = (incoming.get('sources') or {}).get(key) or {}
+        status = str(before.get('status') or '')
+        if not (status in ('ok', 'retained') or status.startswith('partial')):
+            continue   # a published source that holds no data (failed, unavailable) has no date to protect
         try:
             if before.get('fetched_at') and (not after.get('fetched_at') or utc_time(after['fetched_at']) < utc_time(before['fetched_at'])):
                 older.append(key)
@@ -592,7 +601,21 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
                     bundle['collector'] = collector_identity()
+                    # Retained partitions keep their original dates; name who collected each one (recorded when it was
+                    # retained), not only who assembled this bundle.
+                    sources, kept = bundle.get('sources') or {}, bundle.get('retained_sources') or {}
+                    origin = {name: (kept.get(name) or {}).get('collector') or 'unrecorded'
+                              for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')))
+                              if any((sources.get(k) or {}).get('status') == 'retained' for k in keys)}
+                    if origin:
+                        bundle['collector']['retained_from'] = {k: (v if v in COLLECTOR_HOSTS else 'unrecorded') for k, v in origin.items()}
                     complete, why = base.bundle_is_complete(bundle)
+                    pages = (bundle.get('sources') or {}).get('statz_hero_pages') or {}
+                    if not complete and pages.get('failed') and not any(e.get('severity') == 'error' and str(e.get('source', '')).startswith('statz.gg hero pages') for e in bundle.get('errors', [])):
+                        # A tolerated gap is still a required-source failure: it is named, retried and reported the
+                        # same way whether or not Pred.gg is also unavailable, while the collected roles publish.
+                        bundle.setdefault('errors', []).append({'source': 'statz.gg hero pages', 'severity': 'error',
+                            'detail': '%d of %d hero/role pages failed. The collected roles were published; the failed roles have no hero-page statistics until a later collection succeeds.' % (pages['failed'], pages.get('requested') or 0)})
                     if not complete and not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
                         # A small Statz gap may have only per-page warnings. Name
                         # the structural failure before persisting valid Pred data.

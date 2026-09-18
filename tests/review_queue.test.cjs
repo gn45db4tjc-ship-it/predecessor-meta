@@ -3,8 +3,10 @@
    never touches the publication. Every site below is a synthetic fixture in a temporary folder. */
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('node:fs'), os = require('node:os'), path = require('node:path'), crypto = require('node:crypto');
 const {build} = require('../review_queue.cjs');
+const Meta = require('../engine.js');
+const idOf = (b, now) => Meta.create(b).reviewPacket({now}).identity.id;
 
-const WEDNESDAY = Date.parse('2026-09-16T12:00:00Z'), SUNDAY = Date.parse('2026-09-20T12:00:00Z'), day = 86400000;
+const WEDNESDAY = Date.parse('2026-09-16T12:00:00Z'), SUNDAY = Date.parse('2026-09-20T18:00:00Z'), day = 86400000;
 function bundle({fingerprint = 'f'.repeat(64), reviewed = '2026-09-14T19:12:40-05:00', next = '2026-09-27T13:15:00-05:00'} = {}) {
   return {tool_version: 'test', patch: '1.16', generated_at: '2026-09-16T09:00:00Z', bracket: {segment: 'gold', label: 'Gold+'}, pairs: {},
     heroes: {alpha: {slug: 'alpha', display_name: 'Alpha Fixture', roles_order: ['jungle'], roles: {jungle: {status: 'ok', winRate: 51, pickRate: 4, playedGames: 300}}}},
@@ -32,7 +34,8 @@ const index = folder => JSON.parse(fs.readFileSync(path.join(folder, 'review', '
 test('the first run for a patch prepares one packet and publishes it with a checksum', t => {
   const {root, stateDir} = workspace(t), folder = site(root, bundle());
   const result = build({site: folder, stateDir, now: WEDNESDAY});
-  assert.equal(result.created, '1.16.4_ffffffffffff_2026-09-14_2026-W38');
+  assert.equal(result.created, idOf(bundle(), WEDNESDAY));
+  assert.match(result.created, /^1\.16\.4_[0-9a-f]{12}_2026-09-14_2026-W38$/);
   const listed = index(folder);
   assert.equal(listed.packets.length, 1);
   const raw = fs.readFileSync(path.join(folder, listed.packets[0].url));
@@ -53,17 +56,17 @@ test('a quiet new week waits for Sunday; a due review does not wait', t => {
   const {root, stateDir} = workspace(t);
   build({site: site(root, bundle()), stateDir, now: WEDNESDAY});
   assert.equal(build({site: site(root, bundle()), stateDir, now: WEDNESDAY + 7 * day}).created, null, 'mid-week, nothing changed, review not due');
-  assert.equal(build({site: site(root, bundle()), stateDir, now: SUNDAY + 7 * day}).created, '1.16.4_ffffffffffff_2026-09-14_2026-W39');
+  assert.equal(build({site: site(root, bundle()), stateDir, now: SUNDAY + 7 * day}).created, idOf(bundle(), SUNDAY + 7 * day));
   const overdue = bundle({next: '2026-09-20T13:15:00-05:00'}), s = workspace(t);
   build({site: site(s.root, overdue), stateDir: s.stateDir, now: WEDNESDAY});
-  assert.equal(build({site: site(s.root, overdue), stateDir: s.stateDir, now: WEDNESDAY + 7 * day}).created, '1.16.4_ffffffffffff_2026-09-14_2026-W39');
+  assert.equal(build({site: site(s.root, overdue), stateDir: s.stateDir, now: WEDNESDAY + 7 * day}).created, idOf(overdue, WEDNESDAY + 7 * day));
 });
 
 test('a hotfix or a new human review is queued immediately, whatever the day', t => {
   const {root, stateDir} = workspace(t);
   build({site: site(root, bundle()), stateDir, now: WEDNESDAY});
-  assert.equal(build({site: site(root, bundle({fingerprint: 'e'.repeat(64)})), stateDir, now: WEDNESDAY + day}).created, '1.16.4_eeeeeeeeeeee_2026-09-14_2026-W38');
-  assert.equal(build({site: site(root, bundle({fingerprint: 'e'.repeat(64), reviewed: '2026-09-18T10:00:00-05:00'})), stateDir, now: WEDNESDAY + 2 * day}).created, '1.16.4_eeeeeeeeeeee_2026-09-18_2026-W38');
+  assert.equal(build({site: site(root, bundle({fingerprint: 'e'.repeat(64)})), stateDir, now: WEDNESDAY + day}).created, idOf(bundle({fingerprint: 'e'.repeat(64)}), WEDNESDAY + day));
+  assert.equal(build({site: site(root, bundle({fingerprint: 'e'.repeat(64), reviewed: '2026-09-18T10:00:00-05:00'})), stateDir, now: WEDNESDAY + 2 * day}).created, idOf(bundle({fingerprint: 'e'.repeat(64), reviewed: '2026-09-18T10:00:00-05:00'}), WEDNESDAY + 2 * day));
   assert.equal(index(path.join(root, 'site')).packets.length, 3);
 });
 
@@ -91,6 +94,21 @@ test('an unavailable reference bracket prepares nothing and keeps the existing q
   const result = build({site: folder, stateDir, now: SUNDAY});
   assert.equal(result.created, null); assert.match(result.reason, /unavailable/);
   assert.equal(index(folder).packets.length, 1);
+});
+
+test('the weekly Sunday packet waits for that day\'s collection, so it references the bundles then published', t => {
+  const {root, stateDir} = workspace(t);
+  build({site: site(root, bundle()), stateDir, now: WEDNESDAY});
+  const early = Date.parse('2026-09-27T02:23:00Z'), after = Date.parse('2026-09-27T17:30:00Z');
+  assert.equal(build({site: site(root, bundle()), stateDir, now: early}).created, null, 'the 02:23 patch check only runs 15 hours before the collection');
+  assert.equal(build({site: site(root, bundle()), stateDir, now: after}).created, idOf(bundle(), after));
+});
+
+test('a hotfix on the preceding launch article is queued immediately, even though the live article is unchanged', t => {
+  const {root, stateDir} = workspace(t);
+  const withLaunch = note => { const b = bundle(); b.official.articles = [{version: '1.16', status: 'live', fingerprint: note}]; return b; };
+  build({site: site(root, withLaunch('launch')), stateDir, now: WEDNESDAY});
+  assert.equal(build({site: site(root, withLaunch('launch plus hotfix 1.16.5')), stateDir, now: WEDNESDAY + day}).created, idOf(withLaunch('launch plus hotfix 1.16.5'), WEDNESDAY + day));
 });
 
 test('only the newest packets are kept', t => {

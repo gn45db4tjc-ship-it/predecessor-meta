@@ -14,7 +14,7 @@ const assert = require('node:assert/strict'), fs = require('node:fs'), path = re
 const root = path.resolve(__dirname, '..'), siteDir = path.resolve(process.env.OFFLINE_SITE || path.join(root, 'qa', 'audit-site'));
 const port = Number(process.env.OFFLINE_PORT || 12948), origin = 'http://127.0.0.1:' + port + '/';
 const TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.css': 'text/css'};
-const FAKE = 'c'.repeat(64), LEGACY = 'predecessor-meta-v2-23';
+const FAKE = 'c'.repeat(64), LEGACY = 'predecessor-meta-v2-23', LEGACY_NAME = /^predecessor-meta-v\d+-\d+$/, DATA_CACHE = 'predecessor-meta-data-v1';
 const legacySite = process.env.LEGACY_SITE ? path.resolve(process.env.LEGACY_SITE) : null;   // optional: a staged 2.23/2.24 build, so the real old worker writes the cache that gets moved
 const net = {root: siteDir, down: false, dataDown: false, nextRelease: false, portalFor: null};
 const results = [];
@@ -47,7 +47,7 @@ const storage = page => page.evaluate(async () => {
   for (const name of await caches.keys()) out[name] = (await (await caches.open(name)).keys()).map(k => new URL(k.url).pathname.split('/').slice(-2).join('/'));
   return out;
 });
-const savedManifest = page => page.evaluate(async () => (await (await caches.open('predecessor-data-v1')).match(new URL('manifest.json', location.href)))?.json());
+const savedManifest = page => page.evaluate(async name => (await (await caches.open(name)).match(new URL('manifest.json', location.href)))?.json(), DATA_CACHE);
 async function choose(page, bracket) {
   await page.selectOption('#bracket', bracket);
   await page.waitForFunction(b => !!B && B.bracket?.segment === b && !latestStatus.busy, bracket, {timeout: 120000});
@@ -73,8 +73,9 @@ async function check(name, run) {
     await page.goto(origin); await ready(page); await controlled(page);
 
     await check('only verified data is saved, and only by the page', async () => {
-      await until(page, async () => (await caches.keys()).includes('predecessor-data-v1') && (await (await caches.open('predecessor-data-v1')).keys()).length >= 2);
-      const caches = await storage(page), data = caches['predecessor-data-v1'], shell = Object.keys(caches).find(n => n.startsWith('predecessor-shell-'));
+      // No waiting: once the page reports the check complete, the offline copy must already be saved.
+      assert.ok(await page.evaluate(async name => (await caches.keys()).includes(name) && (await (await caches.open(name)).keys()).length >= 2, DATA_CACHE), 'the check completed before the offline copy was saved');
+      const caches = await storage(page), data = caches[DATA_CACHE], shell = Object.keys(caches).find(n => n.startsWith('predecessor-meta-shell-'));
       assert.ok(shell, 'no release shell cache');
       assert.deepEqual(data.filter(n => n.startsWith('bundles/')), ['bundles/gold-' + published.cohorts.gold.sha256 + '.json']);
       assert.ok(data.some(n => n.endsWith('manifest.json')));
@@ -84,9 +85,10 @@ async function check(name, run) {
 
     for (const bracket of brackets) await choose(page, bracket);
     await choose(page, 'gold');
+    await until(page, async ({name, count}) => (await (await caches.open(name)).keys()).filter(k => k.url.includes('/bundles/')).length >= count, {name: DATA_CACHE, count: brackets.length});
 
     await check('every visited bracket is saved, one bundle each', async () => {
-      const data = (await storage(page))['predecessor-data-v1'].filter(n => n.startsWith('bundles/')).sort();
+      const data = (await storage(page))[DATA_CACHE].filter(n => n.startsWith('bundles/')).sort();
       assert.deepEqual(data, brackets.map(b => 'bundles/' + b + '-' + published.cohorts[b].sha256 + '.json').sort());
       return {brackets: brackets.length};
     });
@@ -96,7 +98,7 @@ async function check(name, run) {
       await page.locator('#refresh').click();
       await page.waitForFunction(() => !latestStatus.busy && /Update check failed/.test(latestStatus.message || ''), null, {timeout: 60000});
       net.portalFor = null;
-      const data = (await storage(page))['predecessor-data-v1'], manifest = await savedManifest(page);
+      const data = (await storage(page))[DATA_CACHE], manifest = await savedManifest(page);
       assert.ok(data.includes('bundles/gold-' + published.cohorts.gold.sha256 + '.json'), 'the verified gold bundle was evicted');
       assert.ok(!data.some(n => n.includes(FAKE)), 'the unverified response was stored');
       assert.equal(manifest.cohorts.gold.sha256, published.cohorts.gold.sha256, 'the saved manifest now points at a bundle that was never verified');
@@ -107,8 +109,8 @@ async function check(name, run) {
     await check('the next release keeps every saved bracket', async () => {
       net.nextRelease = true;
       await page.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); await r.update(); });
-      await until(page, async () => (await caches.keys()).some(n => n.endsWith('-next')) && !(await caches.keys()).some(n => n.startsWith('predecessor-shell-') && !n.endsWith('-next')));
-      const data = (await storage(page))['predecessor-data-v1'].filter(n => n.startsWith('bundles/'));
+      await until(page, async () => (await caches.keys()).some(n => n.endsWith('-next')) && !(await caches.keys()).some(n => n.startsWith('predecessor-meta-shell-') && !n.endsWith('-next')));
+      const data = (await storage(page))[DATA_CACHE].filter(n => n.startsWith('bundles/'));
       assert.equal(data.length, brackets.length);
       return {saved_after_release: data.length};
     });
@@ -139,7 +141,7 @@ async function check(name, run) {
       await p.goto(origin); await controlled(p);
       await until(p, async name => !(await caches.keys()).includes(name), LEGACY);
       await p.reload(); await ready(p);
-      const seen = await p.evaluate(() => ({bracket: B.bracket.segment, generated_at: B.generated_at, message: latestStatus.message})), data = (await storage(p))['predecessor-data-v1'];
+      const seen = await p.evaluate(() => ({bracket: B.bracket.segment, generated_at: B.generated_at, message: latestStatus.message})), data = (await storage(p))[DATA_CACHE];
       assert.equal(seen.generated_at, published.cohorts.gold.generated_at);
       assert.ok(!data.some(n => n.includes('d'.repeat(64))), 'a bundle that fails its own checksum was moved');
       net.dataDown = false;
@@ -155,11 +157,11 @@ async function check(name, run) {
       await p.reload(); await ready(p);                       // the old worker only saves what it sees once it controls the page
       for (const bracket of visited) await choose(p, bracket);
       const legacyCaches = Object.keys(await storage(p));
-      assert.ok(legacyCaches.some(n => n.startsWith('predecessor-meta-')), 'probe setup: the old worker wrote no legacy cache');
+      assert.ok(legacyCaches.some(n => LEGACY_NAME.test(n)), 'probe setup: the old worker wrote no legacy cache');
       net.root = siteDir;                                     // the new release is published
       await p.reload(); await ready(p);
       await p.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); await r.update(); });
-      await until(p, async () => !(await caches.keys()).some(n => n.startsWith('predecessor-meta-')) && (await caches.keys()).includes('predecessor-data-v1'));
+      await until(p, async name => !(await caches.keys()).some(n => /^predecessor-meta-v\d+-\d+$/.test(n)) && (await caches.keys()).includes(name), DATA_CACHE);
       net.down = true;
       await p.reload(); await ready(p);
       const opened = [];

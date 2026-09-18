@@ -26,7 +26,7 @@
     function statzPagesUsable(source) {
       const c=source?.coverage;
       return source?.status==='ok'||(/^partial \(\d+ missing\)$/.test(String(source?.status))&&c?.usable===true&&c.conflicting===0&&
-        Number.isInteger(c.ok)&&c.ok>0&&Number.isInteger(c.failed)&&c.failed>0&&c.ok+c.failed===c.requested);
+        Number.isInteger(c.ok)&&c.ok>0&&Number.isInteger(c.failed)&&c.failed>0&&c.ok+c.failed+c.conflicting===c.requested);
     }
     function statzBuildAvailable(slug,role) {
       const source=bundle?.sources?.statz_hero_pages,live=bundle?.official?.live?.version;
@@ -248,7 +248,7 @@
     // Observations, ordering and eligibility rules above are unchanged: this only describes them.
     const EVIDENCE_HOURS={current:30,aging:48},FUTURE_TOLERANCE_MS=300000;
     function statzGapNote(source) {
-      const c=source?.coverage;return source?.status!=='ok'&&statzPagesUsable(source)?' '+c.failed+' of '+c.requested+' Statz hero pages failed in this collection; those roles show no Statz numbers and nothing was filled in.':'';
+      const c=source?.coverage;return source?.status!=='ok'&&statzPagesUsable(source)?' '+c.failed+' of '+c.requested+' Statz hero pages failed in this collection; those roles have no hero-page statistics (role win rate, builds, matchups) and nothing was filled in. Their tier-list rows are shown as collected.':'';
     }
     function statzGap() {const s=bundle?.sources?.statz_hero_pages;return s?.status!=='ok'&&statzPagesUsable(s)?{requested:s.coverage.requested,ok:s.coverage.ok,failed:s.coverage.failed}:null;}
     function sourceCurrency(source,now=Date.now()) {
@@ -292,7 +292,28 @@
       if(g?.patch!==bundle?.official?.live?.version)reasons.push('Guidance was reviewed for patch '+(g?.patch||'unknown')+'; the live patch is '+(bundle?.official?.live?.version||'unverified')+'.');
       if(bundle?.recommendation_context)reasons.push(bundle.recommendation_context.reason||'Recommendations are currently withheld.');
       if(Number.isFinite(next)&&next<=now)reasons.push('The scheduled review date '+g.maintenance_review.next_weekly_review+' has passed.');
+      if(String(g?.status||'').startsWith('needs review'))reasons.push('The reviewed guidance is marked "'+g.status+'": official content changed after the last review.');
       return {due:reasons.length>0,reasons};
+    }
+    // true when patch a is later than patch b (1.16.10 > 1.16.9). Anything that is not a dotted number, or a
+    // missing review patch, cannot be ordered and is flagged, so a reviewer looks rather than a change being missed.
+    function laterPatch(a,b) {
+      const parts=v=>/^\d+(\.\d+)*$/.test(String(v??''))?String(v).split('.').map(Number):null,x=parts(a),y=parts(b);
+      if(!x||!y)return true;
+      for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0;}
+      return false;
+    }
+    function textHash(text) {   // cyrb53: a stable, dependency-free digest for identities (not a security checksum)
+      let h1=0xdeadbeef,h2=0x41c6ce57;
+      for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677);}
+      h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+      return (4294967296*(2097151&h2)+(h1>>>0)).toString(16).padStart(14,'0');
+    }
+    function officialSignature() {
+      const o=bundle?.official,live=o?.live;
+      if(o?.status!=='verified'||!live?.fingerprint)return null;
+      const rows=(o.articles||[]).filter(a=>a?.status==='live').map(a=>[String(a.version),String(a.fingerprint)]).sort((x,y)=>(x[0]+x[1]).localeCompare(y[0]+y[1]));
+      return textHash(JSON.stringify([rows,['current',String(live.version),String(live.fingerprint)]]));
     }
     function isoWeek(ms) {
       const d=new Date(ms),t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));
@@ -304,14 +325,16 @@
       const official=(bundle?.official_changes||[]).map(c=>change(c,false)),hotfixes=(bundle?.official_hotfix_changes||[]).map(c=>change(c,true)),all=[...official,...hotfixes];
       const plans=(g.builds||[]).map(p=>{
         const parts=new Set([heroes[p.slug]?.display_name,...(p.core||[]),...(p.finish||[]),p.crest,p.augment,p.eternal,...(p.blessings||[])].map(plain).filter(Boolean));
-        const reviewedPatch=p.maintenance_review?.patch||p.patch||g.patch||null;const affected=all.filter(c=>(c.kind==='hero'&&c.key===p.slug)||(plain(c.name)&&parts.has(plain(c.name)))).map(c=>({...c,published_after_review_patch:!c.historical&&c.patch!==reviewedPatch}));
+        const reviewedPatch=p.maintenance_review?.patch||p.patch||g.patch||null;const affected=all.filter(c=>(c.kind==='hero'&&c.key===p.slug)||(plain(c.name)&&parts.has(plain(c.name)))).map(c=>({...c,published_after_review_patch:laterPatch(c.patch,reviewedPatch)}));
         return {slug:p.slug,role:p.role,title:p.title||null,plan_patch:p.patch||null,result:p.maintenance_review?.result||'unresolved',reviewed_at:p.maintenance_review?.reviewed_at||p.reviewed_at||null,
           reason:p.maintenance_review?.reason||'No maintenance result recorded',limitation:p.maintenance_review?.limitation||'',
           reviewed_parts:{core:p.core||[],finish:p.finish||[],crest:p.crest||null,augment:p.augment||null,eternal:p.eternal||null,blessings:p.blessings||[]},
           reviewed_for_patch:reviewedPatch,affected_by:affected,needs_attention:affected.some(c=>c.published_after_review_patch)||(p.maintenance_review?.result||'unresolved')==='unresolved'};
       });
-      const week=isoWeek(now),identity={live_version:live.version||null,live_fingerprint:live.fingerprint||null,guidance_reviewed_at:g.reviewed_at||null,iso_week:week};
-      identity.id=[String(live.version||'unverified').replace(/[^0-9a-z.]/gi,''),String(live.fingerprint||'nofingerprint').slice(0,12),String(g.reviewed_at||'unreviewed').slice(0,10),week].join('_');
+      // Identity: every live official article (a hotfix on the preceding launch article changes it too), the
+      // guidance review date and the ISO week.
+      const week=isoWeek(now),signature=officialSignature(),identity={live_version:live.version||null,live_fingerprint:live.fingerprint||null,official_signature:signature,guidance_reviewed_at:g.reviewed_at||null,iso_week:week};
+      identity.id=[String(live.version||'unverified').replace(/[^0-9a-z.]/gi,''),String(signature||'unverified').slice(0,12),String(g.reviewed_at||'unreviewed').slice(0,10).replace(/[^0-9-]/g,''),week].join('_');
       const dates=sources=>Object.fromEntries(Object.entries(sources||{}).map(([k,v])=>[k,{status:v?.status??null,fetched_at:v?.fetched_at??null}]));
       return {schema:2,kind:'strategy-review-packet',generated_at:new Date(now).toISOString(),tool_version:toolVersion||bundle?.tool_version||null,identity,
         purpose:'Prepared for human review. Creating this packet changes no review status, review date, recommendation or observation.',
@@ -321,7 +344,7 @@
         official_changes:official,hotfix_changes:hotfixes,unmapped_changes:all.filter(c=>c.kind==='unmapped').length,
         plans,plans_needing_attention:plans.filter(p=>p.needs_attention).map(p=>p.slug+'/'+p.role),
         definition_conflicts:bundle?.definition_issues||[],
-        reference_bundle:{bracket:bundle?.bracket?.segment||null,label:bundle?.bracket?.label||null,generated_at:bundle?.generated_at||null,sha256:revision||null,refresh_result:bundle?.refresh_result||null,source_dates:dates(bundle?.sources)},
+        reference_bundle:{bracket:bundle?.bracket?.segment||null,label:bundle?.bracket?.label||null,generated_at:bundle?.generated_at||null,sha256:/^[a-f0-9]{64}$/.test(String(revision??''))?revision:null,refresh_result:bundle?.refresh_result||null,source_dates:dates(bundle?.sources)},
         brackets:cohorts?Object.entries(cohorts).map(([key,c])=>({bracket:key,label:c?.label||null,status:c?.status||null,collection_status:c?.collection_status||null,sha256:c?.sha256||null,generated_at:c?.generated_at||null,patch:c?.patch||null,source_dates:c?.source_dates||null})):null};
     }
     function performance(pick,{source='auto'}={}) {

@@ -5,9 +5,11 @@
    engine for a packet. It is read-only with respect to the publication: it never changes a bundle, the
    manifest, a review status, a review date or a recommendation, and it never rewrites an existing packet.
 
-   A packet is added when its identity (live patch fingerprint + guidance review date + ISO week) is new AND
-     - nothing has been queued yet for this patch fingerprint and review date (patch, hotfix or new review), or
-     - it is Sunday (UTC), the weekly review day, or
+   A packet is added when its identity (signature of every live official article + guidance review date + ISO week)
+   is new AND
+     - nothing has been queued yet for this signature and review date (patch, hotfix on any live article, or a
+       new human review), or
+     - it is Sunday (UTC) at or after the daily collection time, so it describes that day's bundles, or
      - the engine reports the review as due.
    Otherwise the existing queue is republished unchanged. The newest KEEP packets are retained.
 
@@ -16,6 +18,9 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const Meta = require('./engine.js');
 
 const KEEP = 8, REFERENCE = 'gold';
+// The daily collection time (UTC). The weekly Sunday packet waits for it, so it describes that day's collection.
+const DAILY_UTC = (() => { try { return JSON.parse(fs.readFileSync(path.join(__dirname, 'free_hosting.json'), 'utf8')).daily_utc || '17:23'; } catch { return '17:23'; } })();
+const afterDailyCollection = now => { const [h, m] = DAILY_UTC.split(':').map(Number), d = new Date(now); return d.getUTCHours() * 60 + d.getUTCMinutes() >= h * 60 + m; };
 const sha256 = raw => crypto.createHash('sha256').update(raw).digest('hex');
 const SAFE_ID = /^[0-9A-Za-z._-]{8,120}$/;
 
@@ -43,7 +48,7 @@ function build({site, stateDir, now = Date.now(), keep = KEEP, reference = REFER
     if (!SAFE_ID.test(id)) throw new Error('The packet identity is not a safe file name: ' + id);
     const need = id.slice(0, id.lastIndexOf('_') + 1);   // patch fingerprint + review date, without the week
     if (existing.some(e => e.id === id)) reason = 'A packet for this patch, review date and week is already queued.';
-    else if (!existing.some(e => e.id.startsWith(need)) || new Date(now).getUTCDay() === 0 || packet.guidance.due) {
+    else if (!existing.some(e => e.id.startsWith(need)) || (new Date(now).getUTCDay() === 0 && afterDailyCollection(now)) || packet.guidance.due) {
       fs.mkdirSync(queue, {recursive: true});
       const temp = path.join(queue, id + '.tmp');
       fs.writeFileSync(temp, JSON.stringify(packet));

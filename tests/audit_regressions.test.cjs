@@ -186,6 +186,43 @@ test('F: the move never overwrites newer data the page already saved, and a seco
   assert.deepEqual(urls, [kept]);
 });
 
+test('F: rolling the website back to the 2.23/2.24 worker removes this release\'s caches instead of freezing them', async () => {
+  const OLD = fs.readFileSync(path.join(__dirname, 'fixtures', 'sw-2.23.js'), 'utf8');
+  const storage = cacheStorage(), current = worker(SW, storage, offline);
+  await current.install(); await current.activate();
+  await pageCommits(storage, 'gold', bundleBody('gold', 'saved by 2.25'));
+  await (await storage.open(DATA)).put(new Request(SITE + 'manifest.json'), new Response('{"schema":2,"cohorts":{}}'));
+  const rolledBack = worker(OLD, storage, async () => new Response(bundleBody('gold', 'published after the rollback'), {status: 200}));
+  await rolledBack.install(); await rolledBack.activate();
+  assert.deepEqual(await storage.keys(), ['predecessor-meta-v2-23'], 'only the rolled-back release\'s own cache remains');
+  const later = bundleURL('gold', bundleBody('gold', 'published after the rollback'));
+  await (await rolledBack.fetch(later)).text();
+  const offlineOld = worker(OLD, storage, offline);
+  assert.equal(JSON.parse(await (await offlineOld.fetch(later)).text()).note, 'published after the rollback', 'offline, the rolled-back site serves what it saved itself');
+});
+
+test('F: the saved manifest is re-described from what is actually saved before it is served offline', async () => {
+  const storage = cacheStorage(), sw = worker(SW, storage, offline), kept = bundleBody('gold', 'the copy that is saved');
+  await sw.install(); await sw.activate();
+  await pageCommits(storage, 'gold', kept);
+  // Two tabs committed at once without Web Locks: the manifest points at a gold bundle that was deleted.
+  const gone = 'd'.repeat(64);
+  await (await storage.open(DATA)).put(new Request(SITE + 'manifest.json'), new Response(JSON.stringify({schema: 2, published_at: '2026-09-18T10:00:00Z', cohorts: {
+    gold: {label: 'Gold+', status: 'available', sha256: gone, url: 'bundles/gold-' + gone + '.json', generated_at: '2026-09-18T09:00:00Z', source_signature: 'sig'}}})));
+  const served = await (await sw.fetch(SITE + 'manifest.json')).json();
+  assert.equal(served.cohorts.gold.sha256, digest(kept));
+  assert.equal(served.cohorts.gold.source_signature, 'unverified-saved-copy', 'a re-described copy is never presented as matching the current patch');
+  assert.equal(JSON.parse(await (await sw.fetch(SITE + served.cohorts.gold.url)).text()).note, 'the copy that is saved');
+});
+
+test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {
+  const client = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), 'utf8');
+  assert.match(client, /site\.loadedBytes = site\.verifiedBytes/, 'the verified bytes of the loaded publication are kept');
+  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(site\.loadedBytes\?\.url === entry\.url\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  assert.match(client, /else site\.offlineProblem = /, 'an unsaved copy is reported, never silently cleared');
+  assert.match(client, /health: entry\.health \|\| \(entry\.saved_copy \? null : manifest\.health\)/, 'a re-described saved copy never borrows the newest publication health');
+});
+
 test('F guard: a saved bracket is served offline and labelled as such', async () => {
   const storage = cacheStorage(), sw = worker(SW, storage, offline);
   await sw.install(); await sw.activate();

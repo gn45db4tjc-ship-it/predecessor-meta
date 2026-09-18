@@ -1281,7 +1281,9 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
         warnings.append({"source": "statz.gg hero pages", "detail": pool_note})
 
     # ---- errors and warnings ----
-    ok_pages = sum(1 for r in page_results.values() if r.get("ok"))
+    # Collected pages are those that produced a role record: a page that downloaded but failed parsing is failed,
+    # and a page from another patch is conflicting, so ok + failed + conflicting always equals requested.
+    ok_pages = len(page_results) - len(failed_pages) - len(patch_conflicts)
     if ok_pages == 0:
         errors.append({"source": "statz.gg hero pages", "severity": "error", "detail": "0 of %d hero/role pages parsed. Statz build variants, pair observations and matchups are unavailable; independent Pred.gg panels have their own status." % len(page_results)})
     if blocked:
@@ -2788,7 +2790,7 @@ def attach_retained_statz(bundle,old,error,attempt_at):
         for key,value in old[kind].items():
             if not value.get('source') or 'statz' in str(value.get('source')).lower():
                 bundle[kind][key]=copy.deepcopy(value)
-    bundle['retained_sources']={'statz':{'patch':old['patch'],'bracket':old['bracket']['segment'],
+    bundle['retained_sources']={'statz':{'collector':((old.get('collector') or {}).get('host') or 'unrecorded'),'patch':old['patch'],'bracket':old['bracket']['segment'],
         'tier_fetched_at':old['sources']['statz_tierlist']['fetched_at'],
         'hero_pages_fetched_at':old['sources']['statz_hero_pages']['fetched_at'],'attempted_at':attempt_at}}
 
@@ -2945,9 +2947,9 @@ def primary_rows_valid(b):
     """Row checks for an update that is publishable because its Pred.gg partition is current.
 
     Statz may have failed in such a collection. A tier row whose hero role was not collected (failed page or
-    patch conflict) is not an observation: it must carry no role numbers and is left out of the row checks.
-    Every other tier row gets the same checks as any publication. With no Statz rows at all there is nothing
-    to check beyond the bracket and the source dates."""
+    patch conflict) keeps only its own tier-list checks (unique, known role, positive sample, rates 0-100), and
+    its missing role record must carry no numbers. Every other tier row gets the same checks as any publication.
+    With no Statz rows at all there is nothing to check beyond the bracket and the source dates."""
     try:
         if (b.get('bracket') or {}).get('segment') not in BRACKETS:
             return False
@@ -3025,7 +3027,10 @@ def retain_pred_partition(bundle, previous):
                 note='Latest collection failed. Original source dates and observations retained; not a fresh sample.')
             staged['sources'][key] = source
         apply_pred_game_data(staged)
+        prior_pred = (previous.get('retained_sources') or {}).get('pred') or {}
+        pred_origin = prior_pred.get('collector') if previous['sources']['pred_scoped'].get('status') == 'retained' else (previous.get('collector') or {}).get('host')
         staged.setdefault('retained_sources', {})['pred'] = {
+            'collector': pred_origin or 'unrecorded',
             'patch': scoped['patch'], 'bracket': bracket, 'attempted_at': attempted,
             'statistics_fetched_at': previous['sources']['pred_scoped']['fetched_at'],
             'mechanics_fetched_at': previous['sources']['pred_game_data']['fetched_at']}
