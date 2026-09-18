@@ -369,6 +369,119 @@ class DesktopCacheRestore(unittest.TestCase):
         self.assertEqual(restored['generated_at'], raw['generated_at'])
 
 
+def dated_damaged():
+    """Clean statuses and usable fetch dates, but one out-of-range row: only row validation can catch it."""
+    b = valid_complete()
+    b['tier_list'][0]['winRate'] = 250.0
+    return b
+
+
+class DesktopSavePaths(unittest.TestCase):
+    """The Windows app's own save, restore and display paths (second review round)."""
+
+    def setUp(self):
+        from unittest.mock import patch
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        folder = Path(self.tmp.name)
+        for name, value in (('DATA_DIR', folder), ('LATEST_BUNDLE', folder / 'latest_bundle.json'), ('SNAP_DIR', folder / 'snapshots'),
+                            ('OUT_HTML', folder / 'export.html'), ('SETTINGS_FILE', folder / 'settings.json')):
+            patcher = patch.object(base, name, value); patcher.start(); self.addCleanup(patcher.stop)
+
+    def once(self, collected):
+        import sys as _sys
+        collected.setdefault('timings', {})
+        from unittest.mock import patch
+        with patch.object(base, 'collect_bundle', return_value=collected), patch.object(base, 'render', return_value=None), \
+             patch.object(_sys, 'argv', ['predecessor_meta.py', '--once', '--data-dir', str(base.DATA_DIR)]), _captured_log():
+            return base.main()
+
+    def test_once_never_saves_a_row_invalid_collection_as_a_success(self):
+        self.assertEqual(self.once(dated_damaged()), 2)
+        self.assertFalse((base.DATA_DIR / 'last_successful_gold.json').exists())
+        self.assertTrue((base.DATA_DIR / 'last_attempt.json').exists())
+
+    def test_once_saves_a_valid_collection_as_a_success(self):
+        self.assertEqual(self.once(valid_complete()), 0)
+        self.assertTrue((base.DATA_DIR / 'last_successful_gold.json').exists())
+
+    def test_a_damaged_saved_pred_primary_update_is_never_restored(self):
+        import json
+        damaged = pred_primary(); damaged['tier_list'][0]['winRate'] = 250.0
+        self.assertTrue(base.bundle_has_current_primary(damaged))
+        (base.DATA_DIR / 'last_primary_gold.json').write_text(json.dumps(damaged), encoding='utf8')
+        with _captured_log() as messages:
+            self.assertIsNone(base.read_cached('gold'))
+        self.assertTrue(any('last_primary_gold.json failed validation' in m for m in messages))
+
+    def test_a_damaged_latest_bundle_never_stops_the_app_from_starting(self):
+        import gzip, json
+        seed = s.ROOT / 'public-seed-gold.json.gz'
+        if not seed.exists():
+            self.skipTest('the public seed is not part of the source package')
+        (base.DATA_DIR / 'last_successful_gold.json').write_text(gzip.decompress(seed.read_bytes()).decode('utf8'), encoding='utf8')
+        for damage in ({'schema': 3, 'official': None, 'sources': None}, None, [1, 2]):
+            with self.subTest(latest=repr(damage)[:40]):
+                base.LATEST_BUNDLE.write_text(json.dumps(damage), encoding='utf8')
+                with _captured_log():
+                    restored = base.read_cached('gold')
+                self.assertEqual(restored['cache']['file'], 'last_successful_gold.json')
+
+    def test_retained_statz_ignores_a_dated_success_whose_rows_fail(self):
+        import json
+        (base.DATA_DIR / 'last_successful_gold.json').write_text(json.dumps(dated_damaged()), encoding='utf8')
+        self.assertIsNone(base.retained_statz_bundle('gold'))
+
+    def test_retained_statz_uses_a_dated_success_whose_rows_validate(self):
+        import json
+        good = valid_complete()
+        (base.DATA_DIR / 'last_successful_gold.json').write_text(json.dumps(good), encoding='utf8')
+        from unittest.mock import patch
+        with patch.object(base, 'source_records_before_review', side_effect=lambda b: b):
+            self.assertEqual(base.retained_statz_bundle('gold')['generated_at'], good['generated_at'])
+
+
+class PredPrimaryTierRows(unittest.TestCase):
+    """A tier row whose hero page failed is still a collected tier-list observation (second review round)."""
+
+    def failed_role(self):
+        b = pred_primary()
+        b['heroes']['unit-test-fixture']['roles']['jungle'] = {'status': 'failed', 'error': 'FetchError: timed out'}
+        return b
+
+    def test_the_tier_row_of_a_failed_page_is_still_checked(self):
+        for label, damage in [('win rate 250', lambda b: b['tier_list'][0].update(winRate=250.0)),
+                              ('negative pick rate', lambda b: b['tier_list'][0].update(pickRate=-5.0)),
+                              ('zero sample', lambda b: b['tier_list'][0].update(matches=0)),
+                              ('duplicate row', lambda b: b['tier_list'].append(copy.deepcopy(b['tier_list'][0])))]:
+            with self.subTest(damage=label):
+                b = self.failed_role(); damage(b)
+                self.assertFalse(base.bundle_is_publishable(b))
+
+    def test_an_intact_tier_row_of_a_failed_page_stays_publishable(self):
+        self.assertTrue(base.bundle_is_publishable(self.failed_role()))
+
+
+class SeedNeverMovesADateBack(unittest.TestCase):
+    def test_a_damaged_stored_bundle_is_restored_from_the_newer_collector_copy(self):
+        import gzip, json
+        seed = s.ROOT / 'public-seed-gold.json.gz'
+        if not seed.exists():
+            self.skipTest('the public seed is not part of the source package')
+        seeded = json.loads(gzip.decompress(seed.read_bytes()))
+        newer = copy.deepcopy(seeded)
+        newer['generated_at'] = (dt.datetime.fromisoformat(seeded['generated_at']) + dt.timedelta(days=9)).isoformat()
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / 'bundles' / 'gold.json.gz'
+            target.parent.mkdir(parents=True)
+            target.write_bytes(gzip.compress(json.dumps(newer).encode('utf8'))[:200])   # truncated
+            (Path(tmp) / 'collector').mkdir()
+            (Path(tmp) / 'collector' / 'last_successful_gold.json').write_text(json.dumps(newer), encoding='utf8')
+            with _captured_log() as messages:
+                self.assertFalse(s.import_public_seed(seed, tmp), 'the older seed was not imported')
+            self.assertEqual(s.load_success(tmp, 'gold')['generated_at'], newer['generated_at'])
+            self.assertTrue(any('Restored gold from the verified collector copy' in m for m in messages))
+
+
 import contextlib
 
 

@@ -18,6 +18,7 @@
     "A10": "GUARD: when a failed publication check withholds recommendations, alternatives on screen are cleared and the panel says why",
     "A11": "GUARD: 'Plan this pair' is disabled for a banned or enemy-picked hero, and even a forced click never locks it or deletes the ban",
     "A12": "GUARD: a reviewed plan is checked against current bans even when the guidance packet has no strategic review; a banned hero is never locked",
+    "A13": "GUARD: when a search option (Order by, size, role, unsampled) clears alternatives, the panel names the search options, not picks or data",
     "B1": "DESKTOP: failed official verification plus a failed bundle download rebuilds the engine as withheld but never redraws the main view (static_client.js catch path calls chrome() only)",
     "B2": "PHONE: after 49 hours and a successful check with an unchanged bundle hash, the freshness label still reads Current (static_client.js success path updates chrome only; the label lives in the main view)",
     "B3": "PHONE: failed official verification plus a failed bundle download rebuilds the engine as withheld but never redraws the phone main view",
@@ -26,6 +27,10 @@
     "C3": "GUARD: a redraw caused by an evidence change never takes focus or text away from a field the user is typing in; it happens after the field loses focus",
     "C4": "GUARD: when no editorial tier is active the phone Meta page says tiers are paused and why, and orders by role performance",
     "C5": "GUARD: a redraw deferred while typing is not lost when a render replaces the focused field without a blur (WebKit behaviour); the next evidence change is still redrawn when focus leaves",
+    "C6": "GUARD: while recommendations are paused by a failed patch check, the phone status badge says Paused and keeps following the age of the statistics on screen",
+    "C7": "GUARD: a failed patch check on unchanged data never takes focus or text from the field being typed in",
+    "C8": "GUARD: a postponed redraw never swallows a click on the main view (it waits for the click to finish)",
+    "C9": "GUARD: typing into the desktop hero search keeps the caret, so the text is not reversed",
     "E1": "Composition search for five heroes blocks the main thread for longer than 500 ms (engine.generate called synchronously)",
     "G1": "The strategy review packet exports zero official changes although the bundle carries them (mobile.js reads B.official.changes)",
     "H1": "Mobile Meta says reviewed tier guidance leads while no editorial tier is active (mobile.js guidedHome copy)"
