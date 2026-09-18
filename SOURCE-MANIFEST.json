@@ -48,7 +48,7 @@
     "package.json": "d0917a6814c180410d26ae122543d9f26c01b07b77dba045971f5003e156b56f",
     "package-lock.json": "20bf6d200e97e1576061b54ecd7c7e77231857de955840285a77b870cc41f2df",
     "tests/known-defects.json": "69c2aefa2c4f9b85da6da9b880f9e82bdd8da75ba6ef1bd9f7366fdf6bda8c06",
-    "RELEASE-2.24.0.md": "ac5e3bf151bdd494390606d48fde175bc5527f2ee001c8a1c191ee29d3b7829e",
+    "RELEASE-2.24.0.md": "bb573f2bac758861b00158255dc714d65115e0e816a5c423c7194ae33440e6b7",
     ".github/workflows/data-arrived.yml": "c0f3b05927290564df1f5247c0cd9e282425c97c909040c0baff48baba6281a1",
     ".github/workflows/publish.yml": "7aec5c44eb109f699b0c5b60f31b6664758cdb59eca57859d5b2a1923d348f82",
     ".github/workflows/verify.yml": "47b098aad0e27e0b93fd935f8bd035c093f4f7186a17809fc5101959ca0f1d76",
