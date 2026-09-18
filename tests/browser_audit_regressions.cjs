@@ -957,7 +957,11 @@ const probes = {
         const name = document.querySelector('#mobile-all-list .mobile-hero-card .hero-cell .name'); return {text: name?.closest('article')?.innerText.replace(/\s+/g, ' '), nameWidth: Math.round(name?.getBoundingClientRect().width || 0)}; }
       finally { B = saved; E = MetaEngine.create(B); render(); }
     });
-    verdict('P9', rank.width < 140 || dialog.select < dialog.body * 0.7 || tile.nameWidth < 60, {rank, dialog, tile});
+    const rate = await page.evaluate(() => {
+      companionPrefs.favorites = ['akeron|jungle']; S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+      return [...document.querySelectorAll('#main .mobile-hero-card .mobile-stat strong')].map(s => { const lh = parseFloat(getComputedStyle(s).lineHeight) || parseFloat(getComputedStyle(s).fontSize) * 1.3; return {text: s.innerText, lines: Math.round(s.getBoundingClientRect().height / lh)}; }).filter(r => r.lines > 1).slice(0, 3);
+    });
+    verdict('P9', rank.width < 140 || dialog.select < dialog.body * 0.7 || tile.nameWidth < 60 || rate.length > 0, {rank, dialog, tile, split_rates: rate});
     await context.close();
   },
   async P10(browser) {
@@ -1037,7 +1041,28 @@ const probes = {
       const a = document.activeElement;
       return {hero: copy?.dataset.hero || null, inList: !!a?.closest('#mobile-all-list'), inTopFive: !!a?.closest('section') && !a.closest('#mobile-all-list') && !!a.dataset?.hero};
     });
-    verdict('P13', !(slot.slot === 'allies' && slot.role === 'midlane') || !hero.hero || hero.inTopFive, {slot, hero});
+    const moved = await page.evaluate(() => {
+      const top = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      const hero = top?.dataset.hero, copy = [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === hero);
+      copy?.focus();
+      const original = E.performance; E.performance = p => { const r = original(p); return p.slug === hero && p.role === 'jungle' && r ? {...r, played: 50} : r; };
+      try { requestRedraw(true); const a = document.activeElement; return {hero, focused: a?.dataset?.hero || a?.tagName, inList: !!a?.closest('#mobile-all-list')}; }
+      finally { E.performance = original; }
+    });
+    verdict('P13', !(slot.slot === 'allies' && slot.role === 'midlane') || !hero.hero || !hero.inList || hero.inTopFive || !(moved.focused === moved.hero && moved.inList), {slot, hero, moved});
+    await context.close();
+  },
+  async P15(browser) {
+    // When only the live check is pending (a saved copy in the Windows app), the phone status chip says Paused and why,
+    // in agreement with the rest of the page.
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(() => {
+      const saved = B; B = {...B, guidance: {...B.guidance, status: 'reviewed for saved patch; live check pending'}}; E = MetaEngine.create(B);
+      try { changeRoute('builds'); changeRoute('meta'); return {policy: E.performancePolicy().label, verification: E.evidenceState().verification.state, chip: (document.querySelector('.mobile-health')?.innerText || '').replace(/\s+/g, ' '), lead: (document.querySelector('#main .page-head p')?.innerText || '').slice(0, 80)}; }
+      finally { B = saved; E = MetaEngine.create(B); render(); }
+    });
+    assert.equal(seen.policy, 'Verification required', 'probe setup: a saved-patch guidance status pauses statistics');
+    verdict('P15', !/paused/i.test(seen.chip) || !/live check pending/i.test(seen.chip), seen);
     await context.close();
   },
   async P14(browser) {

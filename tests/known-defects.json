@@ -63,11 +63,12 @@
     "P6": "PHONE: the hero page names the source of the numbers shown next to the review status",
     "P7": "GUARD: the website never calls the definition review current when official patch content changed after the collection",
     "P8": "Review dates are shown as dates, not raw timestamps, on the pages and in the tier-decision and reviewed-definition dialogs",
-    "P9": "PHONE: at 320 px with large text the rank select shows its whole label, the Situation item picker is full width and a hero tile keeps a readable name column",
+    "P9": "PHONE: at 320 px with large text the rank select shows its whole label, the Situation item picker is full width, a hero tile keeps a readable name column and a win rate never splits from its % sign",
     "P10": "Light theme: pressed build-variant buttons on the hero page meet WCAG AA contrast",
     "P11": "Offline, choosing a rank says truthfully whether it is saved on this device and never promises offline use when offline support is not active",
     "P12": "A second Enter never cancels the search it started; after Cancel focus returns to Generate and the toast agrees; a click-started search leaves focus alone",
-    "P13": "A redraw keeps keyboard focus on the control the user was on and never moves it to another copy of the same hero",
-    "P14": "When only the search options change during a search, the discarded result names the search options, not the picks"
+    "P13": "A redraw keeps keyboard focus on the control the user was on, including the same copy of a repeated hero button",
+    "P14": "When only the search options change during a search, the discarded result names the search options, not the picks",
+    "P15": "PHONE: when only the live check is pending (saved copy in the Windows app), the status chip says Paused and why"
   }
 }
