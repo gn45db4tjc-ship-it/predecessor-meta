@@ -10,7 +10,7 @@ from urllib.parse import urlsplit,parse_qs
 import predecessor_meta as base
 
 ROOT=Path(__file__).resolve().parent
-PUBLIC_FIELDS=set(('schema tool_version generated_at offline patch patch_conflicts bracket sources errors roles_order role_label tier_order thresholds heroes tier_list pairs pairs_meta pool_ratio pool_note matchup_note perks items omeda_items image_index failed_pages cache official guidance official_changes official_hotfix_changes corrections unverified_changes mechanics_resolutions mechanics_boundaries loadout_catalog description_reviews reviewed_definitions definition_review definition_issues community_builds scoped_statistics sampling_policy pred_game_data timings changes scoped_changes refresh_result saved_source_review session_notice latest_attempt legacy').split())
+PUBLIC_FIELDS=set(('schema tool_version generated_at collector offline patch patch_conflicts bracket sources errors roles_order role_label tier_order thresholds heroes tier_list pairs pairs_meta pool_ratio pool_note matchup_note perks items omeda_items image_index failed_pages cache official guidance official_changes official_hotfix_changes corrections unverified_changes mechanics_resolutions mechanics_boundaries loadout_catalog description_reviews reviewed_definitions definition_review definition_issues community_builds scoped_statistics sampling_policy pred_game_data timings changes scoped_changes refresh_result saved_source_review session_notice latest_attempt legacy').split())
 
 def public_bundle(bundle):
     return {k:v for k,v in bundle.items() if k in PUBLIC_FIELDS or k == 'retained_sources'} if bundle else None
@@ -153,7 +153,7 @@ def make_handler(manager,origin):
             if compress:self.send_header('Content-Encoding','gzip')
             if etag:self.send_header('ETag','"'+etag+'"')
             self.send_header('X-Content-Type-Options','nosniff');self.send_header('Referrer-Policy','no-referrer')
-            self.send_header('Content-Security-Policy',"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
+            self.send_header('Content-Security-Policy',"default-src 'none'; script-src 'unsafe-inline'; worker-src blob:; style-src 'unsafe-inline'; img-src https: data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
             self.end_headers()
             try:self.wfile.write(raw)
             except (OSError,TimeoutError):pass

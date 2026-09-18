@@ -21,9 +21,16 @@
       return verificationCurrent()&&bundle.guidance?.status==='reviewed for current patch'&&
         !!patch&&patch===bundle.guidance?.patch&&patch===bundle.official?.live?.version;
     }
+    // A collection with a few failed hero pages stays usable only when the publisher (or collector) reports
+    // reconciled coverage inside the failure share. Each failed role is still excluded by its own status.
+    function statzPagesUsable(source) {
+      const c=source?.coverage;
+      return source?.status==='ok'||(/^partial \(\d+ missing\)$/.test(String(source?.status))&&c?.usable===true&&c.conflicting===0&&
+        Number.isInteger(c.ok)&&c.ok>0&&Number.isInteger(c.failed)&&c.failed>0&&c.ok+c.failed+c.conflicting===c.requested);
+    }
     function statzBuildAvailable(slug,role) {
       const source=bundle?.sources?.statz_hero_pages,live=bundle?.official?.live?.version;
-      return verificationCurrent()&&source?.status==='ok'&&Number.isFinite(Date.parse(source.fetched_at))&&
+      return verificationCurrent()&&statzPagesUsable(source)&&Number.isFinite(Date.parse(source.fetched_at))&&
         typeof bundle.patch==='string'&&(bundle.patch===live||String(live).startsWith(bundle.patch+'.'))&&
         heroes[slug]?.roles?.[role]?.status==='ok';
     }
@@ -229,10 +236,10 @@
         fetched_at:bundle.sources?.pred_scoped?.fetched_at,note:'Observed exact-patch cohort. Missing roles stay unavailable; sources are not pooled.'};
       const s=bundle.sources,compatible=bundle.official?.status==='verified'&&typeof bundle.patch==='string'&&
         (bundle.patch===live||String(live).startsWith(bundle.patch+'.'));
-      const available=s?.statz_tierlist?.status==='ok'&&s?.statz_hero_pages?.status==='ok'&&
+      const available=s?.statz_tierlist?.status==='ok'&&statzPagesUsable(s?.statz_hero_pages)&&
         Number.isFinite(Date.parse(s.statz_tierlist.fetched_at))&&Number.isFinite(Date.parse(s.statz_hero_pages.fetched_at));
       if(available&&compatible)return {source:'statz',label:'Statz '+(bundle.patch||'dataset unavailable')+' · '+(bundle.bracket?.label||'bracket unavailable'),patch:bundle.patch,
-        fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'};
+        fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'+statzGapNote(s.statz_hero_pages)};
       return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,
         note:'No eligible role-statistics source matches this publication. Saved observations remain inspectable; they do not rank current recommendations.'};
     }
@@ -240,9 +247,13 @@
     // statistics outside the aging window are labelled as saved and never presented as current rankings.
     // Observations, ordering and eligibility rules above are unchanged: this only describes them.
     const EVIDENCE_HOURS={current:30,aging:48},FUTURE_TOLERANCE_MS=300000;
+    function statzGapNote(source) {
+      const c=source?.coverage;return source?.status!=='ok'&&statzPagesUsable(source)?' '+c.failed+' of '+c.requested+' Statz hero pages failed in this collection; those roles have no hero-page statistics (role win rate, builds, matchups) and nothing was filled in. Their tier-list rows are shown as collected.':'';
+    }
+    function statzGap() {const s=bundle?.sources?.statz_hero_pages;return s?.status!=='ok'&&statzPagesUsable(s)?{requested:s.coverage.requested,ok:s.coverage.ok,failed:s.coverage.failed}:null;}
     function sourceCurrency(source,now=Date.now()) {
       const at=Date.parse(source?.fetched_at),age=(now-at)/3600000;
-      if(!source||!['ok','partial','retained'].includes(source.status)||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
+      if(!source||(!['ok','partial','retained'].includes(source.status)&&!statzPagesUsable(source))||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
       const state=source.status==='retained'?'retained':age<=EVIDENCE_HOURS.current?'current':age<=EVIDENCE_HOURS.aging?'aging':'stale';
       return {state,fetched_at:source.fetched_at,age_hours:Math.max(0,Math.round(age*100)/100)};
     }
@@ -270,8 +281,71 @@
       if(statistics.state==='retained')limitations.push('Role statistics are retained from an earlier collection.');
       if(!policy.source&&verification.state==='verified')limitations.push(policy.note);
       else if(policy.source&&statistics.state==='unavailable')limitations.push('The role-statistics fetch date is missing or in the future, so they are not treated as current.');
+      if(statzGap()){if(policy.source==='statz')statistics.coverage=statzGap();limitations.push(statzGapNote(s.statz_hero_pages).trim());}
       if(guidance.state!=='reviewed')limitations.push('Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
       return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
+    }
+    // ---- Strategy review: packets are prepared for a human reviewer. Building one is read-only: it never
+    // changes a review status, a review date, a recommendation or an observation. ----
+    function strategyReviewDue({now=Date.now()}={}) {
+      const g=bundle?.guidance,next=Date.parse(g?.maintenance_review?.next_weekly_review),reasons=[];
+      if(g?.patch!==bundle?.official?.live?.version)reasons.push('Guidance was reviewed for patch '+(g?.patch||'unknown')+'; the live patch is '+(bundle?.official?.live?.version||'unverified')+'.');
+      if(bundle?.recommendation_context)reasons.push(bundle.recommendation_context.reason||'Recommendations are currently withheld.');
+      if(Number.isFinite(next)&&next<=now)reasons.push('The scheduled review date '+g.maintenance_review.next_weekly_review+' has passed.');
+      if(String(g?.status||'').startsWith('needs review'))reasons.push('The reviewed guidance is marked "'+g.status+'": official content changed after the last review.');
+      return {due:reasons.length>0,reasons};
+    }
+    // true when patch a is later than patch b (1.16.10 > 1.16.9). Anything that is not a dotted number, or a
+    // missing review patch, cannot be ordered and is flagged, so a reviewer looks rather than a change being missed.
+    function laterPatch(a,b) {
+      const parts=v=>/^\d+(\.\d+)*$/.test(String(v??''))?String(v).split('.').map(Number):null,x=parts(a),y=parts(b);
+      if(!x||!y)return true;
+      for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0;}
+      return false;
+    }
+    function textHash(text) {   // cyrb53: a stable, dependency-free digest for identities (not a security checksum)
+      let h1=0xdeadbeef,h2=0x41c6ce57;
+      for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677);}
+      h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+      return (4294967296*(2097151&h2)+(h1>>>0)).toString(16).padStart(14,'0');
+    }
+    function officialSignature() {
+      const o=bundle?.official,live=o?.live;
+      if(o?.status!=='verified'||!live?.fingerprint)return null;
+      const rows=(o.articles||[]).filter(a=>a?.status==='live').map(a=>[String(a.version),String(a.fingerprint)]).sort((x,y)=>(x[0]+x[1]).localeCompare(y[0]+y[1]));
+      return textHash(JSON.stringify([rows,['current',String(live.version),String(live.fingerprint)]]));
+    }
+    function isoWeek(ms) {
+      const d=new Date(ms),t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));
+      const week=Math.ceil(((t-Date.UTC(t.getUTCFullYear(),0,1))/86400000+1)/7);return t.getUTCFullYear()+'-W'+String(week).padStart(2,'0');
+    }
+    function reviewPacket({now=Date.now(),revision=null,cohorts=null,toolVersion=null}={}) {
+      const plain=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,''),g=bundle?.guidance||{},live=bundle?.official?.live||{};
+      const change=(c,hotfix)=>({patch:c.patch??null,kind:c.kind??null,key:c.key??null,name:c.name??null,field:c.field??null,change:c.change??null,source:c.source??null,fetched_at:c.fetched_at??null,hotfix,historical:!!c.historical});
+      const official=(bundle?.official_changes||[]).map(c=>change(c,false)),hotfixes=(bundle?.official_hotfix_changes||[]).map(c=>change(c,true)),all=[...official,...hotfixes];
+      const plans=(g.builds||[]).map(p=>{
+        const parts=new Set([heroes[p.slug]?.display_name,...(p.core||[]),...(p.finish||[]),p.crest,p.augment,p.eternal,...(p.blessings||[])].map(plain).filter(Boolean));
+        const reviewedPatch=p.maintenance_review?.patch||p.patch||g.patch||null;const affected=all.filter(c=>(c.kind==='hero'&&c.key===p.slug)||(plain(c.name)&&parts.has(plain(c.name)))).map(c=>({...c,published_after_review_patch:laterPatch(c.patch,reviewedPatch)}));
+        return {slug:p.slug,role:p.role,title:p.title||null,plan_patch:p.patch||null,result:p.maintenance_review?.result||'unresolved',reviewed_at:p.maintenance_review?.reviewed_at||p.reviewed_at||null,
+          reason:p.maintenance_review?.reason||'No maintenance result recorded',limitation:p.maintenance_review?.limitation||'',
+          reviewed_parts:{core:p.core||[],finish:p.finish||[],crest:p.crest||null,augment:p.augment||null,eternal:p.eternal||null,blessings:p.blessings||[]},
+          reviewed_for_patch:reviewedPatch,affected_by:affected,needs_attention:affected.some(c=>c.published_after_review_patch)||(p.maintenance_review?.result||'unresolved')==='unresolved'};
+      });
+      // Identity: every live official article (a hotfix on the preceding launch article changes it too), the
+      // guidance review date and the ISO week.
+      const week=isoWeek(now),signature=officialSignature(),identity={live_version:live.version||null,live_fingerprint:live.fingerprint||null,official_signature:signature,guidance_reviewed_at:g.reviewed_at||null,iso_week:week};
+      identity.id=[String(live.version||'unverified').replace(/[^0-9a-z.]/gi,''),String(signature||'unverified').slice(0,12),String(g.reviewed_at||'unreviewed').slice(0,10).replace(/[^0-9-]/g,''),week].join('_');
+      const dates=sources=>Object.fromEntries(Object.entries(sources||{}).map(([k,v])=>[k,{status:v?.status??null,fetched_at:v?.fetched_at??null}]));
+      return {schema:2,kind:'strategy-review-packet',generated_at:new Date(now).toISOString(),tool_version:toolVersion||bundle?.tool_version||null,identity,
+        purpose:'Prepared for human review. Creating this packet changes no review status, review date, recommendation or observation.',
+        live_patch:{version:live.version||null,title:live.title||null,release_date:live.release_date||null,url:live.url||null,fingerprint:live.fingerprint||null,verification:bundle?.official?.status||null,checked_at:bundle?.official?.checked_at||null},
+        guidance:{patch:g.patch||null,status:g.status||null,reviewed_at:g.reviewed_at||null,review_revision:g.review_revision??null,next_review_at:g.maintenance_review?.next_weekly_review||null,summary:g.maintenance_review?.summary||null,...strategyReviewDue({now})},
+        evidence:evidenceState({now}),
+        official_changes:official,hotfix_changes:hotfixes,unmapped_changes:all.filter(c=>c.kind==='unmapped').length,
+        plans,plans_needing_attention:plans.filter(p=>p.needs_attention).map(p=>p.slug+'/'+p.role),
+        definition_conflicts:bundle?.definition_issues||[],
+        reference_bundle:{bracket:bundle?.bracket?.segment||null,label:bundle?.bracket?.label||null,generated_at:bundle?.generated_at||null,sha256:/^[a-f0-9]{64}$/.test(String(revision??''))?revision:null,refresh_result:bundle?.refresh_result||null,source_dates:dates(bundle?.sources)},
+        brackets:cohorts?Object.entries(cohorts).map(([key,c])=>({bracket:key,label:c?.label||null,status:c?.status||null,collection_status:c?.collection_status||null,sha256:c?.sha256||null,generated_at:c?.generated_at||null,patch:c?.patch||null,source_dates:c?.source_dates||null})):null};
     }
     function performance(pick,{source='auto'}={}) {
       const selected=source==='auto'?performancePolicy().source:source;
@@ -469,7 +543,7 @@
         return c;
       }).sort((a,b)=>compare(a.candidateMetrics,b.candidateMetrics,metric));
     }
-    function generate(locks,{size=3,bans=[],enemies=[],min=100,metric='lift',preferredRole='jungle',requiredRole='',width=48,includeUnsampled=false}={}) {
+    function generate(locks,{size=3,bans=[],enemies=[],min=100,metric='lift',preferredRole='jungle',requiredRole='',width=48,includeUnsampled=false,onProgress=null}={}) {
       if(![2,3,5].includes(size))throw Error('Choose 2, 3, or 5 heroes.'); validPicks(locks,{size,bans,enemies});
       if(requiredRole&&!ROLES.includes(requiredRole))throw Error('Choose a valid required role.');
       if(!Number.isInteger(width)||width<1||width>200)throw Error('Search width must be between 1 and 200.');
@@ -483,7 +557,7 @@
       choose(0,size-locks.length,[]);
       if(!roleSets.length)throw Error('The locked picks fill the combination without the required role. Reopen a slot or change the role filter.');
       // Preserve a beam per role set, so an initially strong partial team cannot erase another role pairing.
-      const finalists=[],searchedRoleSets=[];
+      const finalists=[],searchedRoleSets=[],steps=roleSets.length*(size-locks.length);let step=0;   // progress only reports; it never changes the search
       for(const fillRoles of roleSets){
         let beams=[assess(locks,min,enemies)];
         for(const role of fillRoles) {
@@ -493,6 +567,7 @@
           }
           next.sort((a,b)=>compare(a,b,metric));const seen=new Set();beams=[];
           for(const n of next) {const id=n.picks.map(p=>p.role+':'+p.slug).sort().join('|');if(seen.has(id))continue;seen.add(id);beams.push(n);if(beams.length>=width)break;}
+          step++;if(typeof onProgress==='function')onProgress({done:step,total:steps});
         }
         searchedRoleSets.push([...usedRoles,...fillRoles]);finalists.push(...beams);
       }
@@ -833,7 +908,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

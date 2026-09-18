@@ -1,6 +1,6 @@
-# Current release: 2.24.0
+# Current release: 2.25.0
 
-See RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -193,3 +193,15 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - A third review confirmed 10 more findings in this release's code (two medium, both in on-screen redraws while the user types or goes offline); every automatic redraw now goes through one scheduler that keeps focus and the cursor and never waits indefinitely.
 - Verified 143 Python tests (1 recorded expected failure, defect D; 1 skipped without a local store), 101 JavaScript tests (2 assert that defect F still reproduces), 32 of 32 audit browser verdicts, release acceptance, axe in both themes, and six-bracket companion checks on a build staged without network access. 57 real bundles keep their verdicts.
 - Open and scheduled for 2.25.0: defects D, E, F and G. Not verified: physical phones, screen readers, native installs.
+
+# Revision 5 — 2.25.0 audit completion release
+
+- A fresh collection now publishes when at most 10% of Statz hero pages fail. Failed roles stay failed, carry no numbers and are named in the manifest, the evidence state, the desktop source note and the phone status line. A page from another patch is still an absolute reject.
+- The offline cache is split into a release shell and a permanent data cache. Only the page stores data, and only after checksum and structure checks. Brackets saved by 2.23/2.24 are moved once, verified by their own checksum, and the saved manifest always describes what is actually saved.
+- Composition search runs in a Web Worker built from the engine source already in the page, with a main-thread fallback where blob workers are forbidden. Output parity is enforced. Measured main-thread stall for five heroes: 31 to 40 ms across runs (was 1,398 ms).
+- The strategy review packet is built by one pure engine function (schema 2) and now carries the official and hotfix changes, the plans they touch, definition conflicts and checksums of all published brackets. The cloud publishes a deduplicated review queue under review/. Preparing a packet changes no review status, date or recommendation.
+- Each bundle records its actual collector; the manifest reports it per bracket. A Windows feed can never move published source dates backwards or claim cloud collection. The Windows updater installer is manual-only.
+- Every audit defect A to I now has an enforcing test; the ledger of open defects is empty.
+- An independent two-stage review of every phase confirmed 20 findings in this release's code (and 3 more whose challenge could not complete); all are fixed with tests that fail on the unfixed code: overlapping update checks during a slow save, offline copies after a website rollback, two tabs saving at once, late worker results, worker tests without bans or enemies, silently accepted page gaps, unreconciled page counts, review-packet flagging and identity, the weekly packet timing, a status revision written as a checksum, Pred.gg dates through uploads, refused uploads moving the cloud schedule, retained-source provenance, and three tests that could not fail. The Windows app now allows the page's own search worker (`worker-src blob:`), with the owner's approval.
+- A third review confirmed 5 more findings (a finished search redrawing mid-typing, a saved copy borrowing the newest statistics date, a failed offline save not retried, a failed published source blocking recovery, retained provenance copied from the wrong record); all fixed with tests that fail on the previous code.
+- Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 39 of 39 audit browser verdicts, 7 of 7 real-browser offline checks including an upgrade from the actual 2.23.0 worker, the release, accessibility and six-bracket suites, and the two legacy suites whose outdated expectations were updated.

@@ -144,7 +144,61 @@ class RunFetchCache:
             raise
 
 
+COLLECTOR_HOST = None   # the Windows updater sets this to 'windows'; GitHub Actions is detected; anything else is 'local'
+COLLECTOR_HOSTS = ('cloud', 'windows', 'local')
+CORE_SOURCES = ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items')
+DATED_SOURCES = CORE_SOURCES + ('pred_scoped', 'pred_game_data')
+
+
+def collector_identity():
+    """Who actually ran this collection. Recorded on the bundle so the manifest reports facts, not configuration."""
+    if os.environ.get('GITHUB_ACTIONS') == 'true':
+        return {'host': 'cloud', 'run_id': os.environ.get('GITHUB_RUN_ID'), 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
+                'tool_version': base.VERSION}
+    # Outside GitHub Actions a collection is never labelled cloud, whatever a caller sets.
+    return {'host': 'windows' if COLLECTOR_HOST == 'windows' else 'local', 'run_id': None, 'run_attempt': None,
+            'tool_version': base.VERSION}
+
+
+def validate_collector(bundle):
+    """Provenance arrives with imported data, so it is checked like data: a known host and short plain values."""
+    collector = bundle.get('collector')
+    if collector is None:
+        return   # collected before provenance was recorded; the manifest says so
+    if not isinstance(collector, dict) or collector.get('host') not in COLLECTOR_HOSTS or set(collector) - {'host', 'run_id', 'run_attempt', 'tool_version', 'retained_from'}:
+        raise ValueError('Bundle carries an invalid collector record')
+    if 'retained_from' in collector:
+        origin = collector['retained_from']
+        if not isinstance(origin, dict) or not origin or set(origin) - {'statz', 'pred'} or any(v not in COLLECTOR_HOSTS + ('unrecorded',) for v in origin.values()):
+            raise ValueError('Bundle carries an invalid collector retained_from')
+    for key in ('run_id', 'run_attempt', 'tool_version'):
+        value = collector.get(key)
+        if value is not None and (not isinstance(value, str) or not re.fullmatch(r'[0-9A-Za-z._-]{1,40}', value)):
+            raise ValueError('Bundle carries an invalid collector ' + key)
+
+
+def older_sources(previous, incoming):
+    """Dated sources (Statz, Omeda and Pred.gg) whose fetch date in an incoming bundle is older than, or missing
+    compared with, what is already published.
+
+    A newer assembly date never makes an older source fresh, so such a bundle must not replace the publication."""
+    older = []
+    for key in DATED_SOURCES:
+        before = (previous.get('sources') or {}).get(key) or {}
+        after = (incoming.get('sources') or {}).get(key) or {}
+        status = str(before.get('status') or '')
+        if not (status in ('ok', 'retained') or status.startswith('partial')):
+            continue   # a published source that holds no data (failed, unavailable) has no date to protect
+        try:
+            if before.get('fetched_at') and (not after.get('fetched_at') or utc_time(after['fetched_at']) < utc_time(before['fetched_at'])):
+                older.append(key)
+        except (TypeError, ValueError):
+            older.append(key)
+    return older
+
+
 def validate_public_bundle(bundle, bracket):
+    validate_collector(bundle)
     if bracket not in base.BRACKETS or bundle.get('bracket', {}).get('segment') != bracket:
         raise ValueError('Published bundle has the wrong rank bracket')
     if not isinstance(bundle.get('heroes'), dict) or not bundle['heroes'] or not isinstance(bundle.get('tier_list'), list) or not bundle['tier_list']:
@@ -189,6 +243,7 @@ def load_success(folder, bracket):
 def validate_publication_bundle(bundle, bracket):
     if base.bundle_is_complete(bundle)[0]:
         return validate_public_bundle(bundle, bracket)
+    validate_collector(bundle)
     if bracket not in base.BRACKETS or bundle.get('bracket', {}).get('segment') != bracket:
         raise ValueError('Published bundle has the wrong rank bracket')
     utc_time(bundle['generated_at'])
@@ -198,8 +253,27 @@ def validate_publication_bundle(bundle, bracket):
         raise ValueError('Partial collection is missing its roster or tier structure')
     if not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
         raise ValueError('Partial collection must name its unavailable source')
-    clean = public_bundle(bundle)
-    clean['refresh_result'] = 'partial: independent sources updated; inspect each source date'
+    clean = stamp_page_coverage(public_bundle(bundle), bundle)
+    coverage = clean['sources'].get('statz_hero_pages', {}).get('coverage') or {}
+    clean['refresh_result'] = ('partial: %d of %d Statz hero pages failed; those roles are unavailable and nothing was filled in; inspect each source date'
+                               % (coverage['failed'], coverage['requested']) if coverage.get('usable') and coverage.get('failed')
+                               else 'partial: independent sources updated; inspect each source date')
+    return clean
+
+
+def stamp_page_coverage(clean, bundle):
+    """Publish the publisher's own verdict on hero-page coverage, never the collector's claim.
+
+    The apps use Statz roles from a collection with failed pages only when this says usable, which
+    requires the counts to reconcile within the failure share AND the whole update to validate."""
+    pages = (clean.get('sources') or {}).get('statz_hero_pages')
+    if not isinstance(pages, dict):
+        return clean
+    coverage = base.hero_page_coverage(pages.get('requested'), pages.get('ok'), pages.get('failed'), pages.get('conflicting'))
+    if not coverage['failed'] and not coverage['conflicting'] and 'coverage' not in pages:
+        return clean   # nothing is missing: the source record is published exactly as collected
+    coverage['usable'] = bool(coverage['usable'] and base.bundle_has_fresh_statz(bundle))
+    clean['sources'] = dict(clean['sources'], statz_hero_pages=dict(pages, coverage=coverage))
     return clean
 
 
@@ -404,10 +478,18 @@ def render_site(folder, out, state):
                          collection_status='complete' if base.bundle_is_complete(bundle)[0] else 'partial',
                          source_dates={k: {'status': v.get('status'), 'fetched_at': v.get('fetched_at')}
                                        for k, v in bundle.get('sources', {}).items()})
+            entry['collector'] = bundle.get('collector') or {'host': 'unrecorded', 'note': 'Collected before provenance was recorded (2.24.0 or earlier).'}
             statz = bundle.get('sources', {}).get('statz_hero_pages', {})
             core = source_age_state(statz.get('fetched_at'), now)
+            coverage = statz.get('coverage') if isinstance(statz.get('coverage'), dict) else {}
+            gaps = bool(coverage.get('usable') and coverage.get('failed'))
             core.update(updated_at=statz.get('fetched_at'), source='Statz hero pages',
-                        status='available' if statz.get('status') in ('ok','retained') else 'unavailable')
+                        status='available' if statz.get('status') in ('ok','retained') or gaps else 'unavailable')
+            if gaps:
+                # Fresh statistics with named gaps: the failed roles are listed, never filled in.
+                core['coverage'] = {key: coverage.get(key) for key in ('requested', 'ok', 'failed')}
+                entry['failed_roles'] = [{'slug': page.get('slug'), 'role': page.get('role')}
+                                         for page in bundle.get('failed_pages') or []]
             if core['status'] == 'unavailable': core['state'] = 'Unavailable'
             core['retained'] = statz.get('status') == 'retained'
             entry['health'] = {'core_statistics': core,
@@ -456,7 +538,8 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
     configure_collector(folder / 'collector')
     if preview_seeds:
         for path in preview_seeds:
-            clean = retain_success(base.load_bundle(Path(path)), folder)
+            # The same validation as production: a complete seed, or a validated independent update.
+            clean = retain_publication(base.load_bundle(Path(path)), folder)
             if clean['bracket']['segment'] == CONFIG['default_bracket']:
                 state['patch_check'] = patch_summary(clean.get('official', {}))
         # A seed is a dated preview, never a claim that a source was checked now.
@@ -517,7 +600,22 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                                                        pred_collection_paused_reason=CONFIG.get('pred_collection_paused_reason'),
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
+                    bundle['collector'] = collector_identity()
+                    # Retained partitions keep their original dates; name who collected each one (recorded when it was
+                    # retained), not only who assembled this bundle.
+                    sources, kept = bundle.get('sources') or {}, bundle.get('retained_sources') or {}
+                    origin = {name: (kept.get(name) or {}).get('collector') or 'unrecorded'
+                              for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')))
+                              if any((sources.get(k) or {}).get('status') == 'retained' for k in keys)}
+                    if origin:
+                        bundle['collector']['retained_from'] = {k: (v if v in COLLECTOR_HOSTS else 'unrecorded') for k, v in origin.items()}
                     complete, why = base.bundle_is_complete(bundle)
+                    pages = (bundle.get('sources') or {}).get('statz_hero_pages') or {}
+                    if not complete and pages.get('failed') and not any(e.get('severity') == 'error' and str(e.get('source', '')).startswith('statz.gg hero pages') for e in bundle.get('errors', [])):
+                        # A tolerated gap is still a required-source failure: it is named, retried and reported the
+                        # same way whether or not Pred.gg is also unavailable, while the collected roles publish.
+                        bundle.setdefault('errors', []).append({'source': 'statz.gg hero pages', 'severity': 'error',
+                            'detail': '%d of %d hero/role pages failed. The collected roles were published; the failed roles have no hero-page statistics until a later collection succeeds.' % (pages['failed'], pages.get('requested') or 0)})
                     if not complete and not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
                         # A small Statz gap may have only per-page warnings. Name
                         # the structural failure before persisting valid Pred data.

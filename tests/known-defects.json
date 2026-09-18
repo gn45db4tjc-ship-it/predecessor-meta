@@ -1,10 +1,7 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [
-    "E1",
-    "G1"
-  ],
+  "open": [],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -35,8 +32,15 @@
     "C11": "GUARD: going offline while typing on the phone keeps focus and every keystroke",
     "C12": "GUARD: a redraw keeps the official patch-change search filter",
     "C13": "GUARD: when the patch check succeeds and finds new official content, the phone badge says so and does not claim the check failed",
+    "D1": "GUARD: with one failed Statz hero page, collected roles keep their exact numbers, the failed role shows none, and the desktop source note states the gap",
+    "D2": "GUARD: with one failed Statz hero page, the phone status line states the gap",
     "E1": "Composition search for five heroes blocks the main thread for longer than 500 ms (engine.generate called synchronously)",
-    "G1": "The strategy review packet exports zero official changes although the bundle carries them (mobile.js reads B.official.changes)",
+    "E2": "GUARD: alternatives computed in the worker are identical to the engine's own result for the same inputs",
+    "E3": "GUARD: where a worker cannot start, composition search still completes on the main thread and the result is current",
+    "E4": "GUARD: a result that finishes after the draft changed is discarded, and the page says why",
+    "E5": "GUARD: when two update checks overlap a slow offline save, the page never shows one publication while ranking from another",
+    "E6": "GUARD: a composition search that finishes while the user types elsewhere never takes their focus or text",
+    "G1": "The downloaded strategy review packet must carry every official change in the bundle, reference the loaded bundle by checksum and list the published brackets (was: zero official changes, mobile.js read B.official.changes)",
     "H1": "Mobile Meta says reviewed tier guidance leads while no editorial tier is active (mobile.js guidedHome copy)"
   }
 }

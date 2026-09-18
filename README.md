@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.24.0
+# Predecessor Meta — 2.25.0
+
+2.25.0 completes the audit repairs: a fresh collection publishes even when a few hero pages fail (with the gaps named), saved offline ranks survive every release and only verified data is stored, five-hero composition search no longer freezes the page, the strategy review packet carries the official changes and is queued in the cloud for human review, and each published rank records who collected it. See [RELEASE-2.25.0.md](RELEASE-2.25.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.25.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.25.0 merge commit on `main`.
+
+## Previous release: 2.24.0
 
 2.24.0 is a reliability release: composition results always match the current draft, evidence age is described once and redrawn when it changes, and every publication path validates rows the same way. See [RELEASE-2.24.0.md](RELEASE-2.24.0.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.24.0.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.24.0 merge commit on `main`.
 
@@ -60,7 +64,7 @@ The selected hosting approach remains $0. The 2.21.1 repair updates collection, 
 - Open a normal website link on your PC, Mac or iPhone. Neither your Windows PC nor the spare iMac needs to remain on.
 - The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your draft stays in that browser; Share plan deliberately transfers it.
 - GitHub collects available sources once per daily update cycle (17:23 UTC boundary), or after live patch/hotfix content changes. Your PC and Codex can be off. Pred.gg is optional and limited to public game pages; missing optional data does not stop the other sources.
-- The Windows updater remains an additional collection route. It starts at sign-in and checks every three hours while the PC is on and connected. Neither collector requires an AI account or API key for the currently enabled sources.
+- The Windows updater is manual recovery only (from 2.25.0). It runs when you open **Update Predecessor Website** on the Desktop; nothing starts at sign-in. Before 2.25.0 it started at sign-in and checked every three hours. Neither collector requires an AI account or API key for the currently enabled sources.
 - GitHub checks official patch notes every three hours, imports newer validated public files from `data-updates`, and deploys the site. Old Windows receipts cannot reset a newer cloud collection clock. An access denial stops later Pred.gg requests, while the cloud continues other sources.
 - The Windows publishing key is restricted to this repository. Its private half stays on the PC, outside the source package. The updater only pushes public bundles, a source-status receipt and a small reviewed deployment trigger to `data-updates`; it never force-pushes or modifies `main`.
 - The first complete collection across all six brackets passed with no source errors in **23 minutes 56 seconds**. Individual fetch timestamps and sample labels remain visible. No source observations are relabelled or pooled.
@@ -103,7 +107,7 @@ If a source blocks GitHub's hosting addresses, the app must report that boundary
 - `publication_activity.py`: minimal daily activity record; no private state.
 - `local_updater.py`: Windows checks, isolated data cache, public-only export and repository-only publishing.
 - `import_local_feed.py`: verify the data receipt, hashes, bracket and original dates before cloud import.
-- `Install Windows Updater.ps1`: sign-in shortcut and manual update shortcut; no Windows service or administrator task.
+- `Install Windows Updater.ps1`: creates the manual recovery shortcut on the Desktop and removes the sign-in shortcut older versions created; no Windows service or administrator task.
 - `public-seed-gold.json.gz`: public game-data snapshot for initial deployment/cache recovery; excluded from the source-only ZIP.
 - `VERIFICATION.md`: completed local/cloud checks and remaining native-device limitations.
 
@@ -121,6 +125,8 @@ That preview is a saved-data check. It does not refresh samples. `python -B -m u
 To roll back the shared website, redeploy a prior known-good source revision. Preserve its dated data; never relabel an old bundle as newly fetched. The installed Windows tool keeps its existing rollback launcher.
 
 ## Using and pausing the Windows updater
+
+**From 2.25.0 cloud collection is primary and this PC is manual recovery.** GitHub collects daily whether or not the PC is on. Each published rank records who actually collected it (`collector` in the manifest: `cloud`, `windows`, `local`, or `unrecorded` for data collected before 2.25.0). When a collection keeps (retains) sources from an earlier one, `retained_from` names who collected those. A Windows upload is imported only when it is genuinely newer: a later assembly of older sources never replaces the publication, this applies to every dated source including Pred.gg, a refused upload leaves the cloud's own collection record and schedule untouched, and a Windows upload can never be labelled as a cloud run. Use **Update Predecessor Website** only when the cloud has failed and you want to publish a fresh collection from this PC. The paragraphs below describe the original automatic updater and are kept as history.
 
 Keep this `Predecessor Meta Free Hosting` folder in place. Open **Predecessor Meta Website** on your Desktop to use the app. **Update Predecessor Website** starts an additional full update if wanted; its console shows progress. Normal updates run quietly at Windows sign-in and while signed in, without Codex running. Signing out, shutting down or sleeping stops work until the PC is available again. Website availability does not depend on the PC.
 

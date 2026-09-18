@@ -77,6 +77,16 @@ async function generate(page) {
 const offered = page => page.evaluate(() => document.querySelectorAll('[data-use-comp]').length);
 const bannedLocks = page => page.evaluate(() => S.locks.filter(l => S.bans.includes(l.slug) || S.enemies.some(e => e.slug === l.slug)).map(l => l.slug));
 
+/* Runs in the page: mark one role failed the way a validated publication with a gap arrives. */
+const GAP = `(slug, role) => {
+  const pages = B.sources.statz_hero_pages, requested = pages.requested, heroes = {...B.heroes};
+  heroes[slug] = {...heroes[slug], roles: {...heroes[slug].roles, [role]: {status: 'failed', error: 'FetchError: timed out (probe)'}}};
+  B = {...B, heroes, failed_pages: [{slug, role, error: 'FetchError: timed out (probe)'}],
+    sources: {...B.sources, statz_hero_pages: {...pages, status: 'partial (1 missing)', ok: requested - 1, failed: 1,
+      coverage: {requested, ok: requested - 1, failed: 1, conflicting: 0, max_failed_share: 0.1, usable: true}}}};
+  E = MetaEngine.create(B);
+}`;
+
 const probes = {
   async A1(browser) {
     const {context, page} = await session(browser, desktop);
@@ -461,6 +471,79 @@ const probes = {
     verdict('E1', gap > 500, {longest_main_thread_stall_ms: gap, threshold_ms: 500});
     await context.close();
   },
+  /* E guards: the worker must return exactly what the engine returns, and the page must still work without one. */
+  async E2(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5); await generate(page);
+    const seen = await page.evaluate(() => {
+      const direct = E.generate(S.locks, {size: S.size, bans: S.bans, enemies: S.enemies, metric: S.sortComp, preferredRole: 'jungle', requiredRole: effectiveRequiredRole(), includeUnsampled: S.includeUnsampled});
+      const {inputs, ...fromWorker} = compositions;
+      return {usedWorker: !!search.worker && !search.unavailable, same: JSON.stringify(fromWorker) === JSON.stringify(direct), alternatives: direct.alternatives.length};
+    });
+    assert.ok(seen.usedWorker, 'probe setup: the search did not run in a worker on the published site');
+    verdict('E2', !seen.same, seen);
+    await context.close();
+  },
+  async E3(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.addInitScript(() => { window.Worker = class { constructor() { setTimeout(() => this.onerror?.({preventDefault() {}}), 0); } postMessage() {} terminate() {} }; });   // a blocked worker reports an error event
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    await reset(page, 3); await generate(page);
+    const seen = await page.evaluate(() => ({alternatives: compositions?.alternatives?.length || 0, fellBack: search.unavailable === true, current: compositionsCurrent()}));
+    verdict('E3', !(seen.alternatives > 0 && seen.fellBack && seen.current), seen);
+    await context.close();
+  },
+  async E4(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    // While the worker is searching, the draft changes: the finished result no longer answers the question on screen.
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});   // the search has started with the old inputs
+    const banned = await page.evaluate(() => { const slug = Object.keys(B.heroes).find(s => s !== 'steel'); S.bans = [slug]; save(); return slug; });
+    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
+    const seen = await page.evaluate(() => ({kept: !!compositions, notice: compositionsNotice, shown: /was discarded/.test(document.querySelector('#main').innerText)}));
+    verdict('E4', !(seen.kept === false && seen.shown), {banned, ...seen, notice: seen.notice.slice(0, 80)});
+    await context.close();
+  },
+  /* E#1/F#1 from the review: with a slow offline save, a second update check used to leave the new bundle on screen
+     with the previous engine. The page is given a slow Cache API and two checks overlap. */
+  async E5(browser) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    await page.addInitScript(() => { const open = caches.open.bind(caches); caches.open = name => new Promise(r => setTimeout(r, 1500)).then(() => open(name)); });
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const manifest = await (await context.request.get(url + 'manifest.json')).json(), entry = manifest.cohorts.gold;
+    const bundle = await (await context.request.get(url + entry.url)).json();
+    bundle.generated_at = new Date(Date.parse(bundle.generated_at) + 60000).toISOString();
+    const bytes = Buffer.from(JSON.stringify(bundle)), sha = require('crypto').createHash('sha256').update(bytes).digest('hex');
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); Object.assign(m.cohorts.gold, {sha256: sha, url: 'bundles/gold-' + sha + '.json', generated_at: bundle.generated_at}); await route.fulfill({response, json: m}); });
+    await page.route('**/bundles/gold-' + sha + '.json', route => route.fulfill({status: 200, contentType: 'application/json', body: bytes}));
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(generated => B?.generated_at === generated, bundle.generated_at, {timeout: 60000});
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));   // a second check overlaps the slow save
+    await page.waitForTimeout(4000);
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+    const seen = await page.evaluate(() => ({shown: B.generated_at, engine_matches_shown: E.heroes === B.heroes}));
+    verdict('E5', !seen.engine_matches_shown, seen);
+    await context.close();
+  },
+  /* Third review round (2.25.0). */
+  async E6(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    // While the worker searches, the user opens the patch changes and types a filter.
+    await page.evaluate(() => changeRoute('changes'));
+    await page.locator('#patch-search').click();
+    await page.keyboard.type('stee');
+    await page.waitForFunction(() => !search.pending, null, {timeout: 180000});
+    await page.keyboard.type('l');
+    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#patch-search')?.value, generated: !!compositions}));
+    verdict('E6', !(seen.focused === 'patch-search' && seen.value === 'steel' && seen.generated), seen);
+    await context.close();
+  },
   async G1(browser) {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => changeRoute('more'));
@@ -470,7 +553,36 @@ const probes = {
     await (await waiting).saveAs(file);
     const packet = JSON.parse(fs.readFileSync(file, 'utf8')), inBundle = await page.evaluate(() => (B.official_changes || []).length);
     assert.ok(inBundle > 0, 'probe setup: the seed bundle carries no official changes');
-    verdict('G1', (packet.official_changes || []).length === 0, {bundle_official_changes: inBundle, packet_official_changes: (packet.official_changes || []).length, packet_schema: packet.schema});
+    const complete = (packet.official_changes || []).length === inBundle && packet.schema === 2 && Array.isArray(packet.brackets) && packet.brackets.some(b => b.bracket === 'gold' && /^[a-f0-9]{64}$/.test(b.sha256 || '')) && /^[a-f0-9]{64}$/.test(packet.reference_bundle?.sha256 || '');
+    verdict('G1', !complete, {bundle_official_changes: inBundle, packet_official_changes: (packet.official_changes || []).length, packet_schema: packet.schema, plans: (packet.plans || []).length, brackets: (packet.brackets || []).length, reference_sha: !!packet.reference_bundle?.sha256});
+    await context.close();
+  },
+  /* D: one failed Statz hero page. The page marks a role failed exactly as the publisher would
+     (failed role, declared failed page, reconciled coverage) and rebuilds the engine from it. */
+  async D1(browser) {
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(gap => {
+      const row = B.tier_list.find(r => r.role === 'jungle'), other = B.tier_list.find(r => r.role === 'jungle' && r.slug !== row.slug);
+      const before = E.performance({slug: other.slug, role: 'jungle'}, {source: 'statz'});
+      eval(gap)(row.slug, 'jungle');
+      openHero(row.slug, 'jungle');
+      return {failed: row.slug, other: other.slug, before, after: E.performance({slug: other.slug, role: 'jungle'}, {source: 'statz'}),
+        failedRole: E.performance({slug: row.slug, role: 'jungle'}, {source: 'statz'}), policy: E.performancePolicy().source,
+        gap: E.statzGap(), text: document.querySelector('#main').innerText};
+    }, GAP);
+    assert.deepEqual(seen.after, seen.before, 'a collected role must keep exactly the numbers it had');
+    const stated = /Statz observations partial \u00b7 1 of \d+ hero pages failed/.test(seen.text);
+    verdict('D1', !(seen.failedRole === null && seen.gap?.failed === 1 && stated), {failed_role: seen.failed, failed_role_numbers: seen.failedRole, gap: seen.gap, stated});
+    await context.close();
+  },
+  async D2(browser) {
+    const {context, page} = await session(browser, phone);
+    const seen = await page.evaluate(gap => {
+      const row = B.tier_list.find(r => r.role === 'jungle');
+      eval(gap)(row.slug, 'jungle'); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+      return {slug: row.slug, health: document.querySelector('.mobile-health')?.innerText || '', text: document.querySelector('#main').innerText};
+    }, GAP);
+    verdict('D2', !/1 hero page failed/.test(seen.health), {health: seen.health.replace(/\s+/g, ' ')});
     await context.close();
   },
   async H1(browser) {

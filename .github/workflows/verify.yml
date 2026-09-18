@@ -41,6 +41,10 @@ jobs:
           START_PREVIEW: '1'
           BROWSER_CHANNEL: chrome
         run: node tests/browser_audit_regressions.cjs
+      - name: Offline cache lifecycle with the real service worker (release upgrade, captive portal, network down)
+        env:
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_offline_cache.cjs
       - name: Show the browser verdicts
         if: always()
         run: cat qa/audit-regressions-browser.json || true

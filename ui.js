@@ -13,7 +13,7 @@ function art(slug,size=''){const h=E.heroes[slug]||{},row=(B?.tier_list||[]).fin
 function heroButton(slug,role='',small=false){return `<button class="text-button hero-cell" data-hero="${esc(slug)}" data-role="${esc(role)}">${art(slug,small?'tiny':'')}<span class="name">${esc(name(slug))}</span></button>`;}
 function tier(t){return `<span class="tier tier-${esc(String(t||'').toLowerCase()[0])}">${esc(t||'—')}</span>`;}
 function statzAvailability(kind='statz_hero_pages',compact=false){
- const source=B?.sources?.[kind];if(!source||source.status==='ok')return '';
+ const source=B?.sources?.[kind];if(!source||source.status==='ok')return '';const gap=kind==='statz_hero_pages'?E?.statzGap?.():null;if(gap){const text='Statz observations partial · '+gap.failed+' of '+gap.requested+' hero pages failed';return compact?`<small class="warning">${esc(text)}</small>`:note(`${esc(text)}. Roles whose hero page failed have no hero-page statistics (role win rate, builds, matchups); nothing was filled in. Their tier-list rows are shown as collected, and collected roles keep their own sample and date.`,true);}
  const retained=source.status==='retained',text=retained?'Retained Statz observations · fetched '+date(source.fetched_at):'Statz observations unavailable';
  return compact?`<small class="warning">${esc(text)}</small>`:note(`${esc(text)}. ${esc(retained?'Latest Statz attempt failed. These numbers keep their original sample and date.':'No successful sample is available for this view.')} Pred.gg evidence has its own source status.`,true);
 }
@@ -183,6 +183,37 @@ function compCard(c,i){
 function effectiveRequiredRole(){return S.compRole==='auto'?(S.locks.length?'':'jungle'):S.compRole;}
 // Generated alternatives answer one exact question. They are dropped as soon as the picks, bans,
 // enemies, options or data that produced them change, and re-validated again before they are applied.
+// Composition search runs in a Web Worker built from the engine source already in this page, so the page stays
+// responsive. Where a worker cannot start (the local app and saved-file exports forbid blob workers) the same engine
+// call runs on the main thread exactly as before. A result is used only if it answers the latest request.
+const search={worker:null,sent:null,generation:0,seq:0,pending:null,unavailable:false};
+function searchOnMainThread(request){try{request.resolve(E.generate(request.locks,request.options));}catch(error){request.reject(error);}}
+function stopSearchWorker(unavailable){try{search.worker?.terminate();}catch{}search.worker=null;search.sent=null;if(unavailable)search.unavailable=true;}
+function searchWorker(){
+ if(search.unavailable)return null;if(search.worker)return search.worker;
+ try{
+  const source=document.getElementById('engine-source')?.textContent;if(!source||typeof Worker!=='function'||typeof Blob!=='function')throw Error('Workers are unavailable');
+  const harness=';let engine=null,generation=0;self.onmessage=event=>{const m=event.data;if(m.type==="bundle"){engine=MetaEngine.create(m.bundle);generation=m.generation;return;}if(m.type!=="generate")return;if(!engine||m.generation!==generation){self.postMessage({type:"stale",id:m.id});return;}try{const result=engine.generate(m.locks,{...m.options,onProgress:p=>self.postMessage({type:"progress",id:m.id,done:p.done,total:p.total})});self.postMessage({type:"result",id:m.id,result});}catch(error){self.postMessage({type:"error",id:m.id,message:String(error&&error.message||error)});}};';
+  const url=URL.createObjectURL(new Blob([source,harness],{type:'text/javascript'})),worker=new Worker(url);setTimeout(()=>URL.revokeObjectURL(url),30000);
+  worker.onmessage=event=>{const m=event.data,request=search.pending;if(!request||m.id!==request.id)return;
+   if(m.type==='progress'){request.onProgress?.(m);return;}search.pending=null;
+   if(m.type==='result')request.resolve(m.result);else if(m.type==='error')request.reject(Error(m.message));else searchOnMainThread(request);};
+  // A blocked worker reports an error event instead of throwing: finish the request on the main thread and stop trying.
+  worker.onerror=event=>{event.preventDefault?.();const request=search.pending;search.pending=null;stopSearchWorker(true);if(request)searchOnMainThread(request);};
+  search.worker=worker;return worker;
+ }catch{stopSearchWorker(true);return null;}
+}
+function generateCompositions(locks,options,onProgress){
+ return new Promise((resolve,reject)=>{
+  const request={id:++search.seq,locks,options,onProgress,resolve,reject};
+  if(search.pending){const superseded=search.pending;search.pending=null;stopSearchWorker(false);superseded.reject(Error('A newer search replaced this one.'));}
+  const worker=searchWorker();if(!worker){searchOnMainThread(request);return;}
+  try{
+   if(search.sent!==B){search.generation++;worker.postMessage({type:'bundle',bundle:B,generation:search.generation});search.sent=B;}
+   search.pending=request;worker.postMessage({type:'generate',id:request.id,generation:search.generation,locks,options});
+  }catch{search.pending=null;stopSearchWorker(true);searchOnMainThread(request);}
+ });
+}
 function compositionInputs(){const pick=p=>p.role+':'+p.slug;return JSON.stringify({locks:S.locks.map(pick).sort(),enemies:S.enemies.map(pick).sort(),bans:[...S.bans].sort(),size:S.size,metric:S.sortComp,required:effectiveRequiredRole(),unsampled:!!S.includeUnsampled,bracket:S.bracket,bundle:B?.generated_at||null,revision:String(revision||''),guidance:B?.guidance?.status||null,withheld:B?.recommendation_context?.status||null});}
 function rememberCompositions(result){compositions=result?{...result,inputs:compositionInputs()}:null;compositionsNotice='';}
 function compositionsCurrent(){return !!compositions&&compositions.inputs===compositionInputs();}
@@ -480,7 +511,7 @@ document.addEventListener('click',async event=>{
   else if(el.id==='refresh'){await post('/api/refresh');await poll();}
   else if(el.id==='quit'){await post('/api/quit');local=false;stopped=true;clearInterval(poll.timer);latestStatus={message:'App stopped. You can close this tab.'};chrome();$('#refresh').disabled=true;}
   else if(el.id==='export'){if(local||shared){const a=document.createElement('a');a.href=apiPath('/export');a.download='Predecessor Meta.html';a.click();}else toast('This is already a standalone export. Share the HTML file itself.');}
-  else if(el.id==='generate'){E.validPicks(S.locks,{size:S.size,bans:S.bans,enemies:S.enemies});el.disabled=true;el.textContent='Comparing alternatives…';await new Promise(r=>setTimeout(r,30));const start=performance.now();rememberCompositions(E.generate(S.locks,{size:S.size,bans:S.bans,enemies:S.enemies,metric:S.sortComp,preferredRole:'jungle',requiredRole:effectiveRequiredRole(),includeUnsampled:S.includeUnsampled}));save();render();toast('Generated '+compositions.alternatives.length+' alternatives in '+num((performance.now()-start)/1000,2)+' seconds.');}
+  else if(el.id==='generate'){E.validPicks(S.locks,{size:S.size,bans:S.bans,enemies:S.enemies});el.disabled=true;el.textContent='Comparing alternatives…';await new Promise(r=>setTimeout(r,30));const start=performance.now(),asked=compositionInputs();const result=await generateCompositions(S.locks.map(p=>({...p})),{size:S.size,bans:[...S.bans],enemies:S.enemies.map(p=>({...p})),metric:S.sortComp,preferredRole:'jungle',requiredRole:effectiveRequiredRole(),includeUnsampled:S.includeUnsampled},p=>{const b=$('#generate');if(b)b.textContent='Comparing alternatives… '+p.done+' of '+p.total;});if(asked!==compositionInputs()){if(!compositionsCurrent()){compositions=null;compositionsNotice='Your picks, bans, enemies or data changed while alternatives were being compared, so that result was discarded. Generate again for the current draft.';}requestRedraw(true);return;}rememberCompositions(result);save();requestRedraw(true);toast('Generated '+compositions.alternatives.length+' alternatives in '+num((performance.now()-start)/1000,2)+' seconds.');}
   else if(el.id==='clear-locks'){S.locks=[];S.liveContexts={};save();render();}
   else if(el.id==='clear-enemies'){S.enemies=[];save();render();}
   else if(el.id==='menu-toggle'){const open=el.getAttribute('aria-expanded')!=='true';el.setAttribute('aria-expanded',String(open));document.querySelector('.sidebar').classList.toggle('menu-open',open);}

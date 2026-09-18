@@ -22,7 +22,10 @@
  const perk=s.parentElement.querySelector('[data-catalog]');perk.focus();perk.click();assert(document.querySelector('#detail-body').innerText.includes('no longer grants Health Regeneration'),'Original Legion augment inspectable');click('#close-detail');assert(document.activeElement===perk,'Augment close restores focus');
  click('[data-route="planner"]');click('#clear-locks');click('[data-size="5"]');select('[data-slot="allies"][data-slot-role="support"]','adele');select('[data-slot="allies"][data-slot-role="midlane"]','argus');select('[data-slot="allies"][data-slot-role="carry"]','legion');
  summary('Why these coverage checks apply').click();const panel=document.querySelector('.loadout-evidence');assert(panel.innerText.includes('nearest ally')&&panel.innerText.includes('infinite range')&&panel.innerText.includes('removes Rally Point'),'Three distinct default effects shown');
- click('#generate');await new Promise(r=>setTimeout(r,800));assert(document.querySelectorAll('.comp-card').length>0,'Alternatives generate with augmented kits');
+ click('#generate');
+ // Since 2.25 the search runs in a worker; wait for it to finish instead of assuming a fixed 800ms.
+ for(let i=0;i<300&&(document.querySelector('#generate')?.disabled||!document.querySelector('.comp-card'));i++)await new Promise(r=>setTimeout(r,100));
+ assert(document.querySelectorAll('.comp-card').length>0,'Alternatives generate with augmented kits');
  const card=document.querySelector('.comp-card'),plan=[...card.querySelectorAll('summary')].find(e=>e.textContent.startsWith('Fight plan & risks'));plan.click();assert(plan.parentElement.querySelectorAll('.loadout-evidence [data-catalog]').length===5,'Five loadout assumptions inspectable');
  assert(document.documentElement.scrollWidth<=innerWidth+2,'No horizontal page overflow');assert(!document.body.innerText.includes('could not render'),'No rendering failure');assert(!document.body.innerText.includes('Planner save failed'),'No planner-save failure');
  return {passed:checks.length,checks,viewport:[innerWidth,innerHeight]};

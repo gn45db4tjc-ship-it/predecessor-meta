@@ -46,75 +46,196 @@ test('I guard: saved observations stay available with their original values and 
 });
 
 /* ---------------- F: offline cache lifecycle (sw.js in a sandbox) ---------------- */
+const crypto = require('node:crypto');
 const SW = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const SITE = 'https://example.test/predecessor-meta/';
-const bundleURL = (bracket, fill) => SITE + 'bundles/' + bracket + '-' + fill.repeat(64) + '.json';
+const BRACKETS = ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'paragon'];
+const digest = text => crypto.createHash('sha256').update(text).digest('hex');
+const bundleBody = (bracket, note = '') => JSON.stringify({schema: 3, bracket: {segment: bracket}, generated_at: '2026-09-14T17:20:20-05:00', sources: {statz_tierlist: {status: 'ok', fetched_at: '2026-09-14T17:19:00-05:00'}}, note});
+const bundleURL = (bracket, body) => SITE + 'bundles/' + bracket + '-' + digest(body) + '.json';
 const urlOf = key => typeof key === 'string' ? new URL(key, SITE).href : key.url;
 
+/* Like the real Cache API: every match returns a fresh, readable Response. */
 function cacheStorage() {
   const stores = new Map();
+  const fresh = hit => hit && new Response(hit.body, {status: hit.status, headers: hit.headers});
   const view = name => { if (!stores.has(name)) stores.set(name, new Map()); const m = stores.get(name); return {
-    async put(request, response) { m.set(urlOf(request), response); },
-    async addAll(list) { for (const item of list) m.set(urlOf(String(item)), new Response('shell')); },
+    async put(request, response) { m.set(urlOf(request), {body: Buffer.from(await response.arrayBuffer()), status: response.status, headers: [...response.headers]}); },
+    async addAll(list) { for (const item of list) m.set(urlOf(String(item)), {body: Buffer.from('shell'), status: 200, headers: []}); },
     async keys() { return [...m.keys()].map(url => ({url})); },
     async delete(key) { return m.delete(urlOf(key)); },
-    async match(request) { return m.get(urlOf(request)); }}; };
+    async match(request) { return fresh(m.get(urlOf(request))); }}; };
   return {stores, open: async name => view(name), keys: async () => [...stores.keys()], delete: async name => stores.delete(name),
-    async match(request) { for (const m of stores.values()) { const hit = m.get(urlOf(request)); if (hit) return hit; } }};
+    async match(request) { for (const m of stores.values()) { const hit = m.get(urlOf(request)); if (hit) return fresh(hit); } }};
 }
 function worker(source, storage, network) {
   const listeners = {}, self = {location: {href: SITE + 'sw.js'}, addEventListener: (type, fn) => { listeners[type] = fn; }, skipWaiting() {}, clients: {claim: async () => {}}};
-  vm.runInNewContext(source, {self, caches: storage, fetch: request => network(request), URL, Request, Response, Headers, console});
+  vm.runInNewContext(source, {self, caches: storage, fetch: request => network(request), crypto: crypto.webcrypto, TextDecoder, URL, Request, Response, Headers, console: {warn() {}, log() {}}});
   const lifecycle = async type => { let pending = Promise.resolve(); listeners[type]?.({waitUntil: p => { pending = p; }}); await pending; };
   return {install: () => lifecycle('install'), activate: () => lifecycle('activate'),
     async fetch(url) { let reply; listeners.fetch({request: new Request(url), respondWith: p => { reply = p; }}); return reply; }};
 }
-/* The next release: only the release-specific cache name changes. A persistent data cache
-   (declared as DATA_CACHE once the cache is split) keeps its name across releases. */
-const nextRelease = source => source.replace(/(const (?:CACHE|SHELL_CACHE) = ')([^']+)(')/, '$1$2-next$3');
-const dataCacheName = source => (source.match(/const DATA_CACHE = '([^']+)'/) || [])[1];
+/* The next release: only the release-specific cache name changes. The data cache keeps its name. */
+const nextRelease = source => source.replace(/(const SHELL_CACHE = ')([^']+)(')/, '$1$2-next$3');
+const DATA = (SW.match(/const DATA_CACHE = '([^']+)'/) || [])[1], SHELL_NAME = (SW.match(/const SHELL_CACHE = '([^']+)'/) || [])[1];
 const stored = async (storage, url) => !!(await storage.match(new Request(url)));
-async function releaseWithSavedBracket(storage) {
-  const valid = JSON.stringify({schema: 3, bracket: {segment: 'gold'}}), url = bundleURL('gold', 'a');
-  const sw = worker(SW, storage, async () => new Response(valid, {status: 200}));
-  await sw.install(); await sw.activate();
-  await (await sw.fetch(url))?.text();
-  // Once bundles are committed by the page after it verifies them, simulate that commit.
-  if (!await stored(storage, url) && dataCacheName(SW)) await (await storage.open(dataCacheName(SW))).put(new Request(url), new Response(valid));
-  assert.ok(await stored(storage, url), 'harness: the saved gold bundle should be in cache storage');
+const offline = async () => { throw new Error('offline'); };
+/* What the page does after it has verified a bundle (static_client.js, commitPublication). */
+async function pageCommits(storage, bracket, body) {
+  const url = bundleURL(bracket, body);
+  await (await storage.open(DATA)).put(new Request(url), new Response(body));
   return url;
 }
 
-knownDefect('F: activating the next release keeps the brackets saved for offline use', 'defect F - fixed by the offline-cache phase', async () => {
-  const storage = cacheStorage(), saved = await releaseWithSavedBracket(storage);
-  const next = worker(nextRelease(SW), storage, async () => { throw new Error('offline'); });
-  await next.install(); await next.activate();
-  assert.ok(await stored(storage, saved), 'the saved bracket was deleted when the new release activated');
+test('F: the worker declares a permanent data cache separate from the release shell', () => {
+  assert.ok(DATA && SHELL_NAME && DATA !== SHELL_NAME);
+  assert.doesNotMatch(DATA, /\d+[-.]\d+/, 'the data cache name must not carry a release number');
 });
 
-knownDefect('F: a malformed HTTP 200 bundle never evicts the last verified bracket', 'defect F - fixed by the offline-cache phase', async () => {
-  const storage = cacheStorage(), saved = await releaseWithSavedBracket(storage);
-  const sw = worker(SW, storage, async () => new Response('<html>captive portal</html>', {status: 200}));
-  await (await sw.fetch(bundleURL('gold', 'b')))?.text();
+test('F: activating the next release keeps the brackets saved for offline use', async () => {
+  const storage = cacheStorage(), first = worker(SW, storage, offline);
+  await first.install(); await first.activate();
+  const saved = await pageCommits(storage, 'gold', bundleBody('gold'));
+  const next = worker(nextRelease(SW), storage, offline);
+  await next.install(); await next.activate();
+  assert.ok(await stored(storage, saved), 'the saved bracket was deleted when the new release activated');
+  assert.ok(!(await storage.keys()).includes(SHELL_NAME), 'the previous release shell should be removed');
+});
+
+test('F: all six saved brackets survive a release and are served offline afterwards', async () => {
+  const storage = cacheStorage(), first = worker(SW, storage, offline);
+  await first.install(); await first.activate();
+  const saved = []; for (const bracket of BRACKETS) saved.push(await pageCommits(storage, bracket, bundleBody(bracket)));
+  const next = worker(nextRelease(SW), storage, offline);
+  await next.install(); await next.activate();
+  for (const [index, url] of saved.entries()) {
+    const reply = await next.fetch(url);
+    assert.equal(reply.headers.get('X-Predecessor-Cache'), 'offline');
+    assert.equal(JSON.parse(await reply.text()).bracket.segment, BRACKETS[index]);
+  }
+});
+
+test('F: a malformed HTTP 200 bundle never evicts the last verified bracket, and is never stored', async () => {
+  const storage = cacheStorage(), sw = worker(SW, storage, async () => new Response('<html>captive portal</html>', {status: 200}));
+  await sw.install(); await sw.activate();
+  const saved = await pageCommits(storage, 'gold', bundleBody('gold')), portal = bundleURL('gold', 'newer bundle the portal intercepted');
+  await (await sw.fetch(portal))?.text();
   assert.ok(await stored(storage, saved), 'an unverified response replaced the verified gold bundle');
+  assert.ok(!await stored(storage, portal), 'the worker stored a data response it cannot verify');
+  await (await sw.fetch(SITE + 'manifest.json'))?.text();
+  assert.ok(!await stored(storage, SITE + 'manifest.json'), 'the worker stored a manifest; only the page may, after validation');
+});
+
+test('F: brackets saved by an older release are moved once, verified by their own checksum', async () => {
+  const storage = cacheStorage(), legacy = await storage.open('predecessor-meta-v2-23');
+  const gold = bundleBody('gold'), silverOld = bundleBody('silver', 'older'), damaged = bundleURL('diamond', bundleBody('diamond'));
+  await legacy.put(new Request(bundleURL('gold', gold)), new Response(gold));
+  await legacy.put(new Request(bundleURL('silver', silverOld)), new Response(silverOld));
+  await legacy.put(new Request(damaged), new Response('<html>captive portal</html>'));
+  await legacy.put(new Request(SITE), new Response('old shell'));
+  // The legacy manifest had moved on for silver (a newer bundle that was never downloaded) and lists the damaged diamond.
+  const manifest = {schema: 2, published_at: '2026-09-15T10:00:00Z', cohorts: {
+    gold: {label: 'Gold+', status: 'available', sha256: digest(gold), url: 'bundles/gold-' + digest(gold) + '.json', generated_at: '2026-09-14T17:20:20-05:00'},
+    silver: {label: 'Silver+', status: 'available', sha256: 'b'.repeat(64), url: 'bundles/silver-' + 'b'.repeat(64) + '.json', generated_at: '2026-09-15T09:00:00Z'},
+    diamond: {label: 'Diamond+', status: 'available', sha256: digest(bundleBody('diamond')), url: 'bundles/diamond-' + digest(bundleBody('diamond')) + '.json', generated_at: '2026-09-14T17:15:24-05:00'},
+    paragon: {label: 'Paragon+', status: 'unavailable'}}};
+  await legacy.put(new Request(SITE + 'manifest.json'), new Response(JSON.stringify(manifest)));
+  const sw = worker(SW, storage, offline);
+  await sw.install(); await sw.activate();
+  assert.ok(!(await storage.keys()).includes('predecessor-meta-v2-23'), 'the legacy cache is removed after the move');
+  const data = await storage.open(DATA);
+  assert.ok(await data.match(new Request(bundleURL('gold', gold))));
+  assert.ok(await data.match(new Request(bundleURL('silver', silverOld))));
+  assert.equal(await data.match(new Request(damaged)), undefined, 'a bundle that fails its own checksum is not moved');
+  const moved = await (await data.match(new Request(SITE + 'manifest.json'))).json();
+  assert.equal(moved.cohorts.gold.sha256, digest(gold));
+  assert.deepEqual([moved.cohorts.silver.sha256, moved.cohorts.silver.generated_at, moved.cohorts.silver.saved_copy], [digest(silverOld), '2026-09-14T17:20:20-05:00', true], 'the saved manifest describes the silver bundle that is actually saved, with its own date');
+  assert.equal(moved.cohorts.silver.source_signature, 'unverified-saved-copy', 'an older saved bundle is never presented as matching the current patch');
+  assert.deepEqual(moved.cohorts.diamond, manifest.cohorts.diamond, 'nothing usable was saved for diamond, so its entry stays as published');
+  assert.equal(JSON.parse(await (await sw.fetch(bundleURL('silver', silverOld))).text()).note, 'older');
+});
+
+test('F: when the page saved its manifest before the move, the move still reconciles it with what is saved', async () => {
+  const storage = cacheStorage(), gold = bundleBody('gold'), silverOld = bundleBody('silver', 'older'), data = await storage.open(DATA);
+  // The page (new release) has already saved gold and today's manifest, which points at a silver bundle that was never downloaded.
+  await pageCommits(storage, 'gold', gold);
+  const today = {schema: 2, published_at: '2026-09-18T10:00:00Z', cohorts: {
+    gold: {label: 'Gold+', status: 'available', sha256: digest(gold), url: 'bundles/gold-' + digest(gold) + '.json', generated_at: '2026-09-14T17:20:20-05:00', source_signature: 'sig-today'},
+    silver: {label: 'Silver+', status: 'available', sha256: 'b'.repeat(64), url: 'bundles/silver-' + 'b'.repeat(64) + '.json', generated_at: '2026-09-18T09:00:00Z', source_signature: 'sig-today'}}};
+  await data.put(new Request(SITE + 'manifest.json'), new Response(JSON.stringify(today)));
+  const legacy = await storage.open('predecessor-meta-v2-23'), then = JSON.parse(JSON.stringify(today));
+  then.cohorts.silver = {label: 'Silver+', status: 'available', sha256: digest(silverOld), url: 'bundles/silver-' + digest(silverOld) + '.json', generated_at: '2026-09-14T17:20:20-05:00', source_signature: 'sig-then'};
+  await legacy.put(new Request(bundleURL('silver', silverOld)), new Response(silverOld));
+  await legacy.put(new Request(SITE + 'manifest.json'), new Response(JSON.stringify(then)));
+  const sw = worker(SW, storage, offline);
+  await sw.install(); await sw.activate();
+  const moved = await (await data.match(new Request(SITE + 'manifest.json'))).json();
+  assert.deepEqual(moved.cohorts.gold, today.cohorts.gold, 'an entry whose bundle is saved is left exactly as the page wrote it');
+  assert.deepEqual(moved.cohorts.silver, {...then.cohorts.silver, saved_copy: true}, 'the entry that matches the saved silver bundle is used verbatim, signature included');
+  const reply = await sw.fetch(SITE + moved.cohorts.silver.url);
+  assert.equal(JSON.parse(await reply.text()).note, 'older');
+});
+
+test('F: the move never overwrites newer data the page already saved, and a second activation changes nothing', async () => {
+  const storage = cacheStorage(), newer = bundleBody('gold', 'newer'), older = bundleBody('gold', 'older');
+  const kept = await pageCommits(storage, 'gold', newer);
+  await (await storage.open('predecessor-meta-v2-23')).put(new Request(bundleURL('gold', older)), new Response(older));
+  const sw = worker(SW, storage, offline);
+  await sw.install(); await sw.activate(); await sw.activate();
+  const urls = (await (await storage.open(DATA)).keys()).map(k => k.url);
+  assert.deepEqual(urls, [kept]);
+});
+
+test('F: rolling the website back to the 2.23/2.24 worker removes this release\'s caches instead of freezing them', async () => {
+  const OLD = fs.readFileSync(path.join(__dirname, 'fixtures', 'sw-2.23.js'), 'utf8');
+  const storage = cacheStorage(), current = worker(SW, storage, offline);
+  await current.install(); await current.activate();
+  await pageCommits(storage, 'gold', bundleBody('gold', 'saved by 2.25'));
+  await (await storage.open(DATA)).put(new Request(SITE + 'manifest.json'), new Response('{"schema":2,"cohorts":{}}'));
+  const rolledBack = worker(OLD, storage, async () => new Response(bundleBody('gold', 'published after the rollback'), {status: 200}));
+  await rolledBack.install(); await rolledBack.activate();
+  assert.deepEqual(await storage.keys(), ['predecessor-meta-v2-23'], 'only the rolled-back release\'s own cache remains');
+  const later = bundleURL('gold', bundleBody('gold', 'published after the rollback'));
+  await (await rolledBack.fetch(later)).text();
+  const offlineOld = worker(OLD, storage, offline);
+  assert.equal(JSON.parse(await (await offlineOld.fetch(later)).text()).note, 'published after the rollback', 'offline, the rolled-back site serves what it saved itself');
+});
+
+test('F: the saved manifest is re-described from what is actually saved before it is served offline', async () => {
+  const storage = cacheStorage(), sw = worker(SW, storage, offline), kept = bundleBody('gold', 'the copy that is saved');
+  await sw.install(); await sw.activate();
+  await pageCommits(storage, 'gold', kept);
+  // Two tabs committed at once without Web Locks: the manifest points at a gold bundle that was deleted.
+  const gone = 'd'.repeat(64);
+  await (await storage.open(DATA)).put(new Request(SITE + 'manifest.json'), new Response(JSON.stringify({schema: 2, published_at: '2026-09-18T10:00:00Z', cohorts: {
+    gold: {label: 'Gold+', status: 'available', sha256: gone, url: 'bundles/gold-' + gone + '.json', generated_at: '2026-09-18T09:00:00Z', source_signature: 'sig'}}})));
+  const served = await (await sw.fetch(SITE + 'manifest.json')).json();
+  assert.equal(served.cohorts.gold.sha256, digest(kept));
+  assert.equal(served.cohorts.gold.source_signature, 'unverified-saved-copy', 'a re-described copy is never presented as matching the current patch');
+  assert.equal(JSON.parse(await (await sw.fetch(SITE + served.cohorts.gold.url)).text()).note, 'the copy that is saved');
+});
+
+test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {
+  const client = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), 'utf8');
+  assert.match(client, /site\.loadedBytes = site\.verifiedBytes/, 'the verified bytes of the loaded publication are kept');
+  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(site\.loadedBytes\?\.url === entry\.url\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  assert.match(client, /else site\.offlineProblem = /, 'an unsaved copy is reported, never silently cleared');
+  assert.match(client, /health: entry\.health \|\| \(entry\.saved_copy \? null : manifest\.health\)/, 'a re-described saved copy never borrows the newest publication health');
 });
 
 test('F guard: a saved bracket is served offline and labelled as such', async () => {
-  const storage = cacheStorage(), saved = await releaseWithSavedBracket(storage);
-  const sw = worker(SW, storage, async () => { throw new Error('offline'); });
-  const reply = await sw.fetch(saved);
+  const storage = cacheStorage(), sw = worker(SW, storage, offline);
+  await sw.install(); await sw.activate();
+  const reply = await sw.fetch(await pageCommits(storage, 'gold', bundleBody('gold')));
   assert.equal(reply.headers.get('X-Predecessor-Cache'), 'offline');
   assert.equal(JSON.parse(await reply.text()).bracket.segment, 'gold');
 });
 
-test('F guard: other brackets are untouched when one bracket updates', async () => {
-  const storage = cacheStorage(), body = JSON.stringify({schema: 3});
-  const sw = worker(SW, storage, async () => new Response(body, {status: 200}));
+test('F guard: online, data comes from the network untouched and the page is kept for offline starts', async () => {
+  const storage = cacheStorage(), body = bundleBody('gold'), sw = worker(SW, storage, async () => new Response(body, {status: 200}));
   await sw.install(); await sw.activate();
-  const silver = bundleURL('silver', 'c');
-  for (const url of [silver, bundleURL('gold', 'a'), bundleURL('gold', 'b')]) {
-    await (await sw.fetch(url))?.text();
-    if (!await stored(storage, url) && dataCacheName(SW)) await (await storage.open(dataCacheName(SW))).put(new Request(url), new Response(body));
-  }
-  assert.ok(await stored(storage, silver));
+  const reply = await sw.fetch(bundleURL('gold', body));
+  assert.equal(reply.headers.get('X-Predecessor-Cache'), null);
+  assert.equal(await reply.text(), body);
+  assert.ok(await stored(storage, SITE), 'the shell should be saved at install');
 });
