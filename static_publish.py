@@ -144,7 +144,52 @@ class RunFetchCache:
             raise
 
 
+COLLECTOR_HOST = None   # the Windows updater sets this to 'windows'; GitHub Actions is detected; anything else is 'local'
+COLLECTOR_HOSTS = ('cloud', 'windows', 'local')
+CORE_SOURCES = ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items')
+
+
+def collector_identity():
+    """Who actually ran this collection. Recorded on the bundle so the manifest reports facts, not configuration."""
+    if os.environ.get('GITHUB_ACTIONS') == 'true':
+        return {'host': 'cloud', 'run_id': os.environ.get('GITHUB_RUN_ID'), 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
+                'tool_version': base.VERSION}
+    # Outside GitHub Actions a collection is never labelled cloud, whatever a caller sets.
+    return {'host': 'windows' if COLLECTOR_HOST == 'windows' else 'local', 'run_id': None, 'run_attempt': None,
+            'tool_version': base.VERSION}
+
+
+def validate_collector(bundle):
+    """Provenance arrives with imported data, so it is checked like data: a known host and short plain values."""
+    collector = bundle.get('collector')
+    if collector is None:
+        return   # collected before provenance was recorded; the manifest says so
+    if not isinstance(collector, dict) or collector.get('host') not in COLLECTOR_HOSTS or set(collector) - {'host', 'run_id', 'run_attempt', 'tool_version'}:
+        raise ValueError('Bundle carries an invalid collector record')
+    for key in ('run_id', 'run_attempt', 'tool_version'):
+        value = collector.get(key)
+        if value is not None and (not isinstance(value, str) or not re.fullmatch(r'[0-9A-Za-z._-]{1,40}', value)):
+            raise ValueError('Bundle carries an invalid collector ' + key)
+
+
+def older_core_sources(previous, incoming):
+    """Core sources whose fetch date in an incoming bundle is older than what is already published.
+
+    A newer assembly date never makes an older source fresh, so such a bundle must not replace the publication."""
+    older = []
+    for key in CORE_SOURCES:
+        before = (previous.get('sources') or {}).get(key) or {}
+        after = (incoming.get('sources') or {}).get(key) or {}
+        try:
+            if before.get('fetched_at') and (not after.get('fetched_at') or utc_time(after['fetched_at']) < utc_time(before['fetched_at'])):
+                older.append(key)
+        except (TypeError, ValueError):
+            older.append(key)
+    return older
+
+
 def validate_public_bundle(bundle, bracket):
+    validate_collector(bundle)
     if bracket not in base.BRACKETS or bundle.get('bracket', {}).get('segment') != bracket:
         raise ValueError('Published bundle has the wrong rank bracket')
     if not isinstance(bundle.get('heroes'), dict) or not bundle['heroes'] or not isinstance(bundle.get('tier_list'), list) or not bundle['tier_list']:
@@ -189,6 +234,7 @@ def load_success(folder, bracket):
 def validate_publication_bundle(bundle, bracket):
     if base.bundle_is_complete(bundle)[0]:
         return validate_public_bundle(bundle, bracket)
+    validate_collector(bundle)
     if bracket not in base.BRACKETS or bundle.get('bracket', {}).get('segment') != bracket:
         raise ValueError('Published bundle has the wrong rank bracket')
     utc_time(bundle['generated_at'])
@@ -423,6 +469,7 @@ def render_site(folder, out, state):
                          collection_status='complete' if base.bundle_is_complete(bundle)[0] else 'partial',
                          source_dates={k: {'status': v.get('status'), 'fetched_at': v.get('fetched_at')}
                                        for k, v in bundle.get('sources', {}).items()})
+            entry['collector'] = bundle.get('collector') or {'host': 'unrecorded', 'note': 'Collected before provenance was recorded (2.24.0 or earlier).'}
             statz = bundle.get('sources', {}).get('statz_hero_pages', {})
             core = source_age_state(statz.get('fetched_at'), now)
             coverage = statz.get('coverage') if isinstance(statz.get('coverage'), dict) else {}
@@ -544,6 +591,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                                                        pred_collection_paused_reason=CONFIG.get('pred_collection_paused_reason'),
                                                        force_history_refresh=changed_patch or manual),
                                                  lambda message: base.log(bracket + ': ' + message))
+                    bundle['collector'] = collector_identity()
                     complete, why = base.bundle_is_complete(bundle)
                     if not complete and not any(e.get('severity') == 'error' for e in bundle.get('errors', [])):
                         # A small Statz gap may have only per-page warnings. Name
