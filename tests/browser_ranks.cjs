@@ -19,7 +19,7 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
           rankIds:B.scoped_statistics.ranks,at:B.generated_at,steel:E.performance({slug:'steel',role:'jungle'}),
           validBuilds:Object.keys(E.heroes).filter(s=>E.roles(s).includes('jungle')&&E.plannedBuild(s,'jungle').kind==='reviewed').length}));
         assert.equal(cohort.segment,bracket); assert(cohort.validBuilds>0);
-        assert((await page.locator('#patch-strip').innerText()).includes(cohort.label));
+        assert((await page.locator('#patch-strip').innerText()).toLowerCase().includes(cohort.label.toLowerCase()),'patch strip names the selected rank (the strip is styled uppercase)');
         for(const role of ['jungle','offlane','midlane','carry','support']) {
           await page.locator('[data-meta-role="'+role+'"]').click();
           const result=await page.evaluate(()=>{
@@ -55,8 +55,10 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
       await page.locator('[data-hero-tab="counters"]').click();
       assert(!(await page.locator('#main').innerText()).includes('This view could not render'));
       for(const route of ['builds','planner','draft','live','guidance']) {
-        if (!await page.locator('[data-route="'+route+'"]').isVisible()) await page.locator('#menu-toggle').click();
-        await page.locator('[data-route="'+route+'"]').click();
+        // Desktop and phone navigation both carry data-route since 2.22; use whichever is visible.
+        const link = page.locator('[data-route="'+route+'"]:visible').first();
+        if (!await link.count()) await page.locator('#menu-toggle').click();
+        await link.click();
         assert((await page.locator('.rank-evidence').innerText()).includes('Diamond+'));
         assert.equal(await page.locator('#main h1').count(),1);
       }

@@ -1,0 +1,20 @@
+{
+  "name": "predecessor-meta-dev",
+  "private": true,
+  "description": "Development and verification tooling only. The published site and the Windows app need none of this.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test:py": "python -B -m unittest discover -s tests -p \"test_static*.py\"",
+    "test:js": "node --test \"tests/*.test.cjs\"",
+    "stage": "python -B tests/stage_preview.py",
+    "test:browser": "node tests/browser_audit_regressions.cjs",
+    "test": "npm run test:py && npm run test:js"
+  },
+  "devDependencies": {
+    "axe-core": "4.13.0",
+    "playwright": "1.63.0"
+  }
+}

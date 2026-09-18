@@ -7,3 +7,5 @@ __pycache__/
 data/
 backups/
 *.zip
+
+node_modules/
