@@ -50,12 +50,16 @@ async function checkLikeAReturningTab(page, forward = '00:16:00') {
   await checked;
   await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 120000});
 }
-const failTheNextCheck = async (page, fill) => {
+/* A marker placed in #main at the moment the failing manifest is served: it disappears only if the view is
+   redrawn AFTER the check started to fail, so an earlier, unrelated redraw cannot pass for a fix. */
+const markMain = page => page.evaluate(() => { document.querySelector('#audit-marker')?.remove(); const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); });
+const failTheNextCheck = async (page, fill, beforeReply) => {
   const fake = fill.repeat(64);
   await page.route('**/manifest.json', async route => {
     const response = await route.fetch(), manifest = await response.json();
     manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
     Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
+    if (beforeReply) await beforeReply();
     await route.fulfill({response, json: manifest});
   });
   await page.route('**/bundles/gold-' + fake + '.json', route => route.abort());
@@ -170,6 +174,43 @@ const probes = {
     verdict('A8', !/changed after these alternatives were generated/i.test(text), {panel: text.slice(0, 160)});
     await context.close();
   },
+  async A10(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page); await generate(page);
+    await failTheNextCheck(page, 'd');
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy && !!latestStatus.errors?.length, null, {timeout: 120000});
+    await page.evaluate(() => changeRoute('planner'));
+    const seen = await page.evaluate(() => ({kept: !!compositions, text: document.querySelector('#compositions')?.innerText || ''}));
+    verdict('A10', seen.kept || !/changed after these alternatives were generated/i.test(seen.text), {kept: seen.kept, panel: seen.text.slice(0, 140)});
+    await context.close();
+  },
+  async A11(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 3, {locks: [], bans: ['sparrow']});
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'pairings'; render(); });
+    const seen = await page.evaluate(() => {
+      const button = [...document.querySelectorAll('[data-plan-pair]')].find(b => b.dataset.planPair.split('|')[1] === 'sparrow');
+      const disabled = !button || button.disabled;
+      if (button) { button.disabled = false; button.click(); }   // even a forced click must not lock a banned hero
+      return {offered: !!button, disabled, locks: S.locks.map(p => p.slug), bans: [...S.bans]};
+    });
+    verdict('A11', seen.locks.includes('sparrow') || !seen.bans.includes('sparrow') || !seen.disabled, seen);
+    await context.close();
+  },
+  async A12(browser) {
+    const {context, page} = await session(browser, desktop);
+    const seen = await page.evaluate(() => {
+      B = {...B, guidance: {...B.guidance, strategic_review: undefined}}; E = MetaEngine.create(B);
+      const index = B.guidance.compositions.findIndex(c => c.picks.length >= 2), target = B.guidance.compositions[index].picks[1].slug;
+      Object.assign(S, {locks: [], enemies: [], bans: [target]}); save(); changeRoute('guidance');
+      const button = document.querySelector('[data-guided-comp="' + index + '"]'), disabled = !button || button.disabled;
+      if (button) { button.disabled = false; button.click(); }
+      return {target, disabled, locks: S.locks.map(p => p.slug), bans: [...S.bans]};
+    });
+    verdict('A12', seen.locks.includes(seen.target) || !seen.bans.includes(seen.target) || !seen.disabled, seen);
+    await context.close();
+  },
   async A9(browser) {
     const {context, page} = await session(browser, desktop);
     await reset(page); await generate(page);
@@ -183,30 +224,25 @@ const probes = {
   },
   async B1(browser) {
     const {context, page} = await session(browser, desktop);
-    await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); });
-    const fake = 'f'.repeat(64);
-    await page.route('**/manifest.json', async route => {
-      const response = await route.fetch(), manifest = await response.json();
-      manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
-      Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
-      await route.fulfill({response, json: manifest});
-    });
-    await page.route('**/bundles/gold-' + fake + '.json', route => route.abort());
+    await page.evaluate(() => changeRoute('meta'));
+    await failTheNextCheck(page, 'f', () => markMain(page));
     await page.locator('#refresh').click();
     await page.waitForFunction(() => !latestStatus.busy && !!latestStatus.errors?.length, null, {timeout: 120000});
-    const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', policy: E.performancePolicy().label, marker: !!document.querySelector('#audit-marker')}));
+    const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', policy: E.performancePolicy().label, marker: !!document.querySelector('#audit-marker'),
+      shows_review_state: /Patch or guidance needs review/.test(document.querySelector('#main').innerText)}));
     assert.ok(state.withheld, 'probe setup: the failed check did not withhold recommendations');
-    verdict('B1', state.marker, {...state, meaning: 'marker survives only when #main was not redrawn'});
+    verdict('B1', state.marker || !state.shows_review_state, {...state, meaning: 'fixed only if #main was redrawn after the failing manifest arrived AND shows the review-needed state'});
     await context.close();
   },
   async B3(browser) {
     const {context, page} = await clockSession(browser, phone);
-    await page.evaluate(() => { changeRoute('meta'); const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); });
-    await failTheNextCheck(page, 'e');
+    await page.evaluate(() => changeRoute('meta'));
+    await failTheNextCheck(page, 'e', () => markMain(page));
     await checkLikeAReturningTab(page);
-    const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', marker: !!document.querySelector('#audit-marker')}));
+    const state = await page.evaluate(() => ({withheld: B?.recommendation_context?.status === 'withheld', marker: !!document.querySelector('#audit-marker'),
+      shows_paused_tiers: /Editorial tiers are paused/.test(document.querySelector('#main').innerText)}));
     assert.ok(state.withheld, 'probe setup: the failed check did not withhold recommendations');
-    verdict('B3', state.marker, {...state, meaning: 'marker survives only when the phone main view was not redrawn'});
+    verdict('B3', state.marker || !state.shows_paused_tiers, {...state, meaning: 'fixed only if the phone view was redrawn after the failing manifest arrived AND says tiers are paused'});
     await context.close();
   },
   async B2(browser) {
@@ -230,7 +266,7 @@ const probes = {
     const home = await m.page.locator('#main').innerText();
     await m.context.close();
     assert.ok(desk.saved, 'probe setup: the committed seed should be older than the 48-hour window');
-    const labelled = /saved statistics/i.test(desk.strip) && /saved role statistics, not a current ranking/i.test(banner) && /saved statistics, fetched/i.test(home) && /\bstale\b/i.test(home);
+    const labelled = /saved statistics/i.test(desk.strip) && /saved role statistics, not a current ranking/i.test(banner) && /saved statistics, fetched/i.test(home) && /\bstale\b/i.test(home) && !/current role samples/i.test(home);
     verdict('C1', !labelled, {strip: desk.strip.replace(/\s+/g, ' ').slice(0, 120), banner: banner.slice(0, 90), phone_mentions_saved: /saved statistics, fetched/i.test(home)});
   },
   async C2(browser) {
@@ -255,6 +291,33 @@ const probes = {
     await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); document.activeElement.blur(); });
     const redrawnAfterBlur = await page.evaluate(() => !document.querySelector('#audit-marker'));
     verdict('C3', !(during.focused === 'mobile-hero-search' && during.value === 'ste' && redrawnAfterBlur), {...during, redrawn_after_blur: redrawnAfterBlur});
+    await context.close();
+  },
+  /* C#1 from the review: WebKit fires no blur or focusout when a render replaces the focused field. A pending
+     redraw must survive that, so the NEXT evidence change while typing is still redrawn when focus leaves. */
+  async C5(browser) {
+    const {context, page} = await clockSession(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.locator('#mobile-hero-search').click();
+    await page.keyboard.type('st');
+    // First evidence change while typing: the unchanged statistics become 'aging' (31 h), so a redraw is deferred.
+    await checkLikeAReturningTab(page, '30:00:00');
+    // Re-render while focus is in the field, with focus events suppressed the way WebKit behaves.
+    await page.evaluate(() => {
+      const stop = event => event.stopImmediatePropagation();
+      for (const type of ['blur', 'focusout']) window.addEventListener(type, stop, {capture: true});
+      render();
+      for (const type of ['blur', 'focusout']) window.removeEventListener(type, stop, {capture: true});
+    });
+    await page.locator('#mobile-hero-search').click();
+    // Second evidence change while still typing: the same statistics become 'stale' (49 h).
+    await checkLikeAReturningTab(page, '18:00:00');
+    const during = await page.evaluate(() => ({focused: document.activeElement?.id, state: E.evidenceState().statistics.state}));
+    assert.equal(during.state, 'stale', 'probe setup: the statistics did not become stale');
+    await page.evaluate(() => { const m = document.createElement('i'); m.id = 'audit-marker'; document.querySelector('#main').appendChild(m); document.activeElement.blur(); });
+    await page.waitForTimeout(100);
+    const redrawn = await page.evaluate(() => !document.querySelector('#audit-marker'));
+    verdict('C5', !(during.focused === 'mobile-hero-search' && redrawn), {...during, redrawn_after_leaving_the_field: redrawn});
     await context.close();
   },
   async C4(browser) {
