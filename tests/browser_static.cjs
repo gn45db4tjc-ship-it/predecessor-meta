@@ -62,6 +62,24 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    }
    await page.locator('#compare-bracket').selectOption('gold');await page.waitForSelector('#comparison-output table');
    check((await page.locator('#comparison-output').textContent()).includes('gold'),'separate published comparison');
+   // Browsers cap address updates and then throw (WebKit: SecurityError past 100 per 10 seconds). Simulate that cap in
+   // every engine across the three callers (route, hero, hero tab): the view must still change, with no uncaught error
+   // and no error toast. Handlers can be async, so count unhandled rejections too and keep the cap until they settle.
+   const historyLimit=await page.evaluate(async()=>{
+    let uncaught=0;const onError=()=>uncaught++,settle=()=>new Promise(r=>setTimeout(r,100)),P=History.prototype,saved=[P.pushState,P.replaceState];
+    const deny=()=>{throw new DOMException('Attempt to use history.pushState() more than 100 times per 10 seconds','SecurityError');};
+    const toastText=()=>document.querySelector('#toast')?.textContent||'',toastBefore=toastText(),seen=[];
+    addEventListener('error',onError);addEventListener('unhandledrejection',onError);P.pushState=deny;P.replaceState=deny;
+    try{
+     document.querySelector('[data-route="meta"]').click();await settle();seen.push(S.route);
+     document.querySelector('.meta-table [data-hero], .mobile-hero-card [data-hero]').click();await settle();seen.push(S.route);
+     document.querySelector('[data-hero-tab="kit"]').click();await settle();seen.push(S.heroTab);
+     document.querySelector('[data-route="data"]').click();await settle();seen.push(S.route);
+    }finally{[P.pushState,P.replaceState]=saved;removeEventListener('error',onError);removeEventListener('unhandledrejection',onError);}
+    const toast=toastText();return {uncaught,seen,historyToast:toast!==toastBefore&&/history/i.test(toast)};
+   });
+   const historyOk=historyLimit.uncaught===0&&!historyLimit.historyToast&&historyLimit.seen.join()==='meta,hero,kit,data';
+   check(historyOk,'navigation survives the browser history rate limit'+(historyOk?'':': '+JSON.stringify(historyLimit)));
    if(previous&&phone){
     // The legacy suites drive desktop controls (role tabs, the sortable table, lineup slots). At 700px and below the app
     // renders its phone presentation instead, which tests/browser_companion.cjs covers. Record the skip; do not count it.
