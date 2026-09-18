@@ -1,0 +1,26 @@
+{
+  "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change.",
+  "baseline": "2.23.0 / 9bac0c2",
+  "open": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "E1",
+    "G1",
+    "H1"
+  ],
+  "defects": {
+    "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
+    "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
+    "A3": "Clearing enemies leaves alternatives generated under the old constraints on screen (ui.js clear-enemies)",
+    "A4": "Removing a ban leaves alternatives generated under the old constraints on screen (ui.js unban)",
+    "B1": "DESKTOP: failed official verification plus a failed bundle download rebuilds the engine as withheld but never redraws the main view (static_client.js catch path calls chrome() only)",
+    "B2": "GUARD (not reproduced on 2.23.0): after 49 hours and a successful unchanged-hash check the mobile freshness label must no longer read Current. On phones the main view is redrawn on every check as a side effect of companion link handling; this guard keeps that true once the redraw becomes deliberate.",
+    "B3": "GUARD (not reproduced on 2.23.0): the phone version of B1. Phones redraw the main view after a failed check as a side effect of companion link handling; this guard keeps that true once the redraw becomes deliberate.",
+    "E1": "Composition search for five heroes blocks the main thread for longer than 500 ms (engine.generate called synchronously)",
+    "G1": "The strategy review packet exports zero official changes although the bundle carries them (mobile.js reads B.official.changes)",
+    "H1": "Mobile Meta says reviewed tier guidance leads while no editorial tier is active (mobile.js guidedHome copy)"
+  }
+}
