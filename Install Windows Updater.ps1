@@ -1,4 +1,7 @@
-param([switch]$StartNow, [switch]$Uninstall)
+# Cloud collection (GitHub Actions) is the primary, daily collector. This PC is manual recovery only:
+# this installer creates one Desktop shortcut that collects and publishes when you choose to run it.
+# It no longer starts anything at sign-in, and it removes the sign-in shortcut older versions created.
+param([switch]$Uninstall)
 $ErrorActionPreference = 'Stop'
 $updaterRoot = $PSScriptRoot
 $startupFolder = [Environment]::GetFolderPath('Startup')
@@ -38,26 +41,18 @@ foreach ($candidate in $candidates) {
     } catch { }
 }
 if (!$python) { throw 'Python 3.10 or newer is required. Install Python for Windows, then run this installer again.' }
-$pythonWindowless = Join-Path (Split-Path -Parent $python) 'pythonw.exe'
-if (!(Test-Path -LiteralPath $pythonWindowless)) { throw 'pythonw.exe is missing from this Python installation.' }
 $scriptPath = Join-Path $updaterRoot 'local_updater.py'
 $quotedScript = '"' + $scriptPath + '"'
 $shell = New-Object -ComObject WScript.Shell
-$shortcut = $shell.CreateShortcut($startupLink)
-$shortcut.TargetPath = $pythonWindowless
-$shortcut.Arguments = '-B ' + $quotedScript + ' --daemon'
-$shortcut.WorkingDirectory = $updaterRoot
-$shortcut.Description = 'Check Predecessor updates while this Windows user is signed in.'
-$shortcut.Save()
+# Manual recovery only: remove the sign-in shortcut an older installer created, and ask a running updater to stop.
+if (Test-Path -LiteralPath $startupLink) { Remove-Item -LiteralPath $startupLink }
+[IO.File]::WriteAllText((Join-Path $updaterRoot '.local-publisher\stop'), '')
 $shortcut = $shell.CreateShortcut($manualLink)
 $shortcut.TargetPath = $python
 $shortcut.Arguments = '-B ' + $quotedScript + ' --force'
 $shortcut.WorkingDirectory = $updaterRoot
 $shortcut.Description = 'Collect and publish current Predecessor data now.'
 $shortcut.Save()
-@{ installed_at = (Get-Date).ToString('o'); python = $python; startup = $startupLink; manual = $manualLink } |
+@{ installed_at = (Get-Date).ToString('o'); python = $python; startup = $null; manual = $manualLink; mode = 'manual recovery' } |
     ConvertTo-Json | Set-Content -LiteralPath (Join-Path $updaterRoot '.local-publisher\installation.json') -Encoding utf8
-if ($StartNow) {
-    Start-Process -FilePath $pythonWindowless -ArgumentList ('-B ' + $quotedScript + ' --daemon') -WorkingDirectory $updaterRoot -WindowStyle Hidden
-}
-Write-Output 'Windows updater installed. It checks on sign-in and every three hours while the PC is available.'
+Write-Output 'Manual recovery shortcut installed on the Desktop. Daily collection runs in the cloud; nothing starts at sign-in.'

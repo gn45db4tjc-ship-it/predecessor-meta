@@ -128,6 +128,7 @@ def run_once(*, force=False, collect_only=False, publish_only=False):
             config = publication.CONFIG
             try:
                 publication.CONFIG = dict(config, cloud_collection_paused_reason=None)
+                publication.COLLECTOR_HOST = 'windows'
                 publication.run(state_folder, PRIVATE/'preview', manual=force)
             finally:
                 publication.CONFIG = config

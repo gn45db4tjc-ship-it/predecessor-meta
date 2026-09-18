@@ -42,9 +42,15 @@ def import_feed(feed, state_folder):
             bundle=p.validate_publication_bundle(json.loads(raw),bracket)
             if bundle['generated_at']!=row.get('generated_at'):
                 raise ValueError('Local bundle date differs from receipt')
+            if (bundle.get('collector') or {}).get('host')=='cloud':
+                raise ValueError('A Windows feed cannot carry a bundle that claims cloud collection')
             old=p.load_publication(state_folder,bracket)
+            older=p.older_core_sources(old,bundle) if old else []
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
                 results[bracket]='retained newer or identical bundle'
+            elif older:
+                # A newer assembly date never makes an older source fresh: published source dates only move forward.
+                results[bracket]='retained published bundle: imported '+', '.join(older)+' older than published'
             else:
                 p.retain_publication(bundle,state_folder)
                 results[bracket]='imported'
