@@ -610,8 +610,16 @@ const probes = {
       });
     }
     const missing = eligible.filter(s => !seen.listed.includes(s));
-    verdict('M1', missing.length > 0 || seen.listed.length !== eligible.length || seen.unsampled_with_numbers.length > 0,
-      {eligible: eligible.length, listed: seen.listed.length, missing: missing.slice(0, 5), unsampled: seen.unsampled, unsampled_with_numbers: seen.unsampled_with_numbers.length, expanded: seen.expanded});
+    // The staged data samples every jungle hero, so withhold one hero's role sample and look at its card.
+    const unsampled = seen.listed.length ? await page.evaluate(slug => {
+      const original = E.performance;
+      E.performance = p => p.slug === slug && p.role === 'jungle' ? null : original(p);
+      try { render(); const card = document.querySelector(`#mobile-all-list [data-hero="${slug}"]`)?.closest('article'); return {slug, listed: !!card, text: (card?.innerText || '').replace(/\s+/g, ' ')}; }
+      finally { E.performance = original; render(); }
+    }, eligible[eligible.length - 1]) : {listed: false, text: ''};
+    const invented = !unsampled.listed || /%/.test(unsampled.text) || !/No .*jungle sample/i.test(unsampled.text);
+    verdict('M1', missing.length > 0 || seen.listed.length !== eligible.length || seen.unsampled_with_numbers.length > 0 || invented,
+      {eligible: eligible.length, listed: seen.listed.length, missing: missing.slice(0, 5), unsampled_with_numbers: seen.unsampled_with_numbers.length, expanded: seen.expanded, no_sample_card: unsampled});
     await context.close();
   },
   async M2(browser) {
