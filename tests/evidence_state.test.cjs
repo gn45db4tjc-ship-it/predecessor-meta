@@ -86,6 +86,20 @@ test('the tier summary explains why no editorial tier is active', () => {
   assert.deepEqual(engine.metaReviewSummary('support'), {entries: 0, active: 0, reason: null});
 });
 
+test('fresh hero pages without an eligible statistics source are unavailable, and the reason is given', () => {
+  const e = state(ago(1), {sources: {statz_tierlist: {status: 'failed', fetched_at: null}, statz_hero_pages: {status: 'ok', fetched_at: ago(1)}, omeda_heroes: {status: 'ok', fetched_at: ago(1)}}});
+  assert.equal(e.statistics.source, null);
+  assert.equal(e.statistics.state, 'unavailable', 'statistics no source supplies are never reported as current');
+  assert.equal(e.ranking_current, false); assert.equal(e.advice_mode, 'saved');
+  assert.ok(e.limitations.some(text => /No eligible role-statistics source/.test(text)));
+});
+
+test('withheld verification reports statistics as unavailable for ranking and gives the verification reason once', () => {
+  const e = state(ago(1), {recommendation_context: {status: 'withheld', reason: 'The latest official patch check failed.'}});
+  assert.equal(e.statistics.state, 'unavailable');
+  assert.deepEqual(e.limitations.filter(text => /patch check failed|No eligible/.test(text)), ['The latest official patch check failed.']);
+});
+
 test('no bundle at all is unavailable, not an error', () => {
   const e = Meta.create(null).evidenceState({now: NOW});
   assert.equal(e.statistics.state, 'unavailable'); assert.equal(e.verification.state, 'unavailable'); assert.equal(e.ranking_current, false);

@@ -259,7 +259,8 @@
     }
     function evidenceState({now=Date.now()}={}) {
       const policy=performancePolicy({now}),s=bundle?.sources||{},g=bundle?.guidance||{};
-      const statistics={source:policy.source,...sourceCurrency(policy.source==='pred'?s.pred_scoped:s.statz_hero_pages,now)};
+      // Statistics that no eligible source supplies are unavailable for ranking, whatever their own age.
+      const statistics=policy.source?{source:policy.source,...sourceCurrency(policy.source==='pred'?s.pred_scoped:s.statz_hero_pages,now)}:{source:null,state:'unavailable',fetched_at:null,age_hours:null};
       const mechanics=sourceCurrency(s.pred_game_data||s.omeda_heroes,now);
       const verification={state:!bundle?'unavailable':bundle.recommendation_context?.status==='withheld'?'withheld':bundle.official?.status==='verified'?'verified':'failed',checked_at:bundle?.official?.checked_at||null,reason:bundle?.recommendation_context?.reason||null};
       const guidance={state:reviewReady()?'reviewed':String(g.status||'').startsWith('reviewed for saved patch')?'saved':'needs-review',status:g.status||null,patch:g.patch||null,reviewed_at:g.reviewed_at||null,next_review_at:g.maintenance_review?.next_weekly_review||null};
@@ -267,7 +268,8 @@
       if(verification.state!=='verified')limitations.push(verification.reason||'Live patch verification is pending or failed.');
       if(statistics.state==='stale')limitations.push('Role statistics were fetched more than '+EVIDENCE_HOURS.aging+' hours ago. They are shown as saved statistics, not current rankings.');
       if(statistics.state==='retained')limitations.push('Role statistics are retained from an earlier collection.');
-      if(statistics.state==='unavailable')limitations.push('No eligible role-statistics source matches this publication.');
+      if(!policy.source&&verification.state==='verified')limitations.push(policy.note);
+      else if(policy.source&&statistics.state==='unavailable')limitations.push('The role-statistics fetch date is missing or in the future, so they are not treated as current.');
       if(guidance.state!=='reviewed')limitations.push('Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
       return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
     }
