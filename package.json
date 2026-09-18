@@ -10,7 +10,7 @@
     "test:py": "python -B -m unittest discover -s tests -p \"test_static*.py\"",
     "test:js": "node --test \"tests/*.test.cjs\"",
     "stage": "python -B tests/stage_preview.py",
-    "test:browser": "node tests/browser_audit_regressions.cjs",
+    "test:browser": "node tests/browser_audit_regressions.cjs && node tests/browser_offline_cache.cjs",
     "test": "npm run test:py && npm run test:js"
   },
   "devDependencies": {
