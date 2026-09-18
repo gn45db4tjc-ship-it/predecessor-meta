@@ -79,13 +79,24 @@ class ProvenanceIsRecordedWhereCollectionsHappen(unittest.TestCase):
         self.assertEqual(got['collector'], {'host': 'cloud', 'run_id': '17712345678', 'run_attempt': '1', 'tool_version': p.base.VERSION})
 
     def test_retained_sources_name_the_host_that_collected_them(self):
-        earlier = partial(); earlier['collector'] = {'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'}
+        # The previous publication was assembled by the cloud, but the Pred.gg partition kept here was collected by the PC.
+        earlier = partial(); earlier['collector'] = {'host': 'cloud', 'run_id': '1', 'run_attempt': '1', 'tool_version': '2.25.0'}
         b = partial(); b['tool_version'] = p.base.VERSION
         b['generated_at'] = (NOW + dt.timedelta(minutes=30)).isoformat()
-        b['sources']['pred_scoped'] = {'status': 'retained', 'fetched_at': NOW.isoformat()}   # kept from the earlier collection
+        b['sources']['pred_scoped'] = {'status': 'retained', 'fetched_at': NOW.isoformat()}
+        b['retained_sources'] = {'pred': {'collector': 'windows', 'statistics_fetched_at': NOW.isoformat()}}
         got = self.run_cloud(b, previous=earlier)
         self.assertEqual(got['collector']['host'], 'cloud')
-        self.assertEqual(got['collector']['retained_from'], 'windows')
+        self.assertEqual(got['collector']['retained_from'], {'pred': 'windows'}, 'named from the partition, not copied from the previous label')
+
+    def test_retaining_statz_records_who_collected_it(self):
+        old = partial(); old['errors'] = []
+        old['collector'] = {'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'}
+        for key in ('pairs_meta', 'pool_ratio', 'pool_note', 'matchup_note', 'image_index'): old.setdefault(key, None)
+        old.setdefault('items', {}); old.setdefault('perks', {})
+        fresh = partial(); fresh.setdefault('items', {}); fresh.setdefault('perks', {})
+        p.base.attach_retained_statz(fresh, old, 'HTTP 403', NOW.isoformat())
+        self.assertEqual(fresh['retained_sources']['statz']['collector'], 'windows')
 
     def test_the_windows_updater_collects_as_windows_and_restores_the_setting(self):
         seen = []
@@ -108,7 +119,8 @@ class CollectorValidation(unittest.TestCase):
 
     def test_invalid_collector_records_are_rejected_on_every_path(self):
         for record in ({'host': 'mainframe'}, 'cloud', {'host': 'cloud', 'token': 'x'}, {'host': 'cloud', 'run_id': 17712345678},
-                       {'host': 'cloud', 'retained_from': 'someone else'},
+                       {'host': 'cloud', 'retained_from': 'windows'}, {'host': 'cloud', 'retained_from': {'statz': 'someone else'}},
+                       {'host': 'cloud', 'retained_from': {'items': 'windows'}}, {'host': 'cloud', 'retained_from': {}},
                        {'host': 'windows', 'tool_version': '2.25.0 <script>'}, {'host': 'windows', 'run_id': 'x' * 41}):
             with self.subTest(record=record):
                 with self.assertRaisesRegex(ValueError, 'invalid collector'):
@@ -195,6 +207,15 @@ class ImportNeverRegresses(unittest.TestCase):
         state = p.read_json(self.cloud / 'publication.json')
         self.assertEqual(state['attempts']['gold'], cloud_attempt)
         self.assertEqual(state['last_full_attempt_at'], cloud_attempt['at'])
+
+    def test_a_published_source_that_holds_no_data_never_vetoes_an_upload(self):
+        published = complete(minutes=60, fetched=60)
+        published['sources']['pred_game_data'] = {'status': 'failed', 'fetched_at': (NOW + dt.timedelta(minutes=60)).isoformat()}
+        incoming = complete(minutes=180, fetched=170)
+        incoming['sources']['pred_game_data'] = {'status': 'failed', 'fetched_at': None}
+        self.assertEqual(p.older_sources(published, incoming), [], 'a failed fetch has no data whose date could go backwards')
+        published['sources']['pred_game_data']['status'] = 'retained'
+        self.assertEqual(p.older_sources(published, incoming), ['pred_game_data'])
 
     def test_older_sources_names_each_source_that_would_go_backwards(self):
         old, new = complete(fetched=60), complete(fetched=60)

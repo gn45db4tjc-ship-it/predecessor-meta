@@ -128,8 +128,9 @@ if (APP_CONFIG.mode === 'static') {
     // One commit at a time across every open tab, so no tab writes a manifest from an outdated view of what is saved.
     const commit = () => commitNow(manifest, bracket, entry, bytes);
     try {
-      await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : commit());
-      site.offlineProblem = null;
+      const saved = await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : commit());
+      if (saved) { site.offlineProblem = null; if (site.loadedBytes?.url === entry.url) site.loadedBytes = null; }
+      else site.offlineProblem = 'This rank is not saved for offline use yet. Reload latest data while online to save it.';
     } catch (error) {
       site.offlineProblem = error?.name === 'QuotaExceededError' ? 'This device is out of storage for offline copies. The app still works online; free some space to keep ranks available offline.'
         : 'The offline copy could not be saved. The app still works online.';
@@ -140,7 +141,7 @@ if (APP_CONFIG.mode === 'static') {
     // A bundle's address contains its checksum, so a copy already saved at that address holds these exact bytes.
     if (bytes && !(await data.match(bundleURL))) await data.put(bundleURL, new Response(bytes, {headers: {'Content-Type': 'application/json'}}));
     const saved = new Set((await data.keys()).map(key => key.url));
-    if (!saved.has(bundleURL)) return;   // nothing verified is saved for this bracket, so there is nothing to describe
+    if (!saved.has(bundleURL)) return false;   // nothing verified is saved for this bracket, so there is nothing to describe
     let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
     const has = value => value?.status === 'available' && /^[a-f0-9]{64}$/.test(value.sha256 || '') && typeof value.url === 'string' && saved.has(siteURL(value.url));
     const cohorts = {};
@@ -162,6 +163,7 @@ if (APP_CONFIG.mode === 'static') {
     }
     await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
     for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL) await data.delete(url);
+    return true;
   }
   function displayedBundle(raw, entry) {
     if (site.manifest?.patch_check?.status === 'failed') return {...raw, recommendation_context: {status:'withheld',reason:'The latest official patch check failed. Saved observations remain inspectable; automatic role comparisons await verification.'}, guidance: {...raw.guidance, status: 'needs verification: latest official patch check failed'}};
@@ -200,9 +202,12 @@ if (APP_CONFIG.mode === 'static') {
       site.originalBundle = raw; site.loadedEntry = entry;
       B = next; revision = entry.sha256;
       if (changed) E = MetaEngine.create(B);
-      const verified = site.verifiedBytes?.url === entry.url ? site.verifiedBytes.bytes : null; site.verifiedBytes = null;
+      if (site.verifiedBytes?.url === entry.url) site.loadedBytes = site.verifiedBytes;
+      site.verifiedBytes = null;
+      if (site.loadedBytes && site.loadedBytes.url !== entry.url) site.loadedBytes = null;
+      const verified = site.loadedBytes?.bytes || null;   // kept until the offline copy is saved, so a failed save is retried
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
-      latestStatus = {busy: true, errors: errs, health: entry.health || manifest.health, checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
+      latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
       site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else redrawForEvidence();

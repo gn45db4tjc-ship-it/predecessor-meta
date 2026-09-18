@@ -215,6 +215,14 @@ test('F: the saved manifest is re-described from what is actually saved before i
   assert.equal(JSON.parse(await (await sw.fetch(SITE + served.cohorts.gold.url)).text()).note, 'the copy that is saved');
 });
 
+test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {
+  const client = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), 'utf8');
+  assert.match(client, /site\.loadedBytes = site\.verifiedBytes/, 'the verified bytes of the loaded publication are kept');
+  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(site\.loadedBytes\?\.url === entry\.url\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  assert.match(client, /else site\.offlineProblem = /, 'an unsaved copy is reported, never silently cleared');
+  assert.match(client, /health: entry\.health \|\| \(entry\.saved_copy \? null : manifest\.health\)/, 'a re-described saved copy never borrows the newest publication health');
+});
+
 test('F guard: a saved bracket is served offline and labelled as such', async () => {
   const storage = cacheStorage(), sw = worker(SW, storage, offline);
   await sw.install(); await sw.activate();

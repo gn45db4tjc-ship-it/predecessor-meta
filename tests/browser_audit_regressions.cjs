@@ -527,6 +527,23 @@ const probes = {
     verdict('E5', !seen.engine_matches_shown, seen);
     await context.close();
   },
+  /* Third review round (2.25.0). */
+  async E6(browser) {
+    const {context, page} = await session(browser, desktop);
+    await reset(page, 5);
+    await page.evaluate(() => changeRoute('planner'));
+    await page.locator('#generate').click();
+    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
+    // While the worker searches, the user opens the patch changes and types a filter.
+    await page.evaluate(() => changeRoute('changes'));
+    await page.locator('#patch-search').click();
+    await page.keyboard.type('stee');
+    await page.waitForFunction(() => !search.pending, null, {timeout: 180000});
+    await page.keyboard.type('l');
+    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#patch-search')?.value, generated: !!compositions}));
+    verdict('E6', !(seen.focused === 'patch-search' && seen.value === 'steel' && seen.generated), seen);
+    await context.close();
+  },
   async G1(browser) {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => changeRoute('more'));

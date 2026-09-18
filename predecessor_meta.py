@@ -2790,7 +2790,7 @@ def attach_retained_statz(bundle,old,error,attempt_at):
         for key,value in old[kind].items():
             if not value.get('source') or 'statz' in str(value.get('source')).lower():
                 bundle[kind][key]=copy.deepcopy(value)
-    bundle['retained_sources']={'statz':{'patch':old['patch'],'bracket':old['bracket']['segment'],
+    bundle['retained_sources']={'statz':{'collector':((old.get('collector') or {}).get('host') or 'unrecorded'),'patch':old['patch'],'bracket':old['bracket']['segment'],
         'tier_fetched_at':old['sources']['statz_tierlist']['fetched_at'],
         'hero_pages_fetched_at':old['sources']['statz_hero_pages']['fetched_at'],'attempted_at':attempt_at}}
 
@@ -3027,7 +3027,10 @@ def retain_pred_partition(bundle, previous):
                 note='Latest collection failed. Original source dates and observations retained; not a fresh sample.')
             staged['sources'][key] = source
         apply_pred_game_data(staged)
+        prior_pred = (previous.get('retained_sources') or {}).get('pred') or {}
+        pred_origin = prior_pred.get('collector') if previous['sources']['pred_scoped'].get('status') == 'retained' else (previous.get('collector') or {}).get('host')
         staged.setdefault('retained_sources', {})['pred'] = {
+            'collector': pred_origin or 'unrecorded',
             'patch': scoped['patch'], 'bracket': bracket, 'attempted_at': attempted,
             'statistics_fetched_at': previous['sources']['pred_scoped']['fetched_at'],
             'mechanics_fetched_at': previous['sources']['pred_game_data']['fetched_at']}
