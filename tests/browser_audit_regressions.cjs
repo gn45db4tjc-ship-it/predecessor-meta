@@ -1603,15 +1603,7 @@ const probes = {
     // other row (thin samples, an unconfirmed primary table, alternate tables that differ from the primary one). A role
     // with no matchup data does not point to smaller samples, and Exploratory has its own level-2 heading.
     const seen = {};
-    for (const [label, options] of [['desktop', desktop], ['phone', phone]]) {
-      const {context, page} = await session(browser, options);
-      for (const [slug, role] of [['wukong', 'jungle'], ['steel', 'offlane'], ['wukong', 'offlane']]) {
-        await page.evaluate(({slug, role}) => openHero(slug, role), {slug, role});
-        if (await page.evaluate(role => S.heroRole !== role, role)) continue;
-        await page.locator('[data-hero-tab="counters"]').first().click();
-        await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
-        await page.waitForTimeout(200);
-        seen[label + ':' + slug + ':' + role] = await page.evaluate(({slug, role}) => {
+    const measure = ({slug, role}) => {
           const main = document.querySelector('#main'), out = {}, N = 100;
           const gamesOf = tr => { const heads = [...tr.closest('table').querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase()), i = heads.indexOf('games'), cell = tr.children[i];
             return i < 0 || !cell ? null : Number((cell.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '')); };
@@ -1629,9 +1621,11 @@ const probes = {
           out.supported_in_source = (verified ? primary.rows.filter(x => x.played >= N).length : 0) + statz.filter(o => o.playedGames >= N).length + wide.filter(o => o.played >= N).length;
           out.exploratory_in_source = (primary ? (verified ? primary.rows.filter(x => !(x.played >= N)).length : primary.rows.length) : 0) + differing
             + statz.filter(o => !(o.playedGames >= N)).length + wide.filter(o => !(o.played >= N)).length;
-          out.thin_in_source = out.exploratory_in_source - differing;
+          out.thin_in_source = out.exploratory_in_source - differing; out.differing = differing;
           out.no_data = !c && !statz.length && !wide.length;
           out.points_to_smaller = /Smaller samples are listed under Exploratory/.test(main.textContent);
+          out.dangling_there = /listed there too/.test(main.textContent) && !/Smaller samples are listed under Exploratory below\. The Pred\.gg table is listed there too/.test(main.textContent);
+          out.empty_text = main.querySelector('.supported-matchups .empty')?.textContent || '';
           // The closest level-2 heading before the first exploratory table.
           const firstExTable = ex?.querySelector('table'), h2s = [...main.querySelectorAll('h2')];
           out.exploratory_heading = firstExTable ? (h2s.filter(x => x.compareDocumentPosition(firstExTable) & Node.DOCUMENT_POSITION_FOLLOWING).pop()?.textContent || '') : null;
@@ -1639,14 +1633,45 @@ const probes = {
           out.reviewed_first = !reviewed || !firstTable || !!(reviewed.compareDocumentPosition(firstTable) & Node.DOCUMENT_POSITION_FOLLOWING);
           out.reviewed_present = !!reviewed;
           return out;
-        }, {slug, role});
+    };
+    for (const [label, options] of [['desktop', desktop], ['phone', phone]]) {
+      const {context, page} = await session(browser, options);
+      for (const [slug, role] of [['wukong', 'jungle'], ['steel', 'offlane'], ['wukong', 'offlane']]) {
+        await page.evaluate(({slug, role}) => openHero(slug, role), {slug, role});
+        if (await page.evaluate(role => S.heroRole !== role, role)) continue;
+        await page.locator('[data-hero-tab="counters"]').first().click();
+        await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+        await page.waitForTimeout(200);
+        seen[label + ':' + slug + ':' + role] = await page.evaluate(measure, {slug, role});
       }
       await context.close();
     }
+    {
+      // Shapes the staged seeds never contain: an alternate Pred.gg table that differs from the primary one, a primary
+      // table whose rank and patch filters are unconfirmed, and a hero-wide page that matches no role page.
+      const {context, page} = await session(browser, desktop);
+      const open = async (slug, role) => { await page.evaluate(({slug, role}) => { openHero(slug, role); S.heroTab = 'counters'; render(); }, {slug, role});
+        await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {}); };
+      await open('steel', 'offlane');
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.steel.offlane.counters.tables, k = Object.keys(t).find(x => x !== 'counters');
+        t[k] = {...t[k], rows: t[k].rows.map((r, i) => i ? r : {...r, played: r.played + 1})}; E = MetaEngine.create(B); render(); });
+      seen['synthetic:differing_alternate'] = await page.evaluate(measure, {slug: 'steel', role: 'offlane'});
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.steel.offlane.counters.tables; t.counters = {...t.counters, cohort_verified: false};
+        B.heroes.steel = {...B.heroes.steel, hero_wide_url: 'https://statz.gg/probe-unknown-page'}; E = MetaEngine.create(B); render(); });
+      seen['synthetic:unconfirmed_primary'] = await page.evaluate(measure, {slug: 'steel', role: 'offlane'});
+      seen['synthetic:unconfirmed_primary'].hero_wide_label = await page.evaluate(() => [...document.querySelectorAll('#main summary, #main h3')].map(x => x.textContent).find(x => /Hero-wide matchups/.test(x)) || null);
+      await open('wukong', 'jungle');
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.wukong.jungle.counters.tables; t.counters = {...t.counters, cohort_verified: false}; E = MetaEngine.create(B); render(); });
+      seen['synthetic:unconfirmed_only'] = await page.evaluate(measure, {slug: 'wukong', role: 'jungle'});
+      await context.close();
+    }
+    assert.ok(seen['synthetic:differing_alternate'].differing > 0 && seen['synthetic:unconfirmed_primary'].hero_wide_label, 'probe setup: the synthetic shapes render');
     assert.ok(seen['desktop:wukong:jungle'].thin_in_source > 0 && seen['desktop:steel:offlane'].supported_in_source > 0, 'probe setup: thin and supported matchups exist');
     const bad = s => s.thin_visible > 0 || s.exploratory !== 'closed' || s.exploratory_rows !== s.exploratory_in_source || s.supported_rows !== s.supported_in_source || !s.reviewed_first
-      || (s.points_to_smaller && s.thin_in_source === 0) || (s.exploratory_heading !== null && /100 or more games/.test(s.exploratory_heading));
-    verdict('V7', Object.values(seen).some(bad), seen);
+      || (s.points_to_smaller && s.thin_in_source === 0) || s.dangling_there || (s.exploratory_heading !== null && /100 or more games/.test(s.exploratory_heading));
+    const u = seen['synthetic:unconfirmed_only'];
+    verdict('V7', Object.values(seen).some(bad) || !/read from another Statz role page/.test(seen['synthetic:unconfirmed_primary'].hero_wide_label)
+      || !/The Pred\.gg table is listed under Exploratory below because its rank and patch filters could not be confirmed/.test(u.empty_text), seen);
   }
 };
 
