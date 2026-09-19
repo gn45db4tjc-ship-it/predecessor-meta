@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.27.0
+# Predecessor Meta — 2.28.0
+
+2.28.0 fixes the six findings from Astra's review of the live 2.27.0 site. Every label now describes the hero, role and section it sits beside: a role without its own Statz sample says so instead of "No observed build", saved evidence is labelled "Saved <day>" beside its section, and the website's official description review is confirmed only after a current check that matches this publication. The Counters tab leads with reviewed counterplay and matchups of 100 or more games, with every thinner sample in one Exploratory disclosure. On desktop one status line with Status details replaces the stacked notices (the first Meta row moves from 649 px to 385 px at 1440×900), and phone tab strips no longer scroll. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged, and every engine result is the same. See [RELEASE-2.28.0.md](RELEASE-2.28.0.md).
+
+## Previous release: 2.27.0
 
 2.27.0 makes the website's first load faster (audit item 11). Each rank's data now arrives as a compact core first; the detailed evidence behind a hero or a Sources view is fetched and checksum-verified when you open it. In the phone test profile the site is ready in 8.0 s instead of 16.4 s. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged, every engine result is the same as with the full data, the full bundle stays published, and export still saves the complete publication. The Windows app uses the same page code with its complete local data, so it shows everything at once as before. See [RELEASE-2.27.0.md](RELEASE-2.27.0.md).
 
