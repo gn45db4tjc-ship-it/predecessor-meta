@@ -88,6 +88,7 @@
     "V3": "REVIEW 2.27.0 (P1): retained Pred.gg evidence is not labelled \"Saved <day>\" beside its build and matchup sections, current evidence is, or the phone status chip does not say it describes the site refresh",
     "V4": "REVIEW 2.27.0 (P2): with a current verified cloud check matching this publication, the website still calls the official description review \"live check pending\"",
     "V5": "GUARD (2.28.0): the official description review is confirmed on the website for a saved copy, an offline copy, a version mismatch, a failed check or a check older than 30 hours",
-    "V6": "REVIEW 2.27.0 (P2): a failed official or live patch check is described as \"pending\" instead of failed in the description review status"
+    "V6": "REVIEW 2.27.0 (P2): a failed official or live patch check is described as \"pending\" instead of failed in the description review status",
+    "V13": "GUARD (2.28.0): an open blessing dialog is rebuilt when the description review status changes (offline, changed official content, a check older than 30 hours)."
   }
 }

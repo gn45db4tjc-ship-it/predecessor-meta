@@ -918,13 +918,16 @@ const probes = {
   },
   async P7(browser) {
     // GUARD: the website never calls the definition review current when the official patch content changed after
-    // this collection (a hotfix edits the article; the version number stays the same).
-    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+    // this collection (a hotfix edits the article; the version number stays the same). On a controlled clock the check is
+    // recent, so the changed signature is the only difference from a confirmed review.
+    const {context, page} = await clockSession(browser, desktop);
+    const control = await page.evaluate(() => definitionReviewStatus());
+    assert.equal(control, 'reviewed for current patch', 'probe setup: without changed content the review is confirmed');
     await page.route('**/manifest.json', async route => { const response = await route.fetch(), manifest = await response.json(); manifest.patch_check = {...manifest.patch_check, signature: 'f'.repeat(64)}; await route.fulfill({response, json: manifest}); });
-    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
-    const seen = await page.evaluate(() => { changeRoute('data'); return {reviewed: B.definition_review?.status || null, guidance: B.guidance?.status || null, status: definitionReviewStatus(), shown_current: /reviewed for current patch · v/i.test(document.querySelector('#main').innerText)}; });
+    await checkLikeAReturningTab(page);
+    const seen = await page.evaluate(() => { changeRoute('data'); return {reviewed: B.definition_review?.status || null, guidance: B.guidance?.status || null, status: definitionReviewStatus(), shown_current: /reviewed for current patch\s*·\s*v/i.test(document.querySelector('#main').innerText)}; });
     assert.equal(seen.reviewed, 'reviewed for current patch', 'probe setup: the seed carries a current definition review');
-    verdict('P7', !/pending/.test(seen.status) || seen.shown_current, seen);
+    verdict('P7', seen.status === 'reviewed for current patch' || seen.shown_current, {control, ...seen});
     await context.close();
   },
   async P8(browser) {
@@ -1309,26 +1312,42 @@ const probes = {
   },
   // ---- 2.28.0: fixes from the review of 2.27.0 (V series).
   async V1(browser) {
-    // A role without a Statz sample says exactly that - never "No observed build" under Pred.gg builds - and its source
-    // line never links another role's Statz page as if it were this role's, nor a dead link.
-    const seen = {};
-    for (const [label, options] of [['desktop', desktop], ['phone', phone]]) {
+    // A role without its own Statz sample says so - never "No observed build" - on every hero tab; its source lines never
+    // present another role's Statz page as this role's (the Build tab shows none; other tabs label the hero-wide page by
+    // the role page it came from) and never a dead link. Every such hero role, desktop; Steel jungle also on phone.
+    const seen = {problems: []};
+    const scan = async (page, only) => page.evaluate(async only => {
+      const problems = [], wait = () => new Promise(r => setTimeout(r, 0));
+      const pairs = only ? [only] : Object.keys(B.heroes).flatMap(slug => E.roles(slug).filter(role => !B.heroes[slug].roles?.[role]?.url).map(role => [slug, role]));
+      for (const [slug, role] of pairs) {
+        openHero(slug, role);
+        for (const tab of ['builds', 'pairings', 'counters', 'kit']) {
+          S.heroTab = tab; render(); await wait();
+          const main = document.querySelector('#main'), id = slug + '|' + role + '|' + tab;
+          if (/No observed build for this hero/i.test(main.textContent)) problems.push(id + ': says No observed build');
+          if ([...main.querySelectorAll('a')].some(a => ['#', ''].includes(a.getAttribute('href') || ''))) problems.push(id + ': dead link');
+          for (const a of main.querySelectorAll('.source-line a[href*="statz.gg"]')) {
+            const other = (a.href.match(/\/build\/([a-z]+)\//) || [])[1];
+            if (!other || other === role) continue;
+            if (tab === 'builds') problems.push(id + ': links the ' + other + ' Statz page');
+            else if (!/hero-wide data \((Jungle|Offlane|Midlane|Carry|Support) page|another role page\)/i.test(a.textContent)) problems.push(id + ': unlabelled ' + other + ' link');
+          }
+          if (![...main.querySelectorAll('.source-line')].some(l => /No Statz \w+ sample in|failed to load in this collection|different patch and was excluded/.test(l.textContent))) problems.push(id + ': no Statz gap line');
+        }
+      }
+      openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); await wait();
+      return {checked: pairs.length, problems, names_statz_gap: /No Statz build sample for Jungle/.test(document.querySelector('#main').textContent), pred_builds: /Pred\.gg build evidence/.test(document.querySelector('#main').textContent)};
+    }, only);
+    for (const [label, options, only] of [['desktop', desktop, null], ['phone', phone, ['steel', 'jungle']]]) {
       const {context, page} = await session(browser, options);
       await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
       await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
-      seen[label] = await page.evaluate(() => {
-        const main = document.querySelector('#main'), text = main.innerText, links = [...main.querySelectorAll('a')];
-        return {pred_builds_shown: /Pred\.gg build evidence/.test(text), says_no_observed_build: /No observed build for this hero/i.test(text),
-          names_statz_gap: /No Statz build sample for Jungle/i.test(text),
-          offlane_links_unlabelled: links.filter(a => /\/steel\/build\/offlane\//.test(a.href) && !/offlane/i.test(a.textContent)).length};
-      });
-      await page.evaluate(() => { openHero('wukong', 'jungle'); S.heroTab = 'builds'; render(); });
-      seen[label].wukong_dead_links = await page.evaluate(() => [...document.querySelectorAll('#main a')].filter(a => ['#', ''].includes(a.getAttribute('href') || '')).length);
+      seen[label] = await scan(page, only);
       await context.close();
     }
-    assert.ok(seen.desktop.pred_builds_shown, 'probe setup: Steel jungle shows Pred.gg build evidence');
-    const bad = s => s.says_no_observed_build || !s.names_statz_gap || s.offlane_links_unlabelled > 0 || s.wukong_dead_links > 0;
-    verdict('V1', bad(seen.desktop) || bad(seen.phone), seen);
+    assert.ok(seen.desktop.checked >= 2 && seen.desktop.pred_builds, 'probe setup: hero roles without a Statz page exist and Steel jungle shows Pred.gg builds');
+    const bad = s => s.problems.length > 0 || !s.names_statz_gap;
+    verdict('V1', bad(seen.desktop) || bad(seen.phone), {desktop: {checked: seen.desktop.checked, problems: seen.desktop.problems.slice(0, 8)}, phone: seen.phone});
   },
   async V2(browser) {
     // The build coach describes the evidence for THIS hero and role: Steel jungle has no role sample, so it must not read
@@ -1353,31 +1372,48 @@ const probes = {
     await context.close();
   },
   async V3(browser) {
-    // Retained Pred.gg evidence is labelled "Saved <day>" beside its build and matchup sections; current evidence is not;
-    // and the phone status chip names what it describes (the site refresh), not this hero.
-    const {context, page} = await clockSession(browser, desktop);
-    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'counters'; render(); });
-    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
-    const seen = await page.evaluate(() => {
-      const text = () => document.querySelector('#main').innerText, out = {};
-      out.saved_when_current = /\bSaved (January|February|March|April|May|June|July|August|September|October|November|December) \d/.test(text());
-      const day = new Date(B.pred_game_data.role_data.steel.jungle.counters.fetched_at).toLocaleDateString(undefined, {month: 'long', day: 'numeric'});
-      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
-      if (B.scoped_statistics) B.scoped_statistics.status = 'retained';
-      if (B.pred_game_data) B.pred_game_data.status = 'retained';
-      E = MetaEngine.create(B); render();
-      out.day = day;
-      out.counters_saved = text().includes('Saved ' + day);
-      S.heroTab = 'builds'; render();
-      out.builds_saved = text().includes('Saved ' + day);
-      return out;
+    // Saved evidence is labelled "Saved <day>" in its own section: retained Pred.gg (1 h after collection), and anything
+    // older than 48 hours (Pred.gg and Statz); evidence 31 hours old (aging) and current evidence carry no label; the phone
+    // chip names whose date it shows.
+    const seen = {};
+    const sections = page => page.evaluate(() => {
+      const lines = [...document.querySelectorAll('#main .source-line')];
+      const pred = lines.filter(l => l.querySelector('a[href*="pred.gg"]')), statz = [...document.querySelectorAll('#main .section-title')].filter(s => /Compare build variants|Matchup evidence|per build variant/.test(s.textContent));
+      return {pred_lines: pred.length, pred_saved: pred.filter(l => /Saved \w+ \d/.test(l.textContent)).length, statz_sections: statz.length, statz_saved: statz.filter(s => /Saved \w+ \d/.test(s.textContent)).length, any_saved: /Saved (January|February|March|April|May|June|July|August|September|October|November|December) \d/.test(document.querySelector('#main').textContent)};
     });
-    await context.close();
+    // Retained Pred.gg, one hour after collection.
+    {
+      const {context, page} = await clockSession(browser, desktop);
+      await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'counters'; render(); });
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+      seen.current = await sections(page);
+      await page.evaluate(() => {
+        for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
+        if (B.scoped_statistics) B.scoped_statistics.status = 'retained';
+        if (B.pred_game_data) B.pred_game_data.status = 'retained';
+        E = MetaEngine.create(B); render();
+      });
+      seen.retained_counters = await sections(page);
+      await page.evaluate(() => { S.heroTab = 'builds'; render(); });
+      seen.retained_builds = await sections(page);
+      await context.close();
+    }
+    // 31 hours (aging) and 49 hours (stale) after collection, nothing retained: Steel offlane has Statz and Pred.gg sections.
+    for (const [label, hours] of [['aging', 31], ['stale', 49]]) {
+      const {context, page} = await clockSession(browser, desktop, hours * 3600000);
+      await page.evaluate(() => { openHero('steel', 'offlane'); S.heroTab = 'builds'; render(); });
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+      seen[label] = await sections(page);
+      await context.close();
+    }
     const m = await clockSession(browser, phone);
     await m.page.evaluate(() => changeRoute('meta'));
     seen.chip = await m.page.evaluate(() => document.querySelector('.mobile-health span')?.textContent || '');
     await m.context.close();
-    verdict('V3', seen.saved_when_current || !seen.counters_saved || !seen.builds_saved || !/Site refresh/i.test(seen.chip), seen);
+    assert.ok(seen.retained_counters.pred_lines && seen.retained_builds.pred_lines && seen.stale.statz_sections, 'probe setup: the sections exist');
+    const bad = seen.current.any_saved || seen.retained_counters.pred_saved < seen.retained_counters.pred_lines || seen.retained_builds.pred_saved < seen.retained_builds.pred_lines
+      || seen.aging.any_saved || seen.stale.pred_saved < seen.stale.pred_lines || seen.stale.statz_saved < seen.stale.statz_sections || !/Site refresh · Statz fetched/.test(seen.chip);
+    verdict('V3', bad, seen);
   },
   async V4(browser) {
     // With a current verified cloud check whose content signature matches this publication, the website confirms the
@@ -1401,6 +1437,8 @@ const probes = {
       saved_copy: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.cohorts.gold.saved_copy = true; await route.fulfill({response, json: m}); }),
       offline_copy: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(); await route.fulfill({response, headers: {...response.headers(), 'x-predecessor-cache': 'offline'}}); }),
       version_mismatch: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...m.patch_check, version: '9.99.9'}; await route.fulfill({response, json: m}); }),
+      entry_without_signature: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); delete m.cohorts.gold.source_signature; await route.fulfill({response, json: m}); }),
+      check_without_signature: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...m.patch_check, signature: null}; await route.fulfill({response, json: m}); }),
     };
     const seen = {};
     for (const [name, arrange] of Object.entries(cases)) {
@@ -1425,7 +1463,7 @@ const probes = {
       seen.check_older_than_30h = await page.evaluate(() => definitionReviewStatus());
       await context.close();
     }
-    verdict('V5', Object.values(seen).some(s => !/pending|failed/.test(s) || s === 'reviewed for current patch'), seen);
+    verdict('V5', Object.values(seen).some(s => !/pending|failed|needs review/.test(s) || s === 'reviewed for current patch'), seen);
   },
   async V6(browser) {
     // A failed live or official check is named as failed, not as "pending".
@@ -1441,6 +1479,47 @@ const probes = {
     await context.close();
     const seen = {website, windows};
     verdict('V6', !/official patch check failed/.test(website) || !/live check failed/.test(windows), seen);
+  },
+  async V13(browser) {
+    // GUARD: an open blessing dialog shows the review status the page shows now. The status changes when the connection
+    // drops, a check finds changed official content, or the last check ages past 30 hours; each time the dialog is rebuilt.
+    const openDialog = async () => {
+      const s = await clockSession(browser, desktop);
+      await s.page.evaluate(() => showCatalog('perks', 'voracity'));
+      await s.page.waitForFunction(() => document.querySelector('#detail')?.open && !document.querySelector('#detail [data-annex]'), null, {timeout: 60000});
+      return s;
+    };
+    const read = page => page.evaluate(() => { const status = definitionReviewStatus(); return {status, open: document.querySelector('#detail').open, shown: (document.querySelector('#detail-body')?.innerText || '').includes(status)}; });
+    const seen = {};
+    {
+      const {context, page} = await openDialog();
+      seen.control = await read(page);
+      await context.setOffline(true);
+      await page.waitForFunction(() => definitionReviewStatus() !== 'reviewed for current patch', null, {timeout: 10000}).catch(() => {});
+      await page.waitForTimeout(300);
+      seen.offline = await read(page);
+      await context.close();
+    }
+    {
+      const {context, page} = await openDialog();
+      await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...m.patch_check, signature: 'f'.repeat(64)}; await route.fulfill({response, json: m}); });
+      await checkLikeAReturningTab(page);
+      await page.waitForTimeout(300);
+      seen.changed_content = await read(page);
+      await context.close();
+    }
+    {
+      const {context, page} = await openDialog();
+      await page.clock.fastForward('31:00:00');
+      await page.waitForTimeout(500);
+      seen.after_31_hours = await read(page);
+      await context.close();
+    }
+    assert.equal(seen.control.status, 'reviewed for current patch', 'probe setup: the review is confirmed while the check is current');
+    assert.ok(seen.control.shown, 'probe setup: the dialog shows the review status');
+    const changed = [seen.offline, seen.changed_content, seen.after_31_hours];
+    assert.ok(changed.every(s => s.status !== 'reviewed for current patch'), 'probe setup: each case withdraws the confirmation');
+    verdict('V13', changed.some(s => !s.open || !s.shown), seen);
   }
 };
 

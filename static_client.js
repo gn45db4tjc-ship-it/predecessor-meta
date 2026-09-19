@@ -55,6 +55,8 @@ if (APP_CONFIG.mode === 'static') {
       && !entry.saved_copy && !site.checkFailed && !connectionLost && navigator.onLine;
     return confirmed ? review.status : baseDefinitionReviewStatus();
   };
+  const statusDetail = detail;
+  detail = function (title, body, refresh) { site.dialogStatus = B ? definitionReviewStatus() : ''; return statusDetail(title, body, refresh); };
   // The bytes of a publication are either its compact core or, as a fallback, its full bundle.
   const publicationBytes = (entry, url) => !!url && (url === entry?.url || url === entry?.projection?.core?.url);
   function latestVerifiedPatch() { return site.manifest?.patch_check?.status === 'verified' ? site.manifest.patch_check : site.manifest?.last_verified_patch_check; }
@@ -103,6 +105,7 @@ if (APP_CONFIG.mode === 'static') {
   };
   render = function() {
     originalRender();
+    if ($('#detail')?.open && detailRefresh && B && definitionReviewStatus() !== site.dialogStatus) detailRefresh();
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'Loading the latest published data…');
   };
 
