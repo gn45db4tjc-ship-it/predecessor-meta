@@ -1663,6 +1663,14 @@ const probes = {
       await open('wukong', 'jungle');
       await page.evaluate(() => { const t = B.pred_game_data.role_data.wukong.jungle.counters.tables; t.counters = {...t.counters, cohort_verified: false}; E = MetaEngine.create(B); render(); });
       seen['synthetic:unconfirmed_only'] = await page.evaluate(measure, {slug: 'wukong', role: 'jungle'});
+      // The message users see most (every Paragon+ role): a verified table where nothing reaches 100 games; then no rows at
+      // all; then a differing alternate table with a 100-game row (inspection only, so the claim is limited).
+      await page.evaluate(() => { window.probeTables = JSON.parse(JSON.stringify(B.pred_game_data.role_data.wukong.jungle.counters.tables)); });
+      const shape = async code => { await page.evaluate('(() => {' + code + '})()'); return page.evaluate(measure, {slug: 'wukong', role: 'jungle'}); };
+      const EDIT = `const t = JSON.parse(JSON.stringify(window.probeTables)); for (const k in t) t[k] = {...t[k], cohort_verified: k === 'counters' ? true : t[k].cohort_verified, rows: (t[k].rows || []).map(r => ({...r, played: Math.min(r.played, 99)}))};`;
+      seen['synthetic:all_thin'] = await shape(EDIT + ` B.pred_game_data.role_data.wukong.jungle.counters.tables = t; E = MetaEngine.create(B); render();`);
+      seen['synthetic:no_rows'] = await shape(EDIT + ` for (const k in t) t[k].rows = []; B.pred_game_data.role_data.wukong.jungle.counters.tables = t; E = MetaEngine.create(B); render();`);
+      seen['synthetic:differing_100'] = await shape(EDIT + ` const alt = Object.keys(t).find(k => k !== 'counters'); t[alt].rows = t[alt].rows.map((r, i) => i ? r : {...r, played: 105}); B.pred_game_data.role_data.wukong.jungle.counters.tables = t; E = MetaEngine.create(B); render();`);
       await context.close();
     }
     assert.ok(seen['synthetic:differing_alternate'].differing > 0 && seen['synthetic:unconfirmed_primary'].hero_wide_label, 'probe setup: the synthetic shapes render');
@@ -1671,7 +1679,10 @@ const probes = {
       || (s.points_to_smaller && s.thin_in_source === 0) || s.dangling_there || (s.exploratory_heading !== null && /100 or more games/.test(s.exploratory_heading));
     const u = seen['synthetic:unconfirmed_only'];
     verdict('V7', Object.values(seen).some(bad) || !/read from another Statz role page/.test(seen['synthetic:unconfirmed_primary'].hero_wide_label)
-      || !/The Pred\.gg table is listed under Exploratory below because its rank and patch filters could not be confirmed/.test(u.empty_text), seen);
+      || !/The Pred\.gg table is listed under Exploratory below because its rank and patch filters could not be confirmed/.test(u.empty_text)
+      || seen['synthetic:all_thin'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+. Smaller samples are listed under Exploratory below.'
+      || seen['synthetic:no_rows'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+.' || seen['synthetic:no_rows'].points_to_smaller
+      || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\..*Alternate Pred\.gg source tables that differ from the primary one are listed there for inspection\.$/.test(seen['synthetic:differing_100'].empty_text), seen);
   }
 };
 
