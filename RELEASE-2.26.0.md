@@ -14,7 +14,7 @@ This release implements the last user-facing item of the 2.23.0 audit (item 09: 
 
 **Your Live hero can be replaced where you are.** "Change my hero" in Live now opens a hero picker in Live itself (role tabs and every hero of the role, with win rate and games or "no sample"; banned, enemy-picked and already-placed heroes are shown but cannot be chosen, with the reason). Choosing a hero shows a preview, Now → New. If an ally already holds that role, the preview names them and says they will leave your lineup. Confirming makes the switch and offers Undo, which restores the previous hero, lineup and game state exactly. "Use in Live" on a hero page follows the same preview instead of telling you to clear the role in Draft first. When nothing is being replaced it stays one tap.
 
-**Draft separates allies and enemies.** The phone Draft and Compositions screens show two lineups, "Allies · 1 of 5 selected" and "Enemies · 0 of 5 selected", each with all five role slots, instead of several nested "Edit lineup" and "other roles" sections. An empty lineup opens by itself.
+**Draft separates allies and enemies.** The phone Draft screen shows two lineups, "Allies · 1 of 5 selected" and "Enemies · 0 of 5 selected", each with all five role slots, instead of several nested "Edit lineup" and "other roles" sections; Compositions shows the allied lineup, counted against the combination size. (Corrected in 2.26.1: an earlier version of these notes said Compositions showed both.) An empty lineup opens by itself.
 
 **Redraws keep what you opened.** When the page redraws (new data, an evidence change, a pick), sections you opened stay open, and lineups you closed stay closed, on the same screen.
 
