@@ -335,15 +335,25 @@ if (APP_CONFIG.mode === 'static') {
   }
   async function exportSnapshot() {
     if (!B) return;
-    let full = null, entry = site.loadedEntry;
+    let full = null, missing = 0, entry = site.loadedEntry;
     if (entry?.projection && !site.annex.full) {
       try { full = displayedBundle(await fetchBundle({...entry, projection: null}, S.bracket, undefined, false), entry); }
-      catch { toast('The complete publication could not be downloaded; the snapshot contains the evidence loaded so far.'); }
+      catch {
+        // Offline, or the full bundle is gone: assemble the core with every evidence file that can still be
+        // verified (saved ones are served offline), and say in the snapshot how many are missing.
+        const raw = site.originalBundle, copy = structuredClone(raw), parts = [entry.projection.shared, ...Object.values(entry.projection.heroes || {})];
+        for (const part of parts) {
+          try { MetaProjection.merge(copy, (await verifiedJSON(part)).value); } catch { missing++; }
+        }
+        if (site.originalBundle !== raw) throw Error('Another publication was loaded while exporting. Export again.');
+        full = displayedBundle(copy, entry);
+        if (missing) toast('The snapshot was saved without ' + missing + ' detailed evidence files; it says so when opened.');
+      }
     }
     const root = exportShell.cloneNode(true), script = [...root.querySelectorAll('script')].find(s => s.textContent.startsWith('const INITIAL_BUNDLE='));
     if (!script?.textContent.startsWith('const INITIAL_BUNDLE=')) throw Error('Export template changed; cannot create a safe snapshot');
     const encode = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-    script.textContent = 'const INITIAL_BUNDLE=' + encode(full || B) + '; const APP_CONFIG=' + encode({mode:'export',tool_version:APP_CONFIG.tool_version}) + ';';
+    script.textContent = 'const INITIAL_BUNDLE=' + encode(full || B) + '; const APP_CONFIG=' + encode({mode:'export',tool_version:APP_CONFIG.tool_version,...(missing ? {missing_evidence: missing} : {})}) + ';';
     root.querySelectorAll('link[rel="manifest"],link[rel="apple-touch-icon"],link[rel="icon"]').forEach(link => link.remove());
     root.querySelectorAll('dialog[open]').forEach(d => d.removeAttribute('open'));
     const blob = new Blob(['<!doctype html>\n', root.outerHTML], {type:'text/html;charset=utf-8'});

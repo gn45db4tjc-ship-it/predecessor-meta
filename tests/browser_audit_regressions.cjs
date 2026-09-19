@@ -1152,6 +1152,34 @@ const probes = {
     const seen = await page.evaluate(() => ({table: !!document.querySelector('#comparison-output table'), selected: document.querySelector('#compare-bracket')?.value}));
     verdict('I5', !seen.table || seen.selected !== 'gold', seen);
     await context.close();
+  },
+  async I6(browser) {
+    // When the full publication cannot be downloaded, export assembles the core with every evidence file it can
+    // verify, and a snapshot that lacks some says so when opened (instead of calling that evidence unavailable).
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.stringify(JSON.parse(await (await context.request.get(url + entry.url)).text()));
+    await page.route('**/bundles/gold-' + entry.sha256 + '.json', route => route.abort());
+    let saved = 0;
+    const exportOnce = async () => {
+      const waiting = page.waitForEvent('download');
+      await page.locator('#export').click();
+      const file = path.join(root, 'qa', 'i6-export-' + (++saved) + '.html');   // an .html name, so the browser opens it as a page
+      await (await waiting).saveAs(file);
+      const html = fs.readFileSync(file, 'utf8');
+      const match = html.match(/const INITIAL_BUNDLE=(.*?); const APP_CONFIG=(\{[^;]*\});/s);
+      return {file, bundle: match && JSON.stringify(JSON.parse(match[1])), config: match ? JSON.parse(match[2]) : null};
+    };
+    const complete = await exportOnce();
+    await page.route('**/bundles/gold-hero-grux-*.json', route => route.abort());
+    const partial = await exportOnce();
+    const opened = await context.newPage();
+    await opened.goto('file:///' + partial.file.replaceAll('\\', '/'));
+    await opened.waitForFunction(() => !!B, null, {timeout: 60000});
+    const note = await opened.evaluate(() => /saved without 1 of its detailed evidence files/.test(document.body.innerText));
+    const seen = {completeEqualsFull: complete.bundle === full, completeMissing: complete.config?.missing_evidence ?? 0, partialMissing: partial.config?.missing_evidence ?? 0, noteShown: note};
+    verdict('I6', !seen.completeEqualsFull || seen.completeMissing !== 0 || seen.partialMissing !== 1 || !note, seen);
+    await context.close();
   }
 };
 
