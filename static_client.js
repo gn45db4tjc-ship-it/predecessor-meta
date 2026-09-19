@@ -281,21 +281,24 @@ if (APP_CONFIG.mode === 'static') {
     if (!waiting.some(id => changed.has('*') || changed.has(id))) return;
     rebuildDialog();
   }
-  // Rebuilds the open dialog in place. Sections are matched by their summary text; focus returns to the same control
-  // (matched by id, data attribute or text), or to the dialog itself when that control is gone.
+  // Rebuilds the open dialog in place. Sections are matched by summary text and occurrence (the third "Reviewed
+  // replacement" stays the third); focus returns to the same control, matched by id, data attributes or text and by its
+  // position among controls that match the same way, or to the dialog itself when that control is gone.
   function rebuildDialog() {
     const dialog = $('#detail'), body = $('#detail-body');
-    const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop;
-    const active = dialog.contains(document.activeElement) && document.activeElement !== dialog ? document.activeElement : null;
+    const sections = () => { const n = {}; return [...body.querySelectorAll('details > summary')].map(s => ({s, id: s.textContent + '\u0000' + (n[s.textContent] = (n[s.textContent] || 0) + 1)})); };
+    const controls = () => [...dialog.querySelectorAll('button, summary, a[href], select, input, [tabindex]')];
     const key = el => el.id ? '#' + el.id : el.tagName + '|' + [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join('&') + '|' + el.textContent.trim().slice(0, 80);
-    const focused = active ? key(active) : null;
+    const open = new Set(sections().filter(x => x.s.parentElement.open).map(x => x.id)), top = dialog.scrollTop;
+    const active = dialog.contains(document.activeElement) && document.activeElement !== dialog ? document.activeElement : null;
+    const focused = active ? key(active) : null, peers = focused ? controls().filter(el => key(el) === focused) : [], index = peers.indexOf(active);
     detailRefresh();
     site.dialogStatus = B ? definitionReviewStatus() : '';
-    body.querySelectorAll('details > summary').forEach(s => { if (open.has(s.textContent)) s.parentElement.open = true; });
+    sections().forEach(x => { if (open.has(x.id)) x.s.parentElement.open = true; });
     dialog.scrollTop = top;
     if (focused && !dialog.contains(document.activeElement)) {
-      const same = [...dialog.querySelectorAll('button, summary, a[href], select, input, [tabindex]')].find(el => key(el) === focused);
-      if (same) same.focus({preventScroll: true});
+      const same = controls().filter(el => key(el) === focused), target = same.length === peers.length && index >= 0 ? same[index] : null;
+      if (target) target.focus({preventScroll: true});
       else { if (!dialog.hasAttribute('tabindex')) dialog.setAttribute('tabindex', '-1'); dialog.focus({preventScroll: true}); }
     }
   }

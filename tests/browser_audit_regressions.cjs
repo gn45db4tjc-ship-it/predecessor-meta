@@ -1550,6 +1550,29 @@ const probes = {
       await context.close();
     }
     {
+      // Several controls with the same label (two field corrections, each with a "Reviewed replacement" section): the
+      // reader is on the second; after the rebuild focus and the open section are still the second, not the first.
+      const s = await clockSession(browser, desktop);
+      await s.page.evaluate(() => requestAnnex('shared'));
+      await s.page.evaluate(() => {
+        const src = (B.corrections || []).find(c => c.path?.[0] === 'items');
+        B.corrections.push({...src, path: ['perks', 'voracity', 'description'], after: 'A', original: 'a'}, {...src, path: ['perks', 'voracity', 'slot'], after: 'B', original: 'b'});
+        showCatalog('perks', 'voracity');
+      });
+      await s.page.waitForFunction(() => document.querySelector('#detail')?.open && !document.querySelector('#detail [data-annex]'), null, {timeout: 60000});
+      const state = () => s.page.evaluate(() => { const sums = [...document.querySelectorAll('#detail-body summary')].filter(x => x.textContent === 'Reviewed replacement');
+        return {count: sums.length, focused: sums.indexOf(document.activeElement), open: sums.map(x => x.parentElement.open)}; });
+      await s.page.evaluate(() => { const body = document.querySelector('#detail-body');
+        body.querySelectorAll('details').forEach(d => { if (/field corrections/.test(d.querySelector('summary').textContent)) d.open = true; });
+        const sums = [...body.querySelectorAll('summary')].filter(x => x.textContent === 'Reviewed replacement'); sums[1].parentElement.open = true; sums[1].focus({preventScroll: true}); });
+      const before = await state();
+      await s.context.setOffline(true);
+      await s.page.waitForFunction(() => definitionReviewStatus() !== 'reviewed for current patch', null, {timeout: 10000}).catch(() => {});
+      await s.page.waitForTimeout(300);
+      seen.same_label = {before, after: await state(), status: await s.page.evaluate(() => definitionReviewStatus())};
+      await s.context.close();
+    }
+    {
       const {context, page} = await openDialog();
       await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...m.patch_check, signature: 'f'.repeat(64)}; await route.fulfill({response, json: m}); });
       await checkLikeAReturningTab(page);
@@ -1569,7 +1592,9 @@ const probes = {
     const changed = [seen.offline, seen.changed_content, seen.after_31_hours];
     assert.ok(changed.every(s => s.status !== 'reviewed for current patch'), 'probe setup: each case withdraws the confirmation');
     assert.ok(seen.offline.kept.before.open.length > 1 && seen.offline.kept.before.top > 0 && seen.offline.kept.before.focus, 'probe setup: sections open, scrolled and focused');
-    verdict('V13', changed.some(s => !s.open || !s.shown) || !seen.offline.kept.sections || !seen.offline.kept.scroll || !seen.offline.kept.focus, seen);
+    assert.ok(seen.same_label.before.count === 2 && seen.same_label.before.focused === 1 && seen.same_label.status !== 'reviewed for current patch', 'probe setup: two same-label sections, the second focused, then the status changes');
+    verdict('V13', changed.some(s => !s.open || !s.shown) || !seen.offline.kept.sections || !seen.offline.kept.scroll || !seen.offline.kept.focus
+      || seen.same_label.after.focused !== 1 || JSON.stringify(seen.same_label.after.open) !== JSON.stringify(seen.same_label.before.open), seen);
   }
 };
 
