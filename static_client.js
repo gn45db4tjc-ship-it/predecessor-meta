@@ -105,7 +105,9 @@ if (APP_CONFIG.mode === 'static') {
   };
   render = function() {
     originalRender();
-    if ($('#detail')?.open && detailRefresh && B && definitionReviewStatus() !== site.dialogStatus) detailRefresh();
+    if ($('#detail')?.open && detailRefresh && B && definitionReviewStatus() !== site.dialogStatus) {
+      if (site.dialogStatus && $('#detail-body').textContent.includes(site.dialogStatus)) rebuildDialog(); else site.dialogStatus = definitionReviewStatus();
+    }
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'Loading the latest published data…');
   };
 
@@ -277,10 +279,25 @@ if (APP_CONFIG.mode === 'static') {
     if (!detailRefresh || !B || !dialog?.open) return;
     const waiting = [...body.querySelectorAll('[data-annex]')].map(el => el.dataset.annex);
     if (!waiting.some(id => changed.has('*') || changed.has(id))) return;
+    rebuildDialog();
+  }
+  // Rebuilds the open dialog in place. Sections are matched by their summary text; focus returns to the same control
+  // (matched by id, data attribute or text), or to the dialog itself when that control is gone.
+  function rebuildDialog() {
+    const dialog = $('#detail'), body = $('#detail-body');
     const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop;
+    const active = dialog.contains(document.activeElement) && document.activeElement !== dialog ? document.activeElement : null;
+    const key = el => el.id ? '#' + el.id : el.tagName + '|' + [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join('&') + '|' + el.textContent.trim().slice(0, 80);
+    const focused = active ? key(active) : null;
     detailRefresh();
+    site.dialogStatus = B ? definitionReviewStatus() : '';
     body.querySelectorAll('details > summary').forEach(s => { if (open.has(s.textContent)) s.parentElement.open = true; });
     dialog.scrollTop = top;
+    if (focused && !dialog.contains(document.activeElement)) {
+      const same = [...dialog.querySelectorAll('button, summary, a[href], select, input, [tabindex]')].find(el => key(el) === focused);
+      if (same) same.focus({preventScroll: true});
+      else { if (!dialog.hasAttribute('tabindex')) dialog.setAttribute('tabindex', '-1'); dialog.focus({preventScroll: true}); }
+    }
   }
   // Evidence files that arrive together (the desktop Builds page asks for one per hero) share one redraw.
   let annexRedraw = 0, annexChanged = new Set();
