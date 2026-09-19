@@ -82,6 +82,9 @@
     "I10": "BUNDLE SIZE (item 11): a dialog showing that its evidence failed does not fill in when a retry brings the evidence",
     "I11": "BUNDLE SIZE (item 11): the kit tab hides its core parts (source, augments, main attributes) while the attribute evidence downloads",
     "I12": "BUNDLE SIZE (item 11): a dialog showing that its evidence is gone (404 after a redeploy) is not rebuilt when the new publication loads",
-    "I13": "BUNDLE SIZE (item 11): evidence that failed while the saved copy was served is not retried when the connection is back without an online event"
+    "I13": "BUNDLE SIZE (item 11): evidence that failed while the saved copy was served is not retried when the connection is back without an online event",
+    "I14": "BUNDLE SIZE (item 11): evidence that fails (or arrives after a wait) once a view is drawn is not announced to screen readers, is announced more than once per view, or evidence placeholders are live regions of their own",
+    "I15": "BUNDLE SIZE (item 11): rebuilding an open dialog when its evidence changes loses keyboard focus instead of keeping it on the equivalent control or the dialog",
+    "I16": "BUNDLE SIZE (item 11): evidence announcements go wrong in harder cases: a fast load is announced, a page failure while a dialog is open is never said, a new dialog keeps an old announcement, a retry while other files are pending stays silent, or a search or layout change during a wait restarts it or is announced as loaded"
   }
 }
