@@ -1756,12 +1756,15 @@ const probes = {
           return r.violations.map(v => v.id + ':' + v.nodes.length);
         }, {theme, open});
       }
+      // Enter again toggles to the opposite state, whichever state the axe loop left.
+      const before = await page.evaluate(() => document.querySelector('#status-toggle').getAttribute('aria-expanded'));
       await toggle.focus(); await page.keyboard.press('Enter');
-      seen.closed_again = await page.evaluate(() => document.querySelector('#status-toggle').getAttribute('aria-expanded'));
+      const after = await page.evaluate(() => document.querySelector('#status-toggle').getAttribute('aria-expanded'));
+      seen.toggled_again = before !== after;
     }
     await context.close();
     const ok = seen.visible && seen.opened?.expanded === 'true' && seen.opened.panel_visible && seen.opened.schedule && seen.opened.notices
-      && seen.after_redraw?.expanded === 'true' && seen.after_redraw.focus === 'status-toggle' && Object.values(seen.axe || {}).every(v => !v.length) && seen.closed_again === 'false';
+      && seen.after_redraw?.expanded === 'true' && seen.after_redraw.focus === 'status-toggle' && Object.values(seen.axe || {}).every(v => !v.length) && seen.toggled_again;
     verdict('V10', !ok, seen);
   },
   async V11(browser) {

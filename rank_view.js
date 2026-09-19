@@ -44,12 +44,13 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
       return (typeof x === 'string' ? x.localeCompare(y) : x-y) * direction || name(a.slug).localeCompare(name(b.slug));
     });
     const review = B.guidance?.meta_review;
-    const table = `<div class="toolbar"><span>${esc(c.patch)} · Ranked · ${esc(label)} · ${rows.length} ${labels[S.role].toLowerCase()} entries</span><label><input id="full-metrics" type="checkbox" ${S.full?'checked':''}> Show wins & uncertainty</label></div>` +
+    const counts = `<span>${esc(c.patch)} · Ranked · ${esc(label)} · ${rows.length} ${labels[S.role].toLowerCase()} entries</span><label><input id="full-metrics" type="checkbox" ${S.full?'checked':''}> Show wins & uncertainty</label>`;
+    const table = 
       metaTableHTML(rows, {tier:false, field, direction, emptyText: c.roles?.[S.role]?.error || 'No rows match this role and search.'}) +
       `<p class="source-line"><span>${link(c.roles?.[S.role]?.url, 'Pred.gg · '+label+' source')} · fetched ${esc(date(c.roles?.[S.role]?.fetched_at))}</span><span>Win-rate order is an observed comparison, not a reviewed tier</span></p>`;
     const aside = `<aside class="meta-aside">${review ? `<details class="rank-reference"><summary>Separate authored reference · ${esc(review.bracket_label)} tiers and working pool</summary><div class="detail-content"><p>The written tier review was made for ${esc(review.bracket_label)}. It has not been re-reviewed for ${esc(label)}; the table uses ${esc(label)} statistics. Kit and build reasoning remains available on hero pages.</p>${rankOriginal.rolePriorityHTML()}${rankOriginal.metaReviewMethod()}</div></details>` : ''}<details><summary>Statistics source</summary><div class="detail-content"><p class="muted">Pred.gg supplies the exact current-patch cohort for ${esc(label)}. The Statz view shows its broader dataset with tier grades; the two are never pooled.</p>${statisticsSelectorHTML()}</div></details><p class="footer">Samples under 100 games are exploratory. ${esc(c.scope_note || '')}</p></aside>`;
     return head('Meta · '+label, label+' meta', 'These are '+esc(label)+' role samples. Sort win rates or games, then open a hero for partners, builds and counters.') +
-      metaToolbarHTML() +
+      metaToolbarHTML(counts) +
       (c.status !== 'ok' ? note('Current-patch source '+esc(c.status || 'not collected')+'. Available rows retain their own sample; no other rank is substituted.',true) : '') +
       `<div class="meta-layout"><div>${table}</div>${aside}</div>`;
   };

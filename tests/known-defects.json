@@ -1,10 +1,7 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [
-    "V8",
-    "V10"
-  ],
+  "open": [],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
