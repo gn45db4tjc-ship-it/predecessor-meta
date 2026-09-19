@@ -1,6 +1,6 @@
-# Current release: 2.26.2
+# Current release: 2.27.0
 
-See RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -220,6 +220,14 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - Four independent review rounds of the patch (each finding challenged by a second agent) confirmed one high finding, withdrawn (an earlier draft could overstate the official description review after a hotfix), three medium findings (false reasons for missing numbers) and several low ones; all are fixed with checks that fail on the unfixed code (P1-P15).
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; clean-room package 178 Python / 146 JavaScript.
 - Not verified: a physical phone, screen readers, native installs.
+
+# Revision 9 — 2.27.0 faster first load (audit item 11)
+
+- The publisher writes, beside each unchanged full bundle, a compact core, a shared evidence file and one evidence file per hero, each named by its SHA-256 and listed in the manifest, and refuses unless they reproduce the bundle byte for byte. If they cannot be built, the rank is published with its full bundle only.
+- The page loads the core first and fetches evidence when a view needs it, verifies it and merges it in place; views say it is loading or name why it failed, and views that mix core data and evidence show the core data at once. Engine results never change when evidence arrives (every engine method, hero and role compared in four Pred.gg states).
+- Offline, the page saves the core and each evidence file it opened; export assembles the complete publication and says in the snapshot when evidence is missing. A rank comparison now survives a redraw of the Data page.
+- Verified: 195 Python tests (1 skipped without a local store), 163 JavaScript tests (engine parity for every method, hero and role in four Pred.gg states), 80 of 80 audit browser verdicts (I1–I13 new, each shown to fail before its fix), axe WCAG 2.1 A/AA on 30 phone states, 10 of 10 real-browser offline checks, an upgrade from and a rollback to a staged 2.26.2 build with real service workers, the static suite (56 + 49 checks) and ranks suite in Edge and WebKit, the release and companion suites, and a clean-room package (195 Python run, 17 skipped without the seed; 152 JavaScript pass, 11 skipped). Phone profile: ready in 8.0 s instead of 16.4 s.
+- Not verified: an iPhone or iPad (WebKit runs use Playwright's WebKit on Windows), screen readers, native installs. With Pred.gg current the core is above the 5 MB target (5.1–6.8 MB).
 
 # Revision 8 — 2.26.2 WebKit maintenance release
 

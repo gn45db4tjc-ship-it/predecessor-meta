@@ -7,12 +7,15 @@
 //   or malformed response can never replace a verified bracket.
 // Both names keep the 'predecessor-meta-' prefix on purpose: if the website is rolled back to 2.24 or earlier,
 // that release's worker deletes them on activation and starts saving afresh, instead of serving a frozen copy.
-const SHELL_CACHE = 'predecessor-meta-shell-v2-26-2';
+const SHELL_CACHE = 'predecessor-meta-shell-v2-27-0';
 const DATA_CACHE = 'predecessor-meta-data-v1';
 const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shell and data together in one cache
 const ROOT = new URL('./', self.location.href);
 const SHELL = ['./', 'app.webmanifest', 'assets/app-icon-192.png', 'assets/app-icon-512.png'];
 const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-([a-f0-9]{64})\.json$/;
+// A rank's compact core and its evidence annexes (2.27.0). Like bundles they are data: stored by the page only.
+const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-(core|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
+const CORE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-core-([a-f0-9]{64})\.json$/;
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
@@ -29,7 +32,8 @@ async function sha256(buffer) {
 // the checksum in its own name; a bracket the page has already saved again is never overwritten.
 async function migrateLegacy(name) {
   const old = await caches.open(name), data = await caches.open(DATA_CACHE);
-  const have = new Set((await data.keys()).map(key => (new URL(key.url).pathname.match(BUNDLE) || [])[1]).filter(Boolean));
+  // A rank the page already saved, as a full bundle or as a compact core (2.27.0), is never overwritten.
+  const have = new Set((await data.keys()).map(key => { const p = new URL(key.url).pathname; return (p.match(BUNDLE) || p.match(CORE) || [])[1]; }).filter(Boolean));
   for (const key of await old.keys()) {
     const match = new URL(key.url).pathname.match(BUNDLE);
     if (!match || have.has(match[1])) continue;
@@ -57,7 +61,7 @@ async function reconcileManifest(data, reference) {
   const urls = (await data.keys()).map(key => key.url);
   let changed = false;
   for (const [bracket, entry] of Object.entries(manifest.cohorts || {})) {
-    if (entry?.status === 'available' && typeof entry.url === 'string' && urls.includes(new URL(entry.url, ROOT).href)) continue;
+    if (entry?.status === 'available' && typeof entry.url === 'string' && (urls.includes(new URL(entry.url, ROOT).href) || (entry.projection?.core?.url && urls.includes(new URL(entry.projection.core.url, ROOT).href)))) continue;
     const url = urls.find(candidate => (new URL(candidate).pathname.match(BUNDLE) || [])[1] === bracket);
     if (!url) continue;   // nothing saved for this bracket: leave the entry as published
     const digest = new URL(url).pathname.match(BUNDLE)[2], known = reference?.cohorts?.[bracket];
@@ -103,9 +107,10 @@ function offlineCopy(cached) {
 }
 
 async function networkFirst(request, {data = false, fallback = null} = {}) {
+  let refused = null;   // the server answered, but not with the file (for example 404 after a redeploy)
   try {
     const response = await fetch(new Request(request, {cache: 'no-store'}));
-    if (!response.ok) throw new Error('Publication unavailable');
+    if (!response.ok) { refused = response; throw new Error('Publication unavailable'); }
     return data ? response : rememberShell(request, response);   // data is stored by the page, after verification
   } catch (error) {
     // Before serving the saved manifest, make sure it describes bundles that are actually saved (a backstop for
@@ -115,6 +120,7 @@ async function networkFirst(request, {data = false, fallback = null} = {}) {
     }
     const cached = await caches.match(request) || (fallback && await caches.match(fallback));
     if (cached) return offlineCopy(cached);
+    if (data && refused) return refused;
     throw error;
   }
 }
@@ -123,7 +129,7 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || !localRequest(request)) return;
   const url = new URL(request.url);
-  const data = url.pathname.endsWith('/manifest.json') || BUNDLE.test(url.pathname);
+  const data = url.pathname.endsWith('/manifest.json') || BUNDLE.test(url.pathname) || PART.test(url.pathname);
   if (request.mode === 'navigate') event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT)}));
   else if (data) event.respondWith(networkFirst(request, {data: true}));
   else event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => rememberShell(request, response))));

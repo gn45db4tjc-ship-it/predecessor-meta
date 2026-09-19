@@ -129,15 +129,25 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    check(await page.evaluate(()=>B.bracket.segment==='gold'&&S.locks.length===2),'return to gold keeps draft');
    await page.route('**/manifest.json',async route=>{
     const response=await route.fetch(),manifest=await response.json();manifest.cohorts.gold.sha256='a'.repeat(64);manifest.cohorts.gold.url='bundles/gold-'+('a'.repeat(64))+'.json';
+    // 2.27.0: the page loads the compact core first, so the core gets the same wrong checksum.
+    if(manifest.cohorts.gold.projection)manifest.cohorts.gold.projection.core={...manifest.cohorts.gold.projection.core,sha256:'a'.repeat(64),url:'bundles/gold-core-'+('a'.repeat(64))+'.json'};
     await route.fulfill({response,json:manifest});
    });
    // Take the real gold bundle from the preview under test: the staged folder is not always qa/site (six brackets stage to qa/six-site).
    const realManifest=await (await page.request.get(new URL('manifest.json',url).href)).json();
    const realGold=await (await page.request.get(new URL(realManifest.cohorts.gold.url,url).href)).body();
    await page.route('**/bundles/gold-'+('a'.repeat(64))+'.json',route=>route.fulfill({contentType:'application/json',body:realGold}));
+   const realCore=realManifest.cohorts.gold.projection?await (await page.request.get(new URL(realManifest.cohorts.gold.projection.core.url,url).href)).body():realGold;
+   await page.route('**/bundles/gold-core-'+('a'.repeat(64))+'.json',route=>route.fulfill({contentType:'application/json',body:realCore}));
    await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
    check(await page.evaluate(()=>!!B&&latestStatus.errors[0].detail.includes('checksum')),'checksum mismatch preserves previous data');
-   await page.unroute('**/manifest.json');await page.unroute('**/bundles/gold-'+('a'.repeat(64))+'.json');
+   if(realManifest.cohorts.gold.projection){
+    // The same for the full bundle, which is loaded when the core cannot be (and by export and older saved copies).
+    await page.unroute('**/bundles/gold-core-'+('a'.repeat(64))+'.json');await page.route('**/bundles/gold-core-'+('a'.repeat(64))+'.json',route=>route.fulfill({status:404,body:'Not found'}));
+    await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
+    check(await page.evaluate(()=>!!B&&latestStatus.errors[0].detail.includes('checksum')),'full-bundle checksum mismatch preserves previous data');
+   }
+   await page.unroute('**/manifest.json');await page.unroute('**/bundles/gold-'+('a'.repeat(64))+'.json');await page.unroute('**/bundles/gold-core-'+('a'.repeat(64))+'.json');
    await page.route('**/manifest.json',async route=>{
     const response=await route.fetch(),manifest=await response.json();manifest.patch_check.signature='changed-by-acceptance-test';manifest.patch_check.version='99.0-test';
     await route.fulfill({response,json:manifest});

@@ -1,6 +1,10 @@
-# Predecessor Meta — 2.26.2
+# Predecessor Meta — 2.27.0
 
-2.26.2 is a small maintenance release. WebKit, the engine behind Safari on iPhone and iPad, limits how often a page may update its address (the WebKit build used for testing allows 100 updates in 10 seconds). Opening many heroes, tabs or sections quickly could hit that limit, and the app then showed a raw error message or raised an uncaught error. It now keeps working and skips only that one address update. The browser checks now also pass in WebKit: the offline check stops a real server instead of using a browser setting that WebKit applies before the service worker. Statistics, reviewed guidance, collection, publication and offline storage are unchanged.
+2.27.0 makes the website's first load faster (audit item 11). Each rank's data now arrives as a compact core first; the detailed evidence behind a hero or a Sources view is fetched and checksum-verified when you open it. In the phone test profile the site is ready in 8.0 s instead of 16.4 s. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged, every engine result is the same as with the full data, the full bundle stays published, and export still saves the complete publication. The Windows app uses the same page code with its complete local data, so it shows everything at once as before. See [RELEASE-2.27.0.md](RELEASE-2.27.0.md).
+
+## Previous release: 2.26.2
+
+2.26.2 is a small maintenance release. WebKit, the engine behind Safari on iPhone and iPad, limits how often a page may update its address (the WebKit build used for testing allows 100 updates in 10 seconds). Opening many heroes, tabs or sections quickly could hit that limit, and the app then showed a raw error message or raised an uncaught error. It now keeps working and skips only that one address update. The browser checks now also pass in WebKit: the offline check stops a real server instead of using a browser setting that WebKit applies before the service worker. Statistics, reviewed guidance, collection, publication and offline storage are unchanged. See [RELEASE-2.26.2.md](RELEASE-2.26.2.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.26.2.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.26.2 merge commit on `main`.
 
 ## Previous release: 2.26.1
 
