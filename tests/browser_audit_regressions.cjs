@@ -1595,6 +1595,106 @@ const probes = {
     assert.ok(seen.same_label.before.count === 2 && seen.same_label.before.focused === 1 && seen.same_label.status !== 'reviewed for current patch', 'probe setup: two same-label sections, the second focused, then the status changes');
     verdict('V13', changed.some(s => !s.open || !s.shown) || !seen.offline.kept.sections || !seen.offline.kept.scroll || !seen.offline.kept.focus
       || seen.same_label.after.focused !== 1 || JSON.stringify(seen.same_label.after.open) !== JSON.stringify(seen.same_label.before.open), seen);
+  },
+  async V7(browser) {
+    // Counters lead with reviewed counterplay and matchups of at least 100 games; every thinner sample and the alternate
+    // source tables stay available behind one closed exploratory disclosure (nothing removed, pooled or re-rated).
+    // Rows are counted exactly against the source: the supported section holds every row of 100+ games, Exploratory every
+    // other row (thin samples, an unconfirmed primary table, alternate tables that differ from the primary one). A role
+    // with no matchup data does not point to smaller samples, and Exploratory has its own level-2 heading.
+    const seen = {};
+    const measure = ({slug, role}) => {
+          const main = document.querySelector('#main'), out = {}, N = 100;
+          const gamesOf = tr => { const heads = [...tr.closest('table').querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase()), i = heads.indexOf('games'), cell = tr.children[i];
+            return i < 0 || !cell ? null : Number((cell.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '')); };
+          const rows = [...main.querySelectorAll('tbody tr')].map(tr => ({games: gamesOf(tr), hidden: !!tr.closest('details:not([open])')})).filter(r => Number.isFinite(r.games));
+          out.thin_visible = rows.filter(r => r.games < N && !r.hidden).length;
+          const ex = main.querySelector('details.exploratory-matchups');
+          out.exploratory = ex ? (ex.open ? 'open' : 'closed') : 'missing';
+          out.exploratory_rows = ex ? ex.querySelectorAll('tbody tr').length : 0;
+          out.supported_rows = main.querySelectorAll('.supported-matchups tbody tr').length;
+          const c = B.pred_game_data?.role_data?.[slug]?.[role]?.counters, tables = c?.tables || {}, primary = tables.counters, h = B.heroes[slug], r = h?.roles?.[role];
+          const verified = !!primary?.cohort_verified, sig = x => JSON.stringify((x?.rows || []).map(v => [v.slug, v.played, v.wr]).sort());
+          const statz = (r?.status === 'ok' ? (r.builds || []).flatMap(b => [...(b.lane_counters || []), ...(b.strong_against || [])]) : []);
+          const wide = [...(h?.general_strong_against || []), ...(h?.general_counters || [])];
+          const differing = Object.entries(tables).filter(([k, x]) => k !== 'counters' && (!primary || sig(x) !== sig(primary))).reduce((n, [, x]) => n + (x?.rows || []).length, 0);
+          out.supported_in_source = (verified ? primary.rows.filter(x => x.played >= N).length : 0) + statz.filter(o => o.playedGames >= N).length + wide.filter(o => o.played >= N).length;
+          out.exploratory_in_source = (primary ? (verified ? primary.rows.filter(x => !(x.played >= N)).length : primary.rows.length) : 0) + differing
+            + statz.filter(o => !(o.playedGames >= N)).length + wide.filter(o => !(o.played >= N)).length;
+          out.thin_in_source = out.exploratory_in_source - differing; out.differing = differing;
+          out.no_data = !c && !statz.length && !wide.length;
+          out.points_to_smaller = /Smaller samples are listed under Exploratory/.test(main.textContent);
+          out.dangling_there = /listed there too/.test(main.textContent) && !/Smaller samples are listed under Exploratory below\. The Pred\.gg table is listed there too/.test(main.textContent);
+          out.empty_text = main.querySelector('.supported-matchups .empty')?.textContent || '';
+          // The closest level-2 heading before the first exploratory table.
+          const firstExTable = ex?.querySelector('table'), h2s = [...main.querySelectorAll('h2')];
+          out.exploratory_heading = firstExTable ? (h2s.filter(x => x.compareDocumentPosition(firstExTable) & Node.DOCUMENT_POSITION_FOLLOWING).pop()?.textContent || '') : null;
+          const reviewed = main.querySelector('.strategic-profile, .reviewed-counter'), firstTable = main.querySelector('table');
+          out.reviewed_first = !reviewed || !firstTable || !!(reviewed.compareDocumentPosition(firstTable) & Node.DOCUMENT_POSITION_FOLLOWING);
+          out.reviewed_present = !!reviewed;
+          return out;
+    };
+    for (const [label, options] of [['desktop', desktop], ['phone', phone]]) {
+      const {context, page} = await session(browser, options);
+      for (const [slug, role] of [['wukong', 'jungle'], ['steel', 'offlane'], ['wukong', 'offlane']]) {
+        await page.evaluate(({slug, role}) => openHero(slug, role), {slug, role});
+        if (await page.evaluate(role => S.heroRole !== role, role)) continue;
+        await page.locator('[data-hero-tab="counters"]').first().click();
+        await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+        await page.waitForTimeout(200);
+        seen[label + ':' + slug + ':' + role] = await page.evaluate(measure, {slug, role});
+      }
+      await context.close();
+    }
+    {
+      // Shapes the staged seeds never contain: an alternate Pred.gg table that differs from the primary one, a primary
+      // table whose rank and patch filters are unconfirmed, and a hero-wide page that matches no role page.
+      const {context, page} = await session(browser, desktop);
+      const open = async (slug, role) => { await page.evaluate(({slug, role}) => { openHero(slug, role); S.heroTab = 'counters'; render(); }, {slug, role});
+        await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {}); };
+      await open('steel', 'offlane');
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.steel.offlane.counters.tables, k = Object.keys(t).find(x => x !== 'counters');
+        t[k] = {...t[k], rows: t[k].rows.map((r, i) => i ? r : {...r, played: r.played + 1})}; E = MetaEngine.create(B); render(); });
+      seen['synthetic:differing_alternate'] = await page.evaluate(measure, {slug: 'steel', role: 'offlane'});
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.steel.offlane.counters.tables; t.counters = {...t.counters, cohort_verified: false};
+        B.heroes.steel = {...B.heroes.steel, hero_wide_url: 'https://statz.gg/probe-unknown-page'}; E = MetaEngine.create(B); render(); });
+      seen['synthetic:unconfirmed_primary'] = await page.evaluate(measure, {slug: 'steel', role: 'offlane'});
+      seen['synthetic:unconfirmed_primary'].hero_wide_label = await page.evaluate(() => [...document.querySelectorAll('#main summary, #main h3')].map(x => x.textContent).find(x => /Hero-wide matchups/.test(x)) || null);
+      await open('wukong', 'jungle');
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.wukong.jungle.counters.tables; t.counters = {...t.counters, cohort_verified: false}; E = MetaEngine.create(B); render(); });
+      seen['synthetic:unconfirmed_only'] = await page.evaluate(measure, {slug: 'wukong', role: 'jungle'});
+      // The message users see most (every Paragon+ role): a verified table where nothing reaches 100 games; then no rows at
+      // all; then a differing alternate table with a 100-game row (inspection only, so the claim is limited).
+      await page.evaluate(() => { window.probeTables = JSON.parse(JSON.stringify(B.pred_game_data.role_data.wukong.jungle.counters.tables)); });
+      const shape = async code => { await page.evaluate('(() => {' + code + '})()'); return page.evaluate(measure, {slug: 'wukong', role: 'jungle'}); };
+      const EDIT = `const t = JSON.parse(JSON.stringify(window.probeTables)); for (const k in t) t[k] = {...t[k], cohort_verified: k === 'counters' ? true : t[k].cohort_verified, rows: (t[k].rows || []).map(r => ({...r, played: Math.min(r.played, 99)}))};`;
+      seen['synthetic:all_thin'] = await shape(EDIT + ` B.pred_game_data.role_data.wukong.jungle.counters.tables = t; E = MetaEngine.create(B); render();`);
+      seen['synthetic:no_rows'] = await shape(EDIT + ` for (const k in t) t[k].rows = []; B.pred_game_data.role_data.wukong.jungle.counters.tables = t; E = MetaEngine.create(B); render();`);
+      seen['synthetic:differing_100'] = await shape(EDIT + ` const alt = Object.keys(t).find(k => k !== 'counters'); t[alt].rows = t[alt].rows.map((r, i) => i ? r : {...r, played: 105}); B.pred_game_data.role_data.wukong.jungle.counters.tables = t; E = MetaEngine.create(B); render();`);
+      await context.close();
+    }
+    assert.ok(seen['synthetic:differing_alternate'].differing > 0 && seen['synthetic:unconfirmed_primary'].hero_wide_label, 'probe setup: the synthetic shapes render');
+    assert.ok(seen['desktop:wukong:jungle'].thin_in_source > 0 && seen['desktop:steel:offlane'].supported_in_source > 0, 'probe setup: thin and supported matchups exist');
+    const bad = s => s.thin_visible > 0 || s.exploratory !== 'closed' || s.exploratory_rows !== s.exploratory_in_source || s.supported_rows !== s.supported_in_source || !s.reviewed_first
+      || (s.points_to_smaller && s.thin_in_source === 0) || s.dangling_there || (s.exploratory_heading !== null && /100 or more games/.test(s.exploratory_heading));
+    {
+      // Before the hero's evidence file arrives (here it fails), alternate tables are unknown: the claim stays limited.
+      const {context, page} = await session(browser, desktop);
+      await page.route('**/bundles/*-hero-wukong-*', route => route.abort());
+      await page.evaluate(() => { openHero('wukong', 'jungle'); S.heroTab = 'counters'; render(); });
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.wukong.jungle.counters.tables; t.counters = {...t.counters, rows: t.counters.rows.map(r => ({...r, played: Math.min(r.played, 99)}))}; render(); });
+      seen['synthetic:evidence_failed'] = {state: await page.evaluate(() => annexState('hero', 'wukong')), empty_text: await page.evaluate(() => document.querySelector('#main .supported-matchups .empty')?.textContent || '')};
+      await context.close();
+    }
+    const u = seen['synthetic:unconfirmed_only'];
+    assert.equal(seen['synthetic:evidence_failed'].state, 'failed', 'probe setup: the hero evidence file failed');
+    verdict('V7', Object.entries(seen).filter(([k]) => k !== 'synthetic:evidence_failed').some(([, s]) => bad(s)) || !/read from another Statz role page/.test(seen['synthetic:unconfirmed_primary'].hero_wide_label)
+      || !/The Pred\.gg table is listed under Exploratory below because its rank and patch filters could not be confirmed/.test(u.empty_text)
+      || seen['synthetic:all_thin'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+. Smaller samples are listed under Exploratory below.'
+      || seen['synthetic:no_rows'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+.' || seen['synthetic:no_rows'].points_to_smaller
+      || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\..*Alternate Pred\.gg source tables that differ from the primary one are listed there for inspection\.$/.test(seen['synthetic:differing_100'].empty_text)
+      || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\./.test(seen['synthetic:evidence_failed'].empty_text), seen);
   }
 };
 
