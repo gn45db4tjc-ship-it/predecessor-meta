@@ -41,6 +41,20 @@ if (APP_CONFIG.mode === 'static') {
     return new URL(path, baseURL).href;
   }
   function cohort() { return site.manifest?.cohorts?.[S.bracket]; }
+  // The official description review is confirmed on the website only by the latest verified cloud check of this same
+  // publication content (its signature: a hotfix edits the article without changing the version), made within 30 hours,
+  // while online and after a successful check. Otherwise the shared rule applies: pending, or a named failure.
+  const baseDefinitionReviewStatus = definitionReviewStatus;
+  definitionReviewStatus = function () {
+    const review = B?.definition_review, check = site.manifest?.patch_check, entry = site.loadedEntry;
+    let recent = false; try { recent = !!check?.checked_at && E.sourceCurrency({status: 'ok', fetched_at: check.checked_at}).state === 'current'; } catch { recent = false; }
+    const confirmed = review?.status === 'reviewed for current patch' && check?.status === 'verified'
+      && typeof check.signature === 'string' && check.signature === entry?.source_signature
+      && check.version === review.patch && B.official?.status === 'verified' && B.official?.live?.version === review.patch && recent
+      && B.recommendation_context?.status !== 'withheld' && B.guidance?.status === 'reviewed for current patch'
+      && !entry.saved_copy && !site.checkFailed && !connectionLost && navigator.onLine;
+    return confirmed ? review.status : baseDefinitionReviewStatus();
+  };
   // The bytes of a publication are either its compact core or, as a fallback, its full bundle.
   const publicationBytes = (entry, url) => !!url && (url === entry?.url || url === entry?.projection?.core?.url);
   function latestVerifiedPatch() { return site.manifest?.patch_check?.status === 'verified' ? site.manifest.patch_check : site.manifest?.last_verified_patch_check; }
@@ -332,7 +346,7 @@ if (APP_CONFIG.mode === 'static') {
       const dataChanged = revision !== entry.sha256 || raw !== site.originalBundle, changed = dataChanged || B?.guidance?.status !== next.guidance?.status;
       // Bundle, revision and engine change together, so the page never ranks from another publication than it shows.
       if (raw !== site.originalBundle) annexReset(!!site.verifiedBytes && site.verifiedBytes.url === entry.url);   // a full bundle already holds every annex
-      site.originalBundle = raw; site.loadedEntry = entry;
+      site.originalBundle = raw; site.loadedEntry = entry; site.checkFailed = false;
       B = next; revision = entry.sha256;
       if (changed) E = MetaEngine.create(B);
       if (publicationBytes(entry, site.verifiedBytes?.url)) site.loadedBytes = site.verifiedBytes;
@@ -353,6 +367,7 @@ if (APP_CONFIG.mode === 'static') {
       chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
+      site.checkFailed = true;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
       const savedHere = !B && (!navigator.onLine || connectionLost) ? await savedOnThisDevice(requested) : null;
       if (sequence !== site.sequence || requested !== S.bracket) return;
