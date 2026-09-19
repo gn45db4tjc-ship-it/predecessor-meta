@@ -120,7 +120,7 @@ function fullSlotRows(side,onlyRole=null,exceptRole=null){const picks=side==='al
 slotRows=function(side){if(!companionMedia.matches)return fullSlotRows(side);const picks=side==='allies'?S.locks:S.enemies;return `<details class="lineup" data-lineup="${side}" data-keep="lineup-${side}"${picks.length?'':' open'}><summary>${side==='allies'?'Allies':'Enemies'} · ${picks.length} of ${side==='allies'&&S.route==='planner'?S.size:5} selected</summary>${fullSlotRows(side)}</details>`;};
 const originalChangeRoute=changeRoute,originalOpenHero=openHero;
 const originalDetail=detail;let dialogReturn=null,dialogSituation=null;
-detail=function(title,body){dialogReturn=document.activeElement;dialogSituation=dialogReturn?.dataset?.editSituation;originalDetail(title,body);};
+detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
 $('#detail').addEventListener('close',()=>{if(dialogReturn?.isConnected)dialogReturn.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
 changeRoute=function(route){originalChangeRoute(route);recordNavigation();};
 openHero=function(slug,role){if(!E.heroes[slug]){companionError='That hero is unavailable. Choose another.';changeRoute('meta');return;}originalOpenHero(slug,role);companionPrefs.recent=[{slug,role:S.heroRole},...companionPrefs.recent.filter(p=>p.slug!==slug||p.role!==S.heroRole)].slice(0,5);saveCompanionPrefs();recordNavigation(true);};

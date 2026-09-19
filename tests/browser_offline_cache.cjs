@@ -24,13 +24,16 @@ const server = http.createServer((request, response) => {
   const isData = name === 'manifest.json' || name.startsWith('bundles/');
   if (net.down || (net.dataDown && isData)) { request.socket.destroy(); return; }
   const send = (body, type, status = 200) => { response.writeHead(status, {'Content-Type': type, 'Cache-Control': 'no-store'}); response.end(body); };
-  if (net.portalFor && name === 'bundles/' + net.portalFor + '-' + FAKE + '.json') return send('<html>captive portal</html>', 'text/html');
+  if (net.portalFor && (name === 'bundles/' + net.portalFor + '-' + FAKE + '.json' || name === 'bundles/' + net.portalFor + '-core-' + FAKE + '.json')) return send('<html>captive portal</html>', 'text/html');
   const file = path.join(net.root, name);
   if (!file.startsWith(net.root) || !fs.existsSync(file) || !fs.statSync(file).isFile()) return send('Not found', 'text/plain', 404);
   let body = fs.readFileSync(file);
   if (name === 'sw.js' && net.nextRelease) body = Buffer.from(body.toString('utf8').replace(/(const SHELL_CACHE = ')([^']+)(')/, '$1$2-next$3'));
   if (name === 'manifest.json' && net.portalFor) {   // the publication moved on to a bundle the portal will intercept
-    const manifest = JSON.parse(body); Object.assign(manifest.cohorts[net.portalFor], {sha256: FAKE, url: 'bundles/' + net.portalFor + '-' + FAKE + '.json'}); body = Buffer.from(JSON.stringify(manifest));
+    const manifest = JSON.parse(body), entry = manifest.cohorts[net.portalFor];
+    Object.assign(entry, {sha256: FAKE, url: 'bundles/' + net.portalFor + '-' + FAKE + '.json'});
+    if (entry.projection) entry.projection.core = {...entry.projection.core, sha256: FAKE, url: 'bundles/' + net.portalFor + '-core-' + FAKE + '.json'};
+    body = Buffer.from(JSON.stringify(manifest));
   }
   send(body, TYPES[path.extname(name)] || 'application/octet-stream');
 });
@@ -47,6 +50,9 @@ const storage = page => page.evaluate(async () => {
   for (const name of await caches.keys()) out[name] = (await (await caches.open(name)).keys()).map(k => new URL(k.url).pathname.split('/').slice(-2).join('/'));
   return out;
 });
+// What the page saves for a rank: its compact core when the publication has one (2.27.0), otherwise the full bundle.
+const rankFile = entry => entry.projection?.core?.url || entry.url;
+const isRankFile = name => /^bundles\/[a-z]+-(?:core-)?[a-f0-9]{64}\.json$/.test(name);
 const savedManifest = page => page.evaluate(async name => (await (await caches.open(name)).match(new URL('manifest.json', location.href)))?.json(), DATA_CACHE);
 async function choose(page, bracket) {
   await page.selectOption('#bracket', bracket);
@@ -77,19 +83,29 @@ async function check(name, run) {
       assert.ok(await page.evaluate(async name => (await caches.keys()).includes(name) && (await (await caches.open(name)).keys()).length >= 2, DATA_CACHE), 'the check completed before the offline copy was saved');
       const caches = await storage(page), data = caches[DATA_CACHE], shell = Object.keys(caches).find(n => n.startsWith('predecessor-meta-shell-'));
       assert.ok(shell, 'no release shell cache');
-      assert.deepEqual(data.filter(n => n.startsWith('bundles/')), ['bundles/gold-' + published.cohorts.gold.sha256 + '.json']);
+      assert.deepEqual(data.filter(n => n.startsWith('bundles/')), [rankFile(published.cohorts.gold)]);
       assert.ok(data.some(n => n.endsWith('manifest.json')));
       assert.ok(!caches[shell].some(n => n.startsWith('bundles/') || n.endsWith('manifest.json')), 'the worker stored data in the shell cache');
       return {shell, saved: data.length};
     });
 
+    await check('evidence of an older publication is removed when the rank is saved again', async () => {
+      const stale = new URL('bundles/gold-hero-steel-' + 'e'.repeat(64) + '.json', origin).href;
+      await page.evaluate(async ({name, url}) => (await caches.open(name)).put(url, new Response('{}')), {name: DATA_CACHE, url: stale});
+      await page.locator('#refresh').click();
+      await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+      const kept = await page.evaluate(async ({name, url}) => !!(await (await caches.open(name)).match(url)), {name: DATA_CACHE, url: stale});
+      assert.ok(!kept, 'evidence of an older publication was kept');
+      return {removed: true};
+    });
+
     for (const bracket of brackets) await choose(page, bracket);
     await choose(page, 'gold');
-    await until(page, async ({name, count}) => (await (await caches.open(name)).keys()).filter(k => k.url.includes('/bundles/')).length >= count, {name: DATA_CACHE, count: brackets.length});
+    await until(page, async ({name, count}) => (await (await caches.open(name)).keys()).filter(k => /\/bundles\/[a-z]+-(?:core-)?[a-f0-9]{64}\.json$/.test(k.url)).length >= count, {name: DATA_CACHE, count: brackets.length});
 
     await check('every visited bracket is saved, one bundle each', async () => {
-      const data = (await storage(page))[DATA_CACHE].filter(n => n.startsWith('bundles/')).sort();
-      assert.deepEqual(data, brackets.map(b => 'bundles/' + b + '-' + published.cohorts[b].sha256 + '.json').sort());
+      const data = (await storage(page))[DATA_CACHE].filter(isRankFile).sort();
+      assert.deepEqual(data, brackets.map(b => rankFile(published.cohorts[b])).sort());
       return {brackets: brackets.length};
     });
 
@@ -99,7 +115,7 @@ async function check(name, run) {
       await page.waitForFunction(() => !latestStatus.busy && /Update check failed/.test(latestStatus.message || ''), null, {timeout: 60000});
       net.portalFor = null;
       const data = (await storage(page))[DATA_CACHE], manifest = await savedManifest(page);
-      assert.ok(data.includes('bundles/gold-' + published.cohorts.gold.sha256 + '.json'), 'the verified gold bundle was evicted');
+      assert.ok(data.includes(rankFile(published.cohorts.gold)), 'the verified gold bundle was evicted');
       assert.ok(!data.some(n => n.includes(FAKE)), 'the unverified response was stored');
       assert.equal(manifest.cohorts.gold.sha256, published.cohorts.gold.sha256, 'the saved manifest now points at a bundle that was never verified');
       assert.ok(await page.evaluate(() => !!B), 'the loaded data was dropped');
@@ -110,7 +126,7 @@ async function check(name, run) {
       net.nextRelease = true;
       await page.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); await r.update(); });
       await until(page, async () => (await caches.keys()).some(n => n.endsWith('-next')) && !(await caches.keys()).some(n => n.startsWith('predecessor-meta-shell-') && !n.endsWith('-next')));
-      const data = (await storage(page))[DATA_CACHE].filter(n => n.startsWith('bundles/'));
+      const data = (await storage(page))[DATA_CACHE].filter(isRankFile);
       assert.equal(data.length, brackets.length);
       return {saved_after_release: data.length};
     });
@@ -126,7 +142,52 @@ async function check(name, run) {
       net.down = false;
       return {opened: opened.length, message: message.slice(0, 60)};
     });
+
+    await check('evidence opened while online opens offline; evidence never opened says it is not saved', async () => {
+      const hero = published.cohorts.gold.projection?.heroes?.steel?.url;
+      if (!hero) return {skipped: 'this publication has no evidence files'};
+      const settled = () => page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000});
+      await choose(page, 'gold');
+      await page.evaluate(() => openHero('steel', 'jungle')); await settled();
+      await until(page, async ({name, url}) => !!(await (await caches.open(name)).match(new URL(url, location.href))), {name: DATA_CACHE, url: hero});
+      net.down = true;
+      await page.reload(); await ready(page);
+      await page.evaluate(() => openHero('steel', 'jungle')); await settled();
+      const saved = await page.evaluate(() => ({failed: /could not be loaded/.test(document.querySelector('#main').innerText), previous: !!B.heroes.steel.previous_abilities}));
+      await page.evaluate(() => openHero('grux', 'offlane')); await settled();
+      const unsaved = await page.evaluate(() => (document.querySelector('#main').innerText.match(/could not be loaded[^.]*/) || [''])[0]);
+      net.down = false;
+      assert.ok(!saved.failed, 'evidence saved while online did not open offline');
+      assert.ok(saved.previous, 'the saved evidence did not restore the hero\'s previous abilities');
+      assert.match(unsaved, /not saved on this device/, 'evidence that was never saved is not explained');
+      return {saved, unsaved};
+    });
     await context.close();
+
+    await check('a save still running when the rank changes stores each rank under its own address', async () => {
+      const other = brackets.find(b => b !== 'gold');
+      if (!other) return {skipped: 'needs two ranks'};
+      const slow = await browser.newContext({viewport: {width: 1280, height: 900}, serviceWorkers: 'allow'}), p = await slow.newPage();
+      await p.addInitScript(() => { const open = caches.open.bind(caches); caches.open = name => new Promise(r => setTimeout(r, 1500)).then(() => open(name)); });
+      await p.goto(origin); await p.waitForFunction(() => typeof B !== 'undefined' && !!B && B.bracket.segment === 'gold', null, {timeout: 120000});
+      await p.selectOption('#bracket', other);   // the gold save is still waiting for storage
+      await p.waitForFunction(b => !!B && B.bracket?.segment === b && !latestStatus.busy, other, {timeout: 120000});
+      await p.waitForTimeout(4000);
+      const files = await p.evaluate(async name => {
+        const cache = await caches.open(name), out = [];
+        for (const key of await cache.keys()) {
+          const m = new URL(key.url).pathname.match(/\/bundles\/(.+)-([a-f0-9]{64})\.json$/);
+          if (!m) continue;
+          const bytes = await (await cache.match(key)).arrayBuffer(), hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
+          out.push({file: m[1], matches: hash === m[2]});
+        }
+        return out;
+      }, DATA_CACHE);
+      await slow.close();
+      assert.ok(files.every(f => f.matches), 'a saved file does not hold the bytes its name promises: ' + JSON.stringify(files.filter(f => !f.matches)));
+      for (const b of ['gold', other]) assert.ok(files.some(f => f.file === b || f.file === b + '-core'), b + ' is not saved');
+      return {saved: files.map(f => f.file)};
+    });
 
     await check('brackets saved by release 2.23/2.24 are moved on upgrade and open with the network down', async () => {
       net.nextRelease = false;

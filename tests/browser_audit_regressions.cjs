@@ -59,6 +59,7 @@ const failTheNextCheck = async (page, fill, beforeReply) => {
     const response = await route.fetch(), manifest = await response.json();
     manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
     Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
+    delete manifest.cohorts.gold.projection;   // a new publication known only by its full bundle, whose download fails
     if (beforeReply) await beforeReply();
     await route.fulfill({response, json: manifest});
   });
@@ -516,7 +517,7 @@ const probes = {
     const bundle = await (await context.request.get(url + entry.url)).json();
     bundle.generated_at = new Date(Date.parse(bundle.generated_at) + 60000).toISOString();
     const bytes = Buffer.from(JSON.stringify(bundle)), sha = require('crypto').createHash('sha256').update(bytes).digest('hex');
-    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); Object.assign(m.cohorts.gold, {sha256: sha, url: 'bundles/gold-' + sha + '.json', generated_at: bundle.generated_at}); await route.fulfill({response, json: m}); });
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); Object.assign(m.cohorts.gold, {sha256: sha, url: 'bundles/gold-' + sha + '.json', generated_at: bundle.generated_at}); delete m.cohorts.gold.projection; await route.fulfill({response, json: m}); });
     await page.route('**/bundles/gold-' + sha + '.json', route => route.fulfill({status: 200, contentType: 'application/json', body: bytes}));
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await page.waitForFunction(generated => B?.generated_at === generated, bundle.generated_at, {timeout: 60000});
@@ -1076,6 +1077,234 @@ const probes = {
     await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
     const notice = await page.evaluate(() => (document.querySelector('#compositions')?.innerText || '').split('\n')[0]);
     verdict('P14', !/search options/i.test(notice) || /picks/i.test(notice), {notice});
+    await context.close();
+  },
+  // ---- Audit item 11: the page starts from a compact core and fetches display-only evidence when a view needs it.
+  async I1(browser) {
+    // At startup the page downloads the compact core, never the full bundle, and the core is a fraction of it.
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage(), requested = [];
+    page.on('request', r => { if (r.url().includes('/bundles/')) requested.push(r.url().split('/').pop()); });
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    assert.ok(entry.projection?.core, 'probe setup: the staged publication has a compact core');
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const fullBytes = (await (await context.request.get(url + entry.url)).body()).length, name = u => u.split('/').pop();
+    const seen = {requested: requested.map(r => r.replace(/-[a-f0-9]{64}\.json$/, '')), core_bytes: entry.projection.core.bytes, full_bytes: fullBytes};
+    verdict('I1', !requested.includes(name(entry.projection.core.url)) || requested.includes(name(entry.url)) || requested.some(r => /-(?:hero-[a-z0-9-]+|shared)-[a-f0-9]{64}\.json$/.test(r)) || entry.projection.core.bytes > fullBytes * 0.45, seen);
+    await context.close();
+  },
+  async I2(browser) {
+    // A hero view says its evidence is loading, then shows exactly what the full bundle holds; engine results do not change.
+    const {context, page} = await session(browser, desktop);
+    const before = await page.evaluate(() => { const planned = JSON.stringify(E.plannedBuild('steel', 'jungle')); openHero('steel', 'jungle'); return {planned, loadingShown: !!document.querySelector('#main .annex-loading')}; });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000});
+    const after = await page.evaluate(async () => {
+      const manifest = await (await fetch('manifest.json', {cache: 'no-store'})).json(), full = await (await fetch(manifest.cohorts.gold.url)).json();
+      return {planned: JSON.stringify(E.plannedBuild('steel', 'jungle')), heroMatches: JSON.stringify(B.heroes.steel) === JSON.stringify(full.heroes.steel),
+        roleDataMatches: JSON.stringify(B.pred_game_data?.role_data?.steel) === JSON.stringify(full.pred_game_data?.role_data?.steel),
+        failedNote: /could not be loaded/.test(document.querySelector('#main').innerText)};
+    });
+    const {planned, ...shown} = after;
+    verdict('I2', !before.loadingShown || !after.heroMatches || !after.roleDataMatches || after.failedNote || planned !== before.planned, {loadingShown: before.loadingShown, ...shown, engineUnchanged: planned === before.planned});
+    await context.close();
+  },
+  async I3(browser) {
+    // Evidence that does not match its published checksum is refused and named; Reload latest data retries it.
+    const {context, page} = await session(browser, desktop);
+    await page.route('**/bundles/gold-hero-grux-*.json', async route => {
+      const response = await route.fetch(), value = await response.json();
+      value.heroes = {...value.heroes, grux: {...value.heroes?.grux, tampered: true}};
+      await route.fulfill({response, json: value});
+    });
+    await page.evaluate(() => openHero('grux', 'offlane'));
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    const refused = await page.evaluate(() => ({merged: 'tampered' in B.heroes.grux, named: /could not be loaded[^.]*checksum/i.test(document.querySelector('#main').innerText), stillLoading: !!document.querySelector('#main .annex-loading')}));
+    await page.unroute('**/bundles/gold-hero-grux-*.json');
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy && !document.querySelector('#main .annex-loading') && !/could not be loaded/.test(document.querySelector('#main').innerText), null, {timeout: 60000}).catch(() => {});
+    const retried = await page.evaluate(() => ({failedNote: /could not be loaded/.test(document.querySelector('#main').innerText), merged: 'tampered' in B.heroes.grux}));
+    verdict('I3', refused.merged || !refused.named || refused.stillLoading || retried.failedNote || retried.merged, {refused, retried});
+    await context.close();
+  },
+  async I4(browser) {
+    // Export saves the complete publication even when no evidence has been opened yet.
+    const {context, page} = await session(browser, desktop);
+    const waiting = page.waitForEvent('download');
+    await page.locator('#export').click();
+    const html = fs.readFileSync(await (await waiting).path(), 'utf8'), match = html.match(/const INITIAL_BUNDLE=(.*?); const APP_CONFIG=/s);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.stringify(JSON.parse(await (await context.request.get(url + entry.url)).text()));
+    const exported = match ? JSON.stringify(JSON.parse(match[1])) : null;
+    verdict('I4', exported !== full, {exported_bytes: exported?.length || 0, full_bytes: full.length});
+    await context.close();
+  },
+  async I5(browser) {
+    // A redraw while a rank comparison downloads (evidence arriving on the Data page causes one) keeps the comparison.
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(() => changeRoute('data'));
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-*.json', async route => { await held; await route.continue(); });
+    await page.locator('#compare-bracket').selectOption('gold');
+    await page.waitForTimeout(300);
+    await page.evaluate(() => render());
+    release();
+    await page.waitForSelector('#comparison-output table', {timeout: 30000}).catch(() => {});
+    const seen = await page.evaluate(() => ({table: !!document.querySelector('#comparison-output table'), selected: document.querySelector('#compare-bracket')?.value}));
+    verdict('I5', !seen.table || seen.selected !== 'gold', seen);
+    await context.close();
+  },
+  async I6(browser) {
+    // When the full publication cannot be downloaded, export assembles the core with every evidence file it can
+    // verify, and a snapshot that lacks some says so when opened (instead of calling that evidence unavailable).
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.stringify(JSON.parse(await (await context.request.get(url + entry.url)).text()));
+    await page.route('**/bundles/gold-' + entry.sha256 + '.json', route => route.abort());
+    let saved = 0;
+    const exportOnce = async () => {
+      const waiting = page.waitForEvent('download');
+      await page.locator('#export').click();
+      const file = path.join(root, 'qa', 'i6-export-' + (++saved) + '.html');   // an .html name, so the browser opens it as a page
+      await (await waiting).saveAs(file);
+      const html = fs.readFileSync(file, 'utf8');
+      const match = html.match(/const INITIAL_BUNDLE=(.*?); const APP_CONFIG=(\{[^;]*\});/s);
+      return {file, bundle: match && JSON.stringify(JSON.parse(match[1])), config: match ? JSON.parse(match[2]) : null};
+    };
+    const complete = await exportOnce();
+    await page.route('**/bundles/gold-hero-grux-*.json', route => route.abort());
+    const partial = await exportOnce();
+    const opened = await context.newPage();
+    await opened.goto('file:///' + partial.file.replaceAll('\\', '/'));
+    await opened.waitForFunction(() => !!B, null, {timeout: 60000});
+    const note = await opened.evaluate(() => /saved without 1 of its detailed evidence files/.test(document.body.innerText));
+    const seen = {completeEqualsFull: complete.bundle === full, completeMissing: complete.config?.missing_evidence ?? 0, partialMissing: partial.config?.missing_evidence ?? 0, noteShown: note};
+    verdict('I6', !seen.completeEqualsFull || seen.completeMissing !== 0 || seen.partialMissing !== 1 || !note, seen);
+    await context.close();
+  },
+  async I7(browser) {
+    // An update check while a hero's evidence downloads (the same publication) keeps that evidence: the view shows it.
+    const {context, page} = await session(browser, desktop);
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-hero-steel-*.json', async route => { await held; await route.continue(); });
+    await page.evaluate(() => openHero('steel', 'jungle'));
+    await page.waitForSelector('#main .annex-loading', {timeout: 10000});
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+    release();
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 20000}).catch(() => {});
+    const seen = await page.evaluate(async () => {
+      const manifest = await (await fetch('manifest.json', {cache: 'no-store'})).json(), full = await (await fetch(manifest.cohorts.gold.url)).json();
+      return {stillLoading: !!document.querySelector('#main .annex-loading'), heroMatches: JSON.stringify(B.heroes.steel) === JSON.stringify(full.heroes.steel)};
+    });
+    verdict('I7', seen.stillLoading || !seen.heroMatches, seen);
+    await context.close();
+  },
+  async I8(browser) {
+    // Shared evidence (Data and Sources views, catalog dialogs): a failure is named in the evidence part only, the rest of
+    // the view still shows; Reload latest data retries; a dialog opened before the evidence arrives fills in when it does.
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
+    const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
+    assert.ok(item, 'probe setup: an item with an original Pred.gg definition');
+    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.evaluate(() => changeRoute('data'));
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading') && /could not be loaded/.test(document.querySelector('#main').innerText), null, {timeout: 30000}).catch(() => {});
+    const failed = await page.evaluate(() => ({named: /could not be loaded/.test(document.querySelector('#main').innerText), summaryShown: !B.definition_review || /Official description review/.test(document.querySelector('#main').innerText)}));
+    await page.unroute('**/bundles/gold-shared-*.json');
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+    await page.evaluate(key => showCatalog('items', key), item);
+    const dialogWaited = await page.evaluate(() => document.querySelector('#detail').open && !!document.querySelector('#detail-body .annex-loading'));
+    release();
+    await page.waitForFunction(() => !document.querySelector('#detail-body .annex-loading') && !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+    const loaded = await page.evaluate(history => ({dialogFilled: /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), stillOpen: document.querySelector('#detail').open,
+      historyMatches: JSON.stringify(B.official?.definition_history) === history, failureCleared: !/could not be loaded/.test(document.querySelector('#main').innerText)}), JSON.stringify(full.official?.definition_history));
+    const seen = {...failed, dialogWaited, ...loaded};
+    verdict('I8', !failed.named || !failed.summaryShown || !dialogWaited || !loaded.dialogFilled || !loaded.stillOpen || !loaded.historyMatches || !loaded.failureCleared, seen);
+    await context.close();
+  },
+  async I9(browser) {
+    // Evidence the server no longer has (404 after a redeploy) is named, triggers at most one check for the new
+    // publication, and never a request loop (no service worker here, as in private windows and in-app browsers) - even
+    // when that check fails too and the last successful check is more than a minute old, as during a deploy.
+    const {context, page} = await clockSession(browser, desktop);
+    let evidence = 0, manifests = 0;
+    await page.route('**/manifest.json', route => { manifests++; return route.abort(); });
+    await page.route('**/bundles/gold-hero-steel-*.json', route => { evidence++; return route.fulfill({status: 404, body: 'Not found'}); });
+    await page.clock.fastForward('01:01');
+    await page.evaluate(() => openHero('steel', 'jungle'));
+    await page.waitForTimeout(6000);
+    const seen = await page.evaluate(() => ({named: /website was updated after this page loaded/.test(document.querySelector('#main').innerText), stillLoading: !!document.querySelector('#main .annex-loading')}));
+    Object.assign(seen, {evidenceRequests: evidence, manifestRequests: manifests});
+    verdict('I9', !seen.named || seen.stillLoading || evidence > 2 || manifests > 2, seen);
+    await context.close();
+  },
+  async I10(browser) {
+    // A dialog showing that its evidence failed fills in when the evidence arrives on a retry (the connection returning).
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
+    const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
+    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.evaluate(key => showCatalog('items', key), item);
+    await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
+    const failed = await page.evaluate(() => !!document.querySelector('#detail-body .annex-failed'));
+    await page.unroute('**/bundles/gold-shared-*.json');
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
+    const seen = {failedShown: failed, filled: await page.evaluate(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText) && document.querySelector('#detail').open)};
+    verdict('I10', !seen.failedShown || !seen.filled, seen);
+    await context.close();
+  },
+  async I11(browser) {
+    // The kit tab shows its core parts (source, augments, main attributes) while the attribute evidence downloads.
+    const {context, page} = await session(browser, desktop);
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-hero-grux-*.json', async route => { await held; await route.continue(); });
+    await page.evaluate(() => { S.heroTab = 'kit'; openHero('grux', 'offlane'); S.heroTab = 'kit'; render(); });
+    await page.waitForSelector('#main .annex-loading', {timeout: 10000}).catch(() => {});
+    const early = await page.evaluate(() => ({augments: /Hero augments/.test(document.querySelector('#main').innerText), loading: !!document.querySelector('#main .annex-loading')}));
+    release();
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+    const later = await page.evaluate(() => ({loading: !!document.querySelector('#main .annex-loading'), attributes: !!B.heroes.grux?.pred_attributes}));
+    const seen = {early, later};
+    verdict('I11', !early.augments || !early.loading || later.loading || !later.attributes, seen);
+    await context.close();
+  },
+  async I12(browser) {
+    // A dialog showing that its evidence is gone (404 after a redeploy) is rebuilt when the new publication loads.
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
+    const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
+    // The "new publication": the same data published without evidence files, so the page loads the full bundle.
+    // It arrives a moment after the failure is shown, as a real check does.
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); delete m.cohorts.gold.projection; await new Promise(r => setTimeout(r, 1000)); await route.fulfill({response, json: m}); });
+    await page.route('**/bundles/gold-shared-*.json', route => route.fulfill({status: 404, body: 'Not found'}));
+    await page.evaluate(key => showCatalog('items', key), item);
+    await page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
+    const seen = await page.evaluate(() => ({filled: /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), failedShown: !!document.querySelector('#detail-body .annex-failed'), open: document.querySelector('#detail').open}));
+    verdict('I12', !seen.filled || seen.failedShown || !seen.open, seen);
+    await context.close();
+  },
+  async I13(browser) {
+    // Evidence that failed while the saved copy was being served is retried when the connection is back, even without
+    // an 'online' event (for example Wi-Fi without internet, or a server outage, while the device reports a connection).
+    const {context, page} = await clockSession(browser, desktop);
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(); await route.fulfill({response, headers: {...response.headers(), 'x-predecessor-cache': 'offline'}}); });
+    await checkLikeAReturningTab(page);
+    await page.route('**/bundles/gold-hero-grux-*.json', route => route.abort());
+    await page.evaluate(() => openHero('grux', 'offlane'));
+    await page.waitForFunction(() => /not saved on this device/.test(document.querySelector('#main').innerText), null, {timeout: 30000}).catch(() => {});
+    const failed = await page.evaluate(() => /not saved on this device/.test(document.querySelector('#main').innerText));
+    await page.unroute('**/manifest.json'); await page.unroute('**/bundles/gold-hero-grux-*.json');
+    await checkLikeAReturningTab(page, '00:31:00');
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading') && !/could not be loaded/.test(document.querySelector('#main').innerText), null, {timeout: 30000}).catch(() => {});
+    const seen = {failedWhileLost: failed, ...(await page.evaluate(() => ({stillFailed: /could not be loaded/.test(document.querySelector('#main').innerText), attributes: !!B.heroes.grux?.pred_attributes})))};
+    verdict('I13', !seen.failedWhileLost || seen.stillFailed || !seen.attributes, seen);
     await context.close();
   }
 };

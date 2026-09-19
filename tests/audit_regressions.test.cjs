@@ -218,9 +218,59 @@ test('F: the saved manifest is re-described from what is actually saved before i
 test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {
   const client = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), 'utf8');
   assert.match(client, /site\.loadedBytes = site\.verifiedBytes/, 'the verified bytes of the loaded publication are kept');
-  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(site\.loadedBytes\?\.url === entry\.url\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(loaded && site\.loadedBytes === loaded\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  // 2.27.0 review: the bytes and the address they were loaded from travel together into the (possibly queued) save.
+  assert.match(client, /const target = loaded\?\.bytes && publicationBytes\(entry, loaded\.url\) \? siteURL\(loaded\.url\) : null;/);
+  const commitStart = client.indexOf('async function commitNow'), commitBody = client.slice(commitStart, commitStart + client.slice(commitStart).search(/\r?\n  \}\r?\n/));
+  assert.ok(commitBody.length > 500, 'commitNow found');
+  assert.doesNotMatch(commitBody, /^[^\n]*site\.loadedBytes[^\n]*$/m, 'the save never reads the page-wide loaded bytes');
+  // 2.27.0: the loaded bytes are the compact core or the full bundle; both count as this publication's bytes.
+  assert.match(client, /const publicationBytes = \(entry, url\) => !!url && \(url === entry\?\.url \|\| url === entry\?\.projection\?\.core\?\.url\);/);
   assert.match(client, /else site\.offlineProblem = /, 'an unsaved copy is reported, never silently cleared');
   assert.match(client, /health: entry\.health \|\| \(entry\.saved_copy \? null : manifest\.health\)/, 'a re-described saved copy never borrows the newest publication health');
+});
+
+test('F guard (2.27.0): a saved compact core and evidence file are served offline; unsaved evidence is not invented', async () => {
+  const storage = cacheStorage(), sw = worker(SW, storage, offline), core = bundleBody('gold', 'core'), hero = JSON.stringify({heroes: {steel: {previous_abilities: []}}});
+  await sw.install(); await sw.activate();
+  const data = await storage.open(DATA), coreURL = SITE + 'bundles/gold-core-' + digest(core) + '.json', heroURL = SITE + 'bundles/gold-hero-steel-' + digest(hero) + '.json';
+  await data.put(new Request(coreURL), new Response(core)); await data.put(new Request(heroURL), new Response(hero));
+  for (const [url, body] of [[coreURL, core], [heroURL, hero]]) {
+    const reply = await sw.fetch(url);
+    assert.equal(reply.headers.get('X-Predecessor-Cache'), 'offline');
+    assert.equal(await reply.text(), body);
+  }
+  await assert.rejects(sw.fetch(SITE + 'bundles/gold-hero-grux-' + 'e'.repeat(64) + '.json'), 'evidence that was never saved fails instead of being made up');
+});
+
+test('F guard (2.27.0): the one-time move never copies an old bundle next to a compact core the page already saved', async () => {
+  const storage = cacheStorage(), core = bundleBody('gold', 'core saved by 2.27'), old = bundleBody('gold', 'saved by 2.23');
+  const legacy = await storage.open('predecessor-meta-v2-23'), oldURL = SITE + 'bundles/gold-' + digest(old) + '.json';
+  await legacy.put(new Request(oldURL), new Response(old));
+  const data = await storage.open(DATA), coreURL = SITE + 'bundles/gold-core-' + digest(core) + '.json';
+  await data.put(new Request(coreURL), new Response(core));
+  const sw = worker(SW, storage, offline);
+  await sw.install(); await sw.activate();
+  assert.ok(await stored(storage, coreURL), 'the saved core was kept');
+  assert.ok(!(await (await storage.open(DATA)).match(new Request(oldURL))), 'the older bundle was moved next to the newer core');
+});
+
+test('F guard (2.27.0): a data file the server no longer has (404 after a redeploy) reaches the page as that answer, not as a lost connection', async () => {
+  const storage = cacheStorage(), sw = worker(SW, storage, async () => new Response('Not found', {status: 404}));
+  await sw.install(); await sw.activate();
+  const reply = await sw.fetch(SITE + 'bundles/gold-hero-steel-' + 'f'.repeat(64) + '.json');
+  assert.equal(reply.status, 404);
+  assert.ok(!(await stored(storage, SITE + 'bundles/gold-hero-steel-' + 'f'.repeat(64) + '.json')));
+});
+
+test('F guard (2.27.0): the worker never stores a core or evidence file it fetched; only the page saves verified data', async () => {
+  const storage = cacheStorage(), body = JSON.stringify({heroes: {}}), sw = worker(SW, storage, async () => new Response(body, {status: 200}));
+  await sw.install(); await sw.activate();
+  for (const kind of ['core', 'shared', 'hero-steel']) {
+    const url = SITE + 'bundles/gold-' + kind + '-' + 'f'.repeat(64) + '.json';
+    assert.equal(await (await sw.fetch(url)).text(), body);
+    assert.ok(!(await stored(storage, url)), kind + ' was stored by the worker');
+  }
 });
 
 test('F guard: a saved bracket is served offline and labelled as such', async () => {
