@@ -167,8 +167,8 @@ if (APP_CONFIG.mode === 'static') {
     }
   }
   async function commitNow(manifest, bracket, entry, loaded) {
-    const newest = site.manifest?.cohorts?.[bracket];
-    const overtaken = () => !!newest && (site.manifest?.cohorts?.[bracket]?.sha256 !== entry.sha256 || site.manifest?.cohorts?.[bracket]?.projection?.core?.sha256 !== entry.projection?.core?.sha256);
+    const overtaken = () => S.bracket === bracket && !!site.loadedEntry && site.loadedEntry !== entry
+      && (site.loadedEntry.sha256 !== entry.sha256 || site.loadedEntry.projection?.core?.sha256 !== entry.projection?.core?.sha256);
     if (overtaken()) return 'superseded';
     const data = await caches.open(DATA_CACHE), manifestURL = siteURL(APP_CONFIG.manifest);
     if (overtaken()) return 'superseded';
@@ -237,16 +237,21 @@ if (APP_CONFIG.mode === 'static') {
       if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }
       const offline = !navigator.onLine || connectionLost, gone = /HTTP 404/.test(error.message);
       annex.failed.set(id, offline ? 'it is not saved on this device yet and downloads when you are online'
-        : gone ? 'the website was updated after this page loaded; Reload latest data loads the new version'
+        : gone ? 'the website was updated after this page loaded'
         : controller.signal.aborted ? 'the download timed out' : error.message);
       // A deploy replaces every evidence file: check for the new publication, at most once a minute. The check does
       // not clear this failure; a new publication starts afresh, and Reload latest data retries.
-      if (gone && !offline && Date.now() - (site.goneCheckAt || 0) > 60000) { site.goneCheckAt = Date.now(); if (!site.controller) checkPublication(); }
+      if (gone && !offline) checkAfterRedeploy();
       redrawForAnnex(id);
       return 'failed';
     }).finally(() => { clearTimeout(timer); if (annex.pending.get(id) === promise) annex.pending.delete(id); });
     annex.pending.set(id, promise);
     return promise;
+  }
+  function checkAfterRedeploy() {
+    if (Date.now() - (site.goneCheckAt || 0) <= 60000) return;
+    if (site.controller) { site.goneCheckQueued = true; return; }   // runs when the current check finishes
+    site.goneCheckAt = Date.now(); site.goneCheckQueued = false; checkPublication();
   }
   // An open dialog waiting for (or showing a failure of) an evidence file that changed state is rebuilt in place (the page
   // redraw does not reach dialogs), keeping its open sections and scroll position. Other arrivals leave it alone.
@@ -291,15 +296,17 @@ if (APP_CONFIG.mode === 'static') {
   async function checkPublication(retryEvidence = false) {
     const sequence = ++site.sequence, requested = S.bracket;
     // Reload latest data (and the connection coming back) retries evidence that failed to load; automatic checks do not.
-    const retry = retryEvidence === true && !!site.annex?.failed?.size, retried = retry ? [...site.annex.failed.keys()] : [];
-    if (retry) site.annex.failed.clear();
+    const retry = retryEvidence === true && !!site.annex?.failed?.size, retried = retry ? [...site.annex.failed.keys()] : [];   // grows if the connection is back
+    if (retry) { site.annex.failed.clear(); refreshDialog(new Set(retried)); }
     site.controller?.abort();
     const controller = new AbortController(); site.controller = controller;
     const timeout = setTimeout(() => controller.abort(), 45000);
     latestStatus = {busy: true, message: 'Checking the latest ' + requested + ' publication…'}; chrome();
     try {
       const manifestResponse = await getJSON(siteURL(APP_CONFIG.manifest), controller.signal);
+      const wasLost = connectionLost;
       connectionLost = manifestResponse.headers.get('X-Predecessor-Cache') === 'offline';
+      if (wasLost && !connectionLost && site.annex?.failed?.size) { retried.push(...site.annex.failed.keys()); site.annex.failed.clear(); }
       const manifest = await manifestResponse.json();
       validateManifest(manifest);
       if (sequence !== site.sequence || requested !== S.bracket) return;
@@ -330,7 +337,7 @@ if (APP_CONFIG.mode === 'static') {
       latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
-      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else if (retry) { requestRedraw(true); refreshDialog(new Set(retried)); } else redrawForEvidence();
+      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); refreshDialog(new Set(['*'])); checkSharedPlan(); } else if (retried.length) { requestRedraw(true); refreshDialog(new Set(retried)); } else redrawForEvidence();
       // The new data is already shown; the check itself completes once the offline copy is saved (or after ten
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
       await Promise.race([commitPublication(manifest, requested, entry, verified), new Promise(resolve => setTimeout(resolve, 10000))]);
@@ -345,7 +352,10 @@ if (APP_CONFIG.mode === 'static') {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : savedHere?.saved ? (savedHere.worker ? 'A copy of this rank is saved on this device. Reload the page to open it.' : 'A copy of this rank is saved on this device, but offline support is not active in this browser, so it cannot be opened while offline.') : savedHere ? (savedHere.worker ? 'This rank is not saved on this device. Open it once while online to keep it for offline use.' : 'This rank is not saved on this device, and offline support is not active in this browser.') : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
       redrawForEvidence();
-    } finally { clearTimeout(timeout); if (sequence === site.sequence) site.controller = null; }
+    } finally {
+      clearTimeout(timeout);
+      if (sequence === site.sequence) { site.controller = null; if (site.goneCheckQueued) setTimeout(checkAfterRedeploy, 0); }
+    }
   }
   async function exportSnapshot() {
     if (!B) return;

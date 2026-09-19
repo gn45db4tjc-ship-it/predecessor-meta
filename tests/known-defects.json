@@ -80,6 +80,8 @@
     "I8": "BUNDLE SIZE (item 11): shared evidence that fails hides the rest of the view or is not named, Reload latest data does not retry it, or a catalog dialog opened before it arrives does not fill in",
     "I9": "BUNDLE SIZE (item 11): evidence the server no longer has (404 after a redeploy) is not named, or causes repeated requests for it or for the manifest",
     "I10": "BUNDLE SIZE (item 11): a dialog showing that its evidence failed does not fill in when a retry brings the evidence",
-    "I11": "BUNDLE SIZE (item 11): the kit tab hides its core parts (source, augments, main attributes) while the attribute evidence downloads"
+    "I11": "BUNDLE SIZE (item 11): the kit tab hides its core parts (source, augments, main attributes) while the attribute evidence downloads",
+    "I12": "BUNDLE SIZE (item 11): a dialog showing that its evidence is gone (404 after a redeploy) is not rebuilt when the new publication loads",
+    "I13": "BUNDLE SIZE (item 11): evidence that failed while the saved copy was served is not retried when the connection is back without an online event"
   }
 }
