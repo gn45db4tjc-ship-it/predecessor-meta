@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.26.1
+# Predecessor Meta — 2.26.2
+
+2.26.2 is a small maintenance release. WebKit, the engine behind Safari on iPhone and iPad, limits how often a page may update its address (the WebKit build used for testing allows 100 updates in 10 seconds). Opening many heroes, tabs or sections quickly could hit that limit, and the app then showed a raw error message or raised an uncaught error. It now keeps working and skips only that one address update. The browser checks now also pass in WebKit: the offline check stops a real server instead of using a browser setting that WebKit applies before the service worker. Statistics, reviewed guidance, collection, publication and offline storage are unchanged.
+
+## Previous release: 2.26.1
 
 2.26.1 fixes the smaller issues found when 2.26.0 was checked live: limitations are counted per source, a cancelled search says so above the earlier alternatives, keyboard focus is kept, the Live picker marks small samples, a wrong device clock is named, every missing number gives its real reason (too few games, a failed page, or paused statistics), the hero page names the source of its numbers, review dates are readable, narrow phones with large text no longer clip the rank selector, pressed build variants meet contrast in the light theme, and offline a rank says whether it is saved on this device. See [RELEASE-2.26.1.md](RELEASE-2.26.1.md). The Windows upgrade uses a hashed backup; quit the local app before using **Roll Back 2.26.1.bat**. All existing data, settings, saved drafts and snapshots are retained. The website is rolled back by reverting the 2.26.1 merge commit on `main`.
 

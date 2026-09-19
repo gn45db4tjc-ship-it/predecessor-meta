@@ -1,6 +1,6 @@
-# Current release: 2.26.1
+# Current release: 2.26.2
 
-See RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -220,3 +220,10 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - Four independent review rounds of the patch (each finding challenged by a second agent) confirmed one high finding, withdrawn (an earlier draft could overstate the official description review after a hotfix), three medium findings (false reasons for missing numbers) and several low ones; all are fixed with checks that fail on the unfixed code (P1-P15).
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; clean-room package 178 Python / 146 JavaScript.
 - Not verified: a physical phone, screen readers, native installs.
+
+# Revision 8 — 2.26.2 WebKit maintenance release
+
+- WebKit (Safari) limits how often a page may update its address and then throws; opening many heroes, tabs or sections quickly raised an uncaught error on a hero tab and showed the raw message as an error notice elsewhere. The address update now skips only that one change, catching only that browser error, and leaves the last applied address alone so the next redraw cannot jump back.
+- The static browser suite now passes in WebKit: its offline check stops a real server instead of using a network setting that Playwright's WebKit applies before the service worker, and requires a newly opened page. A new check simulates the address limit in every browser and fails in Edge too without the fix.
+- Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks on the six-bracket preview (including an upgrade from the real 2.23.0 worker), the static suite (55 + 48 checks) and ranks suite in Edge and WebKit, and the release and companion suites; clean-room package 178 Python / 146 JavaScript.
+- Not verified: an iPhone or iPad (the WebKit runs use Playwright's WebKit on Windows), screen readers, native installs.
