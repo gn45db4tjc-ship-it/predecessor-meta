@@ -297,7 +297,13 @@ if (APP_CONFIG.mode === 'static') {
     const sequence = ++site.sequence, requested = S.bracket;
     // Reload latest data (and the connection coming back) retries evidence that failed to load; automatic checks do not.
     const retry = retryEvidence === true && !!site.annex?.failed?.size, retried = retry ? [...site.annex.failed.keys()] : [];   // grows if the connection is back
-    if (retry) { site.annex.failed.clear(); refreshDialog(new Set(retried)); }
+    let dialogRefreshed = false;
+    if (retry) {
+      // Files the site no longer has (404 after a redeploy) are not asked for again until the new publication is known.
+      const gone = new Set([...site.annex.failed].filter(([, reason]) => /website was updated/.test(reason)).map(([id]) => id));
+      site.annex.failed.clear();
+      try { refreshDialog(new Set(retried.filter(id => !gone.has(id)))); } catch (error) { console.warn('Dialog refresh failed:', error); }
+    }
     site.controller?.abort();
     const controller = new AbortController(); site.controller = controller;
     const timeout = setTimeout(() => controller.abort(), 45000);
@@ -337,7 +343,7 @@ if (APP_CONFIG.mode === 'static') {
       latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
-      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); refreshDialog(new Set(['*'])); checkSharedPlan(); } else if (retried.length) { requestRedraw(true); refreshDialog(new Set(retried)); } else redrawForEvidence();
+      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); refreshDialog(new Set(['*'])); dialogRefreshed = true; checkSharedPlan(); } else if (retried.length) { requestRedraw(true); refreshDialog(new Set(retried)); dialogRefreshed = true; } else redrawForEvidence();
       // The new data is already shown; the check itself completes once the offline copy is saved (or after ten
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
       await Promise.race([commitPublication(manifest, requested, entry, verified), new Promise(resolve => setTimeout(resolve, 10000))]);
@@ -354,6 +360,8 @@ if (APP_CONFIG.mode === 'static') {
       redrawForEvidence();
     } finally {
       clearTimeout(timeout);
+      // Failures cleared by this check are never left on an open dialog, whichever way the check ended.
+      if (retried.length && !dialogRefreshed) try { refreshDialog(new Set(retried)); } catch (error) { console.warn('Dialog refresh failed:', error); }
       if (sequence === site.sequence) { site.controller = null; if (site.goneCheckQueued) setTimeout(checkAfterRedeploy, 0); }
     }
   }
