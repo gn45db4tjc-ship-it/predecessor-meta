@@ -3,9 +3,7 @@
   "baseline": "2.23.0 / 9bac0c2",
   "open": [
     "V8",
-    "V10",
-    "V11",
-    "V12"
+    "V10"
   ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",

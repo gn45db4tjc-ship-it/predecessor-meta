@@ -73,5 +73,14 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
  #mobile-limits[hidden]{display:none}#mobile-limits strong{flex:none;color:var(--amber);white-space:nowrap}
  #mobile-limits span:not([aria-hidden]){flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-2)}#mobile-limits span[aria-hidden]{flex:none;color:var(--gold-text)}
  #undo-banner button{flex:none;white-space:nowrap}.mobile-hero-card{grid-template-columns:minmax(45%,1fr) minmax(min-content,auto)}.mobile-hero-card .mobile-stat{overflow-wrap:normal}.mobile-hero-card .mobile-stat strong{white-space:nowrap}.mobile-hero-card .mobile-stat small{white-space:normal;text-align:right}#detail label:has(#live-owned-add){display:grid;gap:6px}#detail #live-owned-add{width:100%}.all-heroes{margin:0 0 20px}.lineup{margin:8px 0}.lineup>summary{font-weight:650}
+ /* 2.28.0: tab strips wrap instead of scrolling (an overflow-x strip also scrolled vertically by the -1px tab margin);
+    words break only between words, never inside one. The review status has its own full-width row. */
+ .tabs{flex-wrap:wrap;overflow:visible;border-bottom:0;gap:0}
+ .toolbar>.tabs{flex:1 1 100%}
+ .tabs button{flex:1 1 auto;margin-bottom:0;padding:8px 10px;overflow-wrap:break-word;border-bottom:1px solid var(--line)}
+ .tabs button[aria-selected=true]{border-bottom:2px solid var(--gold)}
+ .mobile-hero-head .mobile-hero-status{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;margin:0;max-width:none;overflow-wrap:break-word}
+ .mobile-hero-status [data-meta-decision]{flex-wrap:wrap;justify-content:flex-start;text-align:left;padding:4px 8px 4px 0;gap:0 8px;max-width:100%}
+ .mobile-hero-status [data-meta-decision]>span{white-space:nowrap}
 }
 @media(max-width:380px){.topbar .tools>label:has(#bracket){flex:1 1 100%;display:flex;align-items:center}.topbar .tools>label:has(#bracket) select{flex:1;min-width:0}}
