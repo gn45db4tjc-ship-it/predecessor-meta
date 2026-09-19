@@ -70,18 +70,26 @@ if (APP_CONFIG.mode === 'static') {
     if (next <= new Date()) next.setUTCDate(next.getUTCDate() + 1);
     return next.toLocaleString();
   }
-  function publishedAlerts() {
+  // Material (always visible) and detail (Status details) notices of the website; see materialAlerts/alerts in ui.js.
+  function publishedMaterial() {
     const entry = site.loadedEntry || cohort(), check = latestVerifiedPatch();
     let result = '';
     if (site.manifest?.collection_paused_reason) result += note(esc(site.manifest.collection_paused_reason), true);
     if (site.manifest?.collection_host !== 'cloud' && site.manifest?.local_collector?.checked_at && Date.now()-Date.parse(site.manifest.local_collector.checked_at)>30*3600000) result += note('The Windows updater has not checked in for over 30 hours. Showing the last successful data. Updates resume when the PC is on, signed in and connected.', true);
-    if (site.manifest?.source_pauses?.pred && !predAvailability()) result += note('Pred.gg update unavailable: ' + esc(site.manifest.source_pauses.pred), true);
     if (B && Date.now() - Date.parse(B.generated_at) > 30 * 3600000) result += note('This bundle is more than 30 hours old. The scheduled update may have failed or been delayed. Its source dates have not changed.', true);
     if (publicationChanged(entry)) result += note('Official patch content changed after this bundle was collected. Showing the previous dated statistics; written guidance needs review. ' + link(check.url, 'Latest official notes'), true);
+    return result;
+  }
+  function publishedDetails() {
+    const check = latestVerifiedPatch();
+    let result = '';
+    if (site.manifest?.source_pauses?.pred && !predAvailability()) result += note('Pred.gg update unavailable: ' + esc(site.manifest.source_pauses.pred), true);
     if (check?.announcements?.length) result += note('Upcoming: ' + check.announcements.map(a => link(a.url, 'v' + a.version) + ' · ' + esc(a.release_date || 'release date unconfirmed')).join('; ') + '. Announcements are separate from live data.');
     return result;
   }
-  alerts = function() { return publishedAlerts() + originalAlerts(); };
+  alerts = function() { return publishedDetails() + originalAlerts(); };
+  const originalMaterial = materialAlerts;
+  materialAlerts = function() { return publishedMaterial() + originalMaterial(); };
   dataView = function() {
     return note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + oldDataView();
   };
@@ -99,8 +107,9 @@ if (APP_CONFIG.mode === 'static') {
     $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every three hours; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every three hours.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every three hours; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
     if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
+    if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.';
     $('#progress').textContent = latestStatus.message || 'Loading the latest published data…';
-    $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>e.severity==='error'&&!/^Pred\.gg(?: |$)/.test(e.source||'')));
+    $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>isMaterialError(e)));
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'No successful publication is available for this bracket yet. Choose another bracket.');
   };
   render = function() {
@@ -377,7 +386,7 @@ if (APP_CONFIG.mode === 'static') {
       if (site.loadedBytes && !publicationBytes(entry, site.loadedBytes.url)) site.loadedBytes = null;
       const verified = site.loadedBytes || null;   // {url, bytes}, kept until the offline copy is saved, so a failed save is retried
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
-      latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
+      latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
       site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); refreshDialog(new Set(['*'])); dialogRefreshed = true; checkSharedPlan(); } else if (retried.length) { requestRedraw(true); refreshDialog(new Set(retried)); dialogRefreshed = true; } else redrawForEvidence();

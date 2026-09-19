@@ -1695,6 +1695,149 @@ const probes = {
       || seen['synthetic:no_rows'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+.' || seen['synthetic:no_rows'].points_to_smaller
       || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\..*Alternate Pred\.gg source tables that differ from the primary one are listed there for inspection\.$/.test(seen['synthetic:differing_100'].empty_text)
       || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\./.test(seen['synthetic:evidence_failed'].empty_text), seen);
+  },
+  async V8(browser) {
+    // Desktop 1440x900: the site status takes one concise strip; the first Meta row starts high even with an announcement,
+    // retained Pred.gg and a Pred.gg source error present. Material notices (here: the fixture's "more than 30 hours
+    // old") are always visible and are excluded from the budget. Other routes' evidence line is one collapsed row.
+    const context = await browser.newContext({serviceWorkers: 'block', viewport: {width: 1440, height: 900}}), page = await context.newPage();
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...m.patch_check, announcements: [{version: '9.99', release_date: '2026-12-31', url: 'https://www.predecessorgame.com/'}]}; await route.fulfill({response, json: m}); });
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const seen = await page.evaluate(async () => {
+      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
+      B.errors = [...(B.errors || []), {source: 'Pred.gg current-patch statistics', severity: 'error', detail: 'Probe: public pages returned no structured data.'}];
+      S.statSource = 'statz'; E = MetaEngine.create(B); changeRoute('meta'); chrome();
+      await new Promise(r => setTimeout(r, 100));
+      const top = el => el ? Math.round(el.getBoundingClientRect().top + scrollY) : null, material = document.querySelector('#material-notices');
+      const materialH = material ? Math.round(material.getBoundingClientRect().height) : 0;
+      const row = document.querySelector('#main table tbody tr, #main .meta-table tbody tr');
+      const out = {main_top: top(document.querySelector('#main')), first_row: top(row), material: materialH, evidence_lines: {}};
+      for (const r of ['builds', 'draft', 'live', 'planner']) { changeRoute(r); const d = document.querySelector('#main details.note'); out.evidence_lines[r] = d ? Math.round(d.getBoundingClientRect().height) : 0; }
+      openHero('steel', 'offlane'); const d = document.querySelector('#main details.note'); out.evidence_lines.hero = d ? Math.round(d.getBoundingClientRect().height) : 0;
+      return out;
+    });
+    await context.close();
+    verdict('V8', seen.main_top - seen.material > 132 || seen.first_row - seen.material > 400 || Object.values(seen.evidence_lines).some(h => h > 36), seen);
+  },
+  async V9(browser) {
+    // GUARD: material conditions stay visible without opening anything: new official content, paused collection, a failed
+    // required source, and an old bundle; the required-source failure also marks the status line as failed.
+    const context = await browser.newContext({serviceWorkers: 'block', viewport: {width: 1440, height: 900}}), page = await context.newPage();
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json();
+      m.patch_check = {...m.patch_check, signature: 'f'.repeat(64)}; m.collection_paused_reason = 'Probe: collection paused for maintenance.';
+      m.cohorts.gold.last_attempt = {status: 'failed', errors: [{source: 'Pred.gg current-patch statistics', severity: 'error', detail: 'Probe: Pred.gg failed.'}, {source: 'Statz hero pages', severity: 'error', detail: 'Probe: every hero page failed.'}]};
+      await route.fulfill({response, json: m}); });
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const seen = await page.evaluate(() => { changeRoute('meta'); chrome(); const material = document.querySelector('#material-notices').innerText;
+      return {panel_closed: !document.querySelector('.workspace').classList.contains('status-open') && getComputedStyle(document.querySelector('#status-panel')).display === 'none',
+        content_changed: /Official patch content changed/.test(material), paused: /collection paused for maintenance/.test(material), required: /Statz hero pages/.test(material) && /every hero page failed/.test(material),
+        old: /more than 30 hours old/.test(material), progress_failed: document.querySelector('#progress').classList.contains('failed'), optional_not_material: !/Pred\.gg failed/.test(material)}; });
+    await context.close();
+    // The exported snapshot runs without the website client (mode 'export'): an optional Pred.gg failure alone is neither a
+    // material notice nor a failed status; a required failure is both, and Pred.gg stays out of the notices.
+    const x = await browser.newContext({serviceWorkers: 'block', viewport: {width: 1440, height: 900}, acceptDownloads: true}), site = await x.newPage();
+    await site.goto(url); await site.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const [download] = await Promise.all([site.waitForEvent('download', {timeout: 120000}), site.click('#export')]);
+    const file = path.join(root, 'qa', 'v9-export.html'); await download.saveAs(file);
+    const snap = await x.newPage(); await snap.goto('file:///' + file.replace(/\\/g, '/')); await snap.waitForFunction(() => !!B, null, {timeout: 60000});
+    const exported = await snap.evaluate(() => {
+      const pred = {source: 'Pred.gg current-patch statistics', severity: 'error', detail: 'Probe: Pred.gg failed.'}, material = () => document.querySelector('#material-notices').innerText, failed = () => document.querySelector('#progress').classList.contains('failed');
+      latestStatus.errors = [pred]; chrome();
+      const alone = {material: /Pred\.gg failed/.test(material()), failed: failed()};
+      latestStatus.errors = [pred, {source: 'Statz hero pages', severity: 'error', detail: 'Probe: every hero page failed.'}]; chrome();
+      return {mode: APP_CONFIG.mode, pred_alone_material: alone.material, pred_alone_failed: alone.failed, required: /every hero page failed/.test(material()), required_failed: failed(), pred_with_required_material: /Pred\.gg failed/.test(material())};
+    });
+    await x.close();
+    assert.equal(exported.mode, 'export', 'probe setup: the snapshot runs in export mode');
+    verdict('V9', Object.values(seen).some(v => !v) || exported.pred_alone_material || exported.pred_alone_failed || !exported.required || !exported.required_failed || exported.pred_with_required_material, {...seen, exported});
+  },
+  async V10(browser) {
+    // Desktop: the status details open and close from the keyboard, stay open across redraws with focus kept, contain the
+    // schedule and the source notices, and pass axe (WCAG 2.1 A/AA) open and closed in both themes.
+    const context = await browser.newContext({serviceWorkers: 'block', viewport: {width: 1440, height: 900}}), page = await context.newPage();
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const seen = {};
+    const toggle = page.locator('#status-toggle');
+    seen.visible = await toggle.isVisible();
+    if (seen.visible) {
+      await toggle.focus(); await page.keyboard.press('Enter');
+      seen.opened = await page.evaluate(() => { const panel = document.querySelector('#status-panel'); return {expanded: document.querySelector('#status-toggle').getAttribute('aria-expanded'), panel_visible: !!panel && panel.getBoundingClientRect().height > 0,
+        schedule: /update target|updater|updates paused/i.test(panel?.innerText || ''), notices: /Source (failure|limitations)|notice/i.test(panel?.innerText || '')}; });
+      seen.after_redraw = await page.evaluate(() => { chrome(); render(); return {expanded: document.querySelector('#status-toggle').getAttribute('aria-expanded'), focus: document.activeElement?.id}; });
+      await page.addScriptTag({path: process.env.AXE_PATH || require.resolve('axe-core/axe.min.js')});
+      seen.axe = {};
+      for (const theme of ['dark', 'light']) for (const open of [true, false]) {
+        seen.axe[theme + (open ? ' open' : ' closed')] = await page.evaluate(async ({theme, open}) => {
+          document.documentElement.setAttribute('data-theme', theme);
+          const t = document.querySelector('#status-toggle'); if ((t.getAttribute('aria-expanded') === 'true') !== open) t.click();
+          const r = await axe.run({include: [['.status-line'], ['#source-notices']]}, {runOnly: ['wcag2a', 'wcag2aa']});
+          return r.violations.map(v => v.id + ':' + v.nodes.length);
+        }, {theme, open});
+      }
+      // Enter again toggles to the opposite state, whichever state the axe loop left.
+      const before = await page.evaluate(() => document.querySelector('#status-toggle').getAttribute('aria-expanded'));
+      await toggle.focus(); await page.keyboard.press('Enter');
+      const after = await page.evaluate(() => document.querySelector('#status-toggle').getAttribute('aria-expanded'));
+      seen.toggled_again = before !== after;
+    }
+    await context.close();
+    const ok = seen.visible && seen.opened?.expanded === 'true' && seen.opened.panel_visible && seen.opened.schedule && seen.opened.notices
+      && seen.after_redraw?.expanded === 'true' && seen.after_redraw.focus === 'status-toggle' && Object.values(seen.axe || {}).every(v => !v.length) && seen.toggled_again;
+    verdict('V10', !ok, seen);
+  },
+  async V11(browser) {
+    // Phone: tab strips never scroll (no vertical overflow; no horizontal overflow at 320 px even with large text); every
+    // tab is on screen and at least 44 px tall; the page itself never scrolls sideways.
+    const seen = {};
+    for (const width of [320, 360, 390, 412]) for (const large of [false, true]) {
+      const context = await browser.newContext({serviceWorkers: 'block', viewport: {width, height: 844}, isMobile: true, hasTouch: true}), page = await context.newPage();
+      await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large})); }, large);
+      await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+      const problems = [];
+      for (const route of ['hero', 'builds', 'planner']) {
+        const found = await page.evaluate(route => {
+          if (route === 'hero') openHero('steel', 'jungle'); else changeRoute(route);
+          const out = [];
+          for (const list of document.querySelectorAll('#main [role=tablist]')) {
+            if (list.scrollHeight > list.clientHeight) out.push(list.getAttribute('aria-label') + ': vertical ' + list.scrollHeight + '>' + list.clientHeight);
+            if (list.scrollWidth > list.clientWidth) out.push(list.getAttribute('aria-label') + ': horizontal ' + list.scrollWidth + '>' + list.clientWidth);
+            for (const tab of list.querySelectorAll('[role=tab]')) { const r = tab.getBoundingClientRect(); if (r.height < 44 || r.right > innerWidth + 1 || r.left < -1) out.push(list.getAttribute('aria-label') + ': tab "' + tab.textContent.trim() + '" ' + Math.round(r.left) + '-' + Math.round(r.right) + ' h' + Math.round(r.height)); }
+          }
+          if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page overflows ' + document.documentElement.scrollWidth + '>' + innerWidth);
+          return out;
+        }, route);
+        problems.push(...found.map(f => route + ' ' + f));
+      }
+      seen[width + (large ? ' large' : '')] = problems;
+      await context.close();
+    }
+    verdict('V11', Object.values(seen).some(p => p.length), seen);
+  },
+  async V12(browser) {
+    // Phone: the hero's review status has its own full-width row and never breaks inside a word, with large text too.
+    const seen = {};
+    for (const width of [320, 360, 390, 412]) for (const large of [false, true]) {
+      const context = await browser.newContext({serviceWorkers: 'block', viewport: {width, height: 844}, isMobile: true, hasTouch: true}), page = await context.newPage();
+      await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large})); }, large);
+      await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+      await page.evaluate(() => openHero('steel', 'jungle'));
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+      seen[width + (large ? ' large' : '')] = await page.evaluate(() => {
+        const original = E.metaReview;
+        E.metaReview = (s, r) => ({...(original(s, r) || {tier: 'A', reviewed_tier: 'A'}), active: false, status: 'Retained sample; refresh required to reassess this tier'});
+        render();
+        const head = document.querySelector('.mobile-hero-head'), button = head?.querySelector('[data-meta-decision]'), row = button?.parentElement;
+        if (!head || !button) return {missing: true};
+        const split = [];
+        for (const node of [...button.querySelectorAll('*'), button].flatMap(el => [...el.childNodes].filter(n => n.nodeType === 3))) {
+          const text = node.textContent; let i = 0;
+          for (const word of text.split(/(\s+)/)) { if (word.trim()) { const range = document.createRange(); range.setStart(node, i); range.setEnd(node, i + word.length); const lines = new Set([...range.getClientRects()].map(r => Math.round(r.top))); if (lines.size > 1) split.push(word); } i += word.length; }
+        }
+        return {row_width: Math.round(row.getBoundingClientRect().width), head_width: Math.round(head.getBoundingClientRect().width), split};
+      });
+      await context.close();
+    }
+    verdict('V12', Object.values(seen).some(s => s.missing || s.row_width < s.head_width - 2 || s.split.length), seen);
   }
 };
 
