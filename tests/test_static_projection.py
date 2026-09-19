@@ -79,6 +79,23 @@ class ProjectionRoundTrip(unittest.TestCase):
             self.assertNotIn('antiCounters', kept)
             self.assertNotIn('laneCounters', kept)
 
+    def test_counters_section_details_stay_in_the_core(self):
+        # 2.28.0: the Counters tab renders its supported matchups and the section's source line and saved label from the core,
+        # before the hero's evidence file arrives; only the tables may move out.
+        core, _, _ = P.split(self.bundle)
+        checked = 0
+        for slug, roles in ((self.bundle.get('pred_game_data') or {}).get('role_data') or {}).items():
+            for role, data in (roles or {}).items():
+                counters = (data or {}).get('counters')
+                if not isinstance(counters, dict):
+                    continue
+                kept = core['pred_game_data']['role_data'][slug][role]['counters']
+                for key, value in counters.items():
+                    if key != 'tables':
+                        self.assertEqual(kept.get(key), value, (slug, role, key))
+                checked += 1
+        self.assertGreater(checked, 0, 'the seed has counters sections')
+
     def test_reserved_projection_keys_in_a_bundle_are_refused(self):
         bundle = copy.deepcopy(self.bundle)
         bundle['guidance']['$order'] = ['x']

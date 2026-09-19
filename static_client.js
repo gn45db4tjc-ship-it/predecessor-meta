@@ -41,6 +41,22 @@ if (APP_CONFIG.mode === 'static') {
     return new URL(path, baseURL).href;
   }
   function cohort() { return site.manifest?.cohorts?.[S.bracket]; }
+  // The official description review is confirmed on the website only by the latest verified cloud check of this same
+  // publication content (its signature: a hotfix edits the article without changing the version), made within 30 hours,
+  // while online and after a successful check. Otherwise the shared rule applies: pending, or a named failure.
+  const baseDefinitionReviewStatus = definitionReviewStatus;
+  definitionReviewStatus = function () {
+    const review = B?.definition_review, check = site.manifest?.patch_check, entry = site.loadedEntry;
+    let recent = false; try { recent = !!check?.checked_at && E.sourceCurrency({status: 'ok', fetched_at: check.checked_at}).state === 'current'; } catch { recent = false; }
+    const confirmed = review?.status === 'reviewed for current patch' && check?.status === 'verified'
+      && typeof check.signature === 'string' && check.signature === entry?.source_signature
+      && check.version === review.patch && B.official?.status === 'verified' && B.official?.live?.version === review.patch && recent
+      && B.recommendation_context?.status !== 'withheld' && B.guidance?.status === 'reviewed for current patch'
+      && !entry.saved_copy && !site.checkFailed && !connectionLost && navigator.onLine;
+    return confirmed ? review.status : baseDefinitionReviewStatus();
+  };
+  const statusDetail = detail;
+  detail = function (title, body, refresh) { site.dialogStatus = B ? definitionReviewStatus() : ''; return statusDetail(title, body, refresh); };
   // The bytes of a publication are either its compact core or, as a fallback, its full bundle.
   const publicationBytes = (entry, url) => !!url && (url === entry?.url || url === entry?.projection?.core?.url);
   function latestVerifiedPatch() { return site.manifest?.patch_check?.status === 'verified' ? site.manifest.patch_check : site.manifest?.last_verified_patch_check; }
@@ -89,6 +105,9 @@ if (APP_CONFIG.mode === 'static') {
   };
   render = function() {
     originalRender();
+    if ($('#detail')?.open && detailRefresh && B && definitionReviewStatus() !== site.dialogStatus) {
+      if (site.dialogStatus && $('#detail-body').textContent.includes(site.dialogStatus)) rebuildDialog(); else site.dialogStatus = definitionReviewStatus();
+    }
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'Loading the latest published data…');
   };
 
@@ -260,10 +279,28 @@ if (APP_CONFIG.mode === 'static') {
     if (!detailRefresh || !B || !dialog?.open) return;
     const waiting = [...body.querySelectorAll('[data-annex]')].map(el => el.dataset.annex);
     if (!waiting.some(id => changed.has('*') || changed.has(id))) return;
-    const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop;
+    rebuildDialog();
+  }
+  // Rebuilds the open dialog in place. Sections are matched by summary text and occurrence (the third "Reviewed
+  // replacement" stays the third); focus returns to the same control, matched by id, data attributes or text and by its
+  // position among controls that match the same way, or to the dialog itself when that control is gone.
+  function rebuildDialog() {
+    const dialog = $('#detail'), body = $('#detail-body');
+    const sections = () => { const n = {}; return [...body.querySelectorAll('details > summary')].map(s => ({s, id: s.textContent + '\u0000' + (n[s.textContent] = (n[s.textContent] || 0) + 1)})); };
+    const controls = () => [...dialog.querySelectorAll('button, summary, a[href], select, input, [tabindex]')];
+    const key = el => el.id ? '#' + el.id : el.tagName + '|' + [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join('&') + '|' + el.textContent.trim().slice(0, 80);
+    const open = new Set(sections().filter(x => x.s.parentElement.open).map(x => x.id)), top = dialog.scrollTop;
+    const active = dialog.contains(document.activeElement) && document.activeElement !== dialog ? document.activeElement : null;
+    const focused = active ? key(active) : null, peers = focused ? controls().filter(el => key(el) === focused) : [], index = peers.indexOf(active);
     detailRefresh();
-    body.querySelectorAll('details > summary').forEach(s => { if (open.has(s.textContent)) s.parentElement.open = true; });
+    site.dialogStatus = B ? definitionReviewStatus() : '';
+    sections().forEach(x => { if (open.has(x.id)) x.s.parentElement.open = true; });
     dialog.scrollTop = top;
+    if (focused && !dialog.contains(document.activeElement)) {
+      const same = controls().filter(el => key(el) === focused), target = same.length === peers.length && index >= 0 ? same[index] : null;
+      if (target) target.focus({preventScroll: true});
+      else { if (!dialog.hasAttribute('tabindex')) dialog.setAttribute('tabindex', '-1'); dialog.focus({preventScroll: true}); }
+    }
   }
   // Evidence files that arrive together (the desktop Builds page asks for one per hero) share one redraw.
   let annexRedraw = 0, annexChanged = new Set();
@@ -332,7 +369,7 @@ if (APP_CONFIG.mode === 'static') {
       const dataChanged = revision !== entry.sha256 || raw !== site.originalBundle, changed = dataChanged || B?.guidance?.status !== next.guidance?.status;
       // Bundle, revision and engine change together, so the page never ranks from another publication than it shows.
       if (raw !== site.originalBundle) annexReset(!!site.verifiedBytes && site.verifiedBytes.url === entry.url);   // a full bundle already holds every annex
-      site.originalBundle = raw; site.loadedEntry = entry;
+      site.originalBundle = raw; site.loadedEntry = entry; site.checkFailed = false;
       B = next; revision = entry.sha256;
       if (changed) E = MetaEngine.create(B);
       if (publicationBytes(entry, site.verifiedBytes?.url)) site.loadedBytes = site.verifiedBytes;
@@ -353,6 +390,7 @@ if (APP_CONFIG.mode === 'static') {
       chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
+      site.checkFailed = true;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
       const savedHere = !B && (!navigator.onLine || connectionLost) ? await savedOnThisDevice(requested) : null;
       if (sequence !== site.sequence || requested !== S.bracket) return;
