@@ -1677,12 +1677,24 @@ const probes = {
     assert.ok(seen['desktop:wukong:jungle'].thin_in_source > 0 && seen['desktop:steel:offlane'].supported_in_source > 0, 'probe setup: thin and supported matchups exist');
     const bad = s => s.thin_visible > 0 || s.exploratory !== 'closed' || s.exploratory_rows !== s.exploratory_in_source || s.supported_rows !== s.supported_in_source || !s.reviewed_first
       || (s.points_to_smaller && s.thin_in_source === 0) || s.dangling_there || (s.exploratory_heading !== null && /100 or more games/.test(s.exploratory_heading));
+    {
+      // Before the hero's evidence file arrives (here it fails), alternate tables are unknown: the claim stays limited.
+      const {context, page} = await session(browser, desktop);
+      await page.route('**/bundles/*-hero-wukong-*', route => route.abort());
+      await page.evaluate(() => { openHero('wukong', 'jungle'); S.heroTab = 'counters'; render(); });
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+      await page.evaluate(() => { const t = B.pred_game_data.role_data.wukong.jungle.counters.tables; t.counters = {...t.counters, rows: t.counters.rows.map(r => ({...r, played: Math.min(r.played, 99)}))}; render(); });
+      seen['synthetic:evidence_failed'] = {state: await page.evaluate(() => annexState('hero', 'wukong')), empty_text: await page.evaluate(() => document.querySelector('#main .supported-matchups .empty')?.textContent || '')};
+      await context.close();
+    }
     const u = seen['synthetic:unconfirmed_only'];
-    verdict('V7', Object.values(seen).some(bad) || !/read from another Statz role page/.test(seen['synthetic:unconfirmed_primary'].hero_wide_label)
+    assert.equal(seen['synthetic:evidence_failed'].state, 'failed', 'probe setup: the hero evidence file failed');
+    verdict('V7', Object.entries(seen).filter(([k]) => k !== 'synthetic:evidence_failed').some(([, s]) => bad(s)) || !/read from another Statz role page/.test(seen['synthetic:unconfirmed_primary'].hero_wide_label)
       || !/The Pred\.gg table is listed under Exploratory below because its rank and patch filters could not be confirmed/.test(u.empty_text)
       || seen['synthetic:all_thin'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+. Smaller samples are listed under Exploratory below.'
       || seen['synthetic:no_rows'].empty_text !== 'No collected jungle matchup for Wukong reaches 100 games in Gold+.' || seen['synthetic:no_rows'].points_to_smaller
-      || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\..*Alternate Pred\.gg source tables that differ from the primary one are listed there for inspection\.$/.test(seen['synthetic:differing_100'].empty_text), seen);
+      || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\..*Alternate Pred\.gg source tables that differ from the primary one are listed there for inspection\.$/.test(seen['synthetic:differing_100'].empty_text)
+      || !/^No jungle matchup for Wukong from a table with confirmed filters reaches 100 games in Gold\+\./.test(seen['synthetic:evidence_failed'].empty_text), seen);
   }
 };
 
