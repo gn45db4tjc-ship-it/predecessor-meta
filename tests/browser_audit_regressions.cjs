@@ -1306,6 +1306,141 @@ const probes = {
     const seen = {failedWhileLost: failed, ...(await page.evaluate(() => ({stillFailed: /could not be loaded/.test(document.querySelector('#main').innerText), attributes: !!B.heroes.grux?.pred_attributes})))};
     verdict('I13', !seen.failedWhileLost || seen.stillFailed || !seen.attributes, seen);
     await context.close();
+  },
+  // ---- 2.28.0: fixes from the review of 2.27.0 (V series).
+  async V1(browser) {
+    // A role without a Statz sample says exactly that - never "No observed build" under Pred.gg builds - and its source
+    // line never links another role's Statz page as if it were this role's, nor a dead link.
+    const seen = {};
+    for (const [label, options] of [['desktop', desktop], ['phone', phone]]) {
+      const {context, page} = await session(browser, options);
+      await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+      seen[label] = await page.evaluate(() => {
+        const main = document.querySelector('#main'), text = main.innerText, links = [...main.querySelectorAll('a')];
+        return {pred_builds_shown: /Pred\.gg build evidence/.test(text), says_no_observed_build: /No observed build for this hero/i.test(text),
+          names_statz_gap: /No Statz build sample for Jungle/i.test(text),
+          offlane_links_unlabelled: links.filter(a => /\/steel\/build\/offlane\//.test(a.href) && !/offlane/i.test(a.textContent)).length};
+      });
+      await page.evaluate(() => { openHero('wukong', 'jungle'); S.heroTab = 'builds'; render(); });
+      seen[label].wukong_dead_links = await page.evaluate(() => [...document.querySelectorAll('#main a')].filter(a => ['#', ''].includes(a.getAttribute('href') || '')).length);
+      await context.close();
+    }
+    assert.ok(seen.desktop.pred_builds_shown, 'probe setup: Steel jungle shows Pred.gg build evidence');
+    const bad = s => s.says_no_observed_build || !s.names_statz_gap || s.offlane_links_unlabelled > 0 || s.wukong_dead_links > 0;
+    verdict('V1', bad(seen.desktop) || bad(seen.phone), seen);
+  },
+  async V2(browser) {
+    // The build coach describes the evidence for THIS hero and role: Steel jungle has no role sample, so it must not read
+    // "Statistics current" (site refresh health), while Steel offlane, which has a current sample, says so.
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    const seen = await page.evaluate(() => {
+      // Pred.gg retained (as on the live site since 19 September): rankings fall back to Statz, which has no Steel jungle sample.
+      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
+      if (B.scoped_statistics) B.scoped_statistics.status = 'retained';
+      if (B.pred_game_data) B.pred_game_data.status = 'retained';
+      E = MetaEngine.create(B); render();
+      const coach = document.querySelector('#main .coach-date summary')?.textContent || '';
+      const setup = {policy: E.performancePolicy().source, jungle_sample: !!E.performance({slug: 'steel', role: 'jungle'})};
+      openHero('steel', 'offlane'); S.heroTab = 'builds'; render();
+      return {setup, jungle: coach, offlane: document.querySelector('#main .coach-date summary')?.textContent || ''};
+    });
+    assert.equal(seen.setup.policy, 'statz', 'probe setup: retained Pred.gg leaves Statz as the ranking source');
+    assert.equal(seen.setup.jungle_sample, false, 'probe setup: Steel jungle has no Statz sample');
+    verdict('V2', /Statistics current/i.test(seen.jungle) || !/No Statz Gold\+ jungle sample/i.test(seen.jungle) || !/Statz offlane sample current/i.test(seen.offlane), seen);
+    await context.close();
+  },
+  async V3(browser) {
+    // Retained Pred.gg evidence is labelled "Saved <day>" beside its build and matchup sections; current evidence is not;
+    // and the phone status chip names what it describes (the site refresh), not this hero.
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'counters'; render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    const seen = await page.evaluate(() => {
+      const text = () => document.querySelector('#main').innerText, out = {};
+      out.saved_when_current = /\bSaved (January|February|March|April|May|June|July|August|September|October|November|December) \d/.test(text());
+      const day = new Date(B.pred_game_data.role_data.steel.jungle.counters.fetched_at).toLocaleDateString(undefined, {month: 'long', day: 'numeric'});
+      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
+      if (B.scoped_statistics) B.scoped_statistics.status = 'retained';
+      if (B.pred_game_data) B.pred_game_data.status = 'retained';
+      E = MetaEngine.create(B); render();
+      out.day = day;
+      out.counters_saved = text().includes('Saved ' + day);
+      S.heroTab = 'builds'; render();
+      out.builds_saved = text().includes('Saved ' + day);
+      return out;
+    });
+    await context.close();
+    const m = await clockSession(browser, phone);
+    await m.page.evaluate(() => changeRoute('meta'));
+    seen.chip = await m.page.evaluate(() => document.querySelector('.mobile-health span')?.textContent || '');
+    await m.context.close();
+    verdict('V3', seen.saved_when_current || !seen.counters_saved || !seen.builds_saved || !/Site refresh/i.test(seen.chip), seen);
+  },
+  async V4(browser) {
+    // With a current verified cloud check whose content signature matches this publication, the website confirms the
+    // official description review instead of calling it pending.
+    const {context, page} = await clockSession(browser, desktop);
+    const seen = await page.evaluate(async () => {
+      const manifest = await (await fetch('manifest.json', {cache: 'no-store'})).json(), entry = manifest.cohorts.gold;
+      changeRoute('data');
+      return {check: manifest.patch_check?.status, same_signature: manifest.patch_check?.signature === entry.source_signature, review: B.definition_review?.status, patch: B.definition_review?.patch,
+        guidance: B.guidance?.status, status: definitionReviewStatus(), text: (document.querySelector('#main').innerText.match(/reviewed for [^\n]*?v[\d.]+/i) || [''])[0]};
+    });
+    assert.equal(seen.check, 'verified', 'probe setup: the staged publication has a verified patch check');
+    assert.ok(seen.same_signature, 'probe setup: the check matches this publication');
+    assert.equal(seen.review, 'reviewed for current patch', 'probe setup: the seed carries a current definition review');
+    verdict('V4', seen.status !== 'reviewed for current patch' || !new RegExp('reviewed for current patch\\s*·\\s*v' + seen.patch.replace(/\./g, '\\.'), 'i').test(seen.text), seen);
+    await context.close();
+  },
+  async V5(browser) {
+    // GUARD: the description review stays "pending" whenever the confirmation is not current and complete.
+    const cases = {
+      saved_copy: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.cohorts.gold.saved_copy = true; await route.fulfill({response, json: m}); }),
+      offline_copy: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(); await route.fulfill({response, headers: {...response.headers(), 'x-predecessor-cache': 'offline'}}); }),
+      version_mismatch: async page => page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); m.patch_check = {...m.patch_check, version: '9.99.9'}; await route.fulfill({response, json: m}); }),
+    };
+    const seen = {};
+    for (const [name, arrange] of Object.entries(cases)) {
+      const {context, page} = await clockSession(browser, desktop);
+      await arrange(page);
+      await checkLikeAReturningTab(page);
+      seen[name] = await page.evaluate(() => definitionReviewStatus());
+      await context.close();
+    }
+    {
+      const {context, page} = await clockSession(browser, desktop);
+      await page.route('**/manifest.json', route => route.abort());
+      await page.locator('#refresh').click();
+      await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+      seen.failed_request = await page.evaluate(() => definitionReviewStatus());
+      await context.close();
+    }
+    {
+      const {context, page} = await clockSession(browser, desktop);
+      await page.clock.fastForward('31:00:00');
+      await page.waitForTimeout(500);
+      seen.check_older_than_30h = await page.evaluate(() => definitionReviewStatus());
+      await context.close();
+    }
+    verdict('V5', Object.values(seen).some(s => !/pending|failed/.test(s) || s === 'reviewed for current patch'), seen);
+  },
+  async V6(browser) {
+    // A failed live or official check is named as failed, not as "pending".
+    const {context, page} = await clockSession(browser, desktop);
+    await failTheNextCheck(page, 'e');
+    await checkLikeAReturningTab(page);
+    const website = await page.evaluate(() => definitionReviewStatus());
+    const windows = await page.evaluate(() => {
+      const saved = {local, cache: B.cache, guidance: B.guidance};
+      try { local = true; B.cache = {used: true}; B.guidance = {...B.guidance, status: 'reviewed for saved patch; live verification failed'}; return definitionReviewStatus(); }
+      finally { local = saved.local; B.cache = saved.cache; B.guidance = saved.guidance; }
+    });
+    await context.close();
+    const seen = {website, windows};
+    verdict('V6', !/official patch check failed/.test(website) || !/live check failed/.test(windows), seen);
   }
 };
 
