@@ -24,12 +24,13 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
         assert.equal(cohort.segment,bracket); assert(cohort.validBuilds>0);
         assert((await page.locator('#patch-strip').innerText()).toLowerCase().includes(cohort.label.toLowerCase()),'patch strip names the selected rank (the strip is styled uppercase)');
         if(!phone&&viewport.width>=1440) {
-          // 2.28.0: every rank keeps the desktop status chrome compact (the same measure as audit probe V8): one patch-strip
-          // row, and at most 132 px above the page excluding material notices, which are always shown.
+          // 2.28.0: every rank keeps the desktop status chrome compact: one patch-strip row, and at most 76 px from the top
+          // of the strip to the page, excluding material notices (always shown). That is audit probe V8's 132 px budget less
+          // the 56 px top bar; the top bar is measured out because WebKit draws it 6 px taller than Edge.
           const chromeSize=await page.evaluate(()=>{const cells=[...document.querySelectorAll('#patch-strip .patch-cell')].map(c=>Math.round(c.getBoundingClientRect().top)),material=document.querySelector('#material-notices');
-            return {rows:new Set(cells).size,above:Math.round(document.querySelector('#main').getBoundingClientRect().top+scrollY-(material?material.getBoundingClientRect().height:0))};});
+            return {rows:new Set(cells).size,status:Math.round(document.querySelector('#main').getBoundingClientRect().top-document.querySelector('#patch-strip').getBoundingClientRect().top-(material?material.getBoundingClientRect().height:0))};});
           assert.equal(chromeSize.rows,1,bracket+': the patch strip stays on one row at '+viewport.width+' px');
-          assert(chromeSize.above<=132,bracket+': status chrome above the page is '+chromeSize.above+' px excluding material notices (at most 132)');
+          assert(chromeSize.status<=76,bracket+': status chrome is '+chromeSize.status+' px excluding material notices (at most 76)');
           cohort.chrome=chromeSize;
         }
         for(const role of ['jungle','offlane','midlane','carry','support']) {
