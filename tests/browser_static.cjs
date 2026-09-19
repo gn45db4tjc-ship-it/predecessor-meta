@@ -2,10 +2,11 @@
 // Browser acceptance against a local static preview. Source observations are never modified.
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const {spawn}=require('node:child_process');
+const {spawn}=require('node:child_process'),http=require('node:http');
 const root=path.resolve(__dirname,'..'),reportDir=path.join(root,'qa'),url=process.env.PREVIEW_URL||'http://127.0.0.1:12926/';
 const previous=process.env.BASELINE_TESTS||path.join(__dirname,'legacy');
-let previewServer;
+let previewServer,outageServer;
+const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();outageServer.closeAllConnections();}};
 (async()=>{
  if(process.env.START_PREVIEW==='1'){
   previewServer=spawn(process.env.PYTHON_EXE||'python',['-B','-m','http.server',new URL(url).port||'12926','--bind','127.0.0.1','--directory',path.join(root,'qa','site')],{windowsHide:true,stdio:'ignore'});
@@ -16,13 +17,27 @@ let previewServer;
  const browser=await (useWebkit?webkit.launch({headless:true}):chromium.launch({headless:true,channel:'msedge'}));
  const report={engine:useWebkit?'Playwright WebKit on Windows (not native Apple Safari)':'Microsoft Edge on Windows',version:browser.version(),runs:[]};
  try{
+  // Installed app offline: serve the preview through a private pass-through server, let the service worker take
+  // control, then stop that server (a real outage). context.setOffline is not used: Playwright's WebKit blocks the
+  // navigation before the service worker sees it, although WebKit serves it from the worker in a real outage.
+  outageServer=http.createServer(async(req,res)=>{
+   if(req.method!=='GET'){res.writeHead(405);res.end();return;}
+   try{const r=await fetch(new URL(req.url.replace(/^\/+/,''),url));const headers={'content-type':r.headers.get('content-type')||'application/octet-stream'};
+    if(r.headers.get('last-modified'))headers['last-modified']=r.headers.get('last-modified');res.writeHead(r.status,headers);res.end(Buffer.from(await r.arrayBuffer()));}
+   catch{res.writeHead(502);res.end();}
+  });
+  await new Promise(resolve=>outageServer.listen(0,'127.0.0.1',resolve));const installURL='http://127.0.0.1:'+outageServer.address().port+'/';
   const pwaContext=await browser.newContext({viewport:{width:1280,height:800}}),pwaPage=await pwaContext.newPage();
-  await pwaPage.goto(url,{waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
+  await pwaPage.goto(installURL,{waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
   await pwaPage.evaluate(()=>navigator.serviceWorker.ready);await pwaPage.reload({waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy&&!!navigator.serviceWorker.controller,{timeout:45000});
-  const cachedAt=await pwaPage.evaluate(()=>B.generated_at);
-  await pwaContext.setOffline(true);await pwaPage.reload({waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
+  const cachedAt=await pwaPage.evaluate(()=>{window.beforeOutage=true;return B.generated_at;});
+  stopOutageServer();
+  assert(await fetch(installURL).then(()=>false,()=>true),'the preview is really unreachable');
+  await pwaPage.reload({waitUntil:'domcontentloaded'});await pwaPage.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
+  // A failed navigation would leave the old document in place; require a newly opened one.
+  assert(await pwaPage.evaluate(()=>!window.beforeOutage),'offline reload opens a new document from the service worker');
   assert.equal(await pwaPage.evaluate(()=>B.generated_at),cachedAt,'installed app reopens its dated cached bundle offline');
-  await pwaContext.close();report.installable={serviceWorker:true,offlineBundle:true};
+  await pwaContext.close();report.installable={serviceWorker:true,offlineBundle:true,outage:'preview server stopped'};
   for(const viewport of [{width:1440,height:900},{width:390,height:844}]){
    const context=await browser.newContext({viewport,acceptDownloads:true,serviceWorkers:'block'}),page=await context.newPage();
    const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push({url:r.url(),method:r.method()}));
@@ -47,6 +62,24 @@ let previewServer;
    }
    await page.locator('#compare-bracket').selectOption('gold');await page.waitForSelector('#comparison-output table');
    check((await page.locator('#comparison-output').textContent()).includes('gold'),'separate published comparison');
+   // Browsers cap address updates and then throw (WebKit: SecurityError past 100 per 10 seconds). Simulate that cap in
+   // every engine across the three callers (route, hero, hero tab): the view must still change, with no uncaught error
+   // and no error toast. Handlers can be async, so count unhandled rejections too and keep the cap until they settle.
+   const historyLimit=await page.evaluate(async()=>{
+    let uncaught=0;const onError=()=>uncaught++,settle=()=>new Promise(r=>setTimeout(r,100)),P=History.prototype,saved=[P.pushState,P.replaceState];
+    const deny=()=>{throw new DOMException('Attempt to use history.pushState() more than 100 times per 10 seconds','SecurityError');};
+    const toastText=()=>document.querySelector('#toast')?.textContent||'',toastBefore=toastText(),seen=[];
+    addEventListener('error',onError);addEventListener('unhandledrejection',onError);P.pushState=deny;P.replaceState=deny;
+    try{
+     document.querySelector('[data-route="meta"]').click();await settle();seen.push(S.route);
+     document.querySelector('.meta-table [data-hero], .mobile-hero-card [data-hero]').click();await settle();seen.push(S.route);
+     document.querySelector('[data-hero-tab="kit"]').click();await settle();seen.push(S.heroTab);
+     document.querySelector('[data-route="data"]').click();await settle();seen.push(S.route);
+    }finally{[P.pushState,P.replaceState]=saved;removeEventListener('error',onError);removeEventListener('unhandledrejection',onError);}
+    const toast=toastText();return {uncaught,seen,historyToast:toast!==toastBefore&&/history/i.test(toast)};
+   });
+   const historyOk=historyLimit.uncaught===0&&!historyLimit.historyToast&&historyLimit.seen.join()==='meta,hero,kit,data';
+   check(historyOk,'navigation survives the browser history rate limit'+(historyOk?'':': '+JSON.stringify(historyLimit)));
    if(previous&&phone){
     // The legacy suites drive desktop controls (role tabs, the sortable table, lineup slots). At 700px and below the app
     // renders its phone presentation instead, which tests/browser_companion.cjs covers. Record the skip; do not count it.
@@ -124,5 +157,5 @@ let previewServer;
   }
   fs.writeFileSync(path.join(reportDir,(useWebkit?'webkit':'edge')+'-static-acceptance.json'),JSON.stringify(report,null,2));
   console.log(JSON.stringify({engine:report.engine,runs:report.runs.map(r=>({viewport:r.viewport,readyMs:r.readyMs,checks:r.checks.length,...(r.skipped?{skipped:r.skipped}:{})}))}));
- }finally{await browser.close();previewServer?.kill();}
-})().catch(error=>{previewServer?.kill();console.error(error);process.exitCode=1;});
+ }finally{stopOutageServer();await browser.close();previewServer?.kill();}
+})().catch(error=>{stopOutageServer();previewServer?.kill();console.error(error);process.exitCode=1;});
