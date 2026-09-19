@@ -3,6 +3,7 @@
 if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   const rankOriginal = {chrome, metaView, metaTierButton, metaDecisionHTML, rolePriorityHTML,
     metaReviewMethod, buildsPageView, heroView, plannerView, draftView, liveView, guidanceView};
+  isMaterialError = e => e?.severity === 'error' && !/^Pred\.gg(?: |$)/.test(e.source || '');   // optional Pred.gg is not a required source
   function selectedRankLabel() { return B?.scoped_statistics?.bracket_label || B?.bracket?.label || 'Rank unavailable'; }
   function matchingRankReview() {
     const review = B?.guidance?.meta_review;
@@ -17,7 +18,8 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
     rankOriginal.chrome();
     if (!B || matchingRankReview() || !B.guidance?.meta_review) return;
     const cell = $('#patch-strip .patch-cell:last-child');
-    if (cell) cell.innerHTML = `<div><small>Guidance · ${esc(B.guidance.meta_review.bracket_label)} reference</small><strong>${esc(B.guidance.patch ? 'v'+B.guidance.patch : 'Not reviewed')}</strong></div><span class="status-pill">${esc(B.guidance.status || 'Needs review')} · tiers do not cover ${esc(selectedRankLabel())}</span>`;
+    const reference = B.guidance.meta_review.bracket_label;
+    if (cell) cell.innerHTML = `<div><small>Guidance · ${esc(reference)} tiers</small><strong>${esc(B.guidance.patch ? 'v'+B.guidance.patch : 'Not reviewed')}</strong></div><span class="status-pill" title="${esc('The authored tiers cover '+reference+'; they do not cover '+selectedRankLabel()+'.')}">${esc(B.guidance.status || 'Needs review')}</span>`;
   };
   rolePriorityHTML = function() { return matchingRankReview() ? rankOriginal.rolePriorityHTML() : ''; };
   metaTierButton = function(slug, role) {

@@ -1725,11 +1725,13 @@ const probes = {
     const context = await browser.newContext({serviceWorkers: 'block', viewport: {width: 1440, height: 900}}), page = await context.newPage();
     await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json();
       m.patch_check = {...m.patch_check, signature: 'f'.repeat(64)}; m.collection_paused_reason = 'Probe: collection paused for maintenance.';
-      m.cohorts.gold.last_attempt = {status: 'failed', errors: [{source: 'Statz hero pages', severity: 'error', detail: 'Probe: every hero page failed.'}]};
+      m.cohorts.gold.last_attempt = {status: 'failed', errors: [{source: 'Pred.gg current-patch statistics', severity: 'error', detail: 'Probe: Pred.gg failed.'}, {source: 'Statz hero pages', severity: 'error', detail: 'Probe: every hero page failed.'}]};
       await route.fulfill({response, json: m}); });
     await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
-    const seen = await page.evaluate(() => { changeRoute('meta'); chrome(); const visible = document.querySelector('.workspace').innerText;
-      return {content_changed: /Official patch content changed/.test(visible), paused: /collection paused for maintenance/.test(visible), required: /Statz hero pages/.test(visible), old: /more than 30 hours old/.test(visible), progress_failed: document.querySelector('#progress').classList.contains('failed')}; });
+    const seen = await page.evaluate(() => { changeRoute('meta'); chrome(); const material = document.querySelector('#material-notices').innerText;
+      return {panel_closed: !document.querySelector('.workspace').classList.contains('status-open') && getComputedStyle(document.querySelector('#status-panel')).display === 'none',
+        content_changed: /Official patch content changed/.test(material), paused: /collection paused for maintenance/.test(material), required: /Statz hero pages/.test(material) && /every hero page failed/.test(material),
+        old: /more than 30 hours old/.test(material), progress_failed: document.querySelector('#progress').classList.contains('failed'), optional_not_material: !/Pred\.gg failed/.test(material)}; });
     await context.close();
     verdict('V9', Object.values(seen).some(v => !v), seen);
   },

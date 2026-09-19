@@ -47,7 +47,7 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
     check(await page.evaluate(()=>S.locks.length===2&&S.enemies[0]?.role==='jungle'),'picks and enemy role restored');
     check(await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tiers:B.tier_list}))===original,'observations unchanged');
     if(mode==='current'){
-     check((await page.locator('#source-notices').textContent()).includes('Source failure'),'current failure remains named');
+     check(await page.evaluate(()=>{const shown=document.querySelector('#material-notices').innerText,line=document.querySelector('.status-line').innerText,required=[...(B?.errors||[]),...(latestStatus.errors||[])].filter(e=>isMaterialError(e));return /Source failure/.test(line)&&required.every(e=>shown.includes(e.source));}),'current failure remains named');
      check((await page.locator('#patch-strip').textContent()).includes('Last verified patch'),'failed check labels the older verification');
      check(await page.evaluate(()=>E.plannedBuild('dekker','support').kind!=='reviewed'),'unverified current patch does not activate advice');
     }

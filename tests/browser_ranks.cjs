@@ -23,6 +23,15 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
           validBuilds:Object.keys(E.heroes).filter(s=>E.roles(s).includes('jungle')&&E.plannedBuild(s,'jungle').kind==='reviewed').length}));
         assert.equal(cohort.segment,bracket); assert(cohort.validBuilds>0);
         assert((await page.locator('#patch-strip').innerText()).toLowerCase().includes(cohort.label.toLowerCase()),'patch strip names the selected rank (the strip is styled uppercase)');
+        if(!phone&&viewport.width>=1440) {
+          // 2.28.0: every rank keeps the desktop status chrome compact (the same measure as audit probe V8): one patch-strip
+          // row, and at most 132 px above the page excluding material notices, which are always shown.
+          const chromeSize=await page.evaluate(()=>{const cells=[...document.querySelectorAll('#patch-strip .patch-cell')].map(c=>Math.round(c.getBoundingClientRect().top)),material=document.querySelector('#material-notices');
+            return {rows:new Set(cells).size,above:Math.round(document.querySelector('#main').getBoundingClientRect().top+scrollY-(material?material.getBoundingClientRect().height:0))};});
+          assert.equal(chromeSize.rows,1,bracket+': the patch strip stays on one row at '+viewport.width+' px');
+          assert(chromeSize.above<=132,bracket+': status chrome above the page is '+chromeSize.above+' px excluding material notices (at most 132)');
+          cohort.chrome=chromeSize;
+        }
         for(const role of ['jungle','offlane','midlane','carry','support']) {
           await page.locator((phone?'[data-mobile-role="':'[data-meta-role="')+role+'"]').click();
           const result=await page.evaluate(phone=>{
