@@ -79,7 +79,7 @@ jobs:
         env:
           MANUAL_REFRESH: ${{ inputs.refresh }}
           DIAGNOSE_PRED: ${{ inputs.diagnose_pred }}
-          COLLECTION_RELEASE: '2.27.0'
+          COLLECTION_RELEASE: '2.28.0'
         run: |
           if [ -f collected-data/collector.json ]; then
             python -B import_local_feed.py collected-data

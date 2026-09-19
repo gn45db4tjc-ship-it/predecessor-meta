@@ -23,6 +23,25 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
           validBuilds:Object.keys(E.heroes).filter(s=>E.roles(s).includes('jungle')&&E.plannedBuild(s,'jungle').kind==='reviewed').length}));
         assert.equal(cohort.segment,bracket); assert(cohort.validBuilds>0);
         assert((await page.locator('#patch-strip').innerText()).toLowerCase().includes(cohort.label.toLowerCase()),'patch strip names the selected rank (the strip is styled uppercase)');
+        if(!phone&&viewport.width>=1440) {
+          // 2.28.0: every rank keeps the desktop status chrome compact: one patch-strip row, and at most 76 px from the top
+          // of the strip to the page, excluding material notices (always shown). That is audit probe V8's 132 px budget less
+          // the 56 px top bar; the top bar is measured out because WebKit draws it 6 px taller than Edge.
+          const chromeSize=await page.evaluate(()=>{const cells=[...document.querySelectorAll('#patch-strip .patch-cell')].map(c=>Math.round(c.getBoundingClientRect().top)),material=document.querySelector('#material-notices');
+            return {rows:new Set(cells).size,status:Math.round(document.querySelector('#main').getBoundingClientRect().top-document.querySelector('#patch-strip').getBoundingClientRect().top-(material?material.getBoundingClientRect().height:0))};});
+          assert.equal(chromeSize.rows,1,bracket+': the patch strip stays on one row at '+viewport.width+' px');
+          assert(chromeSize.status<=76,bracket+': status chrome is '+chromeSize.status+' px excluding material notices (at most 76)');
+          cohort.chrome=chromeSize;
+          if(bracket!=='gold') {
+            // The Guidance cell and every page say the authored tiers do not cover this rank (visible text, not a tooltip).
+            assert(/Gold\+ only/i.test(await page.locator('#patch-strip .patch-cell:last-child').innerText()),bracket+': the Guidance cell says the tiers are Gold+ only');
+            for(const r of ['library','changes','data']) {
+              await page.evaluate(r=>changeRoute(r),r);
+              assert((await page.locator('#main').innerText()).includes('The authored tier review covers Gold+ and is reference advice here'),bracket+': '+r+' states that the tiers are Gold+ reference advice');
+            }
+            await page.evaluate(()=>changeRoute('meta'));
+          }
+        }
         for(const role of ['jungle','offlane','midlane','carry','support']) {
           await page.locator((phone?'[data-mobile-role="':'[data-meta-role="')+role+'"]').click();
           const result=await page.evaluate(phone=>{

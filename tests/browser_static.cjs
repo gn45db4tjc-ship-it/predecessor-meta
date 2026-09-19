@@ -156,6 +156,8 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    check(await page.evaluate(()=>B.guidance.status.startsWith('needs review')),'new patch suppresses current-guidance claim');
    check((await page.locator('#patch-strip .patch-cell').first().textContent()).includes('99.0-test'),'latest official patch is separate from the retained statistical patch');
    check((await page.locator('#source-notices').textContent()).includes('Official patch content changed'),'new patch warning visible');
+   // 2.28.0: it is a material notice, visible without opening Status details.
+   check((await page.locator('#material-notices').innerText()).includes('Official patch content changed'),'new patch warning is shown without opening status details');
    check(await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'patch overlay does not rewrite statistics');
    await page.unroute('**/manifest.json');await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
    await page.evaluate(()=>{S.route='meta';render();window.scrollTo(0,0);});

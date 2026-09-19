@@ -1,6 +1,6 @@
-# Current release: 2.27.0
+# Current release: 2.28.0
 
-See RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.28.0.md for the fixes from the review of 2.27.0 (honest labels, readable counters, a compact status line), RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -18,11 +18,11 @@ Baseline: commit `ad044213d04163ca19ebb4b4f1df59b93b8d2942` (application runtime
 
 ## What changed
 
-**Shell.** A 56px top bar holds the rank selector, a global hero finder (type a name, the hero's Partners open, picks intact), and the plan/export actions. The status stack is one 40px strip of patch/statistics/guidance cells, one status line (amber for retained data, red only for a hard failure), a one-line freshness note and the collapsed source-notice disclosure. Chrome above the content is at most 240px at 1920 (was about 330). The rail is grouped Plan / Draft & live / Reference with the 01–09 prefixes removed; the connection mode moved to the rail footer. Every route, ID and data hook is unchanged.
+**Shell.** A 56px top bar holds the rank selector, a global hero finder (type a name, the hero's Partners open, picks intact), and the plan/export actions. The status stack is one 40px strip of patch/statistics/guidance cells, one status line (amber for retained data, red only for a hard failure), a one-line freshness note and the collapsed source-notice disclosure. Chrome above the content is at most 240px at 1920 (was about 330). Revision 10 (2.28.0): the freshness note and every non-material notice moved into a collapsed Status details panel opened from the status line; material notices stay visible below it, and the chrome is 127 px at 1440×900 excluding them. The rail is grouped Plan / Draft & live / Reference with the 01–09 prefixes removed; the connection mode moved to the rail footer. Every route, ID and data hook is unchanged.
 
 **Design system.** One organised stylesheet with tokens: seven type steps (12 caption, 13 support, 14 secondary, 16 body, 18/20 headings, 28 page title, 24–26 headline figures); a 4/8/12/16/24/32 spacing scale; input, select and button borders `#6b7fa3` (≥3:1 against fill and page); chips flat with a glyph per evidence class (● Observed, ◇ Calculated, ✦ Reviewed, ! warning) so the distinction survives greyscale; disclosures with a blue chevron and hover state; hero names underlined; item names underlined; gold limited to the primary action per view and the Reviewed marker; eyebrows demoted to muted text. Content width 1720px, 2000px on 2200px+ screens; prose capped at 76ch.
 
-**Meta.** Role tabs and list filter directly under a short header; the table starts at y≈482 at 1920 (was 970). The reviewed working pool, tier method and the statistics-source switch sit in a right-hand column at 1560px+ (below the table on narrower screens). The reviewed tier is a compact button with an underlined label; each row keeps a "Partners & builds" link. The same table helper serves the non-Gold rank view, which keeps its own observed win-rate ordering, its `Rank meta` title and the separate authored reference.
+**Meta.** Role tabs and list filter directly under a short header; the table starts at y≈482 at 1920 (was 970). Revision 10 (2.28.0): the statistics selector moved into the page head and the role-statistics note is one collapsed line; the first row is at y≈385 at 1440×900 (was about 707 on the live 2.27.0 site). The reviewed working pool, tier method and the statistics-source switch sit in a right-hand column at 1560px+ (below the table on narrower screens). The reviewed tier is a compact button with an underlined label; each row keeps a "Partners & builds" link. The same table helper serves the non-Gold rank view, which keeps its own observed win-rate ordering, its `Rank meta` title and the separate authored reference.
 
 **Hero.** Compact header (portrait, name, planning role, reviewed tier, role win rate and games) with the four tabs immediately beneath it. Partners is the first tab: the three leading cards (y≈521, was 739) now lead with the kit reason, one headline figure (pair win rate, or kit points when no pair sample exists), the calculated gap, and the kit points as a caption; sample, baseline and source stay beside the number. Ranking rules moved into a disclosure.
 
@@ -73,7 +73,7 @@ Contrast: every text/background pair remains ≥4.5:1; control borders now ≥3:
 - 125% Windows scaling was emulated in the browser (1536×864 CSS px at device scale 1.25); native OS scaling and a physical second monitor were not tested.
 - The sticky picker row suggested by the layout critic was not implemented; results on Compositions and Live game now start around y=1250 rather than inside the first 1080px.
 - Share/Open/Export remain individual top-bar buttons; collapsing them into one menu would change tested IDs.
-- The freshness sentence is appended as plain text by `static_client.js`, so it stays one long line rather than label/value chips.
+- The freshness sentence is appended as plain text by `static_client.js`, so it stays one long line rather than label/value chips. (Revision 10: it now sits in the collapsed Status details panel.)
 - The live-game view still shows the reviewed plan and the calculated six as two grids; the brief asks for both to remain comparable.
 - No analytical bug was found; no engine, threshold or authored content was changed.
 
@@ -220,6 +220,15 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - Four independent review rounds of the patch (each finding challenged by a second agent) confirmed one high finding, withdrawn (an earlier draft could overstate the official description review after a hotfix), three medium findings (false reasons for missing numbers) and several low ones; all are fixed with checks that fail on the unfixed code (P1-P15).
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; clean-room package 178 Python / 146 JavaScript.
 - Not verified: a physical phone, screen readers, native installs.
+
+# Revision 10 — 2.28.0 fixes from the review of 2.27.0
+
+- Labels describe their own hero, role and section: a role without a Statz sample says "No Statz build sample for Jungle" and never links another role's page as its own; the coach, the phone chip and every evidence section carry their own freshness ("Saved <day>" for retained or over-48-hour evidence).
+- The website confirms the official description review only after a verified, current check whose content signature matches the loaded publication; otherwise the status names the reason (pending, failed, content changed). Open dialogs follow status changes and keep their sections, scroll and focus.
+- Counters: reviewed counterplay, then matchups of 100 or more games per source and variant, then one closed Exploratory disclosure with every thinner row and differing alternate table; identical alternate tables are named once. No row is removed, pooled or re-rated.
+- Desktop: patch strip, one status line with Status details, and always-visible material notices; Meta header compacted (first row 649 → 385 px at 1440×900 with Pred.gg retained). Rank sites keep one strip row ("Guidance · Gold+ only") and state the reference scope on every page. Phone tab strips wrap without scrollbars; the review status has its own row.
+- Verified: 196 Python tests (1 skipped without a local store), 163 JavaScript tests, 93 of 93 audit browser verdicts (V1–V13 new; each defect probe reproduced on the code before its fix, and 23 reapplied regressions each fail a probe), axe WCAG 2.1 A/AA on 30 phone states, 10 of 10 offline checks, an upgrade from and rollback to a staged 2.27.0 build with real service workers, the static suite (57 + 50 checks) and ranks suite in Edge and WebKit, and the release and companion suites. `engine.js` unchanged.
+- Not verified: an iPhone or iPad, screen readers, native installs; `browser_revision2_modes.cjs` was not run (three prepared previews). `browser_design.cjs` is stale since the 2.21 fixture and not a gate.
 
 # Revision 9 — 2.27.0 faster first load (audit item 11)
 

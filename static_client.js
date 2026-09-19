@@ -41,6 +41,22 @@ if (APP_CONFIG.mode === 'static') {
     return new URL(path, baseURL).href;
   }
   function cohort() { return site.manifest?.cohorts?.[S.bracket]; }
+  // The official description review is confirmed on the website only by the latest verified cloud check of this same
+  // publication content (its signature: a hotfix edits the article without changing the version), made within 30 hours,
+  // while online and after a successful check. Otherwise the shared rule applies: pending, or a named failure.
+  const baseDefinitionReviewStatus = definitionReviewStatus;
+  definitionReviewStatus = function () {
+    const review = B?.definition_review, check = site.manifest?.patch_check, entry = site.loadedEntry;
+    let recent = false; try { recent = !!check?.checked_at && E.sourceCurrency({status: 'ok', fetched_at: check.checked_at}).state === 'current'; } catch { recent = false; }
+    const confirmed = review?.status === 'reviewed for current patch' && check?.status === 'verified'
+      && typeof check.signature === 'string' && check.signature === entry?.source_signature
+      && check.version === review.patch && B.official?.status === 'verified' && B.official?.live?.version === review.patch && recent
+      && B.recommendation_context?.status !== 'withheld' && B.guidance?.status === 'reviewed for current patch'
+      && !entry.saved_copy && !site.checkFailed && !connectionLost && navigator.onLine;
+    return confirmed ? review.status : baseDefinitionReviewStatus();
+  };
+  const statusDetail = detail;
+  detail = function (title, body, refresh) { site.dialogStatus = B ? definitionReviewStatus() : ''; return statusDetail(title, body, refresh); };
   // The bytes of a publication are either its compact core or, as a fallback, its full bundle.
   const publicationBytes = (entry, url) => !!url && (url === entry?.url || url === entry?.projection?.core?.url);
   function latestVerifiedPatch() { return site.manifest?.patch_check?.status === 'verified' ? site.manifest.patch_check : site.manifest?.last_verified_patch_check; }
@@ -54,18 +70,26 @@ if (APP_CONFIG.mode === 'static') {
     if (next <= new Date()) next.setUTCDate(next.getUTCDate() + 1);
     return next.toLocaleString();
   }
-  function publishedAlerts() {
+  // Material (always visible) and detail (Status details) notices of the website; see materialAlerts/alerts in ui.js.
+  function publishedMaterial() {
     const entry = site.loadedEntry || cohort(), check = latestVerifiedPatch();
     let result = '';
     if (site.manifest?.collection_paused_reason) result += note(esc(site.manifest.collection_paused_reason), true);
     if (site.manifest?.collection_host !== 'cloud' && site.manifest?.local_collector?.checked_at && Date.now()-Date.parse(site.manifest.local_collector.checked_at)>30*3600000) result += note('The Windows updater has not checked in for over 30 hours. Showing the last successful data. Updates resume when the PC is on, signed in and connected.', true);
-    if (site.manifest?.source_pauses?.pred && !predAvailability()) result += note('Pred.gg update unavailable: ' + esc(site.manifest.source_pauses.pred), true);
     if (B && Date.now() - Date.parse(B.generated_at) > 30 * 3600000) result += note('This bundle is more than 30 hours old. The scheduled update may have failed or been delayed. Its source dates have not changed.', true);
     if (publicationChanged(entry)) result += note('Official patch content changed after this bundle was collected. Showing the previous dated statistics; written guidance needs review. ' + link(check.url, 'Latest official notes'), true);
+    return result;
+  }
+  function publishedDetails() {
+    const check = latestVerifiedPatch();
+    let result = '';
+    if (site.manifest?.source_pauses?.pred && !predAvailability()) result += note('Pred.gg update unavailable: ' + esc(site.manifest.source_pauses.pred), true);
     if (check?.announcements?.length) result += note('Upcoming: ' + check.announcements.map(a => link(a.url, 'v' + a.version) + ' · ' + esc(a.release_date || 'release date unconfirmed')).join('; ') + '. Announcements are separate from live data.');
     return result;
   }
-  alerts = function() { return publishedAlerts() + originalAlerts(); };
+  alerts = function() { return publishedDetails() + originalAlerts(); };
+  const originalMaterial = materialAlerts;
+  materialAlerts = function() { return publishedMaterial() + originalMaterial(); };
   dataView = function() {
     return note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + oldDataView();
   };
@@ -83,12 +107,16 @@ if (APP_CONFIG.mode === 'static') {
     $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every three hours; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every three hours.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every three hours; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
     if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
+    if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.';
     $('#progress').textContent = latestStatus.message || 'Loading the latest published data…';
-    $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>e.severity==='error'&&!/^Pred\.gg(?: |$)/.test(e.source||'')));
+    $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>isMaterialError(e)));
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'No successful publication is available for this bracket yet. Choose another bracket.');
   };
   render = function() {
     originalRender();
+    if ($('#detail')?.open && detailRefresh && B && definitionReviewStatus() !== site.dialogStatus) {
+      if (site.dialogStatus && $('#detail-body').textContent.includes(site.dialogStatus)) rebuildDialog(); else site.dialogStatus = definitionReviewStatus();
+    }
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'Loading the latest published data…');
   };
 
@@ -260,10 +288,28 @@ if (APP_CONFIG.mode === 'static') {
     if (!detailRefresh || !B || !dialog?.open) return;
     const waiting = [...body.querySelectorAll('[data-annex]')].map(el => el.dataset.annex);
     if (!waiting.some(id => changed.has('*') || changed.has(id))) return;
-    const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop;
+    rebuildDialog();
+  }
+  // Rebuilds the open dialog in place. Sections are matched by summary text and occurrence (the third "Reviewed
+  // replacement" stays the third); focus returns to the same control, matched by id, data attributes or text and by its
+  // position among controls that match the same way, or to the dialog itself when that control is gone.
+  function rebuildDialog() {
+    const dialog = $('#detail'), body = $('#detail-body');
+    const sections = () => { const n = {}; return [...body.querySelectorAll('details > summary')].map(s => ({s, id: s.textContent + '\u0000' + (n[s.textContent] = (n[s.textContent] || 0) + 1)})); };
+    const controls = () => [...dialog.querySelectorAll('button, summary, a[href], select, input, [tabindex]')];
+    const key = el => el.id ? '#' + el.id : el.tagName + '|' + [...el.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join('&') + '|' + el.textContent.trim().slice(0, 80);
+    const open = new Set(sections().filter(x => x.s.parentElement.open).map(x => x.id)), top = dialog.scrollTop;
+    const active = dialog.contains(document.activeElement) && document.activeElement !== dialog ? document.activeElement : null;
+    const focused = active ? key(active) : null, peers = focused ? controls().filter(el => key(el) === focused) : [], index = peers.indexOf(active);
     detailRefresh();
-    body.querySelectorAll('details > summary').forEach(s => { if (open.has(s.textContent)) s.parentElement.open = true; });
+    site.dialogStatus = B ? definitionReviewStatus() : '';
+    sections().forEach(x => { if (open.has(x.id)) x.s.parentElement.open = true; });
     dialog.scrollTop = top;
+    if (focused && !dialog.contains(document.activeElement)) {
+      const same = controls().filter(el => key(el) === focused), target = same.length === peers.length && index >= 0 ? same[index] : null;
+      if (target) target.focus({preventScroll: true});
+      else { if (!dialog.hasAttribute('tabindex')) dialog.setAttribute('tabindex', '-1'); dialog.focus({preventScroll: true}); }
+    }
   }
   // Evidence files that arrive together (the desktop Builds page asks for one per hero) share one redraw.
   let annexRedraw = 0, annexChanged = new Set();
@@ -332,7 +378,7 @@ if (APP_CONFIG.mode === 'static') {
       const dataChanged = revision !== entry.sha256 || raw !== site.originalBundle, changed = dataChanged || B?.guidance?.status !== next.guidance?.status;
       // Bundle, revision and engine change together, so the page never ranks from another publication than it shows.
       if (raw !== site.originalBundle) annexReset(!!site.verifiedBytes && site.verifiedBytes.url === entry.url);   // a full bundle already holds every annex
-      site.originalBundle = raw; site.loadedEntry = entry;
+      site.originalBundle = raw; site.loadedEntry = entry; site.checkFailed = false;
       B = next; revision = entry.sha256;
       if (changed) E = MetaEngine.create(B);
       if (publicationBytes(entry, site.verifiedBytes?.url)) site.loadedBytes = site.verifiedBytes;
@@ -340,7 +386,7 @@ if (APP_CONFIG.mode === 'static') {
       if (site.loadedBytes && !publicationBytes(entry, site.loadedBytes.url)) site.loadedBytes = null;
       const verified = site.loadedBytes || null;   // {url, bytes}, kept until the offline copy is saved, so a failed save is retried
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
-      latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
+      latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
       site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); refreshDialog(new Set(['*'])); dialogRefreshed = true; checkSharedPlan(); } else if (retried.length) { requestRedraw(true); refreshDialog(new Set(retried)); dialogRefreshed = true; } else redrawForEvidence();
@@ -353,6 +399,7 @@ if (APP_CONFIG.mode === 'static') {
       chrome();
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
+      site.checkFailed = true;
       if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
       const savedHere = !B && (!navigator.onLine || connectionLost) ? await savedOnThisDevice(requested) : null;
       if (sequence !== site.sequence || requested !== S.bracket) return;
