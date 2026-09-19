@@ -69,6 +69,10 @@
     "P12": "A second Enter never cancels the search it started; after Cancel focus returns to Generate and the toast agrees; a click-started search leaves focus alone",
     "P13": "A redraw keeps keyboard focus on the control the user was on, including the same copy of a repeated hero button",
     "P14": "When only the search options change during a search, the discarded result names the search options, not the picks",
-    "P15": "PHONE: when a saved copy is shown because the live check is pending or failed (Windows app), the status chip says Paused and names which"
+    "P15": "PHONE: when a saved copy is shown because the live check is pending or failed (Windows app), the status chip says Paused and names which",
+    "I1": "BUNDLE SIZE (item 11): at startup the page downloads the full bundle, or no compact core, or a core above 45% of the full bundle",
+    "I2": "BUNDLE SIZE (item 11): a hero view does not say its evidence is loading, or then shows evidence that differs from the full bundle, or an engine result changes when the evidence arrives",
+    "I3": "BUNDLE SIZE (item 11): evidence that does not match its published checksum is merged, or the refusal is not named, or Reload latest data does not retry it",
+    "I4": "BUNDLE SIZE (item 11): an export made before any evidence was opened is not the complete publication"
   }
 }

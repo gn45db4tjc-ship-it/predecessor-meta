@@ -104,6 +104,44 @@ class ProjectionRoundTrip(unittest.TestCase):
         self.assertLess(len(parts['core']), len(P.dumps(bundle)) * 0.4)
 
 
+class PublishedProjection(unittest.TestCase):
+    """render_site publishes the full bundle unchanged plus a core and annexes that rebuild it byte for byte."""
+    def setUp(self):
+        import tempfile
+        import static_publish as s
+        from test_static_publish import bundle, official
+        self.s, self.official = s, official
+        self.tmp = tempfile.TemporaryDirectory()
+        self.state, self.out = Path(self.tmp.name) / 'state', Path(self.tmp.name) / 'site'
+        self.bundle = seed() if SEED.exists() else bundle()
+        s.retain_success(copy.deepcopy(self.bundle), self.state)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_every_part_is_published_under_its_checksum_and_rebuilds_the_full_bundle(self):
+        import hashlib
+        manifest = self.s.render_site(self.state, self.out, {'patch_check': self.s.patch_summary(self.official())})
+        entry = manifest['cohorts']['gold']
+        full = (self.out / entry['url']).read_bytes()
+        self.assertEqual(hashlib.sha256(full).hexdigest(), entry['sha256'], 'the full bundle stays published as before')
+        p = entry['projection']
+        self.assertEqual(p['version'], P.VERSION)
+        parts = [('core', p['core'])] + [('shared', p['shared'])] + [('hero-' + slug, v) for slug, v in p['heroes'].items()]
+        self.assertEqual(set(p['heroes']), set(json.loads(full)['heroes']), 'one evidence file per hero')
+        decoded = {}
+        for kind, part in parts:
+            raw = (self.out / part['url']).read_bytes()
+            digest = hashlib.sha256(raw).hexdigest()
+            self.assertEqual((part['sha256'], part['bytes'], part['url']), (digest, len(raw), 'bundles/gold-' + kind + '-' + digest + '.json'))
+            decoded[kind] = P.decode(json.loads(raw))
+        rebuilt = P.merge(decoded.pop('core'), *decoded.values())
+        self.assertEqual(P.dumps(rebuilt), full)
+        self.assertLess(p['core']['bytes'], len(full))
+        html = (self.out / 'index.html').read_text(encoding='utf8')
+        self.assertLess(html.index('MetaProjection'), html.index('function checkPublication()'), 'the page decodes parts with projection_client.js')
+
+
 class ColumnarEncoding(unittest.TestCase):
     def test_rows_of_the_same_shape_round_trip_with_key_order(self):
         value = {'rows': [{'b': 1, 'a': [1, {'x': 2}]}, {'b': 2, 'a': []}, {'b': 3, 'a': None}], 'mixed': [{'a': 1}, {'b': 2}, {'a': 3}]}

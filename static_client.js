@@ -37,10 +37,12 @@ if (APP_CONFIG.mode === 'static') {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('sw.js', baseURL), {scope: './'}).catch(() => {});
 
   function siteURL(path) {
-    if (!/^(manifest\.json|bundles\/[a-z]+-[a-f0-9]{64}\.json)$/.test(path || '')) throw Error('Invalid publication path');
+    if (!/^(manifest\.json|bundles\/[a-z]+-(?:(?:core|shared|hero-[a-z0-9-]+)-)?[a-f0-9]{64}\.json)$/.test(path || '')) throw Error('Invalid publication path');
     return new URL(path, baseURL).href;
   }
   function cohort() { return site.manifest?.cohorts?.[S.bracket]; }
+  // The bytes of a publication are either its compact core or, as a fallback, its full bundle.
+  const publicationBytes = (entry, url) => !!url && (url === entry?.url || url === entry?.projection?.core?.url);
   function latestVerifiedPatch() { return site.manifest?.patch_check?.status === 'verified' ? site.manifest.patch_check : site.manifest?.last_verified_patch_check; }
   function publicationChanged(entry) {
     const check = latestVerifiedPatch();
@@ -102,18 +104,31 @@ if (APP_CONFIG.mode === 'static') {
       if (entry.status === 'available') {
         if (!/^[a-f0-9]{64}$/.test(entry.sha256 || '') || entry.url !== 'bundles/' + key + '-' + entry.sha256 + '.json') throw Error('Invalid bundle identity');
         siteURL(entry.url);
+        if (entry.projection) {
+          const p = entry.projection, part = (kind, value) => { if (!/^[a-f0-9]{64}$/.test(value?.sha256 || '') || value.url !== 'bundles/' + key + '-' + kind + '-' + value.sha256 + '.json') throw Error('Invalid evidence identity'); siteURL(value.url); };
+          if (p.version !== 1 || !p.heroes || typeof p.heroes !== 'object') throw Error('Unsupported publication format');
+          part('core', p.core); part('shared', p.shared);
+          for (const [slug, value] of Object.entries(p.heroes)) { if (!/^[a-z0-9-]+$/.test(slug)) throw Error('Invalid evidence identity'); part('hero-' + slug, value); }
+        }
       }
     }
   }
-  async function fetchBundle(entry, bracket, signal) {
-    const response = await getJSON(siteURL(entry.url), signal);
-    const bytes = await response.arrayBuffer();
-    if (!globalThis.crypto?.subtle) throw Error('This shared site requires HTTPS to verify its data');
-    const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
-    if (hash !== entry.sha256) throw Error('Published bundle checksum did not match; keeping the previous data');
-    const data = JSON.parse(new TextDecoder().decode(bytes));
+  async function fetchBundle(entry, bracket, signal, primary = true) {
+    let bytes, url = entry.url, data;
+    if (entry.projection?.core) {
+      try { ({bytes, value: data} = await verifiedJSON(entry.projection.core, signal, 'Published bundle checksum did not match; keeping the previous data')); url = entry.projection.core.url; }
+      catch (error) { if (signal?.aborted || /checksum/.test(error.message)) throw error; bytes = null; }   // e.g. offline with only the full copy saved
+    }
+    if (!bytes) {
+      const response = await getJSON(siteURL(entry.url), signal);
+      bytes = await response.arrayBuffer();
+      if (!globalThis.crypto?.subtle) throw Error('This shared site requires HTTPS to verify its data');
+      const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
+      if (hash !== entry.sha256) throw Error('Published bundle checksum did not match; keeping the previous data');
+      data = JSON.parse(new TextDecoder().decode(bytes)); url = entry.url;
+    }
     if (data?.schema !== 3 || data.bracket?.segment !== bracket || !data.heroes || !Object.keys(data.heroes).length || !Array.isArray(data.tier_list) || data.generated_at !== entry.generated_at) throw Error('Published bundle does not match the selected bracket or date');
-    site.verifiedBytes = {url: entry.url, bytes};   // stored for offline use only after the checks above passed
+    if (primary) site.verifiedBytes = {url, bytes};   // offline copy only after the checks above passed
     return data;
   }
   // Offline copies are written here, by the page, and only for a bundle that passed its checksum and structure
@@ -122,7 +137,10 @@ if (APP_CONFIG.mode === 'static') {
   // Named with the 'predecessor-meta-' prefix on purpose: if the website is ever rolled back to 2.24 or earlier, that
   // release's worker deletes this cache (and this release's shell) instead of serving a frozen copy from it.
   const DATA_CACHE = 'predecessor-meta-data-v1';
-  const savedBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/) || [])[1];
+  const savedBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-(?:core-)?[a-f0-9]{64}\.json$/) || [])[1];
+  const evidenceBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-(?:shared|hero-[a-z0-9-]+)-[a-f0-9]{64}\.json$/) || [])[1];
+  const savedURL = value => siteURL(value?.projection?.core?.url || value.url);
+  const fullBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/) || [])[1];
   // {saved, worker} when the offline store can be read, null when it cannot (then nothing is claimed either way).
   async function savedOnThisDevice(bracket) {
     try {
@@ -138,7 +156,7 @@ if (APP_CONFIG.mode === 'static') {
     const commit = () => commitNow(manifest, bracket, entry, bytes);
     try {
       const saved = await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : commit());
-      if (saved) { site.offlineProblem = null; if (site.loadedBytes?.url === entry.url) site.loadedBytes = null; }
+      if (saved) { site.offlineProblem = null; if (publicationBytes(entry, site.loadedBytes?.url)) site.loadedBytes = null; }
       else site.offlineProblem = 'This rank is not saved for offline use yet. Reload latest data while online to save it.';
     } catch (error) {
       site.offlineProblem = error?.name === 'QuotaExceededError' ? 'This device is out of storage for offline copies. The app still works online; free some space to keep ranks available offline.'
@@ -146,13 +164,16 @@ if (APP_CONFIG.mode === 'static') {
     }
   }
   async function commitNow(manifest, bracket, entry, bytes) {
-    const data = await caches.open(DATA_CACHE), bundleURL = siteURL(entry.url), manifestURL = siteURL(APP_CONFIG.manifest);
-    // A bundle's address contains its checksum, so a copy already saved at that address holds these exact bytes.
-    if (bytes && !(await data.match(bundleURL))) await data.put(bundleURL, new Response(bytes, {headers: {'Content-Type': 'application/json'}}));
+    const data = await caches.open(DATA_CACHE), manifestURL = siteURL(APP_CONFIG.manifest);
+    // The bytes are stored at the address they were loaded from (the core, or the full bundle); the address
+    // contains the checksum, so a copy already saved there holds these exact bytes.
+    const target = bytes && site.loadedBytes?.url ? siteURL(site.loadedBytes.url) : null;
+    if (target && !(await data.match(target))) await data.put(target, new Response(bytes, {headers: {'Content-Type': 'application/json'}}));
     const saved = new Set((await data.keys()).map(key => key.url));
-    if (!saved.has(bundleURL)) return false;   // nothing verified is saved for this bracket, so there is nothing to describe
+    const bundleURL = [target, entry.projection?.core?.url && siteURL(entry.projection.core.url), siteURL(entry.url)].find(url => url && saved.has(url));
+    if (!bundleURL) return false;   // nothing verified is saved for this bracket, so there is nothing to describe
     let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
-    const has = value => value?.status === 'available' && /^[a-f0-9]{64}$/.test(value.sha256 || '') && typeof value.url === 'string' && saved.has(siteURL(value.url));
+    const has = value => value?.status === 'available' && /^[a-f0-9]{64}$/.test(value.sha256 || '') && typeof value.url === 'string' && (saved.has(savedURL(value)) || saved.has(siteURL(value.url)));
     const cohorts = {};
     for (const [key, value] of Object.entries(manifest.cohorts)) {
       const old = previous?.cohorts?.[key];
@@ -160,7 +181,7 @@ if (APP_CONFIG.mode === 'static') {
       if (value.status !== 'available' || has(value)) { cohorts[key] = value; continue; }
       if (has(old)) { cohorts[key] = {...old, saved_copy: true}; continue; }
       cohorts[key] = value;
-      const other = [...saved].find(url => savedBracket(url) === key);
+      const other = [...saved].find(url => fullBracket(url) === key);
       if (!other) continue;   // nothing is saved for this bracket; it stays as published
       try {
         // Saved by an earlier release and not described yet: describe it from the bundle itself. Its patch
@@ -172,7 +193,81 @@ if (APP_CONFIG.mode === 'static') {
     }
     await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
     for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL) await data.delete(url);
+    // Evidence saved for an older publication of this rank is removed with it.
+    const current = new Set([entry.projection?.shared, ...Object.values(entry.projection?.heroes || {})].filter(Boolean).map(p => siteURL(p.url)));
+    for (const url of saved) if (evidenceBracket(url) === bracket && !current.has(url)) await data.delete(url);
     return true;
+  }
+  // ---- Evidence annexes (audit item 11). The core holds everything the engine and the main screens read; display-only
+  // evidence is fetched when a view needs it, verified by its checksum, and merged in place. Merging can never change
+  // an engine result (tests/projection.test.cjs), so the page only redraws to show the evidence.
+  site.annex = {full: false, loaded: new Set(), failed: new Map(), pending: new Map()};
+  function annexReset(full) { site.annex = {full, loaded: new Set(), failed: new Map(), pending: new Map()}; }
+  function annexPart(kind, key) { const p = site.loadedEntry?.projection; return !p || site.annex.full ? null : kind === 'shared' ? p.shared : p.heroes?.[key] || null; }
+  async function verifiedJSON(part, signal, mismatch = 'Published evidence checksum did not match') {
+    const response = await getJSON(siteURL(part.url), signal), bytes = await response.arrayBuffer();
+    if (!globalThis.crypto?.subtle) throw Error('This shared site requires HTTPS to verify its data');
+    const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
+    if (hash !== part.sha256) throw Error(mismatch);
+    return {bytes, value: MetaProjection.decode(JSON.parse(new TextDecoder().decode(bytes)))};
+  }
+  function loadAnnex(kind, key) {
+    const part = annexPart(kind, key), id = kind === 'shared' ? 'shared' : 'hero:' + key;
+    if (!part || site.annex.loaded.has(id)) return Promise.resolve('loaded');
+    if (site.annex.pending.has(id)) return site.annex.pending.get(id);
+    const entry = site.loadedEntry, raw = site.originalBundle;
+    const promise = (async () => {
+      const {bytes, value} = await verifiedJSON(part);
+      if (site.loadedEntry !== entry || site.originalBundle !== raw) return 'stale';   // another publication was loaded meanwhile
+      MetaProjection.merge(raw, value);
+      site.annex.loaded.add(id); site.annex.failed.delete(id);
+      B = displayedBundle(raw, entry); E = MetaEngine.create(B);
+      saveEvidence(part.url, bytes);
+      redrawForAnnex();
+      return 'loaded';
+    })().catch(error => {
+      if (site.originalBundle === raw) { site.annex.failed.set(id, !navigator.onLine || connectionLost ? 'it is not saved on this device yet and downloads when you are online' : error.message); redrawForAnnex(); }
+      return 'failed';
+    }).finally(() => { if (site.annex.pending.get(id) === promise) site.annex.pending.delete(id); });
+    site.annex.pending.set(id, promise);
+    return promise;
+  }
+  // An open dialog that was waiting for this evidence is rebuilt in place (the page redraw does not reach dialogs).
+  function refreshDialog() { if (detailRefresh && $('#detail').open && $('#detail-body .annex-loading')) $('#detail-body').innerHTML = detailRefresh(); }
+  // Evidence files that arrive together (the desktop Builds page asks for one per hero) share one redraw.
+  let annexRedraw = 0;
+  function redrawForAnnex() { if (!annexRedraw) annexRedraw = setTimeout(() => { annexRedraw = 0; requestRedraw(true); refreshDialog(); }, 50); }
+  // 'loaded' (or nothing was moved out for this view), 'loading' or 'failed'; asking starts the download.
+  annexState = function (kind, key) {
+    const part = annexPart(kind, key), id = kind === 'shared' ? 'shared' : 'hero:' + key;
+    if (!part || site.annex.loaded.has(id)) return 'loaded';
+    if (site.annex.failed.has(id)) return 'failed';
+    loadAnnex(kind, key);
+    return 'loading';
+  };
+  annexProblem = function (kind, key) { return site.annex.failed.get(kind === 'shared' ? 'shared' : 'hero:' + key) || ''; };
+  requestAnnex = function (kind, key) { return loadAnnex(kind, key); };
+  // A view that reads display-only evidence waits for it, and says so, instead of calling it unavailable.
+  const annexGuard = (fn, needs) => function (...args) {
+    const [kind, key] = needs(...args), state = annexState(kind, key);
+    return state === 'loaded' ? fn.apply(this, args) : annexNote(state, annexProblem(kind, key));
+  };
+  predBuildsHTML = annexGuard(predBuildsHTML, slug => ['hero', slug]);
+  predCountersHTML = annexGuard(predCountersHTML, slug => ['hero', slug]);
+  predKitHTML = annexGuard(predKitHTML, h => ['hero', h?.slug]);   // kitAbilityHTML waits only for its source evidence (annexHTML)
+  for (const name of ['reviewedDefinitionHTML', 'definitionReviewAuditHTML', 'publisherNewsHTML', 'predAuditHTML', 'predCatalogAudit', 'scopedAuditHTML', 'scopedHistoryHTML']) {
+    const original = globalThis[name];
+    if (typeof original === 'function') globalThis[name] = annexGuard(original, () => ['shared']);
+  }
+  const originalShowCatalog = showCatalog;
+  showCatalog = function (kind, key) {
+    // A definition dialog shows official history from the shared annex: fetch it first so the dialog is complete.
+    if (annexState('shared') === 'loading') { toast('Loading the official definition history…'); loadAnnex('shared').then(() => originalShowCatalog(kind, key)); return; }
+    return originalShowCatalog(kind, key);
+  };
+  async function saveEvidence(url, bytes) {
+    try { if (globalThis.caches && !connectionLost) await (await caches.open(DATA_CACHE)).put(siteURL(url), new Response(bytes, {headers: {'Content-Type': 'application/json'}})); }
+    catch { /* offline copies of evidence are optional; the view works online */ }
   }
   function displayedBundle(raw, entry) {
     if (site.manifest?.patch_check?.status === 'failed') return {...raw, recommendation_context: {status:'withheld',reason:'The latest official patch check failed. Saved observations remain inspectable; automatic role comparisons await verification.'}, guidance: {...raw.guidance, status: 'needs verification: latest official patch check failed'}};
@@ -183,6 +278,7 @@ if (APP_CONFIG.mode === 'static') {
   // Evidence redraws use the shared rule in ui.js (redrawForEvidence): never while typing or mid-click, never lost.
   async function checkPublication() {
     const sequence = ++site.sequence, requested = S.bracket;
+    const retry = !!site.annex?.failed?.size; site.annex?.failed?.clear();   // Reload latest data retries evidence that failed to load
     site.controller?.abort();
     const controller = new AbortController(); site.controller = controller;
     const timeout = setTimeout(() => controller.abort(), 45000);
@@ -208,18 +304,19 @@ if (APP_CONFIG.mode === 'static') {
       const next = displayedBundle(raw, entry);
       const dataChanged = revision !== entry.sha256, changed = dataChanged || B?.guidance?.status !== next.guidance?.status;
       // Bundle, revision and engine change together, so the page never ranks from another publication than it shows.
+      if (raw !== site.originalBundle) annexReset(!!site.verifiedBytes && site.verifiedBytes.url === entry.url);   // a full bundle already holds every annex
       site.originalBundle = raw; site.loadedEntry = entry;
       B = next; revision = entry.sha256;
       if (changed) E = MetaEngine.create(B);
-      if (site.verifiedBytes?.url === entry.url) site.loadedBytes = site.verifiedBytes;
+      if (publicationBytes(entry, site.verifiedBytes?.url)) site.loadedBytes = site.verifiedBytes;
       site.verifiedBytes = null;
-      if (site.loadedBytes && site.loadedBytes.url !== entry.url) site.loadedBytes = null;
+      if (site.loadedBytes && !publicationBytes(entry, site.loadedBytes.url)) site.loadedBytes = null;
       const verified = site.loadedBytes?.bytes || null;   // kept until the offline copy is saved, so a failed save is retried
       const coreUnavailable=entry.health?.core_statistics?.status==='unavailable';
       latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
-      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else redrawForEvidence();
+      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else if (retry) requestRedraw(true); else redrawForEvidence();
       // The new data is already shown; the check itself completes once the offline copy is saved (or after ten
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
       await Promise.race([commitPublication(manifest, requested, entry, verified), new Promise(resolve => setTimeout(resolve, 10000))]);
@@ -236,12 +333,17 @@ if (APP_CONFIG.mode === 'static') {
       redrawForEvidence();
     } finally { clearTimeout(timeout); if (sequence === site.sequence) site.controller = null; }
   }
-  function exportSnapshot() {
+  async function exportSnapshot() {
     if (!B) return;
+    let full = null, entry = site.loadedEntry;
+    if (entry?.projection && !site.annex.full) {
+      try { full = displayedBundle(await fetchBundle({...entry, projection: null}, S.bracket, undefined, false), entry); }
+      catch { toast('The complete publication could not be downloaded; the snapshot contains the evidence loaded so far.'); }
+    }
     const root = exportShell.cloneNode(true), script = [...root.querySelectorAll('script')].find(s => s.textContent.startsWith('const INITIAL_BUNDLE='));
     if (!script?.textContent.startsWith('const INITIAL_BUNDLE=')) throw Error('Export template changed; cannot create a safe snapshot');
     const encode = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-    script.textContent = 'const INITIAL_BUNDLE=' + encode(B) + '; const APP_CONFIG=' + encode({mode:'export',tool_version:APP_CONFIG.tool_version}) + ';';
+    script.textContent = 'const INITIAL_BUNDLE=' + encode(full || B) + '; const APP_CONFIG=' + encode({mode:'export',tool_version:APP_CONFIG.tool_version}) + ';';
     root.querySelectorAll('link[rel="manifest"],link[rel="apple-touch-icon"],link[rel="icon"]').forEach(link => link.remove());
     root.querySelectorAll('dialog[open]').forEach(d => d.removeAttribute('open'));
     const blob = new Blob(['<!doctype html>\n', root.outerHTML], {type:'text/html;charset=utf-8'});
@@ -254,7 +356,7 @@ if (APP_CONFIG.mode === 'static') {
     event.preventDefault(); event.stopImmediatePropagation();
     if (id === 'refresh') checkPublication();
     else if (id === 'install-app') installSharedApp().catch(error => toast(error.message));
-    else try { exportSnapshot(); } catch (error) { toast(error.message); }
+    else exportSnapshot().catch(error => toast(error.message));
   }, true);
   document.addEventListener('change', async event => {
     const el = event.target;
@@ -269,7 +371,7 @@ if (APP_CONFIG.mode === 'static') {
       if (!entry || entry.status !== 'available') { comparison = null; $('#comparison-output').innerHTML = note('No successful publication for this bracket yet. Samples are not inferred.'); return; }
       const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 45000);
       try {
-        const bundle = await fetchBundle(entry, selected, controller.signal);
+        const bundle = await fetchBundle(entry, selected, controller.signal, false);
         if (S.bracket !== requested || $('#compare-bracket')?.value !== selected) return;
         comparison = {bracket: selected, bundle}; $('#comparison-output').innerHTML = comparisonHTML();
       } catch (error) { toast(error.message); } finally { clearTimeout(timer); }

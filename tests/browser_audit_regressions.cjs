@@ -59,6 +59,7 @@ const failTheNextCheck = async (page, fill, beforeReply) => {
     const response = await route.fetch(), manifest = await response.json();
     manifest.patch_check = {...(manifest.patch_check || {}), status: 'failed'};
     Object.assign(manifest.cohorts.gold, {sha256: fake, url: 'bundles/gold-' + fake + '.json'});
+    delete manifest.cohorts.gold.projection;   // a new publication known only by its full bundle, whose download fails
     if (beforeReply) await beforeReply();
     await route.fulfill({response, json: manifest});
   });
@@ -516,7 +517,7 @@ const probes = {
     const bundle = await (await context.request.get(url + entry.url)).json();
     bundle.generated_at = new Date(Date.parse(bundle.generated_at) + 60000).toISOString();
     const bytes = Buffer.from(JSON.stringify(bundle)), sha = require('crypto').createHash('sha256').update(bytes).digest('hex');
-    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); Object.assign(m.cohorts.gold, {sha256: sha, url: 'bundles/gold-' + sha + '.json', generated_at: bundle.generated_at}); await route.fulfill({response, json: m}); });
+    await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); Object.assign(m.cohorts.gold, {sha256: sha, url: 'bundles/gold-' + sha + '.json', generated_at: bundle.generated_at}); delete m.cohorts.gold.projection; await route.fulfill({response, json: m}); });
     await page.route('**/bundles/gold-' + sha + '.json', route => route.fulfill({status: 200, contentType: 'application/json', body: bytes}));
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await page.waitForFunction(generated => B?.generated_at === generated, bundle.generated_at, {timeout: 60000});
@@ -1076,6 +1077,65 @@ const probes = {
     await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
     const notice = await page.evaluate(() => (document.querySelector('#compositions')?.innerText || '').split('\n')[0]);
     verdict('P14', !/search options/i.test(notice) || /picks/i.test(notice), {notice});
+    await context.close();
+  },
+  // ---- Audit item 11: the page starts from a compact core and fetches display-only evidence when a view needs it.
+  async I1(browser) {
+    // At startup the page downloads the compact core, never the full bundle, and the core is a fraction of it.
+    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage(), requested = [];
+    page.on('request', r => { if (r.url().includes('/bundles/')) requested.push(r.url().split('/').pop()); });
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    assert.ok(entry.projection?.core, 'probe setup: the staged publication has a compact core');
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const fullBytes = (await (await context.request.get(url + entry.url)).body()).length, name = u => u.split('/').pop();
+    const seen = {requested: requested.map(r => r.replace(/-[a-f0-9]{64}\.json$/, '')), core_bytes: entry.projection.core.bytes, full_bytes: fullBytes};
+    verdict('I1', !requested.includes(name(entry.projection.core.url)) || requested.includes(name(entry.url)) || entry.projection.core.bytes > fullBytes * 0.45, seen);
+    await context.close();
+  },
+  async I2(browser) {
+    // A hero view says its evidence is loading, then shows exactly what the full bundle holds; engine results do not change.
+    const {context, page} = await session(browser, desktop);
+    const before = await page.evaluate(() => { const planned = JSON.stringify(E.plannedBuild('steel', 'jungle')); openHero('steel', 'jungle'); return {planned, loadingShown: !!document.querySelector('#main .annex-loading')}; });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000});
+    const after = await page.evaluate(async () => {
+      const manifest = await (await fetch('manifest.json', {cache: 'no-store'})).json(), full = await (await fetch(manifest.cohorts.gold.url)).json();
+      return {planned: JSON.stringify(E.plannedBuild('steel', 'jungle')), heroMatches: JSON.stringify(B.heroes.steel) === JSON.stringify(full.heroes.steel),
+        roleDataMatches: JSON.stringify(B.pred_game_data?.role_data?.steel) === JSON.stringify(full.pred_game_data?.role_data?.steel),
+        failedNote: /could not be loaded/.test(document.querySelector('#main').innerText)};
+    });
+    const {planned, ...shown} = after;
+    verdict('I2', !before.loadingShown || !after.heroMatches || !after.roleDataMatches || after.failedNote || planned !== before.planned, {loadingShown: before.loadingShown, ...shown, engineUnchanged: planned === before.planned});
+    await context.close();
+  },
+  async I3(browser) {
+    // Evidence that does not match its published checksum is refused and named; Reload latest data retries it.
+    const {context, page} = await session(browser, desktop);
+    await page.route('**/bundles/gold-hero-grux-*.json', async route => {
+      const response = await route.fetch(), value = await response.json();
+      value.heroes = {...value.heroes, grux: {...value.heroes?.grux, tampered: true}};
+      await route.fulfill({response, json: value});
+    });
+    await page.evaluate(() => openHero('grux', 'offlane'));
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    const refused = await page.evaluate(() => ({merged: 'tampered' in B.heroes.grux, named: /could not be loaded[^.]*checksum/i.test(document.querySelector('#main').innerText), stillLoading: !!document.querySelector('#main .annex-loading')}));
+    await page.unroute('**/bundles/gold-hero-grux-*.json');
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy && !document.querySelector('#main .annex-loading') && !/could not be loaded/.test(document.querySelector('#main').innerText), null, {timeout: 60000}).catch(() => {});
+    const retried = await page.evaluate(() => ({failedNote: /could not be loaded/.test(document.querySelector('#main').innerText), merged: 'tampered' in B.heroes.grux}));
+    verdict('I3', refused.merged || !refused.named || refused.stillLoading || retried.failedNote || retried.merged, {refused, retried});
+    await context.close();
+  },
+  async I4(browser) {
+    // Export saves the complete publication even when no evidence has been opened yet.
+    const {context, page} = await session(browser, desktop);
+    const waiting = page.waitForEvent('download');
+    await page.locator('#export').click();
+    const html = fs.readFileSync(await (await waiting).path(), 'utf8'), match = html.match(/const INITIAL_BUNDLE=(.*?); const APP_CONFIG=/s);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.stringify(JSON.parse(await (await context.request.get(url + entry.url)).text()));
+    const exported = match ? JSON.stringify(JSON.parse(match[1])) : null;
+    verdict('I4', exported !== full, {exported_bytes: exported?.length || 0, full_bytes: full.length});
     await context.close();
   }
 };

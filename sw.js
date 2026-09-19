@@ -13,6 +13,8 @@ const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shel
 const ROOT = new URL('./', self.location.href);
 const SHELL = ['./', 'app.webmanifest', 'assets/app-icon-192.png', 'assets/app-icon-512.png'];
 const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-([a-f0-9]{64})\.json$/;
+// A rank's compact core and its evidence annexes (2.27.0). Like bundles they are data: stored by the page only.
+const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-(core|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
@@ -57,7 +59,7 @@ async function reconcileManifest(data, reference) {
   const urls = (await data.keys()).map(key => key.url);
   let changed = false;
   for (const [bracket, entry] of Object.entries(manifest.cohorts || {})) {
-    if (entry?.status === 'available' && typeof entry.url === 'string' && urls.includes(new URL(entry.url, ROOT).href)) continue;
+    if (entry?.status === 'available' && typeof entry.url === 'string' && (urls.includes(new URL(entry.url, ROOT).href) || (entry.projection?.core?.url && urls.includes(new URL(entry.projection.core.url, ROOT).href)))) continue;
     const url = urls.find(candidate => (new URL(candidate).pathname.match(BUNDLE) || [])[1] === bracket);
     if (!url) continue;   // nothing saved for this bracket: leave the entry as published
     const digest = new URL(url).pathname.match(BUNDLE)[2], known = reference?.cohorts?.[bracket];
@@ -123,7 +125,7 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || !localRequest(request)) return;
   const url = new URL(request.url);
-  const data = url.pathname.endsWith('/manifest.json') || BUNDLE.test(url.pathname);
+  const data = url.pathname.endsWith('/manifest.json') || BUNDLE.test(url.pathname) || PART.test(url.pathname);
   if (request.mode === 'navigate') event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT)}));
   else if (data) event.respondWith(networkFirst(request, {data: true}));
   else event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => rememberShell(request, response))));

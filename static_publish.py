@@ -19,6 +19,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 import predecessor_meta as base
+import projection
 from shared_server import public_bundle
 
 ROOT = Path(__file__).resolve().parent
@@ -472,6 +473,17 @@ def render_site(folder, out, state):
             target = out / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(raw)
+            # Website delivery projection (audit item 11): a compact core and evidence annexes, verified to
+            # reproduce this exact bundle. The full bundle above stays published for compatibility and export.
+            parts = projection.build(bundle)
+            def publish_part(kind, raw):
+                part_digest = hashlib.sha256(raw).hexdigest()
+                part_path = 'bundles/' + bracket + '-' + kind + '-' + part_digest + '.json'
+                (out / part_path).write_bytes(raw)
+                return {'url': part_path, 'sha256': part_digest, 'bytes': len(raw)}
+            entry['projection'] = {'version': projection.VERSION, 'core': publish_part('core', parts['core']),
+                                   'shared': publish_part('shared', parts['shared']),
+                                   'heroes': {slug: publish_part('hero-' + slug, raw) for slug, raw in sorted(parts['heroes'].items())}}
             entry.update(url=relative, sha256=digest, generated_at=bundle['generated_at'],
                          patch=bundle.get('official', {}).get('live', {}).get('version'),
                          source_signature=live_signature(bundle.get('official', {})), status='available',
@@ -518,7 +530,7 @@ def render_site(folder, out, state):
     marker = '// START CLIENT'
     if html.count(marker) != 1:
         raise ValueError('UI startup marker changed; static adapter needs review')
-    adapters = '\n'.join((ROOT / name).read_text(encoding='utf8') for name in ('rank_view.js', 'static_client.js'))
+    adapters = '\n'.join((ROOT / name).read_text(encoding='utf8') for name in ('rank_view.js', 'projection_client.js', 'static_client.js'))
     html = html.replace(marker, adapters + '\n' + marker, 1)
     (out / 'index.html').write_text(html, encoding='utf8')
     (out / '.nojekyll').write_text('', encoding='utf8')
