@@ -1137,6 +1137,21 @@ const probes = {
     const exported = match ? JSON.stringify(JSON.parse(match[1])) : null;
     verdict('I4', exported !== full, {exported_bytes: exported?.length || 0, full_bytes: full.length});
     await context.close();
+  },
+  async I5(browser) {
+    // A redraw while a rank comparison downloads (evidence arriving on the Data page causes one) keeps the comparison.
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(() => changeRoute('data'));
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-*.json', async route => { await held; await route.continue(); });
+    await page.locator('#compare-bracket').selectOption('gold');
+    await page.waitForTimeout(300);
+    await page.evaluate(() => render());
+    release();
+    await page.waitForSelector('#comparison-output table', {timeout: 30000}).catch(() => {});
+    const seen = await page.evaluate(() => ({table: !!document.querySelector('#comparison-output table'), selected: document.querySelector('#compare-bracket')?.value}));
+    verdict('I5', !seen.table || seen.selected !== 'gold', seen);
+    await context.close();
   }
 };
 

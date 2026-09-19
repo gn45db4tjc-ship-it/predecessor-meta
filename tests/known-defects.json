@@ -73,6 +73,7 @@
     "I1": "BUNDLE SIZE (item 11): at startup the page downloads the full bundle, or no compact core, or a core above 45% of the full bundle",
     "I2": "BUNDLE SIZE (item 11): a hero view does not say its evidence is loading, or then shows evidence that differs from the full bundle, or an engine result changes when the evidence arrives",
     "I3": "BUNDLE SIZE (item 11): evidence that does not match its published checksum is merged, or the refusal is not named, or Reload latest data does not retry it",
-    "I4": "BUNDLE SIZE (item 11): an export made before any evidence was opened is not the complete publication"
+    "I4": "BUNDLE SIZE (item 11): an export made before any evidence was opened is not the complete publication",
+    "I5": "BUNDLE SIZE (item 11): a redraw while a rank comparison downloads (evidence arriving on the Data page causes one) discards the comparison or resets its selector"
   }
 }

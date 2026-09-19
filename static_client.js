@@ -366,15 +366,19 @@ if (APP_CONFIG.mode === 'static') {
       if (!allowed.includes(el.value)) return;
       S.bracket = el.value; save(); B = null; E = MetaEngine.create(null); revision = 0; site.originalBundle = null; site.loadedEntry = null; comparison = null;
       S.route = 'meta'; S.hero = null; render(); await checkPublication();
-    } else if (el.value) {
+    } else {
+      const choice = site.comparisonChoice = (site.comparisonChoice || 0) + 1;
+      if (!el.value) return;
       const selected = el.value, requested = S.bracket, entry = site.manifest?.cohorts?.[selected];
       if (!entry || entry.status !== 'available') { comparison = null; $('#comparison-output').innerHTML = note('No successful publication for this bracket yet. Samples are not inferred.'); return; }
       const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 45000);
       try {
         const bundle = await fetchBundle(entry, selected, controller.signal, false);
-        if (S.bracket !== requested || $('#compare-bracket')?.value !== selected) return;
-        comparison = {bracket: selected, bundle}; $('#comparison-output').innerHTML = comparisonHTML();
-      } catch (error) { toast(error.message); } finally { clearTimeout(timer); }
+        if (S.bracket !== requested || site.comparisonChoice !== choice) return;
+        comparison = {bracket: selected, bundle};
+        if ($('#compare-bracket')) $('#compare-bracket').value = selected;
+        if ($('#comparison-output')) $('#comparison-output').innerHTML = comparisonHTML();
+      } catch (error) { if (site.comparisonChoice === choice) toast(error.message); } finally { clearTimeout(timer); }
     }
   }, true);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now()-site.lastCheck > 900000) checkPublication(); });
