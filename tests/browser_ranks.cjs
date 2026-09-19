@@ -32,6 +32,15 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
           assert.equal(chromeSize.rows,1,bracket+': the patch strip stays on one row at '+viewport.width+' px');
           assert(chromeSize.status<=76,bracket+': status chrome is '+chromeSize.status+' px excluding material notices (at most 76)');
           cohort.chrome=chromeSize;
+          if(bracket!=='gold') {
+            // The Guidance cell and every page say the authored tiers do not cover this rank (visible text, not a tooltip).
+            assert(/Gold\+ only/i.test(await page.locator('#patch-strip .patch-cell:last-child').innerText()),bracket+': the Guidance cell says the tiers are Gold+ only');
+            for(const r of ['library','changes','data']) {
+              await page.evaluate(r=>changeRoute(r),r);
+              assert((await page.locator('#main').innerText()).includes('The authored tier review covers Gold+ and is reference advice here'),bracket+': '+r+' states that the tiers are Gold+ reference advice');
+            }
+            await page.evaluate(()=>changeRoute('meta'));
+          }
         }
         for(const role of ['jungle','offlane','midlane','carry','support']) {
           await page.locator((phone?'[data-mobile-role="':'[data-meta-role="')+role+'"]').click();

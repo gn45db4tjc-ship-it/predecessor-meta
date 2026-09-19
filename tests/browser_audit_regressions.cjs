@@ -1733,7 +1733,23 @@ const probes = {
         content_changed: /Official patch content changed/.test(material), paused: /collection paused for maintenance/.test(material), required: /Statz hero pages/.test(material) && /every hero page failed/.test(material),
         old: /more than 30 hours old/.test(material), progress_failed: document.querySelector('#progress').classList.contains('failed'), optional_not_material: !/Pred\.gg failed/.test(material)}; });
     await context.close();
-    verdict('V9', Object.values(seen).some(v => !v), seen);
+    // The exported snapshot runs without the website client (mode 'export'): an optional Pred.gg failure alone is neither a
+    // material notice nor a failed status; a required failure is both, and Pred.gg stays out of the notices.
+    const x = await browser.newContext({serviceWorkers: 'block', viewport: {width: 1440, height: 900}, acceptDownloads: true}), site = await x.newPage();
+    await site.goto(url); await site.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    const [download] = await Promise.all([site.waitForEvent('download', {timeout: 120000}), site.click('#export')]);
+    const file = path.join(root, 'qa', 'v9-export.html'); await download.saveAs(file);
+    const snap = await x.newPage(); await snap.goto('file:///' + file.replace(/\\/g, '/')); await snap.waitForFunction(() => !!B, null, {timeout: 60000});
+    const exported = await snap.evaluate(() => {
+      const pred = {source: 'Pred.gg current-patch statistics', severity: 'error', detail: 'Probe: Pred.gg failed.'}, material = () => document.querySelector('#material-notices').innerText, failed = () => document.querySelector('#progress').classList.contains('failed');
+      latestStatus.errors = [pred]; chrome();
+      const alone = {material: /Pred\.gg failed/.test(material()), failed: failed()};
+      latestStatus.errors = [pred, {source: 'Statz hero pages', severity: 'error', detail: 'Probe: every hero page failed.'}]; chrome();
+      return {mode: APP_CONFIG.mode, pred_alone_material: alone.material, pred_alone_failed: alone.failed, required: /every hero page failed/.test(material()), required_failed: failed(), pred_with_required_material: /Pred\.gg failed/.test(material())};
+    });
+    await x.close();
+    assert.equal(exported.mode, 'export', 'probe setup: the snapshot runs in export mode');
+    verdict('V9', Object.values(seen).some(v => !v) || exported.pred_alone_material || exported.pred_alone_failed || !exported.required || !exported.required_failed || exported.pred_with_required_material, {...seen, exported});
   },
   async V10(browser) {
     // Desktop: the status details open and close from the keyboard, stay open across redraws with focus kept, contain the

@@ -2,7 +2,7 @@
 // Uses the selected bundle only; never changes observations or extends an authored review's scope.
 if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   const rankOriginal = {chrome, metaView, metaTierButton, metaDecisionHTML, rolePriorityHTML,
-    metaReviewMethod, buildsPageView, heroView, plannerView, draftView, liveView, guidanceView};
+    metaReviewMethod, buildsPageView, heroView, plannerView, draftView, liveView, guidanceView, libraryView, changesView, dataView};
   isMaterialError = e => e?.severity === 'error' && !/^Pred\.gg(?: |$)/.test(e.source || '');   // optional Pred.gg is not a required source
   function selectedRankLabel() { return B?.scoped_statistics?.bracket_label || B?.bracket?.label || 'Rank unavailable'; }
   function matchingRankReview() {
@@ -19,7 +19,7 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
     if (!B || matchingRankReview() || !B.guidance?.meta_review) return;
     const cell = $('#patch-strip .patch-cell:last-child');
     const reference = B.guidance.meta_review.bracket_label;
-    if (cell) cell.innerHTML = `<div><small>Guidance · ${esc(reference)} tiers</small><strong>${esc(B.guidance.patch ? 'v'+B.guidance.patch : 'Not reviewed')}</strong></div><span class="status-pill" title="${esc('The authored tiers cover '+reference+'; they do not cover '+selectedRankLabel()+'.')}">${esc(B.guidance.status || 'Needs review')}</span>`;
+    if (cell) cell.innerHTML = `<div><small>Guidance · ${esc(reference)} only</small><strong>${esc(B.guidance.patch ? 'v'+B.guidance.patch : 'Not reviewed')}</strong></div><span class="status-pill" title="${esc('The authored tiers cover '+reference+'; they do not cover '+selectedRankLabel()+'.')}">${esc(B.guidance.status || 'Needs review')}</span>`;
   };
   rolePriorityHTML = function() { return matchingRankReview() ? rankOriginal.rolePriorityHTML() : ''; };
   metaTierButton = function(slug, role) {
@@ -62,4 +62,7 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   draftView = function() { return rankEvidenceNote() + rankOriginal.draftView(); };
   liveView = function() { return rankEvidenceNote() + rankOriginal.liveView(); };
   guidanceView = function() { return rankEvidenceNote() + rankOriginal.guidanceView(); };
+  libraryView = function() { return rankEvidenceNote() + rankOriginal.libraryView(); };
+  changesView = function() { return rankEvidenceNote() + rankOriginal.changesView(); };
+  dataView = function() { return rankEvidenceNote() + rankOriginal.dataView(); };
 }
