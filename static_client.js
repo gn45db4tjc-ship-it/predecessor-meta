@@ -282,6 +282,11 @@ if (APP_CONFIG.mode === 'static') {
     return 'loading';
   };
   annexProblem = function (kind, key) { return site.annex.failed.get(kind === 'shared' ? 'shared' : 'hero:' + key) || ''; };
+  // The state of one evidence file by its id, for announcements; unlike annexState it never starts a download.
+  annexPhase = function (id) {
+    const part = id === 'shared' ? annexPart('shared') : annexPart('hero', id.slice(5));
+    return !part || site.annex.loaded.has(id) ? 'loaded' : site.annex.failed.has(id) ? 'failed' : 'loading';
+  };
   requestAnnex = function (kind, key) { return loadAnnex(kind, key); };
   // Views that read display-only evidence are guarded in ui.js (annexGuard, annexHTML); dialogs refresh through detail().
   async function saveEvidence(url, bytes) {

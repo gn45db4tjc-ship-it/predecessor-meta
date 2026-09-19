@@ -32,26 +32,40 @@ function annexNote(state,problem,id=''){return state==='failed'?`<div class="ann
 // Display-only evidence inside a larger view (static site): the rest renders at once and only this part waits.
 function annexHTML(kind,key,render){const state=annexState(kind,key),problem=annexProblem(kind,key),id=esc(annexId(kind,key));return state==='loaded'?render():state==='failed'?`<p class="muted annex-failed" data-annex="${id}">Source evidence could not be loaded${problem?' ('+esc(problem)+')':''}.${annexRetry()}</p>`:`<p class="muted annex-loading" data-annex="${id}">Loading source evidence…</p>`;}
 // Evidence that fails, or arrives after a noticeable wait, once a view is drawn is announced once per view and wait from
-// a region that is always there: the dialog's while it is open (the page behind a modal dialog is inert), else the
-// page's. Placeholders are not live regions, so a view with many (the Builds page) never chatters, and a load that
-// finishes within a second stays quiet.
-const evidenceNews={page:null,dialog:null},evidenceTimers={};
+// a region that is always there: the dialog's while it is open, else the page's (the page behind a modal dialog is
+// inert, so a page failure meanwhile is said when the dialog closes). A wait starts when a placeholder shows a file
+// loading (again, after a retry) and ends by the files' own state (annexPhase), not by placeholders leaving the screen,
+// which a search or a layout change also does. Placeholders are not live regions, so a view with many (the Builds page)
+// never chatters, and a load that finishes within a second stays quiet.
+let annexPhase=id=>(APP_CONFIG.missing_parts||[]).includes(id)?'failed':'loaded';   // the static adapter reads its downloads
+const evidenceNews={page:null,dialog:null,deferred:null},evidenceTimers={};
 function annexWaiting(root){return new Set([...(root?.querySelectorAll('.annex-loading[data-annex]')||[])].map(el=>el.dataset.annex));}
-function trackEvidence(surface,view,root,before){
- const now=annexWaiting(root),s=evidenceNews[surface];
- if(!s||s.view!==view){evidenceNews[surface]={view,spoken:false,since:now.size?Date.now():0};return;}
- if(!before.size){if(now.size){s.spoken=false;s.since=Date.now();}return;}   // a new wait, for example a retry
- const resolved=[...before].filter(id=>!now.has(id));if(!resolved.length||s.spoken)return;
- const failed=resolved.some(id=>root.querySelector(`.annex-failed[data-annex="${CSS.escape(id)}"]`));
- if(!failed&&(now.size||Date.now()-s.since<1000))return;
- s.spoken=true;if(surface==='page'&&$('#detail')?.open)return;
- speakEvidence(surface,failed?'Some evidence in this view could not be loaded.'+annexRetry():'Detailed evidence loaded.');
+function trackEvidence(surface,view,root){
+ const shown=annexWaiting(root),s=evidenceNews[surface];
+ if(!s||s.view!==view){hushEvidence(surface);evidenceNews[surface]={view,waiting:shown,spoken:false,since:shown.size?Date.now():0,failed:new Set()};return;}
+ const fresh=[...shown].filter(id=>!s.waiting.has(id));
+ if(fresh.length){if(!s.waiting.size)s.since=Date.now();s.spoken=false;fresh.forEach(id=>s.waiting.add(id));}
+ const failed=[];let resolved=0;
+ for(const id of [...s.waiting]){const phase=annexPhase(id);if(phase==='loading')continue;s.waiting.delete(id);resolved++;if(phase==='failed')failed.push(id);}
+ if(!resolved)return;
+ const done=!s.waiting.size,waited=s.since&&Date.now()-s.since>=1000;if(done)s.since=0;
+ if(s.spoken)return;
+ if(failed.length){s.spoken=true;failed.forEach(id=>s.failed.add(id));announceEvidence(surface,'Some evidence in this view could not be loaded.'+annexRetry(),failed);}
+ else if(done&&waited){s.spoken=true;announceEvidence(surface,'Detailed evidence loaded.',[]);}
 }
+function announceEvidence(surface,text,failed){if(surface==='page'&&$('#detail')?.open){if(failed.length)evidenceNews.deferred={view:evidenceNews.page.view,text,failed};return;}speakEvidence(surface,text);}
+// A page failure that happened behind the dialog, unless the dialog already said it for the same files.
+$('#detail').addEventListener('close',()=>{const d=evidenceNews.deferred;evidenceNews.deferred=null;if(d&&evidenceNews.page?.view===d.view&&!d.failed.every(id=>evidenceNews.dialog?.failed.has(id)))speakEvidence('page',d.text);});
+function evidenceRegion(surface){return $(surface==='dialog'?'#detail-evidence-status':'#evidence-status');}
+function hushEvidence(surface){clearTimeout(evidenceTimers[surface]);const el=evidenceRegion(surface);if(el)el.textContent='';}
 // Cleared first, so the same message is announced again in a later view; cleared after a while, like the toast.
-function speakEvidence(surface,text){const el=$(surface==='dialog'?'#detail-evidence-status':'#evidence-status');if(!el)return;clearTimeout(evidenceTimers[surface]);el.textContent='';evidenceTimers[surface]=setTimeout(()=>{el.textContent=text;evidenceTimers[surface]=setTimeout(()=>{el.textContent='';},7000);},100);}
+function speakEvidence(surface,text){const el=evidenceRegion(surface);if(!el)return;hushEvidence(surface);evidenceTimers[surface]=setTimeout(()=>{el.textContent=text;evidenceTimers[surface]=setTimeout(()=>{el.textContent='';},7000);},100);}
+// The page's announcement view: the Builds search is left out (typing redraws the same cards), the layout is kept in
+// (the phone Builds list shows no evidence placeholders).
+function evidencePageView(){let phone=false;try{phone=companionMedia.matches;}catch{}return (S.route==='builds'?'builds|'+S.role:disclosureView())+(phone?'|phone':'');}
 // refresh (optional) reopens the dialog with current data when evidence it shows arrives after it opened.
 let detailRefresh=null;
-function detail(title,body,refresh){const dialog=$('#detail'),content=$('#detail-body'),before=dialog.open?annexWaiting(content):new Set();if(!dialog.open)evidenceNews.dialog=null;$('#detail-title').textContent=title;content.innerHTML=body;detailRefresh=refresh||null;if(!dialog.open)dialog.showModal();trackEvidence('dialog',title,content,before);}
+function detail(title,body,refresh){const dialog=$('#detail'),content=$('#detail-body');if(!dialog.open)evidenceNews.dialog=null;$('#detail-title').textContent=title;content.innerHTML=body;detailRefresh=refresh||null;if(!dialog.open)dialog.showModal();trackEvidence('dialog',title,content);}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.remove('hide');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.add('hide'),7000);}
 function apiPath(path){return shared?path+(path.includes('?')?'&':'?')+'bracket='+encodeURIComponent(S.bracket):path;}
 async function post(path,value={},signal){if(shared)value={bracket:S.bracket,...value};const controller=!signal&&typeof AbortController==='function'?new AbortController():null;const timer=controller?setTimeout(()=>controller.abort(),15000):null;try{const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Session-Token':APP_CONFIG.token},body:JSON.stringify(value),signal:signal||controller?.signal});const data=await r.json();if(!r.ok){const error=Error(data.error||'A refresh is already running.');error.status=r.status;throw error;}return data;}catch(e){if(controller?.signal.aborted)throw Error('Local request timed out. Check the connection and retry.');throw e;}finally{if(timer!==null)clearTimeout(timer);}}
@@ -621,7 +635,7 @@ function disclosureView(){return S.route+'|'+(S.route==='hero'?S.hero+'|'+S.hero
 function disclosureKey(d){return d.dataset.keep||(d.querySelector(':scope>summary')?.textContent||'').split('·')[0].replace(/\s+/g,' ').trim();}
 function disclosureStates(){const main=$('#main');if(!main)return null;const seen={},states=[];for(const d of main.querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;states.push([k+'#'+seen[k],d.open,!!d.dataset.keep]);}return {view:main.dataset.view||'',states};}
 function restoreDisclosures(kept){if(!kept||kept.view!==disclosureView())return;const map=new Map(kept.states.map(([k,open,keep])=>[k,{open,keep}])),seen={};for(const d of $('#main').querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;const s=map.get(k+'#'+seen[k]);if(!s)continue;if(s.open)d.open=true;else if(s.keep&&d.dataset.keep)d.open=false;}}
-const renderView=render;render=function(){const kept=disclosureStates(),waiting=annexWaiting($('#main'));renderView();restoreDisclosures(kept);const main=$('#main');if(main){main.dataset.view=disclosureView();trackEvidence('page',main.dataset.view,main,waiting);}evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
+const renderView=render;render=function(){const kept=disclosureStates();renderView();restoreDisclosures(kept);const main=$('#main');if(main){main.dataset.view=disclosureView();trackEvidence('page',evidencePageView(),main);}evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
 document.addEventListener('input',event=>{if(textEntry(event.target))evidenceView.lastInput=Date.now();},true);
 document.addEventListener('focusout',event=>{if(evidenceView.pending&&!(textEntry(event.relatedTarget)&&$('#main')?.contains(event.relatedTarget)))setTimeout(flushEvidenceRedraw,0);});
 document.addEventListener('pointerdown',()=>{evidenceView.pointer=true;evidenceView.pointerAt=Date.now();},true);
