@@ -173,7 +173,7 @@ def dumps(value):
 def build(bundle):
     """Split, encode and verify. Returns {'core': bytes, 'shared': bytes, 'heroes': {slug: bytes}}."""
     core, heroes, shared = split(bundle)
-    bad = sorted(slug for slug in heroes if not SLUG.match(str(slug)))
+    bad = sorted(slug for slug in heroes if not SLUG.fullmatch(str(slug)))
     if bad:
         raise ValueError('Hero keys cannot name evidence files: ' + ', '.join(map(repr, bad[:5])))
     parts = {'core': dumps(encode(core)), 'shared': dumps(encode(shared)), 'heroes': {slug: dumps(encode(v)) for slug, v in heroes.items()}}

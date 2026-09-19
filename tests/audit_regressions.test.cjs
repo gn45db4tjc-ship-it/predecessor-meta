@@ -255,6 +255,14 @@ test('F guard (2.27.0): the one-time move never copies an old bundle next to a c
   assert.ok(!(await (await storage.open(DATA)).match(new Request(oldURL))), 'the older bundle was moved next to the newer core');
 });
 
+test('F guard (2.27.0): a data file the server no longer has (404 after a redeploy) reaches the page as that answer, not as a lost connection', async () => {
+  const storage = cacheStorage(), sw = worker(SW, storage, async () => new Response('Not found', {status: 404}));
+  await sw.install(); await sw.activate();
+  const reply = await sw.fetch(SITE + 'bundles/gold-hero-steel-' + 'f'.repeat(64) + '.json');
+  assert.equal(reply.status, 404);
+  assert.ok(!(await stored(storage, SITE + 'bundles/gold-hero-steel-' + 'f'.repeat(64) + '.json')));
+});
+
 test('F guard (2.27.0): the worker never stores a core or evidence file it fetched; only the page saves verified data', async () => {
   const storage = cacheStorage(), body = JSON.stringify({heroes: {}}), sw = worker(SW, storage, async () => new Response(body, {status: 200}));
   await sw.install(); await sw.activate();

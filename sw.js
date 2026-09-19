@@ -107,9 +107,10 @@ function offlineCopy(cached) {
 }
 
 async function networkFirst(request, {data = false, fallback = null} = {}) {
+  let refused = null;   // the server answered, but not with the file (for example 404 after a redeploy)
   try {
     const response = await fetch(new Request(request, {cache: 'no-store'}));
-    if (!response.ok) throw new Error('Publication unavailable');
+    if (!response.ok) { refused = response; throw new Error('Publication unavailable'); }
     return data ? response : rememberShell(request, response);   // data is stored by the page, after verification
   } catch (error) {
     // Before serving the saved manifest, make sure it describes bundles that are actually saved (a backstop for
@@ -119,6 +120,7 @@ async function networkFirst(request, {data = false, fallback = null} = {}) {
     }
     const cached = await caches.match(request) || (fallback && await caches.match(fallback));
     if (cached) return offlineCopy(cached);
+    if (data && refused) return refused;
     throw error;
   }
 }

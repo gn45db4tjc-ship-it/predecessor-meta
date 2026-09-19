@@ -77,6 +77,9 @@
     "I5": "BUNDLE SIZE (item 11): a redraw while a rank comparison downloads (evidence arriving on the Data page causes one) discards the comparison or resets its selector",
     "I6": "BUNDLE SIZE (item 11): when the full publication cannot be downloaded, export is not assembled from the core and every verifiable evidence file, or a snapshot missing some evidence does not say so when opened",
     "I7": "BUNDLE SIZE (item 11): an update check that finds the same publication while a hero's evidence downloads leaves the view on \"Loading\" or drops the evidence",
-    "I8": "BUNDLE SIZE (item 11): shared evidence that fails hides the rest of the view or is not named, Reload latest data does not retry it, or a catalog dialog opened before it arrives does not fill in"
+    "I8": "BUNDLE SIZE (item 11): shared evidence that fails hides the rest of the view or is not named, Reload latest data does not retry it, or a catalog dialog opened before it arrives does not fill in",
+    "I9": "BUNDLE SIZE (item 11): evidence the server no longer has (404 after a redeploy) is not named, or causes repeated requests for it or for the manifest",
+    "I10": "BUNDLE SIZE (item 11): a dialog showing that its evidence failed does not fill in when a retry brings the evidence",
+    "I11": "BUNDLE SIZE (item 11): the kit tab hides its core parts (source, augments, main attributes) while the attribute evidence downloads"
   }
 }

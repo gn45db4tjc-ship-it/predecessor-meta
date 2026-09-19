@@ -489,8 +489,9 @@ def render_site(folder, out, state):
                                        'heroes': {slug: publish_part('hero-' + slug, raw) for slug, raw in sorted(parts['heroes'].items())}}
             except Exception as error:
                 entry.pop('projection', None)
-                entry['projection_error'] = (type(error).__name__ + ': ' + str(error))[:300]
-                print('::warning::' + bracket + ' evidence files were not published (' + entry['projection_error'] + '); the site serves the full bundle for this rank.', flush=True)
+                # Public: the projection's own refusals (they name bundle fields, never local paths); otherwise the type.
+                entry['projection_error'] = ('ValueError: ' + str(error))[:300] if isinstance(error, ValueError) else type(error).__name__ + ' (details in the publication log)'
+                print('::warning::' + bracket + ' evidence files were not published (' + type(error).__name__ + ': ' + str(error)[:500] + '); the site serves the full bundle for this rank.', flush=True)
             entry.update(url=relative, sha256=digest, generated_at=bundle['generated_at'],
                          patch=bundle.get('official', {}).get('live', {}).get('version'),
                          source_signature=live_signature(bundle.get('official', {})), status='available',

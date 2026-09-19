@@ -158,6 +158,7 @@ if (APP_CONFIG.mode === 'static') {
     const commit = () => commitNow(manifest, bracket, entry, loaded);
     try {
       const saved = await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : commit());
+      if (saved === 'superseded') return;   // a newer check of this rank saves it
       if (saved) { site.offlineProblem = null; if (loaded && site.loadedBytes === loaded) site.loadedBytes = null; }
       else site.offlineProblem = 'This rank is not saved for offline use yet. Reload latest data while online to save it.';
     } catch (error) {
@@ -166,7 +167,11 @@ if (APP_CONFIG.mode === 'static') {
     }
   }
   async function commitNow(manifest, bracket, entry, loaded) {
+    const newest = site.manifest?.cohorts?.[bracket];
+    const overtaken = () => !!newest && (site.manifest?.cohorts?.[bracket]?.sha256 !== entry.sha256 || site.manifest?.cohorts?.[bracket]?.projection?.core?.sha256 !== entry.projection?.core?.sha256);
+    if (overtaken()) return 'superseded';
     const data = await caches.open(DATA_CACHE), manifestURL = siteURL(APP_CONFIG.manifest);
+    if (overtaken()) return 'superseded';
     // The bytes are stored at the address they were loaded from (the core, or the full bundle); the address
     // contains the checksum, so a copy already saved there holds these exact bytes.
     const target = loaded?.bytes && publicationBytes(entry, loaded.url) ? siteURL(loaded.url) : null;
@@ -193,6 +198,7 @@ if (APP_CONFIG.mode === 'static') {
           source_dates: Object.fromEntries(Object.entries(bundle.sources || {}).map(([k, v]) => [k, {status: v?.status, fetched_at: v?.fetched_at}]))};
       } catch { cohorts[key] = value; }
     }
+    if (overtaken()) return 'superseded';
     await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
     for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL) await data.delete(url);
     // Evidence saved for an older publication of this rank is removed with it.
@@ -220,32 +226,46 @@ if (APP_CONFIG.mode === 'static') {
     const raw = site.originalBundle, annex = site.annex, controller = new AbortController(), timer = setTimeout(() => controller.abort(), 45000);
     const promise = (async () => {
       const {bytes, value} = await verifiedJSON(part, controller.signal);
-      if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex(); return 'stale'; }   // another publication was loaded meanwhile
+      if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }   // another publication was loaded meanwhile
       MetaProjection.merge(raw, value);
       annex.loaded.add(id); annex.failed.delete(id);
       B = displayedBundle(raw, site.loadedEntry); E = MetaEngine.create(B);
       saveEvidence(part.url, bytes);
-      redrawForAnnex();
+      redrawForAnnex(id);
       return 'loaded';
     })().catch(error => {
-      if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex(); return 'stale'; }
+      if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }
       const offline = !navigator.onLine || connectionLost, gone = /HTTP 404/.test(error.message);
       annex.failed.set(id, offline ? 'it is not saved on this device yet and downloads when you are online'
-        : gone ? 'the website was updated after this page loaded; loading the latest data'
+        : gone ? 'the website was updated after this page loaded; Reload latest data loads the new version'
         : controller.signal.aborted ? 'the download timed out' : error.message);
-      // A deploy replaces every evidence file: load the new publication (at most once a minute), which retries this.
-      if (gone && !offline && !site.controller && Date.now() - site.lastCheck > 60000) checkPublication();
-      redrawForAnnex();
+      // A deploy replaces every evidence file: check for the new publication, at most once a minute. The check does
+      // not clear this failure; a new publication starts afresh, and Reload latest data retries.
+      if (gone && !offline && Date.now() - (site.goneCheckAt || 0) > 60000) { site.goneCheckAt = Date.now(); if (!site.controller) checkPublication(); }
+      redrawForAnnex(id);
       return 'failed';
     }).finally(() => { clearTimeout(timer); if (annex.pending.get(id) === promise) annex.pending.delete(id); });
     annex.pending.set(id, promise);
     return promise;
   }
-  // An open dialog that was waiting for this evidence is rebuilt in place (the page redraw does not reach dialogs).
-  function refreshDialog() { if (detailRefresh && B && $('#detail').open && $('#detail-body .annex-loading')) detailRefresh(); }
+  // An open dialog waiting for (or showing a failure of) an evidence file that changed state is rebuilt in place (the page
+  // redraw does not reach dialogs), keeping its open sections and scroll position. Other arrivals leave it alone.
+  function refreshDialog(changed) {
+    const dialog = $('#detail'), body = $('#detail-body');
+    if (!detailRefresh || !B || !dialog?.open) return;
+    const waiting = [...body.querySelectorAll('[data-annex]')].map(el => el.dataset.annex);
+    if (!waiting.some(id => changed.has('*') || changed.has(id))) return;
+    const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop;
+    detailRefresh();
+    body.querySelectorAll('details > summary').forEach(s => { if (open.has(s.textContent)) s.parentElement.open = true; });
+    dialog.scrollTop = top;
+  }
   // Evidence files that arrive together (the desktop Builds page asks for one per hero) share one redraw.
-  let annexRedraw = 0;
-  function redrawForAnnex() { if (!annexRedraw) annexRedraw = setTimeout(() => { annexRedraw = 0; requestRedraw(true); refreshDialog(); }, 50); }
+  let annexRedraw = 0, annexChanged = new Set();
+  function redrawForAnnex(id = '*') {
+    annexChanged.add(id);
+    if (!annexRedraw) annexRedraw = setTimeout(() => { const changed = annexChanged; annexChanged = new Set(); annexRedraw = 0; requestRedraw(true); refreshDialog(changed); }, 50);
+  }
   // 'loaded' (or nothing was moved out for this view), 'loading' or 'failed'; asking starts the download.
   annexState = function (kind, key) {
     const part = annexPart(kind, key), id = kind === 'shared' ? 'shared' : 'hero:' + key;
@@ -268,9 +288,11 @@ if (APP_CONFIG.mode === 'static') {
     return {...raw, recommendation_context: {status:'withheld',reason:'Official patch or hotfix content changed after this collection. Saved observations remain inspectable; automatic role comparisons await the new data.'}, guidance: {...raw.guidance, status: 'needs review: official patch content changed since collection'}};
   }
   // Evidence redraws use the shared rule in ui.js (redrawForEvidence): never while typing or mid-click, never lost.
-  async function checkPublication() {
+  async function checkPublication(retryEvidence = false) {
     const sequence = ++site.sequence, requested = S.bracket;
-    const retry = !!site.annex?.failed?.size; site.annex?.failed?.clear();   // Reload latest data retries evidence that failed to load
+    // Reload latest data (and the connection coming back) retries evidence that failed to load; automatic checks do not.
+    const retry = retryEvidence === true && !!site.annex?.failed?.size, retried = retry ? [...site.annex.failed.keys()] : [];
+    if (retry) site.annex.failed.clear();
     site.controller?.abort();
     const controller = new AbortController(); site.controller = controller;
     const timeout = setTimeout(() => controller.abort(), 45000);
@@ -308,7 +330,7 @@ if (APP_CONFIG.mode === 'static') {
       latestStatus = {busy: true, errors: errs, health: entry.health || (entry.saved_copy ? null : manifest.health), checkedAt: new Date().toISOString(), message: (entry.collection_status==='partial'&&coreUnavailable?'Required source incomplete · ':entry.last_attempt?.status && !['ok','partial'].includes(entry.last_attempt.status)?'Latest collection failed · saved ':'Published ') + entry.label + ' · assembled ' + date(B.generated_at) + '. Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.'};
       if (connectionLost) latestStatus.message = 'Connection unavailable · saved publication. ' + latestStatus.message;
       // New data redraws at once; a changed overlay on the same data (a failed or recovered patch check) waits for typing to end.
-      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else if (retry) requestRedraw(true); else redrawForEvidence();
+      site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); checkSharedPlan(); } else if (retry) { requestRedraw(true); refreshDialog(new Set(retried)); } else redrawForEvidence();
       // The new data is already shown; the check itself completes once the offline copy is saved (or after ten
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
       await Promise.race([commitPublication(manifest, requested, entry, verified), new Promise(resolve => setTimeout(resolve, 10000))]);
@@ -335,9 +357,12 @@ if (APP_CONFIG.mode === 'static') {
         // Offline, or the full bundle is gone: assemble the core with every evidence file that can still be
         // verified (saved ones are served offline), and say in the snapshot how many are missing.
         const raw = site.originalBundle, copy = structuredClone(raw), parts = [['shared', entry.projection.shared], ...Object.entries(entry.projection.heroes || {}).map(([slug, part]) => ['hero:' + slug, part])];
-        for (const [id, part] of parts) {
-          try { MetaProjection.merge(copy, (await verifiedJSON(part, controller.signal)).value); } catch { missing.push(id); }
-        }
+        const assembly = new AbortController(), limit = setTimeout(() => assembly.abort(), 60000);
+        try {
+          for (const [id, part] of parts) {
+            try { MetaProjection.merge(copy, (await verifiedJSON(part, assembly.signal)).value); } catch { missing.push(id); }
+          }
+        } finally { clearTimeout(limit); }
         if (site.originalBundle !== raw) throw Error('Another publication was loaded while exporting. Export again.');
         full = displayedBundle(copy, entry);
         if (missing.length) toast('The snapshot was saved without ' + missing.length + ' detailed evidence files; it says so when opened.');
@@ -357,7 +382,7 @@ if (APP_CONFIG.mode === 'static') {
     const id = event.target.closest('button')?.id;
     if (!['refresh','export','install-app'].includes(id)) return;
     event.preventDefault(); event.stopImmediatePropagation();
-    if (id === 'refresh') checkPublication();
+    if (id === 'refresh') checkPublication(true);
     else if (id === 'install-app') installSharedApp().catch(error => toast(error.message));
     else exportSnapshot().catch(error => toast(error.message));
   }, true);
@@ -386,7 +411,7 @@ if (APP_CONFIG.mode === 'static') {
   }, true);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now()-site.lastCheck > 900000) checkPublication(); });
   window.addEventListener('focus', () => { if (Date.now()-site.lastCheck > 900000 && !site.controller) checkPublication(); });
-  window.addEventListener('online', checkPublication);
+  window.addEventListener('online', () => checkPublication(true));
   setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine && !site.controller) checkPublication(); }, 1800000);
   // Evidence ages even when no check succeeds (for example offline): re-evaluate it every five minutes.
   setInterval(() => { if (B && document.visibilityState === 'visible' && !site.controller) redrawForEvidence(); }, 300000);

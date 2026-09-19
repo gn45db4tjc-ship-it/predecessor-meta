@@ -220,7 +220,7 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(raw).hexdigest(),entry['sha256'])
         self.assertEqual(manifest['cohorts']['diamond']['status'],'unavailable')
         html=(self.out/'index.html').read_text(encoding='utf8')
-        self.assertIn('"mode":"static"',html);self.assertIn('function checkPublication()',html)
+        self.assertIn('"mode":"static"',html);self.assertIn('function checkPublication(',html)
         self.assertNotIn('Synthetic fixture',html)  # lightweight shell; data separate
         self.assertIn('<link rel="manifest" href="app.webmanifest">',html)
         app_manifest=json.loads((self.out/'app.webmanifest').read_text(encoding='utf8'))

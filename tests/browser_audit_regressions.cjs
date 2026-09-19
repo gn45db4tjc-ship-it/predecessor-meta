@@ -1225,6 +1225,54 @@ const probes = {
     const seen = {...failed, dialogWaited, ...loaded};
     verdict('I8', !failed.named || !failed.summaryShown || !dialogWaited || !loaded.dialogFilled || !loaded.stillOpen || !loaded.historyMatches || !loaded.failureCleared, seen);
     await context.close();
+  },
+  async I9(browser) {
+    // Evidence the server no longer has (404 after a redeploy) is named, triggers at most one check for the new
+    // publication, and never a request loop (no service worker here, as in private windows and in-app browsers) - even
+    // when that check fails too and the last successful check is more than a minute old, as during a deploy.
+    const {context, page} = await clockSession(browser, desktop);
+    let evidence = 0, manifests = 0;
+    await page.route('**/manifest.json', route => { manifests++; return route.abort(); });
+    await page.route('**/bundles/gold-hero-steel-*.json', route => { evidence++; return route.fulfill({status: 404, body: 'Not found'}); });
+    await page.clock.fastForward('01:01');
+    await page.evaluate(() => openHero('steel', 'jungle'));
+    await page.waitForTimeout(6000);
+    const seen = await page.evaluate(() => ({named: /website was updated after this page loaded/.test(document.querySelector('#main').innerText), stillLoading: !!document.querySelector('#main .annex-loading')}));
+    Object.assign(seen, {evidenceRequests: evidence, manifestRequests: manifests});
+    verdict('I9', !seen.named || seen.stillLoading || evidence > 2 || manifests > 2, seen);
+    await context.close();
+  },
+  async I10(browser) {
+    // A dialog showing that its evidence failed fills in when the evidence arrives on a retry (the connection returning).
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
+    const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
+    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.evaluate(key => showCatalog('items', key), item);
+    await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
+    const failed = await page.evaluate(() => !!document.querySelector('#detail-body .annex-failed'));
+    await page.unroute('**/bundles/gold-shared-*.json');
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
+    const seen = {failedShown: failed, filled: await page.evaluate(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText) && document.querySelector('#detail').open)};
+    verdict('I10', !seen.failedShown || !seen.filled, seen);
+    await context.close();
+  },
+  async I11(browser) {
+    // The kit tab shows its core parts (source, augments, main attributes) while the attribute evidence downloads.
+    const {context, page} = await session(browser, desktop);
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-hero-grux-*.json', async route => { await held; await route.continue(); });
+    await page.evaluate(() => { S.heroTab = 'kit'; openHero('grux', 'offlane'); S.heroTab = 'kit'; render(); });
+    await page.waitForSelector('#main .annex-loading', {timeout: 10000}).catch(() => {});
+    const early = await page.evaluate(() => ({augments: /Hero augments/.test(document.querySelector('#main').innerText), loading: !!document.querySelector('#main .annex-loading')}));
+    release();
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+    const later = await page.evaluate(() => ({loading: !!document.querySelector('#main .annex-loading'), attributes: !!B.heroes.grux?.pred_attributes}));
+    const seen = {early, later};
+    verdict('I11', !early.augments || !early.loading || later.loading || !later.attributes, seen);
+    await context.close();
   }
 };
 

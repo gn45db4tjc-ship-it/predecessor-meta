@@ -118,6 +118,10 @@ class ProjectionRoundTrip(unittest.TestCase):
         bundle['heroes']['../' + slug] = bundle['heroes'].pop(slug)
         with self.assertRaises(ValueError):
             P.build(bundle)
+        bundle = copy.deepcopy(self.bundle)
+        bundle['heroes'][slug + '\n'] = bundle['heroes'].pop(slug)   # the page's pattern rejects a trailing newline too
+        with self.assertRaises(ValueError):
+            P.build(bundle)
 
 
 class PublishedProjection(unittest.TestCase):
@@ -155,7 +159,7 @@ class PublishedProjection(unittest.TestCase):
         self.assertEqual(P.dumps(rebuilt), full)
         self.assertLess(p['core']['bytes'], len(full))
         html = (self.out / 'index.html').read_text(encoding='utf8')
-        self.assertLess(html.index('MetaProjection'), html.index('function checkPublication()'), 'the page decodes parts with projection_client.js')
+        self.assertLess(html.index('MetaProjection'), html.index('function checkPublication('), 'the page decodes parts with projection_client.js')
 
 
 class ProjectionNeverWithholdsARank(unittest.TestCase):
@@ -198,6 +202,13 @@ class ProjectionNeverWithholdsARank(unittest.TestCase):
         self.assertNotIn('projection', entry)
         self.assertIn('cannot name evidence files', entry['projection_error'])
         self.assertFalse(any('Bad' in p.name for p in (self.out / 'bundles').iterdir()), 'no file is written from that key')
+
+    def test_an_unexpected_failure_is_named_by_type_only_in_the_public_manifest(self):
+        from unittest.mock import patch
+        with patch.object(self.s.projection, 'build', side_effect=OSError('C:\\Users\\someone\\private\\path')):
+            entry = self.publish(self.bundle())
+        self.assertNotIn('projection', entry)
+        self.assertEqual(entry['projection_error'], 'OSError (details in the publication log)')
 
 
 class ColumnarEncoding(unittest.TestCase):
