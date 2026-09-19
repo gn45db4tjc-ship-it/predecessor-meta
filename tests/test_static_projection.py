@@ -71,7 +71,7 @@ class ProjectionRoundTrip(unittest.TestCase):
         slug, roles = next((s, r) for s, r in bundle['pred_game_data']['role_data'].items() if any('counters' in d for d in r.values()))
         role = next(r for r, d in roles.items() if 'counters' in d)
         tables = bundle['pred_game_data']['role_data'][slug][role]['counters']['tables']
-        for verified, in_core in ((True, True), (False, False), (None, False)):
+        for verified, in_core in ((True, True), (1, True), ({}, True), ('yes', True), (False, False), (None, False), (0, False), ('', False)):
             tables['counters'] = dict(tables.get('counters') or {}, cohort_verified=verified)
             core, _, _ = P.split(bundle)
             kept = core['pred_game_data']['role_data'][slug][role]['counters']['tables']
@@ -100,8 +100,24 @@ class ProjectionRoundTrip(unittest.TestCase):
         bundle = copy.deepcopy(self.bundle)
         bundle['scoped_statistics']['status'] = 'retained'
         parts = P.build(bundle)
-        self.assertLessEqual(len(parts['core']), 5_000_000, 'core bytes')
+        decoded = len(P.dumps(P.decode(json.loads(parts['core']))))
+        self.assertLessEqual(decoded, 5_000_000, 'decoded core bytes')
         self.assertLess(len(parts['core']), len(P.dumps(bundle)) * 0.4)
+
+    def test_the_core_is_well_under_half_the_bundle_while_pred_gg_is_current(self):
+        # With Pred.gg current, the six Tier 3 purchase tables stay in the core (every hero's plan reads them), so the
+        # core is larger than the 5 MB target; it is still less than half of the full bundle.
+        bundle = copy.deepcopy(self.bundle)
+        bundle['scoped_statistics']['status'] = 'ok'
+        decoded = len(P.dumps(P.decode(json.loads(P.build(bundle)['core']))))
+        self.assertLess(decoded, len(P.dumps(bundle)) * 0.5)
+
+    def test_hero_keys_that_cannot_name_a_file_are_refused(self):
+        bundle = copy.deepcopy(self.bundle)
+        slug = next(iter(bundle['heroes']))
+        bundle['heroes']['../' + slug] = bundle['heroes'].pop(slug)
+        with self.assertRaises(ValueError):
+            P.build(bundle)
 
 
 class PublishedProjection(unittest.TestCase):
@@ -142,6 +158,48 @@ class PublishedProjection(unittest.TestCase):
         self.assertLess(html.index('MetaProjection'), html.index('function checkPublication()'), 'the page decodes parts with projection_client.js')
 
 
+class ProjectionNeverWithholdsARank(unittest.TestCase):
+    """The projection is an optimisation: when it cannot be built, the rank is published with its full bundle only."""
+    def setUp(self):
+        import tempfile
+        import static_publish as s
+        from test_static_publish import bundle, official
+        self.s, self.bundle, self.official = s, bundle, official
+        self.tmp = tempfile.TemporaryDirectory()
+        self.state, self.out = Path(self.tmp.name) / 'state', Path(self.tmp.name) / 'site'
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def publish(self, b):
+        import hashlib
+        from unittest.mock import patch
+        self.s.retain_success(b, self.state)
+        with patch.object(self.s, 'output_flag') as flag:
+            manifest = self.s.render_site(self.state, self.out, {'patch_check': self.s.patch_summary(self.official())})
+        flag.assert_any_call('publishable', True)
+        entry = manifest['cohorts']['gold']
+        self.assertEqual(entry['status'], 'available')
+        self.assertEqual(hashlib.sha256((self.out / entry['url']).read_bytes()).hexdigest(), entry['sha256'])
+        self.assertTrue((self.out / 'index.html').exists())
+        return entry
+
+    def test_a_bundle_using_a_reserved_key_is_published_without_a_projection(self):
+        b = self.bundle()
+        b['guidance'] = {'$order': ['kept exactly as collected']}
+        entry = self.publish(b)
+        self.assertNotIn('projection', entry)
+        self.assertIn('reserved projection key', entry['projection_error'])
+
+    def test_a_hero_key_that_cannot_name_a_file_is_published_without_a_projection(self):
+        b = self.bundle()
+        b['heroes']['Bad/Slug'] = dict(b['heroes']['unit-test-fixture'], previous_abilities=[])
+        entry = self.publish(b)
+        self.assertNotIn('projection', entry)
+        self.assertIn('cannot name evidence files', entry['projection_error'])
+        self.assertFalse(any('Bad' in p.name for p in (self.out / 'bundles').iterdir()), 'no file is written from that key')
+
+
 class ColumnarEncoding(unittest.TestCase):
     def test_rows_of_the_same_shape_round_trip_with_key_order(self):
         value = {'rows': [{'b': 1, 'a': [1, {'x': 2}]}, {'b': 2, 'a': []}, {'b': 3, 'a': None}], 'mixed': [{'a': 1}, {'b': 2}, {'a': 3}]}
@@ -149,6 +207,12 @@ class ColumnarEncoding(unittest.TestCase):
         self.assertEqual(encoded['rows'], {'$c': ['b', 'a'], '$r': [[1, [1, {'x': 2}]], [2, []], [3, None]]})
         self.assertEqual(encoded['mixed'], value['mixed'], 'different shapes are left as they are')
         self.assertEqual(json.dumps(P.decode(encoded)), json.dumps(value))
+
+    def test_lists_of_record_lists_are_encoded_once(self):
+        value = {'grid': [[{'k': 1}, {'k': 2}, {'k': 3}]] * 3}
+        self.assertEqual(json.dumps(P.decode(json.loads(json.dumps(P.encode(value))))), json.dumps(value))
+        bundle = {'heroes': {}, 'grid': value['grid']}
+        P.build(bundle)   # raises if the round trip differs
 
 
 if __name__ == '__main__':

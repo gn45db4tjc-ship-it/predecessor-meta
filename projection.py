@@ -12,13 +12,14 @@ Encoding: an array of three or more objects with identical keys in the same orde
 Annexes are overlays: a dict mirrors the bundle's structure, ``"$order"`` records a dict's original key order when
 keys were moved out of it, and ``"$items"`` addresses list elements by index.
 """
-import copy, json
+import copy, json, re
 
 VERSION = 1
 TIER3 = ('firstTier3', 'secondTier3', 'thirdTier3', 'fourthTier3', 'fifthTier3', 'sixthTier3')
 # Per hero, display-only (kit tab, hero Builds and Counters tabs) or read by no page code at all.
 HERO_FIELDS = ('statz_abilities', '_teammates_raw', 'tag_evidence', 'lane_previews', 'previous_abilities', 'pred_attributes')
 ABILITY_FIELDS = ('pred_raw', 'pred_source')
+ROLE_FIELDS = ('matchups',)   # on each hero's per-role statistics; read by no page code
 # Shared, display-only (Sources, library and audit views) or read by no page code at all.
 SHARED_PATHS = (('pred_game_data', 'assets'), ('pred_game_data', 'items_catalog'), ('pred_game_data', 'eternals_catalog'),
                 ('pred_game_data', 'heroes'), ('pred_game_data', 'field_protections'), ('pred_game_data', 'records'),
@@ -26,16 +27,16 @@ SHARED_PATHS = (('pred_game_data', 'assets'), ('pred_game_data', 'items_catalog'
                 ('image_index',), ('omeda_items',), ('unverified_changes',), ('scoped_changes',))
 CATALOG_FIELDS = ('pred_raw', 'previous_source')   # on each item and perk
 RESERVED = ('$c', '$r', '$order', '$items')
+SLUG = re.compile(r'^[a-z0-9-]+$')   # what the page and the service worker accept in an evidence file name
 
 
 def encode(value):
     if isinstance(value, list):
-        items = [encode(x) for x in value]
-        if len(items) >= 3 and all(isinstance(x, dict) for x in items):
-            keys = list(items[0].keys())
-            if keys and all(list(x.keys()) == keys for x in items):
-                return {'$c': keys, '$r': [[x[k] for k in keys] for x in items]}
-        return items
+        if len(value) >= 3 and all(isinstance(x, dict) for x in value):
+            keys = list(value[0].keys())
+            if keys and all(list(x.keys()) == keys for x in value):
+                return {'$c': keys, '$r': [[encode(x[k]) for k in keys] for x in value]}
+        return [encode(x) for x in value]
     if isinstance(value, dict):
         return {k: encode(v) for k, v in value.items()}
     return value
@@ -60,6 +61,11 @@ def _check_reserved(value, path='bundle'):
     elif isinstance(value, list):
         for i, v in enumerate(value):
             _check_reserved(v, path + '[' + str(i) + ']')
+
+
+def _js_truthy(value):
+    """JavaScript truthiness, which is what the engine tests (an empty dict or list is truthy there)."""
+    return not (value is None or value is False or value == '' or (isinstance(value, (int, float)) and not isinstance(value, bool) and value == 0))
 
 
 def _move(source, key, overlay):
@@ -91,9 +97,10 @@ def split(bundle):
                     for field in ABILITY_FIELDS:
                         if field in ability: _move(ability, field, part)
         for role, data in (hero.get('roles') or {}).items():
-            if isinstance(data, dict) and 'matchups' in data:
-                over = over or hero_overlay(slug).setdefault('heroes', {}).setdefault(slug, {})
-                _move(data, 'matchups', over.setdefault('roles', {}).setdefault(role, {}))
+            for field in ROLE_FIELDS:
+                if isinstance(data, dict) and field in data:
+                    over = over or hero_overlay(slug).setdefault('heroes', {}).setdefault(slug, {})
+                    _move(data, field, over.setdefault('roles', {}).setdefault(role, {}))
     scoped_ok = (core.get('scoped_statistics') or {}).get('status') == 'ok'
     for slug, roles in ((core.get('pred_game_data') or {}).get('role_data') or {}).items():
         if not isinstance(roles, dict):
@@ -111,8 +118,8 @@ def split(bundle):
                     _move(tables, key, target().setdefault('items', {}).setdefault('tables', {}))
             counters = (data.get('counters') or {}).get('tables') if isinstance(data.get('counters'), dict) else None
             if isinstance(counters, dict):
-                # engine matchup reads only tables.counters, and only its rows when cohort_verified is true.
-                for key in [k for k in counters if k != 'counters' or not (isinstance(counters[k], dict) and counters[k].get('cohort_verified') is True)]:
+                # engine matchup reads only tables.counters, and only its rows when cohort_verified is truthy (JavaScript).
+                for key in [k for k in counters if k != 'counters' or not (isinstance(counters[k], dict) and _js_truthy(counters[k].get('cohort_verified')))]:
                     _move(counters, key, target().setdefault('counters', {}).setdefault('tables', {}))
     for path in SHARED_PATHS:
         node, over = core, shared
@@ -166,6 +173,9 @@ def dumps(value):
 def build(bundle):
     """Split, encode and verify. Returns {'core': bytes, 'shared': bytes, 'heroes': {slug: bytes}}."""
     core, heroes, shared = split(bundle)
+    bad = sorted(slug for slug in heroes if not SLUG.match(str(slug)))
+    if bad:
+        raise ValueError('Hero keys cannot name evidence files: ' + ', '.join(map(repr, bad[:5])))
     parts = {'core': dumps(encode(core)), 'shared': dumps(encode(shared)), 'heroes': {slug: dumps(encode(v)) for slug, v in heroes.items()}}
     rebuilt = merge(decode(json.loads(parts['core'])), decode(json.loads(parts['shared'])),
                     *(decode(json.loads(raw)) for raw in parts['heroes'].values()))

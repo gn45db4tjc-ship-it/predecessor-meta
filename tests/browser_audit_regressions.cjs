@@ -1090,7 +1090,7 @@ const probes = {
     await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
     const fullBytes = (await (await context.request.get(url + entry.url)).body()).length, name = u => u.split('/').pop();
     const seen = {requested: requested.map(r => r.replace(/-[a-f0-9]{64}\.json$/, '')), core_bytes: entry.projection.core.bytes, full_bytes: fullBytes};
-    verdict('I1', !requested.includes(name(entry.projection.core.url)) || requested.includes(name(entry.url)) || entry.projection.core.bytes > fullBytes * 0.45, seen);
+    verdict('I1', !requested.includes(name(entry.projection.core.url)) || requested.includes(name(entry.url)) || requested.some(r => /-(?:hero-[a-z0-9-]+|shared)-[a-f0-9]{64}\.json$/.test(r)) || entry.projection.core.bytes > fullBytes * 0.45, seen);
     await context.close();
   },
   async I2(browser) {
@@ -1179,6 +1179,51 @@ const probes = {
     const note = await opened.evaluate(() => /saved without 1 of its detailed evidence files/.test(document.body.innerText));
     const seen = {completeEqualsFull: complete.bundle === full, completeMissing: complete.config?.missing_evidence ?? 0, partialMissing: partial.config?.missing_evidence ?? 0, noteShown: note};
     verdict('I6', !seen.completeEqualsFull || seen.completeMissing !== 0 || seen.partialMissing !== 1 || !note, seen);
+    await context.close();
+  },
+  async I7(browser) {
+    // An update check while a hero's evidence downloads (the same publication) keeps that evidence: the view shows it.
+    const {context, page} = await session(browser, desktop);
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-hero-steel-*.json', async route => { await held; await route.continue(); });
+    await page.evaluate(() => openHero('steel', 'jungle'));
+    await page.waitForSelector('#main .annex-loading', {timeout: 10000});
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+    release();
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 20000}).catch(() => {});
+    const seen = await page.evaluate(async () => {
+      const manifest = await (await fetch('manifest.json', {cache: 'no-store'})).json(), full = await (await fetch(manifest.cohorts.gold.url)).json();
+      return {stillLoading: !!document.querySelector('#main .annex-loading'), heroMatches: JSON.stringify(B.heroes.steel) === JSON.stringify(full.heroes.steel)};
+    });
+    verdict('I7', seen.stillLoading || !seen.heroMatches, seen);
+    await context.close();
+  },
+  async I8(browser) {
+    // Shared evidence (Data and Sources views, catalog dialogs): a failure is named in the evidence part only, the rest of
+    // the view still shows; Reload latest data retries; a dialog opened before the evidence arrives fills in when it does.
+    const {context, page} = await session(browser, desktop);
+    const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+    const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
+    const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
+    assert.ok(item, 'probe setup: an item with an original Pred.gg definition');
+    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.evaluate(() => changeRoute('data'));
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading') && /could not be loaded/.test(document.querySelector('#main').innerText), null, {timeout: 30000}).catch(() => {});
+    const failed = await page.evaluate(() => ({named: /could not be loaded/.test(document.querySelector('#main').innerText), summaryShown: !B.definition_review || /Official description review/.test(document.querySelector('#main').innerText)}));
+    await page.unroute('**/bundles/gold-shared-*.json');
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    await page.locator('#refresh').click();
+    await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+    await page.evaluate(key => showCatalog('items', key), item);
+    const dialogWaited = await page.evaluate(() => document.querySelector('#detail').open && !!document.querySelector('#detail-body .annex-loading'));
+    release();
+    await page.waitForFunction(() => !document.querySelector('#detail-body .annex-loading') && !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+    const loaded = await page.evaluate(history => ({dialogFilled: /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), stillOpen: document.querySelector('#detail').open,
+      historyMatches: JSON.stringify(B.official?.definition_history) === history, failureCleared: !/could not be loaded/.test(document.querySelector('#main').innerText)}), JSON.stringify(full.official?.definition_history));
+    const seen = {...failed, dialogWaited, ...loaded};
+    verdict('I8', !failed.named || !failed.summaryShown || !dialogWaited || !loaded.dialogFilled || !loaded.stillOpen || !loaded.historyMatches || !loaded.failureCleared, seen);
     await context.close();
   }
 };

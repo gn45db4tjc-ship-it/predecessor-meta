@@ -218,7 +218,12 @@ test('F: the saved manifest is re-described from what is actually saved before i
 test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {
   const client = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), 'utf8');
   assert.match(client, /site\.loadedBytes = site\.verifiedBytes/, 'the verified bytes of the loaded publication are kept');
-  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(publicationBytes\(entry, site\.loadedBytes\?\.url\)\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  assert.match(client, /if \(saved\) \{ site\.offlineProblem = null; if \(loaded && site\.loadedBytes === loaded\) site\.loadedBytes = null; \}/, 'they are released only once saved');
+  // 2.27.0 review: the bytes and the address they were loaded from travel together into the (possibly queued) save.
+  assert.match(client, /const target = loaded\?\.bytes && publicationBytes\(entry, loaded\.url\) \? siteURL\(loaded\.url\) : null;/);
+  const commitStart = client.indexOf('async function commitNow'), commitBody = client.slice(commitStart, commitStart + client.slice(commitStart).search(/\r?\n  \}\r?\n/));
+  assert.ok(commitBody.length > 500, 'commitNow found');
+  assert.doesNotMatch(commitBody, /^[^\n]*site\.loadedBytes[^\n]*$/m, 'the save never reads the page-wide loaded bytes');
   // 2.27.0: the loaded bytes are the compact core or the full bundle; both count as this publication's bytes.
   assert.match(client, /const publicationBytes = \(entry, url\) => !!url && \(url === entry\?\.url \|\| url === entry\?\.projection\?\.core\?\.url\);/);
   assert.match(client, /else site\.offlineProblem = /, 'an unsaved copy is reported, never silently cleared');
@@ -236,6 +241,18 @@ test('F guard (2.27.0): a saved compact core and evidence file are served offlin
     assert.equal(await reply.text(), body);
   }
   await assert.rejects(sw.fetch(SITE + 'bundles/gold-hero-grux-' + 'e'.repeat(64) + '.json'), 'evidence that was never saved fails instead of being made up');
+});
+
+test('F guard (2.27.0): the one-time move never copies an old bundle next to a compact core the page already saved', async () => {
+  const storage = cacheStorage(), core = bundleBody('gold', 'core saved by 2.27'), old = bundleBody('gold', 'saved by 2.23');
+  const legacy = await storage.open('predecessor-meta-v2-23'), oldURL = SITE + 'bundles/gold-' + digest(old) + '.json';
+  await legacy.put(new Request(oldURL), new Response(old));
+  const data = await storage.open(DATA), coreURL = SITE + 'bundles/gold-core-' + digest(core) + '.json';
+  await data.put(new Request(coreURL), new Response(core));
+  const sw = worker(SW, storage, offline);
+  await sw.install(); await sw.activate();
+  assert.ok(await stored(storage, coreURL), 'the saved core was kept');
+  assert.ok(!(await (await storage.open(DATA)).match(new Request(oldURL))), 'the older bundle was moved next to the newer core');
 });
 
 test('F guard (2.27.0): the worker never stores a core or evidence file it fetched; only the page saves verified data', async () => {

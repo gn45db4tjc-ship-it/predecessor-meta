@@ -89,6 +89,16 @@ async function check(name, run) {
       return {shell, saved: data.length};
     });
 
+    await check('evidence of an older publication is removed when the rank is saved again', async () => {
+      const stale = new URL('bundles/gold-hero-steel-' + 'e'.repeat(64) + '.json', origin).href;
+      await page.evaluate(async ({name, url}) => (await caches.open(name)).put(url, new Response('{}')), {name: DATA_CACHE, url: stale});
+      await page.locator('#refresh').click();
+      await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
+      const kept = await page.evaluate(async ({name, url}) => !!(await (await caches.open(name)).match(url)), {name: DATA_CACHE, url: stale});
+      assert.ok(!kept, 'evidence of an older publication was kept');
+      return {removed: true};
+    });
+
     for (const bracket of brackets) await choose(page, bracket);
     await choose(page, 'gold');
     await until(page, async ({name, count}) => (await (await caches.open(name)).keys()).filter(k => /\/bundles\/[a-z]+-(?:core-)?[a-f0-9]{64}\.json$/.test(k.url)).length >= count, {name: DATA_CACHE, count: brackets.length});
@@ -148,10 +158,36 @@ async function check(name, run) {
       const unsaved = await page.evaluate(() => (document.querySelector('#main').innerText.match(/could not be loaded[^.]*/) || [''])[0]);
       net.down = false;
       assert.ok(!saved.failed, 'evidence saved while online did not open offline');
+      assert.ok(saved.previous, 'the saved evidence did not restore the hero\'s previous abilities');
       assert.match(unsaved, /not saved on this device/, 'evidence that was never saved is not explained');
       return {saved, unsaved};
     });
     await context.close();
+
+    await check('a save still running when the rank changes stores each rank under its own address', async () => {
+      const other = brackets.find(b => b !== 'gold');
+      if (!other) return {skipped: 'needs two ranks'};
+      const slow = await browser.newContext({viewport: {width: 1280, height: 900}, serviceWorkers: 'allow'}), p = await slow.newPage();
+      await p.addInitScript(() => { const open = caches.open.bind(caches); caches.open = name => new Promise(r => setTimeout(r, 1500)).then(() => open(name)); });
+      await p.goto(origin); await p.waitForFunction(() => typeof B !== 'undefined' && !!B && B.bracket.segment === 'gold', null, {timeout: 120000});
+      await p.selectOption('#bracket', other);   // the gold save is still waiting for storage
+      await p.waitForFunction(b => !!B && B.bracket?.segment === b && !latestStatus.busy, other, {timeout: 120000});
+      await p.waitForTimeout(4000);
+      const files = await p.evaluate(async name => {
+        const cache = await caches.open(name), out = [];
+        for (const key of await cache.keys()) {
+          const m = new URL(key.url).pathname.match(/\/bundles\/(.+)-([a-f0-9]{64})\.json$/);
+          if (!m) continue;
+          const bytes = await (await cache.match(key)).arrayBuffer(), hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
+          out.push({file: m[1], matches: hash === m[2]});
+        }
+        return out;
+      }, DATA_CACHE);
+      await slow.close();
+      assert.ok(files.every(f => f.matches), 'a saved file does not hold the bytes its name promises: ' + JSON.stringify(files.filter(f => !f.matches)));
+      for (const b of ['gold', other]) assert.ok(files.some(f => f.file === b || f.file === b + '-core'), b + ' is not saved');
+      return {saved: files.map(f => f.file)};
+    });
 
     await check('brackets saved by release 2.23/2.24 are moved on upgrade and open with the network down', async () => {
       net.nextRelease = false;

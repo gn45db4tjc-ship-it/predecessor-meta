@@ -475,15 +475,22 @@ def render_site(folder, out, state):
             target.write_bytes(raw)
             # Website delivery projection (audit item 11): a compact core and evidence annexes, verified to
             # reproduce this exact bundle. The full bundle above stays published for compatibility and export.
-            parts = projection.build(bundle)
-            def publish_part(kind, raw):
-                part_digest = hashlib.sha256(raw).hexdigest()
-                part_path = 'bundles/' + bracket + '-' + kind + '-' + part_digest + '.json'
-                (out / part_path).write_bytes(raw)
-                return {'url': part_path, 'sha256': part_digest, 'bytes': len(raw)}
-            entry['projection'] = {'version': projection.VERSION, 'core': publish_part('core', parts['core']),
-                                   'shared': publish_part('shared', parts['shared']),
-                                   'heroes': {slug: publish_part('hero-' + slug, raw) for slug, raw in sorted(parts['heroes'].items())}}
+            # The projection is an optimisation: if it cannot be built, this rank is published with its full
+            # bundle only (the page loads that), never withheld.
+            try:
+                parts = projection.build(bundle)
+                def publish_part(kind, raw):
+                    part_digest = hashlib.sha256(raw).hexdigest()
+                    part_path = 'bundles/' + bracket + '-' + kind + '-' + part_digest + '.json'
+                    (out / part_path).write_bytes(raw)
+                    return {'url': part_path, 'sha256': part_digest, 'bytes': len(raw)}
+                entry['projection'] = {'version': projection.VERSION, 'core': publish_part('core', parts['core']),
+                                       'shared': publish_part('shared', parts['shared']),
+                                       'heroes': {slug: publish_part('hero-' + slug, raw) for slug, raw in sorted(parts['heroes'].items())}}
+            except Exception as error:
+                entry.pop('projection', None)
+                entry['projection_error'] = (type(error).__name__ + ': ' + str(error))[:300]
+                print('::warning::' + bracket + ' evidence files were not published (' + entry['projection_error'] + '); the site serves the full bundle for this rank.', flush=True)
             entry.update(url=relative, sha256=digest, generated_at=bundle['generated_at'],
                          patch=bundle.get('official', {}).get('live', {}).get('version'),
                          source_signature=live_signature(bundle.get('official', {})), status='available',

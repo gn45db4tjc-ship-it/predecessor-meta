@@ -4,15 +4,20 @@
    order ("$order") and addressing list elements by index ("$items"), so core + annexes equal the full bundle. */
 (function (root) {
   'use strict';
+  // An own property even for the key "__proto__", exactly as JSON.parse creates it.
+  function put(target, key, value) {
+    if (key === '__proto__') Object.defineProperty(target, key, {value, enumerable: true, writable: true, configurable: true});
+    else target[key] = value;
+  }
   function decode(value) {
     if (Array.isArray(value)) return value.map(decode);
     if (value && typeof value === 'object') {
       const keys = Object.keys(value);
       if (keys.length === 2 && Array.isArray(value.$c) && Array.isArray(value.$r)) {
-        return value.$r.map(row => { const out = {}; value.$c.forEach((key, i) => { out[key] = decode(row[i]); }); return out; });
+        return value.$r.map(row => { const out = {}; value.$c.forEach((key, i) => put(out, key, decode(row[i]))); return out; });
       }
       const out = {};
-      for (const key of keys) out[key] = decode(value[key]);
+      for (const key of keys) put(out, key, decode(value[key]));
       return out;
     }
     return value;
@@ -23,15 +28,15 @@
       if (key === '$order') continue;
       if (isObject(value) && isObject(value.$items) && Array.isArray(target[key])) {
         for (const [index, part] of Object.entries(value.$items)) if (isObject(target[key][Number(index)])) merge(target[key][Number(index)], part);
-      } else if (isObject(value) && isObject(target[key])) merge(target[key], value);
-      else target[key] = value;
+      } else if (isObject(value) && Object.prototype.hasOwnProperty.call(target, key) && isObject(target[key])) merge(target[key], value);
+      else put(target, key, value);
     }
     const order = overlay.$order;
     if (Array.isArray(order)) {
       // Rebuild the key order in place, so objects the engine already holds keep their identity.
       const entries = [...order.filter(k => Object.prototype.hasOwnProperty.call(target, k)), ...Object.keys(target).filter(k => !order.includes(k))].map(k => [k, target[k]]);
       for (const key of Object.keys(target)) delete target[key];
-      for (const [key, value] of entries) target[key] = value;
+      for (const [key, value] of entries) put(target, key, value);
     }
     return target;
   }

@@ -15,6 +15,7 @@ const SHELL = ['./', 'app.webmanifest', 'assets/app-icon-192.png', 'assets/app-i
 const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-([a-f0-9]{64})\.json$/;
 // A rank's compact core and its evidence annexes (2.27.0). Like bundles they are data: stored by the page only.
 const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-(core|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
+const CORE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-core-([a-f0-9]{64})\.json$/;
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
@@ -31,7 +32,8 @@ async function sha256(buffer) {
 // the checksum in its own name; a bracket the page has already saved again is never overwritten.
 async function migrateLegacy(name) {
   const old = await caches.open(name), data = await caches.open(DATA_CACHE);
-  const have = new Set((await data.keys()).map(key => (new URL(key.url).pathname.match(BUNDLE) || [])[1]).filter(Boolean));
+  // A rank the page already saved, as a full bundle or as a compact core (2.27.0), is never overwritten.
+  const have = new Set((await data.keys()).map(key => { const p = new URL(key.url).pathname; return (p.match(BUNDLE) || p.match(CORE) || [])[1]; }).filter(Boolean));
   for (const key of await old.keys()) {
     const match = new URL(key.url).pathname.match(BUNDLE);
     if (!match || have.has(match[1])) continue;
