@@ -1,7 +1,9 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [],
+  "open": [
+    "V7"
+  ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -89,6 +91,7 @@
     "V4": "REVIEW 2.27.0 (P2): with a current verified cloud check matching this publication, the website still calls the official description review \"live check pending\"",
     "V5": "GUARD (2.28.0): the official description review is confirmed on the website for a saved copy, an offline copy, a version mismatch, a failed check or a check older than 30 hours",
     "V6": "REVIEW 2.27.0 (P2): a failed official or live patch check is described as \"pending\" instead of failed in the description review status",
-    "V13": "GUARD (2.28.0): an open blessing dialog is rebuilt when the description review status changes (offline, changed official content, a check older than 30 hours)."
+    "V13": "GUARD (2.28.0): an open blessing dialog is rebuilt when the description review status changes (offline, changed official content, a check older than 30 hours).",
+    "V7": "REVIEW 2.27.0 (P2): the Counters tab shows matchup rows under 100 games outside a closed exploratory disclosure, lacks that disclosure, drops thin samples, or does not lead with reviewed counterplay"
   }
 }

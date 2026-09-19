@@ -1595,6 +1595,43 @@ const probes = {
     assert.ok(seen.same_label.before.count === 2 && seen.same_label.before.focused === 1 && seen.same_label.status !== 'reviewed for current patch', 'probe setup: two same-label sections, the second focused, then the status changes');
     verdict('V13', changed.some(s => !s.open || !s.shown) || !seen.offline.kept.sections || !seen.offline.kept.scroll || !seen.offline.kept.focus
       || seen.same_label.after.focused !== 1 || JSON.stringify(seen.same_label.after.open) !== JSON.stringify(seen.same_label.before.open), seen);
+  },
+  async V7(browser) {
+    // Counters lead with reviewed counterplay and matchups of at least 100 games; every thinner sample and the alternate
+    // source tables stay available behind one closed exploratory disclosure (nothing removed, pooled or re-rated).
+    const seen = {};
+    for (const [label, options] of [['desktop', desktop], ['phone', phone]]) {
+      const {context, page} = await session(browser, options);
+      for (const [slug, role] of [['wukong', 'jungle'], ['steel', 'offlane']]) {
+        await page.evaluate(({slug, role}) => openHero(slug, role), {slug, role});
+        await page.locator('[data-hero-tab="counters"]').first().click();
+        await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+        await page.waitForTimeout(200);
+        seen[label + ':' + slug] = await page.evaluate(({slug, role}) => {
+          const main = document.querySelector('#main'), out = {};
+          const gamesOf = tr => { const heads = [...tr.closest('table').querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase()), i = heads.indexOf('games'), cell = tr.children[i];
+            return i < 0 || !cell ? null : Number((cell.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '')); };
+          const rows = [...main.querySelectorAll('tbody tr')].map(tr => ({games: gamesOf(tr), hidden: !!tr.closest('details:not([open])')})).filter(r => Number.isFinite(r.games));
+          out.thin_visible = rows.filter(r => r.games < 100 && !r.hidden).length;
+          const ex = main.querySelector('details.exploratory-matchups');
+          out.exploratory = ex ? (ex.open ? 'open' : 'closed') : 'missing';
+          out.exploratory_rows = ex ? ex.querySelectorAll('tbody tr').length : 0;
+          const c = B.pred_game_data?.role_data?.[slug]?.[role]?.counters, primary = c?.tables?.counters, h = B.heroes[slug], r = h?.roles?.[role];
+          const thinPred = primary ? (primary.cohort_verified ? primary.rows.filter(x => !(x.played >= 100)).length : primary.rows.length) : 0;
+          const thinStatz = (r?.status === 'ok' ? (r.builds || []).flatMap(b => [...(b.lane_counters || []), ...(b.strong_against || [])]) : []).filter(o => !(o.playedGames >= 100)).length;
+          const thinWide = [...(h?.general_strong_against || []), ...(h?.general_counters || [])].filter(o => !(o.played >= 100)).length;
+          out.thin_in_source = thinPred + thinStatz + thinWide;
+          const reviewed = main.querySelector('.strategic-profile, .reviewed-counter'), firstTable = main.querySelector('table');
+          out.reviewed_first = !reviewed || !firstTable || !!(reviewed.compareDocumentPosition(firstTable) & Node.DOCUMENT_POSITION_FOLLOWING);
+          out.reviewed_present = !!reviewed;
+          return out;
+        }, {slug, role});
+      }
+      await context.close();
+    }
+    assert.ok(seen['desktop:wukong'].thin_in_source > 0, 'probe setup: Wukong jungle has thin matchup samples');
+    const bad = s => s.thin_visible > 0 || s.exploratory !== 'closed' || s.exploratory_rows < s.thin_in_source || !s.reviewed_first;
+    verdict('V7', Object.values(seen).some(bad), seen);
   }
 };
 
