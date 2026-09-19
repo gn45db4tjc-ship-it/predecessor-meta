@@ -28,12 +28,30 @@ let annexState=(kind,key)=>(APP_CONFIG.missing_parts||[]).includes(kind==='share
 const annexRetry=()=>APP_CONFIG.mode==='static'?' Reload latest data to try again.':'';
 // Placeholders carry data-annex (which evidence file they wait for), so an open dialog is refreshed only when it changes.
 const annexId=(kind,key)=>kind==='shared'?'shared':'hero:'+key;
-function annexNote(state,problem,id=''){return state==='failed'?`<div class="annex-failed" data-annex="${esc(id)}">${note('This evidence could not be loaded'+(problem?' ('+esc(problem)+')':'')+'.'+annexRetry()+' Nothing is estimated in its place.',true)}</div>`:`<div class="note annex-loading" role="status" data-annex="${esc(id)}">Loading the detailed evidence for this section…</div>`;}
+function annexNote(state,problem,id=''){return state==='failed'?`<div class="annex-failed" data-annex="${esc(id)}">${note('This evidence could not be loaded'+(problem?' ('+esc(problem)+')':'')+'.'+annexRetry()+' Nothing is estimated in its place.',true)}</div>`:`<div class="note annex-loading" data-annex="${esc(id)}">Loading the detailed evidence for this section…</div>`;}
 // Display-only evidence inside a larger view (static site): the rest renders at once and only this part waits.
 function annexHTML(kind,key,render){const state=annexState(kind,key),problem=annexProblem(kind,key),id=esc(annexId(kind,key));return state==='loaded'?render():state==='failed'?`<p class="muted annex-failed" data-annex="${id}">Source evidence could not be loaded${problem?' ('+esc(problem)+')':''}.${annexRetry()}</p>`:`<p class="muted annex-loading" data-annex="${id}">Loading source evidence…</p>`;}
+// Evidence that fails, or arrives after a noticeable wait, once a view is drawn is announced once per view and wait from
+// a region that is always there: the dialog's while it is open (the page behind a modal dialog is inert), else the
+// page's. Placeholders are not live regions, so a view with many (the Builds page) never chatters, and a load that
+// finishes within a second stays quiet.
+const evidenceNews={page:null,dialog:null},evidenceTimers={};
+function annexWaiting(root){return new Set([...(root?.querySelectorAll('.annex-loading[data-annex]')||[])].map(el=>el.dataset.annex));}
+function trackEvidence(surface,view,root,before){
+ const now=annexWaiting(root),s=evidenceNews[surface];
+ if(!s||s.view!==view){evidenceNews[surface]={view,spoken:false,since:now.size?Date.now():0};return;}
+ if(!before.size){if(now.size){s.spoken=false;s.since=Date.now();}return;}   // a new wait, for example a retry
+ const resolved=[...before].filter(id=>!now.has(id));if(!resolved.length||s.spoken)return;
+ const failed=resolved.some(id=>root.querySelector(`.annex-failed[data-annex="${CSS.escape(id)}"]`));
+ if(!failed&&(now.size||Date.now()-s.since<1000))return;
+ s.spoken=true;if(surface==='page'&&$('#detail')?.open)return;
+ speakEvidence(surface,failed?'Some evidence in this view could not be loaded.'+annexRetry():'Detailed evidence loaded.');
+}
+// Cleared first, so the same message is announced again in a later view; cleared after a while, like the toast.
+function speakEvidence(surface,text){const el=$(surface==='dialog'?'#detail-evidence-status':'#evidence-status');if(!el)return;clearTimeout(evidenceTimers[surface]);el.textContent='';evidenceTimers[surface]=setTimeout(()=>{el.textContent=text;evidenceTimers[surface]=setTimeout(()=>{el.textContent='';},7000);},100);}
 // refresh (optional) reopens the dialog with current data when evidence it shows arrives after it opened.
 let detailRefresh=null;
-function detail(title,body,refresh){$('#detail-title').textContent=title;$('#detail-body').innerHTML=body;detailRefresh=refresh||null;if(!$('#detail').open)$('#detail').showModal();}
+function detail(title,body,refresh){const dialog=$('#detail'),content=$('#detail-body'),before=dialog.open?annexWaiting(content):new Set();if(!dialog.open)evidenceNews.dialog=null;$('#detail-title').textContent=title;content.innerHTML=body;detailRefresh=refresh||null;if(!dialog.open)dialog.showModal();trackEvidence('dialog',title,content,before);}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.remove('hide');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.add('hide'),7000);}
 function apiPath(path){return shared?path+(path.includes('?')?'&':'?')+'bracket='+encodeURIComponent(S.bracket):path;}
 async function post(path,value={},signal){if(shared)value={bracket:S.bracket,...value};const controller=!signal&&typeof AbortController==='function'?new AbortController():null;const timer=controller?setTimeout(()=>controller.abort(),15000):null;try{const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Session-Token':APP_CONFIG.token},body:JSON.stringify(value),signal:signal||controller?.signal});const data=await r.json();if(!r.ok){const error=Error(data.error||'A refresh is already running.');error.status=r.status;throw error;}return data;}catch(e){if(controller?.signal.aborted)throw Error('Local request timed out. Check the connection and retry.');throw e;}finally{if(timer!==null)clearTimeout(timer);}}
@@ -588,6 +606,12 @@ function pointerHeld(){if(evidenceView.pointer&&Date.now()-evidenceView.pointerA
 function focusScope(el,main){const s=el.parentElement?.closest('[id]');return s&&s!==main&&main.contains(s)?s:main;}
 function scopedMatches(scope,key,main){return [...scope.querySelectorAll(key)].filter(el=>focusScope(el,main)===scope);}
 function focusKey(a){if(a.id)return '#'+CSS.escape(a.id);const attrs=[...a.attributes].filter(x=>x.name.startsWith('data-')).map(x=>'['+x.name+'="'+CSS.escape(x.value)+'"]').join('');return attrs?a.tagName.toLowerCase()+attrs:'';}
+// A rebuilt container (an open dialog refreshed with its evidence) keeps focus on the same control: same id or data-*
+// attributes (focusKey), else the same tag, link and text; the nth such control before is the nth after. When it is
+// gone (or hidden in a closed section), focus moves to the fallback (the dialog) instead of falling out to the page.
+function controlKey(el){return focusKey(el)||el.tagName+'|'+(el.getAttribute('href')||'')+'|'+el.textContent.replace(/\s+/g,' ').trim();}
+function focusMark(container){const a=document.activeElement;if(!a||a===container||!container?.contains(a))return null;const key=controlKey(a),same=[...container.querySelectorAll(a.tagName)].filter(el=>controlKey(el)===key);return {key,tag:a.tagName,index:same.indexOf(a),count:same.length};}
+function focusReturn(mark,container,fallback){if(!mark)return;const same=[...container.querySelectorAll(mark.tag)].filter(el=>controlKey(el)===mark.key),target=same.length===mark.count?same[mark.index]:same.length===1?same[0]:null;if(target&&target!==document.activeElement)target.focus({preventScroll:true});if(!target||document.activeElement!==target)fallback?.focus({preventScroll:true});}
 function redrawKeepingFocus(){const main=$('#main'),a=document.activeElement,key=a&&a!==main&&main?.contains(a)?focusKey(a):'',scope=key?focusScope(a,main):null,scopeId=scope&&scope!==main?scope.id:'',before=key?scopedMatches(scope,key,main):[],index=before.indexOf(a),text=textEntry(a),start=text?a.selectionStart:null,end=text?a.selectionEnd:null;render();if(!key)return;const nowMain=$('#main'),nowScope=scopeId?document.getElementById(scopeId):nowMain,after=nowScope&&nowMain?.contains(nowScope)?scopedMatches(nowScope,key,nowMain):[],n=after.length===before.length?after[index]:null;if(!n||n===document.activeElement)return;n.focus({preventScroll:true});if(text&&textEntry(n)&&start!==null)try{n.setSelectionRange(start,end);}catch{}}
 function scheduleRedraw(delay){clearTimeout(evidenceView.timer);evidenceView.timer=setTimeout(flushEvidenceRedraw,delay);}
 function requestRedraw(dataChanged){if(!dataChanged&&!evidenceView.pending&&evidenceSignature()===evidenceView.drawn){chrome();return;}if(pointerHeld()||typingInMain(document.activeElement)){chrome();evidenceView.pending=true;scheduleRedraw(TYPING_PAUSE_MS);return;}redrawKeepingFocus();}
@@ -597,7 +621,7 @@ function disclosureView(){return S.route+'|'+(S.route==='hero'?S.hero+'|'+S.hero
 function disclosureKey(d){return d.dataset.keep||(d.querySelector(':scope>summary')?.textContent||'').split('·')[0].replace(/\s+/g,' ').trim();}
 function disclosureStates(){const main=$('#main');if(!main)return null;const seen={},states=[];for(const d of main.querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;states.push([k+'#'+seen[k],d.open,!!d.dataset.keep]);}return {view:main.dataset.view||'',states};}
 function restoreDisclosures(kept){if(!kept||kept.view!==disclosureView())return;const map=new Map(kept.states.map(([k,open,keep])=>[k,{open,keep}])),seen={};for(const d of $('#main').querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;const s=map.get(k+'#'+seen[k]);if(!s)continue;if(s.open)d.open=true;else if(s.keep&&d.dataset.keep)d.open=false;}}
-const renderView=render;render=function(){const kept=disclosureStates();renderView();restoreDisclosures(kept);const main=$('#main');if(main)main.dataset.view=disclosureView();evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
+const renderView=render;render=function(){const kept=disclosureStates(),waiting=annexWaiting($('#main'));renderView();restoreDisclosures(kept);const main=$('#main');if(main){main.dataset.view=disclosureView();trackEvidence('page',main.dataset.view,main,waiting);}evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
 document.addEventListener('input',event=>{if(textEntry(event.target))evidenceView.lastInput=Date.now();},true);
 document.addEventListener('focusout',event=>{if(evidenceView.pending&&!(textEntry(event.relatedTarget)&&$('#main')?.contains(event.relatedTarget)))setTimeout(flushEvidenceRedraw,0);});
 document.addEventListener('pointerdown',()=>{evidenceView.pointer=true;evidenceView.pointerAt=Date.now();},true);

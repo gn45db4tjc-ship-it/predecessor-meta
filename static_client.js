@@ -254,16 +254,18 @@ if (APP_CONFIG.mode === 'static') {
     site.goneCheckAt = Date.now(); site.goneCheckQueued = false; checkPublication();
   }
   // An open dialog waiting for (or showing a failure of) an evidence file that changed state is rebuilt in place (the page
-  // redraw does not reach dialogs), keeping its open sections and scroll position. Other arrivals leave it alone.
+  // redraw does not reach dialogs), keeping its open sections, scroll position and keyboard focus (the same control, or
+  // the dialog itself when that control is gone). Other arrivals leave it alone.
   function refreshDialog(changed) {
     const dialog = $('#detail'), body = $('#detail-body');
     if (!detailRefresh || !B || !dialog?.open) return;
     const waiting = [...body.querySelectorAll('[data-annex]')].map(el => el.dataset.annex);
     if (!waiting.some(id => changed.has('*') || changed.has(id))) return;
-    const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop;
+    const open = new Set([...body.querySelectorAll('details[open] > summary')].map(s => s.textContent)), top = dialog.scrollTop, focus = focusMark(body);
     detailRefresh();
     body.querySelectorAll('details > summary').forEach(s => { if (open.has(s.textContent)) s.parentElement.open = true; });
     dialog.scrollTop = top;
+    focusReturn(focus, body, dialog);   // after the sections reopen: a control in a closed section cannot take focus
   }
   // Evidence files that arrive together (the desktop Builds page asks for one per hero) share one redraw.
   let annexRedraw = 0, annexChanged = new Set();
