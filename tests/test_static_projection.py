@@ -148,7 +148,7 @@ class PublishedProjection(unittest.TestCase):
         p = entry['projection']
         self.assertEqual(p['version'], P.VERSION)
         parts = [('core', p['core'])] + [('shared', p['shared'])] + [('hero-' + slug, v) for slug, v in p['heroes'].items()]
-        self.assertEqual(set(p['heroes']), set(json.loads(full)['heroes']), 'one evidence file per hero')
+        self.assertEqual(set(p['heroes']), set(P.split(json.loads(full))[1]), 'one evidence file per hero that has display-only evidence')
         decoded = {}
         for kind, part in parts:
             raw = (self.out / part['url']).read_bytes()
@@ -157,7 +157,8 @@ class PublishedProjection(unittest.TestCase):
             decoded[kind] = P.decode(json.loads(raw))
         rebuilt = P.merge(decoded.pop('core'), *decoded.values())
         self.assertEqual(P.dumps(rebuilt), full)
-        self.assertLess(p['core']['bytes'], len(full))
+        # Smaller whenever something moved out (the synthetic fixture used without the seed has no display-only fields).
+        (self.assertLess if p['heroes'] else self.assertLessEqual)(p['core']['bytes'], len(full))
         html = (self.out / 'index.html').read_text(encoding='utf8')
         self.assertLess(html.index('MetaProjection'), html.index('function checkPublication('), 'the page decodes parts with projection_client.js')
 
