@@ -2366,6 +2366,148 @@ probes.W8 = async browser => {
   verdict('W8', Object.values(seen).some(v => !v.strip || v.strip.scrolls || v.strip.wrap !== 'wrap' || !v.toggle || !v.toggle.onScreen), seen);
 };
 
+/* ---------------------------------------------------------------------------
+   X-series: 2.29 redesign, stage 3 (the hero build).
+
+   These guard the categories the ENGINE produces, not a two-way observed/substituted
+   split. engine.js emits, per build: plannedBuild kind 'reviewed' or 'provisional'
+   (with manual set when the reader selected a source playstyle), and per slot a kind of
+   'core', 'baseline', 'need' or 'owned' with its own label. Every slot may also carry
+   `measured`, a purchase-position sample whose `supports_current_fit` the engine has
+   already decided. A supporting sample must never promote a choice to an observed one.
+   --------------------------------------------------------------------------- */
+
+const CATEGORY_WORDS = {
+  reviewed: /reviewed/i,
+  calculated: /calculated/i,
+  observed: /observed choice|source playstyle/i,
+  substitution: /substitut|replaces|answers/i,
+  owned: /owned|you entered/i
+};
+
+/* Open a hero with a reviewed plan, every disclosure expanded, and read back the advice
+   the PAGE built - not a fresh call with different inputs, which would compare a rendered
+   slot against a category computed from an enemy the page never saw. */
+async function heroBuild(page, slug = 'steel', role = 'jungle') {
+  return page.evaluate(([s, r]) => {
+    S.role = r; openHero(s, r);
+    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    const engine = adviceFor({slug: s, role: r});
+    return {
+      engine: {
+        planKind: engine.plan.kind, manual: !!engine.plan.manual, caution: engine.plan.caution || '',
+        slots: engine.slots.map(x => ({name: x.name, kind: x.kind, label: x.label,
+          measured: x.measured ? {played: x.measured.played, wr: x.measured.wr, supports: !!x.measured.supports_current_fit,
+                                  at: x.measured.fetched_at, source: x.measured.source || x.measured.label} : null})),
+        swaps: engine.swaps, unmet: engine.unmet
+      },
+      rendered: [...document.querySelectorAll('#main .build-path li')].map(li => ({
+        text: li.innerText.replace(/\s+/g, ' ').trim(),
+        tags: [...li.querySelectorAll('.tag')].map(t => ({cls: t.className, text: t.textContent.trim()}))
+      }))
+    };
+  }, [slug, role]);
+}
+
+probes.X1 = async browser => {
+  /* Every part of a build must name the category the engine gave it. Printing the
+     engine's label as plain prose leaves the build outside the four-class system that
+     the rest of the product is held to. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await heroBuild(page);
+  const slots = seen.rendered.slice(0, seen.engine.slots.length);
+  const missing = slots.filter(s => !s.tags.length).length;
+  const mismatched = [];
+  seen.engine.slots.forEach((e, i) => {
+    const row = slots[i];
+    if (!row || !row.tags.length) return;
+    const text = row.tags.map(t => t.text).join(' ');
+    const want = e.kind === 'owned' ? 'owned' : e.kind === 'need' ? 'substitution'
+      : seen.engine.manual ? 'observed' : seen.engine.planKind === 'reviewed' ? 'reviewed' : 'calculated';
+    if (!CATEGORY_WORDS[want].test(text)) mismatched.push({slot: e.name, kind: e.kind, want, got: text});
+  });
+  await context.close();
+  verdict('X1', missing > 0 || mismatched.length > 0,
+    {slots: slots.length, without_category: missing, mismatched, engine_kinds: seen.engine.slots.map(s => s.kind)});
+};
+
+probes.X2 = async browser => {
+  /* A rate attached to a slot is supporting evidence, and evidence carries its sample,
+     its date and its source. Where the engine has already decided the sample does not
+     support the current fit, the screen says so rather than printing a bare percentage. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await heroBuild(page);
+  const withStat = seen.engine.slots.map((e, i) => ({e, row: seen.rendered[i]})).filter(x => x.e.measured);
+  const problems = [];
+  for (const {e, row} of withStat) {
+    const text = row ? row.text : '';
+    if (!/\d/.test(text) || !/games|played/i.test(text)) { problems.push({slot: e.name, why: 'no sample shown', played: e.measured.played}); continue; }
+    // the product's own dayDate() writes "September 14"; accept either order, and a year
+    if (!/\b(19|20)\d\d\b|\b\d{1,2} \w{3,}\b|\b\w{3,} \d{1,2}\b/.test(text)) problems.push({slot: e.name, why: 'no collection date', text: text.slice(0, 90)});
+    if (!e.measured.supports && !/not eligible|does not support|for inspection/i.test(text))
+      problems.push({slot: e.name, why: 'engine says it does not support the fit, screen does not', played: e.measured.played});
+  }
+  await context.close();
+  verdict('X2', withStat.length === 0 || problems.length > 0,
+    {slots_with_a_statistic: withStat.length, problems: problems.slice(0, 6),
+     engine_support_flags: withStat.map(x => x.e.name + ':' + x.e.measured.played + (x.e.measured.supports ? ' supports' : ' does not support'))});
+};
+
+probes.X3 = async browser => {
+  /* The rule that matters most: a supporting statistic never changes a category. The
+     same plan, rendered with and without its samples, must carry the same categories. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const read = () => [...document.querySelectorAll('#main .build-path li')]
+      .map(li => [...li.querySelectorAll('.tag')].map(t => t.textContent.trim()).join('|'));
+    S.role = 'jungle'; openHero('steel', 'jungle');
+    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    const withStats = read();
+    // strip every purchase-position sample from the bundle and draw the same hero again
+    const saved = B;
+    let withoutStats = [];
+    try {
+      const stripped = JSON.parse(JSON.stringify(B));
+      for (const h of Object.values(stripped.heroes || {}))
+        for (const r of Object.values(h.roles || {})) { delete r.item_evidence; delete r.items; }
+      stripped.item_evidence = {};
+      B = stripped; E = MetaEngine.create(B);
+      openHero('steel', 'jungle');
+      document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+      withoutStats = read();
+    } finally { B = saved; E = MetaEngine.create(B); render(); }
+    return {withStats, withoutStats};
+  });
+  await context.close();
+  const n = Math.min(seen.withStats.length, seen.withoutStats.length);
+  const changed = [];
+  for (let i = 0; i < n; i++) if (seen.withStats[i] !== seen.withoutStats[i]) changed.push({slot: i + 1, with: seen.withStats[i], without: seen.withoutStats[i]});
+  verdict('X3', n === 0 || changed.length > 0, {compared: n, changed, ...seen});
+};
+
+probes.X4 = async browser => {
+  /* GUARD: a substitution says what it replaced and why, a need the engine could not
+     answer is named, and the whole six is never offered as one observed loadout. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    // An enemy is what makes the engine substitute at all, so the guard needs one.
+    S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}]; S.role = 'jungle';
+    S.enemies = [{slug: 'countess', role: 'midlane'}];
+    changeRoute('live');
+    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    const text = document.querySelector('#main').innerText.replace(/\s+/g, ' ');
+    const engine = adviceFor({slug: 'steel', role: 'jungle'});
+    return {
+      swaps: engine.swaps.map(s => ({...s, shown: text.includes(s.from) && text.includes(s.to)})),
+      unmet: engine.unmet.map(id => ({id, shown: text.toLowerCase().includes(String(id).replace(/_/g, ' ').toLowerCase())})),
+      caution_shown: !!engine.plan.caution && text.includes(engine.plan.caution.slice(0, 40)),
+      caution: (engine.plan.caution || '').slice(0, 80)
+    };
+  });
+  await context.close();
+  verdict('X4', seen.swaps.some(s => !s.shown) || seen.unmet.some(u => !u.shown) || !seen.caution_shown, seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

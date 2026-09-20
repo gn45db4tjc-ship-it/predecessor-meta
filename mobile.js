@@ -23,13 +23,39 @@ function freshnessHTML(p){
  const summary=(offline?'Offline · saved data · ':'')+sampleText+' · Mechanics '+(words[mechanics]||mechanics);
  return `<details class="coach-date ${offline||!perf||sample!=='current'||mechanics!=='current'?'warning':''}" data-keep="coach-evidence"><summary>${esc(summary)}</summary><div class="detail-content"><p>${esc(B?.bracket?.label||'Bracket unavailable')}${p?' · '+esc(name(p.slug))+' · '+esc(labels[p.role]||p.role):''}</p><p>${perf?'Role sample: '+esc(perf.source)+' · '+games(perf.played)+' · fetched '+esc(date(perf.fetched_at))+(perf.retained?' · retained from an earlier collection':''):esc(sampleText)+'. No role win rate is shown or estimated for this plan.'}</p><p>Mechanics fetched ${esc(date(mech?.fetched_at))}${mech?.status==='retained'?' · retained from an earlier collection':''}</p><p class="muted">Site-wide update health is on Sources &amp; accuracy; each section below shows its own date.</p></div></details>`;
 }
+/* The five categories engine.js actually produces for a build part. A part is never
+   reduced to "observed or substituted": a reviewed core, a calculated starting selection
+   and a source playstyle the reader chose are three different claims. */
+function buildCategory(plan,slot){
+ if(slot&&slot.kind==='owned')return {text:'Owned · kept',type:'saved'};
+ if(slot&&(slot.kind==='need'||slot.timing))return {text:'Substitution · calculated',type:'calculated'};
+ if(plan&&plan.manual)return {text:'Observed choice',type:'observed'};
+ if(plan&&plan.kind==='reviewed')return {text:'Reviewed',type:'reviewed'};
+ return {text:'Calculated starting selection',type:'calculated'};
+}
+/* A purchase-position sample shown beside a part is SUPPORTING evidence. It never changes
+   the part's category, and where the engine has already found it does not support the
+   current fit, that finding is carried rather than a bare percentage. */
+function supportingSample(m){
+ if(!m)return '<small class="muted">No source sample for this position.</small>';
+ var line=pct(m.wr)+' over '+games(m.played)+' · '+esc(m.source||'source')+' · '+esc(dayDate(m.fetched_at));
+ /* The engine has already decided whether this sample supports the current fit. Carry that
+    finding rather than a bare percentage, which would read as backing for the choice. */
+ return '<small class="muted">'+(m.supports_current_fit?'Supporting: ':'Not eligible as support: ')+line+'</small>';
+}
+/* Said once for the whole build, so it is not repeated under every part. */
+function sampleFootnote(slots){
+ var n=(slots||[]).filter(function(s){return s.measured&&!s.measured.supports_current_fit;}).length;
+ if(!n)return '';
+ return '<p class="muted coach-note">'+n+' of these positions carry a source sample that is too small or too old to support the choice. They are shown for inspection; the category beside each part is what the recommendation rests on.</p>';
+}
 function coachHTML(p,{compact=false}={}){
  let a;try{a=adviceFor(p);}catch(e){return `<section class="panel coach"><h2>Recommendation unavailable</h2><p>${esc(e.message)}</p><button data-route="data">Inspect sources</button></section>`;}
  const enemies=coachEnemies(p),key=p.slug+'|'+p.role,attr=`data-coach-key="${esc(key)}"`;
  const controls=`<div class="coach-controls"><label>My hero is<select ${attr} data-coach-field="state">${options([['ahead','Ahead'],['even','Even'],['behind','Behind']],a.state)}</select></label><label>Primary threat<select ${attr} data-coach-field="primaryThreat">${options(enemies.map(e=>[e.slug,name(e.slug)+' · '+labels[e.role]]),a.primaryThreat||'','No primary threat')}</select></label><label>Urgent need<select ${attr} data-coach-field="priority">${options(E.itemNeeds.filter(n=>!n.manual).map(n=>[n.id,n.label]),a.priority,'Normal timing')}</select></label></div>`;
  const info=`<p class="muted">Judge your hero’s farm and power curve. Enemy equipment is unknown until you choose a need.</p>`;
- const next=a.available?(a.nextPurchase?`<h2>Next: ${esc(a.nextPurchase.name)}</h2>${badge(a.nextPurchase.kind==='core'||a.nextPurchase.kind==='baseline'?'Reviewed':'Calculated',a.nextPurchase.kind==='core'?'reviewed':'calculated')}`:'<h2>Six completed items owned</h2><p>No purchase or sale suggested.</p>'):`<h2>Recommendation unavailable</h2><p>${esc(a.unavailableReason)}</p>`;
- return `<section class="panel coach" aria-label="Build Coach"><div class="coach-next">${next}</div>${controls}${compact?'':info}${freshnessHTML(p)}${a.available?`<p class="coach-reason">${esc(a.explanations[0])}</p><ol class="build-path coach-path">${a.slots.map((s,i)=>`<li><span class="item-position">${i+1} · ${esc(s.label)}</span>${itemButton(s.name)}</li>`).join('')}</ol>`:'<button data-route="data">Inspect sources & accuracy</button>'}<details><summary>Advanced details · why this path</summary><div class="detail-content">${info}<p>Reviewed for ${esc(a.evidence.reviewed.patch||'unverified')} · ${esc(date(a.evidence.reviewed.date))}. Editorial reference remains Gold+; observations use ${esc(B.bracket?.label)}.</p>${a.explanations.slice(1).map(t=>`<p>${esc(t)}</p>`).join('')}${a.changes.map(c=>`<p><strong>Position ${c.position}: ${esc(c.item)}</strong><br>${esc(c.reason)}</p>`).join('')}${a.timing.map(t=>`<p>${esc(t)}</p>`).join('')}${a.contingency?`<p>Alternative for ${esc(a.contingency.need)}: ${itemButton(a.contingency.name)}<br>${esc(a.contingency.reason)}</p>`:''}<p>Reviewed baseline: ${esc(a.baseline.join(' → ')||'Unavailable')}</p>${a.itemEvidence.issues.map(t=>note(esc(t),true)).join('')}${Object.values(a.itemEvidence.pool).filter(r=>a.slots.some(s=>normalizeName(s.name)===normalizeName(r.name))).map(r=>`<p>${esc(r.name)} · ${pct(r.wr)} · ${games(r.played)}<br>${esc(r.label||r.source)} · ${esc(date(r.fetched_at))} · ${r.supports_current_fit?'Eligible bracket evidence':'Inspection only; no influence'}</p>`).join('')}<p>${esc(a.note)}</p></div></details></section>`;
+ const next=a.available?(a.nextPurchase?`<h2>Next: ${esc(a.nextPurchase.name)}</h2>${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,a.nextPurchase))}${supportingSample(a.nextPurchase.measured)}`:'<h2>Six completed items owned</h2><p>No purchase or sale suggested.</p>'):`<h2>Recommendation unavailable</h2><p>${esc(a.unavailableReason)}</p>`;
+ return `<section class="panel coach" aria-label="Build Coach"><div class="coach-next">${next}</div>${controls}${compact?'':info}${freshnessHTML(p)}${a.available?`<p class="coach-reason">${esc(a.explanations[0])}</p><ol class="build-path coach-path">${a.slots.map((s,i)=>`<li><span class="item-position">${i+1} · ${esc(s.label)}</span>${itemButton(s.name)}${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,s))}${supportingSample(s.measured)}</li>`).join('')}</ol>${sampleFootnote(a.slots)}`:'<button data-route="data">Inspect sources & accuracy</button>'}<details><summary>Advanced details · why this path</summary><div class="detail-content">${info}<p>Reviewed for ${esc(a.evidence.reviewed.patch||'unverified')} · ${esc(date(a.evidence.reviewed.date))}. Editorial reference remains Gold+; observations use ${esc(B.bracket?.label)}.</p>${a.explanations.slice(1).map(t=>`<p>${esc(t)}</p>`).join('')}${a.changes.map(c=>`<p><strong>Position ${c.position}: ${esc(c.item)}</strong><br>${esc(c.reason)}</p>`).join('')}${a.timing.map(t=>`<p>${esc(t)}</p>`).join('')}${a.contingency?`<p>Alternative for ${esc(a.contingency.need)}: ${itemButton(a.contingency.name)}<br>${esc(a.contingency.reason)}</p>`:''}<p>Reviewed baseline: ${esc(a.baseline.join(' → ')||'Unavailable')}</p>${a.itemEvidence.issues.map(t=>note(esc(t),true)).join('')}${Object.values(a.itemEvidence.pool).filter(r=>a.slots.some(s=>normalizeName(s.name)===normalizeName(r.name))).map(r=>`<p>${esc(r.name)} · ${pct(r.wr)} · ${games(r.played)}<br>${esc(r.label||r.source)} · ${esc(date(r.fetched_at))} · ${r.supports_current_fit?'Eligible bracket evidence':'Inspection only; no influence'}</p>`).join('')}<p>${esc(a.note)}</p></div></details></section>`;
 }
 function companionChrome(){
  if(companionMedia.matches){$('#menu-toggle').textContent='More';$('#menu-toggle').removeAttribute('aria-expanded');$('#menu-toggle').setAttribute('aria-controls','main');}

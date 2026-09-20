@@ -106,6 +106,10 @@
     "W5": "2.29 stage 2: the page sets no scroll-padding, so focusing a control scrolls it to the viewport edge and under the fixed phone navigation",
     "W6": "2.29 stage 2: evidence kept from an earlier collection is labelled 'Saved <date>' with the warning treatment, which reads a date as a fault; retained and stale also differ by colour alone",
     "W7": "GUARD: at a 320x256 viewport (1280x1024 at 400% zoom) every route reflows without horizontal scroll and the chrome leaves room to read",
-    "W8": "GUARD: the freshness strip wraps rather than scrolls and its status control is fully on screen at 1280, 1440 and 1920"
+    "W8": "GUARD: the freshness strip wraps rather than scrolls and its status control is fully on screen at 1280, 1440 and 1920",
+    "X1": "2.29 stage 3: the hero build path prints the engine's slot label as prose with no category badge, so a build sits outside the four-class evidence system",
+    "X2": "2.29 stage 3: the purchase-position sample the engine attaches to every slot is not shown, so neither its size, its date, nor the engine's own finding that it does not support the current fit reaches the reader",
+    "X3": "GUARD: a supporting statistic never changes a slot's category; the same plan rendered with and without its samples carries the same categories",
+    "X4": "GUARD: a substitution names what it replaced and why, an unanswered need is named, and the whole six is never offered as one observed loadout"
   }
 }

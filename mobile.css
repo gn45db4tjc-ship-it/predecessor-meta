@@ -85,3 +85,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
  .status-line{display:block;padding:0;border:0;min-height:0}
 }
 @media(max-width:380px){.topbar .tools>label:has(#bracket){flex:1 1 100%;display:flex;align-items:center}.topbar .tools>label:has(#bracket) select{flex:1;min-width:0}}
+
+/* A build part carries its category and its supporting sample under the item, so neither
+   is read as part of the item's name. */
+.coach-path li{display:grid;gap:4px;justify-items:start}
+.coach-path li .tag{justify-self:start}
+.coach-path li small{display:block;max-width:100%;line-height:1.4}
