@@ -2056,6 +2056,168 @@ const probes = {
   }
 };
 
+/* ---------------------------------------------------------------------------
+   W-series: 2.29 redesign, stage 1 (tokens and typography).
+
+   These probes read the published stylesheet and the computed styles of a live
+   page. They guard the token layer itself: that themes redefine tokens rather
+   than components, that no component hard-codes a colour, and that the four
+   evidence classes stay visually distinct in both themes.
+   --------------------------------------------------------------------------- */
+
+/* Every rule in the stylesheet, flattened, with the media query it sits under.
+   CSSRuleList is not iterable in Chromium, so both loops index deliberately: a for..of
+   here throws, the throw is swallowed by the cross-origin guard, and the probe silently
+   reads zero rules and passes. */
+const readRules = () => {
+  const out = [];
+  const walk = (rules, media) => {
+    for (let i = 0; i < rules.length; i++) {
+      const r = rules[i];
+      // Style rules come first: since CSS nesting, a CSSStyleRule ALSO carries a (usually
+      // empty) cssRules list, so testing for that first recurses into every rule and
+      // collects none of them.
+      if (r.selectorText) {
+        out.push({selector: r.selectorText, text: r.cssText, media: media || ''});
+        if (r.cssRules && r.cssRules.length) walk(r.cssRules, media);
+        continue;
+      }
+      if (r.cssRules) walk(r.cssRules, r.conditionText || media);
+    }
+  };
+  // Read the product's own <style> elements directly. document.styleSheets is not used:
+  // the cross-origin font sheet is unreadable, and whether it appears in that list at all
+  // depends on whether the CDN responded, which silently changes what a probe sees.
+  const styles = document.querySelectorAll('style');
+  for (let i = 0; i < styles.length; i++) {
+    const sheet = styles[i].sheet;
+    if (sheet) walk(sheet.cssRules, '');
+  }
+  if (!out.length) throw Error('no CSS rules readable: ' + styles.length + ' style elements');
+  return out;
+};
+
+/* The product marks a class of evidence with a tag. These are the four; `warning` is a
+   status, not a class of evidence, and is deliberately not one of them. */
+const EVIDENCE = ['observed', 'calculated', 'reviewed', 'official'];
+
+probes.W1 = async browser => {
+  /* A theme block redefines tokens. The moment it styles a component, the component's
+     appearance lives in two places and the token layer is no longer the single source. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const themed = rules.filter(r => /:root\s*\[data-theme/.test(r.selector) || /\[data-theme=[^\]]*\]\s+\S/.test(r.selector));
+  const offenders = themed
+    .filter(r => /\[data-theme[^\]]*\]\s+[.#\w\[]/.test(r.selector))          // a descendant, not :root itself
+    .map(r => ({selector: r.selector, declares: (r.text.match(/--[a-z0-9-]+\s*:/gi) || []).length,
+                hardCoded: (r.text.match(/(?::|\s)(#[0-9a-f]{3,8}\b|rgba?\([^)]*\))/gi) || []).length}))
+    .filter(r => r.hardCoded > 0 || r.declares === 0);
+  await context.close();
+  verdict('W1', offenders.length > 0, {themed_rules: themed.length, offenders: offenders.slice(0, 6), count: offenders.length});
+};
+
+probes.W2 = async browser => {
+  /* Colour belongs to the token layer. A component rule that names a colour directly
+     cannot follow a theme, and is invisible to any future palette change. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const literal = /(?:^|[:,\s(])(#[0-9a-f]{3,8}\b|rgba?\(\s*\d)/i;
+  const offenders = [];
+  for (const r of rules) {
+    if (/^:root/.test(r.selector.trim()) && !/\[data-theme[^\]]*\]\s+[.#\w]/.test(r.selector)) continue;  // token blocks
+    const body = r.text.slice(r.text.indexOf('{') + 1, -1);
+    for (const decl of body.split(';')) {
+      const [prop, ...rest] = decl.split(':');
+      if (!prop || !rest.length) continue;
+      if (prop.trim().startsWith('--')) continue;                 // declaring a token is the point
+      const value = rest.join(':');
+      if (literal.test(value)) offenders.push({selector: r.selector.slice(0, 70), decl: decl.trim().slice(0, 70)});
+    }
+  }
+  await context.close();
+  verdict('W2', offenders.length > 0, {offenders: offenders.slice(0, 8), count: offenders.length});
+};
+
+probes.W3 = async browser => {
+  /* The four classes of evidence must stay tellable apart at a glance, in BOTH themes.
+     Two classes sharing an appearance is the failure this whole product exists to avoid.
+
+     The tags are rendered into the page rather than hunted for: whether a given route
+     happens to show all four is a content question, and this is a question about the
+     stylesheet. A class with no rule of its own falls back to the bare .tag treatment,
+     which is exactly what this must catch. */
+  const seen = {};
+  for (const theme of ['dark', 'light']) {
+    const {context, page} = await session(browser, desktop);
+    if (theme === 'light') {
+      await page.evaluate(() => { document.documentElement.setAttribute('data-theme', 'light'); });
+      await page.waitForTimeout(120);
+    }
+    seen[theme] = await page.evaluate(classes => {
+      const host = document.createElement('div');
+      host.style.position = 'absolute'; host.style.left = '-9999px';
+      document.body.appendChild(host);
+      const out = {};
+      for (const k of classes) {
+        const el = document.createElement('span');
+        el.className = 'tag ' + k; el.textContent = k;
+        host.appendChild(el);
+        const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
+        out[k] = {color: cs.color, background: cs.backgroundColor, family: cs.fontFamily.split(',')[0],
+                  marker: (before.content || '').replace(/["']/g, '').trim()};
+      }
+      const bare = document.createElement('span');
+      bare.className = 'tag'; host.appendChild(bare);
+      out._bare = {color: getComputedStyle(bare).color, background: getComputedStyle(bare).backgroundColor};
+      host.remove();
+      return out;
+    }, EVIDENCE);
+    await context.close();
+  }
+  const signature = v => [v.color, v.background, v.family, v.marker].join('~');
+  const unstyled = [], clash = [];
+  for (const theme of ['dark', 'light']) {
+    const t = seen[theme];
+    for (const k of EVIDENCE) {
+      if (!t[k].marker || (t[k].color === t._bare.color && t[k].background === t._bare.background)) unstyled.push({theme, k});
+    }
+    for (let i = 0; i < EVIDENCE.length; i++) for (let j = i + 1; j < EVIDENCE.length; j++) {
+      if (signature(t[EVIDENCE[i]]) === signature(t[EVIDENCE[j]])) clash.push({theme, a: EVIDENCE[i], b: EVIDENCE[j]});
+    }
+  }
+  verdict('W3', unstyled.length > 0 || clash.length > 0, {unstyled, clashes: clash, seen});
+};
+
+probes.W4 = async browser => {
+  /* Type and space come from a scale. Ad-hoc pixel values are how a scale rots. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const scale = await page.evaluate(() => {
+    const cs = getComputedStyle(document.documentElement);
+    const steps = ['3xs', '2xs', 'xs', 'sm', 'md', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'];
+    return {spaces: Array.from({length: 8}, (_, i) => cs.getPropertyValue('--s' + (i + 1)).trim()).filter(Boolean),
+            sizes: steps.map(n => cs.getPropertyValue('--t-' + n).trim()).filter(Boolean), root: cs.fontSize};
+  });
+  const offenders = [];
+  for (const r of rules) {
+    if (/^:root/.test(r.selector.trim())) continue;
+    const body = r.text.slice(r.text.indexOf('{') + 1, -1);
+    for (const decl of body.split(';')) {
+      const [prop, ...rest] = decl.split(':');
+      if (!prop || !rest.length) continue;
+      const name = prop.trim(), value = rest.join(':').trim();
+      if (name !== 'font-size') continue;
+      // 0 is a layout device (hiding a label), not a point on a type scale.
+      if (/var\(/.test(value) || /^(inherit|initial|unset|larger|smaller|0|0px)$/.test(value)) continue;
+      offenders.push({selector: r.selector.slice(0, 60), decl: decl.trim().slice(0, 50), media: r.media.slice(0, 40)});
+    }
+  }
+  await context.close();
+  verdict('W4', scale.sizes.length === 0 || offenders.length > 0,
+    {type_scale: scale.sizes, space_scale: scale.spaces, font_size_literals: offenders.length, offenders: offenders.slice(0, 8)});
+};
+
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

@@ -98,6 +98,10 @@
     "V12": "REVIEW 2.27.0 (P2): on phone widths the hero review status is squeezed beside other text instead of having a full-width row, or breaks inside a word",
     "I14": "BUNDLE SIZE (item 11): evidence that fails (or arrives after a wait) once a view is drawn is not announced to screen readers, is announced more than once per view, or evidence placeholders are live regions of their own",
     "I15": "GUARD (2.28.2): rebuilding an open dialog when its evidence changes loses keyboard focus instead of keeping it on the equivalent control or the dialog",
-    "I16": "BUNDLE SIZE (item 11): evidence announcements go wrong in harder cases: a fast load is announced, a page failure while a dialog is open is never said, a new dialog keeps an old announcement, a retry while other files are pending stays silent, or a search or layout change during a wait restarts it or is announced as loaded"
+    "I16": "BUNDLE SIZE (item 11): evidence announcements go wrong in harder cases: a fast load is announced, a page failure while a dialog is open is never said, a new dialog keeps an old announcement, a retry while other files are pending stays silent, or a search or layout change during a wait restarts it or is announced as loaded",
+    "W1": "2.29 stage 1: the light theme styles components (.tier-a..d) instead of only redefining tokens, so those badges' colours live outside the token layer",
+    "W2": "2.29 stage 1: component rules hard-code colours (tier badges in ui.html, phone chrome in mobile.css) instead of resolving through tokens",
+    "W3": "2.29 stage 1: the four evidence classes have no single per-class treatment to compare, so two classes could share an appearance without any test noticing",
+    "W4": "2.29 stage 1: there is no type scale; font sizes are written as literals throughout, including inside media queries"
   }
 }
