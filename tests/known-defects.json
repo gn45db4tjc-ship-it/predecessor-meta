@@ -102,6 +102,10 @@
     "W1": "2.29 stage 1: the light theme styles components (.tier-a..d) instead of only redefining tokens, so those badges' colours live outside the token layer",
     "W2": "2.29 stage 1: component rules hard-code colours (tier badges in ui.html, phone chrome in mobile.css) instead of resolving through tokens",
     "W3": "2.29 stage 1: the four evidence classes have no single per-class treatment to compare, so two classes could share an appearance without any test noticing",
-    "W4": "2.29 stage 1: there is no type scale; font sizes are written as literals throughout, including inside media queries"
+    "W4": "2.29 stage 1: there is no type scale; font sizes are written as literals throughout, including inside media queries",
+    "W5": "2.29 stage 2: the page sets no scroll-padding, so focusing a control scrolls it to the viewport edge and under the fixed phone navigation",
+    "W6": "2.29 stage 2: evidence kept from an earlier collection is labelled 'Saved <date>' with the warning treatment, which reads a date as a fault; retained and stale also differ by colour alone",
+    "W7": "GUARD: at a 320x256 viewport (1280x1024 at 400% zoom) every route reflows without horizontal scroll and the chrome leaves room to read",
+    "W8": "GUARD: the freshness strip wraps rather than scrolls and its status control is fully on screen at 1280, 1440 and 1920"
   }
 }

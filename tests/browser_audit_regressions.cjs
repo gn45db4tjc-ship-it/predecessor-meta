@@ -2218,6 +2218,154 @@ probes.W4 = async browser => {
 };
 
 
+/* ---------------------------------------------------------------------------
+   W-series continued: 2.29 redesign, stage 2 (shell and navigation).
+   --------------------------------------------------------------------------- */
+
+/* Every element that is stuck to the viewport right now, with its box. */
+const stuckZones = () => {
+  const out = [];
+  for (const sel of ['.topbar', '.sidebar', '#patch-strip', '#status-panel', '#mobile-navigation', '.mobile-tabbar', '#material-notices']) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    const pos = getComputedStyle(el).position;
+    if (pos !== 'sticky' && pos !== 'fixed') continue;
+    const r = el.getBoundingClientRect();
+    if (r.height) out.push({sel, top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: r.height});
+  }
+  return out;
+};
+
+probes.W5 = async browser => {
+  /* Tabbing to a control must not park it underneath the chrome. The browser scrolls a
+     focused element to the edge of the viewport unless scroll-padding says otherwise,
+     and a fixed bottom navigation sits exactly on that edge. */
+  const seen = {};
+  for (const [w, h, mobile] of [[320, 700, true], [390, 844, true], [1440, 900, false]]) {
+    const {context, page} = await session(browser, {viewport: {width: w, height: h}, isMobile: mobile, hasTouch: mobile});
+    seen[w + 'x' + h] = await page.evaluate(zonesSrc => {
+      const zones = (new Function('return (' + zonesSrc + ')'))()();
+      const covered = [];
+      let checked = 0;
+      for (const el of document.querySelectorAll('main button, main summary, main input, main select, main a[href]')) {
+        if (!el.getBoundingClientRect().height) continue;
+        if (el.closest('details:not([open])')) continue;
+        if (zones.some(z => document.querySelector(z.sel).contains(el))) continue;
+        el.focus();
+        const r = el.getBoundingClientRect();
+        checked++;
+        const label = (el.textContent || el.id || '').trim().slice(0, 24);
+        if (r.bottom < 0 || r.top > innerHeight) { covered.push({why: 'off screen after focus', label}); continue; }
+        if (zones.some(z => z.top < r.bottom - 2 && z.bottom > r.top + 2 && z.left < r.right - 2 && z.right > r.left + 2))
+          covered.push({why: 'under sticky chrome', label, top: Math.round(r.top)});
+      }
+      const cs = getComputedStyle(document.documentElement);
+      return {checked, covered: covered.length, examples: covered.slice(0, 4),
+              scroll_padding: [cs.scrollPaddingTop, cs.scrollPaddingBottom].join(' / '),
+              zones: zones.map(z => z.sel + ':' + Math.round(z.height))};
+    }, stuckZones.toString());
+    await context.close();
+  }
+  verdict('W5', Object.values(seen).some(v => v.covered > 0), seen);
+};
+
+probes.W6 = async browser => {
+  /* Data kept from an earlier collection is a DATE, not a fault. It must not wear the
+     warning treatment, and it must differ from a currency warning by more than colour
+     alone, because the two states print the same words. */
+  const seen = {};
+  for (const theme of ['dark', 'light']) {
+    const {context, page} = await session(browser, desktop);
+    if (theme === 'light') { await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'light')); await page.waitForTimeout(120); }
+    seen[theme] = await page.evaluate(() => {
+      const emitted = [];
+      for (const route of ['meta', 'builds', 'planner', 'live', 'library', 'guidance', 'data']) {
+        try { changeRoute(route); } catch (e) { continue; }
+        document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+        for (const t of document.querySelectorAll('.tag')) {
+          const text = t.textContent.trim();
+          if (/^(Saved|Retained)\b/.test(text)) emitted.push({route, text: text.slice(0, 28), cls: t.className});
+        }
+      }
+      try {
+        openHero('steel', 'jungle');
+        document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+        for (const t of document.querySelectorAll('.tag')) {
+          const text = t.textContent.trim();
+          if (/^(Saved|Retained)\b/.test(text)) emitted.push({route: 'hero', text: text.slice(0, 28), cls: t.className});
+        }
+      } catch (e) {}
+      // the treatments themselves, rendered rather than hunted for
+      const host = document.createElement('div');
+      host.style.cssText = 'position:absolute;left:-9999px';
+      document.body.appendChild(host);
+      const read = cls => {
+        const el = document.createElement('span');
+        el.className = 'tag ' + cls; host.appendChild(el);
+        const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
+        return {color: cs.color, background: cs.backgroundColor, marker: (before.content || '').replace(/["']/g, '').trim()};
+      };
+      const styles = {saved: read('saved'), warning: read('warning')};
+      host.remove();
+      const unique = {};
+      for (const e of emitted) unique[e.cls + '|' + e.text.split(' ').slice(0, 2).join(' ')] = e;
+      /* Ask the function that decides, so the verdict does not depend on whether this
+         fixture happens to contain a failed source. An old date with status 'retained'
+         is data kept deliberately; the same date without it is a currency warning. */
+      const old = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString();
+      const decided = {retained: savedTag(old, true), stale: savedTag(old, false)};
+      return {emitted: Object.values(unique).slice(0, 6), count: emitted.length, styles, decided};
+    });
+    await context.close();
+  }
+  const retainedWearsWarning = Object.values(seen).some(t => /\bwarning\b/.test(t.decided.retained));
+  const retainedUnmarked = Object.values(seen).some(t => !/\bsaved\b/.test(t.decided.retained));
+  const colourOnly = Object.values(seen).some(t => !t.styles.saved.marker || t.styles.saved.marker === t.styles.warning.marker);
+  verdict('W6', retainedWearsWarning || retainedUnmarked || colourOnly, seen);
+};
+
+probes.W7 = async browser => {
+  /* GUARD: 1280x1024 at 400% browser zoom is a 320x256 viewport. Reflow without a
+     horizontal scrollbar is necessary but not sufficient - chrome that is reasonable on
+     a tall phone can leave nothing to read in. */
+  const {context, page} = await session(browser, {viewport: {width: 320, height: 256}, isMobile: true, hasTouch: true});
+  const seen = await page.evaluate(zonesSrc => {
+    const zones = (new Function('return (' + zonesSrc + ')'))()();
+    const out = {routes: {}};
+    for (const route of ['meta', 'builds', 'planner', 'live', 'data']) {
+      try { changeRoute(route); } catch (e) { continue; }
+      out.routes[route] = document.documentElement.scrollWidth - innerWidth;
+    }
+    out.chrome_px = Math.round(zones.reduce((n, z) => n + z.height, 0));
+    out.readable_px = Math.round(innerHeight - out.chrome_px);
+    out.zones = zones.map(z => z.sel + ':' + Math.round(z.height));
+    return out;
+  }, stuckZones.toString());
+  await context.close();
+  verdict('W7', Object.values(seen.routes).some(v => v > 0) || seen.readable_px < 120, seen);
+};
+
+probes.W8 = async browser => {
+  /* GUARD: the freshness line wraps rather than scrolling, and the control that opens
+     the detail is fully on screen at every desktop width. Nothing about how fresh the
+     data is may sit off the edge of a hidden scroller. */
+  const seen = {};
+  for (const width of [1280, 1440, 1920]) {
+    const {context, page} = await session(browser, {viewport: {width, height: 900}});
+    seen[width] = await page.evaluate(() => {
+      const strip = document.querySelector('#patch-strip'), toggle = document.querySelector('#status-toggle');
+      const box = el => { const r = el.getBoundingClientRect(); return {left: Math.round(r.left), right: Math.round(r.right), height: Math.round(r.height)}; };
+      return {
+        strip: strip ? {...box(strip), scrolls: strip.scrollWidth > strip.clientWidth + 1, wrap: getComputedStyle(strip).flexWrap} : null,
+        toggle: toggle ? {...box(toggle), onScreen: toggle.getBoundingClientRect().right <= innerWidth + 0.5 && toggle.getBoundingClientRect().left >= -0.5} : null,
+        notices_visible: !!document.querySelector('#material-notices')?.offsetHeight
+      };
+    });
+    await context.close();
+  }
+  verdict('W8', Object.values(seen).some(v => !v.strip || v.strip.scrolls || v.strip.wrap !== 'wrap' || !v.toggle || !v.toggle.onScreen), seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
