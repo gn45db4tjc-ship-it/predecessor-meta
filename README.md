@@ -1,6 +1,10 @@
-# Predecessor Meta — 2.28.0
+# Predecessor Meta — 2.28.1
 
-2.28.0 fixes the six findings from Astra's review of the live 2.27.0 site. Every label now describes the hero, role and section it sits beside: a role without its own Statz sample says so instead of "No observed build", saved evidence is labelled "Saved <day>" beside its section, and the website's official description review is confirmed only after a current check that matches this publication. The Counters tab leads with reviewed counterplay and matchups of 100 or more games, with every thinner sample in one Exploratory disclosure. On desktop one status line with Status details replaces the stacked notices (the first Meta row moves from 649 px to 385 px at 1440×900), and phone tab strips no longer scroll. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged, and every engine result is the same. See [RELEASE-2.28.0.md](RELEASE-2.28.0.md).
+2.28.1 is a small fix release. On phone widths the role strip on the Meta page and in the Live hero picker (Jungle · Offlane · Midlane · Carry · Support) scrolled sideways, leaving "Support" off screen; it now wraps like the hero tabs. It also corrects a false claim in the 2.28.0 notes about those strips. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged. See [RELEASE-2.28.1.md](RELEASE-2.28.1.md).
+
+## Previous release: 2.28.0
+
+2.28.0 fixes the six findings from Astra's review of the live 2.27.0 site. Every label now describes the hero, role and section it sits beside: a role without its own Statz sample says so instead of "No observed build", saved evidence is labelled "Saved <day>" beside its section, and the website's official description review is confirmed only after a current check that matches this publication. The Counters tab leads with reviewed counterplay and matchups of 100 or more games, with every thinner sample in one Exploratory disclosure. On desktop one status line with Status details replaces the stacked notices (the first Meta row moves from 649 px to 385 px at 1440×900), and the phone hero, Builds and Compositions tab strips no longer scroll (the Meta and Live picker role strips follow in 2.28.1). Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged, and every engine result is the same. See [RELEASE-2.28.0.md](RELEASE-2.28.0.md).
 
 ## Previous release: 2.27.0
 

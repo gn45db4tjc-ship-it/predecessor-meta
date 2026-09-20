@@ -1794,16 +1794,21 @@ const probes = {
       await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large})); }, large);
       await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
       const problems = [];
-      for (const route of ['hero', 'builds', 'planner']) {
+      // 'meta' is the phone Meta page (its own role strip) and 'live-picker' is the hero picker dialog; both use
+      // .role-choices.compact, which 2.28.0 left scrolling sideways (found on the live site after that release).
+      for (const route of ['hero', 'builds', 'planner', 'meta', 'live-picker']) {
         const found = await page.evaluate(route => {
-          if (route === 'hero') openHero('steel', 'jungle'); else changeRoute(route);
-          const out = [];
-          for (const list of document.querySelectorAll('#main [role=tablist]')) {
+          if (route === 'hero') openHero('steel', 'jungle');
+          else if (route === 'live-picker') { changeRoute('live'); showLivePicker(E.roles(Object.keys(B.heroes)[0])[0], true); }
+          else changeRoute(route);
+          const out = [], scope = route === 'live-picker' ? document.querySelector('#detail') : document.querySelector('#main');
+          for (const list of scope.querySelectorAll('[role=tablist]')) {
             if (list.scrollHeight > list.clientHeight) out.push(list.getAttribute('aria-label') + ': vertical ' + list.scrollHeight + '>' + list.clientHeight);
             if (list.scrollWidth > list.clientWidth) out.push(list.getAttribute('aria-label') + ': horizontal ' + list.scrollWidth + '>' + list.clientWidth);
             for (const tab of list.querySelectorAll('[role=tab]')) { const r = tab.getBoundingClientRect(); if (r.height < 44 || r.right > innerWidth + 1 || r.left < -1) out.push(list.getAttribute('aria-label') + ': tab "' + tab.textContent.trim() + '" ' + Math.round(r.left) + '-' + Math.round(r.right) + ' h' + Math.round(r.height)); }
           }
           if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page overflows ' + document.documentElement.scrollWidth + '>' + innerWidth);
+          if (route === 'live-picker') { document.querySelector('#detail')?.close(); changeRoute('meta'); }
           return out;
         }, route);
         problems.push(...found.map(f => route + ' ' + f));

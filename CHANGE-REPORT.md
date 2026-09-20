@@ -1,6 +1,6 @@
-# Current release: 2.28.0
+# Current release: 2.28.1
 
-See RELEASE-2.28.0.md for the fixes from the review of 2.27.0 (honest labels, readable counters, a compact status line), RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.28.1.md for the phone role strip fix and the correction to the 2.28.0 notes, RELEASE-2.28.0.md for the fixes from the review of 2.27.0 (honest labels, readable counters, a compact status line), RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -221,12 +221,19 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; clean-room package 178 Python / 146 JavaScript.
 - Not verified: a physical phone, screen readers, native installs.
 
+# Revision 11 — 2.28.1 phone role strip
+
+- The Meta page's role strip and the Live hero picker (.role-choices.compact) wrap at 700 px and below instead of scrolling sideways, so every role is on screen at 320–412 px with default and large text. Revision 10 changed only .tabs, so these two strips were missed; the live verification of 2.28.0 found them.
+- Probe V11 now also visits the phone Meta page and the Live picker. It reproduces the defect on 2.28.0 and passes here.
+- The revision 10 claim that "Phone tab strips wrap without scrollbars" covered only the .tabs strips; RELEASE-2.28.0.md, README and this report are corrected.
+- Verified: 196 Python tests (1 skipped), 163 JavaScript tests, 93 of 93 audit browser verdicts, axe on 30 phone states, 10 of 10 offline checks, static (57 + 50) and ranks in Edge and WebKit, companion and release suites.
+
 # Revision 10 — 2.28.0 fixes from the review of 2.27.0
 
 - Labels describe their own hero, role and section: a role without a Statz sample says "No Statz build sample for Jungle" and never links another role's page as its own; the coach, the phone chip and every evidence section carry their own freshness ("Saved <day>" for retained or over-48-hour evidence).
 - The website confirms the official description review only after a verified, current check whose content signature matches the loaded publication; otherwise the status names the reason (pending, failed, content changed). Open dialogs follow status changes and keep their sections, scroll and focus.
 - Counters: reviewed counterplay, then matchups of 100 or more games per source and variant, then one closed Exploratory disclosure with every thinner row and differing alternate table; identical alternate tables are named once. No row is removed, pooled or re-rated.
-- Desktop: patch strip, one status line with Status details, and always-visible material notices; Meta header compacted (first row 649 → 385 px at 1440×900 with Pred.gg retained). Rank sites keep one strip row ("Guidance · Gold+ only") and state the reference scope on every page. Phone tab strips wrap without scrollbars; the review status has its own row.
+- Desktop: patch strip, one status line with Status details, and always-visible material notices; Meta header compacted (first row 649 → 385 px at 1440×900 with Pred.gg retained). Rank sites keep one strip row ("Guidance · Gold+ only") and state the reference scope on every page. The phone hero, Builds and Compositions tab strips wrap without scrollbars; the review status has its own row. (Revision 11 corrects this: the Meta and Live picker role strips still scrolled and were fixed in 2.28.1.)
 - Verified: 196 Python tests (1 skipped without a local store), 163 JavaScript tests, 93 of 93 audit browser verdicts (V1–V13 new; each defect probe reproduced on the code before its fix, and 23 reapplied regressions each fail a probe), axe WCAG 2.1 A/AA on 30 phone states, 10 of 10 offline checks, an upgrade from and rollback to a staged 2.27.0 build with real service workers, the static suite (57 + 50 checks) and ranks suite in Edge and WebKit, and the release and companion suites. `engine.js` unchanged.
 - Not verified: an iPhone or iPad, screen readers, native installs; `browser_revision2_modes.cjs` was not run (three prepared previews). `browser_design.cjs` is stale since the 2.21 fixture and not a gate.
 
