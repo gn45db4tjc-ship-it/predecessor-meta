@@ -1,4 +1,8 @@
-# Predecessor Meta — 2.28.1
+# Predecessor Meta — 2.28.2
+
+2.28.2 is a small accessibility release. When the website could not load a piece of its display-only evidence (source builds, counters, original descriptions), or loaded it after a wait, nothing was announced to a screen reader. It now says so once per view, from a live region that is always present, and the detail dialog has its own region and an accessible name. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged. See [RELEASE-2.28.2.md](RELEASE-2.28.2.md).
+
+## Previous release: 2.28.1
 
 2.28.1 is a small fix release. On phone widths the role strip on the Meta page and in the Live hero picker (Jungle · Offlane · Midlane · Carry · Support) scrolled sideways, leaving "Support" off screen; it now wraps like the hero tabs. It also corrects a false claim in the 2.28.0 notes about those strips. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged. See [RELEASE-2.28.1.md](RELEASE-2.28.1.md).
 
