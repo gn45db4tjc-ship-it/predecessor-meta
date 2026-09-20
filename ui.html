@@ -217,7 +217,8 @@ main{max-width:var(--content-max);margin:0 auto;padding:var(--s5) var(--gutter) 
 .tag.warning{color:var(--amber);background:var(--amber-tint-2)}
 .tag.calculated{color:var(--blue);background:var(--blue-tint)}
 .tag.official{color:var(--official);background:var(--official-tint);font-family:var(--mono)}
-.tag.observed:before{content:"● "}.tag.calculated:before{content:"◇ "}.tag.reviewed:before{content:"✦ "}.tag.warning:before{content:"! "}.tag.official:before{content:"▢ "}
+.tag.saved{color:var(--text-2);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
+.tag.observed:before{content:"● "}.tag.calculated:before{content:"◇ "}.tag.reviewed:before{content:"✦ "}.tag.warning:before{content:"! "}.tag.official:before{content:"▢ "}.tag.saved:before{content:"⟳ "}
 /* disclosures: blue chevron = opens; hover confirms */
 details{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface-2);margin:var(--s2) 0}
 summary{padding:9px 12px 9px 30px;cursor:pointer;font-size:var(--t-sm);font-weight:600;line-height:1.4;color:var(--text-2);position:relative;list-style:none;border-radius:var(--radius-sm)}
@@ -500,6 +501,38 @@ __MOBILE_CSS__
 <body><a href="#main" class="skip">Skip to content</a>
 <div class="app"><aside class="sidebar"><div class="brand"><div class="mark" aria-hidden="true"></div><span>PREDECESSOR<small>META & PLANNING</small></span></div><button id="menu-toggle" class="quiet mobile-menu" aria-expanded="false" aria-controls="navigation">Menu</button><nav id="navigation" aria-label="Main navigation"></nav><button id="theme-toggle" class="quiet theme-toggle" type="button" aria-pressed="false">Light theme</button><div class="sidebar-foot"><span class="connection" id="connection"></span>Personal companion · v__TOOL_VERSION__<br>Not affiliated with Omeda Studios.</div></aside><div class="workspace"><header class="topbar"><div class="tools"><label>Rank <select id="bracket" aria-label="Rank bracket"></select></label><label class="finder">Hero <input id="hero-jump" list="hero-list" type="search" placeholder="Find a hero…" aria-label="Find a hero" autocomplete="off"><datalist id="hero-list"></datalist></label><button id="refresh" class="primary">Refresh data</button><button id="share-plan" class="quiet">Share plan</button><button id="import-plan" class="quiet">Open plan</button><button id="install-app" class="quiet hide">Install app</button><button id="export" class="quiet">Export</button><button id="quit" class="quiet">Quit</button></div></header><div id="patch-strip" class="patch-strip"></div><div class="status-line"><div id="progress" class="progress" role="status" aria-live="polite"></div><button id="status-toggle" class="status-toggle" type="button" aria-expanded="false" aria-controls="status-panel">Status details</button></div><div id="source-notices"><div id="status-panel" class="status-panel"><div id="freshness" class="freshness"></div><div id="status-notices" class="source-notices"></div></div><div id="material-notices" class="source-notices"></div></div><main id="main" tabindex="-1"></main></div></div>
 <dialog id="detail" aria-labelledby="detail-title"><div class="dialog-head"><h2 id="detail-title"></h2><button id="close-detail" aria-label="Close details">Close</button></div><div id="detail-body"></div><div id="detail-evidence-status" class="sr-only" role="status"></div></dialog><div id="toast" class="toast hide" role="status"></div><div id="evidence-status" class="sr-only" role="status"></div><input type="file" id="plan-file" accept=".json,application/json" class="hide" aria-label="Open shared plan JSON"><input type="file" id="guidance-file" accept=".json,application/json" class="hide" aria-label="Import reviewed guidance JSON">
+<script>(function(){
+/* Keep scroll-padding in step with the chrome that is stuck to the viewport, so a control
+   reached by Tab, by a fragment link or by find-in-page is never parked underneath it.
+   Only sticky and fixed elements are counted: a bar that stops being fixed at a given
+   width stops reserving space by itself. */
+var WATCH=['.topbar','.sidebar','#patch-strip','#status-panel','#material-notices','#mobile-navigation','.mobile-tabbar'];
+function stuck(el){if(!el)return null;var p=getComputedStyle(el).position;return (p==='sticky'||p==='fixed')?el.getBoundingClientRect():null;}
+function sync(){
+  var top=0,bottom=0,i,el,r;
+  for(i=0;i<WATCH.length;i++){
+    el=document.querySelector(WATCH[i]); r=stuck(el); if(!r||!r.height)continue;
+    /* Only a BAR reserves space. The desktop rail is sticky and full height, and counting
+       it would reserve the whole viewport and leave focus scrolling nowhere to go. */
+    if(r.width<innerWidth*0.6)continue;
+    if(r.top<=innerHeight/2){top=Math.max(top,r.bottom);}else{bottom=Math.max(bottom,innerHeight-r.top);}
+  }
+  /* A reserve larger than this would mean chrome, not content, and would push a focused
+     control off the other edge; better to under-reserve than to scroll to nowhere. */
+  var cap=innerHeight*0.4;
+  var s=document.documentElement.style;
+  s.scrollPaddingTop=Math.round(Math.min(top,cap)+8)+'px';
+  s.scrollPaddingBottom=Math.round(Math.min(bottom,cap)+8)+'px';
+}
+var queued=false;
+function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;sync();});}
+addEventListener('resize',schedule);addEventListener('orientationchange',schedule);
+if(window.ResizeObserver){var ro=new ResizeObserver(schedule);WATCH.forEach(function(sel){var el=document.querySelector(sel);if(el)ro.observe(el);});}
+/* The chrome changes height when a route or the status panel is drawn, and those redraws
+   do not fire resize. A mutation on the shell is the signal. */
+if(window.MutationObserver){new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-expanded','style']});}
+schedule();
+})();</script>
 <script>(function(){var b=document.getElementById('theme-toggle'),r=document.documentElement;if(!b)return;function sync(){var light=r.getAttribute('data-theme')==='light';b.textContent=light?'Dark theme':'Light theme';b.setAttribute('aria-pressed',String(light));b.setAttribute('aria-label',light?'Switch to the dark theme':'Switch to the light theme');}b.addEventListener('click',function(){var light=r.getAttribute('data-theme')!=='light';if(light)r.setAttribute('data-theme','light');else r.removeAttribute('data-theme');try{localStorage.setItem('predecessor-theme',light?'light':'dark');}catch(e){}sync();});sync();})();</script>
 <script>const INITIAL_BUNDLE=__BUNDLE_JSON__; const APP_CONFIG=__APP_CONFIG__;</script>
 <script id="engine-source">__ENGINE_JS__</script>
