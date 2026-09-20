@@ -88,6 +88,27 @@ const GAP = `(slug, role) => {
   E = MetaEngine.create(B);
 }`;
 
+/* Runs in the page: records what a screen reader would announce. A text change counts when it happens inside a live
+   region that already existed; a region inserted together with its text (a placeholder re-created by a redraw) is not
+   announced by screen readers, so it is not counted. #progress (the publication status line) is left out. */
+const recordAnnouncements = () => {
+  const live = '[role=status],[role=alert],[role=log],[aria-live]:not([aria-live=off])';
+  window.auditAnnounced = [];
+  window.auditLivePlaceholders = () => [...document.querySelectorAll('[data-annex]')].filter(el => [el, ...el.querySelectorAll('*')].some(n => n.matches(live))).length;
+  new MutationObserver(records => {
+    const fresh = new Set(), changed = new Set();
+    for (const r of records) for (const n of r.addedNodes) if (n.nodeType === 1) { if (n.matches(live)) fresh.add(n); n.querySelectorAll(live).forEach(e => fresh.add(e)); }
+    for (const r of records) { const el = r.target.nodeType === 1 ? r.target : r.target.parentElement, region = el?.closest(live); if (region?.isConnected && !fresh.has(region) && region.id !== 'progress') changed.add(region); }
+    for (const region of changed) { const text = region.textContent.replace(/\s+/g, ' ').trim(); if (text) window.auditAnnounced.push({text, id: region.id, inDialog: !!region.closest('dialog[open]')}); }
+  }).observe(document.documentElement, {subtree: true, childList: true, characterData: true});
+};
+/* Items whose original Pred.gg definition lives in the shared evidence file (their dialog fills in when it arrives). */
+async function evidenceItems(context) {
+  const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
+  const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
+  return Object.keys(full.items || {}).filter(k => full.items[k]?.pred_raw);
+}
+
 const probes = {
   async A1(browser) {
     const {context, page} = await session(browser, desktop);
@@ -1848,6 +1869,190 @@ const probes = {
       await context.close();
     }
     verdict('V12', Object.values(seen).some(s => s.missing || s.row_width < s.head_width - 2 || s.split.length), seen);
+  },
+  async I14(browser) {
+    // Evidence that fails (or arrives after a noticeable wait) once a view is drawn is announced once per view, from a
+    // live region that already exists (inside the dialog while one is open); the placeholders are not live regions.
+    const {context, page} = await session(browser, desktop);
+    const [item] = await evidenceItems(context);
+    await page.evaluate(recordAnnouncements);
+    const announced = async from => (await page.evaluate(() => window.auditAnnounced)).slice(from).filter(a => /evidence/i.test(a.text));
+    const count = () => page.evaluate(() => window.auditAnnounced.length);
+    // The Builds page waits for one evidence file per hero card; every one fails, in several batches.
+    await page.route('**/bundles/gold-hero-*.json', route => route.abort());
+    const early = await page.evaluate(() => { S.role = 'jungle'; changeRoute('builds'); return {waiting: document.querySelectorAll('#main .annex-loading').length, live: auditLivePlaceholders()}; });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading') && document.querySelectorAll('#main .annex-failed').length > 1, null, {timeout: 30000}).catch(() => {});
+    await page.evaluate(() => { requestRedraw(true); requestRedraw(true); });   // later redraws of the same view stay quiet
+    await page.waitForTimeout(700);
+    const onPage = {...early, failed: await page.evaluate(() => document.querySelectorAll('#main .annex-failed').length), announced: await announced(0)};
+    // A catalog dialog waits for the shared evidence file, which fails.
+    await page.unroute('**/bundles/gold-hero-*.json');
+    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    const opened = await count();
+    const dialogEarly = await page.evaluate(key => { showCatalog('items', key); return {waiting: !!document.querySelector('#detail-body .annex-loading'), live: auditLivePlaceholders()}; }, item);
+    await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
+    await page.waitForTimeout(700);
+    const dialogFailed = await announced(opened);
+    await page.addScriptTag({path: process.env.AXE_PATH || require.resolve('axe-core/axe.min.js')});
+    const axeViolations = await page.evaluate(async () => (await axe.run(document.querySelector('#detail'), {runOnly: {type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa']}})).violations.flatMap(v => v.nodes.map(n => v.id + ' ' + n.target.join(' '))).slice(0, 5));
+    // A retry (the connection returning) brings it after a noticeable wait.
+    await page.unroute('**/bundles/gold-shared-*.json');
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    const retried = await count();
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-loading'), null, {timeout: 30000}).catch(() => {});
+    await page.waitForTimeout(1500);
+    release();
+    await page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
+    await page.waitForTimeout(700);
+    const dialogLoaded = await announced(retried);
+    const seen = {onPage, dialog: {...dialogEarly, failed: dialogFailed, axe: axeViolations, loaded: dialogLoaded, open: await page.evaluate(() => document.querySelector('#detail').open)}};
+    const once = (list, pattern) => list.length === 1 && pattern.test(list[0].text);
+    verdict('I14', early.waiting < 2 || early.live > 0 || onPage.failed < 2 || !once(onPage.announced, /could not be loaded/i) || onPage.announced[0].inDialog
+      || !dialogEarly.waiting || dialogEarly.live > 0 || !once(dialogFailed, /could not be loaded/i) || !dialogFailed[0].inDialog || axeViolations.length > 0
+      || !once(dialogLoaded, /loaded/i) || /could not/i.test(dialogLoaded[0].text) || !dialogLoaded[0].inDialog || !seen.dialog.open, seen);
+    await context.close();
+  },
+  async I15(browser) {
+    // Rebuilding an open dialog when its evidence changes keeps keyboard focus on the same control, or on the dialog
+    // when that control is gone; focus never falls out of the modal dialog to the page behind it.
+    const focused = page => page.evaluate(() => { const a = document.activeElement; return {id: a?.id || '', inBody: !!document.querySelector('#detail-body')?.contains(a), tag: a?.tagName || '', text: (a?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80), href: a?.getAttribute?.('href') || ''}; });
+    const same = (a, b) => a.inBody && b.inBody && a.tag === b.tag && a.text === b.text && a.href === b.href;
+    const filled = page => page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
+    // Show a catalog dialog whose shared evidence failed, with a control outside the evidence section, and Tab into it.
+    const failedDialog = async (page, items) => {
+      await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+      await page.evaluate(key => showCatalog('items', key), items[0]);
+      await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
+      const key = await page.evaluate(items => items.find(key => { showCatalog('items', key); return [...document.querySelectorAll('#detail-body a[href], #detail-body summary, #detail-body button')].some(el => !el.closest('[data-annex]')); }) || null, items);
+      assert.ok(key, 'probe setup: a catalog dialog with a control outside its evidence section');
+      await page.locator('#close-detail').focus();
+      await page.keyboard.press('Tab');
+      await page.unroute('**/bundles/gold-shared-*.json');
+    };
+    const {context, page} = await session(browser, desktop);
+    const items = await evidenceItems(context);
+    await failedDialog(page, items);
+    const start = await focused(page);
+    let release; const held = new Promise(resolve => { release = resolve; });
+    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));   // the retry rebuilds the dialog at once, waiting again
+    await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-loading'), null, {timeout: 30000}).catch(() => {});
+    const waiting = await focused(page);
+    release();
+    await filled(page);
+    await page.waitForTimeout(300);
+    const arrived = {...await focused(page), open: await page.evaluate(() => document.querySelector('#detail').open), filled: await page.evaluate(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText))};
+    await context.close();
+    // The focused control is not part of the rebuilt dialog (simulated by dropping every control from the rebuild).
+    const second = await session(browser, desktop);
+    await failedDialog(second.page, items);
+    const before = await focused(second.page);
+    const rebuilt = await second.page.evaluate(() => {
+      const refresh = detailRefresh; detailRefresh = () => { refresh(); document.querySelectorAll('#detail-body a[href], #detail-body summary, #detail-body button').forEach(el => el.remove()); };
+      window.dispatchEvent(new Event('online'));
+      return {id: document.activeElement?.id || '', tag: document.activeElement?.tagName || ''};
+    });
+    await filled(second.page);
+    await second.page.waitForTimeout(300);
+    const settled = await focused(second.page);
+    await second.context.close();
+    const seen = {start, waiting, arrived, gone: {before, rebuilt, settled}};
+    verdict('I15', !start.inBody || !same(start, waiting) || !same(start, arrived) || !arrived.open || !arrived.filled
+      || !before.inBody || rebuilt.id !== 'detail' || settled.id !== 'detail', seen);
+  },
+  async I16(browser) {
+    // The announcement budget in harder cases: a fast load stays quiet; a page failure while a dialog is open is said
+    // when the dialog closes; a new dialog starts silent; a retry while other files are still pending is a new wait;
+    // a search or a layout change during a wait neither restarts it nor passes for its end.
+    const said = async (page, from = 0) => (await page.evaluate(() => window.auditAnnounced)).slice(from).filter(a => /evidence/i.test(a.text));
+    const settle = page => page.waitForTimeout(700), seen = {};
+    {
+      const {context, page} = await session(browser, desktop);
+      const items = await evidenceItems(context);
+      await page.evaluate(recordAnnouncements);
+      // One hero's attribute evidence, served at once: nothing to announce.
+      const t0 = Date.now();
+      const shown = await page.evaluate(() => { S.heroTab = 'kit'; openHero('grux', 'offlane'); S.heroTab = 'kit'; render(); return !!document.querySelector('#main .annex-loading'); });
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+      seen.fast = {shown, took: Date.now() - t0};
+      await settle(page);
+      seen.fast.said = await said(page);
+      // The Builds page's files fail while a catalog dialog is open.
+      let fail; const held = new Promise(resolve => { fail = resolve; });
+      await page.route('**/bundles/gold-hero-*.json', async route => { await held; await route.abort(); });
+      const from = (await page.evaluate(() => window.auditAnnounced)).length;
+      await page.evaluate(() => { S.role = 'jungle'; changeRoute('builds'); });
+      await page.evaluate(key => showCatalog('items', key), items[0]);
+      await page.waitForFunction(() => !document.querySelector('#detail-body .annex-loading'), null, {timeout: 30000}).catch(() => {});
+      fail();
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+      await settle(page);
+      const whileOpen = (await said(page, from)).filter(a => !a.inDialog);
+      const marker = (await page.evaluate(() => window.auditAnnounced)).length;
+      await page.evaluate(() => document.querySelector('#detail').close());
+      await settle(page);
+      seen.dialogOpen = {whileOpen: whileOpen.map(a => a.text), afterClose: (await said(page, marker)).filter(a => !a.inDialog).map(a => a.text)};
+      // A support-ability dialog announces its failure; the next dialog opens without that text in its region.
+      const pair = await page.evaluate(() => Object.keys(E.heroes).filter(s => !E.roles(s).includes('jungle') && s !== 'grux' && E.heroes[s].abilities?.length).slice(0, 2));
+      await page.evaluate(slug => showSupportAbility(slug, 0), pair[0]);
+      await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
+      await settle(page);
+      const first = await page.evaluate(() => [...document.querySelectorAll('#detail [role=status]')].map(e => e.textContent).join(''));
+      const next = await page.evaluate(slug => { document.querySelector('#detail').close(); showSupportAbility(slug, 0); return [...document.querySelectorAll('#detail [role=status]')].map(e => e.textContent).join(''); }, pair[1]);
+      seen.newDialog = {pair, first, next};
+      await context.close();
+    }
+    {
+      const {context, page} = await session(browser, desktop);
+      await page.evaluate(recordAnnouncements);
+      // Half of the Builds page's files fail at once; the others are still downloading.
+      const cards = await page.evaluate(() => Object.keys(E.heroes).filter(s => E.roles(s).includes('jungle')));
+      const failing = new Set(cards.filter((_, i) => i % 2 === 0));
+      let release; const held = new Promise(resolve => { release = resolve; });
+      await page.route('**/bundles/gold-hero-*.json', async route => { const slug = /gold-hero-(.+)-[0-9a-f]{16,}\.json/.exec(route.request().url())?.[1]; if (!failing.has(slug)) await held; await route.abort(); });
+      await page.evaluate(() => { S.role = 'jungle'; changeRoute('builds'); });
+      await page.waitForFunction(n => document.querySelectorAll('#main .annex-failed').length >= n, failing.size, {timeout: 30000}).catch(() => {});
+      await settle(page);
+      const firstWait = (await said(page)).length;
+      // The connection returning retries the failed files while the others are pending: a new wait, announced again.
+      await page.evaluate(() => window.dispatchEvent(new Event('online')));
+      await page.waitForFunction(() => window.auditAnnounced.filter(a => /evidence/i.test(a.text)).length >= 2, null, {timeout: 20000}).catch(() => {});
+      await settle(page);
+      const retried = (await said(page)).map(a => a.text);
+      // A search redraws the same view: the cards it hides and shows again are still the same wait.
+      await page.evaluate(() => { S.query = 'zz'; render(); S.query = ''; render(); });
+      await settle(page);
+      const afterSearch = (await said(page)).length;
+      release();
+      await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+      await settle(page);
+      seen.retry = {cards: cards.length, failing: failing.size, firstWait, afterSearch, retried, end: (await said(page)).length};
+      await context.close();
+    }
+    {
+      const {context, page} = await session(browser, desktop);
+      await page.evaluate(recordAnnouncements);
+      // A wait that turns into the phone layout (whose Builds list shows no evidence) is not announced as loaded.
+      let release; const held = new Promise(resolve => { release = resolve; });
+      await page.route('**/bundles/gold-hero-*.json', async route => { await held; await route.continue(); });
+      await page.evaluate(() => { S.role = 'jungle'; changeRoute('builds'); });
+      await page.waitForTimeout(1300);
+      await page.setViewportSize({width: 390, height: 844});
+      await settle(page);
+      const narrow = (await said(page)).map(a => a.text);
+      release();
+      await page.waitForTimeout(2000);
+      seen.layout = {phone: await page.evaluate(() => companionMedia.matches), narrow, later: (await said(page)).map(a => a.text)};
+      await context.close();
+    }
+    const onlyFailure = list => list.length === 1 && /could not be loaded/i.test(list[0]);
+    verdict('I16', !seen.fast.shown || (seen.fast.took < 800 && seen.fast.said.length > 0)
+      || seen.dialogOpen.whileOpen.length > 0 || !onlyFailure(seen.dialogOpen.afterClose)
+      || !/could not be loaded/i.test(seen.newDialog.first) || seen.newDialog.next !== ''
+      || seen.retry.failing < 2 || seen.retry.firstWait !== 1 || seen.retry.retried.length !== 2 || seen.retry.afterSearch !== 2 || !seen.retry.retried.every(t => /could not be loaded/i.test(t)) || seen.retry.end !== 2
+      || !seen.layout.phone || seen.layout.narrow.length > 0 || seen.layout.later.length > 0, seen);
   }
 };
 
