@@ -506,7 +506,7 @@ __MOBILE_CSS__
    reached by Tab, by a fragment link or by find-in-page is never parked underneath it.
    Only sticky and fixed elements are counted: a bar that stops being fixed at a given
    width stops reserving space by itself. */
-var WATCH=['.topbar','.sidebar','#patch-strip','#status-panel','#material-notices','#mobile-navigation','.mobile-tabbar'];
+var WATCH=['.topbar','.sidebar','#patch-strip','#status-panel','#material-notices','#mobile-navigation','.mobile-tabbar','.coach-next'];  /* chrome inside main counts too: it covers the list it summarises */
 function stuck(el){if(!el)return null;var p=getComputedStyle(el).position;return (p==='sticky'||p==='fixed')?el.getBoundingClientRect():null;}
 function sync(){
   var top=0,bottom=0,i,el,r;
@@ -523,6 +523,10 @@ function sync(){
   var s=document.documentElement.style;
   s.scrollPaddingTop=Math.round(Math.min(top,cap)+8)+'px';
   s.scrollPaddingBottom=Math.round(Math.min(bottom,cap)+8)+'px';
+  /* Chrome that lives INSIDE main scrolls with the page until it sticks, so the page-level
+     reserve is not enough on its own: publish its height for the content it covers. */
+  var cn=document.querySelector('.coach-next'),cr=cn&&stuck(cn);
+  s.setProperty('--coach-next-h',(cr?Math.round(cr.bottom+10):0)+'px');
 }
 var queued=false;
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;sync();});}

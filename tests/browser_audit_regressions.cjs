@@ -2607,6 +2607,141 @@ probes.X7 = async browser => {
   verdict('X7', bad, {statz, few, old, future, ok});
 };
 
+
+/* ---------------------------------------------------------------------------
+   Y-series: 2.29 redesign, stage 3b (the hero experience).
+   --------------------------------------------------------------------------- */
+
+const openSteel = (page, tab) => page.evaluate(t => {
+  S.role = 'jungle'; openHero('steel', 'jungle'); S.heroTab = t; render();
+  document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+}, tab);
+
+probes.Y1 = async browser => {
+  /* The loadout is the rest of the build: augment, Eternal, both blessings, the crest and
+     its evolutions. Every part carries the same category and evidence treatment the six
+     items got in stage 3a - a part with no label is a part with no provenance. */
+  const {context, page} = await session(browser, desktop);
+  await openSteel(page, 'builds');
+  const seen = await page.evaluate(() => {
+    const a = adviceFor({slug: 'steel', role: 'jungle'});
+    const strip = document.querySelector('.loadout-strip');
+    const parts = strip ? [...strip.children].map(d => ({
+      label: d.querySelector('small')?.textContent.trim(),
+      text: d.innerText.replace(/\s+/g, ' ').trim().slice(0, 80),
+      tags: [...d.querySelectorAll('.tag')].map(t => t.textContent.trim()),
+      absent: d.classList.contains('loadout-absent')
+    })) : [];
+    return {
+      parts, labels: parts.map(p => p.label),
+      // a div that states an ABSENCE is not a part, and carries no category by design
+      without_category: parts.filter(p => !p.tags.length && !p.absent).length,
+      engine: {augment: a.plan.augment, eternal: a.plan.eternal, blessings: a.plan.blessings,
+               crest: a.plan.crest, upgrades: a.summary && a.summary.crest ? (a.summary.crest.upgrades || []).map(u => u.name) : null},
+      evolution_text: /evolution|evolve|upgrade/i.test(strip ? strip.innerText : '')
+    };
+  });
+  await context.close();
+  const want = ['Augment', 'Eternal', 'Blessing 1', 'Blessing 2', 'Crest'];
+  const missing = want.filter(w => !seen.labels.includes(w));
+  // the crest's evolutions are named when the source has them, and their absence is stated
+  // when it does not; silently omitting them is the failure either way
+  const evolutionHandled = seen.engine.upgrades && seen.engine.upgrades.length
+    ? seen.parts.some(p => /evolv/i.test(p.label || ''))
+    : seen.parts.some(p => p.absent && /evolution/i.test(p.label || ''));
+  verdict('Y1', missing.length > 0 || seen.without_category > 0 || !evolutionHandled,
+    {...seen, missing, evolutionHandled});
+};
+
+probes.Y2 = async browser => {
+  /* A pairing is the engine's own record. Two of its fields have never reached the screen:
+     beats_both, and the Wilson interval. The interval belongs to the OBSERVED pair win rate
+     and is not an interval for the calculated lift, and beats_both is a comparison of point
+     estimates, not proven synergy. Both must say so where they are shown. */
+  const {context, page} = await session(browser, desktop);
+  await openSteel(page, 'pairings');
+  const seen = await page.evaluate(() => {
+    const got = E.partners('steel', {heroRole: 'jungle', min: 1});
+    const rows = (got && got.observed) || [];
+    const withPair = rows.filter(r => r.pair).slice(0, 3)
+      .map(r => ({slug: r.slug, wr: r.pair.wr, played: r.pair.played, lift: r.pair.lift,
+                  beats_both: r.pair.beats_both, interval95: r.pair.interval95}));
+    const text = document.querySelector('#main').innerText.replace(/\s+/g, ' ');
+    const first = withPair[0];
+    return {
+      pairs: withPair.length, first,
+      shows_interval: !!first && text.includes(first.interval95[0].toFixed(2)),
+      shows_beats_both: /beats both|beat both/i.test(text),
+      interval_tied_to_win_rate: /interval[^.]{0,90}(win rate|pair rate|pair win)|(win rate|pair)[^.]{0,90}interval/i.test(text),
+      interval_not_called_the_lift: !/interval (for|on|of) (the )?(lift|gap)/i.test(text),
+      says_point_estimate: /point estimate|not proven synergy|does not establish/i.test(text),
+      excerpt: text.slice(0, 200)
+    };
+  });
+  await context.close();
+  verdict('Y2', !seen.pairs || !seen.shows_interval || !seen.shows_beats_both
+    || !seen.interval_tied_to_win_rate || !seen.interval_not_called_the_lift || !seen.says_point_estimate, seen);
+};
+
+probes.Y4 = async browser => {
+  /* The sticky "Next purchase" summary must not sit on top of the build path it summarises.
+     Content that scrolls under permanent chrome is content the reader cannot have. */
+  const seen = {};
+  for (const [w, h, mob] of [[390, 844, true], [1440, 900, false]]) {
+    const {context, page} = await session(browser, {viewport: {width: w, height: h}, isMobile: mob, hasTouch: mob});
+    await page.evaluate(() => {
+      S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}];
+      S.enemies = [{slug: 'countess', role: 'midlane'}]; S.role = 'jungle';
+      changeRoute('live');
+    });
+    await page.waitForTimeout(300);
+    seen[w + 'x' + h] = await page.evaluate(async () => {
+      const next = document.querySelector('.coach-next'), path = document.querySelector('.coach-path');
+      if (!next || !path) return {missing: true};
+      const sticky = ['sticky', 'fixed'].includes(getComputedStyle(next).position);
+      const hidden = [];
+      for (const li of path.children) {
+        // 'start' is what the browser does for an anchor, a fragment link and a focused
+        // control. Centring an element hides the defect, because the summary sits at the top.
+        li.scrollIntoView({block: 'start'});
+        await new Promise(r => setTimeout(r, 40));
+        if (!['sticky', 'fixed'].includes(getComputedStyle(next).position)) continue;
+        const n = next.getBoundingClientRect(), r = li.getBoundingClientRect();
+        const overlap = Math.min(n.bottom, r.bottom) - Math.max(n.top, r.top);
+        const across = Math.min(n.right, r.right) - Math.max(n.left, r.left) > 2;
+        if (overlap > 4 && across) hidden.push({item: li.innerText.replace(/\s+/g, ' ').slice(0, 26), overlap: Math.round(overlap)});
+      }
+      return {sticky, hidden: hidden.length, examples: hidden.slice(0, 3)};
+    });
+    await context.close();
+  }
+  verdict('Y4', Object.values(seen).some(v => v.missing || v.hidden > 0), seen);
+};
+
+probes.Y5 = async browser => {
+  /* GUARD: the hero deep link keeps working for every section name, and an unknown one
+     degrades to a valid screen. Stage 3c will turn these tabs into sections; the LINKS
+     must survive that change, so they are pinned now. */
+  const seen = {};
+  for (const tab of ['builds', 'pairings', 'counters', 'kit', 'nonsense']) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(t => {
+      S.role = 'jungle'; openHero('steel', 'jungle');
+      S.heroTab = ['builds', 'pairings', 'counters', 'kit'].includes(t) ? t : S.heroTab;
+      render();
+    }, tab);
+    await page.waitForTimeout(150);
+    seen[tab] = await page.evaluate(() => ({
+      hero: S.hero, role: S.heroRole, tab: S.heroTab,
+      h1: document.querySelector('#main h1') ? document.querySelector('#main h1').textContent.trim().slice(0, 30) : null,
+      selected: [...document.querySelectorAll('[data-hero-tab]')].filter(b => b.getAttribute('aria-selected') === 'true').map(b => b.dataset.heroTab)
+    }));
+    await context.close();
+  }
+  const ok = ['builds', 'pairings', 'counters', 'kit'].every(t => seen[t].tab === t && seen[t].hero === 'steel' && seen[t].selected.length === 1);
+  verdict('Y5', !ok || !seen.nonsense.h1, seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

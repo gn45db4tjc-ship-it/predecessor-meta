@@ -148,6 +148,11 @@ Rules that follow, each with a probe:
   have been recorded at position 3. The screen carries the observation's own position, its
   cohort and its collection date, and **says when that position is not the slot it sits
   beside**. A sample is never implied to belong to the displayed slot unless it does.
+
+  Only a **Statz core-sequence** observation lacks an individual purchase position;
+  `measuredItemPool` records its fourth-, fifth- and sixth-item rows against positions 4, 5
+  and 6, and those keep their positions like any other. The "recorded against a variant
+  sequence" note is for the core row alone.
 - **An exclusion states the engine's reason, not a guess.** There are four: a Statz
   observation is inspection-only by construction; a Pred.gg one loses support when it is
   under the 100-game minimum, older than thirty hours, or dated in the future. Where the
@@ -155,10 +160,10 @@ Rules that follow, each with a probe:
   observation is inspection-only and does not support automatic selection. No blanket
   "too small or too old".
 
-## Stage 3b — the rest of the hero screen *(scheduled, not yet built)*
+## Stage 3b — the hero experience *(this PR)*
 
-Tracked here so the remaining redesign is not mistaken for done. **Scope:** the hero page
-itself, which Stage 3a did not touch.
+**Scope as built:** the loadout, the pairing statistics, and the readability of content under
+the sticky summary. The tab-to-section conversion is **Stage 3c**, below.
 
 Accepted when:
 
@@ -174,11 +179,31 @@ Accepted when:
 - The complete evidence tables stay reachable and searchable rather than summarised away.
 - One `<h1>`, no horizontal scroll, and the phone coach reachable — today the Build Coach
   renders only on desktop on the hero page; on a phone it is on the Live route.
-- **The sticky "Next purchase" summary stops covering its own list.** `.coach-next` is
-  sticky, so while scrolling it passes over the build path beneath it and hides the position
-  label of the row under it. Stage 2 established that sticky chrome must not cover a focused
-  control; this covers content. It is pre-existing and outside Stage 3a's scope, so it is
-  recorded here rather than fixed in a stage about labels.
+- **The sticky "Next purchase" summary stops covering its own list.** Done. `.coach-next` is
+  chrome that lives inside `main`, which the Stage 2 scroll-padding never accounted for, so a
+  row scrolled or tabbed to the top landed 140 px underneath it. It now joins that watch list
+  and publishes its own height for the list it covers.
+
+## Stage 3c — sections and the four destinations *(scheduled, not yet built)*
+
+Two changes remain on the hero screen, both of which alter what is in the DOM rather than how
+it looks, and both of which re-scope existing assertions. They are kept separate for that
+reason, not deferred for convenience.
+
+- **The four tabs become four sections on one page**, with the jump row replacing the strip.
+  `data-hero-tab` is read by 18 assertions in the audit suite and by five other suites, and
+  every one of them sets `S.heroTab` and then reads `#main`. Rendering all four sections at
+  once changes what those reads see — a counters probe would start matching pairings rows —
+  so the conversion and the re-scoping of every affected assertion belong in one change.
+  The **links must survive it**: probe Y5 pins `builds`, `pairings`, `counters` and `kit`
+  today so the contract is recorded before the markup moves.
+- **Complete evidence access.** The counters and build evidence tables are reachable, in
+  disclosures, but not searchable. The prototype's searchable table is the target.
+
+## Stage 2b — the four destinations *(still pending)*
+
+Unchanged and explicitly still open: Meta, Plan, Reference, Sources; legacy route mapping for
+all thirteen route names; one `aria-current="page"` per route; Back and Forward; shared links.
 
 ### Statistical wording — required, and tested
 

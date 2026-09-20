@@ -62,8 +62,8 @@ function exclusionReason(m,now){
 /* A percentage beside a part is a WIN RATE for an observation with its own position,
    cohort and date. It is supporting evidence, never the category, and never silently
    adopted by the slot it happens to sit next to. */
-function supportingSample(m,displayPosition,now){
- if(!m)return '<small class="muted">No source observation for this position.</small>';
+function supportingSample(m,displayPosition,now,subject){
+ if(!m)return '<small class="muted">No source observation for this '+(subject||'position')+'.</small>';
  var where=esc(m.label||m.source||'source');
  var line='Win rate '+pct(m.wr)+' over '+games(m.played)+' · '+where+' · collected '+esc(dayDate(m.fetched_at));
  var at=observationPosition(m),mismatch='';
@@ -78,6 +78,27 @@ function sampleFootnote(slots){
  var n=(slots||[]).filter(function(s){return s.measured&&!s.measured.supports_current_fit;}).length;
  if(!n)return '';
  return '<p class="muted coach-note">'+n+' of these positions carry an observation that is inspection only. Each states its own reason; the category beside each part is what the recommendation rests on.</p>';
+}
+/* The loadout is the rest of the build. Each part is a REVIEWED choice when the plan is
+   reviewed and a CALCULATED one otherwise - the same categories stage 3a established for
+   the six items - and carries whatever observation the source has for it. */
+function loadoutPartHTML(label,name,kind,plan,measured){
+ if(!name)return '<div class="loadout-absent"><small>'+esc(label)+'</small><p class="muted">Unavailable in this source.</p></div>';
+ var c=buildCategory(plan,null);
+ /* an augment, an Eternal or a blessing is not bought at a purchase position, so the
+    absence of a row is not the absence of a position */
+ var subject=/augment|eternal|blessing/i.test(label)?'loadout choice':'position';
+ return '<div><small>'+esc(label)+'</small>'+itemButton(name,kind)+badge(c.text,c.type)+supportingSample(measured,null,null,subject)+'</div>';
+}
+/* The crest's evolutions come from the source variant, not from the reviewed plan. When the
+   source has no evolution rows the strip says so rather than leaving a silent gap. */
+function crestEvolutionHTML(summary,fetchedAt){
+ var ups=summary&&summary.crest?(summary.crest.upgrades||[]):null;
+ if(!ups||!ups.length)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">No evolution rows in this source for this crest. Nothing is estimated in their place.</p></div>';
+ return ups.map(function(u){
+  return '<div><small>Crest evolves</small>'+itemButton(u.name,'items')+badge('Observed choice','observed')+
+   '<small class="muted">Win rate '+pct(u.wr)+' over '+games(u.played)+' · source build variant · collected '+esc(dayDate(fetchedAt))+'</small></div>';
+ }).join('');
 }
 function coachHTML(p,{compact=false}={}){
  let a;try{a=adviceFor(p);}catch(e){return `<section class="panel coach"><h2>Recommendation unavailable</h2><p>${esc(e.message)}</p><button data-route="data">Inspect sources</button></section>`;}
