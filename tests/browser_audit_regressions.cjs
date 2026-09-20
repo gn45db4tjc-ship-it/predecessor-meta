@@ -2097,12 +2097,9 @@ const readRules = () => {
   return out;
 };
 
-const EVIDENCE = {
-  observed: '.source-line, .evidence-observed, [data-evidence="observed"]',
-  calculated: '.evidence-calculated, [data-evidence="calculated"]',
-  reviewed: '.evidence-reviewed, [data-evidence="reviewed"]',
-  official: '.evidence-official, [data-evidence="official"]'
-};
+/* The product marks a class of evidence with a tag. These are the four; `warning` is a
+   status, not a class of evidence, and is deliberately not one of them. */
+const EVIDENCE = ['observed', 'calculated', 'reviewed', 'official'];
 
 probes.W1 = async browser => {
   /* A theme block redefines tokens. The moment it styles a component, the component's
@@ -2143,7 +2140,12 @@ probes.W2 = async browser => {
 
 probes.W3 = async browser => {
   /* The four classes of evidence must stay tellable apart at a glance, in BOTH themes.
-     Two classes sharing a colour is the failure this whole product exists to avoid. */
+     Two classes sharing an appearance is the failure this whole product exists to avoid.
+
+     The tags are rendered into the page rather than hunted for: whether a given route
+     happens to show all four is a content question, and this is a question about the
+     stylesheet. A class with no rule of its own falls back to the bare .tag treatment,
+     which is exactly what this must catch. */
   const seen = {};
   for (const theme of ['dark', 'light']) {
     const {context, page} = await session(browser, desktop);
@@ -2151,32 +2153,39 @@ probes.W3 = async browser => {
       await page.evaluate(() => { document.documentElement.setAttribute('data-theme', 'light'); });
       await page.waitForTimeout(120);
     }
-    seen[theme] = await page.evaluate(map => {
-      const read = sel => {
-        const el = document.querySelector(sel);
-        if (!el) return null;
-        const cs = getComputedStyle(el);
-        return {color: cs.color, background: cs.backgroundColor, border: cs.borderLeftColor + '|' + cs.borderLeftStyle,
-                marker: getComputedStyle(el, '::before').backgroundColor};
-      };
+    seen[theme] = await page.evaluate(classes => {
+      const host = document.createElement('div');
+      host.style.position = 'absolute'; host.style.left = '-9999px';
+      document.body.appendChild(host);
       const out = {};
-      for (const [k, sel] of Object.entries(map)) out[k] = read(sel);
+      for (const k of classes) {
+        const el = document.createElement('span');
+        el.className = 'tag ' + k; el.textContent = k;
+        host.appendChild(el);
+        const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
+        out[k] = {color: cs.color, background: cs.backgroundColor, family: cs.fontFamily.split(',')[0],
+                  marker: (before.content || '').replace(/["']/g, '').trim()};
+      }
+      const bare = document.createElement('span');
+      bare.className = 'tag'; host.appendChild(bare);
+      out._bare = {color: getComputedStyle(bare).color, background: getComputedStyle(bare).backgroundColor};
+      host.remove();
       return out;
     }, EVIDENCE);
     await context.close();
   }
-  const found = Object.keys(EVIDENCE).filter(k => seen.dark[k]);
-  const clash = [];
+  const signature = v => [v.color, v.background, v.family, v.marker].join('~');
+  const unstyled = [], clash = [];
   for (const theme of ['dark', 'light']) {
-    for (let i = 0; i < found.length; i++) for (let j = i + 1; j < found.length; j++) {
-      const a = seen[theme][found[i]], b = seen[theme][found[j]];
-      if (!a || !b) continue;
-      const same = a.color === b.color && a.background === b.background && a.border === b.border && a.marker === b.marker;
-      if (same) clash.push({theme, a: found[i], b: found[j]});
+    const t = seen[theme];
+    for (const k of EVIDENCE) {
+      if (!t[k].marker || (t[k].color === t._bare.color && t[k].background === t._bare.background)) unstyled.push({theme, k});
+    }
+    for (let i = 0; i < EVIDENCE.length; i++) for (let j = i + 1; j < EVIDENCE.length; j++) {
+      if (signature(t[EVIDENCE[i]]) === signature(t[EVIDENCE[j]])) clash.push({theme, a: EVIDENCE[i], b: EVIDENCE[j]});
     }
   }
-  // Fewer than four classes carrying a treatment is itself the defect: one of them is unmarked.
-  verdict('W3', found.length < 4 || clash.length > 0, {classes_found: found, clashes: clash, seen});
+  verdict('W3', unstyled.length > 0 || clash.length > 0, {unstyled, clashes: clash, seen});
 };
 
 probes.W4 = async browser => {
@@ -2185,8 +2194,9 @@ probes.W4 = async browser => {
   const rules = await page.evaluate(readRules);
   const scale = await page.evaluate(() => {
     const cs = getComputedStyle(document.documentElement);
-    const read = prefix => Array.from({length: 12}, (_, i) => cs.getPropertyValue(prefix + (i + 1)).trim()).filter(Boolean);
-    return {spaces: read('--s'), sizes: read('--t'), root: cs.fontSize};
+    const steps = ['3xs', '2xs', 'xs', 'sm', 'md', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'];
+    return {spaces: Array.from({length: 8}, (_, i) => cs.getPropertyValue('--s' + (i + 1)).trim()).filter(Boolean),
+            sizes: steps.map(n => cs.getPropertyValue('--t-' + n).trim()).filter(Boolean), root: cs.fontSize};
   });
   const offenders = [];
   for (const r of rules) {
@@ -2197,7 +2207,8 @@ probes.W4 = async browser => {
       if (!prop || !rest.length) continue;
       const name = prop.trim(), value = rest.join(':').trim();
       if (name !== 'font-size') continue;
-      if (/var\(/.test(value) || /^(inherit|initial|unset|larger|smaller|0)$/.test(value)) continue;
+      // 0 is a layout device (hiding a label), not a point on a type scale.
+      if (/var\(/.test(value) || /^(inherit|initial|unset|larger|smaller|0|0px)$/.test(value)) continue;
       offenders.push({selector: r.selector.slice(0, 60), decl: decl.trim().slice(0, 50), media: r.media.slice(0, 40)});
     }
   }
