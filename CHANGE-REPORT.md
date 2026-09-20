@@ -1,6 +1,6 @@
-# Current release: 2.28.1
+# Current release: 2.28.2
 
-See RELEASE-2.28.1.md for the phone role strip fix and the correction to the 2.28.0 notes, RELEASE-2.28.0.md for the fixes from the review of 2.27.0 (honest labels, readable counters, a compact status line), RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
+See RELEASE-2.28.2.md for the evidence announcements (accessibility), RELEASE-2.28.1.md for the phone role strip fix and the correction to the 2.28.0 notes, RELEASE-2.28.0.md for the fixes from the review of 2.27.0 (honest labels, readable counters, a compact status line), RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.
 
 The independent-source repair is described in `RELEASE-2.21.1.md`. The following is the historical Claude design report; its unchanged-runtime statements apply to Design Revision 2 alone.
 
@@ -220,6 +220,13 @@ Additional browser checks cover local mode, static mode, saved-file exports, lig
 - Four independent review rounds of the patch (each finding challenged by a second agent) confirmed one high finding, withdrawn (an earlier draft could overstate the official description review after a hotfix), three medium findings (false reasons for missing numbers) and several low ones; all are fixed with checks that fail on the unfixed code (P1-P15).
 - Verified 178 Python tests (1 skipped without a local store), 149 JavaScript tests, 67 of 67 audit browser verdicts, axe WCAG 2.1 A/AA on 30 phone states, 7 of 7 real-browser offline checks, and the release, companion, ranks and static suites; clean-room package 178 Python / 146 JavaScript.
 - Not verified: a physical phone, screen readers, native installs.
+
+# Revision 12 — 2.28.2 evidence announcements
+
+- Evidence that fails, or arrives after a wait of at least a second, is announced once per view and wait from a polite live region that is always present: one on the page and one inside the detail dialog, which the modal state would otherwise hide. The placeholders themselves are no longer live regions, so the Builds page no longer carries 24 of them, and the dialog now takes its accessible name from its title.
+- A wait ends by the evidence files' own state, not by placeholders leaving the screen, so a search or the phone layout cannot pass for "loaded"; a failure behind an open dialog is announced when the dialog closes.
+- Probes I14 and I16 reproduce the defects on 2.28.1 and pass here; I15 guards the dialog focus that 2.28.0 fixed. A screen-reader announcement is modelled by the probes (text changes inside regions that already existed), not heard: no real screen reader was used.
+- Verified: 196 Python tests (1 skipped), 163 JavaScript tests, 96 of 96 audit browser verdicts, axe on 30 phone states and on the failed-evidence dialog, 10 of 10 offline checks, static (57 + 50) and ranks in Edge and WebKit, companion and release suites. `engine.js` unchanged.
 
 # Revision 11 — 2.28.1 phone role strip
 
