@@ -43,9 +43,11 @@ Accepted when:
   strip on the six-rank site; phone tab strips do not scroll; every tab ≥ 44 px.
 - Screenshot diff reviewed at 320/360/390/412 and 1280/1440/1920, both themes, Edge and WebKit.
 
-## Stage 2 — shell and navigation
+## Stage 2 — shell foundations *(done: #42)*
 
-**Scope:** top bar, navigation, the freshness strip, status and notices.
+**Scope as built:** the freshness strip, status and notices, and the behaviour of the
+chrome — focus, scroll-padding and short-viewport reflow. It did **not** reorganise
+navigation, and must not be read as having done so.
 
 Accepted when:
 
@@ -60,6 +62,36 @@ Accepted when:
 - Deep links and saved selections unaffected; `#main` stays `<main id="main" tabindex="-1">`;
   one `<h1>` per screen on every route and viewport.
 
+## Stage 2b — the four destinations *(scheduled, not yet built)*
+
+The redesign's navigation — **Meta, Plan, Reference, Sources**, with heroes opened from
+Meta — is a separate stage. It is scheduled here so it is not mistaken for finished work.
+
+**Scope:** the destination structure itself, and every route that reaches it.
+
+Accepted when:
+
+- **The four destinations exist** and each of the thirteen live routes lands somewhere,
+  exactly as `prototype-2.29-design/FEATURE-MAP.md` assigns it. Nothing is dropped.
+- **Legacy route mapping.** Every route name in use today still resolves:
+  `meta`, `builds`, `planner`, `draft`, `live`, `library`, `guidance`, `changes`, `data`,
+  and the hero tabs `builds`, `pairings`, `counters`, `kit`. A name that addressed a tab
+  now addresses a section, and is scrolled to. No name 404s or silently lands on Meta.
+- **Active navigation state.** Exactly one destination is marked current at a time, with
+  `aria-current="page"`, on every route including a hero page opened from Meta and each
+  optional Plan stage. A section within a destination never marks a second one current.
+- **Browser Back and Forward.** Moving between destinations, opening a hero, and changing
+  a Plan stage each leave a history entry, and Back returns to the previous one with its
+  scroll position and saved selections intact. Back out of a hero returns to the field it
+  was opened from, in the role it was opened in.
+- **Shared links.** A URL copied from the address bar reopens the same screen in a fresh
+  browser, with no stored state: `#hero=<slug>&role=<role>&bracket=<band>&tab=<tab>`, and
+  the destination and stage forms. An unknown hero, role, band or tab degrades to a valid
+  screen and says nothing false.
+- Saved selections, offline data and the export snapshot keep working across all of it.
+
+Each of these gets a probe before the change, as the standing conditions require.
+
 ## Stage 3 — hero screen
 
 **Scope:** the jump row, the loadout, per-part evidence labels, disclosures, partners, counters, kit.
@@ -70,8 +102,37 @@ Accepted when, in addition to the standing conditions:
   A broader-population figure is never labelled as the selected rank band.
 - **No calculation crosses cohorts.** A pair rate and the baselines it is compared against come
   from the same pool, as `engine.js` produces them.
-- Every part of a build says whether it was **observed** (with its purchase rate *and* its sample
-  count) or **substituted** by the engine (with its reason, and "no direct sample").
+### Build labels — the engine's categories, not a two-way split
+
+An earlier draft of these criteria asked for every part to read "observed or substituted".
+That is not what the engine produces, and forcing its output into two buckets would
+mislabel most of a build. The categories below are the ones `engine.js` actually emits,
+and the screen uses these and no others.
+
+| Category | Where it comes from | What the screen must say |
+|---|---|---|
+| **Reviewed recommendation** | `plannedBuild` returns `kind:'reviewed'` when `buildReview` is active for this hero and role. Slots carry `label:'Reviewed core'` or `'Reviewed flexible slot'` | Written by a person for a stated patch and band. The patch is named |
+| **Observed choice** | `plan.manual === true` — the reader selected a source playstyle (`title:'Selected source playstyle'`), so the sequence is the one that variant was observed to use | The source and the variant are named, with the variant's own sample |
+| **Calculated starting selection** | `plannedBuild` returns `kind:'provisional'`; slots carry `label:'Calculated starting sequence'` | Derived by the engine from observed variants plus official item data. Not counted, and not authored |
+| **Substitution** | A slot whose `kind` became `'need'`, recorded in `swaps[]` with `from`, `to`, `position` and `reason` | What it replaced, in which position, and the need it answers |
+| **Owned item** | A slot whose `kind` is `'owned'` (`label:'Owned · kept'`) | Kept because the reader owns it, not chosen by anything |
+
+Rules that follow, each with a probe:
+
+- **A supporting statistic never changes a part's category.** Every slot may carry
+  `measured` — a purchase rate from the item pool. On a reviewed core, on a calculated
+  starting selection, on an owned item, that rate is *supporting evidence shown beside the
+  choice*. It must never be presented as the reason for the choice, and must never make
+  the part read as an observed recommendation. The category label is what the engine set;
+  the rate sits next to it, attributed to its own source.
+- **Every observed figure still carries its sample size and its collection date.** A rate
+  without its sample is not evidence, whatever it is supporting.
+- **A part with no statistic says so plainly** and nothing is estimated in its place.
+- **`swaps` and `unmet` are shown, not summarised away.** A need the engine could not
+  answer is named; a need answered by an existing slot says which slot answers it.
+- **The whole six is never presented as an observed loadout.** The engine says so itself
+  (`caution: 'The full six combines source choices; no full-loadout win rate is inferred.'`)
+  and the screen carries that, not a combined rate.
 - `tab=builds|pairings|counters|kit` land on the matching section.
 
 ### Statistical wording — required, and tested
