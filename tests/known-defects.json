@@ -94,7 +94,7 @@
     "V8": "REVIEW 2.27.0 (P2): at 1440x900 the status chrome (excluding material notices) is taller than 132 px, the first Meta row starts below 400 px (excluding material notices), or another route's evidence line is taller than one row",
     "V9": "GUARD (2.28.0): new official content, paused collection, a failed required source or an old bundle is not visible without opening anything, or a failed required source does not mark the status line as failed",
     "V10": "REVIEW 2.27.0 (P2): the desktop status details cannot be opened and closed from the keyboard, lose their state or focus on redraw, lack the schedule or the notices, or fail axe",
-    "V11": "REVIEW 2.27.0 (P2): on phone widths a tab strip scrolls vertically or sideways, a tab is off screen or under 44 px tall, or the page scrolls sideways (default and large text)",
+    "V11": "REVIEW 2.27.0 (P2): on phone widths a tab strip scrolls vertically or sideways, a tab is off screen or under 44 px tall, or the page scrolls sideways (default and large text) (2.28.1: extended to the phone Meta role strip and the Live hero picker, which 2.28.0 left scrolling sideways)",
     "V12": "REVIEW 2.27.0 (P2): on phone widths the hero review status is squeezed beside other text instead of having a full-width row, or breaks inside a word"
   }
 }

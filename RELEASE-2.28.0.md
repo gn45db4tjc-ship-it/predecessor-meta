@@ -1,5 +1,7 @@
 # Predecessor Meta 2.28.0: honest labels, readable counters, a compact status line
 
+> **Correction (2.28.1).** The "Phone: tabs without scrollbars" section below says "Hero and Meta tab strips wrap instead of scrolling … every tab … fully on screen". That was true of the hero, Builds and Compositions strips and false of the Meta page's own role strip and the Live hero picker, which kept scrolling sideways with "Support" off screen. The live verification of 2.28.0 found it after publication; 2.28.1 fixes it. See RELEASE-2.28.1.md.
+
 2.28.0 fixes the six findings from Astra's review of the live 2.27.0 site:
 - every label now describes the hero, role and section it sits beside;
 - the Counters tab leads with what you can act on;
