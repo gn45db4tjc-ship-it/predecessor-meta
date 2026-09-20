@@ -23,6 +23,7 @@ RELEASE-2.28.0.md now carries a correction note pointing here. README.md and CHA
 
 ## Known gaps
 - The gaps listed in RELEASE-2.28.0.md still stand, except the phone role strip fixed here.
+- **Found while reviewing this change, not fixed here and not new:** in WebKit (not in Edge), the source selector on Changes, and on Library at 320 px, is sized to its widest option and runs off screen, so the phone page scrolls sideways. It behaves the same on 2.28.0 and 2.27.0. Probe V11 runs in Edge only and does not visit those routes, so it cannot see this; a later release should widen the phone select rule and give V11 a WebKit pass over the remaining phone routes.
 - Not tested on real devices: Playwright WebKit on Windows is not Safari.
 
 ## Rollback
