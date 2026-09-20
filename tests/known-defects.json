@@ -110,6 +110,9 @@
     "X1": "2.29 stage 3: the hero build path prints the engine's slot label as prose with no category badge, so a build sits outside the four-class evidence system",
     "X2": "2.29 stage 3: the purchase-position sample the engine attaches to every slot is not shown, so neither its size, its date, nor the engine's own finding that it does not support the current fit reaches the reader",
     "X3": "GUARD: a supporting statistic never changes a slot's category; the same plan rendered with and without its samples carries the same categories",
-    "X4": "GUARD: a substitution names what it replaced and why, an unanswered need is named, and the whole six is never offered as one observed loadout"
+    "X4": "GUARD: a substitution names what it replaced and why, an unanswered need is named, and the whole six is never offered as one observed loadout",
+    "X5": "2.29 stage 3a: an item the engine only moved earlier (slot.timing) was labelled a substitution, claiming a replacement that never happened",
+    "X6": "2.29 stage 3a: a supporting percentage was not named as a win rate and lost the observation's own purchase position, cohort and collection date, so a sample merged from another position read as the displayed slot's own",
+    "X7": "2.29 stage 3a: every unsupported observation was explained as 'too small or too old', a reason the engine never gave; a fresh, large Statz row is inspection-only by construction"
   }
 }

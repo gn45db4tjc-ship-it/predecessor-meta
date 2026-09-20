@@ -23,39 +23,69 @@ function freshnessHTML(p){
  const summary=(offline?'Offline · saved data · ':'')+sampleText+' · Mechanics '+(words[mechanics]||mechanics);
  return `<details class="coach-date ${offline||!perf||sample!=='current'||mechanics!=='current'?'warning':''}" data-keep="coach-evidence"><summary>${esc(summary)}</summary><div class="detail-content"><p>${esc(B?.bracket?.label||'Bracket unavailable')}${p?' · '+esc(name(p.slug))+' · '+esc(labels[p.role]||p.role):''}</p><p>${perf?'Role sample: '+esc(perf.source)+' · '+games(perf.played)+' · fetched '+esc(date(perf.fetched_at))+(perf.retained?' · retained from an earlier collection':''):esc(sampleText)+'. No role win rate is shown or estimated for this plan.'}</p><p>Mechanics fetched ${esc(date(mech?.fetched_at))}${mech?.status==='retained'?' · retained from an earlier collection':''}</p><p class="muted">Site-wide update health is on Sources &amp; accuracy; each section below shows its own date.</p></div></details>`;
 }
-/* The five categories engine.js actually produces for a build part. A part is never
-   reduced to "observed or substituted": a reviewed core, a calculated starting selection
-   and a source playstyle the reader chose are three different claims. */
+/* The categories engine.js actually produces for a build part. A part is never reduced
+   to "observed or substituted": a reviewed core, a calculated starting selection, a
+   source playstyle the reader chose, an item merely brought forward and an item actually
+   replaced are five different claims. */
 function buildCategory(plan,slot){
  if(slot&&slot.kind==='owned')return {text:'Owned · kept',type:'saved'};
- if(slot&&(slot.kind==='need'||slot.timing))return {text:'Substitution · calculated',type:'calculated'};
+ /* kind 'need' means the engine REPLACED what was here. */
+ if(slot&&slot.kind==='need')return {text:'Substitution · calculated',type:'calculated'};
+ /* timing means the same item was moved earlier. Nothing was substituted. */
+ if(slot&&slot.timing)return {text:'Brought earlier · calculated',type:'calculated'};
  if(plan&&plan.manual)return {text:'Observed choice',type:'observed'};
  if(plan&&plan.kind==='reviewed')return {text:'Reviewed',type:'reviewed'};
  return {text:'Calculated starting selection',type:'calculated'};
 }
-/* A purchase-position sample shown beside a part is SUPPORTING evidence. It never changes
-   the part's category, and where the engine has already found it does not support the
-   current fit, that finding is carried rather than a bare percentage. */
-function supportingSample(m){
- if(!m)return '<small class="muted">No source sample for this position.</small>';
- var line=pct(m.wr)+' over '+games(m.played)+' · '+esc(m.source||'source')+' · '+esc(dayDate(m.fetched_at));
- /* The engine has already decided whether this sample supports the current fit. Carry that
-    finding rather than a bare percentage, which would read as backing for the choice. */
- return '<small class="muted">'+(m.supports_current_fit?'Supporting: ':'Not eligible as support: ')+line+'</small>';
+var OBSERVATION_POSITIONS={firstTier3:1,secondTier3:2,thirdTier3:3,fourthTier3:4,fifthTier3:5,sixthTier3:6};
+/* Which purchase position the observation was actually recorded at, or null when the
+   source does not express one (a Statz core sequence). */
+function observationPosition(m){
+ if(!m||m.slot==null)return null;
+ if(OBSERVATION_POSITIONS[m.slot])return OBSERVATION_POSITIONS[m.slot];
+ return /^[1-6]$/.test(String(m.slot))?Number(m.slot):null;
 }
-/* Said once for the whole build, so it is not repeated under every part. */
+/* The engine's own reason, never a guess. currentItemPool marks a Statz observation
+   inspection-only by construction; buildCandidate withdraws support from a Pred.gg one
+   that is under the minimum, older than thirty hours, or dated in the future. */
+function exclusionReason(m,now){
+ if(!m||m.supports_current_fit)return '';
+ if(m.source==='Statz')return 'Statz observation: inspection only, and it adds no current-patch fit points.';
+ if(typeof m.played==='number'&&m.played<100)return 'Under the 100-game minimum, so it is inspection only.';
+ var t=Date.parse(m.fetched_at),at=typeof now==='number'?now:Date.now();
+ if(isFinite(t)){
+  if(t>at+300000)return 'Its collection timestamp is in the future, so it is inspection only.';
+  if(at-t>30*3600000)return 'Collected more than 30 hours ago, so it is inspection only.';
+ }
+ return 'Inspection only; it does not support automatic selection.';
+}
+/* A percentage beside a part is a WIN RATE for an observation with its own position,
+   cohort and date. It is supporting evidence, never the category, and never silently
+   adopted by the slot it happens to sit next to. */
+function supportingSample(m,displayPosition,now){
+ if(!m)return '<small class="muted">No source observation for this position.</small>';
+ var where=esc(m.label||m.source||'source');
+ var line='Win rate '+pct(m.wr)+' over '+games(m.played)+' · '+where+' · collected '+esc(dayDate(m.fetched_at));
+ var at=observationPosition(m),mismatch='';
+ if(at&&displayPosition&&at!==displayPosition)mismatch=' Recorded at purchase position '+at+', not position '+displayPosition+'.';
+ else if(!at&&m.source==='Statz')mismatch=' Recorded against a variant sequence, not this position.';
+ var why=exclusionReason(m,now);
+ if(why)return '<small class="muted">'+line+'.'+mismatch+' '+esc(why)+'</small>';
+ return '<small class="muted">Supporting: '+line+'.'+mismatch+'</small>';
+}
+/* Said once for the whole build, so a per-part sentence is not repeated six times. */
 function sampleFootnote(slots){
  var n=(slots||[]).filter(function(s){return s.measured&&!s.measured.supports_current_fit;}).length;
  if(!n)return '';
- return '<p class="muted coach-note">'+n+' of these positions carry a source sample that is too small or too old to support the choice. They are shown for inspection; the category beside each part is what the recommendation rests on.</p>';
+ return '<p class="muted coach-note">'+n+' of these positions carry an observation that is inspection only. Each states its own reason; the category beside each part is what the recommendation rests on.</p>';
 }
 function coachHTML(p,{compact=false}={}){
  let a;try{a=adviceFor(p);}catch(e){return `<section class="panel coach"><h2>Recommendation unavailable</h2><p>${esc(e.message)}</p><button data-route="data">Inspect sources</button></section>`;}
  const enemies=coachEnemies(p),key=p.slug+'|'+p.role,attr=`data-coach-key="${esc(key)}"`;
  const controls=`<div class="coach-controls"><label>My hero is<select ${attr} data-coach-field="state">${options([['ahead','Ahead'],['even','Even'],['behind','Behind']],a.state)}</select></label><label>Primary threat<select ${attr} data-coach-field="primaryThreat">${options(enemies.map(e=>[e.slug,name(e.slug)+' · '+labels[e.role]]),a.primaryThreat||'','No primary threat')}</select></label><label>Urgent need<select ${attr} data-coach-field="priority">${options(E.itemNeeds.filter(n=>!n.manual).map(n=>[n.id,n.label]),a.priority,'Normal timing')}</select></label></div>`;
  const info=`<p class="muted">Judge your hero’s farm and power curve. Enemy equipment is unknown until you choose a need.</p>`;
- const next=a.available?(a.nextPurchase?`<h2>Next: ${esc(a.nextPurchase.name)}</h2>${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,a.nextPurchase))}${supportingSample(a.nextPurchase.measured)}`:'<h2>Six completed items owned</h2><p>No purchase or sale suggested.</p>'):`<h2>Recommendation unavailable</h2><p>${esc(a.unavailableReason)}</p>`;
- return `<section class="panel coach" aria-label="Build Coach"><div class="coach-next">${next}</div>${controls}${compact?'':info}${freshnessHTML(p)}${a.available?`<p class="coach-reason">${esc(a.explanations[0])}</p><ol class="build-path coach-path">${a.slots.map((s,i)=>`<li><span class="item-position">${i+1} · ${esc(s.label)}</span>${itemButton(s.name)}${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,s))}${supportingSample(s.measured)}</li>`).join('')}</ol>${sampleFootnote(a.slots)}`:'<button data-route="data">Inspect sources & accuracy</button>'}<details><summary>Advanced details · why this path</summary><div class="detail-content">${info}<p>Reviewed for ${esc(a.evidence.reviewed.patch||'unverified')} · ${esc(date(a.evidence.reviewed.date))}. Editorial reference remains Gold+; observations use ${esc(B.bracket?.label)}.</p>${a.explanations.slice(1).map(t=>`<p>${esc(t)}</p>`).join('')}${a.changes.map(c=>`<p><strong>Position ${c.position}: ${esc(c.item)}</strong><br>${esc(c.reason)}</p>`).join('')}${a.timing.map(t=>`<p>${esc(t)}</p>`).join('')}${a.contingency?`<p>Alternative for ${esc(a.contingency.need)}: ${itemButton(a.contingency.name)}<br>${esc(a.contingency.reason)}</p>`:''}<p>Reviewed baseline: ${esc(a.baseline.join(' → ')||'Unavailable')}</p>${a.itemEvidence.issues.map(t=>note(esc(t),true)).join('')}${Object.values(a.itemEvidence.pool).filter(r=>a.slots.some(s=>normalizeName(s.name)===normalizeName(r.name))).map(r=>`<p>${esc(r.name)} · ${pct(r.wr)} · ${games(r.played)}<br>${esc(r.label||r.source)} · ${esc(date(r.fetched_at))} · ${r.supports_current_fit?'Eligible bracket evidence':'Inspection only; no influence'}</p>`).join('')}<p>${esc(a.note)}</p></div></details></section>`;
+ const next=a.available?(a.nextPurchase?`<h2>Next: ${esc(a.nextPurchase.name)}</h2>${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,a.nextPurchase))}${supportingSample(a.nextPurchase.measured,a.slots.indexOf(a.nextPurchase)+1||null)}`:'<h2>Six completed items owned</h2><p>No purchase or sale suggested.</p>'):`<h2>Recommendation unavailable</h2><p>${esc(a.unavailableReason)}</p>`;
+ return `<section class="panel coach" aria-label="Build Coach"><div class="coach-next">${next}</div>${controls}${compact?'':info}${freshnessHTML(p)}${a.available?`<p class="coach-reason">${esc(a.explanations[0])}</p><ol class="build-path coach-path">${a.slots.map((s,i)=>`<li><span class="item-position">${i+1} · ${esc(s.label)}</span>${itemButton(s.name)}${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,s))}${supportingSample(s.measured,i+1)}</li>`).join('')}</ol>${sampleFootnote(a.slots)}`:'<button data-route="data">Inspect sources & accuracy</button>'}<details><summary>Advanced details · why this path</summary><div class="detail-content">${info}<p>Reviewed for ${esc(a.evidence.reviewed.patch||'unverified')} · ${esc(date(a.evidence.reviewed.date))}. Editorial reference remains Gold+; observations use ${esc(B.bracket?.label)}.</p>${a.explanations.slice(1).map(t=>`<p>${esc(t)}</p>`).join('')}${a.changes.map(c=>`<p><strong>Position ${c.position}: ${esc(c.item)}</strong><br>${esc(c.reason)}</p>`).join('')}${a.timing.map(t=>`<p>${esc(t)}</p>`).join('')}${a.contingency?`<p>Alternative for ${esc(a.contingency.need)}: ${itemButton(a.contingency.name)}<br>${esc(a.contingency.reason)}</p>`:''}<p>Reviewed baseline: ${esc(a.baseline.join(' → ')||'Unavailable')}</p>${a.itemEvidence.issues.map(t=>note(esc(t),true)).join('')}${Object.values(a.itemEvidence.pool).filter(r=>a.slots.some(s=>normalizeName(s.name)===normalizeName(r.name))).map(r=>`<p>${esc(r.name)} · ${pct(r.wr)} · ${games(r.played)}<br>${esc(r.label||r.source)} · ${esc(date(r.fetched_at))} · ${r.supports_current_fit?'Eligible bracket evidence':'Inspection only; no influence'}</p>`).join('')}<p>${esc(a.note)}</p></div></details></section>`;
 }
 function companionChrome(){
  if(companionMedia.matches){$('#menu-toggle').textContent='More';$('#menu-toggle').removeAttribute('aria-expanded');$('#menu-toggle').setAttribute('aria-controls','main');}

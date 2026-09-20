@@ -92,9 +92,11 @@ Accepted when:
 
 Each of these gets a probe before the change, as the standing conditions require.
 
-## Stage 3 — hero screen
+## Stage 3a — build evidence labels *(this PR)*
 
-**Scope:** the jump row, the loadout, per-part evidence labels, disclosures, partners, counters, kit.
+**Scope as built:** the categories and supporting evidence of a build's parts, in the Build
+Coach. It did **not** rebuild the hero screen, and must not be read as having done so. The
+jump row, the loadout layout, the disclosures, partners, counters and kit are **Stage 3b**.
 
 Accepted when, in addition to the standing conditions:
 
@@ -134,6 +136,49 @@ Rules that follow, each with a probe:
   (`caution: 'The full six combines source choices; no full-loadout win rate is inferred.'`)
   and the screen carries that, not a combined rate.
 - `tab=builds|pairings|counters|kit` land on the matching section.
+
+### Provenance rules added after review
+
+- **A purchase-timing change is not a substitution.** `engine.js` sets `slot.timing` when it
+  moves an item **earlier**; the item is unchanged. Only `slot.kind === 'need'` replaces one.
+  The two carry different labels, and neither is mistaken for an untouched part.
+- **A supporting percentage is a win rate**, and says so.
+- **An observation keeps its own provenance.** `currentItemPool` merges the **largest**
+  observation across purchase positions onto an item, so the sample shown beside slot 4 may
+  have been recorded at position 3. The screen carries the observation's own position, its
+  cohort and its collection date, and **says when that position is not the slot it sits
+  beside**. A sample is never implied to belong to the displayed slot unless it does.
+- **An exclusion states the engine's reason, not a guess.** There are four: a Statz
+  observation is inspection-only by construction; a Pred.gg one loses support when it is
+  under the 100-game minimum, older than thirty hours, or dated in the future. Where the
+  reason is known it is given. Where it is not, the screen says only what is true — that the
+  observation is inspection-only and does not support automatic selection. No blanket
+  "too small or too old".
+
+## Stage 3b — the rest of the hero screen *(scheduled, not yet built)*
+
+Tracked here so the remaining redesign is not mistaken for done. **Scope:** the hero page
+itself, which Stage 3a did not touch.
+
+Accepted when:
+
+- **The jump row** replaces the four tabs that hide each other: Build · Partners · Counters ·
+  Kit, sticky, with `tab=` deep links landing on the matching section (Stage 2b's contract).
+- **The full loadout** — six items, augment, Eternal, both blessings, crest and its evolutions
+  — is present, each part carrying its Stage 3a category and supporting evidence.
+- **Partners** render the engine's own pair record: both `hero_wide` baselines, `lift` against
+  the **stronger** one, `beats_both`, and `interval95`, with the statistical wording below.
+- **Counters** keep the reviewed counterplay first and the 100-game split, with the thinner
+  rows in a closed disclosure.
+- **Kit** carries official text with its corrections.
+- The complete evidence tables stay reachable and searchable rather than summarised away.
+- One `<h1>`, no horizontal scroll, and the phone coach reachable — today the Build Coach
+  renders only on desktop on the hero page; on a phone it is on the Live route.
+- **The sticky "Next purchase" summary stops covering its own list.** `.coach-next` is
+  sticky, so while scrolling it passes over the build path beneath it and hides the position
+  label of the row under it. Stage 2 established that sticky chrome must not cover a focused
+  control; this covers content. It is pre-existing and outside Stage 3a's scope, so it is
+  recorded here rather than fixed in a stage about labels.
 
 ### Statistical wording — required, and tested
 

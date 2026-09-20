@@ -2444,8 +2444,11 @@ probes.X2 = async browser => {
     if (!/\d/.test(text) || !/games|played/i.test(text)) { problems.push({slot: e.name, why: 'no sample shown', played: e.measured.played}); continue; }
     // the product's own dayDate() writes "September 14"; accept either order, and a year
     if (!/\b(19|20)\d\d\b|\b\d{1,2} \w{3,}\b|\b\w{3,} \d{1,2}\b/.test(text)) problems.push({slot: e.name, why: 'no collection date', text: text.slice(0, 90)});
-    if (!e.measured.supports && !/not eligible|does not support|for inspection/i.test(text))
-      problems.push({slot: e.name, why: 'engine says it does not support the fit, screen does not', played: e.measured.played});
+    // Stage 3a replaced the blanket phrase with the engine's own reason. Every one of
+    // them says "inspection only"; the fallback also says it does not support automatic
+    // selection. The probe follows the product's vocabulary, deliberately changed.
+    if (!e.measured.supports && !/inspection only|does not support|not eligible/i.test(text))
+      problems.push({slot: e.name, why: 'engine says it does not support the fit, screen does not', played: e.measured.played, text: text.slice(0, 90)});
   }
   await context.close();
   verdict('X2', withStat.length === 0 || problems.length > 0,
@@ -2506,6 +2509,102 @@ probes.X4 = async browser => {
   });
   await context.close();
   verdict('X4', seen.swaps.some(s => !s.shown) || seen.unmet.some(u => !u.shown) || !seen.caution_shown, seen);
+};
+
+/* ---------------------------------------------------------------------------
+   Stage 3a regressions. Each drives the rendering helpers with one engine-shaped
+   input, because each concerns a case the staged fixture does not happen to contain.
+   --------------------------------------------------------------------------- */
+
+probes.X5 = async browser => {
+  /* An item the engine moved EARLIER is the same item in a different place. Calling that
+     a substitution claims a replacement that never happened. engine.js sets slot.timing
+     for the move and slot.kind='need' for a replacement; they are not the same event. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const plan = {kind: 'reviewed', manual: false};
+    const cases = {
+      reordered_reviewed: buildCategory(plan, {name: 'Fire Blossom', kind: 'baseline', label: 'Reviewed flexible slot', timing: true}),
+      reordered_core: buildCategory(plan, {name: 'Dynamo', kind: 'core', label: 'Reviewed core', timing: true}),
+      substituted: buildCategory(plan, {name: 'Tainted Charm', kind: 'need', label: 'Anti-heal'}),
+      untouched: buildCategory(plan, {name: 'Flux Matrix', kind: 'core', label: 'Reviewed core'}),
+      owned: buildCategory(plan, {name: 'Stonewall', kind: 'owned', label: 'Owned · kept'})
+    };
+    // and the two must stay distinguishable on screen, not only in the returned object
+    return {cases, timingText: cases.reordered_reviewed.text, substitutionText: cases.substituted.text};
+  });
+  await context.close();
+  const timing = seen.cases.reordered_reviewed, core = seen.cases.reordered_core;
+  const bad = /substitut/i.test(timing.text) || /substitut/i.test(core.text)          // a move called a replacement
+    || !/earlier|timing|moved/i.test(timing.text)                                      // or not identified as a move
+    || timing.text === seen.cases.untouched.text                                       // or indistinguishable from an untouched part
+    || !/substitut/i.test(seen.cases.substituted.text);                                // or a real replacement no longer named
+  verdict('X5', bad, seen);
+};
+
+probes.X6 = async browser => {
+  /* currentItemPool keeps the LARGEST observation across purchase positions and merges it
+     onto the item, so the sample shown beside slot 4 may have been recorded at position 3.
+     The screen must carry the observation's own position, cohort and date, and must say
+     when that position is not the slot it sits beside. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const now = Date.parse('2026-09-15T12:00:00Z');
+    const third = {name: 'Giant’s Ring', wr: 63.4, played: 412, slot: 'thirdTier3', source: 'Pred.gg',
+      label: 'Pred.gg 1.16.4 Gold+ Ranked jungle thirdTier3', fetched_at: '2026-09-15T09:00:00Z', supports_current_fit: true};
+    const same = {...third, slot: 'fourthTier3', label: 'Pred.gg 1.16.4 Gold+ Ranked jungle fourthTier3'};
+    const statz = {...third, slot: 'core', source: 'Statz', label: 'Exact core sequence in variant 1', supports_current_fit: false};
+    return {
+      mismatched: supportingSample(third, 4, now),
+      matched: supportingSample(same, 4, now),
+      sequence: supportingSample(statz, 4, now),
+      none: supportingSample(null, 4, now)
+    };
+  });
+  await context.close();
+  const strip = h => h.replace(/<[^>]*>/g, '');
+  const mismatched = strip(seen.mismatched), matched = strip(seen.matched), sequence = strip(seen.sequence);
+  const bad = !/win rate/i.test(mismatched)                                   // the number is not named as a win rate
+    || !/position 3/.test(mismatched) || !/not position 4/.test(mismatched)   // the real position is not stated
+    || !/Gold\+/.test(mismatched) || !/jungle/.test(mismatched)               // the cohort is dropped
+    || !/collected/i.test(mismatched)                                          // the collection date is dropped
+    || /not position/.test(matched)                                            // a matching position is wrongly flagged
+    || !/variant sequence/i.test(sequence);                                    // a sequence sample implies a position
+  verdict('X6', bad, {mismatched, matched, sequence, none: strip(seen.none)});
+};
+
+probes.X7 = async browser => {
+  /* A Statz observation is inspection-only by construction: currentItemPool takes that
+     path when Pred.gg item-position collection is unavailable, and marks every row
+     supports_current_fit false whatever its size or age. Explaining a fresh, large one as
+     "too small or too old" states a reason the engine never gave. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const now = Date.parse('2026-09-15T12:00:00Z');
+    const base = {name: 'Dynamo', wr: 55.2, source: 'Pred.gg', slot: 'firstTier3',
+      label: 'Pred.gg 1.16.4 Gold+ Ranked jungle firstTier3', supports_current_fit: false};
+    const freshLargeStatz = {...base, source: 'Statz', slot: 'core', label: 'Exact core sequence in variant 1',
+      played: 4821, fetched_at: '2026-09-15T11:30:00Z'};
+    return {
+      fresh_large_statz: supportingSample(freshLargeStatz, 1, now),
+      too_few_games: supportingSample({...base, played: 42, fetched_at: '2026-09-15T11:30:00Z'}, 1, now),
+      too_old: supportingSample({...base, played: 4000, fetched_at: '2026-09-10T11:30:00Z'}, 1, now),
+      future_dated: supportingSample({...base, played: 4000, fetched_at: '2026-09-20T11:30:00Z'}, 1, now),
+      supported: supportingSample({...base, played: 4000, fetched_at: '2026-09-15T11:30:00Z', supports_current_fit: true}, 1, now)
+    };
+  });
+  await context.close();
+  const strip = h => h.replace(/<[^>]*>/g, '');
+  const statz = strip(seen.fresh_large_statz), few = strip(seen.too_few_games);
+  const old = strip(seen.too_old), future = strip(seen.future_dated), ok = strip(seen.supported);
+  const bad = /too small|too old/i.test(statz + few + old + future)              // the blanket phrase survives anywhere
+    || !/inspection only/i.test(statz) || /minimum|hours ago/i.test(statz)        // a fresh large Statz row blamed on size or age
+    || !/Statz/.test(statz)
+    || !/100-game minimum/.test(few)                                              // the real reason for a small sample
+    || !/more than 30 hours/.test(old)                                            // the real reason for an old one
+    || !/in the future/.test(future)                                              // the real reason for a future-dated one
+    || /inspection only/i.test(ok);                                               // a supported sample wrongly withheld
+  verdict('X7', bad, {statz, few, old, future, ok});
 };
 
 (async () => {
