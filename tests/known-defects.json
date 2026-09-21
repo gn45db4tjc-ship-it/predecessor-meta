@@ -141,6 +141,7 @@
     "N6": "Stage 2b: a local link uses the cohort actually loaded instead of requesting the same collector change again",
     "PL1": "Stage 4: all three Plan stages expose the same compact lineup and one editor with roles and bans",
     "PL2": "Stage 4: the lineup editor keeps focus, preserves selections across stages and reload, and closes back to its opener",
-    "PL3": "Stage 4: direct role mutations cannot evict the Live hero, select an unsupported allied role, or duplicate a pick"
+    "PL3": "Stage 4: direct role mutations cannot evict the Live hero, select an unsupported allied role, or duplicate a pick",
+    "PL4": "Stage 4: switching stage before the native toggle event cannot reopen a roster that was just collapsed"
   }
 }

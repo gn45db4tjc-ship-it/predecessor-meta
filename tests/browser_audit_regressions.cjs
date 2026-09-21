@@ -3347,6 +3347,15 @@ probes.PL3 = async browser => {
  });
  await context.close();verdict('PL3',!seen.protectedMe||!seen.unsupported||!seen.duplicate,seen);
 };
+probes.PL4 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  changeRoute('planner');rosterExpanded=true;const d=document.querySelector('[data-roster-picks]');d.open=true;
+  // A native toggle updates open before its asynchronous toggle event updates the remembered flag.
+  d.open=false;changeRoute('draft');return {open:document.querySelector('[data-roster-picks]').open,remembered:rosterExpanded};
+ });
+ await context.close();verdict('PL4',seen.open||seen.remembered,seen);
+};
 
 (async () => {
   let server = null;

@@ -18,7 +18,7 @@ const report={engine,states:[],errors:[]};
     assert.equal(await page.locator('#detail [data-plan-side] option[value="muriel"]').count(),0);
     assert.equal(await page.locator('#detail [data-plan-ban] option[value="steel"]').count(),0);
     if(process.env.AXE_PATH){await page.addScriptTag({path:process.env.AXE_PATH});const a=await page.evaluate(()=>axe.run(document.querySelector('#detail'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));assert.deepEqual(a.violations,[],JSON.stringify(a.violations));}
-    await page.keyboard.press('Escape');assert(await page.locator('[data-edit-roster]').evaluate(b=>b===document.activeElement));
+    await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#detail').open&&document.activeElement?.hasAttribute('data-edit-roster'));
     await page.locator('[data-roster-picks] summary').click();
     await page.waitForFunction(()=>document.querySelector('[data-roster-picks]').open);
     assert(await page.locator('.plan-roster').evaluate(e=>getComputedStyle(e).position==='static'));
