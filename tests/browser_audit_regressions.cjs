@@ -2607,6 +2607,334 @@ probes.X7 = async browser => {
   verdict('X7', bad, {statz, few, old, future, ok});
 };
 
+
+/* ---------------------------------------------------------------------------
+   Y-series: 2.29 redesign, stage 3b (the hero experience).
+   --------------------------------------------------------------------------- */
+
+const openSteel = (page, tab) => page.evaluate(t => {
+  S.role = 'jungle'; openHero('steel', 'jungle'); S.heroTab = t; render();
+  document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+}, tab);
+
+probes.Y1 = async browser => {
+  /* The loadout is the rest of the build: augment, Eternal, both blessings, the crest and
+     its evolutions. Every part carries the same category and evidence treatment the six
+     items got in stage 3a - a part with no label is a part with no provenance. */
+  const {context, page} = await session(browser, desktop);
+  await openSteel(page, 'builds');
+  const seen = await page.evaluate(() => {
+    const a = adviceFor({slug: 'steel', role: 'jungle'});
+    const strip = document.querySelector('.loadout-strip');
+    const parts = strip ? [...strip.children].map(d => ({
+      label: d.querySelector('small')?.textContent.trim(),
+      text: d.innerText.replace(/\s+/g, ' ').trim().slice(0, 80),
+      tags: [...d.querySelectorAll('.tag')].map(t => t.textContent.trim()),
+      // an absence statement and the stated crest path are context, not parts
+      absent: d.classList.contains('loadout-absent') || d.classList.contains('loadout-context')
+    })) : [];
+    return {
+      parts, labels: parts.map(p => p.label),
+      // a div that states an ABSENCE is not a part, and carries no category by design
+      without_category: parts.filter(p => !p.tags.length && !p.absent).length,
+      engine: {augment: a.plan.augment, eternal: a.plan.eternal, blessings: a.plan.blessings,
+               crest: a.plan.crest, upgrades: a.summary && a.summary.crest ? (a.summary.crest.upgrades || []).map(u => u.name) : null},
+      evolution_text: /evolution|evolve|upgrade/i.test(strip ? strip.innerText : '')
+    };
+  });
+  await context.close();
+  const want = ['Augment', 'Eternal', 'Blessing 1', 'Blessing 2', 'Crest'];
+  const missing = want.filter(w => !seen.labels.includes(w));
+  // the crest's evolutions are named when the source has them, and their absence is stated
+  // when it does not; silently omitting them is the failure either way
+  const evolutionHandled = seen.engine.upgrades && seen.engine.upgrades.length
+    ? seen.parts.some(p => /evolv|final upgrade|crest path/i.test(p.label || ''))
+    : seen.parts.some(p => p.absent && /evolution|crest path/i.test(p.label || ''));
+  verdict('Y1', missing.length > 0 || seen.without_category > 0 || !evolutionHandled,
+    {...seen, missing, evolutionHandled});
+};
+
+probes.Y2 = async browser => {
+  /* A pairing is the engine's own record. Two of its fields have never reached the screen:
+     beats_both, and the Wilson interval. The interval belongs to the OBSERVED pair win rate
+     and is not an interval for the calculated lift, and beats_both is a comparison of point
+     estimates, not proven synergy. Both must say so where they are shown. */
+  const {context, page} = await session(browser, desktop);
+  await openSteel(page, 'pairings');
+  const seen = await page.evaluate(() => {
+    const got = E.partners('steel', {heroRole: 'jungle', min: 1});
+    const rows = (got && got.observed) || [];
+    const withPair = rows.filter(r => r.pair).slice(0, 3)
+      .map(r => ({slug: r.slug, wr: r.pair.wr, played: r.pair.played, lift: r.pair.lift,
+                  beats_both: r.pair.beats_both, interval95: r.pair.interval95}));
+    const text = document.querySelector('#main').innerText.replace(/\s+/g, ' ');
+    const first = withPair[0];
+    return {
+      pairs: withPair.length, first,
+      shows_interval: !!first && text.includes(first.interval95[0].toFixed(2)),
+      shows_beats_both: /beats both|beat both/i.test(text),
+      interval_tied_to_win_rate: /interval[^.]{0,90}(win rate|pair rate|pair win)|(win rate|pair)[^.]{0,90}interval/i.test(text),
+      interval_not_called_the_lift: !/interval (for|on|of) (the )?(lift|gap)/i.test(text),
+      says_point_estimate: /point estimate|not proven synergy|does not establish/i.test(text),
+      excerpt: text.slice(0, 200)
+    };
+  });
+  await context.close();
+  verdict('Y2', !seen.pairs || !seen.shows_interval || !seen.shows_beats_both
+    || !seen.interval_tied_to_win_rate || !seen.interval_not_called_the_lift || !seen.says_point_estimate, seen);
+};
+
+probes.Y4 = async browser => {
+  /* The sticky "Next purchase" summary must not sit on top of the build path it summarises.
+     Content that scrolls under permanent chrome is content the reader cannot have. */
+  const seen = {};
+  for (const [w, h, mob] of [[390, 844, true], [1440, 900, false]]) {
+    const {context, page} = await session(browser, {viewport: {width: w, height: h}, isMobile: mob, hasTouch: mob});
+    await page.evaluate(() => {
+      S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}];
+      S.enemies = [{slug: 'countess', role: 'midlane'}]; S.role = 'jungle';
+      changeRoute('live');
+    });
+    await page.waitForTimeout(300);
+    seen[w + 'x' + h] = await page.evaluate(async () => {
+      const next = document.querySelector('.coach-next'), path = document.querySelector('.coach-path');
+      if (!next || !path) return {missing: true};
+      const sticky = ['sticky', 'fixed'].includes(getComputedStyle(next).position);
+      const hidden = [];
+      for (const li of path.children) {
+        // 'start' is what the browser does for an anchor, a fragment link and a focused
+        // control. Centring an element hides the defect, because the summary sits at the top.
+        li.scrollIntoView({block: 'start'});
+        await new Promise(r => setTimeout(r, 40));
+        if (!['sticky', 'fixed'].includes(getComputedStyle(next).position)) continue;
+        const n = next.getBoundingClientRect(), r = li.getBoundingClientRect();
+        const overlap = Math.min(n.bottom, r.bottom) - Math.max(n.top, r.top);
+        const across = Math.min(n.right, r.right) - Math.max(n.left, r.left) > 2;
+        if (overlap > 4 && across) hidden.push({item: li.innerText.replace(/\s+/g, ' ').slice(0, 26), overlap: Math.round(overlap)});
+      }
+      return {sticky, hidden: hidden.length, examples: hidden.slice(0, 3)};
+    });
+    await context.close();
+  }
+  verdict('Y4', Object.values(seen).some(v => v.missing || v.hidden > 0), seen);
+};
+
+probes.Y5 = async browser => {
+  /* GUARD: the hero deep link keeps working for every section name, and an unknown one
+     degrades to a valid screen. Stage 3c will turn these tabs into sections; the LINKS
+     must survive that change, so they are pinned now. */
+  const seen = {};
+  for (const tab of ['builds', 'pairings', 'counters', 'kit', 'nonsense']) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(t => {
+      S.role = 'jungle'; openHero('steel', 'jungle');
+      S.heroTab = ['builds', 'pairings', 'counters', 'kit'].includes(t) ? t : S.heroTab;
+      render();
+    }, tab);
+    await page.waitForTimeout(150);
+    seen[tab] = await page.evaluate(() => ({
+      hero: S.hero, role: S.heroRole, tab: S.heroTab,
+      h1: document.querySelector('#main h1') ? document.querySelector('#main h1').textContent.trim().slice(0, 30) : null,
+      selected: [...document.querySelectorAll('[data-hero-tab]')].filter(b => b.getAttribute('aria-selected') === 'true').map(b => b.dataset.heroTab)
+    }));
+    await context.close();
+  }
+  const ok = ['builds', 'pairings', 'counters', 'kit'].every(t => seen[t].tab === t && seen[t].hero === 'steel' && seen[t].selected.length === 1);
+  verdict('Y5', !ok || !seen.nonsense.h1, seen);
+};
+
+
+/* ---------------------------------------------------------------------------
+   Z-series: stage 3b corrections. Four defects found in review, each reproduced
+   with the helper code rather than with whatever the fixture happens to contain.
+   --------------------------------------------------------------------------- */
+
+probes.Z1 = async browser => {
+  /* The interval explanation tested only the lower bound, so an interval entirely BELOW the
+     baseline still read "It includes A's 55%". Below, overlapping, above and unavailable are
+     four different readings, and none of them is an interval for the calculated gap. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const base = {a: 'steel', b: 'mourn', base_a: 55, base_b: 48, played: 400, beats_both: false};
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return {
+      below: strip(pairCertaintyHTML({...base, wr: 42, interval95: [40, 45]})),
+      overlapping: strip(pairCertaintyHTML({...base, wr: 54, interval95: [50, 60]})),
+      above: strip(pairCertaintyHTML({...base, wr: 62, interval95: [58, 66]})),
+      unavailable: strip(pairCertaintyHTML({...base, wr: 54, interval95: null})),
+      touching_low: strip(pairCertaintyHTML({...base, wr: 50, interval95: [45, 55]})),
+      touching_high: strip(pairCertaintyHTML({...base, wr: 60, interval95: [55, 65]}))
+    };
+  });
+  await context.close();
+  const bad = !/entirely below/i.test(seen.below) || /includes/i.test(seen.below)
+    || !/includes/i.test(seen.overlapping) || /entirely/i.test(seen.overlapping)
+    || !/entirely above/i.test(seen.above) || /includes/i.test(seen.above)
+    || !/no interval is available/i.test(seen.unavailable)
+    // a bound that touches the baseline is an overlap, not a clean separation
+    || !/includes/i.test(seen.touching_low) || !/includes/i.test(seen.touching_high)
+    // and every reading keeps the two kinds of uncertainty apart
+    || !['below', 'overlapping', 'above', 'unavailable'].every(k => /describes the observed pair win rate/i.test(seen[k]) && /not an interval for the calculated gap/i.test(seen[k]));
+  verdict('Z1', bad, seen);
+};
+
+probes.Z2 = async browser => {
+  /* plannedBuildHTML is drawn by Builds and by Live, and read S.hero. Two cards for two
+     different heroes, rendered while S.hero points at a third, must each show their own
+     evidence - or none, but never each other's. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const pick = (slug, role) => {
+      const plan = E.plannedBuild(slug, role, {});
+      const stats = B?.heroes?.[slug]?.roles?.[role];
+      return {slug, role, plan, stats, ev: loadoutEvidence(plan, stats, stats?.fetched_at)};
+    };
+    S.hero = 'steel'; S.heroRole = 'jungle';            // deliberately a third hero
+    const a = pick('countess', 'midlane'), b = pick('murdock', 'carry');
+    const varIndex = x => x.ev.variant ? x.ev.variant.index : null;
+    const evidenceOf = x => x.ev.variant ? {perk: x.ev.variant.build.perk, eternal: x.ev.variant.build.eternal} : null;
+    return {
+      pointed_at: {hero: S.hero, role: S.heroRole},
+      a: {slug: a.slug, augment: a.plan.augment, eternal: a.plan.eternal, variant: varIndex(a), evidence: evidenceOf(a)},
+      b: {slug: b.slug, augment: b.plan.augment, eternal: b.plan.eternal, variant: varIndex(b), evidence: evidenceOf(b)},
+      // the helper must never be able to reach S
+      reads_state: /\bS\s*\.\s*(hero|heroRole)\b/.test(String(loadoutEvidence)) || /\bS\s*\.\s*(hero|heroRole)\b/.test(String(matchingVariant))
+    };
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; }
+  });
+  await context.close();
+  const wrong = x => x.evidence && (nkCmp(x.evidence.perk, x.augment) === false || nkCmp(x.evidence.eternal, x.eternal) === false);
+  function nkCmp(l, r) { const n = v => String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); return n(l) === n(r); }
+  verdict('Z2', !!seen.unsupported || seen.reads_state || wrong(seen.a) || wrong(seen.b), seen);
+};
+
+probes.Z3 = async browser => {
+  /* The cache was keyed on hero, role and bracket, so a refreshed publication for the same
+     hero was served the old evidence without the engine being called again. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const role = 'midlane', slug = 'countess';
+    const readOnce = () => {
+      const plan = E.plannedBuild(slug, role, {});
+      const stats = B?.heroes?.[slug]?.roles?.[role];
+      const ev = loadoutEvidence(plan, stats, stats?.fetched_at);
+      return {variant: ev.variant ? ev.variant.index : null,
+              augmentWr: ev.parts.Augment ? ev.parts.Augment.wr : null,
+              fetched: ev.fetched_at};
+    };
+    const before = readOnce();
+    // a refreshed publication for the SAME hero, role and bracket
+    const saved = B;
+    let after;
+    try {
+      const next = JSON.parse(JSON.stringify(B));
+      const st = next.heroes[slug].roles[role];
+      (st.builds || []).forEach(v => { v.winRate = (v.winRate || 0) + 7; });
+      st.fetched_at = new Date(Date.parse(st.fetched_at || Date.now()) + 3600000).toISOString();
+      B = next; E = MetaEngine.create(B);
+      after = readOnce();
+    } finally { B = saved; E = MetaEngine.create(B); }
+    return {before, after, holds_module_state: /loadoutCache|var\s+\w*[Cc]ache/.test(String(loadoutEvidence))};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; }
+  });
+  await context.close();
+  const changed = !seen.unsupported && seen.before.augmentWr != null && seen.after.augmentWr != null
+    && Math.abs(seen.after.augmentWr - seen.before.augmentWr - 7) < 0.001;
+  verdict('Z3', !!seen.unsupported || seen.holds_module_state || !changed || seen.before.fetched === seen.after.fetched, seen);
+};
+
+probes.Z4 = async browser => {
+  /* currentItemPool holds ITEM observations, so an augment, an Eternal and a blessing looked
+     up there report "no observation" even where the source variant holds one. And
+     buildSummary picks its own variant, whose crest need not be the recommended crest:
+     Countess's plan blessings are Tithe of Death and Mind Rot while the summary reports Lich
+     and Millennia, and Murdock's recommended Liberator is an UPGRADE of Marksman Crest. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const look = (slug, role) => {
+      const plan = E.plannedBuild(slug, role, {});
+      const stats = B?.heroes?.[slug]?.roles?.[role];
+      const ev = loadoutEvidence(plan, stats, stats?.fetched_at);
+      const summary = (() => { try { return E.buildSummary(slug, role); } catch (e) { return null; } })();
+      return {
+        slug, plan: {augment: plan.augment, eternal: plan.eternal, blessings: plan.blessings, crest: plan.crest},
+        variant: ev.variant ? {index: ev.variant.index, perk: ev.variant.build.perk, eternal: ev.variant.build.eternal} : null,
+        parts: Object.keys(ev.parts),
+        blessing1: strip(loadoutSampleHTML(ev, 'Blessing 1')),
+        crestHTML: strip(crestEvolutionHTML(ev, plan.crest)),
+        summaryBlessings: summary && summary.blessings ? summary.blessings.map(x => x && x.name) : null,
+        summaryCrest: summary && summary.crest ? summary.crest.name : null,
+        matchedCrest: ev.crest ? (ev.crest.family ? (ev.crest.family.display_name || ev.crest.family.name) : (ev.crest.display_name || ev.crest.name)) : null
+      };
+    };
+    return {countess: look('countess', 'midlane'), murdock: look('murdock', 'carry'), steel: look('steel', 'jungle')};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; }
+  });
+  await context.close();
+  const c = seen.countess || {}, m = seen.murdock || {}, s = seen.steel || {};
+  const bad =
+    // a blessing the source variant holds must not be reported as missing
+    (c.variant && c.plan.blessings && c.plan.blessings[0] && !/win rate/i.test(c.blessing1))
+    // and must never be answered with a different blessing's sample
+    || (c.summaryBlessings && c.plan.blessings && c.summaryBlessings[0]
+        && c.summaryBlessings[0] !== c.plan.blessings[0] && !/this blessing/i.test(c.blessing1) && /win rate/i.test(c.blessing1) === false)
+    // the recommended crest may be an UPGRADE of the source base crest; that still matches
+    || (m.variant && !m.matchedCrest)
+    // a hero with no source variant says so rather than showing another variant's rows
+    || (!s.variant && !/no source variant matches/i.test(s.crestHTML))
+    // an unmatched crest is named as a different crest, not silently shown
+    || (c.variant && !c.matchedCrest && !/different crest/i.test(c.crestHTML));
+  verdict('Z4', !!seen.unsupported || bad, seen);
+};
+
+
+probes.Z5 = async browser => {
+  /* Finding a crest's FAMILY is not finding its SAMPLE. With a recommended Liberator, the
+     parent's 50% over 1,000 games was shown as "this crest", and the evolution list repeated
+     Liberator and its sibling under "Crest evolves" as if the final upgrade evolved again.
+     The parent and upgrade rates below are deliberately different so borrowing is visible. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const family = {display_name: 'Marksman Crest', winRate: 50, playedGames: 1000, midCrest: 'Sharpshooter Crest',
+      upgrades: [{display_name: 'Liberator', winRate: 60, playedGames: 100},
+                 {display_name: 'Pacifier', winRate: 55, playedGames: 200},
+                 {display_name: 'Bare Upgrade', winRate: null, playedGames: null}]};
+    const build = {perk: 'Fixture Perk', eternal: 'Fixture Eternal', winRate: 48, playedGames: 5000,
+      common_perks_1: [], common_perks_2: [], best_base_crests: [family]};
+    const stats = {builds: [build], fetched_at: '2026-09-15T09:00:00Z'};
+    const run = crest => {
+      const plan = {augment: 'Fixture Perk', eternal: 'Fixture Eternal', blessings: [], crest};
+      const ev = loadoutEvidence(plan, stats, stats.fetched_at);
+      return {sample: strip(loadoutSampleHTML(ev, 'Crest')), path: strip(crestEvolutionHTML(ev, crest)),
+              evolvesLabels: (crestEvolutionHTML(ev, crest).match(/<small>(Evolves into|Crest evolves)<\/small>[\s\S]*?(?=<\/div>)/g) || []).map(strip)};
+    };
+    return {upgrade: run('Liberator'), mid: run('Sharpshooter Crest'), base: run('Marksman Crest'), bare: run('Bare Upgrade')};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; } });
+  await context.close();
+  if (seen.unsupported) { verdict('Z5', true, seen); return; }
+  const u = seen.upgrade, m = seen.mid, b = seen.base, x = seen.bare;
+  const problems = [];
+  // a recommended upgrade shows ITS OWN sample, never the parent's
+  if (!/60\.0%/.test(u.sample) || !/100 games/.test(u.sample)) problems.push('upgrade does not show its own 60% over 100');
+  if (/50\.0%/.test(u.sample) || /1,000/.test(u.sample)) problems.push("upgrade shows the parent's 50% over 1,000");
+  // a mid form with no row says so and borrows nothing
+  if (/50\.0%|1,000/.test(m.sample)) problems.push("mid form borrows the parent's sample");
+  if (!/no separate sample/i.test(m.sample)) problems.push('mid form does not say it has no sample');
+  // a base recommendation is its own figure
+  if (!/50\.0%/.test(b.sample) || !/1,000/.test(b.sample)) problems.push('base crest does not show its own sample');
+  // an upgrade whose row has no figures says so rather than borrowing
+  if (/50\.0%|1,000/.test(x.sample) || !/no sample of its own/i.test(x.sample)) problems.push('an upgrade with no figures borrows or says nothing');
+  // the path is explicit, and a FINAL upgrade does not evolve again
+  if (!/Marksman Crest/.test(u.path) || !/Sharpshooter Crest/.test(u.path) || !/Liberator \(recommended, final\)/.test(u.path)) problems.push('path not stated for an upgrade');
+  if (u.evolvesLabels.length) problems.push('a final upgrade is shown as evolving again');
+  if (!/Pacifier/.test(u.path) || !/alternative to Liberator, not a further step/i.test(u.path)) problems.push('sibling not presented as an alternative');
+  // a base recommendation does evolve, into the final upgrades, each with its own figure
+  if (!b.evolvesLabels.some(t => /Liberator/.test(t) && /60\.0%/.test(t))) problems.push('base does not list Liberator with its own rate as a next step');
+  verdict('Z5', problems.length > 0, {problems, ...seen});
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

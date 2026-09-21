@@ -113,6 +113,15 @@
     "X4": "GUARD: a substitution names what it replaced and why, an unanswered need is named, and the whole six is never offered as one observed loadout",
     "X5": "2.29 stage 3a: an item the engine only moved earlier (slot.timing) was labelled a substitution, claiming a replacement that never happened",
     "X6": "2.29 stage 3a: a supporting percentage was not named as a win rate and lost the observation's own purchase position, cohort and collection date, so a sample merged from another position read as the displayed slot's own",
-    "X7": "2.29 stage 3a: every unsupported observation was explained as 'too small or too old', a reason the engine never gave; a fresh, large Statz row is inspection-only by construction"
+    "X7": "2.29 stage 3a: every unsupported observation was explained as 'too small or too old', a reason the engine never gave; a fresh, large Statz row is inspection-only by construction",
+    "Y1": "2.29 stage 3b: the loadout strip lists augment, Eternal, blessings and crest with no category or evidence, and says nothing about crest evolutions",
+    "Y2": "2.29 stage 3b: a pairing never shows beats_both or the Wilson interval the engine emits, so the reader cannot see whether the sample settles the gap",
+    "Y4": "2.29 stage 3b: the sticky 'Next purchase' summary scrolls over the build path it summarises, hiding rows beneath it",
+    "Y5": "GUARD: the hero tab contract resolves for builds, pairings, counters and kit, marks exactly one current, and an unknown value still renders a valid screen",
+    "Z1": "2.29 stage 3b: the pair interval reading tested only the lower bound, so an interval entirely below the stronger baseline was described as including it",
+    "Z2": "2.29 stage 3b: the loadout evidence helpers read S.hero/S.heroRole, so a build card drawn for one hero could show a previously opened hero's evidence",
+    "Z3": "2.29 stage 3b: the loadout evidence cache was keyed on hero, role and bracket, so refreshed data for the same hero was served the old evidence",
+    "Z4": "2.29 stage 3b: loadout evidence was read from currentItemPool, which holds item observations and not augment, Eternal or blessing ones, and crest evolutions came from buildSummary's own variant rather than one matching the recommended crest",
+    "Z5": "2.29 stage 3b: a recommended crest upgrade displayed its PARENT crest's win rate and games as its own, and the evolution list repeated the recommended final upgrade and its siblings under 'Crest evolves'"
   }
 }

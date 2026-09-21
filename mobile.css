@@ -91,3 +91,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .coach-path li{display:grid;gap:4px;justify-items:start}
 .coach-path li .tag{justify-self:start}
 .coach-path li small{display:block;max-width:100%;line-height:1.4}
+
+/* The build path is the content the sticky summary describes, so a row scrolled to the top
+   must clear it. scroll-margin is what an anchor, a fragment link and a focused control all
+   honour; the page-level scroll-padding cannot see chrome that lives inside main. */
+.coach-path li{scroll-margin-top:var(--coach-next-h,120px)}

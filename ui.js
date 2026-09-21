@@ -12,6 +12,28 @@ const badge=(text,type='')=>`<span class="tag ${type}">${esc(text)}</span>`;
 function art(slug,size=''){const h=E.heroes[slug]||{},row=(B?.tier_list||[]).find(r=>r.slug===slug&&r.image),omeda=h.image_url||(h.omeda?.image?'https://omeda.city'+h.omeda.image:null),statz=row?'https://statz.gg/images/predecessor/hero-image-data/'+encodeURIComponent(row.image):null,u=h.pred_image_url||statz||omeda,fallbacks=[omeda,statz].filter((v,i,a)=>v&&v!==u&&a.indexOf(v)===i);return `<span class="portrait ${size}" aria-hidden="true">${esc(name(slug).slice(0,2))}${u?`<img src="${esc(safe(u))}" data-fallbacks="${esc(JSON.stringify(fallbacks))}" alt="" loading="${size==='large'?'eager':'lazy'}" width="64" height="64">`:''}</span>`;}
 function heroButton(slug,role='',small=false){return `<button class="text-button hero-cell" data-hero="${esc(slug)}" data-role="${esc(role)}">${art(slug,small?'tiny':'')}<span class="name">${esc(name(slug))}</span></button>`;}
 function tier(t){return `<span class="tier tier-${esc(String(t||'').toLowerCase()[0])}">${esc(t||'—')}</span>`;}
+/* Two fields the engine has always emitted and the screen never showed.
+   The interval belongs to the OBSERVED pair win rate: it describes that rate, and it is NOT
+   an interval for the calculated gap. beats_both compares three point estimates; it does not
+   establish that the pairing causes the difference. Both say so where they are shown. */
+function pairCertaintyHTML(p){
+ if(!p)return '';
+ const iv=Array.isArray(p.interval95)&&p.interval95.length===2&&finiteNum(p.interval95[0])&&finiteNum(p.interval95[1])?p.interval95:null;
+ const stronger=Math.max(p.base_a,p.base_b),who=esc(name(p.base_a>=p.base_b?p.a:p.b));
+ /* Four distinct cases. Testing only the lower bound reported an interval sitting entirely
+    BELOW the baseline as one that includes it. Each branch is already escaped. */
+ const reading=!iv?'No interval is available for this pair, so only its sample size describes it.'
+  :iv[1]<stronger?'It lies entirely below '+who+'’s '+pct(stronger)+'.'
+  :iv[0]>stronger?'It lies entirely above '+who+'’s '+pct(stronger)+'.'
+  :'It includes '+who+'’s '+pct(stronger)+', so this sample does not settle the gap.';
+ return `<p class="pair-certainty">${badge('Observed','observed')} 95% interval for the pair win rate, on ${games(p.played)}: `
+  +(iv?`<strong>${num(iv[0],2)}–${num(iv[1],2)}%</strong>. `:'<strong>unavailable</strong>. ')
+  +reading
+  +' This interval describes the observed pair win rate. It is not an interval for the calculated gap.'
+  +`<br>${badge(p.beats_both?'Beats both baselines':'Does not beat both baselines',p.beats_both?'observed':'')} `
+  +'A comparison of point estimates, not proven synergy.</p>';
+}
+function finiteNum(v){return typeof v==='number'&&isFinite(v);}
 function statzAvailability(kind='statz_hero_pages',compact=false){
  const source=B?.sources?.[kind];if(!source||source.status==='ok')return '';const gap=kind==='statz_hero_pages'?E?.statzGap?.():null;if(gap){const text='Statz observations partial · '+gap.failed+' of '+gap.requested+' hero pages failed';return compact?`<small class="warning">${esc(text)}</small>`:note(`${esc(text)}. Roles whose hero page failed have no hero-page statistics (role win rate, builds, matchups); nothing was filled in. Their tier-list rows are shown as collected, and collected roles keep their own sample and date.`,true);}
  const retained=source.status==='retained',text=retained?'Retained Statz observations · fetched '+date(source.fetched_at):'Statz observations unavailable';
@@ -150,7 +172,7 @@ function pairCard(rec,hero,compact=false){
  const kitLine=fit.scale?`<strong>${num(fit.score,0)}</strong> kit interaction points · ${fit.reasons.filter(r=>r.counted).length} counted mechanisms`:`<strong>${num(fit.score,0)} / 10</strong> calculated kit fit`;
  return `<article class="panel partner"><div class="partner-head">${art(other)}<div><button class="text-button name" data-hero="${esc(other)}" data-role="${esc(rec.role||'')}">${esc(name(other))}</button><br><small>${esc(labels[rec.role]||E.roles(other).map(r=>labels[r]).join(' / '))} · ${esc(context)}</small></div></div>`+
  `<p class="partner-reason">${esc(reason)}</p>`+
- (p?`<div class="metric-row"><div><strong>${pct(p.wr)}</strong><small>${badge(p.played>=100?'Observed pair':'Small sample','observed')} Statz ${esc(B.patch)} · ${games(p.played)}</small>${statzAvailability('statz_hero_pages',true)}</div><div><strong class="calculated">${pp(S.pairMetric==='mean'?p.lift_mean:p.lift)}</strong><small>${badge('Calculated','calculated')} gap vs ${S.pairMetric==='mean'?'mean':'stronger'} baseline</small></div></div><p class="baseline">${badge('Calculated','calculated')} ${kitLine}<br>${esc(name(p.a))} ${pct(p.base_a)} · ${esc(name(p.b))} ${pct(p.base_b)} · gap above each ${pp(p.lift_a)} / ${pp(p.lift_b)}</p>`
+ (p?`<div class="metric-row"><div><strong>${pct(p.wr)}</strong><small>${badge(p.played>=100?'Observed pair':'Small sample','observed')} Statz ${esc(B.patch)} · ${games(p.played)}</small>${statzAvailability('statz_hero_pages',true)}</div><div><strong class="calculated">${pp(S.pairMetric==='mean'?p.lift_mean:p.lift)}</strong><small>${badge('Calculated','calculated')} gap vs ${S.pairMetric==='mean'?'mean':'stronger'} baseline</small></div></div><p class="baseline">${badge('Calculated','calculated')} ${kitLine}<br>${esc(name(p.a))} ${pct(p.base_a)} · ${esc(name(p.b))} ${pct(p.base_b)} · gap above each ${pp(p.lift_a)} / ${pp(p.lift_b)}</p>${pairCertaintyHTML(p)}`
    :`<div class="metric-row"><div><strong class="calculated">${num(fit.score,0)}</strong><small>${badge('Calculated','calculated')} ${fit.scale?'kit interaction points · '+fit.reasons.filter(r=>r.counted).length+' counted mechanisms':'kit fit / 10'}</small></div></div><p class="baseline">${badge('Kit-based alternative')} No observed pair sample of 100+ games. Absence is unknown, not evidence of a weak pair.</p>`)+
  (rec.performance?`<p class="baseline">${rec.performance.retained?'Retained':'Available'} role sample · ${esc(labels[rec.role])}: <strong>${pct(rec.performance.wr)}</strong> · ${games(rec.performance.played)} · ${link(rec.performance.url,rec.performance.source+' '+rec.performance.patch)} · ${esc(date(rec.performance.fetched_at))}</p>`:'')+
  `<div class="foot flex"><button class="quiet" data-pair="${esc([hero,other,S.heroRole,rec.role||''].join('|'))}">Evidence & why</button><button class="quiet" data-plan-pair="${esc([hero,other,S.heroRole,rec.role||''].join('|'))}" ${[hero,other].some(draftBlocks)?'disabled title="A hero in this pair is banned or picked by the enemy in your draft."':''}>Plan this pair</button></div></article>`;
@@ -439,12 +461,16 @@ function planReviewHTML(plan){
 function plannedBuildHTML(plan,compact=false){
  if(!plan.items.length)return `<div class="build-head"><h3>Build recommendation unavailable</h3>${badge('Unavailable','warning')}</div>${note(esc(plan.reason),true)}${previousBuildHTML(plan)}`;
  const reviewed=plan.kind==='reviewed';
+ /* The plan carries its own hero and role. S.hero can still point at a previously
+    opened hero, and this card is drawn on Builds and on Live. */
+ const planStats=B?.heroes?.[plan.slug]?.roles?.[plan.role];
+ const planEvidence=loadoutEvidence(plan,planStats,planStats?.fetched_at);
  const loadout=[['Augment',plan.augment,'perks'],['Eternal',plan.eternal,'perks'],['Blessing 1',plan.blessings?.[0],'perks'],['Blessing 2',plan.blessings?.[1],'perks'],['Crest',plan.crest,'items']];
  const firstSentence=String(plan.reason||'').split(/(?<=[.!?])\s+/)[0]||'';
  const reason=compact&&plan.reason&&plan.reason.length>firstSentence.length+20?`<p class="plan-reason">${esc(firstSentence)}</p><details><summary>Full reasoning</summary><div class="detail-content"><p>${esc(plan.reason)}</p></div></details>`:`<p class="plan-reason">${esc(plan.reason)}</p>`;
  return `<div class="build-head"><div><div class="eyebrow">${reviewed?'Reviewed plan':'Provisional plan'}</div><h3>${esc(plan.title)}</h3></div>${badge(reviewed?(plan.experimental_role?'Reviewed · experimental role':plan.role_confidence?'Reviewed · limited sample':'Reviewed · editorial judgment'):'Calculated starting point',reviewed&&!plan.experimental_role?'reviewed':'warning')}</div>${plan.role_note?note(esc(plan.role_note),!!plan.experimental_role):''}${reason}
  <ol class="build-path">${plan.items.map((n,i)=>`<li>${itemButton(n)}<small>${i<plan.core.length?'Core purchase':'Flexible final slot'}</small></li>`).join('')}</ol>
- <div class="loadout-strip">${loadout.map(([label,n,kind])=>`<div><small>${label}</small>${n?itemButton(n,kind):'<p class="muted">Unavailable</p>'}</div>`).join('')}</div>
+ <div class="loadout-strip">${loadout.map(([label,n,kind])=>loadoutPartHTML(label,n,kind,plan,planEvidence)).join('')}${crestEvolutionHTML(planEvidence,plan.crest)}</div>
  ${plan.items.length<6?note('A complete six cannot be assembled from verified item metadata. Missing slots stay unavailable.',true):''}${planReviewHTML(plan)}
  ${plan.review_evidence?`<details><summary>Dated role evidence at review · ${esc(plan.review_evidence.bracket)}</summary><div class="detail-content"><p>${games(plan.review_evidence.playedGames)} · ${link(plan.review_evidence.url,'Statz '+plan.review_evidence.dataset)} · fetched ${esc(date(plan.review_evidence.fetched_at))}. ${esc(plan.review_evidence.note)}</p><p>Plan reviewed ${esc(date(plan.reviewed_at))}. This historical role sample is separate from the live figures above.</p></div></details>`:''}
  ${plan.item_notes?.length?`<details><summary>Why these six items · reviewed reasoning</summary><div class="detail-content"><p>${esc(plan.review_scope||'Dated strategy judgment; triggers and execution still matter.')}</p><div class="review-item-reasons">${plan.item_notes.map(n=>`<article>${itemButton(n.item)}<p>${esc(n.reason)}</p><div class="flex">${supportHTML((n.ability_keys||[]).map(key=>({hero:plan.slug,key,ability:E.heroes[plan.slug]?.abilities?.find(a=>a.key===key)?.display_name||key})))}</div></article>`).join('')}</div></div></details>`:''}

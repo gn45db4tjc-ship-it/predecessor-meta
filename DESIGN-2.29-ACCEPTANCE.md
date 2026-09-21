@@ -148,6 +148,11 @@ Rules that follow, each with a probe:
   have been recorded at position 3. The screen carries the observation's own position, its
   cohort and its collection date, and **says when that position is not the slot it sits
   beside**. A sample is never implied to belong to the displayed slot unless it does.
+
+  Only a **Statz core-sequence** observation lacks an individual purchase position;
+  `measuredItemPool` records its fourth-, fifth- and sixth-item rows against positions 4, 5
+  and 6, and those keep their positions like any other. The "recorded against a variant
+  sequence" note is for the core row alone.
 - **An exclusion states the engine's reason, not a guess.** There are four: a Statz
   observation is inspection-only by construction; a Pred.gg one loses support when it is
   under the 100-game minimum, older than thirty hours, or dated in the future. Where the
@@ -155,10 +160,10 @@ Rules that follow, each with a probe:
   observation is inspection-only and does not support automatic selection. No blanket
   "too small or too old".
 
-## Stage 3b — the rest of the hero screen *(scheduled, not yet built)*
+## Stage 3b — the hero experience *(this PR)*
 
-Tracked here so the remaining redesign is not mistaken for done. **Scope:** the hero page
-itself, which Stage 3a did not touch.
+**Scope as built:** the loadout, the pairing statistics, and the readability of content under
+the sticky summary. The tab-to-section conversion is **Stage 3c**, below.
 
 Accepted when:
 
@@ -174,11 +179,66 @@ Accepted when:
 - The complete evidence tables stay reachable and searchable rather than summarised away.
 - One `<h1>`, no horizontal scroll, and the phone coach reachable — today the Build Coach
   renders only on desktop on the hero page; on a phone it is on the Live route.
-- **The sticky "Next purchase" summary stops covering its own list.** `.coach-next` is
-  sticky, so while scrolling it passes over the build path beneath it and hides the position
-  label of the row under it. Stage 2 established that sticky chrome must not cover a focused
-  control; this covers content. It is pre-existing and outside Stage 3a's scope, so it is
-  recorded here rather than fixed in a stage about labels.
+- **The sticky "Next purchase" summary stops covering its own list.** Done. `.coach-next` is
+  chrome that lives inside `main`, which the Stage 2 scroll-padding never accounted for, so a
+  row scrolled or tabbed to the top landed 140 px underneath it. It now joins that watch list
+  and publishes its own height for the list it covers.
+
+### Evidence selection rules, added after review
+
+- **An interval reading has four cases, not two.** Below the baseline, overlapping it, above
+  it, and unavailable. Testing only the lower bound described an interval sitting entirely
+  *below* the baseline as one that includes it. A bound that touches the baseline is an
+  overlap. Every reading keeps the two kinds of uncertainty apart: the interval describes the
+  **observed pair win rate**, and is never an interval for the calculated gap.
+- **A card uses the hero and role of the plan it is drawing.** `plannedBuildHTML` is reused by
+  Builds and by Live, so reading `S.hero` could show a previously opened hero's evidence. The
+  plan carries its own `slug` and `role`; those are used and `S` is not consulted.
+- **No cache between a card and the engine.** A key of hero, role and bracket does not change
+  when the publication does, so refreshed data was served from a stale entry. The lookup runs
+  once inside the function that draws the card and is passed down.
+- **Evidence must be evidence of the part it sits beside.**
+  - `currentItemPool` holds **item** observations. An augment, an Eternal and a blessing are
+    not items, and are never looked up there.
+  - The sample for an augment and an Eternal is the **source variant whose perk and Eternal
+    are the recommended ones**. Any other variant describes a different loadout. The sample
+    describes the pair together, and says so.
+  - A blessing's sample is the row of that variant with **that blessing's name**. The
+    summary's own top blessing is not a substitute: Countess is recommended *Tithe of Death*
+    and *Mind Rot* while `buildSummary` reports *Lich* and *Millennia*.
+  - A crest's evolutions are shown only when that variant's crest **is** the recommended
+    crest, its mid form, or one of its evolutions — `plannedBuild` may name an upgrade as the
+    recommendation, as Murdock's *Liberator* is an upgrade of *Marksman Crest*. When it is a
+    different crest, the screen says so and estimates nothing.
+  - **Finding a crest's family is not finding its sample.** Membership says which rows are
+    relevant; the recommended crest then shows **its own** row. A recommended final upgrade
+    shows the upgrade's figure, never its parent's. A mid form has no row of its own in this
+    source and says so, borrowing nothing. An upgrade whose row carries no figures says so.
+  - **The crest path is stated, not implied**: base, mid form, final upgrade, with the
+    recommendation marked where it sits. A recommended *final* upgrade does not evolve again,
+    so its siblings appear as alternatives to it, not as next steps; a recommended base crest
+    lists its final upgrades as what it evolves into, each with its own figure.
+
+## Stage 3c — sections and the four destinations *(scheduled, not yet built)*
+
+Two changes remain on the hero screen, both of which alter what is in the DOM rather than how
+it looks, and both of which re-scope existing assertions. They are kept separate for that
+reason, not deferred for convenience.
+
+- **The four tabs become four sections on one page**, with the jump row replacing the strip.
+  `data-hero-tab` is read by 18 assertions in the audit suite and by five other suites, and
+  every one of them sets `S.heroTab` and then reads `#main`. Rendering all four sections at
+  once changes what those reads see — a counters probe would start matching pairings rows —
+  so the conversion and the re-scoping of every affected assertion belong in one change.
+  The **links must survive it**: probe Y5 pins `builds`, `pairings`, `counters` and `kit`
+  today so the contract is recorded before the markup moves.
+- **Complete evidence access.** The counters and build evidence tables are reachable, in
+  disclosures, but not searchable. The prototype's searchable table is the target.
+
+## Stage 2b — the four destinations *(still pending)*
+
+Unchanged and explicitly still open: Meta, Plan, Reference, Sources; legacy route mapping for
+all thirteen route names; one `aria-current="page"` per route; Back and Forward; shared links.
 
 ### Statistical wording — required, and tested
 
