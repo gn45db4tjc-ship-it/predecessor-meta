@@ -495,6 +495,12 @@ dialog .metric-row{margin:var(--s3) 0}
  .library-grid .panel{padding:6px 10px}
  .toast{bottom:8px;left:8px;right:8px;font-size:var(--t-sm);padding:10px 12px}
 }
+.destination-sections{display:flex;flex-wrap:wrap;gap:var(--s2);margin:0 0 var(--s3)}
+[data-destination]{min-height:44px}
+.destination-sections button{min-height:44px;min-width:0;white-space:normal;flex:1 1 100px}
+.destination-sections [aria-current=true]{border-color:var(--gold-text);color:var(--gold-text);background:var(--surface-3);font-weight:700}
+.destination-sections.secondary{max-width:640px}.destination-note{color:var(--text-2);font-size:var(--tr-sm);margin:0 0 var(--s4)}
+.toolbar label:has(> #history-source){min-width:0;max-width:100%}#history-source{min-width:0;width:100%}
 __MOBILE_CSS__
 /* ---- the hero page as sections ---- */
 .hero-jump{position:sticky;top:var(--page-top-h,0px);z-index:6;background:var(--bg);padding:6px 0;margin:0 0 var(--s3);border-bottom:1px solid var(--line)}

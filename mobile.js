@@ -200,12 +200,11 @@ function companionChrome(){
  if(companionMedia.matches){$('#menu-toggle').textContent='More';$('#menu-toggle').removeAttribute('aria-expanded');$('#menu-toggle').setAttribute('aria-controls','main');}
  document.documentElement.classList.toggle('large-text',!!companionPrefs.large);
  let nav=$('#mobile-navigation');if(!nav){nav=document.createElement('nav');nav.id='mobile-navigation';nav.setAttribute('aria-label','Phone navigation');document.body.append(nav);}
- nav.innerHTML=[['meta','Meta'],['builds','Builds'],['planner','Comps'],['draft','Draft'],['live','Live']].map(([r,label])=>`<button data-route="${r}" ${S.route===r||r==='meta'&&S.route==='hero'?'aria-current="page"':''}>${label}</button>`).join('');
+ stableHTML('#mobile-navigation',destinationNavigation(true));
  let status=$('#offline-status');if(!status){status=document.createElement('div');status.id='offline-status';status.setAttribute('role','status');$('.workspace').prepend(status);}status.textContent=navigator.onLine?'':'Offline · using saved data. Reconnect to check updates.';status.hidden=navigator.onLine;
  let limits=$('#mobile-limits');if(!limits){limits=document.createElement('button');limits.id='mobile-limits';limits.type='button';status.after(limits);}
  const limitation=companionMedia.matches&&B?limitationItems():[];limits.hidden=!limitation.length;
  if(limitation.length){const html=`<strong>${limitation.some(i=>i.severity==='error')?'Source failure':'Limitations'} · ${limitation.length}</strong><span>${esc(limitation[0].source+': '+limitation[0].detail)}</span><span aria-hidden="true">Details ›</span>`;if(limits.dataset.rendered!==html){limits.innerHTML=html;limits.dataset.rendered=html;}}
- if(B)applyCompanionLink();
  let dock=$('#coach-dock');if(!dock){dock=document.createElement('aside');dock.id='coach-dock';document.body.append(dock);}
  if(nav&&dock.nextElementSibling!==nav)document.body.insertBefore(dock,nav);
  const p=S.route==='live'?S.locks.find(x=>x.slug===S.me):null;
@@ -293,22 +292,88 @@ const originalChangeRoute=changeRoute,originalOpenHero=openHero;
 const originalDetail=detail;let dialogReturn=null,dialogSituation=null;
 detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
 $('#detail').addEventListener('close',()=>{if(dialogReturn?.isConnected)dialogReturn.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
-changeRoute=function(route){originalChangeRoute(route);recordNavigation();};
-openHero=function(slug,role){if(!E.heroes[slug]){companionError='That hero is unavailable. Choose another.';changeRoute('meta');return;}originalOpenHero(slug,role);companionPrefs.recent=[{slug,role:S.heroRole},...companionPrefs.recent.filter(p=>p.slug!==slug||p.role!==S.heroRole)].slice(0,5);saveCompanionPrefs();recordNavigation(true);};
-function navigationState(){return {route:S.route,hero:S.hero,role:S.heroRole,tab:S.heroTab,bracket:S.bracket};}
-function recordNavigation(replace=false){if(historyApplying||location.protocol==='file:')return;const n=navigationState();const url=new URL(location.href);if(n.route==='hero'&&n.hero)url.hash='hero='+encodeURIComponent(n.hero)+'&role='+n.role+'&bracket='+n.bracket+'&tab='+n.tab;else url.hash='view='+n.route;if(history.state?.companion&&JSON.stringify(history.state.companion)===JSON.stringify(n))return;try{history[replace?'replaceState':'pushState']({companion:n},'',url);}catch(e){/* WebKit/Safari throw SecurityError past 100 address updates per 10 seconds. Keep the view and skip this update; leave linkApplied alone, or the next render would re-apply the old address. */if(e?.name!=='SecurityError')throw e;return;}linkApplied=url.hash;}
+let navigationTransition=false,navigationRestore=null,linkedBracketPending=null,navigationRankChange=null;
+try{history.scrollRestoration='manual';}catch{}
+function writeNavigation(method,state,url){try{history[method](state,'',url);return true;}catch(e){if(e?.name!=='SecurityError')throw e;return false;}}
+function navigationState(){return {route:S.route,hero:S.hero,role:S.heroRole,tab:S.heroTab,bracket:S.bracket,metaRole:S.role,query:S.query,sort:S.sort,direction:S.direction,full:S.full,homeQuery:companionPrefs.homeQuery,showAll:metaShowAll};}
+function navigationHash(n){
+ const q=new URLSearchParams();
+ if(n.route==='hero'&&n.hero){q.set('hero',n.hero);q.set('role',n.role);q.set('bracket',n.bracket);q.set('tab',n.tab);}
+ else {const d=destinationFor(n.route);q.set('view',d);if(d==='plan')q.set('stage',Object.keys(planStages).find(k=>planStages[k]===n.route)||'compose');if(d==='reference')q.set('section',Object.keys(referenceSections).find(k=>referenceSections[k]===n.route)||'playbook');if(n.route==='more')q.set('section','settings');if(d==='meta'||n.route==='builds')q.set('role',n.metaRole);q.set('bracket',n.bracket);}
+ return '#'+q.toString();
+}
+// Checkpoint only when leaving a screen. Scrolling itself never writes browser history.
+function saveNavigationPosition(){
+ if(historyApplying||location.protocol==='file:')return;
+ const n=history.state?.companion||navigationState();
+ const view={...n,metaRole:S.role,query:S.query,sort:S.sort,direction:S.direction,full:S.full,homeQuery:companionPrefs.homeQuery,showAll:metaShowAll};
+ writeNavigation('replaceState',{...history.state,companion:view,scrollY,disclosures:disclosureStates()},location.href);
+}
+function recordNavigation(replace=false){
+ if(historyApplying||location.protocol==='file:'||!B)return;
+ const n=navigationState(),hash=navigationHash(n),url=new URL(location.href);url.hash=hash;
+ if(history.state?.companion&&JSON.stringify(history.state.companion)===JSON.stringify(n)&&location.hash===hash)return;
+ if(writeNavigation(replace?'replaceState':'pushState',{companion:n,scrollY,disclosures:disclosureStates()},url))linkApplied=url.hash;
+}
+changeRoute=function(route){
+ saveNavigationPosition();navigationRestore=null;navigationTransition=true;
+ // Suppress an old URL during the draw; the new URL is committed after the draw.
+ linkApplied=location.hash;
+ try{originalChangeRoute(destinationRoute(route));}finally{navigationTransition=false;}
+ recordNavigation();
+};
+openHero=function(slug,role){
+ if(!E.heroes[slug]){companionError='That hero is unavailable. Choose another.';changeRoute('meta');return;}
+ saveNavigationPosition();originalOpenHero(slug,role);
+ companionPrefs.recent=[{slug,role:S.heroRole},...companionPrefs.recent.filter(p=>p.slug!==slug||p.role!==S.heroRole)].slice(0,5);saveCompanionPrefs();
+};
+function requestLinkedBracket(bracket){
+ if(bracket===S.bracket||linkedBracketPending===bracket)return;
+ if(APP_CONFIG.mode==='export')throw Error('This snapshot contains only '+(B.bracket?.label||S.bracket)+'. Open the published app for another rank.');
+ linkedBracketPending=bracket;linkApplied='';queueMicrotask(()=>{const select=$('#bracket');select.value=bracket;select.dispatchEvent(new Event('change',{bubbles:true}));linkedBracketPending=null;});
+}
 function applyCompanionLink(){
  const hash=location.hash;if(!hash||hash.startsWith('#plan=')||hash===linkApplied)return;linkApplied=hash;
- try{const q=new URLSearchParams(hash.slice(1));if(q.has('hero')){
+ try{const q=new URLSearchParams(hash.slice(1));
+ // The local collector changes the loaded bundle after settings requests complete.
+ // Adopt its actual cohort before resolving a link; never label another bundle as it.
+ if(local&&q.get('bracket')===B.bracket?.segment)S.bracket=B.bracket.segment;
+ if(q.has('hero')){
    const allowed=['hero','role','bracket','tab'];if([...q.keys()].some(k=>!allowed.includes(k))||[...q.keys()].length!==new Set(q.keys()).size)throw Error('The hero link has unsupported fields.');
-   const hero=q.get('hero'),role=q.get('role'),bracket=q.get('bracket'),tab=q.get('tab')||'builds';
+   const hero=q.get('hero'),role=q.get('role'),bracket=q.get('bracket'),tab=({build:'builds',partners:'pairings'})[q.get('tab')]||q.get('tab')||'builds';
    if(!E.heroes[hero])throw Error('The linked hero is unavailable. Choose a hero.');
    if(!roleOrder.includes(role)||!E.roles(hero).includes(role)){throw Error('Choose a supported role for the linked hero.');}
    if(!['bronze','silver','gold','platinum','diamond','paragon'].includes(bracket)||!['builds','pairings','counters','kit'].includes(tab))throw Error('The linked rank or section is invalid.');
-   if(bracket!==S.bracket){linkApplied='';queueMicrotask(()=>{const select=$('#bracket');select.value=bracket;select.dispatchEvent(new Event('change',{bubbles:true}));});return;}
+   if(bracket!==S.bracket){requestLinkedBracket(bracket);return;}
    S.hero=hero;S.heroRole=role;S.heroTab=tab;S.route='hero';sectionSpy.requested=tab;/* a link names its section outright */
- }else if(q.has('view')){const r=q.get('view');if(![...navs.map(x=>x[0]),'more'].includes(r))throw Error('This section is unavailable.');S.route=r;}
+ }else if(q.has('view')){
+   let r=q.get('view');const bracket=q.get('bracket'),role=q.get('role');
+   if(bracket&&!['bronze','silver','gold','platinum','diamond','paragon'].includes(bracket))throw Error('The linked rank is invalid.');
+   if(role&&!roleOrder.includes(role))throw Error('The linked role is invalid.');
+   if(r==='plan'){r=planStages[q.get('stage')||'compose'];if(!r)throw Error('This Plan stage is unavailable.');}
+   else if(r==='reference'){r=referenceSections[q.get('section')||'playbook'];if(!r)throw Error('This Reference section is unavailable.');}
+   else if(r==='sources'){if(q.has('section')&&q.get('section')!=='settings')throw Error('This Sources section is unavailable.');r=q.get('section')==='settings'?'more':'data';}
+   if(![...navs.map(x=>x[0]),'more'].includes(r))throw Error('This section is unavailable.');
+   if(bracket&&bracket!==S.bracket){requestLinkedBracket(bracket);return;}
+   S.route=r;if(role)S.role=role;
+ }
  }catch(e){companionError=e.message;S.route='meta';}
+}
+function afterDestinationRender(){
+ const main=$('#main');if(!main||!B)return;
+ const sections=destinationSections();if(sections)main.insertAdjacentHTML('afterbegin',sections);
+ if(navigationRankChange&&B.bracket?.segment===navigationRankChange){S.bracket=navigationRankChange;navigationRankChange=null;recordNavigation(true);}
+ if(navigationRestore){
+   const restore=navigationRestore;
+   if(restore.companion.bracket===S.bracket&&B.bracket?.segment===S.bracket){
+     restoreDisclosures(restore.disclosures);
+     requestAnimationFrame(()=>requestAnimationFrame(()=>{
+       if(navigationRestore!==restore)return;
+       window.scrollTo({top:restore.scrollY||0,behavior:'instant'});
+       if(!main.querySelector('.annex-loading'))navigationRestore=null;
+     }));
+   }
+ }else if(!navigationTransition&&!historyApplying&&!linkedBracketPending&&linkApplied===location.hash&&!history.state?.companion&&!location.hash.startsWith('#plan='))recordNavigation(true);
 }
 function undoSnapshot(){return copyValue({locks:S.locks,enemies:S.enemies,bans:S.bans,me:S.me,liveVariant:S.liveVariant,contexts:S.liveContexts});}
 function showUndo(before,label){clearTimeout(undoTimer);undoAction=before;let el=$('#undo-banner');if(!el){el=document.createElement('div');el.id='undo-banner';el.setAttribute('role','status');document.body.append(el);el.addEventListener('focusin',()=>clearTimeout(undoTimer));el.addEventListener('mouseenter',()=>clearTimeout(undoTimer));el.addEventListener('mouseleave',expireUndo);el.addEventListener('focusout',expireUndo);}el.hidden=false;el.innerHTML=`<span>${esc(label)}</span><button id="undo-action">Undo</button>`;expireUndo();}
@@ -348,6 +413,7 @@ document.addEventListener('click',async event=>{
 },true);
 document.addEventListener('change',event=>{
  const el=event.target,d=el.dataset;
+ if(el.id==='bracket'&&linkedBracketPending!==el.value){saveNavigationPosition();navigationRestore=null;navigationRankChange=el.value;linkApplied=location.hash;}
  if(d.slot&&el.value){const why=disabledHero(el.value,d.slot,d.slotRole);if(why){event.stopImmediatePropagation();toast(why+'. Clear the existing selection first.');render();return;}}
  if(d.slot&&!el.value){const before=undoSnapshot();setTimeout(()=>showUndo(before,'Pick removed.'),0);}
  if(d.coachField){event.stopImmediatePropagation();const [slug,role]=d.coachKey.split('|'),p={slug,role};if(!E.heroes[slug]||!E.roles(slug).includes(role))return;const val=d.coachField==='primaryThreat'?(el.value||null):el.value;S.liveContexts[d.coachKey]={...contextFor(p),[d.coachField]:val};const modal=$('#detail').open;save();render();if(!modal)document.querySelector(`[data-coach-key="${d.coachKey}"][data-coach-field="${d.coachField}"]`)?.focus();}
@@ -356,9 +422,22 @@ document.addEventListener('change',event=>{
  else if(el.id==='hero-role')setTimeout(()=>recordNavigation(true),0);
 },true);
 document.addEventListener('input',event=>{if(event.target.id==='mobile-hero-search'){const pos=event.target.selectionStart;companionPrefs.homeQuery=event.target.value;saveCompanionPrefs();render();const input=$('#mobile-hero-search');input?.focus();input?.setSelectionRange(pos,pos);}});
-document.addEventListener('click',event=>{if(event.target.closest('[data-hero-tab]')){recordNavigation(true);if(companionMedia.matches){const d=$('#main > details');if(d)d.open=true;}}});
-window.addEventListener('popstate',event=>{historyApplying=true;if(event.state?.companion){const n=event.state.companion;S.route=n.route;S.hero=n.hero;S.heroRole=n.role;S.heroTab=n.tab;}linkApplied='';render();historyApplying=false;});
-window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#plan=')){linkApplied='';render();}});
+document.addEventListener('click',event=>{if(event.target.closest('[data-meta-role]'))recordNavigation(true);if(event.target.closest('[data-hero-tab]')){recordNavigation(true);if(companionMedia.matches){const d=$('#main > details');if(d)d.open=true;}}});
+window.addEventListener('popstate',event=>{
+ historyApplying=true;navigationRestore=event.state?.companion?event.state:null;
+ try{
+  if(navigationRestore){const n=navigationRestore.companion;
+   S.route=n.route;S.hero=n.hero;S.heroRole=n.role;S.heroTab=n.tab;
+   if(roleOrder.includes(n.metaRole))S.role=n.metaRole;
+   for(const k of ['query','sort','direction','full'])if(n[k]!==undefined)S[k]=n[k];
+   if(n.homeQuery!==undefined)companionPrefs.homeQuery=n.homeQuery;if(n.showAll!==undefined)metaShowAll=n.showAll;
+   sectionSpy.requested=null;sectionSpy.tab=n.tab;linkApplied=location.hash;
+   if(n.bracket!==S.bracket)requestLinkedBracket(n.bracket);
+  }else linkApplied='';
+  render();
+ }finally{historyApplying=false;}
+});
+window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#plan=')&&location.hash!==linkApplied){render();}});
 window.addEventListener('offline',()=>redrawForEvidence());window.addEventListener('online',()=>redrawForEvidence());
 companionMedia.addEventListener('change',()=>render());
 function refreshSituation(event){if(!$('#detail')?.open||$('#detail-title').textContent!=='Your game situation')return;if(!event.target.closest('#detail-body'))return;const id=event.target.id,key=event.target.dataset.coachField;setTimeout(()=>{const me=S.locks.find(p=>p.slug===S.me);if(!me)return;$('#detail-body').innerHTML=situationHTML(me);(id?$('#detail-body #'+id):key?$('#detail-body [data-coach-field="'+key+'"]'):null)?.focus();},0);}

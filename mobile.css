@@ -25,7 +25,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
  .sidebar #menu-toggle{display:block;margin-left:auto}
  body{overflow-wrap:anywhere}.sidebar #navigation,.sidebar .theme-toggle,.topbar #share-plan,.topbar #import-plan,.topbar #export,.topbar #install-app,.topbar .finder,#status-toggle,#patch-strip,#freshness,#source-notices{display:none!important}
  .sidebar{padding:12px 16px}.topbar{padding:8px 16px}.topbar .tools label{font-size:var(--t-md);line-height:1.4}.topbar .tools label select{font-size:var(--t-base);min-height:44px}
- #mobile-navigation{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:20;padding:4px max(4px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));background:var(--surface,var(--phone-ink));border-top:1px solid var(--border,var(--phone-muted-2))}
+ #mobile-navigation{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:20;padding:4px max(4px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));background:var(--surface,var(--phone-ink));border-top:1px solid var(--border,var(--phone-muted-2))}
  #mobile-navigation button{min-width:0;border:0;background:transparent;border-radius:6px;padding:10px 2px;font-size:var(--tr-sm);color:var(--text,var(--phone-line))}
  #mobile-navigation [aria-current=page]{background:var(--surface-3);color:var(--gold-text,var(--phone-accent));font-weight:bold}
  main{padding:12px max(12px,env(safe-area-inset-right)) calc(112px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));min-width:0}

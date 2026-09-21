@@ -463,7 +463,8 @@ if (APP_CONFIG.mode === 'static') {
     if (el.id === 'bracket') {
       if (!allowed.includes(el.value)) return;
       S.bracket = el.value; save(); B = null; E = MetaEngine.create(null); revision = 0; site.originalBundle = null; site.loadedEntry = null; comparison = null;
-      S.route = 'meta'; S.hero = null; render(); await checkPublication();
+      // Rank is a data selection, not a request to leave the current destination or Plan stage.
+      render(); await checkPublication();
     } else {
       const choice = site.comparisonChoice = (site.comparisonChoice || 0) + 1;
       if (!el.value) return;

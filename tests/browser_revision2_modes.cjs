@@ -1,4 +1,5 @@
 'use strict';
+const {goToScreen}=require('./navigation_helpers.cjs');
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH);
 const fs=require('fs'),path=require('path'),assert=require('assert/strict');
 const root=path.resolve(__dirname,'..'),qa=path.join(root,'qa');
@@ -24,7 +25,7 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
      if(theme==='light') {await page.locator('#theme-toggle').focus();await page.keyboard.press('Enter');}
      check(await page.evaluate(t=>(document.documentElement.dataset.theme||'dark')===t,theme),theme+' keyboard switch');
      for(const route of routes){
-      await page.locator('#navigation [data-route="'+route+'"]').click();
+      await goToScreen(page,route);
       check(await page.locator('#main h1').count()===1&&!(await page.locator('#main').innerText()).includes('could not render'),theme+' '+route+' renders');
       check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),theme+' '+route+' no overflow');
      }

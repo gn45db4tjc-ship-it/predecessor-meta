@@ -1,4 +1,5 @@
 'use strict';
+const {goToScreen,legacyScreenClick}=require('./navigation_helpers.cjs');
 // Browser acceptance against a local static preview. Source observations are never modified.
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
@@ -56,7 +57,7 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    check(await page.locator('#quit').isHidden(),'no owner quit');
    const baseline=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}));
    for(const route of ['meta','builds','planner','draft','live','library','guidance','changes','data']){
-    await page.evaluate(r=>document.querySelector('[data-route="'+r+'"]').click(),route);
+    await goToScreen(page,route);
     check(await page.locator('#main h1').count()===1,'route '+route);
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no overflow '+route);
    }
@@ -86,8 +87,10 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
     run.skipped=['seven legacy desktop-control suites: the phone presentation is covered by tests/browser_companion.cjs'];
    }else if(previous){
     for(const suite of ['meta','strategy','live','augment','correction','sequences','synthesis']){
-     // Static and shared modes both keep planner state in localStorage. Adapt only that test boundary.
-     const code=fs.readFileSync(path.join(previous,'browser_'+suite+'_acceptance.js'),'utf8').replace("if(APP_CONFIG.mode==='shared')", "if(APP_CONFIG.mode==='shared'||APP_CONFIG.mode==='static')");
+     // Adapt storage mode and the retired flat navigation, retaining all content assertions.
+     const code=fs.readFileSync(path.join(previous,'browser_'+suite+'_acceptance.js'),'utf8').replace("if(APP_CONFIG.mode==='shared')", "if(APP_CONFIG.mode==='shared'||APP_CONFIG.mode==='static')")
+      .replace('const click=s=>{',`const click=s=>{if((${legacyScreenClick.toString()})(s))return;`)
+      .replace("[...document.querySelectorAll('#navigation [data-route]')].map(e=>e.dataset.route)",JSON.stringify(['meta','builds','planner','draft','live','library','guidance','changes','data']));
      const result=await page.evaluate(code);
      run.checks.push('existing '+suite+': '+(result.passed??result.checks)+' assertions');
     }
