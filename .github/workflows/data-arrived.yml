@@ -4,10 +4,15 @@ on:
     branches: [data-updates]
 permissions:
   contents: read
+  actions: write
 jobs:
-  publish:
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    uses: gn45db4tjc-ship-it/predecessor-meta/.github/workflows/publish.yml@main
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Start the canonical main-branch publisher
+        # Reusable workflows inherit the caller's ref and therefore its cache scope.
+        # Main dispatch makes PC arrivals, daily runs and patch checks share state.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref main
