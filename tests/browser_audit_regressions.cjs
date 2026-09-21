@@ -3328,6 +3328,7 @@ probes.PL2 = async browser => {
  const focus=await page.evaluate(()=>document.activeElement?.dataset.planRole);
  await page.locator('#detail [data-plan-ban]').selectOption('muriel');
  await page.keyboard.press('Escape');
+ await page.waitForFunction(()=>!document.querySelector('#detail').open&&document.activeElement?.hasAttribute('data-edit-roster'),null,{timeout:3000});
  const returned=await page.evaluate(()=>document.activeElement?.hasAttribute('data-edit-roster'));
  await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
  await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
