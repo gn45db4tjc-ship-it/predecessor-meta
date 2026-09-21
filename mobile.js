@@ -79,25 +79,77 @@ function sampleFootnote(slots){
  if(!n)return '';
  return '<p class="muted coach-note">'+n+' of these positions carry an observation that is inspection only. Each states its own reason; the category beside each part is what the recommendation rests on.</p>';
 }
-/* The loadout is the rest of the build. Each part is a REVIEWED choice when the plan is
-   reviewed and a CALCULATED one otherwise - the same categories stage 3a established for
-   the six items - and carries whatever observation the source has for it. */
-function loadoutPartHTML(label,name,kind,plan,measured){
+/* ---- loadout evidence -------------------------------------------------------------
+   A sample is shown beside a part only when it is a sample OF THAT PART. The item pool is
+   not consulted here: it holds item purchase observations, and an augment, an Eternal and a
+   blessing are not items. What describes them is the source build variant, and only the
+   variant whose perk and Eternal are the ones being recommended. */
+function nk(v){return String(v==null?'':v).toLowerCase().replace(/[^a-z0-9]+/g,'');}
+/* The variant that IS this recommendation: same augment, same Eternal. Any other variant
+   describes a different loadout, however similar it looks. */
+function matchingVariant(plan,stats){
+ var builds=(stats&&stats.builds)||[];
+ if(!plan||!builds.length)return null;
+ for(var i=0;i<builds.length;i++){
+  if(nk(builds[i].perk)===nk(plan.augment)&&nk(builds[i].eternal)===nk(plan.eternal))return {build:builds[i],index:i};
+ }
+ return null;
+}
+function firstNamed(rows,wanted){
+ var list=rows||[];
+ for(var i=0;i<list.length;i++){var n=list[i]&&(list[i].display_name||list[i].name);if(nk(n)===nk(wanted))return list[i];}
+ return null;
+}
+/* A source crest describes the recommended crest when it IS that crest, its mid form, or one
+   of its evolutions - plannedBuild may name an upgrade as the recommended crest. */
+function crestForPlan(build,planCrest){
+ var crests=(build&&build.best_base_crests)||[];
+ for(var i=0;i<crests.length;i++){
+  var c=crests[i],names=[c.display_name||c.name,c.midCrest].concat((c.upgrades||[]).map(function(u){return u.display_name||u.name;}));
+  for(var j=0;j<names.length;j++)if(nk(names[j])===nk(planCrest))return c;
+ }
+ return null;
+}
+/* One lookup per card, built from the plan's OWN hero and role. No module state, so new data
+   cannot be served from a stale key. */
+function loadoutEvidence(plan,stats,fetchedAt){
+ var m=matchingVariant(plan,stats),out={variant:m,fetched_at:fetchedAt||(stats&&stats.fetched_at)||null,parts:{}};
+ if(!m)return out;
+ var b=m.build,pair={wr:b.winRate,played:b.playedGames,scope:'this augment and Eternal together, source variant '+(m.index+1)};
+ out.parts.Augment=pair; out.parts.Eternal=pair;
+ var b1=firstNamed(b.common_perks_1,plan.blessings&&plan.blessings[0]);
+ var b2=firstNamed(b.common_perks_2,plan.blessings&&plan.blessings[1]);
+ if(b1)out.parts['Blessing 1']={wr:b1.winRate,played:b1.playedGames,scope:'this blessing in variant '+(m.index+1)};
+ if(b2)out.parts['Blessing 2']={wr:b2.winRate,played:b2.playedGames,scope:'this blessing in variant '+(m.index+1)};
+ var crest=crestForPlan(b,plan.crest);
+ if(crest){out.crest=crest;out.parts.Crest={wr:crest.winRate,played:crest.playedGames,scope:'this crest in variant '+(m.index+1)};}
+ return out;
+}
+function loadoutSampleHTML(ev,label){
+ var s=ev&&ev.parts?ev.parts[label]:null;
+ if(!ev||!ev.variant)return '<small class="muted">No source variant matches the recommended augment and Eternal, so there is no observation for this part.</small>';
+ if(!s)return '<small class="muted">No observation for this choice in that variant.</small>';
+ return '<small class="muted">Win rate '+pct(s.wr)+' over '+games(s.played)+' · '+esc(s.scope)+' · collected '+esc(dayDate(ev.fetched_at))+'</small>';
+}
+/* The categories engine.js actually produces for a build part. A part is never reduced
+   to "observed or substituted": a reviewed core, a calculated starting selection, a
+   source playstyle the reader chose, an item merely brought forward and an item actually
+   replaced are five different claims. */
+function loadoutPartHTML(label,name,kind,plan,ev){
  if(!name)return '<div class="loadout-absent"><small>'+esc(label)+'</small><p class="muted">Unavailable in this source.</p></div>';
  var c=buildCategory(plan,null);
- /* an augment, an Eternal or a blessing is not bought at a purchase position, so the
-    absence of a row is not the absence of a position */
- var subject=/augment|eternal|blessing/i.test(label)?'loadout choice':'position';
- return '<div><small>'+esc(label)+'</small>'+itemButton(name,kind)+badge(c.text,c.type)+supportingSample(measured,null,null,subject)+'</div>';
+ return '<div><small>'+esc(label)+'</small>'+itemButton(name,kind)+badge(c.text,c.type)+loadoutSampleHTML(ev,label)+'</div>';
 }
-/* The crest's evolutions come from the source variant, not from the reviewed plan. When the
-   source has no evolution rows the strip says so rather than leaving a silent gap. */
-function crestEvolutionHTML(summary,fetchedAt){
- var ups=summary&&summary.crest?(summary.crest.upgrades||[]):null;
- if(!ups||!ups.length)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">No evolution rows in this source for this crest. Nothing is estimated in their place.</p></div>';
+/* The crest's evolutions are the evolutions OF THE RECOMMENDED CREST. A source variant that
+   recommends a different crest is not evidence about this one. */
+function crestEvolutionHTML(ev,planCrest){
+ if(!ev||!ev.variant)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">No source variant matches the recommended augment and Eternal, so no evolution rows apply.</p></div>';
+ if(!ev.crest)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">That variant recommends a different crest, so its evolutions do not describe '+esc(planCrest||'this crest')+'. Nothing is estimated in their place.</p></div>';
+ var ups=ev.crest.upgrades||[];
+ if(!ups.length)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">No evolution rows in this source for this crest. Nothing is estimated in their place.</p></div>';
  return ups.map(function(u){
-  return '<div><small>Crest evolves</small>'+itemButton(u.name,'items')+badge('Observed choice','observed')+
-   '<small class="muted">Win rate '+pct(u.wr)+' over '+games(u.played)+' · source build variant · collected '+esc(dayDate(fetchedAt))+'</small></div>';
+  return '<div><small>Crest evolves</small>'+itemButton(u.display_name||u.name,'items')+badge('Observed choice','observed')+
+   '<small class="muted">Win rate '+pct(u.winRate)+' over '+games(u.playedGames)+' · evolution of '+esc(ev.crest.display_name||ev.crest.name)+' · collected '+esc(dayDate(ev.fetched_at))+'</small></div>';
  }).join('');
 }
 function coachHTML(p,{compact=false}={}){

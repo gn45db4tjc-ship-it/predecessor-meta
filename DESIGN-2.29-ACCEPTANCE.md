@@ -184,6 +184,33 @@ Accepted when:
   row scrolled or tabbed to the top landed 140 px underneath it. It now joins that watch list
   and publishes its own height for the list it covers.
 
+### Evidence selection rules, added after review
+
+- **An interval reading has four cases, not two.** Below the baseline, overlapping it, above
+  it, and unavailable. Testing only the lower bound described an interval sitting entirely
+  *below* the baseline as one that includes it. A bound that touches the baseline is an
+  overlap. Every reading keeps the two kinds of uncertainty apart: the interval describes the
+  **observed pair win rate**, and is never an interval for the calculated gap.
+- **A card uses the hero and role of the plan it is drawing.** `plannedBuildHTML` is reused by
+  Builds and by Live, so reading `S.hero` could show a previously opened hero's evidence. The
+  plan carries its own `slug` and `role`; those are used and `S` is not consulted.
+- **No cache between a card and the engine.** A key of hero, role and bracket does not change
+  when the publication does, so refreshed data was served from a stale entry. The lookup runs
+  once inside the function that draws the card and is passed down.
+- **Evidence must be evidence of the part it sits beside.**
+  - `currentItemPool` holds **item** observations. An augment, an Eternal and a blessing are
+    not items, and are never looked up there.
+  - The sample for an augment and an Eternal is the **source variant whose perk and Eternal
+    are the recommended ones**. Any other variant describes a different loadout. The sample
+    describes the pair together, and says so.
+  - A blessing's sample is the row of that variant with **that blessing's name**. The
+    summary's own top blessing is not a substitute: Countess is recommended *Tithe of Death*
+    and *Mind Rot* while `buildSummary` reports *Lich* and *Millennia*.
+  - A crest's evolutions are shown only when that variant's crest **is** the recommended
+    crest, its mid form, or one of its evolutions — `plannedBuild` may name an upgrade as the
+    recommendation, as Murdock's *Liberator* is an upgrade of *Marksman Crest*. When it is a
+    different crest, the screen says so and estimates nothing.
+
 ## Stage 3c — sections and the four destinations *(scheduled, not yet built)*
 
 Two changes remain on the hero screen, both of which alter what is in the DOM rather than how
