@@ -25,12 +25,13 @@
  assert(document.querySelectorAll('[data-owned-remove]').length===0,'Other hero has separate inventory');
  assert(document.querySelector('#live-priority').value==='','Other hero has separate priority');
  select('#me-hero','steel');assert(document.querySelector('#live-priority').value==='anti_heal','Returning restores hero priority');
- select('[data-slot="allies"][data-slot-role="jungle"]','');select('[data-slot="allies"][data-slot-role="offlane"]','steel');select('#me-hero','steel');
+ // Stage 4 protects the active Live hero from incidental slot changes. Use the explicit replacement flow.
+ click('[data-live-lookup]');click('[data-picker-role="offlane"]');click('[data-pick-live="steel|offlane"]');click('[data-confirm-live="steel|offlane"]');
  assert(document.querySelectorAll('[data-owned-remove]').length===0,'Same hero in another role has separate inventory');
  assert(text().includes('Trade, clear, then convert a catch'),'Steel Offlane review displayed');
  [...document.querySelectorAll('#main summary')].find(e=>e.innerText==='Full setup, execution and sources').click();
  assert(text().includes('Cannibalism'),'Offlane blessing shown');
- select('[data-slot="allies"][data-slot-role="offlane"]','');select('[data-slot="allies"][data-slot-role="jungle"]','steel');select('#me-hero','steel');
+ click('[data-live-lookup]');click('[data-picker-role="jungle"]');click('[data-pick-live="steel|jungle"]');click('[data-confirm-live="steel|jungle"]');
  assert(document.querySelector('#live-priority').value==='anti_heal','Jungle context survives role switch');
  for(const n of ['Dynamo','Flux Matrix','Tainted Guard',"Giant's Ring",'Stonewall'])select('#live-owned-add',n);
  assert(document.querySelector('#live-owned-add').disabled,'Six owned items disable additional entry');

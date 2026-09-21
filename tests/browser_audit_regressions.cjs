@@ -382,6 +382,9 @@ const probes = {
   async A13(browser) {
     const {context, page} = await session(browser, desktop);
     await reset(page); await generate(page);
+    // Stage 4 keeps search controls in a disclosure; exercise the same real change through it.
+    const searchOptions=page.locator('[data-keep="plan-search-options"]');
+    if(await searchOptions.count()&&!await searchOptions.evaluate(d=>d.open))await searchOptions.locator('summary').click();
     await page.selectOption('#comp-sort', await page.evaluate(() => [...document.querySelectorAll('#comp-sort option')].map(o => o.value).find(v => v !== S.sortComp)));
     const text = await page.locator('#compositions').innerText();
     verdict('A13', !/^Your search options changed after these alternatives were generated/m.test(text) || /picks, bans, enemies or data/.test(text), {panel: text.slice(0, 120)});
@@ -621,10 +624,9 @@ const probes = {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => { S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); });
     const eligible = await page.evaluate(() => Object.keys(E.heroes).filter(s => E.roles(s).includes('jungle')).sort());
-    const toggle = page.locator('#mobile-all-heroes');
+    const list = page.locator('#mobile-all-list');
     let seen = {listed: [], unsampled_with_numbers: []};
-    if (await toggle.count()) {
-      await toggle.click();
+    if (await list.count()) {
       seen = await page.evaluate(() => {
         const cards = [...document.querySelectorAll('#mobile-all-list [data-hero]')];
         const unsampled = cards.filter(c => !E.performance({slug: c.dataset.hero, role: 'jungle'})).map(c => c.closest('article')?.innerText || '');
@@ -889,14 +891,14 @@ const probes = {
     await context.close();
   },
   async P5(browser) {
-    // Top five, the lead and the hero list give the real reason for missing numbers: too few games, a statistics page
+    // The role-list status, lead and full list give the real reason for missing numbers: too few games, a statistics page
     // that failed to load or was never collected (Pred.gg or Statz), statistics paused or unavailable.
     const {context, page} = await session(browser, phone);
     const seen = await page.evaluate(() => {
-      const topFive = () => { const s = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || '')); return {tiles: s ? s.querySelectorAll('.mobile-hero-card').length : null, text: (s?.innerText || '').replace(/\s+/g, ' ')}; };
+      const roleStatus = () => { const s = document.querySelector('#mobile-role-list'); return {tiles: s ? [...s.querySelectorAll('.mobile-hero-card')].filter(c=>/%/.test(c.innerText)&&!/small sample/.test(c.innerText)).length : null, text: (document.querySelector('#meta-order-status')?.innerText || '').replace(/\s+/g, ' ')}; };
       const lead = () => (document.querySelector('#main .page-head p')?.innerText || '').replace(/\s+/g, ' ');
-      const list = () => { document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click(); return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
-      const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: topFive(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
+      const list = () => { return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
+      const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: roleStatus(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
       const saved = B, original = E.performance, out = {};
       try {
         E.performance = p => { const r = original(p); return p.role === 'jungle' && r ? {...r, played: Math.min(r.played, 60)} : r; };
@@ -978,7 +980,7 @@ const probes = {
     await page.keyboard.press('Escape');
     const tile = await page.evaluate(() => {
       const saved = B; B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
-      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
+      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
         const name = document.querySelector('#mobile-all-list .mobile-hero-card .hero-cell .name'); return {text: name?.closest('article')?.innerText.replace(/\s+/g, ' '), nameWidth: Math.round(name?.getBoundingClientRect().width || 0)}; }
       finally { B = saved; E = MetaEngine.create(B); render(); }
     });
@@ -1059,15 +1061,15 @@ const probes = {
     await page.evaluate(() => requestRedraw(true));
     const slot = await page.evaluate(() => ({slot: document.activeElement?.dataset?.slot || null, role: document.activeElement?.dataset?.slotRole || null}));
     const hero = await page.evaluate(() => {
-      S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
-      const inTop = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      S.role = 'jungle'; companionPrefs.homeQuery = ''; companionPrefs.favorites=['steel|jungle']; changeRoute('meta');
+      const inTop = document.querySelector('#mobile-favorites [data-hero]');
       const copy = inTop && [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === inTop.dataset.hero);
       copy?.focus(); requestRedraw(true);
       const a = document.activeElement;
       return {hero: copy?.dataset.hero || null, inList: !!a?.closest('#mobile-all-list'), inTopFive: !!a?.closest('section') && !a.closest('#mobile-all-list') && !!a.dataset?.hero};
     });
     const moved = await page.evaluate(() => {
-      const top = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      const top = document.querySelector('#mobile-favorites [data-hero]');
       const hero = top?.dataset.hero, copy = [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === hero);
       copy?.focus();
       const original = E.performance; E.performance = p => { const r = original(p); return p.slug === hero && p.role === 'jungle' && r ? {...r, played: 50} : r; };
@@ -1344,7 +1346,9 @@ const probes = {
         openHero(slug, role);
         for (const tab of ['builds', 'pairings', 'counters', 'kit']) {
           S.heroTab = tab; render(); await wait();
-          const main = document.querySelector('#main'), id = slug + '|' + role + '|' + tab;
+          // Since 2.29 stage 3c every section is on one page: the per-tab rule reads the section
+          // it is about, or the whole page where sections do not exist.
+          const main = document.querySelector('#hero-sec-' + tab) || document.querySelector('#main'), id = slug + '|' + role + '|' + tab;
           if (/No observed build for this hero/i.test(main.textContent)) problems.push(id + ': says No observed build');
           if ([...main.querySelectorAll('a')].some(a => ['#', ''].includes(a.getAttribute('href') || ''))) problems.push(id + ': dead link');
           for (const a of main.querySelectorAll('.source-line a[href*="statz.gg"]')) {
@@ -1625,7 +1629,9 @@ const probes = {
     // with no matchup data does not point to smaller samples, and Exploratory has its own level-2 heading.
     const seen = {};
     const measure = ({slug, role}) => {
-          const main = document.querySelector('#main'), out = {}, N = 100;
+          // Since 2.29 stage 3c the Build section, with its own evidence tables, sits above Counters
+          // on the same page; 'Counters lead with reviewed counterplay' is a claim about Counters.
+          const main = document.querySelector('#hero-sec-counters') || document.querySelector('#main'), out = {}, N = 100;
           const gamesOf = tr => { const heads = [...tr.closest('table').querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase()), i = heads.indexOf('games'), cell = tr.children[i];
             return i < 0 || !cell ? null : Number((cell.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '')); };
           const rows = [...main.querySelectorAll('tbody tr')].map(tr => ({games: gamesOf(tr), hidden: !!tr.closest('details:not([open])')})).filter(r => Number.isFinite(r.games));
@@ -2056,13 +2062,1359 @@ const probes = {
   }
 };
 
+/* ---------------------------------------------------------------------------
+   W-series: 2.29 redesign, stage 1 (tokens and typography).
+
+   These probes read the published stylesheet and the computed styles of a live
+   page. They guard the token layer itself: that themes redefine tokens rather
+   than components, that no component hard-codes a colour, and that the four
+   evidence classes stay visually distinct in both themes.
+   --------------------------------------------------------------------------- */
+
+/* Every rule in the stylesheet, flattened, with the media query it sits under.
+   CSSRuleList is not iterable in Chromium, so both loops index deliberately: a for..of
+   here throws, the throw is swallowed by the cross-origin guard, and the probe silently
+   reads zero rules and passes. */
+const readRules = () => {
+  const out = [];
+  const walk = (rules, media) => {
+    for (let i = 0; i < rules.length; i++) {
+      const r = rules[i];
+      // Style rules come first: since CSS nesting, a CSSStyleRule ALSO carries a (usually
+      // empty) cssRules list, so testing for that first recurses into every rule and
+      // collects none of them.
+      if (r.selectorText) {
+        out.push({selector: r.selectorText, text: r.cssText, media: media || ''});
+        if (r.cssRules && r.cssRules.length) walk(r.cssRules, media);
+        continue;
+      }
+      if (r.cssRules) walk(r.cssRules, r.conditionText || media);
+    }
+  };
+  // Read the product's own <style> elements directly. document.styleSheets is not used:
+  // the cross-origin font sheet is unreadable, and whether it appears in that list at all
+  // depends on whether the CDN responded, which silently changes what a probe sees.
+  const styles = document.querySelectorAll('style');
+  for (let i = 0; i < styles.length; i++) {
+    const sheet = styles[i].sheet;
+    if (sheet) walk(sheet.cssRules, '');
+  }
+  if (!out.length) throw Error('no CSS rules readable: ' + styles.length + ' style elements');
+  return out;
+};
+
+/* The product marks a class of evidence with a tag. These are the four; `warning` is a
+   status, not a class of evidence, and is deliberately not one of them. */
+const EVIDENCE = ['observed', 'calculated', 'reviewed', 'official'];
+
+probes.W1 = async browser => {
+  /* A theme block redefines tokens. The moment it styles a component, the component's
+     appearance lives in two places and the token layer is no longer the single source. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const themed = rules.filter(r => /:root\s*\[data-theme/.test(r.selector) || /\[data-theme=[^\]]*\]\s+\S/.test(r.selector));
+  const offenders = themed
+    .filter(r => /\[data-theme[^\]]*\]\s+[.#\w\[]/.test(r.selector))          // a descendant, not :root itself
+    .map(r => ({selector: r.selector, declares: (r.text.match(/--[a-z0-9-]+\s*:/gi) || []).length,
+                hardCoded: (r.text.match(/(?::|\s)(#[0-9a-f]{3,8}\b|rgba?\([^)]*\))/gi) || []).length}))
+    .filter(r => r.hardCoded > 0 || r.declares === 0);
+  await context.close();
+  verdict('W1', offenders.length > 0, {themed_rules: themed.length, offenders: offenders.slice(0, 6), count: offenders.length});
+};
+
+probes.W2 = async browser => {
+  /* Colour belongs to the token layer. A component rule that names a colour directly
+     cannot follow a theme, and is invisible to any future palette change. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const literal = /(?:^|[:,\s(])(#[0-9a-f]{3,8}\b|rgba?\(\s*\d)/i;
+  const offenders = [];
+  for (const r of rules) {
+    if (/^:root/.test(r.selector.trim()) && !/\[data-theme[^\]]*\]\s+[.#\w]/.test(r.selector)) continue;  // token blocks
+    const body = r.text.slice(r.text.indexOf('{') + 1, -1);
+    for (const decl of body.split(';')) {
+      const [prop, ...rest] = decl.split(':');
+      if (!prop || !rest.length) continue;
+      if (prop.trim().startsWith('--')) continue;                 // declaring a token is the point
+      const value = rest.join(':');
+      if (literal.test(value)) offenders.push({selector: r.selector.slice(0, 70), decl: decl.trim().slice(0, 70)});
+    }
+  }
+  await context.close();
+  verdict('W2', offenders.length > 0, {offenders: offenders.slice(0, 8), count: offenders.length});
+};
+
+probes.W3 = async browser => {
+  /* The four classes of evidence must stay tellable apart at a glance, in BOTH themes.
+     Two classes sharing an appearance is the failure this whole product exists to avoid.
+
+     The tags are rendered into the page rather than hunted for: whether a given route
+     happens to show all four is a content question, and this is a question about the
+     stylesheet. A class with no rule of its own falls back to the bare .tag treatment,
+     which is exactly what this must catch. */
+  const seen = {};
+  for (const theme of ['dark', 'light']) {
+    const {context, page} = await session(browser, desktop);
+    if (theme === 'light') {
+      await page.evaluate(() => { document.documentElement.setAttribute('data-theme', 'light'); });
+      await page.waitForTimeout(120);
+    }
+    seen[theme] = await page.evaluate(classes => {
+      const host = document.createElement('div');
+      host.style.position = 'absolute'; host.style.left = '-9999px';
+      document.body.appendChild(host);
+      const out = {};
+      for (const k of classes) {
+        const el = document.createElement('span');
+        el.className = 'tag ' + k; el.textContent = k;
+        host.appendChild(el);
+        const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
+        out[k] = {color: cs.color, background: cs.backgroundColor, family: cs.fontFamily.split(',')[0],
+                  marker: (before.content || '').replace(/["']/g, '').trim()};
+      }
+      const bare = document.createElement('span');
+      bare.className = 'tag'; host.appendChild(bare);
+      out._bare = {color: getComputedStyle(bare).color, background: getComputedStyle(bare).backgroundColor};
+      host.remove();
+      return out;
+    }, EVIDENCE);
+    await context.close();
+  }
+  const signature = v => [v.color, v.background, v.family, v.marker].join('~');
+  const unstyled = [], clash = [];
+  for (const theme of ['dark', 'light']) {
+    const t = seen[theme];
+    for (const k of EVIDENCE) {
+      if (!t[k].marker || (t[k].color === t._bare.color && t[k].background === t._bare.background)) unstyled.push({theme, k});
+    }
+    for (let i = 0; i < EVIDENCE.length; i++) for (let j = i + 1; j < EVIDENCE.length; j++) {
+      if (signature(t[EVIDENCE[i]]) === signature(t[EVIDENCE[j]])) clash.push({theme, a: EVIDENCE[i], b: EVIDENCE[j]});
+    }
+  }
+  verdict('W3', unstyled.length > 0 || clash.length > 0, {unstyled, clashes: clash, seen});
+};
+
+probes.W4 = async browser => {
+  /* Type and space come from a scale. Ad-hoc pixel values are how a scale rots. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const scale = await page.evaluate(() => {
+    const cs = getComputedStyle(document.documentElement);
+    const steps = ['3xs', '2xs', 'xs', 'sm', 'md', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'];
+    return {spaces: Array.from({length: 8}, (_, i) => cs.getPropertyValue('--s' + (i + 1)).trim()).filter(Boolean),
+            sizes: steps.map(n => cs.getPropertyValue('--t-' + n).trim()).filter(Boolean), root: cs.fontSize};
+  });
+  const offenders = [];
+  for (const r of rules) {
+    if (/^:root/.test(r.selector.trim())) continue;
+    const body = r.text.slice(r.text.indexOf('{') + 1, -1);
+    for (const decl of body.split(';')) {
+      const [prop, ...rest] = decl.split(':');
+      if (!prop || !rest.length) continue;
+      const name = prop.trim(), value = rest.join(':').trim();
+      if (name !== 'font-size') continue;
+      // 0 is a layout device (hiding a label), not a point on a type scale.
+      if (/var\(/.test(value) || /^(inherit|initial|unset|larger|smaller|0|0px)$/.test(value)) continue;
+      offenders.push({selector: r.selector.slice(0, 60), decl: decl.trim().slice(0, 50), media: r.media.slice(0, 40)});
+    }
+  }
+  await context.close();
+  verdict('W4', scale.sizes.length === 0 || offenders.length > 0,
+    {type_scale: scale.sizes, space_scale: scale.spaces, font_size_literals: offenders.length, offenders: offenders.slice(0, 8)});
+};
+
+
+/* ---------------------------------------------------------------------------
+   W-series continued: 2.29 redesign, stage 2 (shell and navigation).
+   --------------------------------------------------------------------------- */
+
+/* Every element that is stuck to the viewport right now, with its box. */
+const stuckZones = () => {
+  const out = [];
+  for (const sel of ['.topbar', '.sidebar', '#patch-strip', '#status-panel', '#mobile-navigation', '.mobile-tabbar', '#material-notices']) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    const pos = getComputedStyle(el).position;
+    if (pos !== 'sticky' && pos !== 'fixed') continue;
+    const r = el.getBoundingClientRect();
+    if (r.height) out.push({sel, top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: r.height});
+  }
+  return out;
+};
+
+probes.W5 = async browser => {
+  /* Tabbing to a control must not park it underneath the chrome. The browser scrolls a
+     focused element to the edge of the viewport unless scroll-padding says otherwise,
+     and a fixed bottom navigation sits exactly on that edge. */
+  const seen = {};
+  for (const [w, h, mobile] of [[320, 700, true], [390, 844, true], [1440, 900, false]]) {
+    const {context, page} = await session(browser, {viewport: {width: w, height: h}, isMobile: mobile, hasTouch: mobile});
+    seen[w + 'x' + h] = await page.evaluate(zonesSrc => {
+      const zones = (new Function('return (' + zonesSrc + ')'))()();
+      const covered = [];
+      let checked = 0;
+      for (const el of document.querySelectorAll('main button, main summary, main input, main select, main a[href]')) {
+        if (!el.getBoundingClientRect().height) continue;
+        if (el.closest('details:not([open])')) continue;
+        if (zones.some(z => document.querySelector(z.sel).contains(el))) continue;
+        el.focus();
+        const r = el.getBoundingClientRect();
+        checked++;
+        const label = (el.textContent || el.id || '').trim().slice(0, 24);
+        if (r.bottom < 0 || r.top > innerHeight) { covered.push({why: 'off screen after focus', label}); continue; }
+        if (zones.some(z => z.top < r.bottom - 2 && z.bottom > r.top + 2 && z.left < r.right - 2 && z.right > r.left + 2))
+          covered.push({why: 'under sticky chrome', label, top: Math.round(r.top)});
+      }
+      const cs = getComputedStyle(document.documentElement);
+      return {checked, covered: covered.length, examples: covered.slice(0, 4),
+              scroll_padding: [cs.scrollPaddingTop, cs.scrollPaddingBottom].join(' / '),
+              zones: zones.map(z => z.sel + ':' + Math.round(z.height))};
+    }, stuckZones.toString());
+    await context.close();
+  }
+  verdict('W5', Object.values(seen).some(v => v.covered > 0), seen);
+};
+
+probes.W6 = async browser => {
+  /* Data kept from an earlier collection is a DATE, not a fault. It must not wear the
+     warning treatment, and it must differ from a currency warning by more than colour
+     alone, because the two states print the same words. */
+  const seen = {};
+  for (const theme of ['dark', 'light']) {
+    const {context, page} = await session(browser, desktop);
+    if (theme === 'light') { await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'light')); await page.waitForTimeout(120); }
+    seen[theme] = await page.evaluate(() => {
+      const emitted = [];
+      for (const route of ['meta', 'builds', 'planner', 'live', 'library', 'guidance', 'data']) {
+        try { changeRoute(route); } catch (e) { continue; }
+        document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+        for (const t of document.querySelectorAll('.tag')) {
+          const text = t.textContent.trim();
+          if (/^(Saved|Retained)\b/.test(text)) emitted.push({route, text: text.slice(0, 28), cls: t.className});
+        }
+      }
+      try {
+        openHero('steel', 'jungle');
+        document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+        for (const t of document.querySelectorAll('.tag')) {
+          const text = t.textContent.trim();
+          if (/^(Saved|Retained)\b/.test(text)) emitted.push({route: 'hero', text: text.slice(0, 28), cls: t.className});
+        }
+      } catch (e) {}
+      // the treatments themselves, rendered rather than hunted for
+      const host = document.createElement('div');
+      host.style.cssText = 'position:absolute;left:-9999px';
+      document.body.appendChild(host);
+      const read = cls => {
+        const el = document.createElement('span');
+        el.className = 'tag ' + cls; host.appendChild(el);
+        const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
+        return {color: cs.color, background: cs.backgroundColor, marker: (before.content || '').replace(/["']/g, '').trim()};
+      };
+      const styles = {saved: read('saved'), warning: read('warning')};
+      host.remove();
+      const unique = {};
+      for (const e of emitted) unique[e.cls + '|' + e.text.split(' ').slice(0, 2).join(' ')] = e;
+      /* Ask the function that decides, so the verdict does not depend on whether this
+         fixture happens to contain a failed source. An old date with status 'retained'
+         is data kept deliberately; the same date without it is a currency warning. */
+      const old = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString();
+      const decided = {retained: savedTag(old, true), stale: savedTag(old, false)};
+      return {emitted: Object.values(unique).slice(0, 6), count: emitted.length, styles, decided};
+    });
+    await context.close();
+  }
+  const retainedWearsWarning = Object.values(seen).some(t => /\bwarning\b/.test(t.decided.retained));
+  const retainedUnmarked = Object.values(seen).some(t => !/\bsaved\b/.test(t.decided.retained));
+  const colourOnly = Object.values(seen).some(t => !t.styles.saved.marker || t.styles.saved.marker === t.styles.warning.marker);
+  verdict('W6', retainedWearsWarning || retainedUnmarked || colourOnly, seen);
+};
+
+probes.W7 = async browser => {
+  /* GUARD: 1280x1024 at 400% browser zoom is a 320x256 viewport. Reflow without a
+     horizontal scrollbar is necessary but not sufficient - chrome that is reasonable on
+     a tall phone can leave nothing to read in. */
+  const {context, page} = await session(browser, {viewport: {width: 320, height: 256}, isMobile: true, hasTouch: true});
+  const seen = await page.evaluate(zonesSrc => {
+    const zones = (new Function('return (' + zonesSrc + ')'))()();
+    const out = {routes: {}};
+    for (const route of ['meta', 'builds', 'planner', 'live', 'data']) {
+      try { changeRoute(route); } catch (e) { continue; }
+      out.routes[route] = document.documentElement.scrollWidth - innerWidth;
+    }
+    out.chrome_px = Math.round(zones.reduce((n, z) => n + z.height, 0));
+    out.readable_px = Math.round(innerHeight - out.chrome_px);
+    out.zones = zones.map(z => z.sel + ':' + Math.round(z.height));
+    return out;
+  }, stuckZones.toString());
+  await context.close();
+  verdict('W7', Object.values(seen.routes).some(v => v > 0) || seen.readable_px < 120, seen);
+};
+
+probes.W8 = async browser => {
+  /* GUARD: the freshness line wraps rather than scrolling, and the control that opens
+     the detail is fully on screen at every desktop width. Nothing about how fresh the
+     data is may sit off the edge of a hidden scroller. */
+  const seen = {};
+  for (const width of [1280, 1440, 1920]) {
+    const {context, page} = await session(browser, {viewport: {width, height: 900}});
+    seen[width] = await page.evaluate(() => {
+      const strip = document.querySelector('#patch-strip'), toggle = document.querySelector('#status-toggle');
+      const box = el => { const r = el.getBoundingClientRect(); return {left: Math.round(r.left), right: Math.round(r.right), height: Math.round(r.height)}; };
+      return {
+        strip: strip ? {...box(strip), scrolls: strip.scrollWidth > strip.clientWidth + 1, wrap: getComputedStyle(strip).flexWrap} : null,
+        toggle: toggle ? {...box(toggle), onScreen: toggle.getBoundingClientRect().right <= innerWidth + 0.5 && toggle.getBoundingClientRect().left >= -0.5} : null,
+        notices_visible: !!document.querySelector('#material-notices')?.offsetHeight
+      };
+    });
+    await context.close();
+  }
+  verdict('W8', Object.values(seen).some(v => !v.strip || v.strip.scrolls || v.strip.wrap !== 'wrap' || !v.toggle || !v.toggle.onScreen), seen);
+};
+
+/* ---------------------------------------------------------------------------
+   X-series: 2.29 redesign, stage 3 (the hero build).
+
+   These guard the categories the ENGINE produces, not a two-way observed/substituted
+   split. engine.js emits, per build: plannedBuild kind 'reviewed' or 'provisional'
+   (with manual set when the reader selected a source playstyle), and per slot a kind of
+   'core', 'baseline', 'need' or 'owned' with its own label. Every slot may also carry
+   `measured`, a purchase-position sample whose `supports_current_fit` the engine has
+   already decided. A supporting sample must never promote a choice to an observed one.
+   --------------------------------------------------------------------------- */
+
+const CATEGORY_WORDS = {
+  reviewed: /reviewed/i,
+  calculated: /calculated/i,
+  observed: /observed choice|source playstyle/i,
+  substitution: /substitut|replaces|answers/i,
+  owned: /owned|you entered/i
+};
+
+/* Open a hero with a reviewed plan, every disclosure expanded, and read back the advice
+   the PAGE built - not a fresh call with different inputs, which would compare a rendered
+   slot against a category computed from an enemy the page never saw. */
+async function heroBuild(page, slug = 'steel', role = 'jungle') {
+  return page.evaluate(([s, r]) => {
+    S.role = r; openHero(s, r);
+    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    const engine = adviceFor({slug: s, role: r});
+    return {
+      engine: {
+        planKind: engine.plan.kind, manual: !!engine.plan.manual, caution: engine.plan.caution || '',
+        slots: engine.slots.map(x => ({name: x.name, kind: x.kind, label: x.label,
+          measured: x.measured ? {played: x.measured.played, wr: x.measured.wr, supports: !!x.measured.supports_current_fit,
+                                  at: x.measured.fetched_at, source: x.measured.source || x.measured.label} : null})),
+        swaps: engine.swaps, unmet: engine.unmet
+      },
+      rendered: [...document.querySelectorAll('#main .build-path li')].map(li => ({
+        text: li.innerText.replace(/\s+/g, ' ').trim(),
+        tags: [...li.querySelectorAll('.tag')].map(t => ({cls: t.className, text: t.textContent.trim()}))
+      }))
+    };
+  }, [slug, role]);
+}
+
+probes.X1 = async browser => {
+  /* Every part of a build must name the category the engine gave it. Printing the
+     engine's label as plain prose leaves the build outside the four-class system that
+     the rest of the product is held to. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await heroBuild(page);
+  const slots = seen.rendered.slice(0, seen.engine.slots.length);
+  const missing = slots.filter(s => !s.tags.length).length;
+  const mismatched = [];
+  seen.engine.slots.forEach((e, i) => {
+    const row = slots[i];
+    if (!row || !row.tags.length) return;
+    const text = row.tags.map(t => t.text).join(' ');
+    const want = e.kind === 'owned' ? 'owned' : e.kind === 'need' ? 'substitution'
+      : seen.engine.manual ? 'observed' : seen.engine.planKind === 'reviewed' ? 'reviewed' : 'calculated';
+    if (!CATEGORY_WORDS[want].test(text)) mismatched.push({slot: e.name, kind: e.kind, want, got: text});
+  });
+  await context.close();
+  verdict('X1', missing > 0 || mismatched.length > 0,
+    {slots: slots.length, without_category: missing, mismatched, engine_kinds: seen.engine.slots.map(s => s.kind)});
+};
+
+probes.X2 = async browser => {
+  /* A rate attached to a slot is supporting evidence, and evidence carries its sample,
+     its date and its source. Where the engine has already decided the sample does not
+     support the current fit, the screen says so rather than printing a bare percentage. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await heroBuild(page);
+  const withStat = seen.engine.slots.map((e, i) => ({e, row: seen.rendered[i]})).filter(x => x.e.measured);
+  const problems = [];
+  for (const {e, row} of withStat) {
+    const text = row ? row.text : '';
+    if (!/\d/.test(text) || !/games|played/i.test(text)) { problems.push({slot: e.name, why: 'no sample shown', played: e.measured.played}); continue; }
+    // the product's own dayDate() writes "September 14"; accept either order, and a year
+    if (!/\b(19|20)\d\d\b|\b\d{1,2} \w{3,}\b|\b\w{3,} \d{1,2}\b/.test(text)) problems.push({slot: e.name, why: 'no collection date', text: text.slice(0, 90)});
+    // Stage 3a replaced the blanket phrase with the engine's own reason. Every one of
+    // them says "inspection only"; the fallback also says it does not support automatic
+    // selection. The probe follows the product's vocabulary, deliberately changed.
+    if (!e.measured.supports && !/inspection only|does not support|not eligible/i.test(text))
+      problems.push({slot: e.name, why: 'engine says it does not support the fit, screen does not', played: e.measured.played, text: text.slice(0, 90)});
+  }
+  await context.close();
+  verdict('X2', withStat.length === 0 || problems.length > 0,
+    {slots_with_a_statistic: withStat.length, problems: problems.slice(0, 6),
+     engine_support_flags: withStat.map(x => x.e.name + ':' + x.e.measured.played + (x.e.measured.supports ? ' supports' : ' does not support'))});
+};
+
+probes.X3 = async browser => {
+  /* The rule that matters most: a supporting statistic never changes a category. The
+     same plan, rendered with and without its samples, must carry the same categories. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const read = () => [...document.querySelectorAll('#main .build-path li')]
+      .map(li => [...li.querySelectorAll('.tag')].map(t => t.textContent.trim()).join('|'));
+    S.role = 'jungle'; openHero('steel', 'jungle');
+    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    const withStats = read();
+    // strip every purchase-position sample from the bundle and draw the same hero again
+    const saved = B;
+    let withoutStats = [];
+    try {
+      const stripped = JSON.parse(JSON.stringify(B));
+      for (const h of Object.values(stripped.heroes || {}))
+        for (const r of Object.values(h.roles || {})) { delete r.item_evidence; delete r.items; }
+      stripped.item_evidence = {};
+      B = stripped; E = MetaEngine.create(B);
+      openHero('steel', 'jungle');
+      document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+      withoutStats = read();
+    } finally { B = saved; E = MetaEngine.create(B); render(); }
+    return {withStats, withoutStats};
+  });
+  await context.close();
+  const n = Math.min(seen.withStats.length, seen.withoutStats.length);
+  const changed = [];
+  for (let i = 0; i < n; i++) if (seen.withStats[i] !== seen.withoutStats[i]) changed.push({slot: i + 1, with: seen.withStats[i], without: seen.withoutStats[i]});
+  verdict('X3', n === 0 || changed.length > 0, {compared: n, changed, ...seen});
+};
+
+probes.X4 = async browser => {
+  /* GUARD: a substitution says what it replaced and why, a need the engine could not
+     answer is named, and the whole six is never offered as one observed loadout. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    // An enemy is what makes the engine substitute at all, so the guard needs one.
+    S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}]; S.role = 'jungle';
+    S.enemies = [{slug: 'countess', role: 'midlane'}];
+    changeRoute('live');
+    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    const text = document.querySelector('#main').innerText.replace(/\s+/g, ' ');
+    const engine = adviceFor({slug: 'steel', role: 'jungle'});
+    return {
+      swaps: engine.swaps.map(s => ({...s, shown: text.includes(s.from) && text.includes(s.to)})),
+      unmet: engine.unmet.map(id => ({id, shown: text.toLowerCase().includes(String(id).replace(/_/g, ' ').toLowerCase())})),
+      caution_shown: !!engine.plan.caution && text.includes(engine.plan.caution.slice(0, 40)),
+      caution: (engine.plan.caution || '').slice(0, 80)
+    };
+  });
+  await context.close();
+  verdict('X4', seen.swaps.some(s => !s.shown) || seen.unmet.some(u => !u.shown) || !seen.caution_shown, seen);
+};
+
+/* ---------------------------------------------------------------------------
+   Stage 3a regressions. Each drives the rendering helpers with one engine-shaped
+   input, because each concerns a case the staged fixture does not happen to contain.
+   --------------------------------------------------------------------------- */
+
+probes.X5 = async browser => {
+  /* An item the engine moved EARLIER is the same item in a different place. Calling that
+     a substitution claims a replacement that never happened. engine.js sets slot.timing
+     for the move and slot.kind='need' for a replacement; they are not the same event. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const plan = {kind: 'reviewed', manual: false};
+    const cases = {
+      reordered_reviewed: buildCategory(plan, {name: 'Fire Blossom', kind: 'baseline', label: 'Reviewed flexible slot', timing: true}),
+      reordered_core: buildCategory(plan, {name: 'Dynamo', kind: 'core', label: 'Reviewed core', timing: true}),
+      substituted: buildCategory(plan, {name: 'Tainted Charm', kind: 'need', label: 'Anti-heal'}),
+      untouched: buildCategory(plan, {name: 'Flux Matrix', kind: 'core', label: 'Reviewed core'}),
+      owned: buildCategory(plan, {name: 'Stonewall', kind: 'owned', label: 'Owned · kept'})
+    };
+    // and the two must stay distinguishable on screen, not only in the returned object
+    return {cases, timingText: cases.reordered_reviewed.text, substitutionText: cases.substituted.text};
+  });
+  await context.close();
+  const timing = seen.cases.reordered_reviewed, core = seen.cases.reordered_core;
+  const bad = /substitut/i.test(timing.text) || /substitut/i.test(core.text)          // a move called a replacement
+    || !/earlier|timing|moved/i.test(timing.text)                                      // or not identified as a move
+    || timing.text === seen.cases.untouched.text                                       // or indistinguishable from an untouched part
+    || !/substitut/i.test(seen.cases.substituted.text);                                // or a real replacement no longer named
+  verdict('X5', bad, seen);
+};
+
+probes.X6 = async browser => {
+  /* currentItemPool keeps the LARGEST observation across purchase positions and merges it
+     onto the item, so the sample shown beside slot 4 may have been recorded at position 3.
+     The screen must carry the observation's own position, cohort and date, and must say
+     when that position is not the slot it sits beside. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const now = Date.parse('2026-09-15T12:00:00Z');
+    const third = {name: 'Giant’s Ring', wr: 63.4, played: 412, slot: 'thirdTier3', source: 'Pred.gg',
+      label: 'Pred.gg 1.16.4 Gold+ Ranked jungle thirdTier3', fetched_at: '2026-09-15T09:00:00Z', supports_current_fit: true};
+    const same = {...third, slot: 'fourthTier3', label: 'Pred.gg 1.16.4 Gold+ Ranked jungle fourthTier3'};
+    const statz = {...third, slot: 'core', source: 'Statz', label: 'Exact core sequence in variant 1', supports_current_fit: false};
+    return {
+      mismatched: supportingSample(third, 4, now),
+      matched: supportingSample(same, 4, now),
+      sequence: supportingSample(statz, 4, now),
+      none: supportingSample(null, 4, now)
+    };
+  });
+  await context.close();
+  const strip = h => h.replace(/<[^>]*>/g, '');
+  const mismatched = strip(seen.mismatched), matched = strip(seen.matched), sequence = strip(seen.sequence);
+  const bad = !/win rate/i.test(mismatched)                                   // the number is not named as a win rate
+    || !/position 3/.test(mismatched) || !/not position 4/.test(mismatched)   // the real position is not stated
+    || !/Gold\+/.test(mismatched) || !/jungle/.test(mismatched)               // the cohort is dropped
+    || !/collected/i.test(mismatched)                                          // the collection date is dropped
+    || /not position/.test(matched)                                            // a matching position is wrongly flagged
+    || !/variant sequence/i.test(sequence);                                    // a sequence sample implies a position
+  verdict('X6', bad, {mismatched, matched, sequence, none: strip(seen.none)});
+};
+
+probes.X7 = async browser => {
+  /* A Statz observation is inspection-only by construction: currentItemPool takes that
+     path when Pred.gg item-position collection is unavailable, and marks every row
+     supports_current_fit false whatever its size or age. Explaining a fresh, large one as
+     "too small or too old" states a reason the engine never gave. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const now = Date.parse('2026-09-15T12:00:00Z');
+    const base = {name: 'Dynamo', wr: 55.2, source: 'Pred.gg', slot: 'firstTier3',
+      label: 'Pred.gg 1.16.4 Gold+ Ranked jungle firstTier3', supports_current_fit: false};
+    const freshLargeStatz = {...base, source: 'Statz', slot: 'core', label: 'Exact core sequence in variant 1',
+      played: 4821, fetched_at: '2026-09-15T11:30:00Z'};
+    return {
+      fresh_large_statz: supportingSample(freshLargeStatz, 1, now),
+      too_few_games: supportingSample({...base, played: 42, fetched_at: '2026-09-15T11:30:00Z'}, 1, now),
+      too_old: supportingSample({...base, played: 4000, fetched_at: '2026-09-10T11:30:00Z'}, 1, now),
+      future_dated: supportingSample({...base, played: 4000, fetched_at: '2026-09-20T11:30:00Z'}, 1, now),
+      supported: supportingSample({...base, played: 4000, fetched_at: '2026-09-15T11:30:00Z', supports_current_fit: true}, 1, now)
+    };
+  });
+  await context.close();
+  const strip = h => h.replace(/<[^>]*>/g, '');
+  const statz = strip(seen.fresh_large_statz), few = strip(seen.too_few_games);
+  const old = strip(seen.too_old), future = strip(seen.future_dated), ok = strip(seen.supported);
+  const bad = /too small|too old/i.test(statz + few + old + future)              // the blanket phrase survives anywhere
+    || !/inspection only/i.test(statz) || /minimum|hours ago/i.test(statz)        // a fresh large Statz row blamed on size or age
+    || !/Statz/.test(statz)
+    || !/100-game minimum/.test(few)                                              // the real reason for a small sample
+    || !/more than 30 hours/.test(old)                                            // the real reason for an old one
+    || !/in the future/.test(future)                                              // the real reason for a future-dated one
+    || /inspection only/i.test(ok);                                               // a supported sample wrongly withheld
+  verdict('X7', bad, {statz, few, old, future, ok});
+};
+
+
+/* ---------------------------------------------------------------------------
+   Y-series: 2.29 redesign, stage 3b (the hero experience).
+   --------------------------------------------------------------------------- */
+
+const openSteel = (page, tab) => page.evaluate(t => {
+  S.role = 'jungle'; openHero('steel', 'jungle'); S.heroTab = t; render();
+  document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+}, tab);
+
+probes.Y1 = async browser => {
+  /* The loadout is the rest of the build: augment, Eternal, both blessings, the crest and
+     its evolutions. Every part carries the same category and evidence treatment the six
+     items got in stage 3a - a part with no label is a part with no provenance. */
+  const {context, page} = await session(browser, desktop);
+  await openSteel(page, 'builds');
+  const seen = await page.evaluate(() => {
+    const a = adviceFor({slug: 'steel', role: 'jungle'});
+    const strip = document.querySelector('.loadout-strip');
+    const parts = strip ? [...strip.children].map(d => ({
+      label: d.querySelector('small')?.textContent.trim(),
+      text: d.innerText.replace(/\s+/g, ' ').trim().slice(0, 80),
+      tags: [...d.querySelectorAll('.tag')].map(t => t.textContent.trim()),
+      // an absence statement and the stated crest path are context, not parts
+      absent: d.classList.contains('loadout-absent') || d.classList.contains('loadout-context')
+    })) : [];
+    return {
+      parts, labels: parts.map(p => p.label),
+      // a div that states an ABSENCE is not a part, and carries no category by design
+      without_category: parts.filter(p => !p.tags.length && !p.absent).length,
+      engine: {augment: a.plan.augment, eternal: a.plan.eternal, blessings: a.plan.blessings,
+               crest: a.plan.crest, upgrades: a.summary && a.summary.crest ? (a.summary.crest.upgrades || []).map(u => u.name) : null},
+      evolution_text: /evolution|evolve|upgrade/i.test(strip ? strip.innerText : '')
+    };
+  });
+  await context.close();
+  const want = ['Augment', 'Eternal', 'Blessing 1', 'Blessing 2', 'Crest'];
+  const missing = want.filter(w => !seen.labels.includes(w));
+  // the crest's evolutions are named when the source has them, and their absence is stated
+  // when it does not; silently omitting them is the failure either way
+  const evolutionHandled = seen.engine.upgrades && seen.engine.upgrades.length
+    ? seen.parts.some(p => /evolv|final upgrade|crest path/i.test(p.label || ''))
+    : seen.parts.some(p => p.absent && /evolution|crest path/i.test(p.label || ''));
+  verdict('Y1', missing.length > 0 || seen.without_category > 0 || !evolutionHandled,
+    {...seen, missing, evolutionHandled});
+};
+
+probes.Y2 = async browser => {
+  /* A pairing is the engine's own record. Two of its fields have never reached the screen:
+     beats_both, and the Wilson interval. The interval belongs to the OBSERVED pair win rate
+     and is not an interval for the calculated lift, and beats_both is a comparison of point
+     estimates, not proven synergy. Both must say so where they are shown. */
+  const {context, page} = await session(browser, desktop);
+  await openSteel(page, 'pairings');
+  const seen = await page.evaluate(() => {
+    const got = E.partners('steel', {heroRole: 'jungle', min: 1});
+    const rows = (got && got.observed) || [];
+    const withPair = rows.filter(r => r.pair).slice(0, 3)
+      .map(r => ({slug: r.slug, wr: r.pair.wr, played: r.pair.played, lift: r.pair.lift,
+                  beats_both: r.pair.beats_both, interval95: r.pair.interval95}));
+    const text = document.querySelector('#main').innerText.replace(/\s+/g, ' ');
+    const first = withPair[0];
+    return {
+      pairs: withPair.length, first,
+      shows_interval: !!first && text.includes(first.interval95[0].toFixed(2)),
+      shows_beats_both: /beats both|beat both/i.test(text),
+      interval_tied_to_win_rate: /interval[^.]{0,90}(win rate|pair rate|pair win)|(win rate|pair)[^.]{0,90}interval/i.test(text),
+      interval_not_called_the_lift: !/interval (for|on|of) (the )?(lift|gap)/i.test(text),
+      says_point_estimate: /point estimate|not proven synergy|does not establish/i.test(text),
+      excerpt: text.slice(0, 200)
+    };
+  });
+  await context.close();
+  verdict('Y2', !seen.pairs || !seen.shows_interval || !seen.shows_beats_both
+    || !seen.interval_tied_to_win_rate || !seen.interval_not_called_the_lift || !seen.says_point_estimate, seen);
+};
+
+probes.Y4 = async browser => {
+  /* The sticky "Next purchase" summary must not sit on top of the build path it summarises.
+     Content that scrolls under permanent chrome is content the reader cannot have. */
+  const seen = {};
+  for (const [w, h, mob] of [[390, 844, true], [1440, 900, false]]) {
+    const {context, page} = await session(browser, {viewport: {width: w, height: h}, isMobile: mob, hasTouch: mob});
+    await page.evaluate(() => {
+      S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}];
+      S.enemies = [{slug: 'countess', role: 'midlane'}]; S.role = 'jungle';
+      changeRoute('live');
+    });
+    await page.waitForTimeout(300);
+    seen[w + 'x' + h] = await page.evaluate(async () => {
+      const next = document.querySelector('.coach-next'), path = document.querySelector('.coach-path');
+      if (!next || !path) return {missing: true};
+      const sticky = ['sticky', 'fixed'].includes(getComputedStyle(next).position);
+      const hidden = [];
+      for (const li of path.children) {
+        // 'start' is what the browser does for an anchor, a fragment link and a focused
+        // control. Centring an element hides the defect, because the summary sits at the top.
+        li.scrollIntoView({block: 'start'});
+        await new Promise(r => setTimeout(r, 40));
+        if (!['sticky', 'fixed'].includes(getComputedStyle(next).position)) continue;
+        const n = next.getBoundingClientRect(), r = li.getBoundingClientRect();
+        const overlap = Math.min(n.bottom, r.bottom) - Math.max(n.top, r.top);
+        const across = Math.min(n.right, r.right) - Math.max(n.left, r.left) > 2;
+        if (overlap > 4 && across) hidden.push({item: li.innerText.replace(/\s+/g, ' ').slice(0, 26), overlap: Math.round(overlap)});
+      }
+      return {sticky, hidden: hidden.length, examples: hidden.slice(0, 3)};
+    });
+    await context.close();
+  }
+  verdict('Y4', Object.values(seen).some(v => v.missing || v.hidden > 0), seen);
+};
+
+probes.Y5 = async browser => {
+  /* GUARD: the hero deep link keeps working for every section name, and an unknown one
+     degrades to a valid screen. Stage 3c will turn these tabs into sections; the LINKS
+     must survive that change, so they are pinned now. */
+  const seen = {};
+  for (const tab of ['builds', 'pairings', 'counters', 'kit', 'nonsense']) {
+    const {context, page} = await session(browser, desktop);
+    await page.evaluate(t => {
+      S.role = 'jungle'; openHero('steel', 'jungle');
+      S.heroTab = ['builds', 'pairings', 'counters', 'kit'].includes(t) ? t : S.heroTab;
+      render();
+    }, tab);
+    await page.waitForTimeout(150);
+    seen[tab] = await page.evaluate(() => ({
+      hero: S.hero, role: S.heroRole, tab: S.heroTab,
+      h1: document.querySelector('#main h1') ? document.querySelector('#main h1').textContent.trim().slice(0, 30) : null,
+      // a jump row marks the section being read with aria-current; aria-selected belonged to the tablist
+      selected: [...document.querySelectorAll('[data-hero-tab]')].filter(b => (b.getAttribute('aria-current') || b.getAttribute('aria-selected')) === 'true').map(b => b.dataset.heroTab)
+    }));
+    await context.close();
+  }
+  const ok = ['builds', 'pairings', 'counters', 'kit'].every(t => seen[t].tab === t && seen[t].hero === 'steel' && seen[t].selected.length === 1);
+  verdict('Y5', !ok || !seen.nonsense.h1, seen);
+};
+
+
+/* ---------------------------------------------------------------------------
+   Z-series: stage 3b corrections. Four defects found in review, each reproduced
+   with the helper code rather than with whatever the fixture happens to contain.
+   --------------------------------------------------------------------------- */
+
+probes.Z1 = async browser => {
+  /* The interval explanation tested only the lower bound, so an interval entirely BELOW the
+     baseline still read "It includes A's 55%". Below, overlapping, above and unavailable are
+     four different readings, and none of them is an interval for the calculated gap. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const base = {a: 'steel', b: 'mourn', base_a: 55, base_b: 48, played: 400, beats_both: false};
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return {
+      below: strip(pairCertaintyHTML({...base, wr: 42, interval95: [40, 45]})),
+      overlapping: strip(pairCertaintyHTML({...base, wr: 54, interval95: [50, 60]})),
+      above: strip(pairCertaintyHTML({...base, wr: 62, interval95: [58, 66]})),
+      unavailable: strip(pairCertaintyHTML({...base, wr: 54, interval95: null})),
+      touching_low: strip(pairCertaintyHTML({...base, wr: 50, interval95: [45, 55]})),
+      touching_high: strip(pairCertaintyHTML({...base, wr: 60, interval95: [55, 65]}))
+    };
+  });
+  await context.close();
+  const bad = !/entirely below/i.test(seen.below) || /includes/i.test(seen.below)
+    || !/includes/i.test(seen.overlapping) || /entirely/i.test(seen.overlapping)
+    || !/entirely above/i.test(seen.above) || /includes/i.test(seen.above)
+    || !/no interval is available/i.test(seen.unavailable)
+    // a bound that touches the baseline is an overlap, not a clean separation
+    || !/includes/i.test(seen.touching_low) || !/includes/i.test(seen.touching_high)
+    // and every reading keeps the two kinds of uncertainty apart
+    || !['below', 'overlapping', 'above', 'unavailable'].every(k => /describes the observed pair win rate/i.test(seen[k]) && /not an interval for the calculated gap/i.test(seen[k]));
+  verdict('Z1', bad, seen);
+};
+
+probes.Z2 = async browser => {
+  /* plannedBuildHTML is drawn by Builds and by Live, and read S.hero. Two cards for two
+     different heroes, rendered while S.hero points at a third, must each show their own
+     evidence - or none, but never each other's. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const pick = (slug, role) => {
+      const plan = E.plannedBuild(slug, role, {});
+      const stats = B?.heroes?.[slug]?.roles?.[role];
+      return {slug, role, plan, stats, ev: loadoutEvidence(plan, stats, stats?.fetched_at)};
+    };
+    S.hero = 'steel'; S.heroRole = 'jungle';            // deliberately a third hero
+    const a = pick('countess', 'midlane'), b = pick('murdock', 'carry');
+    const varIndex = x => x.ev.variant ? x.ev.variant.index : null;
+    const evidenceOf = x => x.ev.variant ? {perk: x.ev.variant.build.perk, eternal: x.ev.variant.build.eternal} : null;
+    return {
+      pointed_at: {hero: S.hero, role: S.heroRole},
+      a: {slug: a.slug, augment: a.plan.augment, eternal: a.plan.eternal, variant: varIndex(a), evidence: evidenceOf(a)},
+      b: {slug: b.slug, augment: b.plan.augment, eternal: b.plan.eternal, variant: varIndex(b), evidence: evidenceOf(b)},
+      // the helper must never be able to reach S
+      reads_state: /\bS\s*\.\s*(hero|heroRole)\b/.test(String(loadoutEvidence)) || /\bS\s*\.\s*(hero|heroRole)\b/.test(String(matchingVariant))
+    };
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; }
+  });
+  await context.close();
+  const wrong = x => x.evidence && (nkCmp(x.evidence.perk, x.augment) === false || nkCmp(x.evidence.eternal, x.eternal) === false);
+  function nkCmp(l, r) { const n = v => String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); return n(l) === n(r); }
+  verdict('Z2', !!seen.unsupported || seen.reads_state || wrong(seen.a) || wrong(seen.b), seen);
+};
+
+probes.Z3 = async browser => {
+  /* The cache was keyed on hero, role and bracket, so a refreshed publication for the same
+     hero was served the old evidence without the engine being called again. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const role = 'midlane', slug = 'countess';
+    const readOnce = () => {
+      const plan = E.plannedBuild(slug, role, {});
+      const stats = B?.heroes?.[slug]?.roles?.[role];
+      const ev = loadoutEvidence(plan, stats, stats?.fetched_at);
+      return {variant: ev.variant ? ev.variant.index : null,
+              augmentWr: ev.parts.Augment ? ev.parts.Augment.wr : null,
+              fetched: ev.fetched_at};
+    };
+    const before = readOnce();
+    // a refreshed publication for the SAME hero, role and bracket
+    const saved = B;
+    let after;
+    try {
+      const next = JSON.parse(JSON.stringify(B));
+      const st = next.heroes[slug].roles[role];
+      (st.builds || []).forEach(v => { v.winRate = (v.winRate || 0) + 7; });
+      st.fetched_at = new Date(Date.parse(st.fetched_at || Date.now()) + 3600000).toISOString();
+      B = next; E = MetaEngine.create(B);
+      after = readOnce();
+    } finally { B = saved; E = MetaEngine.create(B); }
+    return {before, after, holds_module_state: /loadoutCache|var\s+\w*[Cc]ache/.test(String(loadoutEvidence))};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; }
+  });
+  await context.close();
+  const changed = !seen.unsupported && seen.before.augmentWr != null && seen.after.augmentWr != null
+    && Math.abs(seen.after.augmentWr - seen.before.augmentWr - 7) < 0.001;
+  verdict('Z3', !!seen.unsupported || seen.holds_module_state || !changed || seen.before.fetched === seen.after.fetched, seen);
+};
+
+probes.Z4 = async browser => {
+  /* currentItemPool holds ITEM observations, so an augment, an Eternal and a blessing looked
+     up there report "no observation" even where the source variant holds one. And
+     buildSummary picks its own variant, whose crest need not be the recommended crest:
+     Countess's plan blessings are Tithe of Death and Mind Rot while the summary reports Lich
+     and Millennia, and Murdock's recommended Liberator is an UPGRADE of Marksman Crest. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const look = (slug, role) => {
+      const plan = E.plannedBuild(slug, role, {});
+      const stats = B?.heroes?.[slug]?.roles?.[role];
+      const ev = loadoutEvidence(plan, stats, stats?.fetched_at);
+      const summary = (() => { try { return E.buildSummary(slug, role); } catch (e) { return null; } })();
+      return {
+        slug, plan: {augment: plan.augment, eternal: plan.eternal, blessings: plan.blessings, crest: plan.crest},
+        variant: ev.variant ? {index: ev.variant.index, perk: ev.variant.build.perk, eternal: ev.variant.build.eternal} : null,
+        parts: Object.keys(ev.parts),
+        blessing1: strip(loadoutSampleHTML(ev, 'Blessing 1')),
+        crestHTML: strip(crestEvolutionHTML(ev, plan.crest)),
+        summaryBlessings: summary && summary.blessings ? summary.blessings.map(x => x && x.name) : null,
+        summaryCrest: summary && summary.crest ? summary.crest.name : null,
+        matchedCrest: ev.crest ? (ev.crest.family ? (ev.crest.family.display_name || ev.crest.family.name) : (ev.crest.display_name || ev.crest.name)) : null
+      };
+    };
+    return {countess: look('countess', 'midlane'), murdock: look('murdock', 'carry'), steel: look('steel', 'jungle')};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; }
+  });
+  await context.close();
+  const c = seen.countess || {}, m = seen.murdock || {}, s = seen.steel || {};
+  const bad =
+    // a blessing the source variant holds must not be reported as missing
+    (c.variant && c.plan.blessings && c.plan.blessings[0] && !/win rate/i.test(c.blessing1))
+    // and must never be answered with a different blessing's sample
+    || (c.summaryBlessings && c.plan.blessings && c.summaryBlessings[0]
+        && c.summaryBlessings[0] !== c.plan.blessings[0] && !/this blessing/i.test(c.blessing1) && /win rate/i.test(c.blessing1) === false)
+    // the recommended crest may be an UPGRADE of the source base crest; that still matches
+    || (m.variant && !m.matchedCrest)
+    // a hero with no source variant says so rather than showing another variant's rows
+    || (!s.variant && !/no source variant matches/i.test(s.crestHTML))
+    // an unmatched crest is named as a different crest, not silently shown
+    || (c.variant && !c.matchedCrest && !/different crest/i.test(c.crestHTML));
+  verdict('Z4', !!seen.unsupported || bad, seen);
+};
+
+
+probes.Z5 = async browser => {
+  /* Finding a crest's FAMILY is not finding its SAMPLE. With a recommended Liberator, the
+     parent's 50% over 1,000 games was shown as "this crest", and the evolution list repeated
+     Liberator and its sibling under "Crest evolves" as if the final upgrade evolved again.
+     The parent and upgrade rates below are deliberately different so borrowing is visible. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const family = {display_name: 'Marksman Crest', winRate: 50, playedGames: 1000, midCrest: 'Sharpshooter Crest',
+      upgrades: [{display_name: 'Liberator', winRate: 60, playedGames: 100},
+                 {display_name: 'Pacifier', winRate: 55, playedGames: 200},
+                 {display_name: 'Bare Upgrade', winRate: null, playedGames: null}]};
+    const build = {perk: 'Fixture Perk', eternal: 'Fixture Eternal', winRate: 48, playedGames: 5000,
+      common_perks_1: [], common_perks_2: [], best_base_crests: [family]};
+    const stats = {builds: [build], fetched_at: '2026-09-15T09:00:00Z'};
+    const run = crest => {
+      const plan = {augment: 'Fixture Perk', eternal: 'Fixture Eternal', blessings: [], crest};
+      const ev = loadoutEvidence(plan, stats, stats.fetched_at);
+      return {sample: strip(loadoutSampleHTML(ev, 'Crest')), path: strip(crestEvolutionHTML(ev, crest)),
+              evolvesLabels: (crestEvolutionHTML(ev, crest).match(/<small>(Evolves into|Crest evolves)<\/small>[\s\S]*?(?=<\/div>)/g) || []).map(strip)};
+    };
+    return {upgrade: run('Liberator'), mid: run('Sharpshooter Crest'), base: run('Marksman Crest'), bare: run('Bare Upgrade')};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; } });
+  await context.close();
+  if (seen.unsupported) { verdict('Z5', true, seen); return; }
+  const u = seen.upgrade, m = seen.mid, b = seen.base, x = seen.bare;
+  const problems = [];
+  // a recommended upgrade shows ITS OWN sample, never the parent's
+  if (!/60\.0%/.test(u.sample) || !/100 games/.test(u.sample)) problems.push('upgrade does not show its own 60% over 100');
+  if (/50\.0%/.test(u.sample) || /1,000/.test(u.sample)) problems.push("upgrade shows the parent's 50% over 1,000");
+  // a mid form with no row says so and borrows nothing
+  if (/50\.0%|1,000/.test(m.sample)) problems.push("mid form borrows the parent's sample");
+  if (!/no separate sample/i.test(m.sample)) problems.push('mid form does not say it has no sample');
+  // a base recommendation is its own figure
+  if (!/50\.0%/.test(b.sample) || !/1,000/.test(b.sample)) problems.push('base crest does not show its own sample');
+  // an upgrade whose row has no figures says so rather than borrowing
+  if (/50\.0%|1,000/.test(x.sample) || !/no sample of its own/i.test(x.sample)) problems.push('an upgrade with no figures borrows or says nothing');
+  // the path is explicit, and a FINAL upgrade does not evolve again
+  if (!/Marksman Crest/.test(u.path) || !/Sharpshooter Crest/.test(u.path) || !/Liberator \(recommended, final\)/.test(u.path)) problems.push('path not stated for an upgrade');
+  if (u.evolvesLabels.length) problems.push('a final upgrade is shown as evolving again');
+  if (!/Pacifier/.test(u.path) || !/alternative to Liberator, not a further step/i.test(u.path)) problems.push('sibling not presented as an alternative');
+  // a base recommendation does evolve, into the final upgrades, each with its own figure
+  if (!b.evolvesLabels.some(t => /Liberator/.test(t) && /60\.0%/.test(t))) problems.push('base does not list Liberator with its own rate as a next step');
+  verdict('Z5', problems.length > 0, {problems, ...seen});
+};
+
+
+/* ---------------------------------------------------------------------------
+   S-series: 2.29 redesign, stage 3c (the hero screen as sections).
+
+   The four tabs that hid each other become four sections on one page, reached by a
+   jump row. Nothing is removed: the long tail of partners moves into a disclosure,
+   and the evidence tables become searchable.
+   --------------------------------------------------------------------------- */
+
+const HERO_SECTIONS = ['builds', 'pairings', 'counters', 'kit'];
+const sectionState = () => {
+  const boundary = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+  const bottomed = Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 2;
+  const btns = [...document.querySelectorAll('#main [data-hero-tab]')];
+  return {boundary: Math.round(boundary), bottomed,
+    current: btns.filter(b => b.getAttribute('aria-current') === 'true').map(b => b.dataset.heroTab),
+    tops: Object.fromEntries([...document.querySelectorAll('#main section.hero-section')].map(s => [s.dataset.heroSection, Math.round(s.getBoundingClientRect().top)]))};
+};
+const frames = n => new Promise(r => { const f = k => k ? requestAnimationFrame(() => f(k - 1)) : r(); f(n); });
+
+probes.S1 = async browser => {
+  /* All four sections are on the page at once, in order, none hidden, and each carries
+     its OWN source line - section-scoped freshness must survive the merge. */
+  const seen = {};
+  for (const [label, opts] of [['desktop', desktop], ['phone', phone]]) {
+    const {context, page} = await session(browser, opts);
+    seen[label] = await page.evaluate(() => {
+      S.role = 'jungle'; openHero('steel', 'jungle'); render();
+      return {
+        sections: [...document.querySelectorAll('#main section.hero-section')].map(s => ({
+          id: s.id, t: s.dataset.heroSection,
+          hidden: s.hidden || getComputedStyle(s).display === 'none',
+          source: !!s.querySelector('.source-line')
+        })),
+        h1: document.querySelectorAll('#main h1').length
+      };
+    });
+    await context.close();
+  }
+  const bad = Object.values(seen).some(v => v.h1 !== 1
+    || JSON.stringify(v.sections.map(s => s.t)) !== JSON.stringify(HERO_SECTIONS)
+    || v.sections.some(s => s.hidden || !s.source || s.id !== 'hero-sec-' + s.t));
+  verdict('S1', bad, seen);
+};
+
+probes.S2 = async browser => {
+  /* The jump row is navigation, not a tablist - tabs claim panels that hide, and nothing
+     hides now. Exactly one control is current. A click brings its section to the top,
+     clear of the sticky chrome, and focus stays on the control that was pressed. */
+  const seen = {};
+  for (const [label, opts] of [['desktop', desktop], ['phone', phone]]) {
+    const {context, page} = await session(browser, opts);
+    await page.evaluate(() => { S.role = 'midlane'; openHero('countess', 'midlane'); render(); });
+    const row = await page.evaluate(() => ({
+      tablist: !!document.querySelector('#main [role="tablist"] [data-hero-tab], #main [data-hero-tab][role="tab"]'),
+      nav: !!document.querySelector('#main nav [data-hero-tab]'),
+      small: [...document.querySelectorAll('#main [data-hero-tab]')].filter(b => b.getBoundingClientRect().height < 43.5).length
+    }));
+    const clicks = {};
+    for (const t of HERO_SECTIONS) {
+      await page.locator('#main [data-hero-tab="' + t + '"]').click();
+      await page.waitForTimeout(450);
+      clicks[t] = await page.evaluate(([tab, src]) => ({
+        ...(new Function('return (' + src + ')'))()(),
+        focused: document.activeElement?.dataset?.heroTab || null, tab: S.heroTab
+      }), [t, sectionState.toString()]);
+    }
+    seen[label] = {row, clicks};
+    await context.close();
+  }
+  const landed = c => (x => x.bottomed || (x.tops[x.tab] >= x.boundary - 6 && x.tops[x.tab] <= x.boundary + 48))(c);
+  const bad = Object.values(seen).some(v => v.row.tablist || !v.row.nav || v.row.small > 0
+    || HERO_SECTIONS.some(t => { const c = v.clicks[t]; return c.tab !== t || c.focused !== t || c.current.length !== 1 || c.current[0] !== t || !landed(c); }));
+  verdict('S2', bad, seen);
+};
+
+probes.S3 = async browser => {
+  /* A shared link names a section. It must open with that section at the top, marked
+     current, for every name the live app has ever issued. */
+  const seen = {};
+  for (const t of HERO_SECTIONS) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(tab => {
+      location.hash = '#hero=countess&role=midlane&bracket=' + S.bracket + '&tab=' + tab;
+      linkApplied = ''; applyCompanionLink(); render();
+    }, t);
+    await page.waitForTimeout(500);
+    seen[t] = await page.evaluate(([tab, src]) => ({
+      ...(new Function('return (' + src + ')'))()(), tab: S.heroTab, hero: S.hero
+    }), [t, sectionState.toString()]);
+    await context.close();
+  }
+  const bad = HERO_SECTIONS.some(t => { const c = seen[t];
+    return c.hero !== 'countess' || c.tab !== t || c.current.length !== 1 || c.current[0] !== t
+      || !(c.bottomed || (c.tops[t] >= c.boundary - 6 && c.tops[t] <= c.boundary + 48)); });
+  verdict('S3', bad, seen);
+};
+
+probes.S4 = async browser => {
+  /* Joining four tabs must not make the page longer than the worst tab was: Partners alone
+     ran to 23,000px on a phone. The leading partners stay in view; the rest move into a
+     closed disclosure that says how many it holds, and not one card is lost. */
+  const seen = {};
+  for (const [label, opts] of [['desktop', desktop], ['phone', phone]]) {
+    const {context, page} = await session(browser, opts);
+    seen[label] = await page.evaluate(async () => {
+      const out = {};
+      for (const [slug, role] of [['steel', 'jungle'], ['countess', 'midlane'], ['murdock', 'carry']]) {
+        S.role = role; S.explore = false; S.pairMetric = 'kit'; openHero(slug, role); render();
+        await new Promise(r => requestAnimationFrame(() => r()));
+        const sec = document.querySelector('#hero-sec-pairings');
+        const partners = E.partners(slug, {min: 100, role: '', heroRole: role, metric: 'kit'});
+        const ordered = partners.combined || [];
+        const all = sec ? sec.querySelectorAll('article.partner').length : 0;
+        const outside = sec ? [...sec.querySelectorAll('article.partner')].filter(a => !a.closest('details')).length : 0;
+        const tail = sec ? sec.querySelector('details.partner-tail') : null;
+        out[slug] = {height: Math.round(document.documentElement.scrollHeight), ordered: ordered.length, all, outside,
+          tail: tail ? {open: tail.open, summary: tail.querySelector('summary').textContent.trim(), inside: tail.querySelectorAll('article.partner').length} : null};
+      }
+      return out;
+    });
+    await context.close();
+  }
+  const budget = {desktop: 16000, phone: 23000};
+  const bad = Object.entries(seen).some(([label, heroes]) => Object.values(heroes).some(h =>
+    h.height > budget[label]
+    || h.all < h.ordered                                               // a card went missing
+    || h.outside > 3                                                   // the tail is not tucked away
+    || (h.ordered > 3 && (!h.tail || h.tail.open || !h.tail.summary.includes(String(h.tail.inside)) || h.tail.inside < h.ordered - 3))));
+  verdict('S4', bad, {budget, ...seen});
+};
+
+probes.S5 = async browser => {
+  /* The evidence tables are complete AND searchable: a search narrows the rows, says how
+     many of how many are shown, opens the disclosure a match sits in, and clearing it
+     restores every row. Nothing is summarised away. A table the search leaves empty is set
+     aside rather than left as a bare header row, and comes back when the search is cleared. */
+  const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => { S.role = 'midlane'; openHero('countess', 'midlane'); render(); });
+  // late evidence redraws the section; count rows only once it has settled
+  await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+  await page.waitForTimeout(300);
+  const seen = await page.evaluate(async () => {
+    const out = {};
+    const rowSel = 'table.table-small tbody tr, .choice';     // every evidence row the product counts
+    for (const section of ['counters', 'builds']) {
+      const root = document.getElementById('hero-sec-' + section);
+      const box = root && root.querySelector('[data-evidence-search="' + section + '"]');
+      const rows = root ? [...root.querySelectorAll(rowSel)] : [];
+      if (!box || !rows.length) { out[section] = {box: !!box, rows: rows.length}; continue; }
+      const probe = rows[rows.length - 1].textContent.trim().split(/\s+/)[0].slice(0, 5);
+      box.focus(); box.value = probe; box.dispatchEvent(new Event('input', {bubbles: true}));
+      await new Promise(r => setTimeout(r, 60));
+      const r2 = document.getElementById('hero-sec-' + section);
+      const all = [...r2.querySelectorAll(rowSel)];
+      const visible = all.filter(r => r.getClientRects().length > 0);
+      const count = (r2.querySelector('[data-evidence-count="' + section + '"]') || {}).textContent || '';
+      const matchesOnly = visible.every(r => r.textContent.toLowerCase().includes(probe.toLowerCase()));
+      const tables = () => [...document.getElementById('hero-sec-' + section).querySelectorAll('table.table-small')]
+        .filter(t => t.querySelector('tbody tr'));
+      const bare = tables().filter(t => t.offsetParent !== null && [...t.querySelectorAll('tbody tr')].every(r => r.hidden)).length;
+      const box2 = r2.querySelector('[data-evidence-search="' + section + '"]');
+      box2.value = ''; box2.dispatchEvent(new Event('input', {bubbles: true}));
+      await new Promise(r => setTimeout(r, 60));
+      const restored = [...document.getElementById('hero-sec-' + section).querySelectorAll(rowSel)].filter(r => !r.hidden).length;
+      const tablesBack = tables().every(t => !t.hidden && t.offsetParent !== null);
+      out[section] = {box: true, rows: all.length, probe, visible: visible.length, count, matchesOnly, restored, bare, tablesBack,
+                      focusKept: document.activeElement === box2 || document.activeElement?.dataset?.evidenceSearch === section};
+    }
+    return out;
+  });
+  await context.close();
+  const bad = ['counters', 'builds'].some(k => { const s = seen[k];
+    return !s || !s.box || !s.rows || !s.matchesOnly || s.visible < 1 || !s.focusKept || s.bare > 0 || !s.tablesBack
+      || !new RegExp('Showing ' + s.visible + ' of ' + s.rows).test(s.count) || s.restored !== s.rows; });
+  verdict('S5', bad, seen);
+};
+
+probes.S6 = async browser => {
+  /* GUARD: drawing four sections at once stays cheap. Every hero redraw now builds all of
+     them, so a regression here is felt on every keystroke of every search. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const out = {};
+    for (const [slug, role] of [['steel', 'jungle'], ['countess', 'midlane'], ['murdock', 'carry']]) {
+      S.role = role; openHero(slug, role); render();
+      const t0 = performance.now(); for (let i = 0; i < 5; i++) render();
+      out[slug] = Math.round((performance.now() - t0) / 5 * 10) / 10;
+    }
+    return out;
+  });
+  await context.close();
+  verdict('S6', Object.values(seen).some(ms => ms > 80), {budget_ms: 80, ...seen});
+};
+
+probes.S7 = async browser => {
+  /* Retained or stale Pred.gg evidence is labelled wherever it appears. The Kit section read
+     "Pred.gg - cached <date>" with no Saved label while Pred.gg was retained, because its
+     source line was drawn without {statistics:true}. Pre-existing: V3 never opened Kit. */
+  const SAVED = /Saved (January|February|March|April|May|June|July|August|September|October|November|December) \d/;
+  const kitLines = page => page.evaluate(src => {
+    const saved = new RegExp(src), root = document.querySelector('#hero-sec-kit') || document.querySelector('#main');
+    const lines = [...root.querySelectorAll('.source-line')].filter(l => l.querySelector('a[href*="pred.gg"]'));
+    return {n: lines.length, saved: lines.filter(l => saved.test(l.textContent)).length,
+            retainedText: lines.filter(l => /retained from an earlier collection/.test(l.textContent)).length,
+            sample: lines[0] ? lines[0].textContent.replace(/\s+/g, ' ').trim().slice(0, 90) : null};
+  }, SAVED.source);
+  const seen = {};
+  {
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'kit'; render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    seen.current = await kitLines(page);
+    await page.evaluate(() => {
+      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
+      if (B.pred_game_data) B.pred_game_data.status = 'retained';
+      E = MetaEngine.create(B); S.heroTab = 'kit'; render();
+    });
+    seen.retained = await kitLines(page);
+    await context.close();
+  }
+  {
+    const {context, page} = await clockSession(browser, desktop, 49 * 3600000);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'kit'; render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    seen.stale = await kitLines(page);
+    await context.close();
+  }
+  const every = c => c.n > 0 && c.saved === c.n;
+  verdict('S7', seen.current.saved > 0 || !every(seen.retained) || seen.retained.retainedText !== seen.retained.n || !every(seen.stale), seen);
+};
+
+/* Search must affect what the browser actually paints, not just an attribute the test
+   also reads. These cases exercise real source rows and keep the engine untouched. */
+probes.S8 = async browser => {
+  const seen = [];
+  for (const viewport of [desktop, phone]) {
+    const {context, page} = await session(browser, viewport);
+    await page.evaluate(() => { openHero('countess', 'midlane'); render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'));
+    const detail = await page.evaluate(() => {
+      const root = document.getElementById('hero-sec-builds');
+      root.querySelectorAll('details').forEach(d => { d.open = true; });
+      const box = root.querySelector('[data-evidence-search]');
+      box.value = '__no_source_choice_matches__';
+      box.dispatchEvent(new Event('input', {bubbles:true}));
+      const choices = [...root.querySelectorAll('.choice')];
+      return {choices:choices.length, painted:choices.filter(r => r.getClientRects().length > 0).length,
+        focusable:choices.filter(r => getComputedStyle(r).display !== 'none').length};
+    });
+    seen.push(detail); await context.close();
+  }
+  verdict('S8', seen.some(x => !x.choices || x.painted || x.focusable), seen);
+};
+probes.S9 = async browser => {
+  const {context, page} = await session(browser, phone);
+  await page.evaluate(() => { openHero('countess','midlane'); render(); });
+  await page.waitForFunction(() => !document.querySelector('#main .annex-loading'));
+  const seen = await page.evaluate(() => {
+    const root = document.getElementById('hero-sec-counters');
+    const details = [...root.querySelectorAll('details')];
+    details.forEach(d => { d.open = false; });
+    const row = [...root.querySelectorAll('tbody tr')].find(r => r.closest('details'));
+    if (!row) return {fixture:false};
+    const box = root.querySelector('[data-evidence-search]');
+    const type = value => { box.value = value; box.dispatchEvent(new Event('input',{bubbles:true})); };
+    type(row.querySelector('td').textContent.trim());
+    const opened = details.some(d => d.open);
+    render(); // An evidence redraw during the search must not replace the saved state.
+    const again = document.querySelector('#hero-sec-counters [data-evidence-search]');
+    again.value = ''; again.dispatchEvent(new Event('input',{bubbles:true}));
+    return {fixture:true, opened, leftOpen:[...document.querySelectorAll('#hero-sec-counters details')].filter(d => d.open).length,
+      hiddenRows:document.querySelectorAll('#hero-sec-counters tr[hidden]').length};
+  });
+  await context.close();
+  verdict('S9', !seen.fixture || !seen.opened || seen.leftOpen > 0 || seen.hiddenRows > 0, seen);
+};
+probes.S10 = async browser => {
+  const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => { openHero('countess','midlane'); render(); });
+  await page.waitForFunction(() => !document.querySelector('#main .annex-loading'));
+  const seen = await page.evaluate(() => {
+    const box = () => document.querySelector('#hero-sec-builds [data-evidence-search]');
+    const type = () => { box().value = 'test query'; box().dispatchEvent(new Event('input',{bubbles:true})); };
+    type(); render(); const survivesRedraw = box().value === 'test query';
+    openHero('steel','offlane'); render(); const newHero = box().value;
+    type(); S.heroRole = 'jungle'; render(); const newRole = box().value;
+    return {survivesRedraw,newHero,newRole};
+  });
+  await context.close();
+  verdict('S10', !seen.survivesRedraw || !!seen.newHero || !!seen.newRole, seen);
+};
+
+// Stage 2b: destinations are presentation; legacy screen identities and saved picks survive.
+probes.N1 = async browser => {
+  const seen=[];
+  for(const viewport of [desktop,phone]){
+    const {context,page}=await session(browser,viewport);
+    for(const [route,destination] of [['meta','meta'],['builds','reference'],['planner','plan'],['draft','plan'],['live','plan'],['library','reference'],['guidance','reference'],['changes','reference'],['data','sources'],['more','sources'],['hero','meta']]){
+      await page.evaluate(route=>{if(route==='hero')openHero('steel','jungle');else changeRoute(route);},route);
+      seen.push(await page.evaluate(({route,destination})=>{
+        const nav=document.querySelector(innerWidth<=700?'#mobile-navigation':'#navigation');
+        return {route,destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
+      },{route,destination}));
+    }
+    await context.close();
+  }
+  verdict('N1',seen.some(s=>s.labels.join('|')!=='Meta|Plan|Reference|Sources'||s.current.length!==1||s.current[0]!==s.destination||s.headings!==1||s.overflow),seen);
+};
+probes.N2 = async browser => {
+  const {context,page}=await session(browser,phone),seen=[];
+  for(const [hash,route] of [['view=meta','meta'],['view=builds','builds'],['view=planner','planner'],['view=draft','draft'],['view=live','live'],['view=library','library'],['view=guidance','guidance'],['view=changes','changes'],['view=data','data'],['view=plan&stage=draft&bracket=gold','draft'],['view=reference&section=items&bracket=gold','library'],['view=sources&bracket=gold','data']]){
+    await page.goto(url+'#'+hash);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+    seen.push({hash,wanted:route,actual:await page.evaluate(()=>S.route)});
+  }
+  await context.close();verdict('N2',seen.some(s=>s.actual!==s.wanted),seen);
+};
+probes.N3 = async browser => {
+  const {context,page}=await session(browser,phone);
+  await page.evaluate(()=>{S.role='midlane';save();changeRoute('meta');});
+  await page.evaluate(()=>scrollTo(0,350));await page.waitForTimeout(120);
+  const before=await page.evaluate(()=>({y:scrollY,role:S.role,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
+  await page.evaluate(()=>openHero('countess','midlane'));await page.waitForTimeout(200);
+  await page.goBack();await page.waitForTimeout(350);
+  const back=await page.evaluate(()=>({route:S.route,y:scrollY,role:S.role,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
+  await page.goForward();await page.waitForTimeout(350);
+  const forward=await page.evaluate(()=>({route:S.route,hero:S.hero,role:S.heroRole}));
+  await context.close();verdict('N3',back.route!=='meta'||back.role!==before.role||Math.abs(back.y-before.y)>3||back.picks!==before.picks||forward.route!=='hero'||forward.hero!=='countess',{before,back,forward});
+};
+probes.N4 = async browser => {
+  const {context,page}=await session(browser,phone);
+  await reset(page);await page.evaluate(()=>{S.enemies=[{slug:'gideon',role:'midlane'}];S.bans=['muriel'];save();changeRoute('planner');});
+  const picks=await page.evaluate(()=>JSON.stringify([S.locks,S.enemies,S.bans]));
+  const controls=await page.locator('[data-plan-stage]').count();
+  if(controls!==3){await context.close();verdict('N4',true,{controls});return;}
+  await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
+  await page.goBack();await page.waitForTimeout(250);const back=await page.evaluate(()=>S.route);
+  await page.goForward();await page.waitForTimeout(250);const forward=await page.evaluate(()=>S.route);
+  await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+  const after=await page.evaluate(()=>({route:S.route,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
+  await context.close();verdict('N4',back!=='draft'||forward!=='live'||after.route!=='live'||after.picks!==picks,{back,forward,after});
+};
+probes.N6 = async browser => {
+  const {context,page}=await session(browser,desktop);
+  const seen=await page.evaluate(()=>{
+    const priorLocal=local,priorRequest=requestLinkedBracket,priorBand=S.bracket;
+    let requested=null;
+    try{
+      local=true;S.bracket='bronze';linkApplied='';
+      history.replaceState(null,'','#view=plan&stage=draft&bracket=gold');
+      requestLinkedBracket=band=>{requested=band;};
+      applyCompanionLink();
+      return {loaded:B.bracket.segment,selected:S.bracket,route:S.route,requested};
+    }finally{local=priorLocal;requestLinkedBracket=priorRequest;S.bracket=priorBand;}
+  });
+  await context.close();verdict('N6',seen.loaded!=='gold'||seen.selected!=='gold'||seen.route!=='draft'||seen.requested!==null,seen);
+};
+probes.N5 = async browser => {
+  const seen=[];
+  for(const [hash,route,role] of [['view=meta&role=support&bracket=gold','meta','support'],['view=plan&stage=live&bracket=gold','live'],['view=reference&section=playbook&bracket=gold','builds'],['view=reference&section=guidance&bracket=gold','guidance'],['view=reference&section=changes&bracket=gold','changes'],['view=sources&bracket=gold','data']]){
+    const context=await browser.newContext({serviceWorkers:'block',...phone}),page=await context.newPage();
+    await page.goto(url+'#'+hash);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+    seen.push({hash,route,role,actual:await page.evaluate(()=>({route:S.route,role:S.role,band:B.bracket.segment}))});await context.close();
+  }
+  verdict('N5',seen.some(s=>s.actual.route!==s.route||(s.role&&s.actual.role!==s.role)||s.actual.band!=='gold'),seen);
+};
+
+probes.PL1 = async browser => {
+ const {context,page}=await session(browser,phone),seen=[];
+ await reset(page,3,{me:'steel',enemies:[{slug:'gideon',role:'midlane'}],bans:['muriel']});
+ for(const route of ['planner','draft','live']){
+  await page.evaluate(route=>changeRoute(route),route);
+  seen.push(await page.evaluate(()=>{const e=document.querySelector('.plan-roster');return {route:S.route,count:document.querySelectorAll('.plan-roster').length,text:e?.textContent,edit:!!e?.querySelector('[data-edit-roster]'),width:e?.getBoundingClientRect().width,overflow:document.documentElement.scrollWidth>innerWidth+1};}));
+ }
+ await context.close();verdict('PL1',seen.some(s=>s.count!==1||!s.edit||!/Steel/.test(s.text)||!/Gideon/.test(s.text)||!/Muriel/.test(s.text)||s.overflow),seen);
+};
+probes.PL2 = async browser => {
+ const {context,page}=await session(browser,phone);
+ await reset(page,3,{me:'steel'});await page.evaluate(()=>changeRoute('planner'));
+ if(!await page.locator('[data-edit-roster]').count()){await context.close();verdict('PL2',true,{missingEditor:true});return;}
+ await page.locator('[data-edit-roster]').click();
+ await page.locator('#detail [data-plan-side="allies"][data-plan-role="midlane"]').selectOption('gideon');
+ const focus=await page.evaluate(()=>document.activeElement?.dataset.planRole);
+ await page.locator('#detail [data-plan-ban]').selectOption('muriel');
+ await page.keyboard.press('Escape');
+ await page.waitForFunction(()=>!document.querySelector('#detail').open&&document.activeElement?.hasAttribute('data-edit-roster'),null,{timeout:3000});
+ const returned=await page.evaluate(()=>document.activeElement?.hasAttribute('data-edit-roster'));
+ await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
+ await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+ const after=await page.evaluate(()=>({route:S.route,locks:S.locks,bans:S.bans,me:S.me}));
+ await context.close();verdict('PL2',focus!=='midlane'||!returned||after.route!=='live'||after.me!=='steel'||!after.bans.includes('muriel')||!after.locks.some(p=>p.slug==='gideon'&&p.role==='midlane'),{focus,returned,after});
+};
+probes.PL3 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  Object.assign(S,{locks:[{slug:'steel',role:'jungle'}],enemies:[],bans:[],me:'steel'});save();changeRoute('planner');
+  const before=JSON.stringify(S.locks),replacement=Object.keys(E.heroes).find(s=>s!=='steel'&&E.roles(s).includes('jungle'));
+  setPick('allies','jungle',replacement);const protectedMe=JSON.stringify(S.locks)===before;
+  S.locks=[{slug:'steel',role:'jungle'}];const bad=Object.keys(E.heroes).find(s=>!E.roles(s).includes('carry'));
+  setPick('allies','carry',bad);const unsupported=JSON.stringify(S.locks)===before;
+  S.locks=[{slug:'steel',role:'jungle'}];setPick('enemies','midlane','steel');
+  return {protectedMe,unsupported,duplicate:S.enemies.length===0};
+ });
+ await context.close();verdict('PL3',!seen.protectedMe||!seen.unsupported||!seen.duplicate,seen);
+};
+probes.PL4 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  changeRoute('planner');rosterExpanded=true;const d=document.querySelector('[data-roster-picks]');d.open=true;
+  // A native toggle updates open before its asynchronous toggle event updates the remembered flag.
+  d.open=false;changeRoute('draft');return {open:document.querySelector('[data-roster-picks]').open,remembered:rosterExpanded};
+ });
+ await context.close();verdict('PL4',seen.open||seen.remembered,seen);
+};
+
+probes.RS1 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  B={...B,sources:{...B.sources,test_unknown:{status:'retained',fetched_at:'2026-09-01T00:00:00Z'}}};changeRoute('data');
+  const rows=[...document.querySelectorAll('.source-table tbody tr')];return {rows:rows.length,scoped:rows.filter(r=>r.querySelector('.source-scope')?.textContent.trim()).length,unknown:rows.find(r=>r.textContent.includes('test unknown'))?.textContent,unknownLink:!!rows.find(r=>r.textContent.includes('test unknown'))?.querySelector('a'),text:document.querySelector('.source-table').textContent};
+ });
+ await context.close();verdict('RS1',seen.rows!==seen.scoped||seen.unknownLink||!/Scope unavailable/.test(seen.unknown)||!/Broader dataset/.test(seen.text)||!/hero-wide/.test(seen.text),seen);
+};
+probes.RS2 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('data'));
+ const before=await page.evaluate(()=>({jump:document.querySelectorAll('[data-reference-jump]').length,fold:!!document.querySelector('#source-audits:not([open])'),comparison:!!document.querySelector('#compare-bracket'),auditText:document.querySelector('#source-audits')?.textContent}));
+ let opened=false;if(before.jump){await page.locator('[data-reference-jump="source-audits"]').click();opened=await page.locator('#source-audits').evaluate(d=>d.open);}
+ await context.close();verdict('RS2',before.jump<3||!before.fold||!before.comparison||!before.auditText||!opened,{...before,auditText:before.auditText?.slice(0,100),opened});
+};
+probes.RS3 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>{S.libraryKind='items';S.libraryQuery='';changeRoute('library');});
+ const before=await page.evaluate(()=>({rows:document.querySelectorAll('.library-grid>article').length,total:Object.keys(B.pred_game_data.items).length,last:Object.values(B.pred_game_data.items).sort((a,b)=>a.name.localeCompare(b.name)).at(-1).name}));
+ let more=0;if(await page.locator('#library-more').count()){await page.locator('#library-more').click();more=await page.locator('.library-grid>article').count();}
+ await page.locator('#library-query').fill(before.last);
+ const found=await page.locator('.library-grid').innerText();
+ await page.locator('#library-query').fill('no-such-reference-xyz');const empty=await page.locator('#main').innerText();
+ await context.close();verdict('RS3',before.rows>40||more<=before.rows||!found.includes(before.last)||!/No entries match/.test(empty),{before,more,found,empty:empty.slice(-120)});
+};
+probes.RS4 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('data'));
+ const seen=await page.evaluate(()=>({headingTop:document.querySelector('#main h1').getBoundingClientRect().top,height:innerHeight,method:!!document.querySelector('#source-update-method'),scope:!!document.querySelector('.rank-evidence'),failures:document.querySelector('#material-notices').textContent}));
+ await context.close();verdict('RS4',seen.headingTop>seen.height/2||!seen.method||!seen.scope,seen);
+};
+
+probes.ML1 = async browser => {
+ const {context,page}=await session(browser,phone),seen=[];
+ for(const role of ['jungle','offlane','midlane','carry','support']){
+  await page.evaluate(role=>{S.role=role;companionPrefs.homeQuery='';changeRoute('meta');},role);
+  seen.push(await page.evaluate(()=>({role:S.role,wanted:Object.keys(E.heroes).filter(s=>E.roles(s).includes(S.role)).sort(),shown:[...document.querySelectorAll('#mobile-all-list [data-hero]')].map(b=>b.dataset.hero).sort(),order:!!document.querySelector('#mobile-meta-order')})));
+ }
+ await context.close();verdict('ML1',seen.some(s=>!s.order||JSON.stringify(s.shown)!==JSON.stringify(s.wanted)),seen);
+};
+probes.ML2 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
+ if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
+ await page.selectOption('#mobile-meta-order','name');
+ const names=await page.locator('#mobile-all-list [data-hero] .name').allTextContents();
+ await page.selectOption('#mobile-meta-order','wr');
+ const rates=await page.evaluate(()=>[...document.querySelectorAll('#mobile-all-list [data-hero]')].map(b=>E.performance({slug:b.dataset.hero,role:S.role})).filter(p=>p?.played>=100).map(p=>p.wr));
+ await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+ const restored=await page.locator('#mobile-meta-order').inputValue();
+ await context.close();verdict('ML2',JSON.stringify(names)!==JSON.stringify([...names].sort((a,b)=>a.localeCompare(b)))||rates.some((r,i)=>i&&r>rates[i-1])||restored!=='wr',{names,rates,restored});
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
     const python = process.env.PYTHON_EXE || 'python';
-    const staged = spawnSync(python, ['-B', path.join('tests', 'stage_preview.py')], {cwd: root, encoding: 'utf8'});
+    // Each run owns its preview. Parallel focused checks must not replace the full suite's files.
+    const site=path.join('qa',port===12940?'audit-site':'audit-'+port+'-site'),state=path.join('qa',port===12940?'audit-state':'audit-'+port+'-state');
+    const staged = spawnSync(python, ['-B', path.join('tests', 'stage_preview.py'),'--output',site,'--state-dir',state], {cwd: root, encoding: 'utf8'});
     if (staged.status) throw Error('Preview staging failed: ' + staged.stderr);
-    server = spawn(python, ['-B', '-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', path.join('qa', 'audit-site')], {cwd: root, stdio: 'ignore'});
+    server = spawn(python, ['-B', '-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', site], {cwd: root, stdio: 'ignore'});
     await new Promise(r => setTimeout(r, 1500));
   }
   fs.mkdirSync(path.join(root, 'qa'), {recursive: true});

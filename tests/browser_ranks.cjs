@@ -1,3 +1,4 @@
+const {goToScreen}=require('./navigation_helpers.cjs');
 // Regression: changing rank must expose that rank's observations, not a wall of unavailable Gold review cells.
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
@@ -11,7 +12,7 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
       const context=await browser.newContext({viewport,acceptDownloads:true}),page=await context.newPage(),errors=[];
       page.on('pageerror',e=>errors.push(e.message));
       // At 700px and below the app renders its phone presentation (2.22 companion, 2.23 Meta dashboard):
-      // role chips and a Top five dashboard replace the sortable role table.
+      // role chips and a full, ordered role list replace the desktop role table.
       const phone=viewport.width<=700;
       await page.goto(url,{waitUntil:'domcontentloaded'}); await page.waitForFunction(()=>B&&!latestStatus.busy);
       const rows=[];
@@ -46,13 +47,13 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
           await page.locator((phone?'[data-mobile-role="':'[data-meta-role="')+role+'"]').click();
           const result=await page.evaluate(phone=>{
             const source=B.scoped_statistics.rows.filter(r=>r.role===S.role);
-            const nodes=phone?[...document.querySelectorAll('#main section')].find(s=>s.querySelector('h2')?.textContent==='Top five').querySelectorAll('.mobile-hero-card'):document.querySelectorAll('.meta-table tbody tr');
+            const nodes=phone?document.querySelectorAll('#mobile-all-list .mobile-hero-card'):document.querySelectorAll('.meta-table tbody tr');
             const table=[...nodes].map(tr=>({slug:tr.querySelector('[data-hero]').dataset.hero,text:tr.innerText}));
-            return {source:source.map(r=>({slug:r.slug,wr:pct(r.winRate),games:num(r.matches,0)})),table,roleLabel:labels[S.role]};
+            return {expected:Object.keys(E.heroes).filter(s=>E.roles(s).includes(S.role)).length,source:source.map(r=>({slug:r.slug,wr:pct(r.winRate),games:num(r.matches,0)})),table,roleLabel:labels[S.role]};
           },phone);
           if(phone) {
-            assert(result.table.length>0&&result.table.length<=5,'phone dashboard lists up to five leading heroes');
-            for(const tile of result.table) {const row=result.source.find(r=>r.slug===tile.slug);assert(row,'phone tile comes from the selected rank rows');assert(tile.text.includes(row.wr));assert(tile.text.includes(row.games));}
+            assert.equal(result.table.length,result.expected,'phone lists every planning-eligible hero in the selected role');
+            for(const tile of result.table) {const row=result.source.find(r=>r.slug===tile.slug);if(row){assert(tile.text.includes(row.wr));assert(tile.text.includes(row.games));}else assert(!/%/.test(tile.text),'missing role sample never gets an invented rate');}
           } else {
             assert.equal(result.table.length,result.source.length);
             for(const row of result.source) {const actual=result.table.find(r=>r.slug===row.slug);assert(actual.text.includes(row.wr));assert(actual.text.includes(row.games));}
@@ -81,7 +82,7 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
         // No sortable table or uncertainty columns on the phone; its finder searches within the chosen role.
         await page.locator('[data-mobile-role="jungle"]').click();
         await page.locator('#mobile-hero-search').fill('Steel');
-        const found=page.locator('#main section').filter({has:page.locator('h2',{hasText:'Search results'})}).locator('.mobile-hero-card');
+        const found=page.locator('#mobile-all-list .mobile-hero-card');
         assert.equal(await found.count(),1);
         await found.locator('[data-hero="steel"]').first().click();
       } else {
@@ -100,10 +101,8 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
       await page.locator('[data-hero-tab="counters"]').click();
       assert(!(await page.locator('#main').innerText()).includes('This view could not render'));
       for(const route of ['builds','planner','draft','live','guidance']) {
-        // Desktop and phone navigation both carry data-route since 2.22; use whichever is visible.
-        const link = page.locator('[data-route="'+route+'"]:visible').first();
-        if (!await link.count()) await page.locator('#menu-toggle').click();
-        await link.click();
+        // Stage 2b: use the visible destination, then its section.
+        await goToScreen(page,route);
         // The compact phone Builds view names the rank in its eyebrow (styled uppercase, so read textContent); the phone
         // Live view has no rank note, and the rank selector stays on screen instead.
         if(phone&&route==='builds') assert((await page.locator('#main .page-head').textContent()).includes('Builds · Diamond+'));

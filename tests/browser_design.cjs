@@ -1,4 +1,5 @@
 'use strict';
+const {goToScreen}=require('./navigation_helpers.cjs');
 // Design acceptance against the local static preview: hierarchy, affordance, contrast and layout targets from the
 // six-critic review. Observations are never modified; every check reads the rendered DOM of the real app.
 const {chromium}=require(process.env.PLAYWRIGHT_PATH||'playwright');
@@ -19,7 +20,7 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();});
    await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B&&!latestStatus.busy&&B.bracket.segment==='gold');
    const run={viewport,checks:[],errors};const check=(v,label)=>{assert(v,label+' @'+viewport.width);run.checks.push(label);};
-   const route=async r=>{await page.evaluate(r=>document.querySelector('[data-route="'+r+'"]').click(),r);await page.evaluate(()=>window.scrollTo(0,0));};
+   const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
    // Hierarchy: the first data row on Meta sits inside the first screen; the status stack stays compact.
    await route('meta');
    const firstRow=await page.evaluate(()=>document.querySelector('.meta-table tbody tr').getBoundingClientRect().top+scrollY);
@@ -104,11 +105,11 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();});
    if(await page.locator('#bracket').inputValue()!=='gold'){await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B&&!latestStatus.busy&&B.bracket.segment==='gold');}
    const run={viewport,checks:[],errors};const check=(v,label)=>{assert(v,label+' @phone');run.checks.push(label);};
-   const route=async r=>{await page.evaluate(r=>document.querySelector('[data-route="'+r+'"]').click(),r);await page.evaluate(()=>window.scrollTo(0,0));};
+   const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
    await route('meta');
    check(await page.evaluate(()=>document.querySelector('#main').getBoundingClientRect().top+scrollY<=430),'phone chrome above main is at most 430px');
    check(await page.evaluate(()=>document.querySelector('.meta-table tbody tr').getBoundingClientRect().top+scrollY<=900),'phone: first data row within about one screen');
-   check(await page.evaluate(()=>['meta','builds','planner','draft','live'].every(r=>{const b=document.querySelector('[data-route="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the five planning routes are visible without a menu tap');
+   check(await page.evaluate(()=>['meta','plan','reference','sources'].every(r=>{const b=document.querySelector('#mobile-navigation [data-destination="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the four destinations are visible without a menu tap');
    check(await page.evaluate(()=>document.querySelector('#menu-toggle').offsetParent===null),'phone: menu button retired (still in the DOM)');
    check(await page.evaluate(()=>{const nav=document.querySelector('#navigation');return nav.scrollWidth>nav.clientWidth;}),'phone: remaining routes reachable by scrolling the row');
    check(await page.evaluate(()=>[...document.querySelectorAll('.nav, .topbar .tools button, #status-toggle, #theme-toggle')].filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=36)),'phone: every shell control at least 36px tall');
@@ -143,7 +144,7 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();});
    if(await page.locator('#bracket').inputValue()!=='gold'){await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B&&!latestStatus.busy&&B.bracket.segment==='gold');}
    const run={viewport,checks:[],errors};const check=(v,label)=>{assert(v,label+' @light');run.checks.push(label);};
-   const route=async r=>{await page.evaluate(r=>document.querySelector('[data-route="'+r+'"]').click(),r);await page.evaluate(()=>window.scrollTo(0,0));};
+   const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
    check(await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme')),'default theme is dark');
    check(await page.locator('#theme-toggle').textContent()==='Light theme','toggle offers the light theme');
    await page.locator('#theme-toggle').click();

@@ -1,3 +1,9 @@
+# 2.29.0 review candidate: approval pending
+
+No 2.29.0 files have replaced the installed app. Installation must create and verify a new hashed backup first; existing data, settings and snapshots are preserved. The agent will supply the exact backup path and matching rollback launcher after the approved installation. See [RELEASE-2.29.0.md](RELEASE-2.29.0.md) for the staged release procedure. The rollback launchers described below belong to earlier releases.
+
+## Previous release instructions
+
 # 2.28.2 evidence announcements: installation and rollback
 
 2.28.2 is a small accessibility release. When the website could not load a piece of its display-only evidence (source builds, counters, original descriptions), or loaded it after a wait, nothing was announced to a screen reader. It now says so once per view, from a live region that is always present, and the detail dialog has its own region and an accessible name. Statistics, recommendations, reviewed guidance, source rates, samples and dates are unchanged. See [RELEASE-2.28.2.md](RELEASE-2.28.2.md).
