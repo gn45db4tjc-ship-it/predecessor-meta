@@ -980,7 +980,7 @@ const probes = {
     await page.keyboard.press('Escape');
     const tile = await page.evaluate(() => {
       const saved = B; B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
-      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta'); 
+      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
         const name = document.querySelector('#mobile-all-list .mobile-hero-card .hero-cell .name'); return {text: name?.closest('article')?.innerText.replace(/\s+/g, ' '), nameWidth: Math.round(name?.getBoundingClientRect().width || 0)}; }
       finally { B = saved; E = MetaEngine.create(B); render(); }
     });
@@ -3405,7 +3405,7 @@ probes.ML2 = async browser => {
   if (process.env.START_PREVIEW === '1') {
     const python = process.env.PYTHON_EXE || 'python';
     // Each run owns its preview. Parallel focused checks must not replace the full suite's files.
-    const site=path.join('qa','audit-'+port+'-site'),state=path.join('qa','audit-'+port+'-state');
+    const site=path.join('qa',port===12940?'audit-site':'audit-'+port+'-site'),state=path.join('qa',port===12940?'audit-state':'audit-'+port+'-state');
     const staged = spawnSync(python, ['-B', path.join('tests', 'stage_preview.py'),'--output',site,'--state-dir',state], {cwd: root, encoding: 'utf8'});
     if (staged.status) throw Error('Preview staging failed: ' + staged.stderr);
     server = spawn(python, ['-B', '-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', site], {cwd: root, stdio: 'ignore'});
