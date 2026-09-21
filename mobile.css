@@ -109,3 +109,11 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 #detail [data-plan-ban]{width:100%;min-height:44px}
 @media(max-width:380px){.roster-editor-grid{grid-template-columns:1fr}.roster-top{align-items:flex-start;flex-wrap:wrap}}
 @media(max-height:480px){.plan-roster{position:static}}
+
+.reference-jumps{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.reference-jumps button,.reference-fold>summary,.source-table summary,#library-more{min-height:44px}
+.reference-fold{border:1px solid var(--line);border-radius:var(--radius-sm);margin:12px 0;background:var(--surface)}
+.reference-fold>summary{padding:12px;align-content:center}.reference-fold>.detail-content{padding:12px}
+.source-scope{display:block;min-width:140px;max-width:38rem;white-space:normal}
+.source-table details{margin:0}.source-table summary{align-content:center}
+.library-grid>article{content-visibility:auto;contain-intrinsic-size:auto 100px}

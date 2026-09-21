@@ -3358,6 +3358,30 @@ probes.PL4 = async browser => {
  await context.close();verdict('PL4',seen.open||seen.remembered,seen);
 };
 
+probes.RS1 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  B={...B,sources:{...B.sources,test_unknown:{status:'retained',fetched_at:'2026-09-01T00:00:00Z'}}};changeRoute('data');
+  const rows=[...document.querySelectorAll('.source-table tbody tr')];return {rows:rows.length,scoped:rows.filter(r=>r.querySelector('.source-scope')?.textContent.trim()).length,unknown:rows.find(r=>r.textContent.includes('test unknown'))?.textContent,unknownLink:!!rows.find(r=>r.textContent.includes('test unknown'))?.querySelector('a'),text:document.querySelector('.source-table').textContent};
+ });
+ await context.close();verdict('RS1',seen.rows!==seen.scoped||seen.unknownLink||!/Scope unavailable/.test(seen.unknown)||!/Broader dataset/.test(seen.text)||!/hero-wide/.test(seen.text),seen);
+};
+probes.RS2 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('data'));
+ const before=await page.evaluate(()=>({jump:document.querySelectorAll('[data-reference-jump]').length,fold:!!document.querySelector('#source-audits:not([open])'),comparison:!!document.querySelector('#compare-bracket'),auditText:document.querySelector('#source-audits')?.textContent}));
+ let opened=false;if(before.jump){await page.locator('[data-reference-jump="source-audits"]').click();opened=await page.locator('#source-audits').evaluate(d=>d.open);}
+ await context.close();verdict('RS2',before.jump<3||!before.fold||!before.comparison||!before.auditText||!opened,{...before,auditText:before.auditText?.slice(0,100),opened});
+};
+probes.RS3 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>{S.libraryKind='items';S.libraryQuery='';changeRoute('library');});
+ const before=await page.evaluate(()=>({rows:document.querySelectorAll('.library-grid>article').length,total:Object.keys(B.pred_game_data.items).length,last:Object.values(B.pred_game_data.items).sort((a,b)=>a.name.localeCompare(b.name)).at(-1).name}));
+ let more=0;if(await page.locator('#library-more').count()){await page.locator('#library-more').click();more=await page.locator('.library-grid>article').count();}
+ await page.locator('#library-query').fill(before.last);
+ const found=await page.locator('.library-grid').innerText();
+ await page.locator('#library-query').fill('no-such-reference-xyz');const empty=await page.locator('#main').innerText();
+ await context.close();verdict('RS3',before.rows>40||more<=before.rows||!found.includes(before.last)||!/No entries match/.test(empty),{before,more,found,empty:empty.slice(-120)});
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

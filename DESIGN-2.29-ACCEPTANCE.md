@@ -417,3 +417,21 @@ Actual verification receipts must be checked before a merge; this record is not 
 Accepted when every source states its scope, status and date; the description-review status
 keeps its existing rules, including withdrawal on a hotfix that does not change the version;
 and the full Changes history and rank-comparison tool remain reachable.
+
+### Stage 5 implementation (2026-09-21)
+
+Source status and dates remain visible. Every source has an explicit Scope disclosure;
+unknown sources remain unknown, and an absent URL no longer creates a misleading Statz
+link. Source dates, rank comparisons and detailed audits have direct jump controls. The
+long audits are folded with the current description-review status in their summary;
+their full contents and withdrawal rules remain intact. The rank comparison and complete
+Changes route retain their existing controls and observations.
+
+Reviewed compositions in Reference are expandable by name, with withheld advice labelled
+in the closed summary. Catalog search still covers every collected entry; the initial
+page shows 40, Show more adds 40, and a zero-result search explains what happened. No
+catalog records are dropped. Search and category changes reset the visible-page limit.
+
+RS1–RS3 reproduced on the Stage 4 baseline and pass after implementation. P7 (same-version
+official-content change), P8 (review dates), V3 (retained evidence labels) and PL4 pass as
+focused guards. Full integrated browser and release gates remain required before merging.
