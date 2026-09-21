@@ -116,6 +116,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .reference-fold>summary{padding:12px;align-content:center}.reference-fold>.detail-content{padding:12px}
 .source-scope{display:block;min-width:140px;max-width:38rem;white-space:normal}
 .source-table details{margin:0}.source-table summary{align-content:center}
-.meta-list-controls{display:grid;gap:8px;margin-bottom:16px}
+.meta-list-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr));gap:8px;margin-bottom:16px}
 .meta-list-controls label{display:grid;gap:6px}.meta-list-controls .mobile-search{margin:0}
 .meta-list-controls select,.meta-list-controls input{width:100%;min-height:44px}
+#main>[data-live-lookup]{min-height:44px;margin-bottom:12px}

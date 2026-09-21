@@ -146,6 +146,7 @@
     "RS1": "Stage 5: every source row states scope, missing scopes stay unknown, and no missing URL becomes a Statz link",
     "RS2": "Stage 5: source audits fold without losing contents or the rank-comparison control; jumps open their destination",
     "RS3": "Stage 5: reference catalog opens a bounded first page but search and Show more reach the entire catalog",
+    "RS4": "Sources: publishing-method paragraphs must not push the status heading below the first half of a phone screen",
     "ML1": "Meta completion: the entire role list is visible on arrival, with explicit ordering and no hidden heroes",
     "ML2": "Meta completion: name and observed-rate ordering work, keep small samples separate, and survive reload"
   }

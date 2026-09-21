@@ -3380,6 +3380,11 @@ probes.RS3 = async browser => {
  await page.locator('#library-query').fill('no-such-reference-xyz');const empty=await page.locator('#main').innerText();
  await context.close();verdict('RS3',before.rows>40||more<=before.rows||!found.includes(before.last)||!/No entries match/.test(empty),{before,more,found,empty:empty.slice(-120)});
 };
+probes.RS4 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('data'));
+ const seen=await page.evaluate(()=>({headingTop:document.querySelector('#main h1').getBoundingClientRect().top,height:innerHeight,method:!!document.querySelector('#source-update-method'),scope:!!document.querySelector('.rank-evidence'),failures:document.querySelector('#material-notices').textContent}));
+ await context.close();verdict('RS4',seen.headingTop>seen.height/2||!seen.method||!seen.scope,seen);
+};
 
 probes.ML1 = async browser => {
  const {context,page}=await session(browser,phone),seen=[];
