@@ -287,6 +287,35 @@ and caught it. The label is now applied whatever the call: current data reads as
 retained or 48-hour-old data reads *Saved <date>* and, when retained, says so. This changes
 what Kit shows, so it is called out here rather than folded in silently.
 
+### Stage 3c follow-up — search isolation and restoration (2026-09-21)
+
+Independent verification of `11d8bc7` found three search defects. S8–S10 were run
+before the fixes and reproduced each defect; the receipt is retained locally as
+`qa/search-before.json`.
+
+- **S8:** the `.choice` display rule overrode the browser's hidden attribute, leaving
+  40 non-matching choices painted despite a zero-results count. A section-scoped CSS
+  rule now hides filtered choices and table rows. S5 also checks painted rows instead
+  of trusting the same hidden attribute that the implementation writes.
+- **S9:** searching opened disclosures permanently, including exploratory evidence.
+  Search now saves their previous state and restores it when cleared, including after
+  an evidence redraw. The saved state belongs to the hero, role, bracket and section.
+- **S10:** a query leaked into another hero or planning role. Context changes now clear
+  the query; a redraw within the same context retains it and its caret/focus behavior.
+
+Verified locally on 2026-09-21: audit **130/130**; Python **196 run, one skipped**;
+JavaScript **163 passed**; offline **9 receipt cases passed**, including reopening all
+six brackets and concurrent saves for different brackets; static **57 desktop + 50
+phone checks in each of Edge and WebKit**; rank tables **30** and dashboards **30** in
+each engine; companion passed; accessibility **30 states, zero violations**;
+`browser_release_222.cjs` passed. WebKit here is the pinned Playwright Windows browser,
+not a real iPhone or native Safari. Existing saved September 14 bundles were reused
+without collecting or changing source observations. `engine.js` remains unchanged.
+
+This is verification of the staged code, not a live release or a fresh statistics
+collection. GitHub's check receipt must still match the pushed commit before merging.
+No installation, publication or merge is included in this follow-up.
+
 ## Stage 2b — the four destinations *(still pending)*
 
 Unchanged and explicitly still open: Meta, Plan, Reference, Sources; legacy route mapping for

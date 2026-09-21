@@ -505,6 +505,8 @@ __MOBILE_CSS__
 .evidence-search{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin:var(--s3) 0}
 .evidence-search label{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);max-width:100%}
 .evidence-search input{min-height:44px;min-width:0;max-width:100%}
+/* .choice uses display:flex, which overrides the browser's default [hidden] rule. */
+.hero-section .choice[hidden],.hero-section table.table-small[hidden],.hero-section table.table-small tr[hidden]{display:none!important}
 /* 400% zoom: a short viewport cannot spare a sticky row */
 @media (max-height:480px){.hero-jump{position:static}}
 </style>

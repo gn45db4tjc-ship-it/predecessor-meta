@@ -129,6 +129,9 @@
     "S4": "2.29 stage 3c: joining the tabs must not make the page longer than Partners alone was; the partner tail belongs in a closed, counted disclosure with no card lost",
     "S5": "2.29 stage 3c: the counters and build evidence tables cannot be searched; nothing narrows the rows or says how many are shown",
     "S6": "GUARD: a hero redraw, which now builds all four sections, stays under 80 ms on the desktop fixture",
-    "S7": "PRE-EXISTING, found by 2.29 stage 3c: the Kit section's Pred.gg source lines carry no Saved label and no 'retained from an earlier collection' while Pred.gg is retained or older than 48 hours, because they were drawn without {statistics:true}; outdated ability text read as current"
+    "S7": "PRE-EXISTING, found by 2.29 stage 3c: the Kit section's Pred.gg source lines carry no Saved label and no 'retained from an earlier collection' while Pred.gg is retained or older than 48 hours, because they were drawn without {statistics:true}; outdated ability text read as current",
+    "S8": "2.29 search: a nonmatching .choice still paints because display:flex overrides hidden; checks must inspect rendered visibility",
+    "S9": "2.29 search: clearing a query after an evidence redraw leaves search-opened exploratory disclosures expanded",
+    "S10": "2.29 search: a query leaks to another hero or role instead of only surviving a redraw of the same view"
   }
 }

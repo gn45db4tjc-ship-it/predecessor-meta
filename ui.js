@@ -198,12 +198,42 @@ let spyQueued=false;
 addEventListener('scroll',()=>{if(spyQueued)return;spyQueued=true;requestAnimationFrame(()=>{spyQueued=false;spySections();});},{passive:true});
 /* ---- searchable evidence ----------------------------------------------------------------- */
 const evidenceQuery={builds:'',counters:''};
+const evidenceSearchState={context:null,before:{}};
+function prepareEvidenceSearch(){
+ const context=S.hero+'|'+S.heroRole+'|'+S.bracket;
+ if(evidenceSearchState.context===context)return;
+ evidenceSearchState.context=context;evidenceSearchState.before={};
+ for(const section of Object.keys(evidenceQuery))evidenceQuery[section]='';
+}
+/* Remember the disclosure state before searching, not the temporary state created to reveal
+   matches. Keys survive a data redraw and are scoped to this hero, role, rank and section. */
+function evidenceDisclosures(root){
+ const seen=new Map();
+ return [...root.querySelectorAll('details')].map(d=>{
+  const path=[];let parent=d;
+  while(parent&&root.contains(parent)){
+   path.unshift(parent.dataset.keep||(parent.querySelector(':scope > summary')?.textContent||'').split('·')[0].trim());
+   parent=parent.parentElement?.closest('details');
+  }
+  const base=JSON.stringify(path),index=seen.get(base)||0;seen.set(base,index+1);
+  return {node:d,key:base+'#'+index};
+ });
+}
 const EVIDENCE_ROWS='table.table-small tbody tr, .choice';
 function evidenceSearchHTML(section,label){return `<div class="evidence-search"><label>${esc(label)} <input type="search" data-evidence-search="${section}" value="${esc(evidenceQuery[section]||'')}" placeholder="Hero or item name" autocomplete="off"></label><small class="muted" data-evidence-count="${section}" aria-live="polite"></small></div>`;}
 /* Narrows rows in place, without a redraw, so focus and caret stay in the box. A match inside
    a closed disclosure opens it: a search that finds a row nobody can see has found nothing. */
 function applyEvidenceSearch(section){const root=document.getElementById('hero-sec-'+section);if(!root)return;
  const q=(evidenceQuery[section]||'').trim().toLowerCase(),rows=[...root.querySelectorAll(EVIDENCE_ROWS)];let shown=0;
+ const disclosures=evidenceDisclosures(root);
+ if(q){
+  const before=evidenceSearchState.before[section]??=new Map();
+  for(const {node,key} of disclosures)if(!before.has(key))before.set(key,node.open);
+ }else if(evidenceSearchState.before[section]){
+  const before=evidenceSearchState.before[section];
+  for(const {node,key} of disclosures)if(before.has(key))node.open=before.get(key);
+  delete evidenceSearchState.before[section];
+ }
  for(const r of rows){const hit=!q||r.textContent.toLowerCase().includes(q);r.hidden=!hit;if(!hit)continue;shown++;
   if(q){let d=r.parentElement&&r.parentElement.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}}
  /* a table the search leaves empty is set aside, not left as a bare header row */
@@ -239,6 +269,7 @@ function afterHeroRender(){
 }
 function heroView(){
  const h=E.heroes[S.hero];if(!h)return empty('Select a hero from the meta view.');if(!E.roles(S.hero).includes(S.heroRole))S.heroRole=E.roles(S.hero)[0]||'jungle';
+ prepareEvidenceSearch();
  if(S.partnerRole===S.heroRole)S.partnerRole='';
  const role=h.roles?.[S.heroRole],perf=E.performance({slug:S.hero,role:S.heroRole}),partners=E.partners(S.hero,{min:S.explore?1:100,role:S.partnerRole,heroRole:S.heroRole,metric:S.pairMetric});
  let html=`<button class="text-button muted" data-route="meta">← Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[S.role])}</button><div class="hero-header">${art(S.hero,'large')}<div class="summary"><div class="eyebrow">${esc(B.bracket?.label)} · ${esc(labels[S.heroRole])}</div><h1>${esc(h.display_name)}</h1><label>Planning role <select id="hero-role">${options(E.roles(S.hero).map(r=>[r,labels[r]+(E.performance({slug:S.hero,role:r})?'':' · no current sample')]),S.heroRole)}</select></label></div><div class="quick-stats"><div>${B.scoped_statistics?metaTierButton(S.hero,S.heroRole):tier(perf?.tier)}<small>${B.scoped_statistics?'Reviewed tier · open reasoning':'Role tier'}</small></div><div><div class="big">${pct(perf?.wr)}</div><small>${perf?savedTag(perf.fetched_at,perf.retained):''}${games(perf?.played)} · ${esc(perf?.source||'unavailable')} ${esc(perf?.patch||'')}</small></div></div></div>`;

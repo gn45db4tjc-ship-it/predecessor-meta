@@ -3095,7 +3095,7 @@ probes.S5 = async browser => {
       await new Promise(r => setTimeout(r, 60));
       const r2 = document.getElementById('hero-sec-' + section);
       const all = [...r2.querySelectorAll(rowSel)];
-      const visible = all.filter(r => !r.hidden && r.offsetParent !== null);
+      const visible = all.filter(r => r.getClientRects().length > 0);
       const count = (r2.querySelector('[data-evidence-count="' + section + '"]') || {}).textContent || '';
       const matchesOnly = visible.every(r => r.textContent.toLowerCase().includes(probe.toLowerCase()));
       const tables = () => [...document.getElementById('hero-sec-' + section).querySelectorAll('table.table-small')]
@@ -3170,6 +3170,67 @@ probes.S7 = async browser => {
   }
   const every = c => c.n > 0 && c.saved === c.n;
   verdict('S7', seen.current.saved > 0 || !every(seen.retained) || seen.retained.retainedText !== seen.retained.n || !every(seen.stale), seen);
+};
+
+/* Search must affect what the browser actually paints, not just an attribute the test
+   also reads. These cases exercise real source rows and keep the engine untouched. */
+probes.S8 = async browser => {
+  const seen = [];
+  for (const viewport of [desktop, phone]) {
+    const {context, page} = await session(browser, viewport);
+    await page.evaluate(() => { openHero('countess', 'midlane'); render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'));
+    const detail = await page.evaluate(() => {
+      const root = document.getElementById('hero-sec-builds');
+      root.querySelectorAll('details').forEach(d => { d.open = true; });
+      const box = root.querySelector('[data-evidence-search]');
+      box.value = '__no_source_choice_matches__';
+      box.dispatchEvent(new Event('input', {bubbles:true}));
+      const choices = [...root.querySelectorAll('.choice')];
+      return {choices:choices.length, painted:choices.filter(r => r.getClientRects().length > 0).length,
+        focusable:choices.filter(r => getComputedStyle(r).display !== 'none').length};
+    });
+    seen.push(detail); await context.close();
+  }
+  verdict('S8', seen.some(x => !x.choices || x.painted || x.focusable), seen);
+};
+probes.S9 = async browser => {
+  const {context, page} = await session(browser, phone);
+  await page.evaluate(() => { openHero('countess','midlane'); render(); });
+  await page.waitForFunction(() => !document.querySelector('#main .annex-loading'));
+  const seen = await page.evaluate(() => {
+    const root = document.getElementById('hero-sec-counters');
+    const details = [...root.querySelectorAll('details')];
+    details.forEach(d => { d.open = false; });
+    const row = [...root.querySelectorAll('tbody tr')].find(r => r.closest('details'));
+    if (!row) return {fixture:false};
+    const box = root.querySelector('[data-evidence-search]');
+    const type = value => { box.value = value; box.dispatchEvent(new Event('input',{bubbles:true})); };
+    type(row.querySelector('td').textContent.trim());
+    const opened = details.some(d => d.open);
+    render(); // An evidence redraw during the search must not replace the saved state.
+    const again = document.querySelector('#hero-sec-counters [data-evidence-search]');
+    again.value = ''; again.dispatchEvent(new Event('input',{bubbles:true}));
+    return {fixture:true, opened, leftOpen:[...document.querySelectorAll('#hero-sec-counters details')].filter(d => d.open).length,
+      hiddenRows:document.querySelectorAll('#hero-sec-counters tr[hidden]').length};
+  });
+  await context.close();
+  verdict('S9', !seen.fixture || !seen.opened || seen.leftOpen > 0 || seen.hiddenRows > 0, seen);
+};
+probes.S10 = async browser => {
+  const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => { openHero('countess','midlane'); render(); });
+  await page.waitForFunction(() => !document.querySelector('#main .annex-loading'));
+  const seen = await page.evaluate(() => {
+    const box = () => document.querySelector('#hero-sec-builds [data-evidence-search]');
+    const type = () => { box().value = 'test query'; box().dispatchEvent(new Event('input',{bubbles:true})); };
+    type(); render(); const survivesRedraw = box().value === 'test query';
+    openHero('steel','offlane'); render(); const newHero = box().value;
+    type(); S.heroRole = 'jungle'; render(); const newRole = box().value;
+    return {survivesRedraw,newHero,newRole};
+  });
+  await context.close();
+  verdict('S10', !seen.survivesRedraw || !!seen.newHero || !!seen.newRole, seen);
 };
 
 (async () => {
