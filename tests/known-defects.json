@@ -122,6 +122,13 @@
     "Z2": "2.29 stage 3b: the loadout evidence helpers read S.hero/S.heroRole, so a build card drawn for one hero could show a previously opened hero's evidence",
     "Z3": "2.29 stage 3b: the loadout evidence cache was keyed on hero, role and bracket, so refreshed data for the same hero was served the old evidence",
     "Z4": "2.29 stage 3b: loadout evidence was read from currentItemPool, which holds item observations and not augment, Eternal or blessing ones, and crest evolutions came from buildSummary's own variant rather than one matching the recommended crest",
-    "Z5": "2.29 stage 3b: a recommended crest upgrade displayed its PARENT crest's win rate and games as its own, and the evolution list repeated the recommended final upgrade and its siblings under 'Crest evolves'"
+    "Z5": "2.29 stage 3b: a recommended crest upgrade displayed its PARENT crest's win rate and games as its own, and the evolution list repeated the recommended final upgrade and its siblings under 'Crest evolves'",
+    "S1": "2.29 stage 3c: the hero page shows one tab at a time; Build, Partners, Counters and Kit are never on the page together, each with its own source line",
+    "S2": "2.29 stage 3c: the hero strip is a tablist whose panels hide each other, not a jump row that brings a section into view under the sticky chrome with exactly one current",
+    "S3": "2.29 stage 3c: a shared link's tab= selects a tab rather than landing on that section at the top of the page",
+    "S4": "2.29 stage 3c: joining the tabs must not make the page longer than Partners alone was; the partner tail belongs in a closed, counted disclosure with no card lost",
+    "S5": "2.29 stage 3c: the counters and build evidence tables cannot be searched; nothing narrows the rows or says how many are shown",
+    "S6": "GUARD: a hero redraw, which now builds all four sections, stays under 80 ms on the desktop fixture",
+    "S7": "PRE-EXISTING, found by 2.29 stage 3c: the Kit section's Pred.gg source lines carry no Saved label and no 'retained from an earlier collection' while Pred.gg is retained or older than 48 hours, because they were drawn without {statistics:true}; outdated ability text read as current"
   }
 }

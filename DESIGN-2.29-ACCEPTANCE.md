@@ -92,7 +92,7 @@ Accepted when:
 
 Each of these gets a probe before the change, as the standing conditions require.
 
-## Stage 3a — build evidence labels *(this PR)*
+## Stage 3a — build evidence labels *(done: #43)*
 
 **Scope as built:** the categories and supporting evidence of a build's parts, in the Build
 Coach. It did **not** rebuild the hero screen, and must not be read as having done so. The
@@ -160,7 +160,7 @@ Rules that follow, each with a probe:
   observation is inspection-only and does not support automatic selection. No blanket
   "too small or too old".
 
-## Stage 3b — the hero experience *(this PR)*
+## Stage 3b — the hero experience *(done: #44)*
 
 **Scope as built:** the loadout, the pairing statistics, and the readability of content under
 the sticky summary. The tab-to-section conversion is **Stage 3c**, below.
@@ -182,7 +182,9 @@ Accepted when:
 - **The sticky "Next purchase" summary stops covering its own list.** Done. `.coach-next` is
   chrome that lives inside `main`, which the Stage 2 scroll-padding never accounted for, so a
   row scrolled or tabbed to the top landed 140 px underneath it. It now joins that watch list
-  and publishes its own height for the list it covers.
+  and publishes its own height for the list it covers. *(Corrected in Stage 3c: the watch list
+  counted it even where it was not stuck, which could push the page's scroll padding to
+  440 px. It now publishes only its own height, measured from where it actually pins.)*
 
 ### Evidence selection rules, added after review
 
@@ -219,21 +221,71 @@ Accepted when:
     so its siblings appear as alternatives to it, not as next steps; a recommended base crest
     lists its final upgrades as what it evolves into, each with its own figure.
 
-## Stage 3c — sections and the four destinations *(scheduled, not yet built)*
+## Stage 3c — sections and searchable evidence *(this PR)*
 
-Two changes remain on the hero screen, both of which alter what is in the DOM rather than how
-it looks, and both of which re-scope existing assertions. They are kept separate for that
-reason, not deferred for convenience.
+**Scope as built:** the four hero tabs that hid each other are now four sections on one page,
+reached by a sticky jump row; `tab=` links land on sections; the evidence tables are
+searchable. It does **not** build Stage 2b's four destinations, which stay pending below.
 
-- **The four tabs become four sections on one page**, with the jump row replacing the strip.
-  `data-hero-tab` is read by 18 assertions in the audit suite and by five other suites, and
-  every one of them sets `S.heroTab` and then reads `#main`. Rendering all four sections at
-  once changes what those reads see — a counters probe would start matching pairings rows —
-  so the conversion and the re-scoping of every affected assertion belong in one change.
-  The **links must survive it**: probe Y5 pins `builds`, `pairings`, `counters` and `kit`
-  today so the contract is recorded before the markup moves.
-- **Complete evidence access.** The counters and build evidence tables are reachable, in
-  disclosures, but not searchable. The prototype's searchable table is the target.
+Accepted when, in addition to the standing conditions — each with its probe, each shown to
+reproduce on `fa4066f` before the change:
+
+- **S1 — every section is on the page.** Build, Partners, Counters and Kit render at once, in
+  that order, none hidden, as `section#hero-sec-<tab>`. Each keeps **its own source line**:
+  section-scoped freshness survives the merge. One `<h1>`.
+- **S2 — the jump row is navigation, not a tablist.** Tabs claim panels that hide; nothing
+  hides now. A `<nav>` of buttons, one marked `aria-current="true"`, each at least 44 px tall.
+  A press brings its section to the top edge of the content, clear of the sticky chrome, and
+  focus stays on the button pressed. Scrolling updates which button is current and writes
+  **no** history entry (WebKit throttles `replaceState` to 100 calls in 10 s).
+- **S3 — every `tab=` name ever issued lands.** `builds`, `pairings`, `counters` and `kit`
+  each open with that section at the top and marked current, on a phone. Evidence arrives after
+  the first draw and redraws `#main`; the section being read is captured before a redraw and
+  restored after it, because replacing the DOM defeats the browser's own scroll anchoring —
+  without that a link to Partners ended 1,400 px below it.
+- **S4 — one page is not longer than the worst tab was.** Partners alone ran to 23,000–28,000
+  px on a phone. The first three partners stay in view; the rest move into a closed disclosure
+  whose summary states how many it holds. **No card is lost**: every partner the engine
+  returns is on the page. Budgets 16,000 px desktop, 23,000 px phone.
+- **S5 — complete evidence, searchable.** Build and Counters each carry a search box over every
+  evidence row (`.choice` and table rows). A search hides non-matching rows, says *"Showing N
+  of M evidence rows"*, opens any disclosure holding a match, keeps focus in the box, and
+  clearing it restores every row. A table the search leaves empty is set aside rather than
+  left as a bare header, and returns when the search is cleared. Nothing is summarised away.
+- **S6 — drawing four sections stays cheap** (guard): a hero redraw under 80 ms.
+- **S7 — Kit labels retained Pred.gg data like every other section.** See below.
+
+**Measured on the staged Gold+ seed** (Countess, Steel, Murdock): every jump lands at the
+content edge (65 px on desktop and phone); page height 6,030–8,375 px desktop and
+10,470–15,844 px phone, against 7,700–10,300 and 23,000–28,000 px for the Partners tab alone;
+48, 47 and 45 partner cards all present; a redraw 22–29 ms.
+
+### Assertions re-scoped, and why
+
+The rule each guards is unchanged; only where it looks has moved, because a page that used to
+hold one tab now holds four.
+
+- **V1** — *"Build shows no other role's Statz link; the other tabs label the hero-wide page."*
+  It read all of `#main` while checking Build, which now also holds Partners' correctly
+  labelled hero-wide link. It reads `#hero-sec-<tab>`.
+- **V7** — *"Counters lead with reviewed counterplay."* It compared the reviewed block with the
+  first table in `#main`, now the Build section's evidence table. It reads `#hero-sec-counters`.
+- **Y5** — read `aria-selected`, a tablist attribute. The jump row marks `aria-current`.
+- `mobile.js` slices the phone hero at the jump row rather than the tablist.
+
+The static, ranks, companion, companion-accessibility, offline and release-2.22 suites pass
+unchanged.
+
+### A pre-existing defect the merge exposed — a product change, flagged for review
+
+`predSourceHTML` labelled retained or stale Pred.gg data only when called for statistics.
+The Kit section's call was not, so with Pred.gg retained every Kit source line read
+*"Pred.gg · cached <date>"* with no *Saved* label and no *"retained from an earlier
+collection"*: outdated ability text presented as current. It was already so on `fa4066f`
+(7 Kit lines, none labelled). V3 never opened Kit; with every section on one page it does,
+and caught it. The label is now applied whatever the call: current data reads as before;
+retained or 48-hour-old data reads *Saved <date>* and, when retained, says so. This changes
+what Kit shows, so it is called out here rather than folded in silently.
 
 ## Stage 2b — the four destinations *(still pending)*
 

@@ -238,7 +238,7 @@ function guidedHome(){
 function mobileHero(){
  const p={slug:S.hero,role:S.heroRole};if(!E.heroes[p.slug])return guidedHome();if(!['builds','pairings','counters','kit'].includes(S.heroTab))S.heroTab='builds';
  const why=pickBlock(p.slug,p.role),mine=S.me===p.slug&&S.locks.some(x=>x.slug===p.slug&&x.role===p.role),blocked=mine?'':why,perf=E.performance(p),fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
- const full=heroView(),node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<div class="toolbar">'));if(S.heroTab==='builds')node.querySelector('.coach')?.remove();const body=node.innerHTML;
+ const full=heroView(),node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));node.querySelector('.coach')?.remove();/* the phone keeps its Build Coach on the Live route, and Build is now always present */const body=node.innerHTML;
  return `<button class="text-button" data-route="meta">← Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head">${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?savedTag(perf.fetched_at,perf.retained)+esc(perf.source||'Role statistics')+(perf.retained?' (retained)':'')+' '+pct(perf.wr)+' · '+games(perf.played):esc(roleSampleText(p.slug,p.role))}</span></p></div><div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${fav?'★ Favorited':'☆ Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Live':'Use in Live'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
 }
 function liveMobileDetails(){
@@ -306,7 +306,7 @@ function applyCompanionLink(){
    if(!roleOrder.includes(role)||!E.roles(hero).includes(role)){throw Error('Choose a supported role for the linked hero.');}
    if(!['bronze','silver','gold','platinum','diamond','paragon'].includes(bracket)||!['builds','pairings','counters','kit'].includes(tab))throw Error('The linked rank or section is invalid.');
    if(bracket!==S.bracket){linkApplied='';queueMicrotask(()=>{const select=$('#bracket');select.value=bracket;select.dispatchEvent(new Event('change',{bubbles:true}));});return;}
-   S.hero=hero;S.heroRole=role;S.heroTab=tab;S.route='hero';
+   S.hero=hero;S.heroRole=role;S.heroTab=tab;S.route='hero';sectionSpy.requested=tab;/* a link names its section outright */
  }else if(q.has('view')){const r=q.get('view');if(![...navs.map(x=>x[0]),'more'].includes(r))throw Error('This section is unavailable.');S.route=r;}
  }catch(e){companionError=e.message;S.route='meta';}
 }

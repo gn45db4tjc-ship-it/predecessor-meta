@@ -1344,7 +1344,9 @@ const probes = {
         openHero(slug, role);
         for (const tab of ['builds', 'pairings', 'counters', 'kit']) {
           S.heroTab = tab; render(); await wait();
-          const main = document.querySelector('#main'), id = slug + '|' + role + '|' + tab;
+          // Since 2.29 stage 3c every section is on one page: the per-tab rule reads the section
+          // it is about, or the whole page where sections do not exist.
+          const main = document.querySelector('#hero-sec-' + tab) || document.querySelector('#main'), id = slug + '|' + role + '|' + tab;
           if (/No observed build for this hero/i.test(main.textContent)) problems.push(id + ': says No observed build');
           if ([...main.querySelectorAll('a')].some(a => ['#', ''].includes(a.getAttribute('href') || ''))) problems.push(id + ': dead link');
           for (const a of main.querySelectorAll('.source-line a[href*="statz.gg"]')) {
@@ -1625,7 +1627,9 @@ const probes = {
     // with no matchup data does not point to smaller samples, and Exploratory has its own level-2 heading.
     const seen = {};
     const measure = ({slug, role}) => {
-          const main = document.querySelector('#main'), out = {}, N = 100;
+          // Since 2.29 stage 3c the Build section, with its own evidence tables, sits above Counters
+          // on the same page; 'Counters lead with reviewed counterplay' is a claim about Counters.
+          const main = document.querySelector('#hero-sec-counters') || document.querySelector('#main'), out = {}, N = 100;
           const gamesOf = tr => { const heads = [...tr.closest('table').querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase()), i = heads.indexOf('games'), cell = tr.children[i];
             return i < 0 || !cell ? null : Number((cell.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '')); };
           const rows = [...main.querySelectorAll('tbody tr')].map(tr => ({games: gamesOf(tr), hidden: !!tr.closest('details:not([open])')})).filter(r => Number.isFinite(r.games));
@@ -2735,7 +2739,8 @@ probes.Y5 = async browser => {
     seen[tab] = await page.evaluate(() => ({
       hero: S.hero, role: S.heroRole, tab: S.heroTab,
       h1: document.querySelector('#main h1') ? document.querySelector('#main h1').textContent.trim().slice(0, 30) : null,
-      selected: [...document.querySelectorAll('[data-hero-tab]')].filter(b => b.getAttribute('aria-selected') === 'true').map(b => b.dataset.heroTab)
+      // a jump row marks the section being read with aria-current; aria-selected belonged to the tablist
+      selected: [...document.querySelectorAll('[data-hero-tab]')].filter(b => (b.getAttribute('aria-current') || b.getAttribute('aria-selected')) === 'true').map(b => b.dataset.heroTab)
     }));
     await context.close();
   }
@@ -2933,6 +2938,238 @@ probes.Z5 = async browser => {
   // a base recommendation does evolve, into the final upgrades, each with its own figure
   if (!b.evolvesLabels.some(t => /Liberator/.test(t) && /60\.0%/.test(t))) problems.push('base does not list Liberator with its own rate as a next step');
   verdict('Z5', problems.length > 0, {problems, ...seen});
+};
+
+
+/* ---------------------------------------------------------------------------
+   S-series: 2.29 redesign, stage 3c (the hero screen as sections).
+
+   The four tabs that hid each other become four sections on one page, reached by a
+   jump row. Nothing is removed: the long tail of partners moves into a disclosure,
+   and the evidence tables become searchable.
+   --------------------------------------------------------------------------- */
+
+const HERO_SECTIONS = ['builds', 'pairings', 'counters', 'kit'];
+const sectionState = () => {
+  const boundary = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+  const bottomed = Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 2;
+  const btns = [...document.querySelectorAll('#main [data-hero-tab]')];
+  return {boundary: Math.round(boundary), bottomed,
+    current: btns.filter(b => b.getAttribute('aria-current') === 'true').map(b => b.dataset.heroTab),
+    tops: Object.fromEntries([...document.querySelectorAll('#main section.hero-section')].map(s => [s.dataset.heroSection, Math.round(s.getBoundingClientRect().top)]))};
+};
+const frames = n => new Promise(r => { const f = k => k ? requestAnimationFrame(() => f(k - 1)) : r(); f(n); });
+
+probes.S1 = async browser => {
+  /* All four sections are on the page at once, in order, none hidden, and each carries
+     its OWN source line - section-scoped freshness must survive the merge. */
+  const seen = {};
+  for (const [label, opts] of [['desktop', desktop], ['phone', phone]]) {
+    const {context, page} = await session(browser, opts);
+    seen[label] = await page.evaluate(() => {
+      S.role = 'jungle'; openHero('steel', 'jungle'); render();
+      return {
+        sections: [...document.querySelectorAll('#main section.hero-section')].map(s => ({
+          id: s.id, t: s.dataset.heroSection,
+          hidden: s.hidden || getComputedStyle(s).display === 'none',
+          source: !!s.querySelector('.source-line')
+        })),
+        h1: document.querySelectorAll('#main h1').length
+      };
+    });
+    await context.close();
+  }
+  const bad = Object.values(seen).some(v => v.h1 !== 1
+    || JSON.stringify(v.sections.map(s => s.t)) !== JSON.stringify(HERO_SECTIONS)
+    || v.sections.some(s => s.hidden || !s.source || s.id !== 'hero-sec-' + s.t));
+  verdict('S1', bad, seen);
+};
+
+probes.S2 = async browser => {
+  /* The jump row is navigation, not a tablist - tabs claim panels that hide, and nothing
+     hides now. Exactly one control is current. A click brings its section to the top,
+     clear of the sticky chrome, and focus stays on the control that was pressed. */
+  const seen = {};
+  for (const [label, opts] of [['desktop', desktop], ['phone', phone]]) {
+    const {context, page} = await session(browser, opts);
+    await page.evaluate(() => { S.role = 'midlane'; openHero('countess', 'midlane'); render(); });
+    const row = await page.evaluate(() => ({
+      tablist: !!document.querySelector('#main [role="tablist"] [data-hero-tab], #main [data-hero-tab][role="tab"]'),
+      nav: !!document.querySelector('#main nav [data-hero-tab]'),
+      small: [...document.querySelectorAll('#main [data-hero-tab]')].filter(b => b.getBoundingClientRect().height < 43.5).length
+    }));
+    const clicks = {};
+    for (const t of HERO_SECTIONS) {
+      await page.locator('#main [data-hero-tab="' + t + '"]').click();
+      await page.waitForTimeout(450);
+      clicks[t] = await page.evaluate(([tab, src]) => ({
+        ...(new Function('return (' + src + ')'))()(),
+        focused: document.activeElement?.dataset?.heroTab || null, tab: S.heroTab
+      }), [t, sectionState.toString()]);
+    }
+    seen[label] = {row, clicks};
+    await context.close();
+  }
+  const landed = c => (x => x.bottomed || (x.tops[x.tab] >= x.boundary - 6 && x.tops[x.tab] <= x.boundary + 48))(c);
+  const bad = Object.values(seen).some(v => v.row.tablist || !v.row.nav || v.row.small > 0
+    || HERO_SECTIONS.some(t => { const c = v.clicks[t]; return c.tab !== t || c.focused !== t || c.current.length !== 1 || c.current[0] !== t || !landed(c); }));
+  verdict('S2', bad, seen);
+};
+
+probes.S3 = async browser => {
+  /* A shared link names a section. It must open with that section at the top, marked
+     current, for every name the live app has ever issued. */
+  const seen = {};
+  for (const t of HERO_SECTIONS) {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(tab => {
+      location.hash = '#hero=countess&role=midlane&bracket=' + S.bracket + '&tab=' + tab;
+      linkApplied = ''; applyCompanionLink(); render();
+    }, t);
+    await page.waitForTimeout(500);
+    seen[t] = await page.evaluate(([tab, src]) => ({
+      ...(new Function('return (' + src + ')'))()(), tab: S.heroTab, hero: S.hero
+    }), [t, sectionState.toString()]);
+    await context.close();
+  }
+  const bad = HERO_SECTIONS.some(t => { const c = seen[t];
+    return c.hero !== 'countess' || c.tab !== t || c.current.length !== 1 || c.current[0] !== t
+      || !(c.bottomed || (c.tops[t] >= c.boundary - 6 && c.tops[t] <= c.boundary + 48)); });
+  verdict('S3', bad, seen);
+};
+
+probes.S4 = async browser => {
+  /* Joining four tabs must not make the page longer than the worst tab was: Partners alone
+     ran to 23,000px on a phone. The leading partners stay in view; the rest move into a
+     closed disclosure that says how many it holds, and not one card is lost. */
+  const seen = {};
+  for (const [label, opts] of [['desktop', desktop], ['phone', phone]]) {
+    const {context, page} = await session(browser, opts);
+    seen[label] = await page.evaluate(async () => {
+      const out = {};
+      for (const [slug, role] of [['steel', 'jungle'], ['countess', 'midlane'], ['murdock', 'carry']]) {
+        S.role = role; S.explore = false; S.pairMetric = 'kit'; openHero(slug, role); render();
+        await new Promise(r => requestAnimationFrame(() => r()));
+        const sec = document.querySelector('#hero-sec-pairings');
+        const partners = E.partners(slug, {min: 100, role: '', heroRole: role, metric: 'kit'});
+        const ordered = partners.combined || [];
+        const all = sec ? sec.querySelectorAll('article.partner').length : 0;
+        const outside = sec ? [...sec.querySelectorAll('article.partner')].filter(a => !a.closest('details')).length : 0;
+        const tail = sec ? sec.querySelector('details.partner-tail') : null;
+        out[slug] = {height: Math.round(document.documentElement.scrollHeight), ordered: ordered.length, all, outside,
+          tail: tail ? {open: tail.open, summary: tail.querySelector('summary').textContent.trim(), inside: tail.querySelectorAll('article.partner').length} : null};
+      }
+      return out;
+    });
+    await context.close();
+  }
+  const budget = {desktop: 16000, phone: 23000};
+  const bad = Object.entries(seen).some(([label, heroes]) => Object.values(heroes).some(h =>
+    h.height > budget[label]
+    || h.all < h.ordered                                               // a card went missing
+    || h.outside > 3                                                   // the tail is not tucked away
+    || (h.ordered > 3 && (!h.tail || h.tail.open || !h.tail.summary.includes(String(h.tail.inside)) || h.tail.inside < h.ordered - 3))));
+  verdict('S4', bad, {budget, ...seen});
+};
+
+probes.S5 = async browser => {
+  /* The evidence tables are complete AND searchable: a search narrows the rows, says how
+     many of how many are shown, opens the disclosure a match sits in, and clearing it
+     restores every row. Nothing is summarised away. A table the search leaves empty is set
+     aside rather than left as a bare header row, and comes back when the search is cleared. */
+  const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => { S.role = 'midlane'; openHero('countess', 'midlane'); render(); });
+  // late evidence redraws the section; count rows only once it has settled
+  await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 30000}).catch(() => {});
+  await page.waitForTimeout(300);
+  const seen = await page.evaluate(async () => {
+    const out = {};
+    const rowSel = 'table.table-small tbody tr, .choice';     // every evidence row the product counts
+    for (const section of ['counters', 'builds']) {
+      const root = document.getElementById('hero-sec-' + section);
+      const box = root && root.querySelector('[data-evidence-search="' + section + '"]');
+      const rows = root ? [...root.querySelectorAll(rowSel)] : [];
+      if (!box || !rows.length) { out[section] = {box: !!box, rows: rows.length}; continue; }
+      const probe = rows[rows.length - 1].textContent.trim().split(/\s+/)[0].slice(0, 5);
+      box.focus(); box.value = probe; box.dispatchEvent(new Event('input', {bubbles: true}));
+      await new Promise(r => setTimeout(r, 60));
+      const r2 = document.getElementById('hero-sec-' + section);
+      const all = [...r2.querySelectorAll(rowSel)];
+      const visible = all.filter(r => !r.hidden && r.offsetParent !== null);
+      const count = (r2.querySelector('[data-evidence-count="' + section + '"]') || {}).textContent || '';
+      const matchesOnly = visible.every(r => r.textContent.toLowerCase().includes(probe.toLowerCase()));
+      const tables = () => [...document.getElementById('hero-sec-' + section).querySelectorAll('table.table-small')]
+        .filter(t => t.querySelector('tbody tr'));
+      const bare = tables().filter(t => t.offsetParent !== null && [...t.querySelectorAll('tbody tr')].every(r => r.hidden)).length;
+      const box2 = r2.querySelector('[data-evidence-search="' + section + '"]');
+      box2.value = ''; box2.dispatchEvent(new Event('input', {bubbles: true}));
+      await new Promise(r => setTimeout(r, 60));
+      const restored = [...document.getElementById('hero-sec-' + section).querySelectorAll(rowSel)].filter(r => !r.hidden).length;
+      const tablesBack = tables().every(t => !t.hidden && t.offsetParent !== null);
+      out[section] = {box: true, rows: all.length, probe, visible: visible.length, count, matchesOnly, restored, bare, tablesBack,
+                      focusKept: document.activeElement === box2 || document.activeElement?.dataset?.evidenceSearch === section};
+    }
+    return out;
+  });
+  await context.close();
+  const bad = ['counters', 'builds'].some(k => { const s = seen[k];
+    return !s || !s.box || !s.rows || !s.matchesOnly || s.visible < 1 || !s.focusKept || s.bare > 0 || !s.tablesBack
+      || !new RegExp('Showing ' + s.visible + ' of ' + s.rows).test(s.count) || s.restored !== s.rows; });
+  verdict('S5', bad, seen);
+};
+
+probes.S6 = async browser => {
+  /* GUARD: drawing four sections at once stays cheap. Every hero redraw now builds all of
+     them, so a regression here is felt on every keystroke of every search. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const out = {};
+    for (const [slug, role] of [['steel', 'jungle'], ['countess', 'midlane'], ['murdock', 'carry']]) {
+      S.role = role; openHero(slug, role); render();
+      const t0 = performance.now(); for (let i = 0; i < 5; i++) render();
+      out[slug] = Math.round((performance.now() - t0) / 5 * 10) / 10;
+    }
+    return out;
+  });
+  await context.close();
+  verdict('S6', Object.values(seen).some(ms => ms > 80), {budget_ms: 80, ...seen});
+};
+
+probes.S7 = async browser => {
+  /* Retained or stale Pred.gg evidence is labelled wherever it appears. The Kit section read
+     "Pred.gg - cached <date>" with no Saved label while Pred.gg was retained, because its
+     source line was drawn without {statistics:true}. Pre-existing: V3 never opened Kit. */
+  const SAVED = /Saved (January|February|March|April|May|June|July|August|September|October|November|December) \d/;
+  const kitLines = page => page.evaluate(src => {
+    const saved = new RegExp(src), root = document.querySelector('#hero-sec-kit') || document.querySelector('#main');
+    const lines = [...root.querySelectorAll('.source-line')].filter(l => l.querySelector('a[href*="pred.gg"]'));
+    return {n: lines.length, saved: lines.filter(l => saved.test(l.textContent)).length,
+            retainedText: lines.filter(l => /retained from an earlier collection/.test(l.textContent)).length,
+            sample: lines[0] ? lines[0].textContent.replace(/\s+/g, ' ').trim().slice(0, 90) : null};
+  }, SAVED.source);
+  const seen = {};
+  {
+    const {context, page} = await clockSession(browser, desktop);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'kit'; render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    seen.current = await kitLines(page);
+    await page.evaluate(() => {
+      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
+      if (B.pred_game_data) B.pred_game_data.status = 'retained';
+      E = MetaEngine.create(B); S.heroTab = 'kit'; render();
+    });
+    seen.retained = await kitLines(page);
+    await context.close();
+  }
+  {
+    const {context, page} = await clockSession(browser, desktop, 49 * 3600000);
+    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'kit'; render(); });
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    seen.stale = await kitLines(page);
+    await context.close();
+  }
+  const every = c => c.n > 0 && c.saved === c.n;
+  verdict('S7', seen.current.saved > 0 || !every(seen.retained) || seen.retained.retainedText !== seen.retained.n || !every(seen.stale), seen);
 };
 
 (async () => {

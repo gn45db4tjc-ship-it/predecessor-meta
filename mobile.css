@@ -20,7 +20,7 @@
 .live-actions{display:flex;gap:8px;flex-wrap:wrap}
 .loading-skeleton{height:180px;border-radius:12px;background:linear-gradient(var(--surface-2) 0 25%,var(--bg) 25% 30%,var(--surface-2) 30% 55%,var(--bg) 55% 60%,var(--surface-2) 60% 85%,var(--bg) 85%)}
 button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--gold-text,var(--phone-accent));outline-offset:3px}
-@media(min-width:701px){.coach-next{position:sticky;top:72px;z-index:3;background:var(--surface,var(--phone-ink));padding:10px 12px}.install-hint{display:none}}
+@media(min-width:701px){.coach-next{position:sticky;top:max(72px,calc(var(--page-top-h,0px) + var(--hero-jump-h,0px) + 8px));z-index:3;background:var(--surface,var(--phone-ink));padding:10px 12px}.install-hint{display:none}}
 @media(max-width:700px){
  .sidebar #menu-toggle{display:block;margin-left:auto}
  body{overflow-wrap:anywhere}.sidebar #navigation,.sidebar .theme-toggle,.topbar #share-plan,.topbar #import-plan,.topbar #export,.topbar #install-app,.topbar .finder,#status-toggle,#patch-strip,#freshness,#source-notices{display:none!important}
