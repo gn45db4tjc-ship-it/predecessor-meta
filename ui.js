@@ -177,26 +177,121 @@ function pairCard(rec,hero,compact=false){
  (rec.performance?`<p class="baseline">${rec.performance.retained?'Retained':'Available'} role sample · ${esc(labels[rec.role])}: <strong>${pct(rec.performance.wr)}</strong> · ${games(rec.performance.played)} · ${link(rec.performance.url,rec.performance.source+' '+rec.performance.patch)} · ${esc(date(rec.performance.fetched_at))}</p>`:'')+
  `<div class="foot flex"><button class="quiet" data-pair="${esc([hero,other,S.heroRole,rec.role||''].join('|'))}">Evidence & why</button><button class="quiet" data-plan-pair="${esc([hero,other,S.heroRole,rec.role||''].join('|'))}" ${[hero,other].some(draftBlocks)?'disabled title="A hero in this pair is banned or picked by the enemy in your draft."':''}>Plan this pair</button></div></article>`;
 }
+/* ---- the hero page as sections ---------------------------------------------------- */
+const HERO_SECTIONS=[['builds','Build'],['pairings','Partners'],['counters','Counters'],['kit','Kit']];
+/* S.heroTab is the section being read. A click, a shared link, or code that sets it brings
+   that section into view; scrolling keeps it current. sectionSpy.tab is the last value the
+   page itself chose, so a redraw that changes nothing never moves the reader. */
+const sectionSpy={tab:null,hold:0,hero:null,requested:null};
+function sectionPad(){const root=getComputedStyle(document.documentElement),jr=$('#main .hero-jump');
+ return (parseFloat(root.getPropertyValue('--page-top-h'))||0)+(jr&&getComputedStyle(jr).position==='sticky'?jr.offsetHeight:0)+8;}
+function syncSectionCurrent(){document.querySelectorAll('#main [data-hero-tab]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.heroTab===S.heroTab)));}
+function jumpToSection(t){const sec=document.getElementById('hero-sec-'+t);if(!sec)return;
+ sectionSpy.tab=t;sectionSpy.hold=performance.now()+600;syncSectionCurrent();
+ window.scrollTo({top:Math.max(0,sec.getBoundingClientRect().top+scrollY-sectionPad())});}
+function spySections(){if(S.route!=='hero'||performance.now()<sectionSpy.hold)return;
+ const secs=[...document.querySelectorAll('#main section.hero-section')];if(!secs.length)return;
+ const pad=sectionPad(),line=pad+(innerHeight-pad)*0.25;let t=secs[0].dataset.heroSection;
+ for(const s of secs)if(s.getBoundingClientRect().top<=line)t=s.dataset.heroSection;
+ if(t!==S.heroTab){S.heroTab=t;sectionSpy.tab=t;syncSectionCurrent();}}
+let spyQueued=false;
+addEventListener('scroll',()=>{if(spyQueued)return;spyQueued=true;requestAnimationFrame(()=>{spyQueued=false;spySections();});},{passive:true});
+/* ---- searchable evidence ----------------------------------------------------------------- */
+const evidenceQuery={builds:'',counters:''};
+const evidenceSearchState={context:null,before:{}};
+function prepareEvidenceSearch(){
+ const context=S.hero+'|'+S.heroRole+'|'+S.bracket;
+ if(evidenceSearchState.context===context)return;
+ evidenceSearchState.context=context;evidenceSearchState.before={};
+ for(const section of Object.keys(evidenceQuery))evidenceQuery[section]='';
+}
+/* Remember the disclosure state before searching, not the temporary state created to reveal
+   matches. Keys survive a data redraw and are scoped to this hero, role, rank and section. */
+function evidenceDisclosures(root){
+ const seen=new Map();
+ return [...root.querySelectorAll('details')].map(d=>{
+  const path=[];let parent=d;
+  while(parent&&root.contains(parent)){
+   path.unshift(parent.dataset.keep||(parent.querySelector(':scope > summary')?.textContent||'').split('·')[0].trim());
+   parent=parent.parentElement?.closest('details');
+  }
+  const base=JSON.stringify(path),index=seen.get(base)||0;seen.set(base,index+1);
+  return {node:d,key:base+'#'+index};
+ });
+}
+const EVIDENCE_ROWS='table.table-small tbody tr, .choice';
+function evidenceSearchHTML(section,label){return `<div class="evidence-search"><label>${esc(label)} <input type="search" data-evidence-search="${section}" value="${esc(evidenceQuery[section]||'')}" placeholder="Hero or item name" autocomplete="off"></label><small class="muted" data-evidence-count="${section}" aria-live="polite"></small></div>`;}
+/* Narrows rows in place, without a redraw, so focus and caret stay in the box. A match inside
+   a closed disclosure opens it: a search that finds a row nobody can see has found nothing. */
+function applyEvidenceSearch(section){const root=document.getElementById('hero-sec-'+section);if(!root)return;
+ const q=(evidenceQuery[section]||'').trim().toLowerCase(),rows=[...root.querySelectorAll(EVIDENCE_ROWS)];let shown=0;
+ const disclosures=evidenceDisclosures(root);
+ if(q){
+  const before=evidenceSearchState.before[section]??=new Map();
+  for(const {node,key} of disclosures)if(!before.has(key))before.set(key,node.open);
+ }else if(evidenceSearchState.before[section]){
+  const before=evidenceSearchState.before[section];
+  for(const {node,key} of disclosures)if(before.has(key))node.open=before.get(key);
+  delete evidenceSearchState.before[section];
+ }
+ for(const r of rows){const hit=!q||r.textContent.toLowerCase().includes(q);r.hidden=!hit;if(!hit)continue;shown++;
+  if(q){let d=r.parentElement&&r.parentElement.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}}}
+ /* a table the search leaves empty is set aside, not left as a bare header row */
+ for(const t of root.querySelectorAll('table.table-small')){const rs=[...t.querySelectorAll('tbody tr')];t.hidden=!!q&&rs.length>0&&rs.every(r=>r.hidden);}
+ const c=root.querySelector('[data-evidence-count="'+section+'"]');
+ if(c)c.textContent=q?'Showing '+shown+' of '+rows.length+' evidence rows':rows.length+' evidence rows';}
+document.addEventListener('input',event=>{const box=event.target.closest&&event.target.closest('[data-evidence-search]');if(!box)return;
+ evidenceQuery[box.dataset.evidenceSearch]=box.value;applyEvidenceSearch(box.dataset.evidenceSearch);});
+/* The section being read, and where it sat, captured before a hero redraw so the redraw
+   cannot move it. Evidence arrives late and redraws #main wholesale, which replaces the node
+   the browser's own scroll anchoring was holding. */
+function captureSectionAnchor(){
+ if(S.route!=='hero')return null;const secs=[...document.querySelectorAll('#main section.hero-section')];if(!secs.length)return null;
+ const pad=sectionPad(),line=pad+(innerHeight-pad)*0.25;let s=secs[0];for(const x of secs)if(x.getBoundingClientRect().top<=line)s=x;
+ return {key:S.hero+'|'+S.heroRole,t:s.dataset.heroSection,top:s.getBoundingClientRect().top,atTop:scrollY<2};
+}
+function restoreSectionAnchor(a){
+ if(!a||a.atTop||S.route!=='hero'||a.key!==S.hero+'|'+S.heroRole)return;
+ const s=document.getElementById('hero-sec-'+a.t);if(!s)return;
+ const drift=s.getBoundingClientRect().top-a.top;if(Math.abs(drift)>1)window.scrollTo({top:Math.max(0,scrollY+drift)});
+}
+function afterHeroRender(){
+ if(S.route!=='hero'||!$('#main section.hero-section')){sectionSpy.hero=null;sectionSpy.requested=null;return;}
+ const heroKey=S.hero+'|'+S.heroRole;
+ /* A newly opened hero starts at the top, on Build, unless something asked for a section. */
+ if(sectionSpy.hero!==heroKey){sectionSpy.hero=heroKey;sectionSpy.tab='builds';}
+ syncSectionCurrent();
+ for(const k of Object.keys(evidenceQuery))applyEvidenceSearch(k);
+ /* A shared link names its section outright, so it lands there even when that is Build; code
+    that sets S.heroTab to a section the page did not choose also brings it into view. */
+ const want=sectionSpy.requested||(S.heroTab!==sectionSpy.tab?S.heroTab:null);sectionSpy.requested=null;
+ if(want){sectionSpy.tab=want;requestAnimationFrame(()=>requestAnimationFrame(()=>jumpToSection(want)));}
+}
 function heroView(){
  const h=E.heroes[S.hero];if(!h)return empty('Select a hero from the meta view.');if(!E.roles(S.hero).includes(S.heroRole))S.heroRole=E.roles(S.hero)[0]||'jungle';
+ prepareEvidenceSearch();
  if(S.partnerRole===S.heroRole)S.partnerRole='';
  const role=h.roles?.[S.heroRole],perf=E.performance({slug:S.hero,role:S.heroRole}),partners=E.partners(S.hero,{min:S.explore?1:100,role:S.partnerRole,heroRole:S.heroRole,metric:S.pairMetric});
  let html=`<button class="text-button muted" data-route="meta">← Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[S.role])}</button><div class="hero-header">${art(S.hero,'large')}<div class="summary"><div class="eyebrow">${esc(B.bracket?.label)} · ${esc(labels[S.heroRole])}</div><h1>${esc(h.display_name)}</h1><label>Planning role <select id="hero-role">${options(E.roles(S.hero).map(r=>[r,labels[r]+(E.performance({slug:S.hero,role:r})?'':' · no current sample')]),S.heroRole)}</select></label></div><div class="quick-stats"><div>${B.scoped_statistics?metaTierButton(S.hero,S.heroRole):tier(perf?.tier)}<small>${B.scoped_statistics?'Reviewed tier · open reasoning':'Role tier'}</small></div><div><div class="big">${pct(perf?.wr)}</div><small>${perf?savedTag(perf.fetched_at,perf.retained):''}${games(perf?.played)} · ${esc(perf?.source||'unavailable')} ${esc(perf?.patch||'')}</small></div></div></div>`;
  if(!perf)html+=note(esc(role?.error||'No data for this role.')+' Pair observations are hero-wide; the selected role does not create a role-specific pair sample.',true);
- html+=`<div class="toolbar"><div class="tabs" role="tablist" aria-label="Hero detail">${[['builds','Build'],['pairings','Partners'],['counters','Counters'],['kit','Kit']].map(([t,n])=>`<button role="tab" data-hero-tab="${t}" aria-selected="${S.heroTab===t}">${n}</button>`).join('')}</div></div>`;
- if(S.heroTab==='pairings'){
+ html+=`<nav class="toolbar hero-jump" aria-label="Sections of this hero"><div class="tabs">${HERO_SECTIONS.map(([t,n])=>`<button type="button" data-hero-tab="${t}" aria-current="${S.heroTab===t}">${n}</button>`).join('')}</div></nav>`;
+ /* Each section is exactly what its tab used to render, closed by its own source line. */
+ let pairsHTML='';
+ {
   const ordered=S.pairMetric==='kit'?partners.combined:partners.observed;const leading=ordered.slice(0,3);
-  html+=`<div class="hero-intro"><h2>What pairs well with ${esc(h.display_name)}?</h2><p>${S.pairMetric==='kit'?'Kit fit first; observed pair rates shown separately.':'Exploratory Statz comparison; kit fit shown separately.'} ${S.explore?'Samples below 100 games included.':'At least 100 games by default.'}</p></div>`+
+  pairsHTML+=`<div class="hero-intro"><h2>What pairs well with ${esc(h.display_name)}?</h2><p>${S.pairMetric==='kit'?'Kit fit first; observed pair rates shown separately.':'Exploratory Statz comparison; kit fit shown separately.'} ${S.explore?'Samples below 100 games included.':'At least 100 games by default.'}</p></div>`+
   `<div class="grid three">${leading.map(r=>pairCard(r,S.hero,true)).join('')}</div>${!leading.length?empty('No observed pair clears this filter. Kit-based alternatives are available below; no pair rate is estimated.'):''}`+
   `<div class="toolbar"><div class="toolbar-group"><label>Partner role <select id="partner-role">${options(roleOrder.filter(r=>r!==S.heroRole).map(r=>[r,labels[r]]),S.partnerRole,'All other roles')}</select></label><label>Compare with <select id="pair-metric">${options([['kit','Kit fit · current mechanics'],['stronger','Statz · stronger baseline gap'],['mean','Statz · average baseline gap']],S.pairMetric)}</select></label><label><input id="explore" type="checkbox" ${S.explore?'checked':''}> Include samples below 100</label></div></div>`+
   `<details><summary>How partners are ranked</summary><div class="detail-content"><p class="muted">Kit fit leads by default. Counted ability commitments and delivery conditions are inspected separately; tied points use the shown eligible role sample. The partner role is selected for kit fit before role win rate. Statz pair figures describe dataset ${esc(B.patch)} with an unconfirmed match window; they are not current-hotfix evidence. Missing pairs are neutral: absence is not evidence of a weak pair.</p></div></details>`+
-  `<div class="grid three">${ordered.slice(3).map(r=>pairCard(r,S.hero)).join('')}</div>`+
-  (S.pairMetric==='kit'?'':`<div class="section-title"><h2>Kit-based alternatives</h2>${badge('Calculated · no observed pair','calculated')}</div><p class="muted">These alternatives explain complementary abilities without assigning a win rate.</p><div class="grid three">${partners.derived.slice(0,9).map(r=>pairCard({...r,pair:null},S.hero)).join('')}</div>`);
+  (ordered.length>3?`<details class="partner-tail" data-keep="partner-tail"><summary>More partners after the first three · ${ordered.length-3}</summary><div class="detail-content"><div class="grid three">${ordered.slice(3).map(r=>pairCard(r,S.hero)).join('')}</div></div></details>`:'')+
+  (S.pairMetric==='kit'?'':`<details class="partner-tail" data-keep="partner-alternatives"><summary>Kit-based alternatives · ${Math.min(9,partners.derived.length)}</summary><div class="detail-content">${badge('Calculated · no observed pair','calculated')}<p class="muted">These alternatives explain complementary abilities without assigning a win rate.</p><div class="grid three">${partners.derived.slice(0,9).map(r=>pairCard({...r,pair:null},S.hero)).join('')}</div></div></details>`);
  }
- if(S.heroTab==='builds')html+=recommendedBuildHTML()+predBuildsHTML(S.hero,S.heroRole)+buildsView(h,role);
- if(S.heroTab==='counters')html+=counterplayHTML(S.hero,S.heroRole)+supportedMatchupsHTML(S.hero,S.heroRole,h,role)+exploratoryMatchupsHTML(S.hero,S.heroRole,h,role);
- if(S.heroTab==='kit')html+=predKitHTML(h)+kitView(h);
- return html+heroSourceHTML(h,S.heroRole,S.heroTab)+`<div class="footer">${esc(B.pairs_meta?.note)} ${esc(B.pool_note||'')} Kit explanations use rules and named ability evidence; they are not observed team-performance claims.</div>`;
+ const section=(t,label,inner)=>`<section class="hero-section" id="hero-sec-${t}" data-hero-section="${t}" aria-label="${label}">${inner}${heroSourceHTML(h,S.heroRole,t)}</section>`;
+ html+=section('builds','Build',recommendedBuildHTML()+evidenceSearchHTML('builds','Search the build evidence')+predBuildsHTML(S.hero,S.heroRole)+buildsView(h,role));
+ html+=section('pairings','Partners',pairsHTML);
+ html+=section('counters','Counters',counterplayHTML(S.hero,S.heroRole)+evidenceSearchHTML('counters','Search the matchup tables')+supportedMatchupsHTML(S.hero,S.heroRole,h,role)+exploratoryMatchupsHTML(S.hero,S.heroRole,h,role));
+ html+=section('kit','Kit',predKitHTML(h)+kitView(h));
+ return html+`<div class="footer">${esc(B.pairs_meta?.note)} ${esc(B.pool_note||'')} Kit explanations use rules and named ability evidence; they are not observed team-performance claims.</div>`;
 }
 function catalogKey(kind,value){if(B[kind]?.[value])return value;return Object.keys(B[kind]||{}).find(k=>normalizeName(B[kind][k].display_name||B[kind][k].name)===normalizeName(value));}
 function definitionIssue(kind,key,value=key){return (B.definition_issues||[]).find(i=>i.kind===(kind==='perks'?'perk':'item')&&(i.key===key&&key!=null||normalizeName(i.name)===normalizeName(value)));}
@@ -567,7 +662,10 @@ function scopedAuditHTML(){
 }
 
 
-function predSourceHTML(meta,{statistics=false}={}){const retained=statistics&&B?.pred_game_data?.status==='retained';return meta?`<div class="source-line"><span>${statistics?savedTag(meta.fetched_at,retained):''}${link(meta.url,'Pred.gg')} · ${meta.cache_hit?'cached':'fetched'} ${esc(date(meta.fetched_at))}${retained?' · retained from an earlier collection':''}</span><span>v${esc(meta.patch)}${meta.role?' · '+esc(meta.bracket)+' · Ranked · '+esc(labels[meta.role]):''}</span></div>`:'';}
+/* Retained or stale Pred.gg data is labelled the same way whatever it is: a win-rate table and
+   the ability text beside it are both from that collection. `statistics` no longer gates it -
+   gating it left retained Kit text reading as current. */
+function predSourceHTML(meta,{statistics=false}={}){const retained=B?.pred_game_data?.status==='retained';return meta?`<div class="source-line"><span>${savedTag(meta.fetched_at,retained)}${link(meta.url,'Pred.gg')} · ${meta.cache_hit?'cached':'fetched'} ${esc(date(meta.fetched_at))}${retained?' · retained from an earlier collection':''}</span><span>v${esc(meta.patch)}${meta.role?' · '+esc(meta.bracket)+' · Ranked · '+esc(labels[meta.role]):''}</span></div>`:'';}
 function predRowsHTML(rows,kind='items'){
  if(!rows?.length)return empty('No observations reported for this selection.');
  return `<div class="table-scroll"><table class="table-small"><thead><tr><th>${kind==='skill'?'Level':'Choice'}</th><th>Observed WR</th><th>Games</th></tr></thead><tbody>${rows.slice().sort((a,b)=>kind==='skill'?a.level-b.level:b.played-a.played).map(r=>`<tr><td>${kind==='skill'?esc(r.level):itemButton(r.name,kind)}</td><td>${pct(r.wr)}</td><td>${num(r.played,0)}</td></tr>`).join('')}</tbody></table></div>`;
@@ -615,7 +713,7 @@ document.addEventListener('click',async event=>{
   else if(d.metaRole){S.role=d.metaRole;save();render();document.querySelector('[data-meta-role="'+S.role+'"]')?.focus();}
   else if(d.metaDecision){const [slug,role]=d.metaDecision.split('|');detail(name(slug)+' · '+labels[role]+' tier review',metaDecisionHTML(slug,role));}
   else if(d.sort){if(S.sort===d.sort)S.direction*=-1;else{S.sort=d.sort;S.direction=['tier','hero','rank'].includes(d.sort)?1:-1;}render();}
-  else if(d.heroTab){S.heroTab=d.heroTab;render();document.querySelector('[data-hero-tab="'+S.heroTab+'"]')?.focus();}
+  else if(d.heroTab){S.heroTab=d.heroTab;jumpToSection(S.heroTab);document.querySelector('[data-hero-tab="'+S.heroTab+'"]')?.focus({preventScroll:true});}
   else if(d.pair){showPair(...d.pair.split('|'));}
   else if(d.planPair){const [a,b,selectedA,selectedB]=d.planPair.split('|'),blocked=[a,b].filter(draftBlocks);if(blocked.length)throw Error(blocked.map(name).join(' and ')+(blocked.length>1?' are':' is')+' banned or picked by the enemy in your draft. Clear that selection first.');let ar=E.roles(a).includes(selectedA)?selectedA:E.roles(a).includes(S.heroRole)?S.heroRole:E.roles(a)[0],br=E.roles(b).includes(selectedB)&&selectedB!==ar?selectedB:E.roles(b).find(r=>r!==ar);if(!br){const alt=E.roles(a).find(r=>r!==E.roles(b)[0]);if(!alt)throw Error('These heroes currently share a single supported role. Choose a different partner for a unique-role composition.');ar=alt;br=E.roles(b)[0];}S.locks=[{slug:a,role:ar},{slug:b,role:br}];S.size=2;save();changeRoute('planner');}
   else if(d.catalog)showCatalog(d.catalog,d.key);
@@ -703,11 +801,11 @@ function scheduleRedraw(delay){clearTimeout(evidenceView.timer);evidenceView.tim
 function requestRedraw(dataChanged){if(!dataChanged&&!evidenceView.pending&&evidenceSignature()===evidenceView.drawn){chrome();return;}if(pointerHeld()||typingInMain(document.activeElement)){chrome();evidenceView.pending=true;scheduleRedraw(TYPING_PAUSE_MS);return;}redrawKeepingFocus();}
 function redrawForEvidence(){requestRedraw(false);}
 function flushEvidenceRedraw(){if(!evidenceView.pending)return;if(pointerHeld()||typingInMain(document.activeElement)){scheduleRedraw(TYPING_PAUSE_MS);return;}redrawKeepingFocus();}
-function disclosureView(){return S.route+'|'+(S.route==='hero'?S.hero+'|'+S.heroRole+'|'+S.heroTab:S.route==='builds'?S.role+'|'+S.query:S.route==='meta'?S.role:'');}
+function disclosureView(){return S.route+'|'+(S.route==='hero'?S.hero+'|'+S.heroRole:S.route==='builds'?S.role+'|'+S.query:S.route==='meta'?S.role:'');}
 function disclosureKey(d){return d.dataset.keep||(d.querySelector(':scope>summary')?.textContent||'').split('·')[0].replace(/\s+/g,' ').trim();}
 function disclosureStates(){const main=$('#main');if(!main)return null;const seen={},states=[];for(const d of main.querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;states.push([k+'#'+seen[k],d.open,!!d.dataset.keep]);}return {view:main.dataset.view||'',states};}
 function restoreDisclosures(kept){if(!kept||kept.view!==disclosureView())return;const map=new Map(kept.states.map(([k,open,keep])=>[k,{open,keep}])),seen={};for(const d of $('#main').querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;const s=map.get(k+'#'+seen[k]);if(!s)continue;if(s.open)d.open=true;else if(s.keep&&d.dataset.keep)d.open=false;}}
-const renderView=render;render=function(){const kept=disclosureStates();renderView();restoreDisclosures(kept);const main=$('#main');if(main){main.dataset.view=disclosureView();trackEvidence('page',evidencePageView(),main);}evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
+const renderView=render;render=function(){const kept=disclosureStates(),anchor=captureSectionAnchor();renderView();restoreDisclosures(kept);restoreSectionAnchor(anchor);afterHeroRender();const main=$('#main');if(main){main.dataset.view=disclosureView();trackEvidence('page',evidencePageView(),main);}evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
 document.addEventListener('input',event=>{if(textEntry(event.target))evidenceView.lastInput=Date.now();},true);
 document.addEventListener('focusout',event=>{if(evidenceView.pending&&!(textEntry(event.relatedTarget)&&$('#main')?.contains(event.relatedTarget)))setTimeout(flushEvidenceRedraw,0);});
 document.addEventListener('pointerdown',()=>{evidenceView.pointer=true;evidenceView.pointerAt=Date.now();},true);

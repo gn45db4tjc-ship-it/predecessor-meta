@@ -496,6 +496,19 @@ dialog .metric-row{margin:var(--s3) 0}
  .toast{bottom:8px;left:8px;right:8px;font-size:var(--t-sm);padding:10px 12px}
 }
 __MOBILE_CSS__
+/* ---- the hero page as sections ---- */
+.hero-jump{position:sticky;top:var(--page-top-h,0px);z-index:6;background:var(--bg);padding:6px 0;margin:0 0 var(--s3);border-bottom:1px solid var(--line)}
+.hero-jump .tabs{display:flex;flex-wrap:wrap;gap:6px;overflow:visible}
+.hero-jump [data-hero-tab]{min-height:44px}
+.hero-jump [data-hero-tab][aria-current=true]{color:var(--text);border-color:var(--gold)}
+.hero-section+.hero-section{margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line)}
+.evidence-search{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin:var(--s3) 0}
+.evidence-search label{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);max-width:100%}
+.evidence-search input{min-height:44px;min-width:0;max-width:100%}
+/* .choice uses display:flex, which overrides the browser's default [hidden] rule. */
+.hero-section .choice[hidden],.hero-section table.table-small[hidden],.hero-section table.table-small tr[hidden]{display:none!important}
+/* 400% zoom: a short viewport cannot spare a sticky row */
+@media (max-height:480px){.hero-jump{position:static}}
 </style>
 </head>
 <body><a href="#main" class="skip">Skip to content</a>
@@ -506,27 +519,34 @@ __MOBILE_CSS__
    reached by Tab, by a fragment link or by find-in-page is never parked underneath it.
    Only sticky and fixed elements are counted: a bar that stops being fixed at a given
    width stops reserving space by itself. */
-var WATCH=['.topbar','.sidebar','#patch-strip','#status-panel','#material-notices','#mobile-navigation','.mobile-tabbar','.coach-next'];  /* chrome inside main counts too: it covers the list it summarises */
-function stuck(el){if(!el)return null;var p=getComputedStyle(el).position;return (p==='sticky'||p==='fixed')?el.getBoundingClientRect():null;}
+var WATCH=['.topbar','.sidebar','#patch-strip','#status-panel','#material-notices','#mobile-navigation','.mobile-tabbar'];
 function sync(){
-  var top=0,bottom=0,i,el,r;
+  var top=0,bottom=0,i,el,cs,r;
   for(i=0;i<WATCH.length;i++){
-    el=document.querySelector(WATCH[i]); r=stuck(el); if(!r||!r.height)continue;
-    /* Only a BAR reserves space. The desktop rail is sticky and full height, and counting
-       it would reserve the whole viewport and leave focus scrolling nowhere to go. */
-    if(r.width<innerWidth*0.6)continue;
-    if(r.top<=innerHeight/2){top=Math.max(top,r.bottom);}else{bottom=Math.max(bottom,innerHeight-r.top);}
+    el=document.querySelector(WATCH[i]);if(!el)continue;cs=getComputedStyle(el);
+    if(cs.position!=='sticky'&&cs.position!=='fixed')continue;
+    r=el.getBoundingClientRect();
+    /* Only a BAR reserves space. The desktop rail is sticky and full height, and counting it
+       would reserve the whole viewport and leave focus scrolling nowhere to go. */
+    if(!r.height||r.width<innerWidth*0.6)continue;
+    /* A sticky bar reserves the space it occupies ONCE STUCK, wherever it sits right now;
+       measuring its current position counted an unstuck bar further down as chrome. */
+    if(cs.position==='sticky')top=Math.max(top,(parseFloat(cs.top)||0)+r.height);
+    else if(r.top<=innerHeight/2)top=Math.max(top,r.bottom);else bottom=Math.max(bottom,innerHeight-r.top);
   }
-  /* A reserve larger than this would mean chrome, not content, and would push a focused
-     control off the other edge; better to under-reserve than to scroll to nowhere. */
-  var cap=innerHeight*0.4;
-  var s=document.documentElement.style;
-  s.scrollPaddingTop=Math.round(Math.min(top,cap)+8)+'px';
+  var cap=innerHeight*0.4;top=Math.min(top,cap);
+  /* The hero jump row sticks below the page chrome and covers every section beneath it. */
+  var jr=document.querySelector('#main .hero-jump'),jh=jr&&getComputedStyle(jr).position==='sticky'?jr.offsetHeight:0;
+  var s=document.documentElement.style,pad=Math.round(Math.min(top+jh,innerHeight*0.5)+8);
+  s.setProperty('--page-top-h',Math.round(top)+'px');
+  s.setProperty('--hero-jump-h',Math.round(jh)+'px');
+  s.scrollPaddingTop=pad+'px';
   s.scrollPaddingBottom=Math.round(Math.min(bottom,cap)+8)+'px';
-  /* Chrome that lives INSIDE main scrolls with the page until it sticks, so the page-level
-     reserve is not enough on its own: publish its height for the content it covers. */
-  var cn=document.querySelector('.coach-next'),cr=cn&&stuck(cn);
-  s.setProperty('--coach-next-h',(cr?Math.round(cr.bottom+10):0)+'px');
+  /* .coach-next is sticky inside its own panel, not the page: it covers only the build path it
+     summarises, so it is published for that list rather than added to the page reserve. */
+  var cn=document.querySelector('.coach-next');
+  if(cn&&getComputedStyle(cn).position==='sticky')s.setProperty('--coach-next-h',Math.max(0,Math.round((parseFloat(getComputedStyle(cn).top)||0)+cn.offsetHeight+10-pad))+'px');
+  else s.setProperty('--coach-next-h','0px');
 }
 var queued=false;
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;sync();});}
