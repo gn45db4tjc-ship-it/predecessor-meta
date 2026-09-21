@@ -435,3 +435,23 @@ catalog records are dropped. Search and category changes reset the visible-page 
 RS1–RS3 reproduced on the Stage 4 baseline and pass after implementation. P7 (same-version
 official-content change), P8 (review dates), V3 (retained evidence labels) and PL4 pass as
 focused guards. Full integrated browser and release gates remain required before merging.
+
+### Meta completion and integration (2026-09-21)
+
+The accepted whole-role-list decision replaces Top five on phones. Every eligible planning
+hero is visible on arrival; missing and small samples remain labelled. Order by offers
+reviewed tier (when active for Gold+), observed win rate, and name. No inactive review
+influences ordering. The selected ordering persists in the existing preference store.
+Favorites, recent heroes, and changes remain reachable after the full list.
+
+ML1–ML2 reproduced before implementation and pass afterward. M1 now checks the full list
+on arrival; P5 retains its missing/failed/paused/small-sample cases using the list's status;
+P13 exercises duplicate hero buttons through Favorites instead of the removed Top five.
+Rank checks now verify the whole planning roster and each available source row, and the
+accessibility suite exercises the name-order state. These are deliberate DOM-contract
+updates; none weakens the underlying data or focus requirements.
+
+Integration caught that folded audits hid an evidence-download failure and a description
+review's patch label. Both now remain in the closed summary; I8 and V4 keep their original
+assertions. Audit runs also receive separate preview directories by port, preventing a
+focused run from replacing files underneath a concurrently running full suite.

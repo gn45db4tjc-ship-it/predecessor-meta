@@ -624,10 +624,9 @@ const probes = {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => { S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); });
     const eligible = await page.evaluate(() => Object.keys(E.heroes).filter(s => E.roles(s).includes('jungle')).sort());
-    const toggle = page.locator('#mobile-all-heroes');
+    const list = page.locator('#mobile-all-list');
     let seen = {listed: [], unsampled_with_numbers: []};
-    if (await toggle.count()) {
-      await toggle.click();
+    if (await list.count()) {
       seen = await page.evaluate(() => {
         const cards = [...document.querySelectorAll('#mobile-all-list [data-hero]')];
         const unsampled = cards.filter(c => !E.performance({slug: c.dataset.hero, role: 'jungle'})).map(c => c.closest('article')?.innerText || '');
@@ -892,14 +891,14 @@ const probes = {
     await context.close();
   },
   async P5(browser) {
-    // Top five, the lead and the hero list give the real reason for missing numbers: too few games, a statistics page
+    // The role-list status, lead and full list give the real reason for missing numbers: too few games, a statistics page
     // that failed to load or was never collected (Pred.gg or Statz), statistics paused or unavailable.
     const {context, page} = await session(browser, phone);
     const seen = await page.evaluate(() => {
-      const topFive = () => { const s = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || '')); return {tiles: s ? s.querySelectorAll('.mobile-hero-card').length : null, text: (s?.innerText || '').replace(/\s+/g, ' ')}; };
+      const roleStatus = () => { const s = document.querySelector('#mobile-role-list'); return {tiles: s ? [...s.querySelectorAll('.mobile-hero-card')].filter(c=>/%/.test(c.innerText)&&!/small sample/.test(c.innerText)).length : null, text: (document.querySelector('#meta-order-status')?.innerText || '').replace(/\s+/g, ' ')}; };
       const lead = () => (document.querySelector('#main .page-head p')?.innerText || '').replace(/\s+/g, ' ');
-      const list = () => { document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click(); return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
-      const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: topFive(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
+      const list = () => { return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
+      const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: roleStatus(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
       const saved = B, original = E.performance, out = {};
       try {
         E.performance = p => { const r = original(p); return p.role === 'jungle' && r ? {...r, played: Math.min(r.played, 60)} : r; };
@@ -981,7 +980,7 @@ const probes = {
     await page.keyboard.press('Escape');
     const tile = await page.evaluate(() => {
       const saved = B; B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
-      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
+      try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
         const name = document.querySelector('#mobile-all-list .mobile-hero-card .hero-cell .name'); return {text: name?.closest('article')?.innerText.replace(/\s+/g, ' '), nameWidth: Math.round(name?.getBoundingClientRect().width || 0)}; }
       finally { B = saved; E = MetaEngine.create(B); render(); }
     });
@@ -1062,15 +1061,15 @@ const probes = {
     await page.evaluate(() => requestRedraw(true));
     const slot = await page.evaluate(() => ({slot: document.activeElement?.dataset?.slot || null, role: document.activeElement?.dataset?.slotRole || null}));
     const hero = await page.evaluate(() => {
-      S.role = 'jungle'; companionPrefs.homeQuery = ''; changeRoute('meta'); document.querySelector('#mobile-all-heroes[aria-expanded="false"]')?.click();
-      const inTop = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      S.role = 'jungle'; companionPrefs.homeQuery = ''; companionPrefs.favorites=['steel|jungle']; changeRoute('meta');
+      const inTop = document.querySelector('#mobile-favorites [data-hero]');
       const copy = inTop && [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === inTop.dataset.hero);
       copy?.focus(); requestRedraw(true);
       const a = document.activeElement;
       return {hero: copy?.dataset.hero || null, inList: !!a?.closest('#mobile-all-list'), inTopFive: !!a?.closest('section') && !a.closest('#mobile-all-list') && !!a.dataset?.hero};
     });
     const moved = await page.evaluate(() => {
-      const top = [...document.querySelectorAll('#main section')].find(x => /Top five/.test(x.querySelector('h2')?.innerText || ''))?.querySelector('[data-hero]');
+      const top = document.querySelector('#mobile-favorites [data-hero]');
       const hero = top?.dataset.hero, copy = [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.dataset.hero === hero);
       copy?.focus();
       const original = E.performance; E.performance = p => { const r = original(p); return p.slug === hero && p.role === 'jungle' && r ? {...r, played: 50} : r; };
@@ -3382,13 +3381,35 @@ probes.RS3 = async browser => {
  await context.close();verdict('RS3',before.rows>40||more<=before.rows||!found.includes(before.last)||!/No entries match/.test(empty),{before,more,found,empty:empty.slice(-120)});
 };
 
+probes.ML1 = async browser => {
+ const {context,page}=await session(browser,phone),seen=[];
+ for(const role of ['jungle','offlane','midlane','carry','support']){
+  await page.evaluate(role=>{S.role=role;companionPrefs.homeQuery='';changeRoute('meta');},role);
+  seen.push(await page.evaluate(()=>({role:S.role,wanted:Object.keys(E.heroes).filter(s=>E.roles(s).includes(S.role)).sort(),shown:[...document.querySelectorAll('#mobile-all-list [data-hero]')].map(b=>b.dataset.hero).sort(),order:!!document.querySelector('#mobile-meta-order')})));
+ }
+ await context.close();verdict('ML1',seen.some(s=>!s.order||JSON.stringify(s.shown)!==JSON.stringify(s.wanted)),seen);
+};
+probes.ML2 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
+ if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
+ await page.selectOption('#mobile-meta-order','name');
+ const names=await page.locator('#mobile-all-list [data-hero] .name').allTextContents();
+ await page.selectOption('#mobile-meta-order','wr');
+ const rates=await page.evaluate(()=>[...document.querySelectorAll('#mobile-all-list [data-hero]')].map(b=>E.performance({slug:b.dataset.hero,role:S.role})).filter(p=>p?.played>=100).map(p=>p.wr));
+ await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+ const restored=await page.locator('#mobile-meta-order').inputValue();
+ await context.close();verdict('ML2',JSON.stringify(names)!==JSON.stringify([...names].sort((a,b)=>a.localeCompare(b)))||rates.some((r,i)=>i&&r>rates[i-1])||restored!=='wr',{names,rates,restored});
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
     const python = process.env.PYTHON_EXE || 'python';
-    const staged = spawnSync(python, ['-B', path.join('tests', 'stage_preview.py')], {cwd: root, encoding: 'utf8'});
+    // Each run owns its preview. Parallel focused checks must not replace the full suite's files.
+    const site=path.join('qa',port===12940?'audit-site':'audit-'+port+'-site'),state=path.join('qa',port===12940?'audit-state':'audit-'+port+'-state');
+    const staged = spawnSync(python, ['-B', path.join('tests', 'stage_preview.py'),'--output',site,'--state-dir',state], {cwd: root, encoding: 'utf8'});
     if (staged.status) throw Error('Preview staging failed: ' + staged.stderr);
-    server = spawn(python, ['-B', '-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', path.join('qa', 'audit-site')], {cwd: root, stdio: 'ignore'});
+    server = spawn(python, ['-B', '-m', 'http.server', String(port), '--bind', '127.0.0.1', '--directory', site], {cwd: root, stdio: 'ignore'});
     await new Promise(r => setTimeout(r, 1500));
   }
   fs.mkdirSync(path.join(root, 'qa'), {recursive: true});
