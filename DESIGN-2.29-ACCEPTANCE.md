@@ -62,10 +62,12 @@ Accepted when:
 - Deep links and saved selections unaffected; `#main` stays `<main id="main" tabindex="-1">`;
   one `<h1>` per screen on every route and viewport.
 
-## Stage 2b — the four destinations *(scheduled, not yet built)*
+## Stage 2b — the four destinations *(implemented; review pending)*
 
 The redesign's navigation — **Meta, Plan, Reference, Sources**, with heroes opened from
-Meta — is a separate stage. It is scheduled here so it is not mistaken for finished work.
+Meta — is implemented on `codex/navigation-stage2b`, based on PR #45 at `03068f8`.
+PR #45's GitHub verification completed successfully on that exact commit. Neither branch
+has been installed or published by this handoff.
 
 **Scope:** the destination structure itself, and every route that reaches it.
 
@@ -91,6 +93,46 @@ Accepted when:
 - Saved selections, offline data and the export snapshot keep working across all of it.
 
 Each of these gets a probe before the change, as the standing conditions require.
+
+### Implementation and verification boundaries (2026-09-21)
+
+- The primary navigation has four destinations on both layouts. Plan exposes Compose,
+  Draft and Live as optional stages. Reference exposes Playbook (starting builds and
+  reviewed guide), Items & loadouts and What changed. Sources retains the full accuracy
+  screen and app settings. Existing screen IDs and saved-selection keys remain intact.
+- Only the visible primary navigation has `aria-current="page"`. Section controls use
+  `aria-current="true"`; all new navigation controls are at least 44 pixels tall.
+- History entries checkpoint screen, role, search, disclosure state and scroll when
+  leaving a screen. They do not contain picks or inventory, and scrolling does not write
+  history. Back/Forward restores the view without rolling back edits to the shared picks.
+- Canonical links use `view=plan&stage=compose|draft|live`,
+  `view=reference&section=playbook|guidance|items|changes`, and `view=sources`.
+  They include the selected bracket; Meta and starting builds also include their role.
+  Legacy route names and the hero/role/bracket/tab contract still resolve.
+- Startup waits for a linked cohort instead of replacing the requested URL with the
+  initial Gold screen. The static adapter no longer resets the route and hero on a rank
+  change. Local links adopt a newly loaded matching cohort without repeatedly requesting
+  the same settings change. These are navigation corrections, not statistical changes.
+- The What changed source selector is constrained to its container after the 320-pixel
+  check found it exceeding the available width.
+
+N1–N5 reproduce on `03068f8` before these changes (`qa/navigation-before.json`).
+N6 separately reproduces the local cohort retry on the preceding staged shell
+(`qa/navigation-local-before.json`). `browser_navigation.cjs` additionally checks both
+themes, desktop/phone/short-viewport layouts, keyboard navigation, six independent fresh
+rank links, rank changes and reloads. Its screenshots and receipts are under ignored `qa/`.
+
+The five existing browser harnesses use `navigation_helpers.cjs` to click the real
+destination and section controls. The static harness adapts the seven historical suites'
+navigation setup while retaining their content assertions and all nine screen checks.
+This deliberately replaces the retired flat-menu assumption; it does not remove tests
+because a button moved. The older general design/revision harnesses receive the same
+navigation compatibility change; running them is distinct from the current acceptance
+suite and is not implied by these notes.
+
+**Still separate:** Stage 4's compact shared roster and Plan presentation, Stage 5's
+content layout, native-device/screen-reader acceptance, merging, installation and
+publication. The existing Plan and Reference content is retained, not declared redesigned.
 
 ## Stage 3a — build evidence labels *(done: #43)*
 
@@ -316,10 +358,10 @@ This is verification of the staged code, not a live release or a fresh statistic
 collection. GitHub's check receipt must still match the pushed commit before merging.
 No installation, publication or merge is included in this follow-up.
 
-## Stage 2b — the four destinations *(still pending)*
+## Stage 2b status
 
-Unchanged and explicitly still open: Meta, Plan, Reference, Sources; legacy route mapping for
-all thirteen route names; one `aria-current="page"` per route; Back and Forward; shared links.
+Implemented for review; see its acceptance and verification boundaries above. This does
+not close Stage 4 or Stage 5, and it is not an installation or publication receipt.
 
 ### Statistical wording — required, and tested
 

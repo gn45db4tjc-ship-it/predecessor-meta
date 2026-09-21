@@ -3233,6 +3233,80 @@ probes.S10 = async browser => {
   verdict('S10', !seen.survivesRedraw || !!seen.newHero || !!seen.newRole, seen);
 };
 
+// Stage 2b: destinations are presentation; legacy screen identities and saved picks survive.
+probes.N1 = async browser => {
+  const seen=[];
+  for(const viewport of [desktop,phone]){
+    const {context,page}=await session(browser,viewport);
+    for(const [route,destination] of [['meta','meta'],['builds','reference'],['planner','plan'],['draft','plan'],['live','plan'],['library','reference'],['guidance','reference'],['changes','reference'],['data','sources'],['more','sources'],['hero','meta']]){
+      await page.evaluate(route=>{if(route==='hero')openHero('steel','jungle');else changeRoute(route);},route);
+      seen.push(await page.evaluate(({route,destination})=>{
+        const nav=document.querySelector(innerWidth<=700?'#mobile-navigation':'#navigation');
+        return {route,destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
+      },{route,destination}));
+    }
+    await context.close();
+  }
+  verdict('N1',seen.some(s=>s.labels.join('|')!=='Meta|Plan|Reference|Sources'||s.current.length!==1||s.current[0]!==s.destination||s.headings!==1||s.overflow),seen);
+};
+probes.N2 = async browser => {
+  const {context,page}=await session(browser,phone),seen=[];
+  for(const [hash,route] of [['view=meta','meta'],['view=builds','builds'],['view=planner','planner'],['view=draft','draft'],['view=live','live'],['view=library','library'],['view=guidance','guidance'],['view=changes','changes'],['view=data','data'],['view=plan&stage=draft&bracket=gold','draft'],['view=reference&section=items&bracket=gold','library'],['view=sources&bracket=gold','data']]){
+    await page.goto(url+'#'+hash);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+    seen.push({hash,wanted:route,actual:await page.evaluate(()=>S.route)});
+  }
+  await context.close();verdict('N2',seen.some(s=>s.actual!==s.wanted),seen);
+};
+probes.N3 = async browser => {
+  const {context,page}=await session(browser,phone);
+  await page.evaluate(()=>{S.role='midlane';save();changeRoute('meta');});
+  await page.evaluate(()=>scrollTo(0,350));await page.waitForTimeout(120);
+  const before=await page.evaluate(()=>({y:scrollY,role:S.role,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
+  await page.evaluate(()=>openHero('countess','midlane'));await page.waitForTimeout(200);
+  await page.goBack();await page.waitForTimeout(350);
+  const back=await page.evaluate(()=>({route:S.route,y:scrollY,role:S.role,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
+  await page.goForward();await page.waitForTimeout(350);
+  const forward=await page.evaluate(()=>({route:S.route,hero:S.hero,role:S.heroRole}));
+  await context.close();verdict('N3',back.route!=='meta'||back.role!==before.role||Math.abs(back.y-before.y)>3||back.picks!==before.picks||forward.route!=='hero'||forward.hero!=='countess',{before,back,forward});
+};
+probes.N4 = async browser => {
+  const {context,page}=await session(browser,phone);
+  await reset(page);await page.evaluate(()=>{S.enemies=[{slug:'gideon',role:'midlane'}];S.bans=['muriel'];save();changeRoute('planner');});
+  const picks=await page.evaluate(()=>JSON.stringify([S.locks,S.enemies,S.bans]));
+  const controls=await page.locator('[data-plan-stage]').count();
+  if(controls!==3){await context.close();verdict('N4',true,{controls});return;}
+  await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
+  await page.goBack();await page.waitForTimeout(250);const back=await page.evaluate(()=>S.route);
+  await page.goForward();await page.waitForTimeout(250);const forward=await page.evaluate(()=>S.route);
+  await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+  const after=await page.evaluate(()=>({route:S.route,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
+  await context.close();verdict('N4',back!=='draft'||forward!=='live'||after.route!=='live'||after.picks!==picks,{back,forward,after});
+};
+probes.N6 = async browser => {
+  const {context,page}=await session(browser,desktop);
+  const seen=await page.evaluate(()=>{
+    const priorLocal=local,priorRequest=requestLinkedBracket,priorBand=S.bracket;
+    let requested=null;
+    try{
+      local=true;S.bracket='bronze';linkApplied='';
+      history.replaceState(null,'','#view=plan&stage=draft&bracket=gold');
+      requestLinkedBracket=band=>{requested=band;};
+      applyCompanionLink();
+      return {loaded:B.bracket.segment,selected:S.bracket,route:S.route,requested};
+    }finally{local=priorLocal;requestLinkedBracket=priorRequest;S.bracket=priorBand;}
+  });
+  await context.close();verdict('N6',seen.loaded!=='gold'||seen.selected!=='gold'||seen.route!=='draft'||seen.requested!==null,seen);
+};
+probes.N5 = async browser => {
+  const seen=[];
+  for(const [hash,route,role] of [['view=meta&role=support&bracket=gold','meta','support'],['view=plan&stage=live&bracket=gold','live'],['view=reference&section=playbook&bracket=gold','builds'],['view=reference&section=guidance&bracket=gold','guidance'],['view=reference&section=changes&bracket=gold','changes'],['view=sources&bracket=gold','data']]){
+    const context=await browser.newContext({serviceWorkers:'block',...phone}),page=await context.newPage();
+    await page.goto(url+'#'+hash);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+    seen.push({hash,route,role,actual:await page.evaluate(()=>({route:S.route,role:S.role,band:B.bracket.segment}))});await context.close();
+  }
+  verdict('N5',seen.some(s=>s.actual.route!==s.route||(s.role&&s.actual.role!==s.role)||s.actual.band!=='gold'),seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

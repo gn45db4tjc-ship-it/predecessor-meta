@@ -1,3 +1,4 @@
+const {goToScreen}=require('./navigation_helpers.cjs');
 // Regression: changing rank must expose that rank's observations, not a wall of unavailable Gold review cells.
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
@@ -100,10 +101,8 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
       await page.locator('[data-hero-tab="counters"]').click();
       assert(!(await page.locator('#main').innerText()).includes('This view could not render'));
       for(const route of ['builds','planner','draft','live','guidance']) {
-        // Desktop and phone navigation both carry data-route since 2.22; use whichever is visible.
-        const link = page.locator('[data-route="'+route+'"]:visible').first();
-        if (!await link.count()) await page.locator('#menu-toggle').click();
-        await link.click();
+        // Stage 2b: use the visible destination, then its section.
+        await goToScreen(page,route);
         // The compact phone Builds view names the rank in its eyebrow (styled uppercase, so read textContent); the phone
         // Live view has no rank note, and the rank selector stays on screen instead.
         if(phone&&route==='builds') assert((await page.locator('#main .page-head').textContent()).includes('Builds · Diamond+'));
