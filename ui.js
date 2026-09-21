@@ -542,7 +542,17 @@ function showCatalog(kind,key){
 
 function changeRoute(route){document.querySelector('.sidebar')?.classList.remove('menu-open');$('#menu-toggle')?.setAttribute('aria-expanded','false');S.route=route;render();window.scrollTo(0,0);$('#main').focus({preventScroll:true});}
 function openHero(slug,role){if($('#detail')?.open)$('#detail').close();S.hero=slug;S.heroRole=role&&E.roles(slug).includes(role)?role:E.roles(slug).includes(S.role)?S.role:E.roles(slug)[0];S.heroTab='builds';S.partnerRole='';S.variants=[0,1];changeRoute('hero');}
-function setPick(side,role,slug){let list=side==='allies'?S.locks:S.enemies,other=side==='allies'?S.enemies:S.locks;const next=list.filter(p=>p.role!==role);if(slug){if(next.some(p=>p.slug===slug)||other.some(p=>p.slug===slug)||S.bans.includes(slug)){toast('That hero is already picked or banned. Clear the existing selection first.');render();return;}next.push({slug,role});}if(side==='allies')S.locks=next;else S.enemies=next;S.liveVariant=null;save();render();}
+function setPick(side,role,slug){
+ try{
+  if(!['allies','enemies'].includes(side)||!roleOrder.includes(role)||(slug&&!E.heroes[slug]))throw Error('Choose a valid hero and role.');
+  const list=side==='allies'?S.locks:S.enemies,other=side==='allies'?S.enemies:S.locks,current=list.find(p=>p.role===role),next=list.filter(p=>p.role!==role);
+  if(side==='allies'&&current?.slug===S.me&&slug!==S.me)throw Error('This is your Live hero. Use Change my hero in Live to replace them.');
+  if(slug){if(next.some(p=>p.slug===slug)||other.some(p=>p.slug===slug)||S.bans.includes(slug))throw Error('That hero is already picked or banned. Clear the existing selection first.');next.push({slug,role});}
+  if(side==='allies'){E.validPicks(next,{size:5,bans:S.bans,enemies:S.enemies});S.locks=next;}else S.enemies=next;
+  S.liveVariant=null;save();render();return true;
+ }catch(e){toast(e.message);render();return false;}
+}
+function banHero(slug){if(!E.heroes[slug])throw Error('Choose a known hero.');if(S.locks.some(p=>p.slug===slug)||S.enemies.some(p=>p.slug===slug))throw Error('Clear this hero from picks before banning them.');if(!S.bans.includes(slug))S.bans.push(slug);save();render();}
 /* ---- Builds page, recommended build card, and Live game page (observed data first; every calculated choice states its rule) ---- */
 const SKILL_KEYS={Primary:'Q',Secondary:'E',Alternate:'RMB',Ultimate:'R',Basic:'LMB'};
 function sampleText(wr,played){return (MetaEngine.finite(wr)?pct(wr):'—')+' · '+games(played);}
@@ -787,7 +797,7 @@ document.addEventListener('change',async event=>{const el=event.target,d=el.data
  else if(el.id==='live-priority'){updateLiveContext({priority:el.value});$('#live-priority')?.focus();}
  else if(el.id==='live-owned-add'&&el.value){const owned=[...(liveContext().owned||[]),el.value];if(owned.length>6||new Set(owned).size!==owned.length)throw Error('Choose up to six different completed items.');updateLiveContext({owned});$('#live-owned-add')?.focus();}
  else if(el.id==='me-hero'){S.me=el.value;S.liveVariant=null;save();render();}
- else if(el.id==='ban-hero'&&el.value){if(S.locks.some(p=>p.slug===el.value)||S.enemies.some(p=>p.slug===el.value))throw Error('Clear this hero from picks before banning them.');if(!S.bans.includes(el.value))S.bans.push(el.value);save();render();}
+ else if(el.id==='ban-hero'&&el.value)banHero(el.value);
  else if(el.id==='compare-bracket'){if(!(local||shared))throw Error('Bracket comparison collection is available in the local app.');if(!el.value)return;const r=await fetch('/api/comparison?bracket='+encodeURIComponent(el.value));comparison=await r.json();$('#comparison-output').innerHTML=comparisonHTML();}
  else if(el.id==='guidance-file'&&el.files[0]){const packet=JSON.parse(await el.files[0].text());await post('/api/import-guidance',packet);toast('Reviewed packet imported. Live refresh started.');}
  }catch(e){toast(e.message);}});
