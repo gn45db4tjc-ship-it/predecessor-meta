@@ -1381,7 +1381,8 @@ const probes = {
     await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
     await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
     const seen = await page.evaluate(() => {
-      // Pred.gg retained (as on the live site since 19 September): rankings fall back to Statz, which has no Steel jungle sample.
+      // Pred.gg retained beyond the new 30-hour preference window: Statz has no Steel jungle sample.
+      B.sources.pred_scoped.fetched_at = new Date(Date.now()-31*3600000).toISOString();
       for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
       if (B.scoped_statistics) B.scoped_statistics.status = 'retained';
       if (B.pred_game_data) B.pred_game_data.status = 'retained';

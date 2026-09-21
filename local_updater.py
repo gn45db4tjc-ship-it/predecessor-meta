@@ -65,6 +65,10 @@ def git(args, cwd, *, push=False):
                '-c', 'core.hooksPath='+str(hooks.resolve()),
                '-c', 'user.name=Predecessor Meta updater',
                '-c', 'user.email=predecessor-meta-updater@users.noreply.github.com']
+    # Only trust this configured, dedicated data checkout; never change global Git settings.
+    if Path(cwd).resolve() != (PRIVATE/'data-repo').resolve():
+        raise ValueError('Publisher Git operations require the dedicated data checkout')
+    command += ['-c', 'safe.directory='+str(Path(cwd).resolve())]
     if push:
         key = PRIVATE/'ssh/windows_publisher_ed25519'
         known = PRIVATE/'ssh/known_hosts'
@@ -171,13 +175,17 @@ def daemon():
 
 
 def main():
+    global PRIVATE
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--force',action='store_true')
     parser.add_argument('--collect-only',action='store_true')
     parser.add_argument('--publish-only',action='store_true')
     parser.add_argument('--daemon',action='store_true')
     parser.add_argument('--stop',action='store_true')
+    parser.add_argument('--publisher-dir',type=Path,help='Existing private publisher state and connection directory')
     args=parser.parse_args()
+    if args.publisher_dir:
+        PRIVATE=args.publisher_dir.resolve()
     if args.stop:
         PRIVATE.mkdir(parents=True,exist_ok=True);(PRIVATE/'stop').touch();return
     if args.daemon:
