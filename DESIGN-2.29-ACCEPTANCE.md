@@ -390,6 +390,26 @@ Accepted when the existing validation is reused — `engine.js` `validPicks` and
 hero appears once; one role per side; a banned hero is withheld from suggestions rather than
 greyed out; and saved selections survive a reload and a rank change.
 
+### Stage 4 implementation (2026-09-21)
+
+The three stages share a compact roster with a single editor for both teams and bans.
+The existing in-page role controls remain available inside closed disclosures. Compose's
+Generate action follows its size/options controls, before the longer coverage explanation.
+The roster is sticky only while collapsed and in a sufficiently tall viewport; focus
+scrolling reserves its actual height. Expanded picks and low-height views remain in flow.
+
+PL1–PL3 reproduced on the navigation baseline before implementation. In addition to the
+missing shared editor, PL3 found that direct slot mutations could evict the Live hero or
+accept an unsupported allied role. `setPick` now reuses `E.validPicks` and protects the Live
+hero; replacing that hero still uses Live's existing explicit replacement flow. Banning
+uses one shared mutation function. Engine calculations and saved-selection keys are unchanged.
+
+Acceptance includes Escape returning to the editor button after redraw, continued focus
+on the edited role, bans excluded from picker options, and selections retained across
+stages and reload. `browser_plan_layout.cjs` checks both themes at 390, 320, desktop and
+320×256, including the editor's accessibility and the sticky roster's focus clearance.
+Actual verification receipts must be checked before a merge; this record is not release approval.
+
 ## Stage 5 — reference and sources
 
 **Scope:** playbook, official item text, changes, sources and accuracy.

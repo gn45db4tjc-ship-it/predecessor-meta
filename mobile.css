@@ -96,3 +96,16 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
    must clear it. scroll-margin is what an anchor, a fragment link and a focused control all
    honour; the page-level scroll-padding cannot see chrome that lives inside main. */
 .coach-path li{scroll-margin-top:var(--coach-next-h,120px)}
+
+/* The shared roster is compact until opened; expanded details do not occupy sticky space. */
+.plan-roster{position:sticky;top:var(--page-top-h,0px);z-index:7;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 12px;margin:0 0 16px}
+.plan-roster:has(details[open]){position:static}
+.roster-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.roster-top>div{min-width:0}.roster-top small{display:block}.roster-top button{flex:none;min-height:44px}
+.plan-roster summary{min-height:44px;align-content:center}.plan-roster details{margin:0}
+.roster-teams,.roster-editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+.roster-teams p{margin:4px 0}.roster-teams span{display:block;color:var(--muted)}
+.roster-editor-grid label{display:grid;align-content:start;gap:4px}.roster-editor-grid select{width:100%;min-height:44px}
+#detail [data-plan-ban]{width:100%;min-height:44px}
+@media(max-width:380px){.roster-editor-grid{grid-template-columns:1fr}.roster-top{align-items:flex-start;flex-wrap:wrap}}
+@media(max-height:480px){.plan-roster{position:static}}

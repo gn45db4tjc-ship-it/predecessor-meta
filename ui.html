@@ -543,7 +543,8 @@ function sync(){
   var cap=innerHeight*0.4;top=Math.min(top,cap);
   /* The hero jump row sticks below the page chrome and covers every section beneath it. */
   var jr=document.querySelector('#main .hero-jump'),jh=jr&&getComputedStyle(jr).position==='sticky'?jr.offsetHeight:0;
-  var s=document.documentElement.style,pad=Math.round(Math.min(top+jh,innerHeight*0.5)+8);
+  var roster=document.querySelector('.plan-roster'),rh=roster&&getComputedStyle(roster).position==='sticky'?roster.offsetHeight:0;
+  var s=document.documentElement.style,pad=Math.round(Math.min(top+jh+rh,innerHeight*0.5)+8);
   s.setProperty('--page-top-h',Math.round(top)+'px');
   s.setProperty('--hero-jump-h',Math.round(jh)+'px');
   s.scrollPaddingTop=pad+'px';

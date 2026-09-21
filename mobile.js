@@ -287,11 +287,35 @@ function renderCompanion(){
 }
 // Guard the same role controls on both layouts; invalid options explain the conflict.
 function fullSlotRows(side,onlyRole=null,exceptRole=null){const picks=side==='allies'?S.locks:S.enemies;return `<div class="slots">${roleOrder.filter(r=>(!onlyRole||r===onlyRole)&&r!==exceptRole).map(r=>{const current=picks.find(p=>p.role===r);return `<div class="slot"><label>${labels[r]}<select data-slot="${side}" data-slot-role="${r}" aria-describedby="${side}-${r}-help"><option value="">Open slot</option>${Object.keys(E.heroes).sort((a,b)=>name(a).localeCompare(name(b))).map(s=>{const reason=disabledHero(s,side,r);return `<option value="${s}" ${current?.slug===s?'selected':''} ${reason?'disabled':''}>${esc(name(s))}${reason?' — '+esc(reason):''}</option>`;}).join('')}</select></label><small id="${side}-${r}-help">Picked, banned or unsupported-role choices are disabled.</small>${current?`<div class="slot-art">${art(current.slug,'tiny')}${esc(name(current.slug))}</div>`:''}</div>`;}).join('')}</div>`;}
-slotRows=function(side){if(!companionMedia.matches)return fullSlotRows(side);const picks=side==='allies'?S.locks:S.enemies;return `<details class="lineup" data-lineup="${side}" data-keep="lineup-${side}"${picks.length?'':' open'}><summary>${side==='allies'?'Allies':'Enemies'} · ${picks.length} of ${side==='allies'&&S.route==='planner'?S.size:5} selected</summary>${fullSlotRows(side)}</details>`;};
+slotRows=function(side){const picks=side==='allies'?S.locks:S.enemies;return `<details class="lineup" data-lineup="${side}" data-keep="lineup-${side}"><summary>${side==='allies'?'Allies':'Enemies'} · ${picks.length} of ${side==='allies'&&S.route==='planner'?S.size:5} selected</summary>${fullSlotRows(side)}</details>`;};
+let rosterExpanded=false,planOptionsExpanded=false;
+function capturePlanDisclosures(){const roster=$('[data-roster-picks]'),options=$('[data-keep="plan-search-options"]');if(roster)rosterExpanded=roster.open;if(options)planOptionsExpanded=options.open;}
+function planRosterHTML(){
+ const me=S.locks.find(p=>p.slug===S.me);
+ return `<aside class="plan-roster" aria-label="Shared lineup"><div class="roster-top"><div><strong>Your lineup</strong><small>${S.locks.length} allies · ${S.enemies.length} enemies · ${S.bans.length} bans${me?' · You: '+esc(name(me.slug)):''}</small></div><button data-edit-roster="true">Edit lineup</button></div><details data-roster-picks ${rosterExpanded?'open':''}><summary>View picks & bans</summary><div class="roster-teams">${[['Allies',S.locks],['Enemies',S.enemies]].map(([label,picks])=>`<div><strong>${label}</strong>${roleOrder.map(role=>{const p=picks.find(p=>p.role===role);return `<p><span>${labels[role]}</span> ${p?esc(name(p.slug)):'Open'}</p>`;}).join('')}</div>`).join('')}</div><p>Bans: ${S.bans.map(s=>esc(name(s))).join(', ')||'None'}</p><small>Shared across all three stages. Only your hero is required for Live.</small></details></aside>`;
+}
+function rosterEditorHTML(){
+ const taken=new Set([...S.locks,...S.enemies].map(p=>p.slug));
+ return `<p>Changes apply immediately to Compose, Draft and Live. Each pick keeps its role.</p>${['allies','enemies'].map(side=>`<section><h2>${side==='allies'?'Allies':'Enemies'}</h2><div class="roster-editor-grid">${roleOrder.map(role=>{const p=(side==='allies'?S.locks:S.enemies).find(p=>p.role===role),protectedMe=side==='allies'&&p?.slug===S.me;return `<label>${labels[role]}<select data-plan-side="${side}" data-plan-role="${role}" ${protectedMe?'disabled':''}>${options([['','Open slot'],...Object.keys(E.heroes).filter(slug=>slug===p?.slug||!disabledHero(slug,side,role)).sort((a,b)=>name(a).localeCompare(name(b))).map(slug=>[slug,name(slug)])],p?.slug||'')}</select>${protectedMe?'<small>Your Live hero. Change them from Live.</small>':''}</label>`;}).join('')}</div></section>`).join('')}<section><h2>Bans</h2><label>Ban a hero<select data-plan-ban>${options(Object.keys(E.heroes).filter(s=>!taken.has(s)&&!S.bans.includes(s)).sort((a,b)=>name(a).localeCompare(name(b))).map(s=>[s,name(s)]),'','Choose hero')}</select></label><div class="selection-chips">${S.bans.map(s=>`<button data-plan-unban="${s}">Remove ban: ${esc(name(s))}</button>`).join('')}</div></section><button data-close-detail="true">Done</button>`;
+}
+function refreshRosterEditor(selector){if($('#detail').open){$('#detail-body').innerHTML=rosterEditorHTML();$('#detail-body').querySelector(selector||'[data-plan-ban]')?.focus();}}
+document.addEventListener('toggle',event=>{if(event.target.matches?.('[data-roster-picks]'))rosterExpanded=event.target.open;if(event.target.matches?.('[data-keep="plan-search-options"]'))planOptionsExpanded=event.target.open;},true);
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-edit-roster],[data-plan-unban]');if(!button)return;
+ event.preventDefault();event.stopImmediatePropagation();
+ if(button.hasAttribute('data-edit-roster')){detail('Edit shared lineup',rosterEditorHTML());dialogReturn=button;return;}
+ const before=undoSnapshot();S.bans=S.bans.filter(s=>s!==button.dataset.planUnban);save();render();refreshRosterEditor();showUndo(before,'Ban removed.');
+},true);
+document.addEventListener('change',event=>{
+ const el=event.target;if(!el.matches('[data-plan-side],[data-plan-ban]'))return;
+ event.stopImmediatePropagation();const before=undoSnapshot();
+ try{if(el.dataset.planSide){const selector=`[data-plan-side="${el.dataset.planSide}"][data-plan-role="${el.dataset.planRole}"]`;if(setPick(el.dataset.planSide,el.dataset.planRole,el.value))showUndo(before,'Lineup updated.');refreshRosterEditor(selector);}else if(el.value){banHero(el.value);refreshRosterEditor();showUndo(before,'Hero banned.');}}
+ catch(e){toast(e.message);refreshRosterEditor();}
+},true);
 const originalChangeRoute=changeRoute,originalOpenHero=openHero;
 const originalDetail=detail;let dialogReturn=null,dialogSituation=null;
 detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
-$('#detail').addEventListener('close',()=>{if(dialogReturn?.isConnected)dialogReturn.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
+$('#detail').addEventListener('close',()=>{if(dialogReturn?.isConnected)dialogReturn.focus();else if(dialogReturn?.hasAttribute('data-edit-roster'))document.querySelector('[data-edit-roster]')?.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
 let navigationTransition=false,navigationRestore=null,linkedBracketPending=null,navigationRankChange=null;
 try{history.scrollRestoration='manual';}catch{}
 function writeNavigation(method,state,url){try{history[method](state,'',url);return true;}catch(e){if(e?.name!=='SecurityError')throw e;return false;}}
@@ -362,6 +386,17 @@ function applyCompanionLink(){
 function afterDestinationRender(){
  const main=$('#main');if(!main||!B)return;
  const sections=destinationSections();if(sections)main.insertAdjacentHTML('afterbegin',sections);
+ if(destinationFor(S.route)==='plan'){
+  const nav=main.querySelector('.destination-sections');
+  if(nav)nav.insertAdjacentHTML('afterend',planRosterHTML());else main.insertAdjacentHTML('afterbegin',planRosterHTML());
+  // The action follows the size choices; full slot editors and methodology remain available below it.
+  if(S.route==='planner'){
+   const generate=main.querySelector('#generate')?.closest('.toolbar'),size=main.querySelector('[data-size]')?.closest('.toolbar');
+   if(generate&&size)size.after(generate);
+   const optionsGroup=main.querySelector('#comp-role')?.closest('.toolbar-group');
+   if(optionsGroup&&generate){const disclosure=document.createElement('details');disclosure.dataset.keep='plan-search-options';disclosure.open=planOptionsExpanded;disclosure.innerHTML='<summary>Search options · roles, ordering & samples</summary><div class="detail-content toolbar"></div>';disclosure.lastElementChild.append(optionsGroup);generate.after(disclosure);}
+  }
+ }
  if(navigationRankChange&&B.bracket?.segment===navigationRankChange){S.bracket=navigationRankChange;navigationRankChange=null;recordNavigation(true);}
  if(navigationRestore){
    const restore=navigationRestore;

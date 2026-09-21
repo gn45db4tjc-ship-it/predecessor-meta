@@ -382,6 +382,9 @@ const probes = {
   async A13(browser) {
     const {context, page} = await session(browser, desktop);
     await reset(page); await generate(page);
+    // Stage 4 keeps search controls in a disclosure; exercise the same real change through it.
+    const searchOptions=page.locator('[data-keep="plan-search-options"]');
+    if(await searchOptions.count()&&!await searchOptions.evaluate(d=>d.open))await searchOptions.locator('summary').click();
     await page.selectOption('#comp-sort', await page.evaluate(() => [...document.querySelectorAll('#comp-sort option')].map(o => o.value).find(v => v !== S.sortComp)));
     const text = await page.locator('#compositions').innerText();
     verdict('A13', !/^Your search options changed after these alternatives were generated/m.test(text) || /picks, bans, enemies or data/.test(text), {panel: text.slice(0, 120)});
@@ -3305,6 +3308,54 @@ probes.N5 = async browser => {
     seen.push({hash,route,role,actual:await page.evaluate(()=>({route:S.route,role:S.role,band:B.bracket.segment}))});await context.close();
   }
   verdict('N5',seen.some(s=>s.actual.route!==s.route||(s.role&&s.actual.role!==s.role)||s.actual.band!=='gold'),seen);
+};
+
+probes.PL1 = async browser => {
+ const {context,page}=await session(browser,phone),seen=[];
+ await reset(page,3,{me:'steel',enemies:[{slug:'gideon',role:'midlane'}],bans:['muriel']});
+ for(const route of ['planner','draft','live']){
+  await page.evaluate(route=>changeRoute(route),route);
+  seen.push(await page.evaluate(()=>{const e=document.querySelector('.plan-roster');return {route:S.route,count:document.querySelectorAll('.plan-roster').length,text:e?.textContent,edit:!!e?.querySelector('[data-edit-roster]'),width:e?.getBoundingClientRect().width,overflow:document.documentElement.scrollWidth>innerWidth+1};}));
+ }
+ await context.close();verdict('PL1',seen.some(s=>s.count!==1||!s.edit||!/Steel/.test(s.text)||!/Gideon/.test(s.text)||!/Muriel/.test(s.text)||s.overflow),seen);
+};
+probes.PL2 = async browser => {
+ const {context,page}=await session(browser,phone);
+ await reset(page,3,{me:'steel'});await page.evaluate(()=>changeRoute('planner'));
+ if(!await page.locator('[data-edit-roster]').count()){await context.close();verdict('PL2',true,{missingEditor:true});return;}
+ await page.locator('[data-edit-roster]').click();
+ await page.locator('#detail [data-plan-side="allies"][data-plan-role="midlane"]').selectOption('gideon');
+ const focus=await page.evaluate(()=>document.activeElement?.dataset.planRole);
+ await page.locator('#detail [data-plan-ban]').selectOption('muriel');
+ await page.keyboard.press('Escape');
+ await page.waitForFunction(()=>!document.querySelector('#detail').open&&document.activeElement?.hasAttribute('data-edit-roster'),null,{timeout:3000});
+ const returned=await page.evaluate(()=>document.activeElement?.hasAttribute('data-edit-roster'));
+ await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
+ await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
+ const after=await page.evaluate(()=>({route:S.route,locks:S.locks,bans:S.bans,me:S.me}));
+ await context.close();verdict('PL2',focus!=='midlane'||!returned||after.route!=='live'||after.me!=='steel'||!after.bans.includes('muriel')||!after.locks.some(p=>p.slug==='gideon'&&p.role==='midlane'),{focus,returned,after});
+};
+probes.PL3 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  Object.assign(S,{locks:[{slug:'steel',role:'jungle'}],enemies:[],bans:[],me:'steel'});save();changeRoute('planner');
+  const before=JSON.stringify(S.locks),replacement=Object.keys(E.heroes).find(s=>s!=='steel'&&E.roles(s).includes('jungle'));
+  setPick('allies','jungle',replacement);const protectedMe=JSON.stringify(S.locks)===before;
+  S.locks=[{slug:'steel',role:'jungle'}];const bad=Object.keys(E.heroes).find(s=>!E.roles(s).includes('carry'));
+  setPick('allies','carry',bad);const unsupported=JSON.stringify(S.locks)===before;
+  S.locks=[{slug:'steel',role:'jungle'}];setPick('enemies','midlane','steel');
+  return {protectedMe,unsupported,duplicate:S.enemies.length===0};
+ });
+ await context.close();verdict('PL3',!seen.protectedMe||!seen.unsupported||!seen.duplicate,seen);
+};
+probes.PL4 = async browser => {
+ const {context,page}=await session(browser,phone);
+ const seen=await page.evaluate(()=>{
+  changeRoute('planner');rosterExpanded=true;const d=document.querySelector('[data-roster-picks]');d.open=true;
+  // A native toggle updates open before its asynchronous toggle event updates the remembered flag.
+  d.open=false;changeRoute('draft');return {open:document.querySelector('[data-roster-picks]').open,remembered:rosterExpanded};
+ });
+ await context.close();verdict('PL4',seen.open||seen.remembered,seen);
 };
 
 (async () => {
