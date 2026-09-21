@@ -1,0 +1,81 @@
+{
+  "version": "2.29.0",
+  "status": "review candidate",
+  "checked_at": "2026-09-21T08:46:19.267584+00:00",
+  "installed": false,
+  "published": false,
+  "source_collection_performed": false,
+  "observations_changed": false,
+  "unchanged_files_sha256": {
+    "engine.js": "3136a099d33557ca12a8fee0827f52e89465cd3845e9941d128ae8c138980a7e",
+    "reviewed_guidance.json": "d65a755748a5d5385426d95b7d8d007a476da9b7ac7bfbf1ce87ccddda0f05d5"
+  },
+  "checks": {
+    "browser_audit": {
+      "full_passed": 145,
+      "additional_regression": "RS4",
+      "targeted_source_checks_passed": 5,
+      "full_log_sha256": "502eda975146841c145e07a1bcdfbbc11810c7c175677594b5927a95798eb03b"
+    },
+    "python": {
+      "run": 196,
+      "skipped": 1,
+      "failed": 0
+    },
+    "javascript": {
+      "passed": 163,
+      "failed": 0
+    },
+    "browsers": {
+      "edge": {
+        "navigation_states": 60,
+        "independent_rank_links": 6,
+        "plan_layout_states": 24,
+        "role_tables": 30,
+        "phone_role_lists": 30,
+        "static_checks": {
+          "desktop": 57,
+          "phone": 50
+        },
+        "native_iphone": false
+      },
+      "webkit": {
+        "navigation_states": 60,
+        "independent_rank_links": 6,
+        "plan_layout_states": 24,
+        "role_tables": 30,
+        "phone_role_lists": 30,
+        "static_checks": {
+          "desktop": 57,
+          "phone": 50
+        },
+        "native_iphone": false
+      }
+    },
+    "accessibility": {
+      "states": 30,
+      "violations": 0
+    },
+    "offline": {
+      "cases": 9,
+      "all_six_ranks": true,
+      "shell": "predecessor-meta-shell-v2-29-0",
+      "data_cache": "predecessor-meta-data-v1"
+    },
+    "windows_isolated_app": {
+      "localVersion": "2.29.0",
+      "reused": true,
+      "savedAndReloaded": true,
+      "quit": true,
+      "errors": []
+    }
+  },
+  "scope": "Saved source bundles; original dates retained. The full audit preceded the final Sources layout adjustment, which has five targeted checks including the new RS4 regression. CI must verify the final commit before merging. Package extraction verification is recorded separately.",
+  "open_human_checks": [
+    "Actual phone touch interaction",
+    "Real screen reader",
+    "Native iPhone Safari and installed home-screen app",
+    "Actual Windows OS scaling"
+  ],
+  "release_gate": "Installation and publication require separate approval in DESIGN-2.29-ACCEPTANCE.md."
+}

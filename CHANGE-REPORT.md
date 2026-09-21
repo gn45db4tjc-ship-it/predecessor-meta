@@ -1,3 +1,9 @@
+# 2.29.0 design review candidate — September 21, 2026
+
+Four destinations, hero sections, precise build evidence, a shared Plan roster, the full phone role list, and focused Reference/Sources views. Source data, engine calculations and saved-storage formats remain unchanged. This candidate is not installed or published. The final check receipt and release boundaries are in [RELEASE-2.29.0.md](RELEASE-2.29.0.md).
+
+## Earlier changes
+
 # Current release: 2.28.2
 
 See RELEASE-2.28.2.md for the evidence announcements (accessibility), RELEASE-2.28.1.md for the phone role strip fix and the correction to the 2.28.0 notes, RELEASE-2.28.0.md for the fixes from the review of 2.27.0 (honest labels, readable counters, a compact status line), RELEASE-2.27.0.md for the faster first load (bundle size, audit item 11), RELEASE-2.26.2.md for the WebKit maintenance release, RELEASE-2.26.1.md for the fixes from the live check of 2.26.0, RELEASE-2.26.0.md for the phone navigation release, RELEASE-2.25.0.md for the audit completion release, RELEASE-2.24.0.md for the audit reliability release and RELEASE-2.23.0.md for the mobile Meta and cloud-refresh upgrade. Older sections below document their own releases.

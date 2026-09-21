@@ -82,7 +82,7 @@ const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127
         // No sortable table or uncertainty columns on the phone; its finder searches within the chosen role.
         await page.locator('[data-mobile-role="jungle"]').click();
         await page.locator('#mobile-hero-search').fill('Steel');
-        const found=page.locator('#main section').filter({has:page.locator('h2',{hasText:'Search results'})}).locator('.mobile-hero-card');
+        const found=page.locator('#mobile-all-list .mobile-hero-card');
         assert.equal(await found.count(),1);
         await found.locator('[data-hero="steel"]').first().click();
       } else {

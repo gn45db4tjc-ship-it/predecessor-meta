@@ -91,7 +91,7 @@ if (APP_CONFIG.mode === 'static') {
   const originalMaterial = materialAlerts;
   materialAlerts = function() { return publishedMaterial() + originalMaterial(); };
   dataView = function() {
-    return note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + oldDataView();
+    return oldDataView() + '<details id="source-update-method" class="reference-fold" data-keep="source-update-method"><summary>How updates work & optional sources</summary><div class="detail-content">' + note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + '</div></details>';
   };
   chrome = function() {
     originalChrome();
