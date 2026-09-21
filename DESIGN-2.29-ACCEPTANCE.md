@@ -210,6 +210,14 @@ Accepted when:
     crest, its mid form, or one of its evolutions — `plannedBuild` may name an upgrade as the
     recommendation, as Murdock's *Liberator* is an upgrade of *Marksman Crest*. When it is a
     different crest, the screen says so and estimates nothing.
+  - **Finding a crest's family is not finding its sample.** Membership says which rows are
+    relevant; the recommended crest then shows **its own** row. A recommended final upgrade
+    shows the upgrade's figure, never its parent's. A mid form has no row of its own in this
+    source and says so, borrowing nothing. An upgrade whose row carries no figures says so.
+  - **The crest path is stated, not implied**: base, mid form, final upgrade, with the
+    recommendation marked where it sits. A recommended *final* upgrade does not evolve again,
+    so its siblings appear as alternatives to it, not as next steps; a recommended base crest
+    lists its final upgrades as what it evolves into, each with its own figure.
 
 ## Stage 3c — sections and the four destinations *(scheduled, not yet built)*
 

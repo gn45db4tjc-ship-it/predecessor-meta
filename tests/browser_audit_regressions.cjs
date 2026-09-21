@@ -2630,7 +2630,8 @@ probes.Y1 = async browser => {
       label: d.querySelector('small')?.textContent.trim(),
       text: d.innerText.replace(/\s+/g, ' ').trim().slice(0, 80),
       tags: [...d.querySelectorAll('.tag')].map(t => t.textContent.trim()),
-      absent: d.classList.contains('loadout-absent')
+      // an absence statement and the stated crest path are context, not parts
+      absent: d.classList.contains('loadout-absent') || d.classList.contains('loadout-context')
     })) : [];
     return {
       parts, labels: parts.map(p => p.label),
@@ -2647,8 +2648,8 @@ probes.Y1 = async browser => {
   // the crest's evolutions are named when the source has them, and their absence is stated
   // when it does not; silently omitting them is the failure either way
   const evolutionHandled = seen.engine.upgrades && seen.engine.upgrades.length
-    ? seen.parts.some(p => /evolv/i.test(p.label || ''))
-    : seen.parts.some(p => p.absent && /evolution/i.test(p.label || ''));
+    ? seen.parts.some(p => /evolv|final upgrade|crest path/i.test(p.label || ''))
+    : seen.parts.some(p => p.absent && /evolution|crest path/i.test(p.label || ''));
   verdict('Y1', missing.length > 0 || seen.without_category > 0 || !evolutionHandled,
     {...seen, missing, evolutionHandled});
 };
@@ -2864,7 +2865,7 @@ probes.Z4 = async browser => {
         crestHTML: strip(crestEvolutionHTML(ev, plan.crest)),
         summaryBlessings: summary && summary.blessings ? summary.blessings.map(x => x && x.name) : null,
         summaryCrest: summary && summary.crest ? summary.crest.name : null,
-        matchedCrest: ev.crest ? (ev.crest.display_name || ev.crest.name) : null
+        matchedCrest: ev.crest ? (ev.crest.family ? (ev.crest.family.display_name || ev.crest.family.name) : (ev.crest.display_name || ev.crest.name)) : null
       };
     };
     return {countess: look('countess', 'midlane'), murdock: look('murdock', 'carry'), steel: look('steel', 'jungle')};
@@ -2885,6 +2886,53 @@ probes.Z4 = async browser => {
     // an unmatched crest is named as a different crest, not silently shown
     || (c.variant && !c.matchedCrest && !/different crest/i.test(c.crestHTML));
   verdict('Z4', !!seen.unsupported || bad, seen);
+};
+
+
+probes.Z5 = async browser => {
+  /* Finding a crest's FAMILY is not finding its SAMPLE. With a recommended Liberator, the
+     parent's 50% over 1,000 games was shown as "this crest", and the evolution list repeated
+     Liberator and its sibling under "Crest evolves" as if the final upgrade evolved again.
+     The parent and upgrade rates below are deliberately different so borrowing is visible. */
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { try {
+    const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const family = {display_name: 'Marksman Crest', winRate: 50, playedGames: 1000, midCrest: 'Sharpshooter Crest',
+      upgrades: [{display_name: 'Liberator', winRate: 60, playedGames: 100},
+                 {display_name: 'Pacifier', winRate: 55, playedGames: 200},
+                 {display_name: 'Bare Upgrade', winRate: null, playedGames: null}]};
+    const build = {perk: 'Fixture Perk', eternal: 'Fixture Eternal', winRate: 48, playedGames: 5000,
+      common_perks_1: [], common_perks_2: [], best_base_crests: [family]};
+    const stats = {builds: [build], fetched_at: '2026-09-15T09:00:00Z'};
+    const run = crest => {
+      const plan = {augment: 'Fixture Perk', eternal: 'Fixture Eternal', blessings: [], crest};
+      const ev = loadoutEvidence(plan, stats, stats.fetched_at);
+      return {sample: strip(loadoutSampleHTML(ev, 'Crest')), path: strip(crestEvolutionHTML(ev, crest)),
+              evolvesLabels: (crestEvolutionHTML(ev, crest).match(/<small>(Evolves into|Crest evolves)<\/small>[\s\S]*?(?=<\/div>)/g) || []).map(strip)};
+    };
+    return {upgrade: run('Liberator'), mid: run('Sharpshooter Crest'), base: run('Marksman Crest'), bare: run('Bare Upgrade')};
+  } catch (error) { return {unsupported: String(error.message || error).slice(0, 90)}; } });
+  await context.close();
+  if (seen.unsupported) { verdict('Z5', true, seen); return; }
+  const u = seen.upgrade, m = seen.mid, b = seen.base, x = seen.bare;
+  const problems = [];
+  // a recommended upgrade shows ITS OWN sample, never the parent's
+  if (!/60\.0%/.test(u.sample) || !/100 games/.test(u.sample)) problems.push('upgrade does not show its own 60% over 100');
+  if (/50\.0%/.test(u.sample) || /1,000/.test(u.sample)) problems.push("upgrade shows the parent's 50% over 1,000");
+  // a mid form with no row says so and borrows nothing
+  if (/50\.0%|1,000/.test(m.sample)) problems.push("mid form borrows the parent's sample");
+  if (!/no separate sample/i.test(m.sample)) problems.push('mid form does not say it has no sample');
+  // a base recommendation is its own figure
+  if (!/50\.0%/.test(b.sample) || !/1,000/.test(b.sample)) problems.push('base crest does not show its own sample');
+  // an upgrade whose row has no figures says so rather than borrowing
+  if (/50\.0%|1,000/.test(x.sample) || !/no sample of its own/i.test(x.sample)) problems.push('an upgrade with no figures borrows or says nothing');
+  // the path is explicit, and a FINAL upgrade does not evolve again
+  if (!/Marksman Crest/.test(u.path) || !/Sharpshooter Crest/.test(u.path) || !/Liberator \(recommended, final\)/.test(u.path)) problems.push('path not stated for an upgrade');
+  if (u.evolvesLabels.length) problems.push('a final upgrade is shown as evolving again');
+  if (!/Pacifier/.test(u.path) || !/alternative to Liberator, not a further step/i.test(u.path)) problems.push('sibling not presented as an alternative');
+  // a base recommendation does evolve, into the final upgrades, each with its own figure
+  if (!b.evolvesLabels.some(t => /Liberator/.test(t) && /60\.0%/.test(t))) problems.push('base does not list Liberator with its own rate as a next step');
+  verdict('Z5', problems.length > 0, {problems, ...seen});
 };
 
 (async () => {

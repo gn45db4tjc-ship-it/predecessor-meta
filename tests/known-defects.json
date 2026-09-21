@@ -121,6 +121,7 @@
     "Z1": "2.29 stage 3b: the pair interval reading tested only the lower bound, so an interval entirely below the stronger baseline was described as including it",
     "Z2": "2.29 stage 3b: the loadout evidence helpers read S.hero/S.heroRole, so a build card drawn for one hero could show a previously opened hero's evidence",
     "Z3": "2.29 stage 3b: the loadout evidence cache was keyed on hero, role and bracket, so refreshed data for the same hero was served the old evidence",
-    "Z4": "2.29 stage 3b: loadout evidence was read from currentItemPool, which holds item observations and not augment, Eternal or blessing ones, and crest evolutions came from buildSummary's own variant rather than one matching the recommended crest"
+    "Z4": "2.29 stage 3b: loadout evidence was read from currentItemPool, which holds item observations and not augment, Eternal or blessing ones, and crest evolutions came from buildSummary's own variant rather than one matching the recommended crest",
+    "Z5": "2.29 stage 3b: a recommended crest upgrade displayed its PARENT crest's win rate and games as its own, and the evolution list repeated the recommended final upgrade and its siblings under 'Crest evolves'"
   }
 }

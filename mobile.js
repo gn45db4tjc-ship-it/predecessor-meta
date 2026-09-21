@@ -100,16 +100,22 @@ function firstNamed(rows,wanted){
  for(var i=0;i<list.length;i++){var n=list[i]&&(list[i].display_name||list[i].name);if(nk(n)===nk(wanted))return list[i];}
  return null;
 }
-/* A source crest describes the recommended crest when it IS that crest, its mid form, or one
-   of its evolutions - plannedBuild may name an upgrade as the recommended crest. */
+/* Where the recommended crest sits in its family. Finding the family and finding the
+   recommendation's own observation are separate steps: the family says which rows are
+   relevant, and each stage has its OWN sample or none. plannedBuild may recommend the base
+   crest, its mid form, or one of its final upgrades. */
 function crestForPlan(build,planCrest){
  var crests=(build&&build.best_base_crests)||[];
  for(var i=0;i<crests.length;i++){
-  var c=crests[i],names=[c.display_name||c.name,c.midCrest].concat((c.upgrades||[]).map(function(u){return u.display_name||u.name;}));
-  for(var j=0;j<names.length;j++)if(nk(names[j])===nk(planCrest))return c;
+  var c=crests[i],ups=c.upgrades||[];
+  if(nk(c.display_name||c.name)===nk(planCrest))return {family:c,stage:'base',choice:c};
+  if(c.midCrest&&nk(c.midCrest)===nk(planCrest))return {family:c,stage:'mid',choice:null};
+  for(var j=0;j<ups.length;j++)if(nk(ups[j].display_name||ups[j].name)===nk(planCrest))return {family:c,stage:'upgrade',choice:ups[j]};
  }
  return null;
 }
+function crestName(x){return x?(x.display_name||x.name||''):'';}
+function hasSample(x){return !!x&&typeof x.winRate==='number'&&isFinite(x.winRate)&&typeof x.playedGames==='number'&&isFinite(x.playedGames);}
 /* One lookup per card, built from the plan's OWN hero and role. No module state, so new data
    cannot be served from a stale key. */
 function loadoutEvidence(plan,stats,fetchedAt){
@@ -121,14 +127,24 @@ function loadoutEvidence(plan,stats,fetchedAt){
  var b2=firstNamed(b.common_perks_2,plan.blessings&&plan.blessings[1]);
  if(b1)out.parts['Blessing 1']={wr:b1.winRate,played:b1.playedGames,scope:'this blessing in variant '+(m.index+1)};
  if(b2)out.parts['Blessing 2']={wr:b2.winRate,played:b2.playedGames,scope:'this blessing in variant '+(m.index+1)};
- var crest=crestForPlan(b,plan.crest);
- if(crest){out.crest=crest;out.parts.Crest={wr:crest.winRate,played:crest.playedGames,scope:'this crest in variant '+(m.index+1)};}
+ var cf=crestForPlan(b,plan.crest),v=' in variant '+(m.index+1);
+ if(cf){
+  out.crest=cf;
+  var base=crestName(cf.family);
+  /* The recommended crest's OWN row, never its family's. A parent's rate is not evidence
+     about the upgrade it leads to, and a mid form without a row gets no borrowed figure. */
+  if(cf.stage==='mid')out.parts.Crest={none:'The mid form has no separate sample'+v+'; '+base+'\u2019s own figure is not borrowed for it.'};
+  else if(!hasSample(cf.choice))out.parts.Crest={none:(cf.stage==='upgrade'?'This upgrade of '+base:'This crest')+' has no sample of its own'+v+'. Nothing is borrowed from the rest of its family.'};
+  else out.parts.Crest={wr:cf.choice.winRate,played:cf.choice.playedGames,
+   scope:cf.stage==='upgrade'?'this final upgrade of '+base+v:'this base crest'+v};
+ }
  return out;
 }
 function loadoutSampleHTML(ev,label){
  var s=ev&&ev.parts?ev.parts[label]:null;
  if(!ev||!ev.variant)return '<small class="muted">No source variant matches the recommended augment and Eternal, so there is no observation for this part.</small>';
  if(!s)return '<small class="muted">No observation for this choice in that variant.</small>';
+ if(s.none)return '<small class="muted">'+esc(s.none)+'</small>';
  return '<small class="muted">Win rate '+pct(s.wr)+' over '+games(s.played)+' · '+esc(s.scope)+' · collected '+esc(dayDate(ev.fetched_at))+'</small>';
 }
 /* The categories engine.js actually produces for a build part. A part is never reduced
@@ -140,16 +156,36 @@ function loadoutPartHTML(label,name,kind,plan,ev){
  var c=buildCategory(plan,null);
  return '<div><small>'+esc(label)+'</small>'+itemButton(name,kind)+badge(c.text,c.type)+loadoutSampleHTML(ev,label)+'</div>';
 }
-/* The crest's evolutions are the evolutions OF THE RECOMMENDED CREST. A source variant that
-   recommends a different crest is not evidence about this one. */
+/* The crest path, stated rather than implied: base, mid form, final upgrade, with the
+   recommendation marked where it sits. A recommended FINAL upgrade does not evolve again, so
+   its siblings are shown as alternatives to it, not as next steps. Every stage shows its own
+   sample or says it has none. */
+function crestRowSample(x,ev,what){
+ if(!hasSample(x))return '<small class="muted">'+esc(what)+' has no sample of its own in that variant.</small>';
+ return '<small class="muted">Win rate '+pct(x.winRate)+' over '+games(x.playedGames)+' · '+esc(what)+' · collected '+esc(dayDate(ev.fetched_at))+'</small>';
+}
 function crestEvolutionHTML(ev,planCrest){
- if(!ev||!ev.variant)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">No source variant matches the recommended augment and Eternal, so no evolution rows apply.</p></div>';
- if(!ev.crest)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">That variant recommends a different crest, so its evolutions do not describe '+esc(planCrest||'this crest')+'. Nothing is estimated in their place.</p></div>';
- var ups=ev.crest.upgrades||[];
- if(!ups.length)return '<div class="loadout-absent"><small>Crest evolution</small><p class="muted">No evolution rows in this source for this crest. Nothing is estimated in their place.</p></div>';
- return ups.map(function(u){
-  return '<div><small>Crest evolves</small>'+itemButton(u.display_name||u.name,'items')+badge('Observed choice','observed')+
-   '<small class="muted">Win rate '+pct(u.winRate)+' over '+games(u.playedGames)+' · evolution of '+esc(ev.crest.display_name||ev.crest.name)+' · collected '+esc(dayDate(ev.fetched_at))+'</small></div>';
+ if(!ev||!ev.variant)return '<div class="loadout-absent"><small>Crest path</small><p class="muted">No source variant matches the recommended augment and Eternal, so no crest rows apply.</p></div>';
+ if(!ev.crest)return '<div class="loadout-absent"><small>Crest path</small><p class="muted">That variant recommends a different crest, so its rows do not describe '+esc(planCrest||'this crest')+'. Nothing is estimated in their place.</p></div>';
+ var cf=ev.crest,fam=cf.family,base=crestName(fam),mid=fam.midCrest||null,ups=fam.upgrades||[];
+ var mark=function(stage,label){return cf.stage===stage?'<strong>'+esc(label)+' (recommended'+(stage==='upgrade'?', final':'')+')</strong>':esc(label);};
+ var path='<div class="loadout-context"><small>Crest path</small><p class="crest-path">'
+  +mark('base',base)+(mid?' \u2192 '+mark('mid',mid):'')
+  +' \u2192 '+(cf.stage==='upgrade'?mark('upgrade',crestName(cf.choice)):'one final upgrade')+'</p>'
+  +crestRowSample(fam,ev,'the base crest, '+base)
+  +(mid?'<small class="muted">The mid form, '+esc(mid)+', has no separate sample in this source.</small>':'')+'</div>';
+ if(cf.stage==='upgrade'){
+  var siblings=ups.filter(function(u){return nk(crestName(u))!==nk(crestName(cf.choice));});
+  if(!siblings.length)return path+'<div class="loadout-absent"><small>Other final upgrades</small><p class="muted">No other final upgrade of '+esc(base)+' in this source.</p></div>';
+  return path+siblings.map(function(u){
+   return '<div><small>Other final upgrade</small>'+itemButton(crestName(u),'items')+badge('Observed alternative','observed')+
+    crestRowSample(u,ev,'an alternative to '+crestName(cf.choice)+', not a further step')+'</div>';
+  }).join('');
+ }
+ if(!ups.length)return path+'<div class="loadout-absent"><small>Evolves into</small><p class="muted">No final-upgrade rows in this source for '+esc(base)+'. Nothing is estimated in their place.</p></div>';
+ return path+ups.map(function(u){
+  return '<div><small>Evolves into</small>'+itemButton(crestName(u),'items')+badge('Observed choice','observed')+
+   crestRowSample(u,ev,'a final upgrade of '+base)+'</div>';
  }).join('');
 }
 function coachHTML(p,{compact=false}={}){
