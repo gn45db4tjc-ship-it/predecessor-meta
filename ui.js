@@ -162,7 +162,7 @@ function chrome(){
 }
 function render(){repairDraft();dropStaleCompositions();chrome();if(renderCompanion())return;if(B&&S.route==='library'){$('#main').innerHTML=libraryView();return;}if(!B){$('#main').innerHTML=`<div class="page-head"><div><div class="eyebrow">Predecessor planning</div><h1>Loading ${esc(S.bracket||'')} data</h1><p>The shell is ready. Statistics and patch verification load in the background.</p></div></div>${empty('Waiting for the first data bundle. Source errors will appear here if the refresh cannot finish.')}`;return;}
  const pages={meta:metaView,hero:heroView,builds:buildsPageView,live:liveView,planner:plannerView,draft:draftView,guidance:guidanceView,changes:changesView,data:dataView};
- try{$('#main').innerHTML=freshnessAreasHTML()+(['hero','builds','live','planner','draft'].includes(S.route)?recommendationEvidenceHTML():'')+(pages[S.route]||metaView)();}catch(e){$('#main').innerHTML=note('This view could not render: '+esc(e.message)+'. The data has not been changed.',true);console.error(e);}
+ try{$('#main').innerHTML=(['hero','builds','live','planner','draft'].includes(S.route)?recommendationEvidenceHTML():'')+(pages[S.route]||metaView)()+freshnessAreasHTML();}catch(e){$('#main').innerHTML=note('This view could not render: '+esc(e.message)+'. The data has not been changed.',true);console.error(e);}
 }
 function head(kicker,title,text,action=''){return `<div class="page-head"><div><div class="eyebrow">${esc(kicker)}</div><h1>${esc(title)}</h1><p>${text}</p></div>${action}</div>`;}
 function statzMetaView(action=''){

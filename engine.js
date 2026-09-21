@@ -286,7 +286,7 @@
           reason:'Statz pair samples are a broader dataset, not verified latest-balance-patch statistics. Gaps and sample sizes remain separate; no current-patch pair rate is inferred.'},
         {area:'Written guidance',patch:g.patch,reviewed_at:review?.reviewed_at||g.reviewed_at,
           state:currentGuidance?'current':g.patch?'fallback':'unavailable',
-          reason:currentGuidance?'Reviewed for the live patch; individual plans still require their supporting mechanics to match.':mechanicsChanged?'Supporting mechanics changed or are unavailable. Previous advice is inspection-only; affected choices are not activated.':!verificationCurrent()?'Live patch verification is unavailable. Previous guidance is dated reference only.':due.due?'Current strategy review is unavailable or due. Previous guidance is retained with its original patch and review date. '+due.reasons.join(' '):'Due to lack of a verified current plan in this area, use the dated previous guidance as a fallback, not a newly reviewed recommendation.'}
+          reason:currentGuidance?'Reviewed for the live patch; individual plans still require their supporting mechanics to match.':mechanicsChanged?'Supporting mechanics changed or are unavailable. Previous advice is inspection-only; affected choices are not activated.':!verificationCurrent()?'Live patch verification is unavailable. Previous guidance is dated reference only.':due.due?'Current strategy review is unavailable or due. Previous guidance is retained with its original patch and review date. '+due.reasons.map(r=>r.startsWith('The scheduled review date')?'The scheduled strategy review is overdue.':r).join(' '):'Due to lack of a verified current plan in this area, use the dated previous guidance as a fallback, not a newly reviewed recommendation.'}
       ];
     }
     function evidenceState({now=Date.now()}={}) {
@@ -793,7 +793,7 @@
         }
         for(const [name,text] of Object.entries(pre.perks||{}))if(!perkTextMatches(name,Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name))?.description,text))changed.push('Loadout '+name);
       }
-      return {...r,active:current&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed};
+      return {...r,active:current&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid};
     }
     function perkTextMatches(name,actual,expected){
       if(actual===expected)return true;

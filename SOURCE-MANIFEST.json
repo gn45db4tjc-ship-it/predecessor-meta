@@ -46,7 +46,7 @@
     "app.webmanifest": "3d13d95e98a891e3280849e3f116e9e20bba103101e5eb751ac486618cd7cd99",
     "assets/app-icon-192.png": "7d82e4e299e638898e87e0eae69388f276fba55a22854f167c322b76c4a36574",
     "assets/app-icon-512.png": "2eac3ac6b0420d26dcda5f32dba032d954ad4db39e6633d166beffa55e0e75c1",
-    "engine.js": "0e77b4d02b77272edba4431b13ac39e70587e4a98245725473ef17b0c1ba6ace",
+    "engine.js": "1f45f71e1e19579ec199f933e769225d1ec3087f95056e617deb418ba4fa2108",
     "free_hosting.json": "9c427d36ae911cf626b3fc747c11d89ecdd4627f713a088a984478239e3ec0da",
     "import_local_feed.py": "d9417fc3b8333e5762b29a92cdd7912aaddbc3f3e8eddb56da4d63e62c9b690e",
     "local_updater.py": "705adc0137b99c2fc8b3f9832c337ac51bd43253f683d07943324fb1eb9c72da",
@@ -69,7 +69,7 @@
     "static_publish.py": "4352ba84263da73b99f24d870c3078486b9ad1cbd2d64f088f749425688c670d",
     "sw.js": "e7818beaf407a41075497b8b71d6528b819358cca97890f8e010e0f8042371fe",
     "tests/audit_regressions.test.cjs": "45fd422175c664eeb5e18dce2f98d8dff4dcb01af471dd93cfb1577cbeb80cdb",
-    "tests/browser_audit_regressions.cjs": "35cfd478b30e04a01d821e2cf06ad6c09a9347fe845cfe74fff0d21baefe1d97",
+    "tests/browser_audit_regressions.cjs": "5309c99309889211c3c3b2470f7b738d1b6481e24195344d4d125da163709cd3",
     "tests/browser_companion.cjs": "2ef76d261362aca1bebb27b6c42dab6ee7c1e2b995110f4da7f98b9a7c96dbf3",
     "tests/browser_companion_accessibility.cjs": "0fd26ec6d7e64826a91bbfa7c3ec211f56721b609afc08b0541151ff31c96682",
     "tests/browser_design.cjs": "afb43d0cf208b52925a4f059149072bd789e9461678e651205826fe40c941d1b",
@@ -117,6 +117,6 @@
     "tests/test_static_strategy_review.py": "0cc6fd51ec5bbc3226a44d8e0b3e4713b60c554d780119840d651c633a93dcf9",
     "tests/verification_guard.test.cjs": "bf449da15c3725ec7cc52f6cd0811f533f82c9dd3f9a907e3c9d0ce7066f68f2",
     "ui.html": "6b5cb31463d951517eb615e70d2afd2d07a1d78d7c4c0845a7e1f95da39fb01e",
-    "ui.js": "abd283720b613cf0193fb35e41377ef5a44798953895c8ec9c7f1312f0aa4029"
+    "ui.js": "1c8cf94ed99d08928a1f65d3d2f73f53832166a66be9a72986d65f2529d32412"
   }
 }
