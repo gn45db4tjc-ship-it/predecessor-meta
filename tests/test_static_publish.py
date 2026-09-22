@@ -222,6 +222,9 @@ class PublicationTests(unittest.TestCase):
         html=(self.out/'index.html').read_text(encoding='utf8')
         self.assertIn('"mode":"static"',html);self.assertIn('function checkPublication(',html)
         self.assertNotIn('Synthetic fixture',html)  # lightweight shell; data separate
+        self.assertEqual(manifest['app']['version'], s.base.VERSION)
+        self.assertIn('<meta name="predecessor-app-version" content="'+s.base.VERSION+'">', html)
+        self.assertEqual(entry['generated_at'], NOW.isoformat())  # App release does not redate its statistics.
         self.assertIn('<link rel="manifest" href="app.webmanifest">',html)
         app_manifest=json.loads((self.out/'app.webmanifest').read_text(encoding='utf8'))
         self.assertEqual(app_manifest['display'],'standalone')

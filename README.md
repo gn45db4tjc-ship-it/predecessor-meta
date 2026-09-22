@@ -183,3 +183,8 @@ Updater status and errors are in `.local-publisher/updater.json` and `.local-pub
 To pause automatic updating, run `Install Windows Updater.ps1 -Uninstall` in this folder. This removes only the updater shortcuts and requests the process to stop after any current update; it preserves the website, data and keys. The repository owner can revoke **Predecessor Meta — Windows data updater** in GitHub Settings → Deploy keys. The source-only ZIP excludes `.local-publisher` entirely.
 
 The updater runs the reviewed source copy installed here. It reads remote **data only**, and does not automatically execute changed GitHub source code. A future application upgrade should update this local source copy deliberately.
+# Phone app updates (2.30.3)
+
+Open **More → App updates** to see the running app version and check for an interface update. New releases also show an **Update app** button when the app returns to the foreground. Applying it keeps your saved picks, builds, preferences and offline data. Game statistics update separately.
+
+If your home-screen app predates 2.30.3, fully close it from the phone's app switcher and reopen it while connected once to get the new update controls. Returning to the home screen alone may only suspend it. Do not delete the app or clear website data.

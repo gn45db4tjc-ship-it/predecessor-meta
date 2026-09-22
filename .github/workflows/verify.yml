@@ -66,3 +66,11 @@ jobs:
       - name: Show the browser verdicts
         if: always()
         run: cat qa/audit-regressions-browser.json || true
+      - name: Home-screen app upgrade preserves active choices and offline data
+        env:
+          START_PREVIEW: '1'
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_app_updates.cjs
+      - name: Show app upgrade verdicts
+        if: always()
+        run: cat qa/app-updates-edge.json || true

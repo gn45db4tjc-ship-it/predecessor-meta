@@ -441,7 +441,7 @@ def render_site(folder, out, state):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     now = base.now_utc()
-    manifest = {'schema': 2, 'published_at': base.iso(now),
+    manifest = {'schema': 2, 'published_at': base.iso(now), 'app': {'version': base.VERSION},
                 'default_bracket': CONFIG['default_bracket'],
                 'schedule': {'daily_utc': CONFIG['daily_utc'], 'patch_check_hours': CONFIG['patch_check_hours']},
                 'patch_check': state.get('patch_check', {}), 'cohorts': {},
@@ -535,6 +535,7 @@ def render_site(folder, out, state):
         return manifest
     config = {'mode': 'static', 'tool_version': base.VERSION, 'manifest': 'manifest.json'}
     html = base.render_html(None, config)
+    html = html.replace('</head>', '<meta name="predecessor-app-version" content="' + base.VERSION + '"></head>', 1)
     marker = '// START CLIENT'
     if html.count(marker) != 1:
         raise ValueError('UI startup marker changed; static adapter needs review')

@@ -34,7 +34,94 @@ if (APP_CONFIG.mode === 'static') {
   }
   window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); pendingInstallPrompt = event; syncInstallButton(); });
   window.addEventListener('appinstalled', () => { pendingInstallPrompt = null; syncInstallButton(); toast('App installed.'); });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('sw.js', baseURL), {scope: './'}).catch(() => {});
+  const appUpdate = {latest: null, checked: 0, busy: false, applying: false, message: 'Check for interface updates separately from game data.'};
+  const releaseVersion = value => typeof value === 'string' && /^\d{1,4}\.\d{1,4}\.\d{1,4}$/.test(value) ? value : null;
+  const newerRelease = value => {
+    if (!releaseVersion(value) || !releaseVersion(APP_CONFIG.tool_version)) return false;
+    const current = APP_CONFIG.tool_version.split('.').map(Number), next = value.split('.').map(Number);
+    for (let i = 0; i < 3; i++) if (next[i] !== current[i]) return next[i] > current[i];
+    return false;
+  };
+  function appUpdateHTML() {
+    return '<section class="panel" aria-label="App updates"><h2>App updates</h2><p>Running v' + esc(APP_CONFIG.tool_version) + '</p><p data-app-state></p><div class="actions"><button data-app-check>Check app update</button><button class="primary hide" data-app-apply>Update app</button></div><p class="muted">Updates keep your saved picks and builds. Game data updates separately.</p></section>';
+  }
+  const oldMore = moreView;
+  moreView = function() { return oldMore() + appUpdateHTML(); };
+  function renderAppUpdate() {
+    let banner = $('#app-update-notice');
+    if (!banner) {
+      banner = document.createElement('section'); banner.id = 'app-update-notice';
+      banner.className = 'panel app-update-notice hide'; banner.setAttribute('aria-label', 'App update available');
+      banner.innerHTML = '<p data-app-state role="status" aria-live="polite"></p><button class="primary" data-app-apply>Update app</button>';
+      $('#main').before(banner);
+    }
+    banner.classList.toggle('hide', !appUpdate.latest);
+    document.querySelectorAll('[data-app-state]').forEach(node => {
+      if (node.textContent !== appUpdate.message) node.textContent = appUpdate.message;
+    });
+    document.querySelectorAll('[data-app-check]').forEach(button => {button.disabled = appUpdate.busy || appUpdate.applying; button.textContent = appUpdate.busy ? 'Checking app…' : 'Check app update';});
+    document.querySelectorAll('[data-app-apply]').forEach(button => {button.classList.toggle('hide', !appUpdate.latest); button.disabled = appUpdate.applying; button.textContent = appUpdate.applying ? 'Opening update…' : 'Update app';});
+  }
+  function observeAppRelease(manifest, response) {
+    if (response.headers.get('X-Predecessor-Cache') === 'offline') {
+      appUpdate.message = 'Offline · running v' + APP_CONFIG.tool_version + '. App updates cannot be verified until connected.';
+      renderAppUpdate(); return false;
+    }
+    const version = releaseVersion(manifest?.app?.version);
+    if (!version) return false;
+    appUpdate.checked = Date.now(); appUpdate.latest = newerRelease(version) ? version : null;
+    appUpdate.message = appUpdate.latest ? 'App v' + version + ' is available. Update when ready; your saved picks and builds stay.' : version === APP_CONFIG.tool_version ? 'You are running the latest app · v' + APP_CONFIG.tool_version + '.' : 'Running v' + APP_CONFIG.tool_version + ' · the site currently publishes v' + version + '.';
+    renderAppUpdate(); return true;
+  }
+  const workerRegistration = 'serviceWorker' in navigator
+    ? navigator.serviceWorker.register(new URL('sw.js', baseURL), {scope: './', updateViaCache: 'none'}).catch(() => null)
+    : Promise.resolve(null);
+  async function checkAppRelease(force = false) {
+    if (appUpdate.busy || appUpdate.applying || (!force && Date.now() - appUpdate.checked < 300000)) return;
+    appUpdate.busy = true; appUpdate.checked = Date.now(); renderAppUpdate();
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 12000);
+    try {
+      const response = await getJSON(siteURL(APP_CONFIG.manifest), controller.signal), manifest = await response.json();
+      validateManifest(manifest);
+      if (!observeAppRelease(manifest, response)) throw Error('A fresh app version could not be verified.');
+      workerRegistration.then(registration => registration?.update()).catch(() => {});
+    } catch {
+      appUpdate.message = 'App update check unavailable. Keep using this version and try again when connected.';
+    } finally { clearTimeout(timeout); appUpdate.busy = false; renderAppUpdate(); }
+  }
+  async function applyAppRelease() {
+    if (appUpdate.applying || !appUpdate.latest) return;
+    appUpdate.applying = true; renderAppUpdate();
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      // Check a fresh document before leaving the usable one. Never clear caches or saved data.
+      const target = new URL(location.href); target.searchParams.set('release', appUpdate.latest); target.searchParams.set('app_update', appUpdate.latest);
+      const response = await fetch(target, {cache: 'no-store', credentials: 'omit', signal: controller.signal});
+      if (!response.ok || response.headers.get('X-Predecessor-Cache') === 'offline') throw Error('Update unavailable');
+      const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const version = doc.querySelector('meta[name="predecessor-app-version"]')?.content;
+      if (version !== appUpdate.latest || !newerRelease(version)) throw Error('The new interface is not available yet');
+      save(); saveCompanionPrefs();
+      const savedPlan = JSON.parse(localStorage.getItem('predecessor-planner-v2') || 'null');
+      const savedMatch = JSON.parse(sessionStorage.getItem(matchKey) || 'null');
+      const savedPrefs = JSON.parse(localStorage.getItem(prefsKey) || 'null');
+      if (!savedPlan || ['locks','enemies','bans','me','bracket'].some(k => JSON.stringify(savedPlan[k]) !== JSON.stringify(S[k])) || JSON.stringify(savedMatch?.contexts) !== JSON.stringify(S.liveContexts) || JSON.stringify(savedPrefs) !== JSON.stringify(companionPrefs)) throw Error('Save unavailable');
+      target.hash = navigationHash(navigationState());
+      location.replace(target.href);
+    } catch {
+      appUpdate.message = 'The update could not be opened safely. This screen and your picks are unchanged. Try again when connected.';
+    } finally { clearTimeout(timeout); appUpdate.applying = false; renderAppUpdate(); }
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-app-check],[data-app-apply]'); if (!button) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    if (button.hasAttribute('data-app-apply')) applyAppRelease(); else checkAppRelease(true);
+  }, true);
+  const resumeAppCheck = () => { if (document.visibilityState === 'visible') checkAppRelease(); };
+  window.addEventListener('pageshow', event => { if (event.persisted) resumeAppCheck(); });
+  window.addEventListener('focus', resumeAppCheck);
+  window.addEventListener('online', () => checkAppRelease(true));
+  document.addEventListener('visibilitychange', resumeAppCheck);
 
   function siteURL(path) {
     if (!/^(manifest\.json|bundles\/[a-z]+-(?:(?:core|shared|hero-[a-z0-9-]+)-)?[a-f0-9]{64}\.json)$/.test(path || '')) throw Error('Invalid publication path');
@@ -91,10 +178,11 @@ if (APP_CONFIG.mode === 'static') {
   const originalMaterial = materialAlerts;
   materialAlerts = function() { return publishedMaterial() + originalMaterial(); };
   dataView = function() {
-    return oldDataView() + '<details id="source-update-method" class="reference-fold" data-keep="source-update-method"><summary>How updates work & optional sources</summary><div class="detail-content">' + note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + '</div></details>';
+    return oldDataView() + appUpdateHTML() + '<details id="source-update-method" class="reference-fold" data-keep="source-update-method"><summary>How updates work & optional sources</summary><div class="detail-content">' + note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + '</div></details>';
   };
   chrome = function() {
     originalChrome();
+    renderAppUpdate();
     $('#connection').textContent = 'SHARED WEBSITE · YOUR DRAFT STAYS IN THIS BROWSER';
     $('#refresh').textContent = latestStatus.busy ? 'Checking…' : 'Reload latest data';
     $('#refresh').disabled = !!latestStatus.busy;
@@ -114,6 +202,7 @@ if (APP_CONFIG.mode === 'static') {
   };
   render = function() {
     originalRender();
+    renderAppUpdate();
     if ($('#detail')?.open && detailRefresh && B && definitionReviewStatus() !== site.dialogStatus) {
       if (site.dialogStatus && $('#detail-body').textContent.includes(site.dialogStatus)) rebuildDialog(); else site.dialogStatus = definitionReviewStatus();
     }
@@ -368,6 +457,7 @@ if (APP_CONFIG.mode === 'static') {
       validateManifest(manifest);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       site.manifest = manifest;
+      observeAppRelease(manifest, manifestResponse);
       globalThis.publishedCohorts = manifest.cohorts;   // read-only reference for the strategy review packet
       const entry = manifest.cohorts[requested];
       const errs = [...(entry?.last_attempt?.errors || [])];
