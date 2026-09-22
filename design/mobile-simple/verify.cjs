@@ -12,6 +12,7 @@ function record(id,detail){results.push({id,passed:true,detail});}
   for(const screen of ['meta','builds','hero','alternatives','counters','partners','kit','plan','live','more']){
    await page.evaluate(screen=>{S.hero='khaimera';S.role='jungle';S.allies=[{slug:'khaimera',role:'jungle'}];S.enemies=[];S.section=['alternatives','counters','partners','kit'].includes(screen)?screen:'build';S.view=['alternatives','counters','partners','kit'].includes(screen)?'hero':screen;render();},screen);
    assert.equal(await page.locator('h1').count(),1,screen+' one heading');
+   assert.deepEqual(await page.locator('#nav button').allTextContents(),['Meta','Plan','More']);assert.equal(await page.locator('#nav [aria-current="page"]').count(),1);
    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);assert.equal(overflow,false,screen+' overflow '+width);
    await page.addScriptTag({path:path.join(deps,'axe-core/axe.min.js')});
    const a=await page.evaluate(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}));});assert.deepEqual(a,[],screen+' axe '+width+' '+theme);
@@ -22,6 +23,11 @@ function record(id,detail){results.push({id,passed:true,detail});}
   assert.deepEqual(errors,[]);await context.close();
  }
  const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'}),page=await context.newPage();await page.goto(url);
+ await page.evaluate(()=>{S.view='builds';S.role='support';S.query='Muriel';S.hero='muriel';S.pool=['muriel'];render();});
+ assert.equal(await page.evaluate(()=>S.view),'meta');assert.equal(await page.locator('#role').inputValue(),'support');assert.equal(await page.locator('#search').inputValue(),'Muriel');assert.deepEqual(await page.evaluate(()=>S.pool),['muriel']);
+ await page.locator('[data-hero="muriel"]').click();assert.equal(await page.locator('[data-section="build"]').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('#nav [aria-current="page"]').textContent(),'Meta');
+ record('combined-meta-build-entry','legacy saved Builds view preserves selections and opens hero Build under Meta');
+ await page.evaluate(()=>{S.view='meta';S.role='jungle';S.query='';S.pool=[];render();});
  const coverage=await page.evaluate(()=>{const heroes=Object.keys(E.heroes),out=heroes.map(slug=>RecommendationView.counterplay(E,E.heroes,slug,E.roles(slug)[0]||'jungle'));return {heroes:heroes.length,withAdvice:out.filter(r=>r.points.length).length,named:out.filter(r=>r.picks.length).length,valid:out.every(r=>r.picks.length<=3&&r.points.length<=3)}});
  assert.equal(coverage.withAdvice,coverage.heroes);assert.equal(coverage.valid,true);record('counterplay-coverage',coverage);
  await page.evaluate(()=>{S.hero='khaimera';S.role='jungle';S.view='hero';S.section='partners';render();});assert.equal(await page.locator('.partner-card').count(),5);assert.ok(await page.locator('.partner-card').evaluateAll(nodes=>new Set(nodes.map(n=>n.dataset.partnerRole)).size)>=3);record('partner-role-diversity','five real candidates, at least three roles for Khaimera');

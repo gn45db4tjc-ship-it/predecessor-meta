@@ -22,6 +22,12 @@ partners with role variety and useful counter information. These amendments are
 implemented below. That satisfies the design-review checkpoint; no production
 installation or publication is implied by approving the prototype.
 
+Subsequent review combined the duplicate Meta and Builds lists. Mobile navigation
+is now **Meta / Plan / More**. Meta is the shared rankings-and-builds entry; tapping
+a hero opens Build by default. A saved prototype `builds` view resolves to Meta
+without clearing the role, search, hero, selected build, or match state. The full
+desktop reference still has its builds overview.
+
 ## Real depth retained
 
 - All heroes and source build variants from the input bundle, not three fake cards.
@@ -71,12 +77,12 @@ python -B -m http.server 12967 --bind 127.0.0.1 --directory qa/mobile-review
 The verifier uses the existing Playwright and axe dependencies; `PREVIEW_DEPS`
 overrides their local directory. It writes `TEST-RESULTS.json` and screenshots only
 inside the ignored review package. `BUILD-RECEIPT.json` fingerprints input and engine.
-The amended prototype passes 75 browser/layout checks and eight selection/evidence
+The amended prototype passes 76 browser/layout checks and eight selection/evidence
 unit tests. These are prototype checks, not the full production regression suite.
 
 ## Port sequence after design review
 
-1. Navigation branch: map mobile Meta/Builds/Plan/More while preserving all legacy routes,
+1. Navigation branch: map mobile Meta/Plan/More while preserving all legacy routes,
    desktop references, one current-page marker, shared links and history restoration.
 2. Hero presentation branch: one active phone section, full loadout, alternatives,
    source-specific warnings, counter/partner evidence and context-specific disclosure state.
