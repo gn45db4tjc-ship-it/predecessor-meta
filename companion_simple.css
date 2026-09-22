@@ -233,6 +233,10 @@
  .large-text #mobile-navigation .destination-icon{display:none}
 }
 @media(max-width:350px){
+ main{padding-top:12px}
+ .page-head h1{font-size:var(--tr-title)}
+ #mobile-role-list>.section-title{margin-top:16px}
+ .mobile-hero-card{padding:12px}
  .mobile-hero-card .hero-cell{font-size:var(--tr-base);gap:8px}
  .mobile-hero-card .hero-cell .portrait{width:44px;height:60px}
  .mobile-hero-card .mobile-stat{max-width:108px}
