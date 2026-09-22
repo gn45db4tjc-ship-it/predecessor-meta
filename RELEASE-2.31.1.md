@@ -25,7 +25,7 @@ Seven experimental combinations remain unresolved: Akeron Support, Ikra Support,
 
 Build reviews have their own official article fingerprints and exact kit/item/loadout preconditions. A changed hotfix, new live patch, conflicting mechanics, incompatible blessings, missing item or unavailable patch verification withholds the recommendation. No missing statistic becomes a zero.
 
-The phone build screen shows the actual September 22 review date, patch and current-sample limitation. Sources distinguishes the latest build review from the previous full strategy review. Unresolved plans show the September 14 fallback; if a future patch invalidates a completed September 22 plan, that newer plan becomes the historical fallback instead of reverting two reviews back. Manual variant selection and saved picks remain intact.
+The phone build screen shows the actual September 22 review date, patch and current-sample limitation. Meta also removes the duplicate "Hero name" sort when current rankings are unavailable: the menu offers alphabetical order and previous-dataset win rate, while retaining the saved tier preference for when it becomes usable again. Sources distinguishes the latest build review from the previous full strategy review. Unresolved plans show the September 14 fallback; if a future patch invalidates a completed September 22 plan, that newer plan becomes the historical fallback instead of reverting two reviews back. Manual variant selection and saved picks remain intact.
 
 Saved-source publication can apply this editorial update even while optional Pred.gg is unavailable. It preserves existing observations and all other guidance dates. The current compact-core projection grows by about 40 KB compressed per rank (roughly 5.5%).
 

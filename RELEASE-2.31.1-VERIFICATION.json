@@ -40,7 +40,45 @@
       "Y1",
       "Y4"
     ],
-    "full_browser_audit": "CI required; historical build probes now use the plans belonging to their seed; no eligibility gate weakened"
+    "full_browser_audit": "CI required; historical build probes now use the plans belonging to their seed; no eligibility gate weakened",
+    "meta_sort_menu": [
+      {
+        "engine": "edge",
+        "width": 320,
+        "duplicates": false,
+        "alphabetical": true,
+        "previousWinRate": true,
+        "selectionRestored": true,
+        "tierPreferencePreserved": true
+      },
+      {
+        "engine": "edge",
+        "width": 390,
+        "duplicates": false,
+        "alphabetical": true,
+        "previousWinRate": true,
+        "selectionRestored": true,
+        "tierPreferencePreserved": true
+      },
+      {
+        "engine": "webkit",
+        "width": 320,
+        "duplicates": false,
+        "alphabetical": true,
+        "previousWinRate": true,
+        "selectionRestored": true,
+        "tierPreferencePreserved": true
+      },
+      {
+        "engine": "webkit",
+        "width": 390,
+        "duplicates": false,
+        "alphabetical": true,
+        "previousWinRate": true,
+        "selectionRestored": true,
+        "tierPreferencePreserved": true
+      }
+    ]
   },
   "six_brackets": [
     {
