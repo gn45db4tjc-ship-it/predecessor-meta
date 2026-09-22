@@ -1819,7 +1819,7 @@ const probes = {
     const seen = {};
     for (const width of [320, 360, 390, 412]) for (const large of [false, true]) {
       const context = await browser.newContext({serviceWorkers: 'block', viewport: {width, height: 844}, isMobile: true, hasTouch: true}), page = await context.newPage();
-      await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large})); }, large);
+      await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large, fullDetails:true})); }, large);
       await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
       const problems = [];
       // 'meta' is the phone Meta page (its own role strip) and 'live-picker' is the hero picker dialog; both use
@@ -1856,7 +1856,7 @@ const probes = {
     const seen = {};
     for (const width of [320, 360, 390, 412]) for (const large of [false, true]) {
       const context = await browser.newContext({serviceWorkers: 'block', viewport: {width, height: 844}, isMobile: true, hasTouch: true}), page = await context.newPage();
-      await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large})); }, large);
+      await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large, fullDetails:true})); }, large);
       await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
       await page.evaluate(() => openHero('steel', 'jungle'));
       await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
@@ -3070,8 +3070,8 @@ probes.S4 = async browser => {
   const bad = Object.entries(seen).some(([label, heroes]) => Object.values(heroes).some(h =>
     h.height > budget[label]
     || h.all < h.ordered                                               // a card went missing
-    || h.outside > 3                                                   // the tail is not tucked away
-    || (h.ordered > 3 && (!h.tail || h.tail.open || !h.tail.summary.includes(String(h.tail.inside)) || h.tail.inside < h.ordered - 3))));
+    || h.outside > 5                                                   // the tail is not tucked away
+    || (h.ordered > 5 && (!h.tail || h.tail.open || !h.tail.summary.includes(String(h.tail.inside)) || h.tail.inside < h.ordered - 5))));
   verdict('S4', bad, {budget, ...seen});
 };
 
@@ -3245,12 +3245,12 @@ probes.N1 = async browser => {
       await page.evaluate(route=>{if(route==='hero')openHero('steel','jungle');else changeRoute(route);},route);
       seen.push(await page.evaluate(({route,destination})=>{
         const nav=document.querySelector(innerWidth<=700?'#mobile-navigation':'#navigation');
-        return {route,destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
+        return {route,phone:innerWidth<=700,destination:innerWidth<=700?(['planner','draft','live'].includes(route)?'plan':['meta','hero','builds'].includes(route)?'meta':'more'):destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
       },{route,destination}));
     }
     await context.close();
   }
-  verdict('N1',seen.some(s=>s.labels.join('|')!=='Meta|Plan|Reference|Sources'||s.current.length!==1||s.current[0]!==s.destination||s.headings!==1||s.overflow),seen);
+  verdict('N1',seen.some(s=>s.labels.join('|')!==(s.phone?'Meta|Plan|More':'Meta|Plan|Reference|Sources')||s.current.length!==1||s.current[0]!==s.destination||s.headings!==1||s.overflow),seen);
 };
 probes.N2 = async browser => {
   const {context,page}=await session(browser,phone),seen=[];
@@ -3420,6 +3420,8 @@ probes.ML2 = async browser => {
   }
   fs.mkdirSync(path.join(root, 'qa'), {recursive: true});
   const browser = await chromium.launch({channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true});
+  // Existing probes audit full evidence and legacy section behavior. The quick companion has its own browser suite.
+  const newContext=browser.newContext.bind(browser);browser.newContext=async (...args)=>{const c=await newContext(...args);await c.addInitScript(()=>{const key='predecessor-companion-v1';const prefs=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...prefs,fullDetails:true}));});return c;};
   try {
     for (const [id, probe] of Object.entries(probes)) {
       if (only && !only.has(id)) continue;

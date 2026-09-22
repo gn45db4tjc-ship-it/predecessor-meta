@@ -1,5 +1,17 @@
 # Scheduled reasoning reviews
 
+## Current scheduling decision (September 21, 2026)
+
+The owner replaced the three-hour AI checks and automatic weekly full-roster work
+with a one-time trial on September 22 at 14:00 America/Chicago, after independently
+confirming the new patch is live. Codex will review five representative plans,
+prioritizing jungle. Qwen and PPLX are also available locally according to the
+owner, but are not a dependency for this trial. A full-roster review is not
+complete or currently scheduled by this trial. The owner will decide the ongoing
+review regime after seeing its value. GitHub data collection remains unchanged.
+The historical policy below defines quality and coverage requirements if a full
+review is resumed; its older scheduling description does not override this decision.
+
 ## What is actually scheduled
 
 The GitHub workflow collects public data daily, checks official changes every three

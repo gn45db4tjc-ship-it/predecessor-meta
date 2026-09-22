@@ -1,3 +1,9 @@
+# Predecessor Meta — 2.30.0
+
+The quick mobile companion opens on Meta. Pick a hero for one starting build, alternative playstyles, named skill points, partners and counterplay. Adapt to my match carries the selected build forward. Plan offers a three-hero quick draft; More and Full details retain the complete reference. Desktop keeps its full navigation. See [RELEASE-2.30.0.md](RELEASE-2.30.0.md) for changes, evidence boundaries and validation.
+
+## Historical release documentation
+
 # Predecessor Meta — 2.29.0 review candidate
 
 The design upgrade is ready for staged verification, not installed or published. Open Meta for the full role list; Plan combines Compose, Draft and Live; Reference holds builds, the guide and catalog; Sources holds provenance and app settings. See [RELEASE-2.29.0.md](RELEASE-2.29.0.md) and [DESIGN-2.29-ACCEPTANCE.md](DESIGN-2.29-ACCEPTANCE.md).

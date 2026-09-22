@@ -45,6 +45,12 @@ jobs:
         env:
           BROWSER_CHANNEL: chrome
         run: node tests/browser_offline_cache.cjs
+      - name: Quick companion, selected builds, skill points and accessibility
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:12941/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_companion_simple.cjs
       - name: Show the browser verdicts
         if: always()
         run: cat qa/audit-regressions-browser.json || true
