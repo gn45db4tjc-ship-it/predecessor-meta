@@ -5,11 +5,10 @@ let quickDraft={role:null,publication:null,signature:null,rows:[],preview:null},
 const fullMobileHero=mobileHero,fullMobileLive=liveMobile,fullMobileDraft=mobileDraft,fullDesktopDraft=draftView;
 const standardNavigation=destinationNavigation,standardSections=destinationSections;
 const simpleMode=()=>companionMedia.matches&&!companionPrefs.fullDetails;
-function buildSelection(p){return CompanionState.resolve(B,E,companionPrefs.selectedBuilds[p.slug+'|'+p.role],p.slug,p.role);}
+function buildSelection(p){const ref=companionPrefs.selectedBuilds[p.slug+'|'+p.role];if(!ref&&S.liveVariant!=null&&S.me===p.slug&&S.locks.some(a=>a.slug===p.slug&&a.role===p.role))return {status:'invalid',index:null,reason:'A playstyle saved by the previous app needs to be chosen again. Its old variant number cannot identify the same build after an update.'};return CompanionState.resolve(B,E,ref,p.slug,p.role);}
 function chosenPlan(p){const choice=buildSelection(p);return choice.status==='selected'?choice.plan:choice.status==='invalid'?{slug:p.slug,role:p.role,kind:'unavailable',items:[],core:[],blessings:[],reason:choice.reason,review:E.buildReview(p.slug,p.role)}:E.plannedBuild(p.slug,p.role);}
-function choosePlaystyle(p,index){const key=p.slug+'|'+p.role;if(index===null)delete companionPrefs.selectedBuilds[key];else companionPrefs.selectedBuilds[key]=CompanionState.reference(B,E,p.slug,p.role,index);saveCompanionPrefs();S.liveVariant=null;}
-// Old numeric overrides have no publication identity and cannot safely survive an update.
-if(saved.liveVariant!=null)companionError='A previous build selection needs to be chosen again; an old variant number cannot identify the same build after an update.';
+function choosePlaystyle(p,index){const key=p.slug+'|'+p.role;if(index===null)delete companionPrefs.selectedBuilds[key];else companionPrefs.selectedBuilds[key]=CompanionState.reference(B,E,p.slug,p.role,index);saveCompanionPrefs();if(S.me===p.slug&&S.locks.some(a=>a.slug===p.slug&&a.role===p.role))S.liveVariant=null;save();}
+// An old numeric override blocks its own hero/role until an explicit choice clears it.
 adviceFor=function(p){const choice=buildSelection(p),enemies=coachEnemies(p),ctx={...contextFor(p)};if(choice.status==='invalid')throw Error(choice.reason);if(ctx.primaryThreat&&!enemies.some(e=>e.slug===ctx.primaryThreat))delete ctx.primaryThreat;return E.adaptBuild(p,S.locks.filter(a=>a.slug!==p.slug).concat(p),enemies,{...ctx,variant:choice.index});};
 destinationNavigation=function(phone){
  if(!phone)return standardNavigation(phone);
