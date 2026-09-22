@@ -7,7 +7,7 @@
 //   or malformed response can never replace a verified bracket.
 // Both names keep the 'predecessor-meta-' prefix on purpose: if the website is rolled back to 2.24 or earlier,
 // that release's worker deletes them on activation and starts saving afresh, instead of serving a frozen copy.
-const SHELL_CACHE = 'predecessor-meta-shell-v2-30-2';
+const SHELL_CACHE = 'predecessor-meta-shell-v2-30-3';
 const DATA_CACHE = 'predecessor-meta-data-v1';
 const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shell and data together in one cache
 const ROOT = new URL('./', self.location.href);
@@ -130,7 +130,10 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET' || !localRequest(request)) return;
   const url = new URL(request.url);
   const data = url.pathname.endsWith('/manifest.json') || BUNDLE.test(url.pathname) || PART.test(url.pathname);
-  if (request.mode === 'navigate') event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT)}));
+  // The explicit app updater checks a fresh root document before navigation. Treat that fetch like
+  // navigation too: never serve a cached online response as proof that the release is reachable.
+  const shellDocument = url.pathname === ROOT.pathname || url.pathname === new URL('index.html', ROOT).pathname;
+  if (request.mode === 'navigate' || shellDocument) event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT)}));
   else if (data) event.respondWith(networkFirst(request, {data: true}));
   else event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => rememberShell(request, response))));
 });

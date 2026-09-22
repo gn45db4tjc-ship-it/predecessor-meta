@@ -1,0 +1,11 @@
+{
+  "version": "2.30.3",
+  "baseline": "da0fc87bbc3735d2bca41a0d0a0d9351f663a8e0",
+  "scope": "Interface update detection and explicit reload; no statistical or recommendation changes",
+  "required_checks": ["Source ZIP Python and JavaScript suites", "Real worker update lifecycle in Edge and WebKit", "Exact-head CI before merge", "Live publication metadata, update controls and existing data"],
+  "completed_browser_checks": {"edge": 11, "webkit": 13, "javascript_errors": 0, "themes": ["dark", "light"], "phone_widths": [320, 390], "large_text": "200%", "axe_violations": 0},
+  "upgrade_fixtures": "Independently rendered 2.30.3 and synthetic next-release 2.30.4 documents; actual saved 2.30.2 document and worker also tested in WebKit",
+  "network_outage": "Real preview-server outage; current screen retained on failed update and new shell usable offline",
+  "release_receipts": "Final results are recorded separately in RELEASE-2.30.3-RESULT.md",
+  "physical_device_acceptance": "Not run"
+}
