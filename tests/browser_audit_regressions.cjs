@@ -1872,7 +1872,10 @@ const probes = {
           const text = node.textContent; let i = 0;
           for (const word of text.split(/(\s+)/)) { if (word.trim()) { const range = document.createRange(); range.setStart(node, i); range.setEnd(node, i + word.length); const lines = new Set([...range.getClientRects()].map(r => Math.round(r.top))); if (lines.size > 1) split.push(word); } i += word.length; }
         }
-        return {row_width: Math.round(row.getBoundingClientRect().width), head_width: Math.round(head.getBoundingClientRect().width), split};
+        // 2.31 adds a padded profile surface. The status must span its full
+        // CONTENT width, not extend through the padding and border.
+        const cs=getComputedStyle(head),contentWidth=head.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+        return {row_width: Math.round(row.getBoundingClientRect().width), head_width: Math.round(contentWidth), split};
       });
       await context.close();
     }

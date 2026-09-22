@@ -1,3 +1,9 @@
+# Predecessor Meta — 2.31.0
+
+A larger visual redesign: midnight navy and ice blue in dark mode, porcelain and cobalt in light mode, portrait-led Meta cards, clearer navigation, and a numbered purchase list. Pre-match choices and shopping order are separate. More → Check app update refreshes the phone home-screen app without clearing your choices. See [RELEASE-2.31.0.md](RELEASE-2.31.0.md).
+
+## Earlier releases
+
 # Predecessor Meta — 2.30.2
 
 The phone companion now has consistent native typography, aligned role controls and hero cards, clearer selected states, and a more compact Meta page. Source dates and sample rules are one tap away; missing-current-data warnings and every displayed sample stay visible. Both themes, Full details, builds, draft and saved choices remain available. See [RELEASE-2.30.2.md](RELEASE-2.30.2.md).
