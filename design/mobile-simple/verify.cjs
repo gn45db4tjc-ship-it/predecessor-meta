@@ -28,6 +28,17 @@ function record(id,detail){results.push({id,passed:true,detail});}
  await page.locator('[data-hero="muriel"]').click();assert.equal(await page.locator('[data-section="build"]').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('#nav [aria-current="page"]').textContent(),'Meta');
  record('combined-meta-build-entry','legacy saved Builds view preserves selections and opens hero Build under Meta');
  await page.evaluate(()=>{S.view='meta';S.role='jungle';S.query='';S.pool=[];render();});
+ const skillCoverage=await page.evaluate(()=>{const rows=[];for(const slug of Object.keys(E.heroes))for(const role of E.roles(slug)){const g=SkillGuide.make(B,E.plannedBuild(slug,role));rows.push({slug,role,kind:g.kind,levels:g.points.length});}return {total:rows.length,kinds:rows.reduce((a,r)=>(a[r.kind]=(a[r.kind]||0)+1,a),{}),missing:rows.filter(r=>r.levels!==18)};});assert.deepEqual(skillCoverage.missing,[]);record('skill-guide-all-roles',skillCoverage);
+ await page.locator('[data-hero="khaimera"]').click();
+ for(const width of [320,390])for(const theme of ['dark','light']){
+  await page.setViewportSize({width,height:844});await page.evaluate(theme=>{S.theme=theme;S.section='build';render();const g=document.querySelector('.skill-guide');g.open=true;g.querySelector('details').open=true;},theme);
+  await page.locator('.skill-level').selectOption('6');assert.match(await page.locator('.skill-answer').innerText(),/Level 6.*Cull/);
+  await page.locator('[data-skill-level="2"]').click();assert.match(await page.locator('.skill-answer').innerText(),/Level 2.*Ambush/);assert.equal(await page.locator('.skill-level').inputValue(),'2');
+  await page.addScriptTag({path:path.join(deps,'axe-core/axe.min.js')});const v=await page.evaluate(async()=> (await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>v.id));assert.deepEqual(v,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);record(`skill-guide-${width}-${theme}`,'level selection and all-level cards, named abilities, AA and reflow');
+  if(width===390){await page.locator('.skill-guide').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(root,`${theme}-skill-guide.png`)});}
+ }
+ await page.locator('[data-section="partners"]').click();await page.locator('[data-section="build"]').click();assert.equal(await page.locator('.skill-level').inputValue(),'2');record('skill-level-restoration','level remembered per hero and role across section changes');
+ await page.locator('[data-nav="meta"]').click();
  const coverage=await page.evaluate(()=>{const heroes=Object.keys(E.heroes),out=heroes.map(slug=>RecommendationView.counterplay(E,E.heroes,slug,E.roles(slug)[0]||'jungle'));return {heroes:heroes.length,withAdvice:out.filter(r=>r.points.length).length,named:out.filter(r=>r.picks.length).length,valid:out.every(r=>r.picks.length<=3&&r.points.length<=3)}});
  assert.equal(coverage.withAdvice,coverage.heroes);assert.equal(coverage.valid,true);record('counterplay-coverage',coverage);
  await page.evaluate(()=>{S.hero='khaimera';S.role='jungle';S.view='hero';S.section='partners';render();});assert.equal(await page.locator('.partner-card').count(),5);assert.ok(await page.locator('.partner-card').evaluateAll(nodes=>new Set(nodes.map(n=>n.dataset.partnerRole)).size)>=3);record('partner-role-diversity','five real candidates, at least three roles for Khaimera');

@@ -65,20 +65,54 @@ desktop reference still has its builds overview.
   hero/role pages have five partners: 70 span four roles, 17 span three, six span two.
 - The draft preview uses the existing kit ordering. It adds no new ranking or win-rate arithmetic.
 
+## Skill points and scheduled strategy review
+
+Build and Live now have a compact **Skill points · levels 1–18** disclosure.
+Choose a level to read the named ability, or open all levels and tap a point. The
+choice is remembered per hero/role. Default PC keys accompany names, not replace them.
+All 93 saved hero/role plans have an 18-level guide: 55 match the selected
+augment/Eternal's observed order, Revenant uses an explicitly labelled alternative
+source order, and 37 are calculated example allocations from saved priority lists.
+No existing plan has been falsely promoted to a freshly reviewed 18-level order.
+
+Calculated schedules say **needs review**. They learn three basics before focussing
+the saved priority and allocate ultimate points at 6/11/16. A reviewer must check
+the role-specific opening and exceptional hero/loadout rules before endorsing an
+exact order. Revenant is excluded from this generic fallback because of the initial
+Hellfire Rounds rank described in official notes:
+https://www.predecessorgame.com/en-US/news/patch-notes/predecessor-patch-v0-3
+Early Bloom changes level timing; use the actual displayed hero level. The relevant
+official change is recorded at:
+https://www.predecessorgame.com/en-US/news/patch-notes/v1.14.4_Patch_Notes
+
+Explicit future skill-order reviews require a current plan/patch, actual date,
+reasoning, sources, and matching supporting ability text. A source refresh alone
+cannot satisfy those requirements. Skill-order observations keep their own sample,
+collection date and dataset label; they never inherit the whole variant's numbers.
+
+The Codex heartbeat `predecessor-strategy-reviews` is active. Its three-hour checks
+perform analysis only when weekly work is due or official changes require it;
+unchanged checks exit quickly. The full policy is `STRATEGY-REVIEW-POLICY.md` at the
+source root. Reviews use Codex allowance and require the automation host to be
+available, not a paid API. The existing GitHub schedule only collects data and
+queues review packets. The first new full AI review has not completed; proposed
+guidance remains subject to the established release approval boundary.
+
 ## Reproduce
 
 ```
 python -B design/mobile-simple/build_preview.py --seed PATH_TO_SAVED_BUNDLE.json
 node design/mobile-simple/verify.cjs
 node --test design/mobile-simple/recommendation-view.test.cjs
+node --test design/mobile-simple/skill-guide.test.cjs
 python -B -m http.server 12967 --bind 127.0.0.1 --directory qa/mobile-review
 ```
 
 The verifier uses the existing Playwright and axe dependencies; `PREVIEW_DEPS`
 overrides their local directory. It writes `TEST-RESULTS.json` and screenshots only
 inside the ignored review package. `BUILD-RECEIPT.json` fingerprints input and engine.
-The amended prototype passes 76 browser/layout checks and eight selection/evidence
-unit tests. These are prototype checks, not the full production regression suite.
+The amended prototype passes 82 browser/layout checks and 17 selection/evidence
+and skill-guide unit tests. These are prototype checks, not the full production regression suite.
 
 ## Port sequence after design review
 
