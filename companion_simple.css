@@ -66,7 +66,7 @@
  .mobile-hero-card .hero-cell .name{text-decoration:none;letter-spacing:0;line-height:1.3}
  .mobile-hero-card .hero-cell:hover .name{text-decoration:underline}
  .mobile-hero-card .mobile-stat{max-width:128px;gap:4px 6px}
- .mobile-stat strong{font-size:var(--tr-xl);line-height:1.3}
+ .mobile-stat strong{grid-column:2;font-size:var(--tr-xl);line-height:1.3}
  .mobile-stat small{font-size:var(--tr-sm);line-height:1.4}
  .mobile-row-source{grid-column:1/-1;border-top:1px solid var(--line);padding-top:6px;font-size:var(--tr-xs);line-height:1.5}
  .mobile-hero-head{grid-template-columns:64px minmax(0,1fr);gap:14px;align-items:center;margin:8px 0 12px;padding:8px 0 16px}
