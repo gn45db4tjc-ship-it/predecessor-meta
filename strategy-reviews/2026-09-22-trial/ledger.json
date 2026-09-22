@@ -6444,5 +6444,21 @@
       "accessed_at": "2026-09-22T19:19:18+00:00",
       "method": "Web search excerpt; not a fresh full-article parse"
     }
-  ]
+  ],
+  "patch_wide_followup": {
+    "requested_at": "2026-09-22T19:24:03+00:00",
+    "status": "required; not completed by the five-plan trial",
+    "reference": "PATCH-COVERAGE.md",
+    "priority": "Baron Valmont and effects on existing hero plans",
+    "categories": [
+      "new hero",
+      "hero buffs and nerfs",
+      "item changes",
+      "Eternals, blessings and augments",
+      "gameplay-impacting bug fixes",
+      "5v5 gameplay changes and mode boundaries",
+      "subsequent live hotfixes"
+    ],
+    "no_recurring_schedule_created": true
+  }
 }

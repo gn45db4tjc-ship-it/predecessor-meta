@@ -149,10 +149,11 @@
     "tests/legacy/browser_strategy_acceptance.js": "14e11ef7a2ddf62ccb189985c24ac09e08d0dbb015a885a50e2bc1b8feaa0f57",
     "tests/legacy/browser_synthesis_acceptance.js": "a4cdbfec41371e006ff5557647453847e9e6a363551d8c90c6756573bdbaf418",
     "strategy-reviews/2026-09-22-trial/evidence-receipt.json": "d84b1c5c7ebf44ba51ccfa1c07e05e6267da87432d18d9966bcc34a36a04a466",
-    "strategy-reviews/2026-09-22-trial/ledger.json": "89cfdfcb20abdbd8127cba3188a32248d1452de5cf41d410b02c5a3d4b3e3e58",
+    "strategy-reviews/2026-09-22-trial/ledger.json": "a676b20a6e79560073df2f3e81581342765936a6693f5c9fe27f3ae2bf2c84d8",
     "strategy-reviews/2026-09-22-trial/supporting-evidence.json": "8e0435531b0507ec0ce5901b5888a696e65eef1b096a1ee628fb09ef2f454aea",
     "strategy-reviews/2026-09-22-trial/validation.json": "2fbf87bedf31e98b1120ae67d5e95853d225d9252da5eb397f453aecfb2fa9fd",
-    "strategy-reviews/2026-09-22-trial/REPORT.md": "70d3fa8009fd749d18581c3e8e3ec69f6e86a9039ba927fd81747f71014875b4",
-    "tests/strategy_trial.test.cjs": "e208dc58a186f103e48d9a5cd56ae0bda7fc578a0149d43561a6372922b3dff4"
+    "strategy-reviews/2026-09-22-trial/REPORT.md": "bb31927d4072fa6038ca243f179afa235c2472d79d5b15595f8469536f8d503b",
+    "tests/strategy_trial.test.cjs": "e208dc58a186f103e48d9a5cd56ae0bda7fc578a0149d43561a6372922b3dff4",
+    "strategy-reviews/2026-09-22-trial/PATCH-COVERAGE.md": "2b6d6638e79f8e29209c29d651edd5537401356647ac9baa05b930c3eb0a49cb"
   }
 }

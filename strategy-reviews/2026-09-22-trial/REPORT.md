@@ -4,6 +4,8 @@
 
 The trial was useful: it caught a contradictory Eternal recommendation, changed a purchase-order decision, and produced four reasoned level-by-level skill defaults. It also identified a skill-label conflict that should remain visible rather than be guessed away.
 
+**Follow-up scope:** the new hero and patch-wide balance, item, Eternal and bug-fix effects remain required. The trial did not cover Baron Valmont or complete a roster-wide impact review. See [PATCH-COVERAGE.md](PATCH-COVERAGE.md) for the explicit outstanding work and effects on these five heroes.
+
 ## Evidence and scope
 
 - The publisher explicitly announced **1.17 LIVE NOW** at **11:19:35 UTC**. The official article and publisher feed were checked again at about **19:06 UTC**. This confirms release independently of the article's scheduled date. [Publisher announcement](https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010503898), [official 1.17 notes](https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17).
