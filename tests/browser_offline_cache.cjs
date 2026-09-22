@@ -146,6 +146,15 @@ async function check(name, run) {
     await check('evidence opened while online opens offline; evidence never opened says it is not saved', async () => {
       const hero = published.cohorts.gold.projection?.heroes?.steel?.url;
       if (!hero) return {skipped: 'this publication has no evidence files'};
+      // Current collections need not contain an older ability revision. Compare
+      // the actual display-only fields in this publication, not one old fixture field.
+      const overlay = JSON.parse(fs.readFileSync(path.join(siteDir, hero), 'utf8')).heroes.steel;
+      const evidenceFields = Object.keys(overlay).filter(k => !k.startsWith('$') && k !== 'abilities' && k !== 'roles');
+      assert.ok(evidenceFields.length, 'fixture has no direct hero evidence fields');
+      const full = JSON.parse(fs.readFileSync(path.join(siteDir, published.cohorts.gold.url), 'utf8'));
+      const expectedEvidence = Object.fromEntries(evidenceFields.map(k => [k, full.heroes.steel[k]]));
+      const core = JSON.parse(fs.readFileSync(path.join(siteDir, published.cohorts.gold.projection.core.url), 'utf8'));
+      assert.ok(evidenceFields.every(k => !Object.hasOwn(core.heroes.steel, k)), 'probe fields must require the lazy evidence file');
       const settled = () => page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000});
       await choose(page, 'gold');
       await page.evaluate(() => openHero('steel', 'jungle')); await settled();
@@ -153,14 +162,14 @@ async function check(name, run) {
       net.down = true;
       await page.reload(); await ready(page);
       await page.evaluate(() => openHero('steel', 'jungle')); await settled();
-      const saved = await page.evaluate(() => ({failed: /could not be loaded/.test(document.querySelector('#main').innerText), previous: !!B.heroes.steel.previous_abilities}));
+      const saved = await page.evaluate(fields => ({failed: /could not be loaded/.test(document.querySelector('#main').innerText), evidence: Object.fromEntries(fields.map(k => [k, B.heroes.steel[k]]))}), evidenceFields);
       await page.evaluate(() => openHero('grux', 'offlane')); await settled();
       const unsaved = await page.evaluate(() => (document.querySelector('#main').innerText.match(/could not be loaded[^.]*/) || [''])[0]);
       net.down = false;
       assert.ok(!saved.failed, 'evidence saved while online did not open offline');
-      assert.ok(saved.previous, 'the saved evidence did not restore the hero\'s previous abilities');
+      for (const field of evidenceFields) assert.deepEqual(saved.evidence[field], expectedEvidence[field], 'saved evidence differs for ' + field);
       assert.match(unsaved, /not saved on this device/, 'evidence that was never saved is not explained');
-      return {saved, unsaved};
+      return {saved: {failed: saved.failed, fields: evidenceFields}, unsaved};
     });
     await context.close();
 

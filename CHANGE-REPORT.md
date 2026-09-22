@@ -1,3 +1,11 @@
+# 2.30.2 — mobile visual polish
+
+Consistent system fonts work online, offline and in the Windows launcher. Search and sorting controls align; all five roles remain visible; build cells and the bottom navigation have clearer spacing and selected states. Meta brings hero cards forward while keeping previous-data warnings visible and detailed dates and eligibility rules accessible. A large-text source-details overflow and light-theme muted-text contrast are corrected. No source figures, recommendation logic, guidance dates or collection schedules changed.
+
+See RELEASE-2.30.2.md for validation and release boundaries. Earlier entries describe their own historical release state.
+
+## Historical changes
+
 # 2.29.0 design review candidate — September 21, 2026
 
 Four destinations, hero sections, precise build evidence, a shared Plan roster, the full phone role list, and focused Reference/Sources views. Source data, engine calculations and saved-storage formats remain unchanged. This candidate is not installed or published. The final check receipt and release boundaries are in [RELEASE-2.29.0.md](RELEASE-2.29.0.md).

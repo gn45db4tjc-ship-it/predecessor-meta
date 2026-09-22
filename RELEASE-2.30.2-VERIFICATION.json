@@ -1,0 +1,59 @@
+{
+  "version": "2.30.2",
+  "date": "2026-09-22",
+  "baseline": "e11c8146432c4a457a0405c13b70cbf819184685",
+  "scope": "Visual presentation; recommendation engine and collected data unchanged",
+  "browser": {
+    "visual_polish": {
+      "edge_checks": 46,
+      "webkit_checks": 46,
+      "console_errors": 0,
+      "font_requests": 0
+    },
+    "companion": {
+      "edge_screens": 36,
+      "webkit_screens": 36
+    },
+    "plan_layout": {
+      "webkit_states": 24
+    },
+    "role_statistics": {
+      "edge_screens": 30,
+      "hero_axe_violations": 0
+    },
+    "evidence_audit": {
+      "full_run_passed": 144,
+      "total": 146,
+      "failed_then_fixed": [
+        "W2 tokenized navigation shadow",
+        "W4 tokenized type sizes"
+      ],
+      "focused_rerun_passed": 2,
+      "full_ci": "Required before merge"
+    },
+    "offline_lifecycle": {
+      "passed": 9,
+      "skipped": 0,
+      "brackets_saved_and_restored": 2,
+      "method": "Real local-server outage, new shell, checksum failure, concurrent rank saves and exact lazy-evidence restoration"
+    }
+  },
+  "unit_tests": {
+    "python_run": 199,
+    "python_skipped": 1,
+    "javascript_passed": 218,
+    "method": "Source ZIP extraction; rerun by package_source.py"
+  },
+  "not_run": [
+    "Physical devices",
+    "Real screen readers"
+  ],
+  "install_and_deploy": "Recorded separately after exact-head CI",
+  "layout": {
+    "viewport": "390x844",
+    "same_silver_bundle": true,
+    "first_hero_top_before_px": 762.86,
+    "first_hero_top_after_px": 490.59,
+    "all_role_entries_before_and_after": 16
+  }
+}
