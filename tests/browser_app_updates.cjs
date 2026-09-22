@@ -20,9 +20,10 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
 (async()=>{
  if(process.env.START_PREVIEW==='1'){
   // Separate renderer invocations, not a string-relabelled copy of a previously loaded document.
-  const script="from pathlib import Path; from unittest.mock import patch; import sys; sys.path.insert(0,'tests'); import stage_preview as p; r=Path.cwd(); p.stage(r/'qa/update-current',r/'qa/update-current-state');\nwith patch.object(p.publication.base,'VERSION','2.30.4'): p.stage(r/'qa/update-next',r/'qa/update-next-state')\ns=r/'qa/update-next/sw.js'; s.write_bytes(s.read_bytes().replace(b'shell-v2-30-3',b'shell-v2-30-4'))";
+  const script="from pathlib import Path; from unittest.mock import patch; import sys; sys.path.insert(0,'tests'); import stage_preview as p; r=Path.cwd(); p.stage(r/'qa/update-current',r/'qa/update-current-state'); old=p.publication.base.VERSION; parts=old.split('.'); parts[-1]=str(int(parts[-1])+1); new='.'.join(parts);\nwith patch.object(p.publication.base,'VERSION',new): p.stage(r/'qa/update-next',r/'qa/update-next-state')\ns=r/'qa/update-next/sw.js'; s.write_bytes(s.read_bytes().replace(('shell-v'+old.replace('.','-')).encode(),('shell-v'+new.replace('.','-')).encode()))";
   const staged=spawnSync(process.env.PYTHON_EXE||'python',['-B','-c',script],{cwd:root,encoding:'utf8'});assert.equal(staged.status,0,staged.stderr);
  }
+ const currentVersion=JSON.parse(fs.readFileSync(path.join(current,'manifest.json'))).app.version,nextVersion=JSON.parse(fs.readFileSync(path.join(next,'manifest.json'))).app.version;
  await new Promise(resolve=>server.listen(port,'127.0.0.1',resolve));
  const browser=await(process.env.BROWSER_ENGINE==='webkit'?webkit.launch():chromium.launch({channel:process.env.BROWSER_CHANNEL||'msedge'}));
  try{
@@ -30,13 +31,13 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
  page.on('pageerror',e=>report.errors.push({message:e.message,stack:e.stack,after:report.checks.at(-1)}));
  await page.goto(origin);await ready(page);await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
  await page.evaluate(()=>{S.locks=[{slug:'khaimera',role:'jungle'}];S.enemies=[{slug:'gideon',role:'midlane'}];S.bans=['steel'];S.me='khaimera';S.liveContexts={'khaimera|jungle':{owned:['mutilator'],state:'ahead'}};companionPrefs.favorites=['khaimera|jungle'];save();saveCompanionPrefs();localStorage.setItem('predecessor-theme','light');changeRoute('more');});
- assert.match(await page.locator('[data-app-state]').last().innerText(),/latest app.*2\.30\.3/);check('current app version visible in More');
+ assert((await page.locator('[data-app-state]').last().innerText()).includes('latest app · v'+currentVersion));check('current app version visible in More');
  const before=await page.evaluate(()=>({draft:localStorage.getItem('predecessor-planner-v2'),prefs:localStorage.getItem(prefsKey),match:sessionStorage.getItem(matchKey),dates:B.generated_at}));
  net.folder=next;
  // A resumed home-screen app checks without forcing navigation or disturbing an open screen.
  await page.evaluate(()=>{Date.now=(()=>{const original=Date.now;return ()=>original()+301000;})();window.dispatchEvent(new Event('focus'));});
- await page.waitForFunction(()=>document.querySelector('#app-update-notice')?.textContent.includes('2.30.4')&&!document.querySelector('#app-update-notice')?.classList.contains('hide'));
- assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),'2.30.3');assert.equal(await page.evaluate(()=>S.route),'more');check('foreground check finds new interface without reloading active draft');
+ await page.waitForFunction(version=>document.querySelector('#app-update-notice')?.textContent.includes(version)&&!document.querySelector('#app-update-notice')?.classList.contains('hide'),nextVersion);
+ assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),currentVersion);assert.equal(await page.evaluate(()=>S.route),'more');check('foreground check finds new interface without reloading active draft');
  await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  for(const width of [320,390])for(const theme of ['light','dark']){
   await page.setViewportSize({width,height:844});await page.evaluate(async t=>{document.documentElement.dataset.theme=t;await Promise.all(document.getAnimations().map(a=>a.finished.catch(()=>{})));},theme);
@@ -50,21 +51,21 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
  check('hero evidence remains usable while update awaits the user');
  const savedCaches=await page.evaluate(async()=>{const c=await caches.open('predecessor-meta-data-v1');return (await c.keys()).map(r=>r.url).sort();});
  net.down=true;await page.locator('#app-update-notice [data-app-apply]').click();await page.waitForFunction(()=>document.querySelector('#app-update-notice').textContent.includes('could not be opened safely'));
- assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),'2.30.3');assert.equal(await page.evaluate(()=>S.me),'khaimera');check('real network outage refuses update and preserves current screen');
- net.down=false;net.portal=true;await page.locator('#app-update-notice [data-app-apply]').click();await page.waitForFunction(()=>!document.querySelector('#app-update-notice [data-app-apply]').disabled);assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),'2.30.3');check('captive-portal document cannot masquerade as the update');net.portal=false;
+ assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),currentVersion);assert.equal(await page.evaluate(()=>S.me),'khaimera');check('real network outage refuses update and preserves current screen');
+ net.down=false;net.portal=true;await page.locator('#app-update-notice [data-app-apply]').click();await page.waitForFunction(()=>!document.querySelector('#app-update-notice [data-app-apply]').disabled);assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),currentVersion);check('captive-portal document cannot masquerade as the update');net.portal=false;
  await page.evaluate(()=>{window.originalStorageSet=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw new DOMException('blocked','QuotaExceededError');};});
  // Force an unsaved choice: existing matching storage alone must not make a lossy reload appear safe.
- await page.evaluate(()=>S.bans.push('muriel'));await page.locator('#app-update-notice [data-app-apply]').click();await page.waitForFunction(()=>!document.querySelector('#app-update-notice [data-app-apply]').disabled);assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),'2.30.3');await page.evaluate(()=>{Storage.prototype.setItem=window.originalStorageSet;S.bans=S.bans.filter(x=>x!=='muriel');});check('unsaved selections prevent a reload when storage is blocked');
+ await page.evaluate(()=>S.bans.push('muriel'));await page.locator('#app-update-notice [data-app-apply]').click();await page.waitForFunction(()=>!document.querySelector('#app-update-notice [data-app-apply]').disabled);assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),currentVersion);await page.evaluate(()=>{Storage.prototype.setItem=window.originalStorageSet;S.bans=S.bans.filter(x=>x!=='muriel');});check('unsaved selections prevent a reload when storage is blocked');
  await Promise.all([page.waitForURL('**app_update=*'),page.locator('#app-update-notice [data-app-apply]').click()]);await ready(page);
- assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),'2.30.4');
+ assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),nextVersion);
  assert.equal(await page.evaluate(()=>S.hero),'khaimera');assert.equal(await page.evaluate(()=>S.route),'hero');
  assert.equal(await page.evaluate(()=>localStorage.getItem('predecessor-planner-v2')),before.draft);
  assert.equal(await page.evaluate(()=>sessionStorage.getItem(matchKey)),before.match);assert.equal(await page.evaluate(()=>B.generated_at),before.dates);
  assert.equal(await page.evaluate(()=>localStorage.getItem('predecessor-theme')),'light');assert(await page.evaluate(()=>companionPrefs.favorites.includes('khaimera|jungle')));
  assert.equal(await page.evaluate(()=>buildSelection({slug:'khaimera',role:'jungle'}).status),'selected');
  assert((await page.evaluate(async()=>{const c=await caches.open('predecessor-meta-data-v1');return (await c.keys()).map(r=>r.url);})).length>=savedCaches.length);check('explicit update loads new shell and preserves route, picks, inventory, theme, favorites and data dates');
- await page.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});await wait(()=>page.evaluate(async()=>(await caches.keys()).includes('predecessor-meta-shell-v2-30-4')));
- net.down=true;await page.reload();await ready(page);assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),'2.30.4');assert.equal(await page.evaluate(()=>S.me),'khaimera');check('new worker survives a real offline restart with saved data');
+ await page.evaluate(async()=>{await (await navigator.serviceWorker.getRegistration()).update();});await wait(()=>page.evaluate(async version=>(await caches.keys()).includes('predecessor-meta-shell-v'+version.replaceAll('.','-')),nextVersion));
+ net.down=true;await page.reload();await ready(page);assert.equal(await page.evaluate(()=>APP_CONFIG.tool_version),nextVersion);assert.equal(await page.evaluate(()=>S.me),'khaimera');check('new worker survives a real offline restart with saved data');
  await page.evaluate(()=>changeRoute('more'));await page.locator('[data-app-check]').click();await page.waitForFunction(()=>document.querySelector('[data-app-state]').textContent.includes('unavailable'));check('offline check never claims the app is verified current');
  net.down=false;net.noVersion=true;await page.locator('[data-app-check]').click();await page.waitForFunction(()=>!document.querySelector('[data-app-check]').disabled);assert.match(await page.locator('[data-app-state]').last().innerText(),/unavailable/);check('legacy manifest without app version is not treated as proof of freshness');net.noVersion=false;
  assert.deepEqual(report.errors,[]);await context.close();
@@ -76,8 +77,8 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
   await p.evaluate(()=>{S.locks=[{slug:'khaimera',role:'jungle'}];S.me='khaimera';save();});
   net.folder=current;await p.locator('#refresh').click();await p.waitForFunction(()=>!latestStatus.busy);
   assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),'2.30.2');check('actual 2.30.2 data refresh reproduces the old-interface problem');
-  await p.reload();await ready(p);assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),'2.30.3');assert.equal(await p.evaluate(()=>S.me),'khaimera');
-  await p.evaluate(()=>changeRoute('more'));assert.match(await p.locator('#main').innerText(),/Running v2.30.3/);check('actual 2.30.2 worker loads the new interface on navigation without clearing picks');
+  await p.reload();await ready(p);assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),currentVersion);assert.equal(await p.evaluate(()=>S.me),'khaimera');
+  await p.evaluate(()=>changeRoute('more'));assert((await p.locator('#main').innerText()).includes('Running v'+currentVersion));check('actual 2.30.2 worker loads the new interface on navigation without clearing picks');
   await legacy.close();
  }
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));fs.writeFileSync(path.join(root,'qa/app-updates-'+(process.env.BROWSER_ENGINE||'edge')+'.json'),JSON.stringify(report,null,2));}

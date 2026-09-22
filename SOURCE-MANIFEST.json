@@ -98,7 +98,7 @@
     "tests/test_static_role_coverage.py": "9e6eaed1c80d2b6bd2e6c171c1334200069e703085b8f372dc5dd6cf041d8b22",
     "tests/test_static_strategy_review.py": "0cc6fd51ec5bbc3226a44d8e0b3e4713b60c554d780119840d651c633a93dcf9",
     "tests/audit_regressions.test.cjs": "45fd422175c664eeb5e18dce2f98d8dff4dcb01af471dd93cfb1577cbeb80cdb",
-    "tests/browser_app_updates.cjs": "f44ceee71f413d8dc98d3f2afb472871b25ff363b663e08b37bc3c0172070617",
+    "tests/browser_app_updates.cjs": "49426a97a56236dd97ce63281d8f9547ecb985d2e0c6a1440601a147eda54211",
     "tests/browser_audit_regressions.cjs": "f7dc63199b82b435e1a6f49651c6bc79b2134f0e85856619aa8f990eb30692f9",
     "tests/browser_companion.cjs": "2ef76d261362aca1bebb27b6c42dab6ee7c1e2b995110f4da7f98b9a7c96dbf3",
     "tests/browser_companion_accessibility.cjs": "a2d39a332090998a2bc54ccb29845b2dcf130a0109e1592c7c1e0688c6087cf5",
