@@ -629,17 +629,17 @@ const probes = {
     if (await list.count()) {
       seen = await page.evaluate(() => {
         const cards = [...document.querySelectorAll('#mobile-all-list [data-hero]')];
-        const unsampled = cards.filter(c => !E.performance({slug: c.dataset.hero, role: 'jungle'})).map(c => c.closest('article')?.innerText || '');
+        const unsampled = cards.filter(c => !E.displayPerformance({slug: c.dataset.hero, role: 'jungle'})).map(c => c.closest('article')?.innerText || '');
         return {listed: cards.map(c => c.dataset.hero).sort(), unsampled: unsampled.length, unsampled_with_numbers: unsampled.filter(t => /%/.test(t)), expanded: document.querySelector('#mobile-all-heroes')?.getAttribute('aria-expanded')};
       });
     }
     const missing = eligible.filter(s => !seen.listed.includes(s));
     // The staged data samples every jungle hero, so withhold one hero's role sample and look at its card.
     const unsampled = seen.listed.length ? await page.evaluate(slug => {
-      const original = E.performance;
-      E.performance = p => p.slug === slug && p.role === 'jungle' ? null : original(p);
+      const original = E.displayPerformance;
+      E.displayPerformance = p => p.slug === slug && p.role === 'jungle' ? null : original(p);
       try { render(); const card = document.querySelector(`#mobile-all-list [data-hero="${slug}"]`)?.closest('article'); return {slug, listed: !!card, text: (card?.innerText || '').replace(/\s+/g, ' ')}; }
-      finally { E.performance = original; render(); }
+      finally { E.displayPerformance = original; render(); }
     }, eligible[eligible.length - 1]) : {listed: false, text: ''};
     const invented = !unsampled.listed || /%/.test(unsampled.text) || !/No .*jungle sample/i.test(unsampled.text);
     verdict('M1', missing.length > 0 || seen.listed.length !== eligible.length || seen.unsampled_with_numbers.length > 0 || invented,
@@ -899,14 +899,15 @@ const probes = {
       const lead = () => (document.querySelector('#main .page-head p')?.innerText || '').replace(/\s+/g, ' ');
       const list = () => { return (document.querySelector('#mobile-all-list')?.innerText || '').replace(/\s+/g, ' ').slice(0, 160); };
       const view = role => { S.role = role; companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta'); return {top: roleStatus(), lead: lead(), list: list(), reason: statsReason(Object.keys(E.heroes).find(s => E.roles(s).includes(role)), role)}; };
-      const saved = B, original = E.performance, out = {};
+      const saved = B, original = E.performance, originalDisplay = E.displayPerformance, out = {};
       try {
+        E.displayPerformance = p => E.performance(p); // sample-size fixture, both display and ranking
         E.performance = p => { const r = original(p); return p.role === 'jungle' && r ? {...r, played: Math.min(r.played, 60)} : r; };
         out.none = view('jungle').top;
         let first = null;
         E.performance = p => { const r = original(p); if (p.role !== 'jungle' || !r) return r; first = first || p.slug; return {...r, played: p.slug === first ? Math.max(r.played, 150) : Math.min(r.played, 60)}; };
         out.one = view('jungle').top;
-        E.performance = original;
+        E.performance = original; E.displayPerformance = originalDisplay;
         // Pred.gg source: jungle failed, support never collected (the collector stops after a block).
         const roles = {...(B.scoped_statistics.roles || {}), jungle: {status: 'failed'}}; delete roles.support;
         B = {...saved, scoped_statistics: {...saved.scoped_statistics, status: 'partial', roles}}; E = MetaEngine.create(B);
@@ -927,7 +928,7 @@ const probes = {
     const ok = seen.none.tiles === 0 && /100 or more/i.test(seen.none.text) && /Only 1 jungle hero has /.test(seen.one.text)
       && seen.pred_source === 'pred' && failedOK(seen.pred_failed) && failedOK(seen.pred_missing)
       && seen.statz_source === 'statz' && failedOK(seen.statz_failed)
-      && /paused/i.test(seen.withheld.top.text) && !/100 or more/i.test(seen.withheld.top.text) && !/ordered by role performance/i.test(seen.withheld.lead) && !/Role performance in/i.test(seen.withheld.top.text) && /paused/i.test(seen.withheld.list)
+      && /paused/i.test(seen.withheld.top.text) && !/100 or more/i.test(seen.withheld.top.text) && !/ordered by role performance/i.test(seen.withheld.lead) && !/Role performance in/i.test(seen.withheld.top.text) && /previous dataset/i.test(seen.withheld.list) && seen.withheld.reason === 'paused'
       && seen.unavailable_verification === 'verified' && /unavailable/i.test(seen.unavailable.top.text) && !/paused/i.test(seen.unavailable.top.text + ' ' + seen.unavailable.list);
     verdict('P5', !ok, seen);
     await context.close();
