@@ -5,10 +5,11 @@
   "scope": "Visual presentation; recommendation engine and collected data unchanged",
   "browser": {
     "visual_polish": {
-      "edge_checks": 46,
-      "webkit_checks": 46,
+      "edge_checks": 50,
+      "webkit_checks": 50,
       "console_errors": 0,
-      "font_requests": 0
+      "font_requests": 0,
+      "font_reflow": "200% text: native and wider fallback fonts; large-text hero/stat rows stack"
     },
     "companion": {
       "edge_screens": 36,
@@ -22,14 +23,10 @@
       "hero_axe_violations": 0
     },
     "evidence_audit": {
-      "full_run_passed": 144,
-      "total": 146,
-      "failed_then_fixed": [
-        "W2 tokenized navigation shadow",
-        "W4 tokenized type sizes"
-      ],
-      "focused_rerun_passed": 2,
-      "full_ci": "Required before merge"
+      "passed": 146,
+      "verified_in_github_run": "35706227445",
+      "head": "a67c72e",
+      "complete_final_ci": "Required on the font-reflow fix before merge"
     },
     "offline_lifecycle": {
       "passed": 9,

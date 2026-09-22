@@ -52,7 +52,9 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:12980/';let preview;
   }
   if(width<700){
    await page.evaluate(()=>{companionPrefs.large=true;companionChrome();document.documentElement.style.setProperty('font-size','32px','important');});
-   for(const route of ['meta','hero','draft']){await page.evaluate(r=>r==='hero'?openHero('khaimera','jungle'):changeRoute(r),route);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width} ${theme} ${route} 200% text`);report.checks.push({width,theme,route,textScale:'200%'});}
+   for(const route of ['meta','hero','draft']){await page.evaluate(r=>r==='hero'?openHero('khaimera','jungle'):changeRoute(r),route);const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert(overflow<=1,`${width} ${theme} ${route} 200% text: ${overflow}px overflow`);report.checks.push({width,theme,route,textScale:'200%'});}
+   await page.evaluate(()=>{document.documentElement.style.setProperty('--sans','Verdana,sans-serif');changeRoute('meta');});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'wider fallback font with 200% text');report.checks.push({width,theme,route:'meta',textScale:'200%',font:'Verdana/sans-serif'});
+   await page.evaluate(()=>document.documentElement.style.removeProperty('--sans'));
    await page.screenshot({path:`qa/polish-large-${width}-${theme}.png`});
    await page.evaluate(()=>{companionPrefs.large=false;companionChrome();document.documentElement.style.removeProperty('font-size');});
    await page.evaluate(()=>openHero('khaimera','jungle'));await page.locator('#favorite-hero').click();

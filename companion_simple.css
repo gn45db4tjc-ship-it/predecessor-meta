@@ -98,6 +98,9 @@
  #mobile-navigation [aria-current=page]{box-shadow:inset 0 -2px var(--gold);background:var(--surface-3)}
  .more-grid{gap:8px}.more-grid button{min-height:52px;font-size:var(--tr-base)}
  .large-text .meta-list-controls{grid-template-columns:1fr}
+ .large-text .mobile-hero-card{grid-template-columns:minmax(0,1fr)}
+ .large-text .mobile-stat{max-width:none;width:100%;grid-template-columns:min-content minmax(0,1fr)}
+ .large-text .mobile-stat .tier{justify-self:start}
  .large-text #mobile-limits{flex-wrap:wrap;gap:6px}
  .large-text #mobile-limits strong{flex:1 1 55%;white-space:normal}
  .large-text #mobile-limits span:not([aria-hidden]){order:2;flex-basis:100%}
