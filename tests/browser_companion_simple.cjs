@@ -23,6 +23,7 @@ let preview;
   await page.locator('[data-quick-refresh]').click();await page.locator('[data-quick-preview]').first().click();assert.equal(await page.locator('.quick-setup').count(),1);
   await page.evaluate(()=>{window.beforeEvidenceChange=B.generated_at;B.generated_at='2030-01-01T00:00:00Z';render();});assert.equal(await page.locator('.quick-setup').count(),0);assert(await page.locator('[data-quick-preview]').first().isDisabled());
   await page.evaluate(()=>{B.generated_at=window.beforeEvidenceChange;render();});
+  if(width>700){await page.evaluate(()=>{const p={slug:'khaimera',role:'jungle'};S.locks=[p];S.me=p.slug;S.enemies=[];S.bans=[];choosePlaystyle(p,0);companionPrefs.selectedBuilds['khaimera|jungle'].patch='older';changeRoute('live');});assert.match(await page.locator('#main').innerText(),/patch changed/i);await page.locator('[data-live-default]').click();assert.equal(await page.evaluate(()=>buildSelection({slug:'khaimera',role:'jungle'}).status),'default');}
   for(const route of ['meta','hero','draft','live','more','data']){
    await page.evaluate(r=>{if(r==='hero')openHero('khaimera','jungle');else changeRoute(r);},route);
    const layout=await page.evaluate(()=>({heads:document.querySelectorAll('#main h1').length,current:document.querySelectorAll('[aria-current="page"]').length,overflow:document.documentElement.scrollWidth>innerWidth+1}));assert.equal(layout.heads,1,route);assert.equal(layout.current,1,route);assert.equal(layout.overflow,false,JSON.stringify({width,theme,route}));report.checks.push({width,theme,route});

@@ -634,7 +634,7 @@ function liveView(){
  `<h3>Allied picks <small>shared with Compositions and Draft</small></h3>${slotRows('allies')}<div class="me-select"><label>You are playing <select id="me-hero">${options(S.locks.map(p=>[p.slug,name(p.slug)+' · '+labels[p.role]]),S.me,'Choose your hero from the locked allies')}</select></label><button id="clear-locks" class="quiet">Clear allied picks</button></div><div class="section-title"><h3>Enemy picks · with their roles</h3><button id="clear-enemies" class="quiet">Clear enemies</button></div>${slotRows('enemies')}`;
  html+=S.enemies.length?'<details><summary>Reviewed enemy counterplay</summary><div class="detail-content">'+S.enemies.map(e=>heroStrategyHTML(e.slug)).join('')+'</div></details>':'';
  if(!me)return html+empty('Lock your hero among the allied picks and choose it above. The build appears here and updates as the lineup fills in.');
- let L;try{L=adviceFor(me);}catch(e){return html+note(esc(e.message),true);}
+ let L;try{L=adviceFor(me);}catch(e){return html+note(esc(e.message),true)+`<button data-live-default="true">Use the available starting plan</button><button data-hero="${esc(me.slug)}" data-role="${me.role}">Inspect this hero</button>`;}
  html+=coachHTML(me);
  if(!L.available)return html+note(esc(L.unavailableReason),true);
  const available=Object.values(B.items||{}).filter(it=>it.completed_item&&!L.owned.includes(it.name)).sort((a,b)=>a.name.localeCompare(b.name));

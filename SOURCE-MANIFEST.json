@@ -8,7 +8,7 @@
   "files": {
     "predecessor_meta.py": "1772b256e4fceb7a4616c078cfba8301c979e477ca697f123135854125b3548e",
     "engine.js": "bb2b79fbd4422785887bb80ca5a1f81630a26721a08d5fa5c9e23de4a903da80",
-    "ui.js": "f441aa31e11ad2287d72c0636ec50e3d684759478ef269c1d071f4558cb856c8",
+    "ui.js": "8688d4e44ce302d3a33761eae3d5e75f06083964253219feba619e41559d95cb",
     "ui.html": "6b5cb31463d951517eb615e70d2afd2d07a1d78d7c4c0845a7e1f95da39fb01e",
     "reviewed_guidance.json": "d65a755748a5d5385426d95b7d8d007a476da9b7ac7bfbf1ce87ccddda0f05d5",
     "shared_server.py": "dc2be7fc9d42292440c5f7db1c4d8eb378160c2059a52618b6ccb79379b04a56",
@@ -95,7 +95,7 @@
     "tests/browser_audit_regressions.cjs": "b2c72c1dbdaf59834e35d5381496fb5ce94a768f7213a29930333b76cfbecaf8",
     "tests/browser_companion.cjs": "2ef76d261362aca1bebb27b6c42dab6ee7c1e2b995110f4da7f98b9a7c96dbf3",
     "tests/browser_companion_accessibility.cjs": "a2d39a332090998a2bc54ccb29845b2dcf130a0109e1592c7c1e0688c6087cf5",
-    "tests/browser_companion_simple.cjs": "8d076fa767667f121faa42c24f639b619b14c691229827ef313aab2dea9e174c",
+    "tests/browser_companion_simple.cjs": "867d0c26a22e6979c7ad8dbf6831ece5611ee2fce19f3e54b176a14a3bd891d2",
     "tests/browser_design.cjs": "afb43d0cf208b52925a4f059149072bd789e9461678e651205826fe40c941d1b",
     "tests/browser_navigation.cjs": "251e893cd859c6634c90fdd7c55e5e68701d877c93034e966a24f37073f62d90",
     "tests/browser_offline_cache.cjs": "e9b7acc8fd89d3b1c03f19ba76572f4b9fcdff93d794c497f3e1298b9dfa375b",
