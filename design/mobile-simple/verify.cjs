@@ -17,11 +17,16 @@ function record(id,detail){results.push({id,passed:true,detail});}
    const a=await page.evaluate(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}));});assert.deepEqual(a,[],screen+' axe '+width+' '+theme);
    const small=await page.locator('button:visible,input:visible,select:visible,summary:visible').evaluateAll(nodes=>nodes.filter(n=>n.getBoundingClientRect().height<43.5).map(n=>n.textContent.slice(0,50)));assert.deepEqual(small,[],screen+' touch height');
    record(`${width}-${theme}-${screen}`,'one h1, no horizontal overflow, 44px control height, axe AA clean');
-   if(width===390&&['hero','plan','live'].includes(screen))await page.screenshot({path:path.join(root,`${theme}-${screen}.png`),fullPage:true});
+   if(width===390&&['hero','plan','live','partners','counters'].includes(screen))await page.screenshot({path:path.join(root,`${theme}-${screen}.png`),fullPage:true});
   }
   assert.deepEqual(errors,[]);await context.close();
  }
  const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'}),page=await context.newPage();await page.goto(url);
+ const coverage=await page.evaluate(()=>{const heroes=Object.keys(E.heroes),out=heroes.map(slug=>RecommendationView.counterplay(E,E.heroes,slug,E.roles(slug)[0]||'jungle'));return {heroes:heroes.length,withAdvice:out.filter(r=>r.points.length).length,named:out.filter(r=>r.picks.length).length,valid:out.every(r=>r.picks.length<=3&&r.points.length<=3)}});
+ assert.equal(coverage.withAdvice,coverage.heroes);assert.equal(coverage.valid,true);record('counterplay-coverage',coverage);
+ await page.evaluate(()=>{S.hero='khaimera';S.role='jungle';S.view='hero';S.section='partners';render();});assert.equal(await page.locator('.partner-card').count(),5);assert.ok(await page.locator('.partner-card').evaluateAll(nodes=>new Set(nodes.map(n=>n.dataset.partnerRole)).size)>=3);record('partner-role-diversity','five real candidates, at least three roles for Khaimera');
+ await page.locator('[data-section="counters"]').click();assert.match(await page.locator('#main').innerText(),/Dekker/);assert.equal(await page.locator('.counter-pick').count(),1);assert.ok(await page.locator('.counterplay-advice li').count()>=1);record('named-counter-and-advice','reviewed Dekker counter-pick plus actual counterplay; no padding with invented picks');
+ await page.locator('[data-nav="meta"]').click();
  await page.locator('[data-hero="khaimera"]').click();await page.locator('[data-section="alternatives"]').click();
  await page.locator('[data-variant]').first().click();const identity=await page.evaluate(()=>S.selected[S.hero+'|'+S.role]);assert.ok(identity);
  await page.locator('[data-adapt]').click();assert.equal(await page.evaluate(()=>S.selected[S.hero+'|'+S.role]),identity);assert.equal(await page.evaluate(()=>planFor().manual),true);record('alternative-handoff','same variant identity and manual selection in Live');

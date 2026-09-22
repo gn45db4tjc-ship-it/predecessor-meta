@@ -18,7 +18,7 @@ bundle = json.loads(raw)
 out = ROOT / 'qa' / 'mobile-review'
 out.mkdir(parents=True, exist_ok=True)
 stage(out / 'full', ROOT / 'qa' / 'mobile-review-state', [args.seed])
-for name in ('index.html', 'prototype.css', 'prototype.js'):
+for name in ('index.html', 'prototype.css', 'prototype.js', 'recommendation-view.js'):
     shutil.copyfile(Path(__file__).parent / name, out / name)
 shutil.copyfile(ROOT / 'engine.js', out / 'engine.js')
 (out / 'bundle.js').write_text('window.REVIEW_BUNDLE=' + json.dumps(bundle, ensure_ascii=True, separators=(',', ':')) + ';', encoding='utf-8')
