@@ -10,7 +10,7 @@ const url=process.env.PREVIEW_URL||'http://127.0.0.1:12969/';
     const state=await page.evaluate(phone=>{
      const nodes=[...document.querySelectorAll(phone?'#mobile-all-list .mobile-hero-card':'.meta-table tbody tr')],source=effectiveStatSource();
      const expected=phone?Object.keys(E.heroes).filter(s=>E.roles(s).includes(S.role)): (source==='statz'?B.tier_list:B.scoped_statistics?.rows||[]).filter(r=>r.role===S.role).map(r=>r.slug);
-     return {expected,rows:nodes.map(n=>{const slug=n.querySelector('[data-hero]')?.dataset.hero,p=E.performance({slug,role:S.role});return {slug,text:n.innerText,rate:p?pct(p.wr):null,games:p?games(p.played):null};}),bracket:S.bracket,loaded:B.bracket.segment,source,overflow:document.documentElement.scrollWidth>innerWidth+1};
+     return {expected,rows:nodes.map(n=>{const slug=n.querySelector('[data-hero]')?.dataset.hero,p=E.displayPerformance({slug,role:S.role});return {slug,text:n.innerText,rate:p?pct(p.wr):null,games:p?games(p.played):null};}),bracket:S.bracket,loaded:B.bracket.segment,source,overflow:document.documentElement.scrollWidth>innerWidth+1};
     },width<700);
     assert.equal(state.bracket,bracket);assert.equal(state.loaded,bracket);assert.deepEqual(state.rows.map(r=>r.slug).sort(),state.expected.sort());assert(!state.overflow);
     if(width<700)for(const row of state.rows){if(row.rate){assert(row.text.includes(row.rate));assert(row.text.includes(row.games));}else assert(!/%/.test(row.text),'missing sample stays missing: '+row.slug);}

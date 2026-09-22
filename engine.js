@@ -264,6 +264,32 @@
       const c=key?sourceCurrency(bundle.sources?.[key],now):{state:'unavailable',age_hours:null};
       return {...policy,currency:c.state,age_hours:c.age_hours,saved:!!policy.source&&!['current','aging'].includes(c.state)};
     }
+    // Displaying a dated observation does not make it eligible for recommendation ranking.
+    // Keep this policy separate: performance()/assess()/recommend() retain their patch gates.
+    function displayPerformancePolicy({now=Date.now()}={}) {
+      const current=performancePolicy({now});
+      if(current.source)return {...current,inspection_only:false};
+      const s=bundle?.sources,validDate=v=>Number.isFinite(Date.parse(v))&&Date.parse(v)<=now+FUTURE_TOLERANCE_MS;
+      const pages=s?.statz_hero_pages,tiers=s?.statz_tierlist;
+      if((statzPagesUsable(pages)||pages?.status==='retained')&&['ok','retained'].includes(tiers?.status)&&
+          validDate(pages.fetched_at)&&validDate(tiers.fetched_at)&&/^\d+(\.\d+)+$/.test(bundle?.patch||'')) {
+        return {source:'statz',patch:bundle.patch,fetched_at:pages.fetched_at,currency:sourceCurrency(pages,now).state,
+          label:'Statz '+bundle.patch+' · '+(bundle.bracket?.label||'bracket unavailable'),saved:true,inspection_only:true,
+          note:'Current-patch role statistics are unavailable. Showing the previous Statz dataset '+bundle.patch+' with its original samples and collection dates. These observations do not rank current recommendations; the exact match window and game-mode coverage are unconfirmed.'};
+      }
+      return {...current,inspection_only:false};
+    }
+    function displayPerformance(pick,{now=Date.now()}={}) {
+      const policy=displayPerformancePolicy({now});
+      if(!policy.source)return null;
+      const row=performance(pick,{source:policy.source});
+      if(!row)return null;
+      if(policy.inspection_only){
+        const original=heroes[pick.slug]?.roles?.[pick.role];
+        if((original.patch&&original.patch!==bundle.patch)||!Number.isFinite(Date.parse(row.fetched_at))||Date.parse(row.fetched_at)>now+FUTURE_TOLERANCE_MS)return null;
+      }
+      return {...row,inspection_only:policy.inspection_only};
+    }
     function metaReviewSummary(role) {
       const rows=(bundle?.guidance?.meta_review?.entries||[]).filter(r=>!role||r.role===role).map(r=>metaReview(r.slug,r.role)).filter(Boolean);
       const counts={};for(const r of rows)if(!r.active)counts[r.status]=(counts[r.status]||0)+1;
@@ -934,7 +960,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
