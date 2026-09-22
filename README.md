@@ -1,3 +1,9 @@
+# Predecessor Meta — 2.31.1 build-review candidate
+
+September 22 build advice for live patch 1.17: 86 supported starting builds, seven explicitly unresolved specialist roles, and preserved historical fallback. Observed source dates and statistical labels remain unchanged. This is a build-only review; other strategy areas retain their own dates. See [RELEASE-2.31.1.md](RELEASE-2.31.1.md) for scope, evidence and release status.
+
+## Previous release
+
 # Predecessor Meta — 2.31.0
 
 A larger visual redesign: midnight navy and ice blue in dark mode, porcelain and cobalt in light mode, portrait-led Meta cards, clearer navigation, and a numbered purchase list. Pre-match choices and shopping order are separate. More → Check app update refreshes the phone home-screen app without clearing your choices. See [RELEASE-2.31.0.md](RELEASE-2.31.0.md).

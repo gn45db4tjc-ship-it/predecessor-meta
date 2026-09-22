@@ -31,6 +31,19 @@ async function session(browser, options) {
   await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
   return {context, page};
 }
+/* Build-label and overlap probes exercise the committed historical mechanics.
+   Restore that seed's authored plans explicitly: a later patch review must not
+   activate future advice against the old fixture, or erase the sample under test.
+   Current patch eligibility is checked separately by build_patch_review.test.cjs
+   and browser_build_patch_review.cjs; no production eligibility rule is bypassed. */
+let historicalBuilds;
+async function historicalBuildSession(browser, options) {
+  if (!historicalBuilds) historicalBuilds = JSON.parse(require('node:zlib').gunzipSync(fs.readFileSync(path.join(root, 'public-seed-gold.json.gz')))).guidance.builds;
+  const opened = await session(browser, options);
+  await opened.page.evaluate(builds => { B.guidance.builds = builds; delete B.guidance.build_patch_review; E = MetaEngine.create(B); render(); }, historicalBuilds);
+  assert.equal(await opened.page.evaluate(() => E.buildReview('steel', 'jungle').active), true, 'Historical build probe needs its matching reviewed seed');
+  return opened;
+}
 /* A controlled clock, started one hour after the publication was generated unless told otherwise. */
 async function clockSession(browser, options, offsetMs = 3600000) {
   const context = await browser.newContext({serviceWorkers: 'block', acceptDownloads: true, ...options}), page = await context.newPage();
@@ -2424,7 +2437,7 @@ probes.X1 = async browser => {
   /* Every part of a build must name the category the engine gave it. Printing the
      engine's label as plain prose leaves the build outside the four-class system that
      the rest of the product is held to. */
-  const {context, page} = await session(browser, desktop);
+  const {context, page} = await historicalBuildSession(browser, desktop);
   const seen = await heroBuild(page);
   const slots = seen.rendered.slice(0, seen.engine.slots.length);
   const missing = slots.filter(s => !s.tags.length).length;
@@ -2438,7 +2451,7 @@ probes.X1 = async browser => {
     if (!CATEGORY_WORDS[want].test(text)) mismatched.push({slot: e.name, kind: e.kind, want, got: text});
   });
   await context.close();
-  verdict('X1', missing > 0 || mismatched.length > 0,
+  verdict('X1', slots.length === 0 || missing > 0 || mismatched.length > 0,
     {slots: slots.length, without_category: missing, mismatched, engine_kinds: seen.engine.slots.map(s => s.kind)});
 };
 
@@ -2446,7 +2459,7 @@ probes.X2 = async browser => {
   /* A rate attached to a slot is supporting evidence, and evidence carries its sample,
      its date and its source. Where the engine has already decided the sample does not
      support the current fit, the screen says so rather than printing a bare percentage. */
-  const {context, page} = await session(browser, desktop);
+  const {context, page} = await historicalBuildSession(browser, desktop);
   const seen = await heroBuild(page);
   const withStat = seen.engine.slots.map((e, i) => ({e, row: seen.rendered[i]})).filter(x => x.e.measured);
   const problems = [];
@@ -2470,7 +2483,7 @@ probes.X2 = async browser => {
 probes.X3 = async browser => {
   /* The rule that matters most: a supporting statistic never changes a category. The
      same plan, rendered with and without its samples, must carry the same categories. */
-  const {context, page} = await session(browser, desktop);
+  const {context, page} = await historicalBuildSession(browser, desktop);
   const seen = await page.evaluate(() => {
     const read = () => [...document.querySelectorAll('#main .build-path li')]
       .map(li => [...li.querySelectorAll('.tag')].map(t => t.textContent.trim()).join('|'));
@@ -2502,7 +2515,7 @@ probes.X3 = async browser => {
 probes.X4 = async browser => {
   /* GUARD: a substitution says what it replaced and why, a need the engine could not
      answer is named, and the whole six is never offered as one observed loadout. */
-  const {context, page} = await session(browser, desktop);
+  const {context, page} = await historicalBuildSession(browser, desktop);
   const seen = await page.evaluate(() => {
     // An enemy is what makes the engine substitute at all, so the guard needs one.
     S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}]; S.role = 'jungle';
@@ -2632,7 +2645,7 @@ probes.Y1 = async browser => {
   /* The loadout is the rest of the build: augment, Eternal, both blessings, the crest and
      its evolutions. Every part carries the same category and evidence treatment the six
      items got in stage 3a - a part with no label is a part with no provenance. */
-  const {context, page} = await session(browser, desktop);
+  const {context, page} = await historicalBuildSession(browser, desktop);
   await openSteel(page, 'builds');
   const seen = await page.evaluate(() => {
     const a = adviceFor({slug: 'steel', role: 'jungle'});
@@ -2700,7 +2713,7 @@ probes.Y4 = async browser => {
      Content that scrolls under permanent chrome is content the reader cannot have. */
   const seen = {};
   for (const [w, h, mob] of [[390, 844, true], [1440, 900, false]]) {
-    const {context, page} = await session(browser, {viewport: {width: w, height: h}, isMobile: mob, hasTouch: mob});
+    const {context, page} = await historicalBuildSession(browser, {viewport: {width: w, height: h}, isMobile: mob, hasTouch: mob});
     await page.evaluate(() => {
       S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}];
       S.enemies = [{slug: 'countess', role: 'midlane'}]; S.role = 'jungle';

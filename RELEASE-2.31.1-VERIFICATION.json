@@ -1,0 +1,244 @@
+{
+  "version": "2.31.1",
+  "checked_at": "2026-09-22T15:36:31+00:00",
+  "status": "Staged build review; exact-head CI, install and deployment recorded separately",
+  "baseline": "92d6297f82f5c589702ed950226daef5dc23f1f2",
+  "review_scope": "93 existing plans: build-only 1.17 transition; not full strategy review",
+  "summary": {
+    "changed": 25,
+    "checked_and_retained": 61,
+    "unresolved": 7
+  },
+  "tests": {
+    "python": "205 run: OK, one existing skip; verified again in the clean source package",
+    "javascript": "224 passed; verified again in the clean source package",
+    "real_bundle_browser_edge": 24,
+    "real_bundle_browser_webkit": 24,
+    "real_bundle_axe_violations": 0,
+    "existing_webkit_visual_states": 50,
+    "existing_webkit_companion_states": 36,
+    "actual_previous_worker_and_update_checks": [
+      "current app version visible in More",
+      "foreground check finds new interface without reloading active draft",
+      "update controls fit both phone widths and themes, including enlarged text and accessibility checks",
+      "hero evidence remains usable while update awaits the user",
+      "real network outage refuses update and preserves current screen",
+      "captive-portal document cannot masquerade as the update",
+      "unsaved selections prevent a reload when storage is blocked",
+      "explicit update loads new shell and preserves route, picks, inventory, theme, favorites and data dates",
+      "new worker survives a real offline restart with saved data",
+      "offline check never claims the app is verified current",
+      "legacy manifest without app version is not treated as proof of freshness",
+      "actual 2.31.0 data refresh does not silently replace the active interface",
+      "actual 2.31.0 worker loads the new interface on navigation without clearing picks"
+    ],
+    "historical_build_probes": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "Y1",
+      "Y4"
+    ],
+    "full_browser_audit": "CI required; historical build probes now use the plans belonging to their seed; no eligibility gate weakened"
+  },
+  "six_brackets": [
+    {
+      "rank": "gold",
+      "active": 86,
+      "unresolved": [
+        "akeron/support",
+        "ikra/support",
+        "maco/midlane",
+        "scarlett/midlane",
+        "the-fey/carry",
+        "wraith/support",
+        "wukong/offlane"
+      ],
+      "observed_fields_preserved": [
+        "heroes",
+        "items",
+        "perks",
+        "tier_list",
+        "pairs",
+        "sources",
+        "generated_at",
+        "patch",
+        "scoped_statistics",
+        "pred_game_data"
+      ],
+      "bundle_sha256": "f5098ae893a9a21374a88ebb690cdc82f8d8266ab88f48c90e170014562ed2e1"
+    },
+    {
+      "rank": "bronze",
+      "active": 86,
+      "unresolved": [
+        "akeron/support",
+        "ikra/support",
+        "maco/midlane",
+        "scarlett/midlane",
+        "the-fey/carry",
+        "wraith/support",
+        "wukong/offlane"
+      ],
+      "observed_fields_preserved": [
+        "heroes",
+        "items",
+        "perks",
+        "tier_list",
+        "pairs",
+        "sources",
+        "generated_at",
+        "patch",
+        "scoped_statistics",
+        "pred_game_data"
+      ],
+      "bundle_sha256": "462ba59cd25461c9fb006cac43f90bf9c4c9e484eeff327983dfd26940fd68da"
+    },
+    {
+      "rank": "silver",
+      "active": 86,
+      "unresolved": [
+        "akeron/support",
+        "ikra/support",
+        "maco/midlane",
+        "scarlett/midlane",
+        "the-fey/carry",
+        "wraith/support",
+        "wukong/offlane"
+      ],
+      "observed_fields_preserved": [
+        "heroes",
+        "items",
+        "perks",
+        "tier_list",
+        "pairs",
+        "sources",
+        "generated_at",
+        "patch",
+        "scoped_statistics",
+        "pred_game_data"
+      ],
+      "bundle_sha256": "e97f285f9193034ab03cfa7479df8016f4be4ca0d15c317f17fe519885f9a7da"
+    },
+    {
+      "rank": "platinum",
+      "active": 86,
+      "unresolved": [
+        "akeron/support",
+        "ikra/support",
+        "maco/midlane",
+        "scarlett/midlane",
+        "the-fey/carry",
+        "wraith/support",
+        "wukong/offlane"
+      ],
+      "observed_fields_preserved": [
+        "heroes",
+        "items",
+        "perks",
+        "tier_list",
+        "pairs",
+        "sources",
+        "generated_at",
+        "patch",
+        "scoped_statistics",
+        "pred_game_data"
+      ],
+      "bundle_sha256": "287e9363a2033ecc0a118bc60285c8fbe964891a33d41352a761c6ba20f45110"
+    },
+    {
+      "rank": "diamond",
+      "active": 86,
+      "unresolved": [
+        "akeron/support",
+        "ikra/support",
+        "maco/midlane",
+        "scarlett/midlane",
+        "the-fey/carry",
+        "wraith/support",
+        "wukong/offlane"
+      ],
+      "observed_fields_preserved": [
+        "heroes",
+        "items",
+        "perks",
+        "tier_list",
+        "pairs",
+        "sources",
+        "generated_at",
+        "patch",
+        "scoped_statistics",
+        "pred_game_data"
+      ],
+      "bundle_sha256": "45348e21f0c69f49a2f7754ea68aef8f3d6a372ace69c8b06ececcb88b63d126"
+    },
+    {
+      "rank": "paragon",
+      "active": 86,
+      "unresolved": [
+        "akeron/support",
+        "ikra/support",
+        "maco/midlane",
+        "scarlett/midlane",
+        "the-fey/carry",
+        "wraith/support",
+        "wukong/offlane"
+      ],
+      "observed_fields_preserved": [
+        "heroes",
+        "items",
+        "perks",
+        "tier_list",
+        "pairs",
+        "sources",
+        "generated_at",
+        "patch",
+        "scoped_statistics",
+        "pred_game_data"
+      ],
+      "bundle_sha256": "5112ee69b7a05072db92b666c3f29ab95d9bc393b51fe330171bd5a000ecd446"
+    }
+  ],
+  "compressed_core_sizes": [
+    {
+      "rank": "bronze",
+      "original_core_gzip": 708957,
+      "reviewed_core_gzip": 749142
+    },
+    {
+      "rank": "silver",
+      "original_core_gzip": 718344,
+      "reviewed_core_gzip": 758781
+    },
+    {
+      "rank": "gold",
+      "original_core_gzip": 728539,
+      "reviewed_core_gzip": 769005
+    },
+    {
+      "rank": "platinum",
+      "original_core_gzip": 733248,
+      "reviewed_core_gzip": 773705
+    },
+    {
+      "rank": "diamond",
+      "original_core_gzip": 720424,
+      "reviewed_core_gzip": 760813
+    },
+    {
+      "rank": "paragon",
+      "original_core_gzip": 681973,
+      "reviewed_core_gzip": 722390
+    }
+  ],
+  "limitations": [
+    "No current-patch outcome samples were created or claimed.",
+    "Seven experimental roles remain unresolved and Valmont coverage is missing.",
+    "Global tiers, counters, compositions, full mechanics descriptions and authored 18-level orders retain their own dates.",
+    "Automatic match adaptations require a separate current-patch kit/item review.",
+    "Physical phone and screen-reader acceptance not run.",
+    "No fresh cloud collector run or deployment is claimed by this report."
+  ],
+  "release_approval": "Required under the existing strategy policy before installation or publication"
+}

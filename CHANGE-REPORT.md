@@ -1,3 +1,9 @@
+# 2.31.1 — September 22 build review
+
+Independently reviewed starting builds can advance to patch 1.17 without relabelling the September 14 full strategy review or any observed statistics. Ninety-three plans have dated verdicts; 86 are supported and seven specialist roles remain unresolved. Exact mechanics and official-article preconditions still fail closed. Sources, phone dates and historical fallback distinguish the separate review scopes. See RELEASE-2.31.1.md and its verification report. Installation and publication require separate release acceptance.
+
+## Previous changes
+
 # 2.30.2 — mobile visual polish
 
 Consistent system fonts work online, offline and in the Windows launcher. Search and sorting controls align; all five roles remain visible; build cells and the bottom navigation have clearer spacing and selected states. Meta brings hero cards forward while keeping previous-data warnings visible and detailed dates and eligibility rules accessible. A large-text source-details overflow and light-theme muted-text contrast are corrected. No source figures, recommendation logic, guidance dates or collection schedules changed.

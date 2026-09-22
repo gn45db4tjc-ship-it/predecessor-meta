@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.31.0"
+VERSION = "2.31.1"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -3167,6 +3167,20 @@ def review_saved_sources(bundle):
     Complete or validated independent-source bundles with a raw-source audit
     trail support replay. Retained source partitions keep their status and dates.
     """
+    packet_path=TOOL_DIR/'reviewed_guidance.json'
+    packet=json.loads(packet_path.read_text(encoding='utf8')) if packet_path.exists() else {}
+    build_pass=packet.get('guidance',{}).get('build_patch_review')
+    if build_pass and bundle.get('official',{}).get('live',{}).get('version')==build_pass['patch'] and bundle_is_publishable(bundle) and (bundle.get('guidance',{}).get('build_patch_review')!=build_pass or bundle.get('guidance',{}).get('builds')!=packet['guidance']['builds']):
+        # Editorial-only replay also works when optional Pred.gg is absent. No raw
+        # source reconstruction, fresh-fetch claim or observation update is needed.
+        validate_guidance_packet(packet,bundle)
+        b=copy.deepcopy(bundle)
+        b.setdefault('guidance',{})['builds']=copy.deepcopy(packet['guidance']['builds'])
+        b['guidance']['build_patch_review']=copy.deepcopy(build_pass)
+        b['tool_version']=VERSION
+        b['saved_build_review']={'reviewed_at':build_pass['reviewed_at'],'patch':build_pass['patch'],
+            'applied_at':iso(now_utc()),'note':'Build-only editorial update. Statistical dates, patch labels and all other strategy review dates are unchanged.'}
+        return b
     pred = bundle.get('pred_game_data')
     if bundle.get('tool_version')==VERSION or not isinstance(pred,dict) or not pred.get('heroes') or not bundle_is_publishable(bundle):
         return bundle
@@ -3528,6 +3542,42 @@ def validate_guidance_packet(packet,bundle):
     if not isinstance(packet,dict): raise ValueError('Reviewed guidance must be an object')
     if not isinstance(packet.get('guidance'),dict) or not re.fullmatch(r'\d+\.\d+(?:\.\d+)?',str(packet.get('patch',''))): raise ValueError('Invalid reviewed guidance packet')
     if not packet.get('reviewed_at') or not isinstance(packet.get('article_fingerprints'),dict): raise ValueError('Review date and official article fingerprints are required')
+    build_pass=packet['guidance'].get('build_patch_review')
+    if build_pass is not None:
+        if not isinstance(build_pass,dict) or not re.fullmatch(r'\d+\.\d+(?:\.\d+)?',str(build_pass.get('patch',''))):raise ValueError('Build patch review requires a patch')
+        history_time(build_pass.get('reviewed_at'))
+        if not build_pass.get('scope') or not build_pass.get('limitations'):raise ValueError('Build patch review requires scope and limitations')
+        fingerprints=build_pass.get('article_fingerprints',{})
+        if not isinstance(fingerprints,dict) or build_pass['patch'] not in fingerprints or any(not re.fullmatch(r'[a-f0-9]{64}',str(v)) for v in fingerprints.values()):raise ValueError('Build patch review requires exact official fingerprints')
+        if build_pass.get('loadout_catalog',{}).get('eternals')!=packet.get('loadout_catalog',{}).get('eternals'):raise ValueError('Build patch review must preserve evidenced Eternal membership')
+        definitions=build_pass.get('loadout_definitions',{})
+        if not isinstance(definitions,dict) or not definitions:raise ValueError('Build review needs evidenced loadout definitions')
+        for name,definition in definitions.items():
+            if not isinstance(name,str) or not name or not isinstance(definition,dict) or not definition.get('description') or not definition.get('slot'):raise ValueError('Invalid build loadout definition')
+            refs=definition.get('sources',[])
+            if not refs:raise ValueError('Build loadout definition needs dated source records')
+            for ref in refs:
+                history_time(ref.get('fetched_at'))
+                digest=ref.get('sha256','')
+                if ref.get('bracket') not in BRACKETS or not re.fullmatch(r'[a-f0-9]{64}',digest) or not ref.get('url','').endswith('/bundles/'+ref['bracket']+'-'+digest+'.json') or ref.get('upstream')!='https://statz.gg/predecessor':raise ValueError('Build definition requires an exact checksum-addressed source bundle')
+        summary={'changed':0,'checked and retained':0,'unresolved':0}
+        for plan in packet['guidance'].get('builds',[]):
+            review=plan.get('patch_review')
+            if review is None:continue
+            if not plan.get('source_preconditions'):raise ValueError('Build patch review requires exact mechanics preconditions')
+            for name,text in plan['source_preconditions'].get('perks',{}).items():
+                if name not in definitions:raise ValueError('Build loadout precondition needs a source definition')
+            if plan.get('patch')!=build_pass['patch'] or review.get('result') not in summary:raise ValueError('Invalid build patch verdict')
+            history_time(review.get('reviewed_at'))
+            if review['reviewed_at']!=plan.get('reviewed_at'):raise ValueError('Build and verdict dates differ')
+            if any(not isinstance(review.get(k),str) or not review[k].strip() for k in ('reason','alternative','limitation')):raise ValueError('Build patch verdict needs reasoning, an alternative and limitations')
+            refs=review.get('sources',[])
+            if not refs or not any(ref.get('url','').startswith(OFFICIAL_ORIGIN+'/en-US/news/patch-notes/') for ref in refs):raise ValueError('Build patch verdict requires official evidence')
+            for ref in refs:
+                history_time(ref.get('fetched_at'))
+                if not str(ref.get('url','')).startswith('https://'):raise ValueError('Build patch evidence requires a source URL')
+            summary[review['result']]+=1
+        if summary!=build_pass.get('summary'):raise ValueError('Build patch review totals do not match verdicts')
     maintenance=packet['guidance'].get('maintenance_review')
     wording=packet['guidance'].get('perk_wording_reviews',[])
     if not isinstance(wording,list):raise ValueError('Perk wording reviews must be a list')
@@ -3751,7 +3801,7 @@ def validate_guidance_packet(packet,bundle):
         key=(build.get('slug'),build.get('role'))
         if key in build_keys or key[1] not in ROLES or bundle and key[0] not in bundle.get('heroes',{}):raise ValueError('Unknown or duplicate reviewed build role')
         build_keys.add(key)
-        if build.get('patch')!=packet.get('patch'):raise ValueError('Reviewed build patch differs from guidance')
+        if build.get('patch')!=packet.get('patch') and not (build.get('patch_review') and build.get('patch')==(build_pass or {}).get('patch')):raise ValueError('Reviewed build patch differs from guidance without an independent review')
         for field in ('core','finish','blessings','skill_priority'):
             if not isinstance(build.get(field),list) or any(not isinstance(x,str) or not x.strip() for x in build[field]):raise ValueError('Reviewed build has invalid '+field)
         if len(build['core'])!=3 or len(build['finish'])!=3 or len(set(build['core']+build['finish']))!=6 or len(build['blessings'])!=2:raise ValueError('Reviewed build requires six unique items and two blessings')
@@ -3785,7 +3835,7 @@ def validate_guidance_packet(packet,bundle):
             if not isinstance(evidence.get('playedGames'),int) or isinstance(evidence['playedGames'],bool):raise ValueError('Role review sample must be an integer')
             if timestamp_age(evidence.get('fetched_at')) is None or not evidence.get('dataset') or not evidence.get('bracket'):raise ValueError('Role observation requires a date, dataset and bracket')
         if build.get('damage') not in ('physical','magical','mixed','none') or build.get('style') not in ('tank','bruiser','assassin','attack','mage','enchanter','burst_carry','ability_carry'):raise ValueError('Invalid reviewed playstyle')
-        if not build.get('sources') or any(not isinstance(x,dict) or not re.match(r'^https://(?:www\.predecessorgame\.com|omeda\.city|pred\.gg)/',x.get('url','')) for x in build['sources']):raise ValueError('Reviewed builds require named supporting sources')
+        if not build.get('sources') or any(not isinstance(x,dict) or not re.match(r'^https://(?:www\.predecessorgame\.com|omeda\.city|pred\.gg|statz\.gg)/',x.get('url','')) for x in build['sources']):raise ValueError('Reviewed builds require named supporting sources')
 
 
 def serve(settings,no_open=False,port=4188,no_fetch=False):
