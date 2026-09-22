@@ -1,4 +1,4 @@
-"""Package and independently verify the source-only 2.29.0 review candidate."""
+"""Package and independently verify the source-only 2.30.0 release."""
 import argparse
 import hashlib
 import json
@@ -22,6 +22,8 @@ FILES += ['RELEASE-2.21.8.md','mobile.js','mobile.css','RELEASE-2.22.0.md','RELE
 FILES += ['package.json','package-lock.json','tests/known-defects.json','RELEASE-2.24.0.md','review_queue.cjs','RELEASE-2.25.0.md','RELEASE-2.26.0.md','RELEASE-2.26.1.md','RELEASE-2.26.2.md']
 # Website delivery projection (audit item 11).
 FILES += ['projection.py','projection_client.js','PROJECTION-DESIGN.md','RELEASE-2.27.0.md','RELEASE-2.28.0.md','RELEASE-2.28.1.md','RELEASE-2.28.2.md']
+FILES += ['RELEASE-2.30.0.md','RELEASE-2.30.0-VERIFICATION.json','STRATEGY-REVIEW-POLICY.md']
+FILES += ['companion_state.js','recommendation_view.js','skill_guide.js','companion_simple.js','companion_simple.css']
 FILES += ['RELEASE-2.29.0.md','DESIGN-2.29-ACCEPTANCE.md','DESIGN-2.29-VERIFICATION.json','public-seed-gold.json.gz']
 
 def package(node=None):
@@ -31,11 +33,11 @@ def package(node=None):
         files += sorted((ROOT / 'tests').rglob(extension))
     hashes = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
     assert len(files) == len(hashes)
-    manifest = {'version':'2.29.0','hosting_revision':16,'design_revision':5,
-                'baseline_commit':'fa4066f7a9c45d013a7d3d4549bebb2f889ca874',
-                'verification_report':'RELEASE-2.29.0.md','release_status':'review candidate, not installed or published','files':hashes}
+    manifest = {'version':'2.30.0','hosting_revision':18,'design_revision':5,
+                'baseline_commit':'ef5636b',
+                'verification_report':'RELEASE-2.30.0-VERIFICATION.json','release_status':'verified source; installation and deployment recorded separately','files':hashes}
     (ROOT / 'SOURCE-MANIFEST.json').write_bytes((json.dumps(manifest,indent=2)+'\n').encode('utf8'))
-    archive = ROOT.parent / 'Predecessor Meta Tool 2.29.0 - Review Source.zip'
+    archive = ROOT.parent / 'Predecessor Meta Tool 2.30.0 - Source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for p in files + [ROOT/'SOURCE-MANIFEST.json']:
             z.write(p,p.relative_to(ROOT).as_posix())

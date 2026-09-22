@@ -1,0 +1,94 @@
+{
+  "version": "2.30.0",
+  "checked_at": "2026-09-22T04:38:11.271807+00:00",
+  "baseline": "ef5636bdafbcaf2bcacabaed9db3639b585cf960",
+  "scope": "Source and staged release verification; installation and deployment have separate receipts.",
+  "checks": {
+    "evidence_regressions": 146,
+    "offline_lifecycle": 9,
+    "accessibility_extended_states": 30,
+    "companion_checks": 46,
+    "python": {
+      "run": 199,
+      "skipped": 1
+    },
+    "node": {
+      "pass": 213,
+      "skipped": 0
+    },
+    "local_app": {
+      "local": true,
+      "sourceSelection": true,
+      "adaptation": true,
+      "savedPicks": true,
+      "sessionContext": true,
+      "errors": []
+    },
+    "edge": {
+      "rank_role_cases": 60,
+      "navigation_states": 60,
+      "fresh_links": 6,
+      "plan_layout_states": 24,
+      "static_checks": [
+        57,
+        50
+      ],
+      "quick_layout_and_axe_states": 36,
+      "actual_previous_release_upgrade": {
+        "engine": "edge",
+        "from": "2.29.1",
+        "to": "2.30.0",
+        "workerActivated": true,
+        "newShellOpenedOffline": true,
+        "picksPreserved": true,
+        "sourceDatePreserved": "2026-09-08T08:36:59-05:00",
+        "errors": []
+      }
+    },
+    "webkit": {
+      "rank_role_cases": 60,
+      "navigation_states": 60,
+      "fresh_links": 6,
+      "plan_layout_states": 24,
+      "static_checks": [
+        57,
+        50
+      ],
+      "quick_layout_and_axe_states": 36,
+      "actual_previous_release_upgrade": {
+        "engine": "webkit",
+        "from": "2.29.1",
+        "to": "2.30.0",
+        "workerActivated": true,
+        "newShellOpenedOffline": true,
+        "picksPreserved": true,
+        "sourceDatePreserved": "2026-09-08T08:36:59-05:00",
+        "errors": []
+      }
+    }
+  },
+  "report_sha256": {
+    "audit-regressions-browser.json": "1c23435af4b8d56694780fbe46a4fbaac86ec5e14610482de0be469460b535b9",
+    "offline-cache-browser.json": "435921b99ff961d7bca8229429eca7a87476222c3d4f9b32548e33ed9c763f7d",
+    "companion-accessibility.json": "8d10b4b1a5efcc33d666ad36c0e9eced7758e124748a8fdf861bdb5aee586eae",
+    "companion-verification.json": "f218a8a75c0bb5a9e6fd29ba87781edb182d94cf55d81932733760a904a4a541",
+    "local-app-browser.json": "91c0891ed4803274ce94ff315cbab0b61aa1d7ae28ecf79af95c618d87fc5494",
+    "release-222-browser.json": "176f07d168d2abee778ac20fe7fd092c22a0a6ddccaeb3bbf563a7c7313471ad",
+    "ranks-companion-edge.json": "c0397993c248c5efda76ccc29b94430bd7ba36e1dd13c9ab4e870fedcee4b5f3",
+    "navigation-edge.json": "5e9d58e2173cd2f9a5d6a0245558b7438d5a016de08a8c3fe914292ef7f54040",
+    "plan-layout-edge.json": "d6f478f6ba0798fe89368e2adb2b9daf5d299bec42f35bd9e5104beb5384d228",
+    "edge-static-acceptance.json": "c822e9f645751d2e99b4a8fdbc9b13c1002bee1b08cb4ee0ff3fcd31bb6843cd",
+    "release-upgrade-edge.json": "48275d3574e090db2a24734358aee30001150056036f99ded0227183a8aaebf7",
+    "ranks-companion-webkit.json": "1479fb4acc555a4d99463d148893732f5ceceefb67dd3ce806d4a467dcd25c48",
+    "navigation-webkit.json": "1ccb066c85b1b5776ee87a935a7e6a9e0d5dfcdc58052f852b2e19ae8ac1295b",
+    "plan-layout-webkit.json": "2f785f9d4ddb3da24d172ad277da9ece379956b3b45ad3011d7cb1e93c9614ee",
+    "webkit-static-acceptance.json": "b3b6c977e9bc6aef5e56359bb730a4f2b4c6207be308ba78e69bf1f8f70b7144",
+    "release-upgrade-webkit.json": "8e836fcc4b471177bc107b97e2cf7d819f797af13c66400bf6b9b8bd779369ee"
+  },
+  "limitations": [
+    "No physical phone or screen-reader acceptance.",
+    "No claim that UI work completes strategy reviews or makes retained samples current.",
+    "Exact skill allocations without individual review remain observed or calculated.",
+    "Browser regression seeds retain their original dates. The source ZIP is independently rechecked when packaged."
+  ]
+}

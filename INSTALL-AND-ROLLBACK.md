@@ -1,3 +1,9 @@
+# 2.30.0 installation and rollback
+
+The release installer verifies source hashes and preserves data, snapshots, settings and guidance. It creates a dated backup and **Roll Back 2.30.0.bat** in the installed app folder. Quit the app before rollback. Revert the release merge for a website rollback, preserving the data and automation-state branches. See [RELEASE-2.30.0.md](RELEASE-2.30.0.md) and the installation receipt for exact paths and validation.
+
+## Historical release documentation
+
 # 2.29.0 review candidate: approval pending
 
 No 2.29.0 files have replaced the installed app. Installation must create and verify a new hashed backup first; existing data, settings and snapshots are preserved. The agent will supply the exact backup path and matching rollback launcher after the approved installation. See [RELEASE-2.29.0.md](RELEASE-2.29.0.md) for the staged release procedure. The rollback launchers described below belong to earlier releases.

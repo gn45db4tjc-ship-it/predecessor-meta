@@ -28,7 +28,7 @@ const report={engine,states:[],links:[],errors:[]};
    }
    // Keyboard destinations remain operable, with a visible focus destination in the screen.
    await page.locator('[data-destination="plan"]:visible').focus();await page.keyboard.press('Enter');
-   assert.equal(await page.evaluate(()=>S.route),'planner');
+   assert.equal(await page.evaluate(()=>S.route),viewport.width<=700?'draft':'planner');
    await context.close();
   }
   // Fresh profiles prove the address supplies its own cohort; saved Gold must not win.

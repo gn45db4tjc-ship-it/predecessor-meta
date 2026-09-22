@@ -16,6 +16,7 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
  }
  const useWebkit=process.env.BROWSER_ENGINE==='webkit';
  const browser=await (useWebkit?webkit.launch({headless:true}):chromium.launch({headless:true,channel:'msedge'}));
+ const newContext=browser.newContext.bind(browser);browser.newContext=async (...args)=>{const c=await newContext(...args);await c.addInitScript(()=>{localStorage.setItem('predecessor-companion-v1',JSON.stringify({installSeen:true,fullDetails:true}));});return c;};
  const report={engine:useWebkit?'Playwright WebKit on Windows (not native Apple Safari)':'Microsoft Edge on Windows',version:browser.version(),runs:[]};
  try{
   // Installed app offline: serve the preview through a private pass-through server, let the service worker take

@@ -2,6 +2,14 @@
 // Navigate through the visible destination and section controls. Legacy screen IDs remain
 // stable, but they are no longer all buttons in the primary navigation (Stage 2b).
 async function goToScreen(page, route) {
+  if(await page.locator('#mobile-navigation [data-destination="more"]:visible').count()){
+    if(route==='meta'){await page.locator('#mobile-navigation [data-route="meta"]').click();return;}
+    if(['planner','draft','live'].includes(route)){
+      await page.locator('#mobile-navigation [data-destination="plan"]').click();
+      if(route!=='draft')await page.locator(`#main .destination-sections [data-route="${route}"]`).click();
+    }else{await page.locator('#mobile-navigation [data-destination="more"]').click();if(route!=='more')await page.locator(`#main [data-route="${route}"]`).first().click();}
+    return;
+  }
   const destination = ['planner','draft','live'].includes(route) ? 'plan'
     : ['builds','guidance','library','changes'].includes(route) ? 'reference'
     : ['data','more'].includes(route) ? 'sources' : 'meta';

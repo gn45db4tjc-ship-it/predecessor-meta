@@ -909,15 +909,20 @@
       if(threat&&!enemies.some(e=>e.slug===threat))throw Error('The primary threat must be one of the selected enemies.');
       if(threat===undefined){threat=enemies.find(e=>e.role===me.role)?.slug||enemies.map(e=>({e,m:currentMatchup(me,e,100)})).filter(x=>x.m).sort((a,b)=>a.m.wr-b.m.wr)[0]?.e.slug||null;}
       const review=buildReview(me.slug,me.role);
-      const L=buildCandidate(me,allies,enemies,{...context,state,primaryThreat:threat,variant:null});
-      const baseline=review?[...review.core,...review.finish]:[];
-      const unavailable=!review?.active||baseline.length!==6||new Set(baseline.map(NK)).size!==6||baseline.some(n=>item(n)?.available_current_patch===false);
-      const expectedCore=baseline.filter(n=>review?.core.includes(n)&&!L.owned.some(o=>NK(o)===NK(n)));
+      const variant=context.variant??null;
+      if(variant!==null&&(!Number.isInteger(variant)||variant<0||!heroes[me.slug].roles?.[me.role]?.builds?.[variant]))throw Error('The selected source playstyle is unavailable. Choose it again.');
+      const L=buildCandidate(me,allies,enemies,{...context,state,primaryThreat:threat,variant});
+      // The caller resolves a durable reference in the current publication before passing an index.
+      // A different augment/Eternal lacks the reviewed kit preconditions used by the adaptation rules.
+      const loadoutMismatch=variant!==null&&(NK(L.plan.augment)!==NK(review?.augment)||NK(L.plan.eternal)!==NK(review?.eternal));
+      const baseline=variant!==null?L.plan.items:review?[...review.core,...review.finish]:[];
+      const unavailable=!review?.active||loadoutMismatch||baseline.length!==6||new Set(baseline.map(NK)).size!==6||baseline.some(n=>item(n)?.available_current_patch===false);
+      const expectedCore=baseline.filter(n=>(variant!==null?L.plan.core:review?.core)?.includes(n)&&!L.owned.some(o=>NK(o)===NK(n)));
       const lostCore=expectedCore.some(n=>!L.slots.some(s=>NK(s.name)===NK(n)));
       const available=!unavailable&&!lostCore;
-      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
+      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
       const threatData=threat?heroProfile(threat):null;
-      const explanations=[state==='ahead'?'Ahead: keep offensive timing unless your selected urgent need requires a flexible answer.':state==='behind'?'Behind: prioritize a compatible survival or utility answer within the flexible slots; preserve the core.':'Even: retain the reviewed core and answer compatible enemy-kit needs.'];
+      const explanations=[variant!==null?'Calculated adaptation of your selected source playstyle; its core is preserved. No win rate is claimed for this assembled path.':state==='ahead'?'Ahead: keep offensive timing unless your selected urgent need requires a flexible answer.':state==='behind'?'Behind: prioritize a compatible survival or utility answer within the flexible slots; preserve the core.':'Even: retain the reviewed core and answer compatible enemy-kit needs.'];
       if(threatData)explanations.push('Primary threat: '+threatData.name+'. '+(threatData.evidence[0]?threatData.evidence[0].ability+': '+(threatData.evidence[0].reason||threatData.evidence[0].tag):'No supported kit mechanism is available; no damage type is assumed.'));
       for(const s of L.slots.filter(s=>s.kind==='need'))explanations.push(s.name+': '+s.candidate.trigger.condition+' '+s.candidate.evidence);
       const changes=L.slots.filter(s=>s.kind!=='owned'&&(!baseline.includes(s.name)||baseline.indexOf(s.name)!==L.slots.indexOf(s))).map(s=>({item:s.name,position:L.slots.indexOf(s)+1,reason:s.candidate?.evidence||L.timing.join(' ')||'Keep owned items and preserve the remaining core.'}));
@@ -925,7 +930,7 @@
       return {...L,available,unavailableReason:reason,state,primaryThreat:threat,baseline,changes:available?changes:[],explanations,contingency:available?contingency:null,
         slots:available?L.slots:[],nextPurchase:available?L.nextPurchase:null,
         evidence:{reviewed:{patch:review?.patch,date:review?.reviewed_at},bracket:bundle.bracket?.label,observed:L.itemEvidence,calculated:explanations,entered:{state,primaryThreat:threat,priority:context.priority||'',owned:L.owned}},
-        note:'Adapted from a dated reviewed plan. Selected-bracket evidence can only support compatible flexible choices. No samples are pooled and no adapted-build win rate is estimated.'};
+        note:(variant!==null?'Calculated adaptation of a selected source playstyle with matching reviewed kit preconditions. ':'Adapted from a dated reviewed plan. ')+'Selected-bracket evidence can only support compatible flexible choices. No samples are pooled and no adapted-build win rate is estimated.'};
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====

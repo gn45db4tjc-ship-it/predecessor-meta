@@ -7,16 +7,17 @@
  if(document.querySelector('#detail').open)click('#close-detail');let count=0;
  for(const role of ['jungle','support','carry','midlane','offlane']){
   click('[data-route="meta"]');click('[data-meta-role="'+role+'"]');
-  const heroes=[...new Set([...document.querySelectorAll('#main [data-hero]')].map(e=>e.dataset.hero))];
+  // Planning eligibility exceeds a statistical table's coverage. Inspect every authored role.
+  const heroes=[...new Set(B.guidance.builds.filter(p=>p.role===role).map(p=>p.slug))];
   for(const slug of heroes){
-   click('[data-hero="'+slug+'"]');click('[data-hero-tab="pairings"]');
+   openHero(slug,role);click('[data-hero-tab="pairings"]');
    const pair=document.querySelector('[data-pair]');assert(pair?.dataset.pair.split('|')[2]===role,'Pair keeps '+slug+' '+role);pair.click();
    const text=document.querySelector('#detail-body').innerText;assert(text.includes('Reviewed default augments & execution')&&!text.includes('Needs review'),'Active default review '+slug+' '+role);
    assert(document.querySelector('#detail-body [data-catalog]'),'Augment definition link '+slug+' '+role);click('#close-detail');count++;
    click('[data-route="meta"]');click('[data-meta-role="'+role+'"]');
   }
  }
- assert(count===93,'All 93 selected role loadouts inspected');
+ assert(count===B.guidance.builds.length&&count>=93,'Every authored role loadout inspected');
  click('[data-route="live"]');click('#clear-locks');click('#clear-enemies');select('[data-slot="allies"][data-slot-role="carry"]','legion');select('#me-hero','legion');
  const s=summary('Selected augment mechanics');assert(s,'Live selected-augment disclosure');s.focus();s.click();assert(s.parentElement.innerText.includes('removes Rally Point’s healing'),'Removed healing is explained');
  const perk=s.parentElement.querySelector('[data-catalog]');perk.focus();perk.click();assert(document.querySelector('#detail-body').innerText.includes('no longer grants Health Regeneration'),'Original Legion augment inspectable');click('#close-detail');assert(document.activeElement===perk,'Augment close restores focus');

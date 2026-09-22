@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.29.1"
+VERSION = "2.30.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -3151,8 +3151,8 @@ def render_html(bundle, config=None):
     return (UI_TEMPLATE.read_text(encoding='utf-8').replace('__TOOL_VERSION__',VERSION,1).replace('__PWA_HEAD__',pwa_head,1)
             .replace('__BUNDLE_JSON__',json_script(bundle),1)
             .replace('__APP_CONFIG__',json_script(app_config),1)
-            .replace('__UI_JS__',(TOOL_DIR/'ui.js').read_text(encoding='utf-8').replace('// START CLIENT',(TOOL_DIR/'mobile.js').read_text(encoding='utf-8')+'\n// START CLIENT',1),1)
-            .replace('__MOBILE_CSS__',(TOOL_DIR/'mobile.css').read_text(encoding='utf-8'),1)
+            .replace('__UI_JS__',(TOOL_DIR/'ui.js').read_text(encoding='utf-8').replace('// START CLIENT','\n'.join((TOOL_DIR/name).read_text(encoding='utf-8') for name in ('mobile.js','companion_state.js','recommendation_view.js','skill_guide.js','companion_simple.js'))+'\n// START CLIENT',1),1)
+            .replace('__MOBILE_CSS__',(TOOL_DIR/'mobile.css').read_text(encoding='utf-8')+'\n'+(TOOL_DIR/'companion_simple.css').read_text(encoding='utf-8'),1)
             .replace('__ENGINE_JS__',(TOOL_DIR/'engine.js').read_text(encoding='utf-8'),1))
 
 
