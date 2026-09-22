@@ -12038,48 +12038,33 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live release independently confirmed)",
+            "title": "Official live 1.17 changes",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T09:54:04-05:00"
+            "fetched_at": "2026-09-22T14:06:24-05:00"
           },
           {
-            "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+            "title": "Official preceding balance changes",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+            "fetched_at": "2026-09-22T14:06:25-05:00"
+          },
+          {
+            "title": "Public hero definitions; known numeric discrepancies retained",
             "url": "https://omeda.city/heroes.json",
-            "fetched_at": "2026-09-22T09:54:09-05:00"
+            "fetched_at": "2026-09-22T14:06:28-05:00"
           },
           {
-            "title": "Accessible Omeda item metadata",
+            "title": "Public item definitions and recipes",
             "url": "https://omeda.city/items.json",
-            "fetched_at": "2026-09-22T09:54:11-05:00"
+            "fetched_at": "2026-09-22T14:06:30-05:00"
           },
           {
-            "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+            "title": "Statz dataset 1.16 role evidence",
             "url": "https://statz.gg/predecessor/heroes/gideon/build/midlane/gold",
-            "fetched_at": "2026-09-22T02:13:43+00:00"
-          },
-          {
-            "title": "Previous review source (historical): Current hero kit",
-            "url": "https://pred.gg/heroes/gideon/hero"
-          },
-          {
-            "title": "Previous review source (historical): Item conditions",
-            "url": "https://pred.gg/items?version=166"
-          },
-          {
-            "title": "Previous review source (historical): Current balance notes",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
-          },
-          {
-            "title": "Previous review source (historical): Eternal membership",
-            "url": "https://pred.gg/eternals"
-          },
-          {
-            "title": "Previous review source (historical): Item metadata",
-            "url": "https://omeda.city/items.json"
+            "fetched_at": "2026-09-22T17:32:25+00:00"
           }
         ],
         "author": "Codex editorial review",
-        "reviewed_at": "2026-09-22T15:07:24+00:00",
+        "reviewed_at": "2026-09-22T19:14:38+00:00",
         "patch": "1.17",
         "item_notes": [
           {
@@ -12129,7 +12114,7 @@
             "reason": "Late magical power supports the full spell package once access and protection are covered. A matchup defense can still take priority."
           }
         ],
-        "review_scope": "1.17 build transition: role economy, purchase order, selected crest/augment/Eternal/blessings, skill priority and an alternative. Separate from current-patch statistical validation, full strategy rankings and an explicit 18-level skill-order review.",
+        "review_scope": "Five-plan 1.17 trial: economy, purchase order, alternatives, full loadout, kit-based counterplay/team fit and independently assessed skills. Not a full-roster or tier review.",
         "source_preconditions": {
           "abilities": {
             "LMB": "Ranged basic attack dealing 53/54.75/56.59/58.53/60.56/62.69/64.91/67.22/69.63/72.13/74.72/77.41/80.19/83.06/86.03/89.09/92.25/95.5 (+55% physical power) physical damage.\nAlso deals (+2% mana) magical damage on-hit.",
@@ -12436,38 +12421,96 @@
           "active": false
         },
         "patch_review": {
-          "result": "changed",
-          "reviewed_at": "2026-09-22T15:07:24+00:00",
-          "reason": "Retain the mana opening and protected-channel plan despite the 1.17 damage and mana-scaling nerfs. Event Horizon is weaker, and Ground stops Torn Space; this is a setup-dependent mage, not an automatically dominant blind pick.",
-          "alternative": "Wraith Leggings before Truesilver offers damage when interrupts are absent; keep Truesilver earlier against credible interruption. Neither the item shield nor the lower ultimate damage guarantees a full channel.",
-          "limitation": "Current-patch outcome samples are unavailable. Gold+ remains the editorial reference, not a measured rank-specific advantage. Some source descriptions still reflect 1.16; official 1.17 changes take precedence in this review. Level-by-level skill orders were not re-endorsed by this build pass.",
+          "result": "checked and retained",
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "reason": "Retain the mana opening and conditional protected-channel purchase order. The lower mana conversion and damage in 1.17 reduce output but do not remove the mana dependencies or need to protect the interruptible phase. Add an independently reasoned safer level-two escape opening.",
+          "alternative": "Without credible interrupts, move Wraith Leggings ahead of Truesilver; against early magic armor prioritize Caustica. Against Riktor do not assume the bracelet solves the matchup: shield removal followed by silence threatens the early channel. Use allies or geometry to keep him out of reach.",
+          "limitation": "No verified 1.17 outcome cohort is available. Statz remains dataset 1.16 with unconfirmed match window/mode; Gold+ is the editorial reference, not a measured current-rank advantage. Pred.gg collection failed and was not bypassed. Source numeric conflicts are excluded from comparative calculations. An authored skill default is not a proven optimal clear or lane order.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live release independently confirmed)",
+              "title": "Official live 1.17 changes",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T09:54:04-05:00"
+              "fetched_at": "2026-09-22T14:06:24-05:00"
             },
             {
-              "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
               "url": "https://omeda.city/heroes.json",
-              "fetched_at": "2026-09-22T09:54:09-05:00"
+              "fetched_at": "2026-09-22T14:06:28-05:00"
             },
             {
-              "title": "Accessible Omeda item metadata",
+              "title": "Public item definitions and recipes",
               "url": "https://omeda.city/items.json",
-              "fetched_at": "2026-09-22T09:54:11-05:00"
+              "fetched_at": "2026-09-22T14:06:30-05:00"
             },
             {
-              "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+              "title": "Statz dataset 1.16 role evidence",
               "url": "https://statz.gg/predecessor/heroes/gideon/build/midlane/gold",
-              "fetched_at": "2026-09-22T02:13:43+00:00"
-            },
-            {
-              "title": "Verified published Statz definition records (metadata only, gold+ bundle)",
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d.json",
-              "fetched_at": "2026-09-22T02:13:53+00:00"
+              "fetched_at": "2026-09-22T17:32:25+00:00"
             }
           ]
+        },
+        "skill_order_review": {
+          "order": [
+            "Primary",
+            "Secondary",
+            "Alternate",
+            "Primary",
+            "Primary",
+            "Ultimate",
+            "Primary",
+            "Alternate",
+            "Primary",
+            "Alternate",
+            "Ultimate",
+            "Alternate",
+            "Alternate",
+            "Secondary",
+            "Secondary",
+            "Ultimate",
+            "Secondary",
+            "Secondary"
+          ],
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "patch": "1.17",
+          "reason": "Cosmic Rift at one supports wave control. Take Torn Space at two in the default Gold+ safety route so an early gank does not find both basic points committed to damage; Void Breach at three restores the second damage/slow tool. Max Cosmic Rift at 1/4/5/7/9, Void Breach at 3/8/10/12/13, Torn Space at 2/14/15/17/18, Black Hole at 6/11/16. In a demonstrably safe lane, Void Breach two then Torn Space three is the pressure alternative. Extra Torn Space ranks greatly raise mana cost, so keep it at one while prioritizing damage. Ground still blocks escape. This is an authored risk trade, not a win-rate-derived ranking.",
+          "sources": [
+            {
+              "title": "Official live 1.17 changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+              "fetched_at": "2026-09-22T14:06:24-05:00"
+            },
+            {
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
+              "url": "https://omeda.city/heroes.json",
+              "fetched_at": "2026-09-22T14:06:28-05:00"
+            },
+            {
+              "title": "Public item definitions and recipes",
+              "url": "https://omeda.city/items.json",
+              "fetched_at": "2026-09-22T14:06:30-05:00"
+            },
+            {
+              "title": "Statz dataset 1.16 role evidence",
+              "url": "https://statz.gg/predecessor/heroes/gideon/build/midlane/gold",
+              "fetched_at": "2026-09-22T17:32:25+00:00"
+            }
+          ],
+          "source_abilities": {
+            "RMB": "Launch forward a comet, dealing 100/140/180/220/260 (+45% magical power)(+2% mana) magical damage to all Enemies in its path and Slowing them by 35% for 1.25s.\nThe comet explodes upon hitting an Enemy Hero, Terrain, or at max range.\nThe Cooldown progresses 1% faster per 80 Max Mana.",
+            "Q": "Rip down a meteor from the sky, dealing 110/155/200/245/290 (+60% magical power)(+5% mana) magical damage to all Enemies caught in the area of impact.",
+            "E": "Leap through a portal in spacetime, appearing at the target location, gaining (+50/75/100/125/150 mana) increased Maximum Mana for 8s. The portal remains open for 5s.\nAllied Heroes can jump through the portal while it's active.\nPortal Distance: 800/875/950/1025/1100u.",
+            "R": "Unleash a black hole beneath Gideon for 3.5s that slowly drags nearby Enemies towards its center, dealing 520/780/1040 (+250% magical power) magical damage. After channelling for 2.75s, Gideon may act and the Black Hole cannot be cancelled.\nFor each Enemy Hero hit by Black Hole, Gideon gains (+2% mana) increased Maximum Mana for 8s."
+          }
         }
       },
       {
@@ -12479,10 +12522,10 @@
         "core": [
           "Overlord",
           "Augmentation",
-          "Basilisk"
+          "Giant's Ring"
         ],
         "finish": [
-          "Giant's Ring",
+          "Basilisk",
           "Void Helm",
           "Aegis Of Agawar"
         ],
@@ -12498,53 +12541,38 @@
           "Secondary",
           "Alternate"
         ],
-        "why": "Farm with Overlord and preserve the leap’s camp-leader or hero refund. In a gank, stay close enough for the whirlwind while weaving the empowered attack. Giant’s Ring now precedes the late health-to-power purchase so the plan gains actual armor and repeated ability access before another scaling item.",
+        "why": "Keep Overlord for farm and Augmentation for cast/attack weaving, then obtain physical armor with Giant's Ring before Basilisk. The 1.17 durability nerf makes surviving sustained contact a deliberate purchase choice. Move the relevant magic defense earlier when the actual threat demands it.",
         "caution": "The ultimate is a timed stasis and recovery window, not unconditional immortality. Enemies can reposition for its ending. Void Helm is a magic-defense flex purchase that supports healing; move the relevant defense ahead when the damage mix demands it.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live release independently confirmed)",
+            "title": "Official live 1.17 changes",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T09:54:04-05:00"
+            "fetched_at": "2026-09-22T14:06:24-05:00"
           },
           {
-            "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+            "title": "Official preceding balance changes",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+            "fetched_at": "2026-09-22T14:06:25-05:00"
+          },
+          {
+            "title": "Public hero definitions; known numeric discrepancies retained",
             "url": "https://omeda.city/heroes.json",
-            "fetched_at": "2026-09-22T09:54:09-05:00"
+            "fetched_at": "2026-09-22T14:06:28-05:00"
           },
           {
-            "title": "Accessible Omeda item metadata",
+            "title": "Public item definitions and recipes",
             "url": "https://omeda.city/items.json",
-            "fetched_at": "2026-09-22T09:54:11-05:00"
+            "fetched_at": "2026-09-22T14:06:30-05:00"
           },
           {
-            "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+            "title": "Statz dataset 1.16 hero-wide kit context; no jungle sample",
             "url": "https://statz.gg/predecessor/heroes/greystone/build/offlane/gold",
-            "fetched_at": "2026-09-22T02:13:41+00:00"
-          },
-          {
-            "title": "Previous review source (historical): Official balance context",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
-          },
-          {
-            "title": "Previous review source (historical): Current hero kit",
-            "url": "https://pred.gg/heroes/greystone/hero"
-          },
-          {
-            "title": "Previous review source (historical): Current item conditions",
-            "url": "https://pred.gg/items?version=166"
-          },
-          {
-            "title": "Previous review source (historical): Eternal and blessing membership",
-            "url": "https://pred.gg/eternals"
-          },
-          {
-            "title": "Previous review source (historical): Item type and recipe metadata",
-            "url": "https://omeda.city/items.json"
+            "fetched_at": "2026-09-22T17:32:23+00:00"
           }
         ],
         "author": "Codex editorial review",
-        "reviewed_at": "2026-09-22T15:07:24+00:00",
+        "reviewed_at": "2026-09-22T19:14:38+00:00",
         "patch": "1.17",
         "item_notes": [
           {
@@ -12564,19 +12592,19 @@
             ]
           },
           {
+            "item": "Giant's Ring",
+            "reason": "Third purchase adds physical armor and basic-attack-driven cooldown recovery before another damage item. Stone Forged Soul consumes part of the ultimate-triggered window in stasis; do not assume six seconds of attacking through it.",
+            "ability_keys": [
+              "R",
+              "Passive"
+            ]
+          },
+          {
             "item": "Basilisk",
             "reason": "The whirlwind and repeated attacks can build physical-armor reduction on a hero. Staying in range matters more than owning the finished item.",
             "ability_keys": [
               "Q",
               "LMB"
-            ]
-          },
-          {
-            "item": "Giant's Ring",
-            "reason": "Physical armor supports the basic-attack defense; incoming attacks reduce non-ultimate cooldowns. Casting the ultimate improves the item’s window.",
-            "ability_keys": [
-              "R",
-              "Passive"
             ]
           },
           {
@@ -12596,7 +12624,7 @@
             ]
           }
         ],
-        "review_scope": "1.17 build transition: role economy, purchase order, selected crest/augment/Eternal/blessings, skill priority and an alternative. Separate from current-patch statistical validation, full strategy rankings and an explicit 18-level skill-order review.",
+        "review_scope": "Five-plan 1.17 trial: economy, purchase order, alternatives, full loadout, kit-based counterplay/team fit and independently assessed skills. Not a full-roster or tier review.",
         "source_preconditions": {
           "abilities": {
             "LMB": "Melee basic attack dealing 68/70.52/73.18/75.97/78.89/81.95/85.15/88.48/91.94/95.54/99.28/103.15/107.15/111.29/115.57/119.98/124.52/129.2 (+85% physical power) physical damage.",
@@ -12912,38 +12940,96 @@
           "active": false
         },
         "patch_review": {
-          "result": "checked and retained",
-          "reviewed_at": "2026-09-22T15:07:24+00:00",
-          "reason": "The health and armor-growth reductions make early durability a real cost. Retain Overlord and cast/attack damage, but put the defensive ultimate/cooldown window before the late health-to-power payoff in offlane as already done in jungle.",
-          "alternative": "Against stronger magic damage, Void Helm can precede the physical defense. Do not copy that ordering into a physical lane or assume Stone Forged Soul makes a damage-only route safe.",
-          "limitation": "Current-patch outcome samples are unavailable. Gold+ remains the editorial reference, not a measured rank-specific advantage. Some source descriptions still reflect 1.16; official 1.17 changes take precedence in this review. Level-by-level skill orders were not re-endorsed by this build pass.",
+          "result": "changed",
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "reason": "Move Giant's Ring from fourth to third, moving Basilisk to fourth. Overlord and Augmentation already provide clear and cast/attack damage; after the durability nerf a third damage-focused purchase is a less forgiving default for a jungler expected to front-line. This is a deliberate safety trade, not a measured optimal order.",
+          "alternative": "Into dominant magic damage, move Void Helm ahead of the physical-armor slot. Keep Basilisk third only when surviving is already reliable and physical allies need the shred. Aegis Of Agawar remains a late health-to-power payoff; it does not replace early base armor.",
+          "limitation": "No verified 1.17 outcome cohort is available. Statz remains dataset 1.16 with unconfirmed match window/mode; Gold+ is the editorial reference, not a measured current-rank advantage. Pred.gg collection failed and was not bypassed. Source numeric conflicts are excluded from comparative calculations. An authored skill default is not a proven optimal clear or lane order.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live release independently confirmed)",
+              "title": "Official live 1.17 changes",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T09:54:04-05:00"
+              "fetched_at": "2026-09-22T14:06:24-05:00"
             },
             {
-              "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
               "url": "https://omeda.city/heroes.json",
-              "fetched_at": "2026-09-22T09:54:09-05:00"
+              "fetched_at": "2026-09-22T14:06:28-05:00"
             },
             {
-              "title": "Accessible Omeda item metadata",
+              "title": "Public item definitions and recipes",
               "url": "https://omeda.city/items.json",
-              "fetched_at": "2026-09-22T09:54:11-05:00"
+              "fetched_at": "2026-09-22T14:06:30-05:00"
             },
             {
-              "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+              "title": "Statz dataset 1.16 hero-wide kit context; no jungle sample",
               "url": "https://statz.gg/predecessor/heroes/greystone/build/offlane/gold",
-              "fetched_at": "2026-09-22T02:13:41+00:00"
-            },
-            {
-              "title": "Verified published Statz definition records (metadata only, gold+ bundle)",
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d.json",
-              "fetched_at": "2026-09-22T02:13:53+00:00"
+              "fetched_at": "2026-09-22T17:32:23+00:00"
             }
           ]
+        },
+        "skill_order_review": {
+          "order": [
+            "Primary",
+            "Secondary",
+            "Alternate",
+            "Primary",
+            "Primary",
+            "Ultimate",
+            "Primary",
+            "Secondary",
+            "Primary",
+            "Secondary",
+            "Ultimate",
+            "Secondary",
+            "Secondary",
+            "Alternate",
+            "Alternate",
+            "Ultimate",
+            "Alternate",
+            "Alternate"
+          ],
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "patch": "1.17",
+          "reason": "Make Way at one gives sustained area camp damage; Sacred Oath at two adds a cheap empowered cleave and slow, then Assault The Gates at three adds camp-leader-refunded travel and gank access. Max Make Way at 1/4/5/7/9 for damage and armor shred. Sacred Oath at 2/8/10/12/13 adds empowered damage and slow while remaining cheap. Leave the leap at 3/14/15/17/18; take it at two instead when safety or an early crossing demands it. Stone Forged Soul at 6/11/16. The 1.17 durability nerf does not change these rank functions. Its stasis consumes part of Giant's Ring's six-second ultimate window; do not count the whole window as time spent attacking.",
+          "sources": [
+            {
+              "title": "Official live 1.17 changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+              "fetched_at": "2026-09-22T14:06:24-05:00"
+            },
+            {
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
+              "url": "https://omeda.city/heroes.json",
+              "fetched_at": "2026-09-22T14:06:28-05:00"
+            },
+            {
+              "title": "Public item definitions and recipes",
+              "url": "https://omeda.city/items.json",
+              "fetched_at": "2026-09-22T14:06:30-05:00"
+            },
+            {
+              "title": "Statz dataset 1.16 hero-wide kit context; no jungle sample",
+              "url": "https://statz.gg/predecessor/heroes/greystone/build/offlane/gold",
+              "fetched_at": "2026-09-22T17:32:23+00:00"
+            }
+          ],
+          "source_abilities": {
+            "RMB": "Leap to a target location, dealing 85/130/175/220/265 (+100% physical power) physical damage to all Enemies in the area. \nHitting an Enemy Hero or Camp Leader with Assault The Gates reduces its cooldown by 35% and grants Greystone 25% decaying movement speed for 2.5s.",
+            "Q": "Summon a fiery whirlwind that deals 90/145/200/255/310 (+90% physical power)(+80% magical power) physical damage over 4s.\nEnemies hit by Make Way have their Physical Armor Shredded by 4/5/6/7/8% for 4s, stacking up to 4 times",
+            "E": "Greystone bathes his sword in holy fire. \nHis next Basic Attack within 5s is empowered with increased range and deals 10/50/90/130/170 (+20% physical power)(+5% health) bonus physical damage, cleaving all Enemies in the area for 100% of the damage and Slowing them by 22/26/30/34/38% for 1.25s.",
+            "R": "Greystone enters Stasis for 2.5s, restoring 14/16/18% (+2.5% magical power) of his maximum health (increased by up to 2.5x based on missing health) and Slowing nearby Enemies by up to 70%, based on proximity.\nAfter 2.5s, crash down, dealing 250/400/550 (+180% physical power)(+100% magical power) physical damage to all Enemies in the area."
+          }
         }
       },
       {
@@ -22350,48 +22436,33 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live release independently confirmed)",
+            "title": "Official live 1.17 changes",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T09:54:04-05:00"
+            "fetched_at": "2026-09-22T14:06:24-05:00"
           },
           {
-            "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+            "title": "Official preceding balance changes",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+            "fetched_at": "2026-09-22T14:06:25-05:00"
+          },
+          {
+            "title": "Public hero definitions; known numeric discrepancies retained",
             "url": "https://omeda.city/heroes.json",
-            "fetched_at": "2026-09-22T09:54:09-05:00"
+            "fetched_at": "2026-09-22T14:06:28-05:00"
           },
           {
-            "title": "Accessible Omeda item metadata",
+            "title": "Public item definitions and recipes",
             "url": "https://omeda.city/items.json",
-            "fetched_at": "2026-09-22T09:54:11-05:00"
+            "fetched_at": "2026-09-22T14:06:30-05:00"
           },
           {
-            "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+            "title": "Statz dataset 1.16 role evidence",
             "url": "https://statz.gg/predecessor/heroes/muriel/build/support/gold",
-            "fetched_at": "2026-09-22T02:13:40+00:00"
-          },
-          {
-            "title": "Previous review source (historical): Official balance context",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
-          },
-          {
-            "title": "Previous review source (historical): Current hero kit",
-            "url": "https://pred.gg/heroes/muriel/hero"
-          },
-          {
-            "title": "Previous review source (historical): Current item conditions",
-            "url": "https://pred.gg/items?version=166"
-          },
-          {
-            "title": "Previous review source (historical): Eternal and blessing membership",
-            "url": "https://pred.gg/eternals"
-          },
-          {
-            "title": "Previous review source (historical): Item type and recipe metadata",
-            "url": "https://omeda.city/items.json"
+            "fetched_at": "2026-09-22T17:32:22+00:00"
           }
         ],
         "author": "Codex editorial review",
-        "reviewed_at": "2026-09-22T15:07:24+00:00",
+        "reviewed_at": "2026-09-22T19:14:38+00:00",
         "patch": "1.17",
         "item_notes": [
           {
@@ -22441,7 +22512,7 @@
             ]
           }
         ],
-        "review_scope": "1.17 build transition: role economy, purchase order, selected crest/augment/Eternal/blessings, skill priority and an alternative. Separate from current-patch statistical validation, full strategy rankings and an explicit 18-level skill-order review.",
+        "review_scope": "Five-plan 1.17 trial: economy, purchase order, alternatives, full loadout, kit-based counterplay/team fit and independently assessed skills. Not a full-roster or tier review.",
         "source_preconditions": {
           "abilities": {
             "LMB": "Ranged basic attack dealing 52/54.49/57.1/59.85/62.74/65.76/68.91/72.19/75.61/79.16/82.84/86.66/90.61/94.69/98.9/103.25/107.74/112.35 (+80% physical power) physical damage.",
@@ -22762,35 +22833,35 @@
         },
         "patch_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-22T15:07:24+00:00",
-          "reason": "The 1.17 durability, shield-scaling and ultimate protection reductions make positioning more important. Keep Marshal/Crystal Tear and spell uptime; do not compensate by blindly buying the newly nerfed tank/heal items.",
-          "alternative": "Earlier Devotion or the appropriate defense trades attack amplification for survival. A Hexbound/Transference detour now carries a clearer utility and budget cost than its old source text suggests.",
-          "limitation": "Current-patch outcome samples are unavailable. Gold+ remains the editorial reference, not a measured rank-specific advantage. Some source descriptions still reflect 1.16; official 1.17 changes take precedence in this review. Level-by-level skill orders were not re-endorsed by this build pass.",
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "reason": "Retain affordable attack-enabling support items and a support-income crest; 1.17 reduces her protection but leaves the kit's role intact. The exact level-by-level button schedule is unresolved because current official headings conflict with the earlier rework/current public mapping. Do not turn the old Alternate-first source order into a newly reviewed shielding order.",
+          "alternative": "Against burst magic pressure move Devotion earlier. If allies cannot remain in attack range, Crystal Tear before Marshal emphasizes repeated spells instead of an unusable aura. Tainted Totem is a conditional application choice because Sentinel already supplies anti-heal; do not add the percentages together.",
+          "limitation": "No verified 1.17 outcome cohort is available. Statz remains dataset 1.16 with unconfirmed match window/mode; Gold+ is the editorial reference, not a measured current-rank advantage. Pred.gg collection failed and was not bypassed. Source numeric conflicts are excluded from comparative calculations. An authored skill default is not a proven optimal clear or lane order. Unresolved button schedule. Omeda/Statz and official 1.14 identify Consecrated Ground as Primary, Alacrity as Secondary and Serenity as Alternate; official 1.17 labels the first two Secondary and Alternate. No explicit remap is stated. The existing Alternate-first priority therefore currently renders Serenity-first, not Alacrity-first. By ability name, compare an Alacrity-first protection route with earlier Consecrated Ground ranks for Sacrosanct/attackers who stay in the area; retain a Serenity-first lane-pressure route as an alternative. Obtain current in-game slot confirmation before endorsing 18 button-labelled levels. None of these alternatives is stamped reviewed as an exact schedule.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live release independently confirmed)",
+              "title": "Official live 1.17 changes",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T09:54:04-05:00"
+              "fetched_at": "2026-09-22T14:06:24-05:00"
             },
             {
-              "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
               "url": "https://omeda.city/heroes.json",
-              "fetched_at": "2026-09-22T09:54:09-05:00"
+              "fetched_at": "2026-09-22T14:06:28-05:00"
             },
             {
-              "title": "Accessible Omeda item metadata",
+              "title": "Public item definitions and recipes",
               "url": "https://omeda.city/items.json",
-              "fetched_at": "2026-09-22T09:54:11-05:00"
+              "fetched_at": "2026-09-22T14:06:30-05:00"
             },
             {
-              "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+              "title": "Statz dataset 1.16 role evidence",
               "url": "https://statz.gg/predecessor/heroes/muriel/build/support/gold",
-              "fetched_at": "2026-09-22T02:13:40+00:00"
-            },
-            {
-              "title": "Verified published Statz definition records (metadata only, gold+ bundle)",
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d.json",
-              "fetched_at": "2026-09-22T02:13:53+00:00"
+              "fetched_at": "2026-09-22T17:32:22+00:00"
             }
           ]
         }
@@ -27983,51 +28054,36 @@
         ],
         "why": "Attack uptime and on-hit damage power this plan. Follow an ally’s catch, use the selected Crushing Descent augment for a brief Ascend stun, and convert the ultimate window into repeated attacks. Collecting a visage after a kill extends the reset plan; it is not guaranteed by entering the fight.",
         "caution": "Base Ascend does not stun: that control belongs to Crushing Descent. Heaven’s Fury applies reduced on-hit effects and repeat-hit damage. Replace a flexible defense with Tainted Rounds only against an actual healing need; anti-heal is no longer assumed in the default six.",
-        "rune_note": "Weald is the default for this attack-speed/on-hit finishing plan: current Pred.gg Jungle observations favor it over the retained Thraex alternative, but these are separate conditional samples, not a causal test. Dryad’s Boon supports repeated basic-ability access; Wind-Rider follows the actual teleport/leap entry. Weald needs a low-health target and has a per-target cooldown; it does not amplify every attack. Keep Thraex for a deliberately sustained marked-target duel.",
+        "rune_note": "Thraex with Savage Strikes and Ferocity is this plan's sustained-contact choice: mark a hero with attacks, keep attacking and do not expect Ferocity's ramp immediately. Weald with Dryad's Boon and Wind-Rider remains a finishing-window alternative. Patch 1.17 reduces Wind-Rider but fixes Weald triggering on proc-type damage; it does not prove Thraex is universally better. Older conditional sample rates do not choose the winner.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live release independently confirmed)",
+            "title": "Official live 1.17 changes",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T09:54:04-05:00"
+            "fetched_at": "2026-09-22T14:06:24-05:00"
           },
           {
-            "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+            "title": "Official preceding balance changes",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+            "fetched_at": "2026-09-22T14:06:25-05:00"
+          },
+          {
+            "title": "Public hero definitions; known numeric discrepancies retained",
             "url": "https://omeda.city/heroes.json",
-            "fetched_at": "2026-09-22T09:54:09-05:00"
+            "fetched_at": "2026-09-22T14:06:28-05:00"
           },
           {
-            "title": "Accessible Omeda item metadata",
+            "title": "Public item definitions and recipes",
             "url": "https://omeda.city/items.json",
-            "fetched_at": "2026-09-22T09:54:11-05:00"
+            "fetched_at": "2026-09-22T14:06:30-05:00"
           },
           {
-            "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+            "title": "Statz dataset 1.16 role evidence",
             "url": "https://statz.gg/predecessor/heroes/serath/build/jungle/gold",
-            "fetched_at": "2026-09-22T02:13:40+00:00"
-          },
-          {
-            "title": "Previous review source (historical): Official balance context",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
-          },
-          {
-            "title": "Previous review source (historical): Current hero kit",
-            "url": "https://pred.gg/heroes/serath/hero"
-          },
-          {
-            "title": "Previous review source (historical): Current item conditions",
-            "url": "https://pred.gg/items?version=166"
-          },
-          {
-            "title": "Previous review source (historical): Eternal and blessing membership",
-            "url": "https://pred.gg/eternals"
-          },
-          {
-            "title": "Previous review source (historical): Item type and recipe metadata",
-            "url": "https://omeda.city/items.json"
+            "fetched_at": "2026-09-22T17:32:22+00:00"
           }
         ],
         "author": "Codex editorial review",
-        "reviewed_at": "2026-09-22T15:07:24+00:00",
+        "reviewed_at": "2026-09-22T19:14:38+00:00",
         "patch": "1.17",
         "item_notes": [
           {
@@ -28078,7 +28134,7 @@
             ]
           }
         ],
-        "review_scope": "1.17 build transition: role economy, purchase order, selected crest/augment/Eternal/blessings, skill priority and an alternative. Separate from current-patch statistical validation, full strategy rankings and an explicit 18-level skill-order review.",
+        "review_scope": "Five-plan 1.17 trial: economy, purchase order, alternatives, full loadout, kit-based counterplay/team fit and independently assessed skills. Not a full-roster or tier review.",
         "source_preconditions": {
           "abilities": {
             "LMB": "Melee basic attack dealing 55/56.82/58.74/60.75/62.86/65.07/67.38/69.79/72.29/74.89/77.59/80.38/83.28/86.26/89.35/92.54/95.82/99.2 (+70% physical power) physical damage.\nAdditionally deals (+15% physical power) magical damage on-hit.",
@@ -28387,37 +28443,95 @@
         },
         "patch_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-22T15:07:24+00:00",
-          "reason": "The 1.17 on-hit and burn reductions lower the return from the prior execution-heavy default. Jungle moves to Thraex with Savage Strikes/Ferocity for marked-target trades and sustained contact; the six-item attack/sustain route stays. Offlane already uses that loadout.",
-          "alternative": "Weald remains an optional finishing playstyle, with reduced Wind-Rider and lower native on-hit/burn damage. Choose it knowingly for burst windows rather than assuming its September performance carries forward.",
-          "limitation": "Current-patch outcome samples are unavailable. Gold+ remains the editorial reference, not a measured rank-specific advantage. Some source descriptions still reflect 1.16; official 1.17 changes take precedence in this review. Level-by-level skill orders were not re-endorsed by this build pass.",
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "reason": "Corrected the contradictory Weald-default note. Retain the staged Thraex loadout as a sustained-contact recommendation, not as a proven winner over Weald. The patch nerfs Serath on-hit/burn and Wind-Rider, but also fixes Weald proc-damage triggering; a nerf alone cannot establish a new best Eternal.",
+          "alternative": "Keep Weald / Dryad's Boon / Wind-Rider as an execution-window alternative. Its major blessing remains relevant; use the officially reduced Wind-Rider value, not the old feed. Against heavy magical catch, move Legacy earlier; against a healing target Serath can attack, consider Tainted Rounds in a flexible slot. Do not assume those substitutions are statistically superior.",
+          "limitation": "No verified 1.17 outcome cohort is available. Statz remains dataset 1.16 with unconfirmed match window/mode; Gold+ is the editorial reference, not a measured current-rank advantage. Pred.gg collection failed and was not bypassed. Source numeric conflicts are excluded from comparative calculations. An authored skill default is not a proven optimal clear or lane order.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live release independently confirmed)",
+              "title": "Official live 1.17 changes",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T09:54:04-05:00"
+              "fetched_at": "2026-09-22T14:06:24-05:00"
             },
             {
-              "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
               "url": "https://omeda.city/heroes.json",
-              "fetched_at": "2026-09-22T09:54:09-05:00"
+              "fetched_at": "2026-09-22T14:06:28-05:00"
             },
             {
-              "title": "Accessible Omeda item metadata",
+              "title": "Public item definitions and recipes",
               "url": "https://omeda.city/items.json",
-              "fetched_at": "2026-09-22T09:54:11-05:00"
+              "fetched_at": "2026-09-22T14:06:30-05:00"
             },
             {
-              "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+              "title": "Statz dataset 1.16 role evidence",
               "url": "https://statz.gg/predecessor/heroes/serath/build/jungle/gold",
-              "fetched_at": "2026-09-22T02:13:40+00:00"
-            },
-            {
-              "title": "Verified published Statz definition records (metadata only, gold+ bundle)",
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d.json",
-              "fetched_at": "2026-09-22T02:13:53+00:00"
+              "fetched_at": "2026-09-22T17:32:22+00:00"
             }
           ]
+        },
+        "skill_order_review": {
+          "order": [
+            "Alternate",
+            "Primary",
+            "Secondary",
+            "Alternate",
+            "Alternate",
+            "Ultimate",
+            "Alternate",
+            "Primary",
+            "Alternate",
+            "Primary",
+            "Ultimate",
+            "Primary",
+            "Primary",
+            "Secondary",
+            "Secondary",
+            "Ultimate",
+            "Secondary",
+            "Secondary"
+          ],
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "patch": "1.17",
+          "reason": "Start Chastise for its cheap area hit, attack reset and slow; learn Heaven's Fury at two for its monster-specific strikes and dodge window, then Ascend at three for access and escape. Max Chastise at levels 1/4/5/7/9 for its repeated clear/trade cast; max Heaven's Fury at 2/8/10/12/13 for damage and cooldown, leaving Ascend at 3/14/15/17/18 because access exists at rank one. Heresy at 6/11/16. Swap the level-two unlock to Ascend when an invade requires escape. This is an authored default, not measured fastest clear; 1.17 changes to basic/ultimate damage are accounted for qualitatively, without reusing their old numeric values.",
+          "sources": [
+            {
+              "title": "Official live 1.17 changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+              "fetched_at": "2026-09-22T14:06:24-05:00"
+            },
+            {
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
+              "url": "https://omeda.city/heroes.json",
+              "fetched_at": "2026-09-22T14:06:28-05:00"
+            },
+            {
+              "title": "Public item definitions and recipes",
+              "url": "https://omeda.city/items.json",
+              "fetched_at": "2026-09-22T14:06:30-05:00"
+            },
+            {
+              "title": "Statz dataset 1.16 role evidence",
+              "url": "https://statz.gg/predecessor/heroes/serath/build/jungle/gold",
+              "fetched_at": "2026-09-22T17:32:22+00:00"
+            }
+          ],
+          "source_abilities": {
+            "RMB": "Serath claps her wings in front of her dealing 80/105/130/155/180 (+50% physical power)(+40% magical power) magical damage, Slowing them by 40% for 1.25s and applying on-hit effects to all Enemy Units hit at 100% effectiveness.\nChastise cast speed increases with additional attack speed and resets Serath's basic attack cooldown on use.",
+            "Q": "Serath marks a Target and vanishes, striking Enemies at their location 5 times. Each strike deals 40/60/80/100/120 (+20% physical power) physical damage and applies on-hit effects at 40% effectiveness. Additional strikes against the same Target deal 30% damage. Deals 40/50/60/70/80 bonus damage to Monsters.\nOn her final strike, Serath will teleport to the marked Target's location based on her current position.\nIf the marked Target dies, Serath teleports immediately.",
+            "E": "Serath rises up into the air and hovers for up to 1.8s. During this time, she can target an area up to 1350 units away. Upon confirmation, she dives down and deals 80/100/120/140/160 (+80% physical power)(+50% magical power) physical damage.\nSerath automatically dives to the ground after 1.8s",
+            "R": "Serath takes demonic form, dealing 60/90/120 (+50% physical power)(+80% magical power) physical damage to nearby Enemies and setting them ablaze.\nFor the next 7s, she gains 20/25/30% movement speed, 20/40/60% attack speed, and empowers her basic attack with Infernal Strikes. \nInfernal Strikes sets Enemy Units ablaze on-hit, dealing 15/30/45 (+25% physical power)(+20% magical power) true damage on-hit over 2s."
+          }
         }
       },
       {
@@ -32613,48 +32727,33 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live release independently confirmed)",
+            "title": "Official live 1.17 changes",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T09:54:04-05:00"
+            "fetched_at": "2026-09-22T14:06:24-05:00"
           },
           {
-            "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+            "title": "Official preceding balance changes",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+            "fetched_at": "2026-09-22T14:06:25-05:00"
+          },
+          {
+            "title": "Public hero definitions; known numeric discrepancies retained",
             "url": "https://omeda.city/heroes.json",
-            "fetched_at": "2026-09-22T09:54:09-05:00"
+            "fetched_at": "2026-09-22T14:06:28-05:00"
           },
           {
-            "title": "Accessible Omeda item metadata",
+            "title": "Public item definitions and recipes",
             "url": "https://omeda.city/items.json",
-            "fetched_at": "2026-09-22T09:54:11-05:00"
+            "fetched_at": "2026-09-22T14:06:30-05:00"
           },
           {
-            "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+            "title": "Statz dataset 1.16 hero-wide kit context; no jungle sample",
             "url": "https://statz.gg/predecessor/heroes/steel/build/offlane/gold",
-            "fetched_at": "2026-09-22T02:13:48+00:00"
-          },
-          {
-            "title": "Previous review source (historical): Official balance context",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4"
-          },
-          {
-            "title": "Previous review source (historical): Current hero kit",
-            "url": "https://pred.gg/heroes/steel/hero"
-          },
-          {
-            "title": "Previous review source (historical): Current item conditions",
-            "url": "https://pred.gg/items?version=166"
-          },
-          {
-            "title": "Previous review source (historical): Eternal and blessing membership",
-            "url": "https://pred.gg/eternals"
-          },
-          {
-            "title": "Previous review source (historical): Item type and recipe metadata",
-            "url": "https://omeda.city/items.json"
+            "fetched_at": "2026-09-22T17:32:31+00:00"
           }
         ],
         "author": "Codex editorial review",
-        "reviewed_at": "2026-09-22T15:07:24+00:00",
+        "reviewed_at": "2026-09-22T19:14:38+00:00",
         "patch": "1.17",
         "item_notes": [
           {
@@ -32706,7 +32805,7 @@
             ]
           }
         ],
-        "review_scope": "1.17 build transition: role economy, purchase order, selected crest/augment/Eternal/blessings, skill priority and an alternative. Separate from current-patch statistical validation, full strategy rankings and an explicit 18-level skill-order review.",
+        "review_scope": "Five-plan 1.17 trial: economy, purchase order, alternatives, full loadout, kit-based counterplay/team fit and independently assessed skills. Not a full-roster or tier review.",
         "source_preconditions": {
           "abilities": {
             "LMB": "Alternate between Light and Heavy Melee basic attacks.\nLight Attacks deal 25 (+36% physical power) physical damage.\nHeavy Attacks deal 69 (+100% physical power) physical damage.",
@@ -33014,38 +33113,96 @@
           "active": false
         },
         "patch_review": {
-          "result": "changed",
-          "reviewed_at": "2026-09-22T15:07:24+00:00",
-          "reason": "Retain armor, chained immobilization and team damage windows across the role-specific budgets. Heavy Metal no longer removes spell shields with basic attacks in 1.17; do not plan the engage around that bug.",
-          "alternative": "Tainted Guard replaces a late defense only when a healing attacker hits Steel. Void Helm is not a default native-healing synergy for a shielding kit, and jungle income does not justify a support farming opener.",
-          "limitation": "Current-patch outcome samples are unavailable. Gold+ remains the editorial reference, not a measured rank-specific advantage. Some source descriptions still reflect 1.16; official 1.17 changes take precedence in this review. Level-by-level skill orders were not re-endorsed by this build pass.",
+          "result": "checked and retained",
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "reason": "Retain the jungle farming opener followed by inexpensive control amplification and appropriate armor. Heavy Metal no longer pops spell shields with basic attacks. No current Steel-jungle role sample exists, so the recommendation rests on the verified kit and item roles, not an offlane rate repurposed as jungle evidence.",
+          "alternative": "Move physical defense ahead of Flux Matrix against attack-heavy pressure, or keep Flux earlier for a relevant magic threat and allied follow-up. Tainted Guard is conditional on being attacked by a healing opponent; it is not global anti-heal. Do not select Unbroken Will for the disputed tenacity feed number.",
+          "limitation": "No verified 1.17 outcome cohort is available. Statz remains dataset 1.16 with unconfirmed match window/mode; Gold+ is the editorial reference, not a measured current-rank advantage. Pred.gg collection failed and was not bypassed. Source numeric conflicts are excluded from comparative calculations. An authored skill default is not a proven optimal clear or lane order.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live release independently confirmed)",
+              "title": "Official live 1.17 changes",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T09:54:04-05:00"
+              "fetched_at": "2026-09-22T14:06:24-05:00"
             },
             {
-              "title": "Accessible Omeda hero definitions; not proof of patch-exact sampling",
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
               "url": "https://omeda.city/heroes.json",
-              "fetched_at": "2026-09-22T09:54:09-05:00"
+              "fetched_at": "2026-09-22T14:06:28-05:00"
             },
             {
-              "title": "Accessible Omeda item metadata",
+              "title": "Public item definitions and recipes",
               "url": "https://omeda.city/items.json",
-              "fetched_at": "2026-09-22T09:54:11-05:00"
+              "fetched_at": "2026-09-22T14:06:30-05:00"
             },
             {
-              "title": "Retained Statz hero/build definitions; dataset 1.16, not current-patch outcomes",
+              "title": "Statz dataset 1.16 hero-wide kit context; no jungle sample",
               "url": "https://statz.gg/predecessor/heroes/steel/build/offlane/gold",
-              "fetched_at": "2026-09-22T02:13:48+00:00"
-            },
-            {
-              "title": "Verified published Statz definition records (metadata only, gold+ bundle)",
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d.json",
-              "fetched_at": "2026-09-22T02:13:53+00:00"
+              "fetched_at": "2026-09-22T17:32:31+00:00"
             }
           ]
+        },
+        "skill_order_review": {
+          "order": [
+            "Alternate",
+            "Primary",
+            "Secondary",
+            "Alternate",
+            "Alternate",
+            "Ultimate",
+            "Alternate",
+            "Primary",
+            "Alternate",
+            "Primary",
+            "Ultimate",
+            "Primary",
+            "Primary",
+            "Secondary",
+            "Secondary",
+            "Ultimate",
+            "Secondary",
+            "Secondary"
+          ],
+          "reviewed_at": "2026-09-22T19:14:38+00:00",
+          "patch": "1.17",
+          "reason": "Shield Bash first for low-cost area damage, stun and explicit monster bonus; Bull Rush second adds another camp hit and access, Force Shield third gives projectile protection for the first skirmish. Max Shield Bash at 1/4/5/7/9, then Bull Rush at 2/8/10/12/13; Force Shield at 3/14/15/17/18. Shield Slam at 6/11/16. The old Omeda monster bonus is superseded by official 1.16.4; the schedule uses the existence of that bonus, not the outdated amount. Force Shield earlier ranks are an optional response to repeated projectile fights.",
+          "sources": [
+            {
+              "title": "Official live 1.17 changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+              "fetched_at": "2026-09-22T14:06:24-05:00"
+            },
+            {
+              "title": "Official preceding balance changes",
+              "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+              "fetched_at": "2026-09-22T14:06:25-05:00"
+            },
+            {
+              "title": "Public hero definitions; known numeric discrepancies retained",
+              "url": "https://omeda.city/heroes.json",
+              "fetched_at": "2026-09-22T14:06:28-05:00"
+            },
+            {
+              "title": "Public item definitions and recipes",
+              "url": "https://omeda.city/items.json",
+              "fetched_at": "2026-09-22T14:06:30-05:00"
+            },
+            {
+              "title": "Statz dataset 1.16 hero-wide kit context; no jungle sample",
+              "url": "https://statz.gg/predecessor/heroes/steel/build/offlane/gold",
+              "fetched_at": "2026-09-22T17:32:31+00:00"
+            }
+          ],
+          "source_abilities": {
+            "RMB": "Swipe forward with Steel's shield, dealing 35/65/95/125/155 (+50% magical power) (+5/5.5/6/6.5/7% of the Target's maximum health) magical damage to all Enemies in front of him and Stunning them for 0.5s.\nDeals 30/35/40/45/50 additional damage to Monsters.",
+            "Q": "Steel charges forward, becoming Unstoppable for the duration of the dash and dealing 85/125/165/205/245 (+5% health)(+70% magical power) magical damage to all Enemies in his path. \nEnemy Heroes struck by Bull Rush are Knocked Back. Monsters and Minions are Stunned for 2s.",
+            "E": "Deploy a disruptive wall of energy, blocking all incoming Enemy Projectiles for 4s.\nWhen an Enemy Hero first passes through the wall, they take 50/75/100/125/150 (+30% magical power) magical damage and are Slowed by 25/30/35/40/45% for 0.75s.",
+            "R": "Leap into the sky, crashing down at the target location to deal 200/320/440 (+90% magical power) magical damage to all Enemies in the area, Knocking them Up and Stunning them for 1.5s."
+          }
         }
       },
       {
@@ -49851,8 +50008,8 @@
         }
       },
       "summary": {
-        "changed": 25,
-        "checked and retained": 61,
+        "checked and retained": 62,
+        "changed": 24,
         "unresolved": 7
       },
       "new_hero_gap": "Baron Valmont has no complete kit/loadout record in the collected roster; no plan was fabricated.",

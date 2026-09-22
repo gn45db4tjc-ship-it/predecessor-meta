@@ -1,0 +1,626 @@
+{
+  "python": {
+    "run": 205,
+    "passed": 204,
+    "skipped": 1
+  },
+  "javascript": {
+    "passed": 229,
+    "failed": 0,
+    "new_focused_regressions": 5
+  },
+  "six_bundle_replay": {
+    "packet_validation": "passed",
+    "unchanged_other_plans": 88,
+    "global_strategy_untouched": true,
+    "brackets": [
+      {
+        "bracket": "gold",
+        "observations_and_source_dates": "identical",
+        "guidance_applied": true
+      },
+      {
+        "bracket": "bronze",
+        "observations_and_source_dates": "identical",
+        "guidance_applied": true
+      },
+      {
+        "bracket": "silver",
+        "observations_and_source_dates": "identical",
+        "guidance_applied": true
+      },
+      {
+        "bracket": "platinum",
+        "observations_and_source_dates": "identical",
+        "guidance_applied": true
+      },
+      {
+        "bracket": "diamond",
+        "observations_and_source_dates": "identical",
+        "guidance_applied": true
+      },
+      {
+        "bracket": "paragon",
+        "observations_and_source_dates": "identical",
+        "guidance_applied": true
+      }
+    ]
+  },
+  "runtime": [
+    {
+      "bracket": "gold",
+      "rows": [
+        {
+          "slug": "serath",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "greystone",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "steel",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "gideon",
+          "role": "midlane",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "muriel",
+          "role": "support",
+          "build": "reviewed",
+          "skills": "observed",
+          "skill_label": "Observed skill order · Statz",
+          "points": 18
+        }
+      ]
+    },
+    {
+      "bracket": "bronze",
+      "rows": [
+        {
+          "slug": "serath",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "greystone",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "steel",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "gideon",
+          "role": "midlane",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "muriel",
+          "role": "support",
+          "build": "reviewed",
+          "skills": "observed",
+          "skill_label": "Observed skill order · Statz",
+          "points": 18
+        }
+      ]
+    },
+    {
+      "bracket": "silver",
+      "rows": [
+        {
+          "slug": "serath",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "greystone",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "steel",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "gideon",
+          "role": "midlane",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "muriel",
+          "role": "support",
+          "build": "reviewed",
+          "skills": "observed",
+          "skill_label": "Observed skill order · Statz",
+          "points": 18
+        }
+      ]
+    },
+    {
+      "bracket": "platinum",
+      "rows": [
+        {
+          "slug": "serath",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "greystone",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "steel",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "gideon",
+          "role": "midlane",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "muriel",
+          "role": "support",
+          "build": "reviewed",
+          "skills": "observed",
+          "skill_label": "Observed skill order · Statz",
+          "points": 18
+        }
+      ]
+    },
+    {
+      "bracket": "diamond",
+      "rows": [
+        {
+          "slug": "serath",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "greystone",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "steel",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "gideon",
+          "role": "midlane",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "muriel",
+          "role": "support",
+          "build": "reviewed",
+          "skills": "observed",
+          "skill_label": "Observed skill order · Statz",
+          "points": 18
+        }
+      ]
+    },
+    {
+      "bracket": "paragon",
+      "rows": [
+        {
+          "slug": "serath",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "greystone",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "steel",
+          "role": "jungle",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "gideon",
+          "role": "midlane",
+          "build": "reviewed",
+          "skills": "reviewed",
+          "skill_label": "Reviewed level-by-level order",
+          "points": 18
+        },
+        {
+          "slug": "muriel",
+          "role": "support",
+          "build": "reviewed",
+          "skills": "calculated",
+          "skill_label": "Calculated starting order · needs review",
+          "points": 18
+        }
+      ]
+    }
+  ],
+  "fresh_source_comparison": {
+    "abilities": [
+      {
+        "hero": "serath",
+        "key": "LMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "serath",
+        "key": "RMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "serath",
+        "key": "Q",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "serath",
+        "key": "E",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "serath",
+        "key": "R",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "serath",
+        "key": "Passive",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "greystone",
+        "key": "LMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "greystone",
+        "key": "RMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "greystone",
+        "key": "Q",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "greystone",
+        "key": "E",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "greystone",
+        "key": "R",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "greystone",
+        "key": "Passive",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "steel",
+        "key": "LMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "steel",
+        "key": "RMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "steel",
+        "key": "Q",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "steel",
+        "key": "E",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "steel",
+        "key": "R",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "steel",
+        "key": "Passive",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "gideon",
+        "key": "LMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "gideon",
+        "key": "RMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "gideon",
+        "key": "Q",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "gideon",
+        "key": "E",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "gideon",
+        "key": "R",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "gideon",
+        "key": "Passive",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "muriel",
+        "key": "LMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "muriel",
+        "key": "RMB",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "muriel",
+        "key": "Q",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "muriel",
+        "key": "E",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "muriel",
+        "key": "R",
+        "fresh_matches_published_raw": true
+      },
+      {
+        "hero": "muriel",
+        "key": "Passive",
+        "fresh_matches_published_raw": true
+      }
+    ],
+    "item_metadata": [
+      {
+        "name": "Giant's Ring",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Azure Core",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Flux Matrix",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Truesilver Bracelet",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Legacy",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Aegis Of Agawar",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Vanguardian",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Tranquility",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Judgement",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Draconum",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Everbloom",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Dynamo",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Marshal",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Overlord",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Salvation",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Augmentation",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Wraith Leggings",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Sky Splitter",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Crystal Tear",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Oblivion Crown",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Void Helm",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Windcaller",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Combustion",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Stonewall",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Soulbearer",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Saphir's Mantle",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Storm Breaker",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Eviscerator",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Fire Blossom",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Unbroken Will",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Devotion",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Basilisk",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Caustica",
+        "fresh_matches_published_metadata": true
+      },
+      {
+        "name": "Demolisher",
+        "fresh_matches_published_metadata": true
+      }
+    ]
+  },
+  "not_run": [
+    "Full browser/device release acceptance; this is an unpublished editorial proposal.",
+    "In-game skill mapping or controlled build/clear experiments."
+  ],
+  "limitations": [
+    "Muriel exact skill-button order remains unresolved; runtime still exposes explicitly observed/calculated historical alternatives, not a reviewed order."
+  ],
+  "before_fix_reproduction": {
+    "baseline": "0b775eef88651378911b8a5e78c913210613f68a",
+    "selected_tests": 3,
+    "failed_with_assertions": 3,
+    "errors": "No harness errors; missing reviewed schedules, Gideon level-two RMB instead of E, and Serath contradictory default."
+  }
+}

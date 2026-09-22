@@ -2,15 +2,15 @@
   "version": "2.31.1",
   "hosting_revision": 21,
   "design_revision": 6,
-  "baseline_commit": "92d6297",
-  "verification_report": "RELEASE-2.31.1-VERIFICATION.json",
-  "release_status": "verified source; installation and deployment recorded separately",
+  "baseline_commit": "0b775eef88651378911b8a5e78c913210613f68a",
+  "verification_report": "strategy-reviews/2026-09-22-trial/validation.json",
+  "release_status": "unpublished five-plan strategy trial; release and device acceptance remain separate",
   "files": {
     "predecessor_meta.py": "3b1d339a78d2d64e07aaac99b1201f7186d0775e1e4ee3c508079220bc22444a",
     "engine.js": "7e9f0126aac835bd173e3d0c4e5eb5fb6683abe9461e9431ac3257f395a5a9e7",
     "ui.js": "aeb82a2e8785b5e40d0b07fd08170629d12b88066ecbef3f4d321f1c28d25908",
     "ui.html": "241dd883a5766c76131daf7a3539193f01c4d388864b8de1532017623f41bbcf",
-    "reviewed_guidance.json": "9c5d48dbf09a1ec5e760565f1c4896ad1b29109fa6b2150b79c48e095ff281d6",
+    "reviewed_guidance.json": "eadbc7b9cc9035261cf8eaf215885d44242de6801fcd8a4a8e52062259d9d004",
     "shared_server.py": "dc2be7fc9d42292440c5f7db1c4d8eb378160c2059a52618b6ccb79379b04a56",
     "static_publish.py": "783e54f93c051d30492e467c0d359af7fdb1e2477a5af8c59ab21d2b8d48638b",
     "static_client.js": "262a42996e95e89115360024937ee6f2adc67415bf90f2a25aef78e2113b7d00",
@@ -147,6 +147,12 @@
     "tests/legacy/browser_meta_acceptance.js": "259094208c1cd692c7a6b77d719335efb6074cbc420eda15b388a66d8f77ea21",
     "tests/legacy/browser_sequences_acceptance.js": "475646f758137665c08c1b0184d75c35830860cb9dede50bfba7440cdabc7af1",
     "tests/legacy/browser_strategy_acceptance.js": "14e11ef7a2ddf62ccb189985c24ac09e08d0dbb015a885a50e2bc1b8feaa0f57",
-    "tests/legacy/browser_synthesis_acceptance.js": "a4cdbfec41371e006ff5557647453847e9e6a363551d8c90c6756573bdbaf418"
+    "tests/legacy/browser_synthesis_acceptance.js": "a4cdbfec41371e006ff5557647453847e9e6a363551d8c90c6756573bdbaf418",
+    "strategy-reviews/2026-09-22-trial/evidence-receipt.json": "d84b1c5c7ebf44ba51ccfa1c07e05e6267da87432d18d9966bcc34a36a04a466",
+    "strategy-reviews/2026-09-22-trial/ledger.json": "89cfdfcb20abdbd8127cba3188a32248d1452de5cf41d410b02c5a3d4b3e3e58",
+    "strategy-reviews/2026-09-22-trial/supporting-evidence.json": "8e0435531b0507ec0ce5901b5888a696e65eef1b096a1ee628fb09ef2f454aea",
+    "strategy-reviews/2026-09-22-trial/validation.json": "2fbf87bedf31e98b1120ae67d5e95853d225d9252da5eb397f453aecfb2fa9fd",
+    "strategy-reviews/2026-09-22-trial/REPORT.md": "70d3fa8009fd749d18581c3e8e3ec69f6e86a9039ba927fd81747f71014875b4",
+    "tests/strategy_trial.test.cjs": "e208dc58a186f103e48d9a5cd56ae0bda7fc578a0149d43561a6372922b3dff4"
   }
 }
