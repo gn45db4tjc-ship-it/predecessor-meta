@@ -29,7 +29,7 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:12973/';let preview;
   const at=await page.evaluate(()=>date(B.heroes.khaimera.roles.jungle.fetched_at||B.sources.statz_hero_pages.fetched_at));
   if(width<700)assert((await page.locator('#main > .simple-source').first().innerText()).includes(at));
   await page.addScriptTag({path:process.env.AXE_PATH||require.resolve('axe-core/axe.min.js')});
-  const violations=await page.evaluate(async()=>(await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>v.id));assert.deepEqual(violations,[]);
+  const violations=await page.evaluate(async()=>(await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))})));assert.deepEqual(violations,[],`${width} ${theme}`);
   await page.screenshot({path:`qa/role-statistics-${width}-${theme}.png`,fullPage:true});await context.close();
  }
  assert.deepEqual(report.errors,[]);console.log(JSON.stringify({screens:report.screens.length,errors:report.errors}));

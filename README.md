@@ -1,3 +1,9 @@
+# Predecessor Meta — 2.30.2
+
+The phone companion now has consistent native typography, aligned role controls and hero cards, clearer selected states, and a more compact Meta page. Source dates and sample rules are one tap away; missing-current-data warnings and every displayed sample stay visible. Both themes, Full details, builds, draft and saved choices remain available. See [RELEASE-2.30.2.md](RELEASE-2.30.2.md).
+
+## Previous release documentation
+
 # Predecessor Meta — 2.30.0
 
 The quick mobile companion opens on Meta. Pick a hero for one starting build, alternative playstyles, named skill points, partners and counterplay. Adapt to my match carries the selected build forward. Plan offers a three-hero quick draft; More and Full details retain the complete reference. Desktop keeps its full navigation. See [RELEASE-2.30.0.md](RELEASE-2.30.0.md) for changes, evidence boundaries and validation.

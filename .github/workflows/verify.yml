@@ -57,6 +57,12 @@ jobs:
           PREVIEW_URL: http://127.0.0.1:12973/
           BROWSER_CHANNEL: chrome
         run: node tests/browser_role_statistics.cjs
+      - name: Mobile visual layout, large text, contrast and saved selections
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:12980/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_visual_polish.cjs
       - name: Show the browser verdicts
         if: always()
         run: cat qa/audit-regressions-browser.json || true
