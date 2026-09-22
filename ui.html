@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark"><meta name="theme-color" content="#0c151a"><title>Predecessor · Meta & Planning</title>
+<meta name="color-scheme" content="dark"><meta name="theme-color" content="#090e1c"><title>Predecessor · Meta & Planning</title>
 __PWA_HEAD__
 <script>try{if(localStorage.getItem('predecessor-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}</script>
 <!-- Native fonts keep the web, installed and offline layouts consistent. -->
@@ -15,14 +15,15 @@ __PWA_HEAD__
    disclosure (chevron) · chip (flat, never bordered, never clickable).
    ============================================================================ */
 :root{
-  --bg:#0c151a;--rail:#091014;--surface:#132128;--surface-2:#1a2c35;--surface-3:#22363f;--inset:#0e191f;
-  --line:#23363f;--line-strong:#34505b;--control-line:#6f95a0;
-  --text:#e6eef0;--text-2:#bfcdd2;--muted:#8aa0a7;
+  --brand:#a9c5ff;--brand-hover:#c5d8ff;--brand-ink:#0b1c43;--brand-text:#aac7ff;--brand-tint:#20375d;--brand-line:#719fea;--hero-wash:linear-gradient(120deg,#213c6d 0%,#142340 55%,#131e34 100%);--card-shadow:0 8px 24px #02061330;
+  --bg:#090e1c;--rail:#0d1426;--surface:#131e34;--surface-2:#1b2944;--surface-3:#243653;--inset:#0f192d;
+  --line:#2c3d59;--line-strong:#435a7d;--control-line:#8196bb;
+  --text:#f0f4ff;--text-2:#c4d0e8;--muted:#a0b1ce;
   --gold:#d8b25c;--gold-soft:#e6c777;--gold-ink:#14110a;
-  --green:#74e0c1;--red:#ff8a9a;--blue:#9fb3ff;--amber:#f0c27a;
+  --green:#74e0c1;--red:#ff8a9a;--blue:#c3a6ff;--amber:#f0c27a;
   --gold-text:#e6c777;--focus:#d8b25c;--on-strong:#fff;--control-hover:#8a9cc0;
   --green-tint:#15271f;--gold-tint:#2a2614;--amber-tint:#2b2419;--amber-tint-2:#2b201a;--blue-tint:#182238;--amber-ink:#f1e3c8;
-  --observed-tint:rgba(116,224,193,.10);--observed-line:rgba(116,224,193,.34);--calculated-tint:rgba(159,179,255,.10);--calculated-line:rgba(159,179,255,.34);--reviewed-tint:rgba(216,178,92,.12);--reviewed-line:rgba(216,178,92,.36);
+  --observed-tint:rgba(116,224,193,.10);--observed-line:rgba(116,224,193,.34);--calculated-tint:rgba(195,166,255,.10);--calculated-line:rgba(195,166,255,.34);--reviewed-tint:rgba(216,178,92,.12);--reviewed-line:rgba(216,178,92,.36);
   --accent-fill:#1f2a2a;--accent-line:#b8975a;--enemy-line:#6a4552;--enemy-tint:#1b1520;--enemy-text:#d9a2b0;
   --glow:rgba(216,178,92,.07);--shadow-lg:0 10px 30px rgba(0,0,0,.45);--shadow-dialog:0 30px 100px #0009;--shadow-toast:0 10px 40px #0008;--shadow-nav:0 -4px 20px rgba(0,0,0,.08);--backdrop:#060a13cc;
   --icon-plate:var(--surface-3);
@@ -52,18 +53,19 @@ __PWA_HEAD__
 /* light theme: same tokens, opt-in through the theme toggle (stored as predecessor-theme); the default stays dark */
 :root[data-theme=light]{
   color-scheme:light;
-  --bg:#edf1f0;--rail:#e3e9e8;--surface:#ffffff;--surface-2:#f3f6f5;--surface-3:#e4eae9;--inset:#f7f9f8;
-  --line:#d3dcdb;--line-strong:#b4c2c0;--control-line:#6b8891;--control-hover:#4f6c75;
-  --text:#14232a;--text-2:#33464e;--muted:#50656e;
-  --gold:#cfa84f;--gold-soft:#dcb964;--gold-ink:#14110a;--gold-text:#7a5a10;--focus:#2f55b8;--on-strong:#14232a;
-  --green:#17735a;--red:#b0273a;--blue:#3550b8;--amber:#8a5a0a;
+  --brand:#2854d7;--brand-hover:#1d41ae;--brand-ink:#fff;--brand-text:#2449b5;--brand-tint:#e5edff;--brand-line:#456eca;--hero-wash:linear-gradient(120deg,#d7e5ff 0%,#edf3ff 55%,#fff 100%);--card-shadow:0 8px 24px #263e7110;
+  --bg:#f0f3fb;--rail:#e5ebf8;--surface:#ffffff;--surface-2:#f4f6fc;--surface-3:#e6ecf8;--inset:#f7f9ff;
+  --line:#d3dcec;--line-strong:#a9b9d3;--control-line:#617aa0;--control-hover:#49638c;
+  --text:#17233d;--text-2:#354765;--muted:#536687;
+  --gold:#cfa84f;--gold-soft:#dcb964;--gold-ink:#14110a;--gold-text:#7a5a10;--focus:#2f55b8;--on-strong:#17233d;
+  --green:#17735a;--red:#b0273a;--blue:#6842a8;--amber:#8a5a0a;
   --green-tint:#dff3ec;--gold-tint:#f6ecd2;--amber-tint:#f7ecd6;--amber-tint-2:#f7ecd6;--blue-tint:#e4e9fb;--amber-ink:#4a3204;
-  --observed-tint:rgba(23,115,90,.09);--observed-line:rgba(23,115,90,.38);--calculated-tint:rgba(53,80,184,.07);--calculated-line:rgba(53,80,184,.35);--reviewed-tint:rgba(154,122,44,.12);--reviewed-line:rgba(154,122,44,.42);
+  --observed-tint:rgba(23,115,90,.09);--observed-line:rgba(23,115,90,.38);--calculated-tint:rgba(104,66,168,.07);--calculated-line:rgba(104,66,168,.35);--reviewed-tint:rgba(154,122,44,.12);--reviewed-line:rgba(154,122,44,.42);
   --accent-fill:#faf3e2;--accent-line:#9a7a2c;--enemy-line:#d9a9b4;--enemy-tint:#fbeef1;--enemy-text:#8a2e42;
   --tier-a-fill:#8fd9c1;--tier-b-fill:#c3d1ea;--tier-c-fill:#f7c3a6;--tier-d-fill:#ffa3af;
   --official:#4a5768;--official-tint:rgba(74,87,104,.09);--official-line:rgba(74,87,104,.38);
   --phone-accent:#8a6a00;--phone-accent-ink:#fff8e0;--phone-accent-soft:#5a4300;
-  --phone-ink:#14232a;--phone-line:#c3ccd8;--phone-muted:#55636f;--phone-muted-2:#3d4854;
+  --phone-ink:#17233d;--phone-line:#c3ccd8;--phone-muted:#55636f;--phone-muted-2:#3d4854;
   --icon-plate:#2b3f48;--glow:rgba(154,122,44,.10);--shadow-lg:0 10px 30px rgba(20,35,42,.20);--shadow-dialog:0 30px 100px rgba(20,35,42,.35);--shadow-toast:0 10px 40px rgba(20,35,42,.25);--shadow-nav:0 -4px 20px rgba(20,35,42,.08);--backdrop:rgba(20,35,42,.55);
 }
 
@@ -569,7 +571,7 @@ if(window.ResizeObserver){var ro=new ResizeObserver(schedule);WATCH.forEach(func
 if(window.MutationObserver){new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-expanded','style']});}
 schedule();
 })();</script>
-<script>(function(){var b=document.getElementById('theme-toggle'),r=document.documentElement;if(!b)return;function sync(){var light=r.getAttribute('data-theme')==='light';b.textContent=light?'Dark theme':'Light theme';b.setAttribute('aria-pressed',String(light));b.setAttribute('aria-label',light?'Switch to the dark theme':'Switch to the light theme');}b.addEventListener('click',function(){var light=r.getAttribute('data-theme')!=='light';if(light)r.setAttribute('data-theme','light');else r.removeAttribute('data-theme');try{localStorage.setItem('predecessor-theme',light?'light':'dark');}catch(e){}sync();});sync();})();</script>
+<script>(function(){var b=document.getElementById('theme-toggle'),r=document.documentElement;if(!b)return;function sync(){var light=r.getAttribute('data-theme')==='light';var themeMeta=document.querySelector('meta[name=theme-color]');if(themeMeta)themeMeta.content=getComputedStyle(r).getPropertyValue('--bg').trim();b.textContent=light?'Dark theme':'Light theme';b.setAttribute('aria-pressed',String(light));b.setAttribute('aria-label',light?'Switch to the dark theme':'Switch to the light theme');}b.addEventListener('click',function(){var light=r.getAttribute('data-theme')!=='light';if(light)r.setAttribute('data-theme','light');else r.removeAttribute('data-theme');try{localStorage.setItem('predecessor-theme',light?'light':'dark');}catch(e){}sync();});sync();})();</script>
 <script>const INITIAL_BUNDLE=__BUNDLE_JSON__; const APP_CONFIG=__APP_CONFIG__;</script>
 <script id="engine-source">__ENGINE_JS__</script>
 <script>__UI_JS__</script>

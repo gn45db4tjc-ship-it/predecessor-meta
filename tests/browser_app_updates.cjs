@@ -70,15 +70,16 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
  net.down=false;net.noVersion=true;await page.locator('[data-app-check]').click();await page.waitForFunction(()=>!document.querySelector('[data-app-check]').disabled);assert.match(await page.locator('[data-app-state]').last().innerText(),/unavailable/);check('legacy manifest without app version is not treated as proof of freshness');net.noVersion=false;
  assert.deepEqual(report.errors,[]);await context.close();
  if(process.env.LEGACY_APP_SITE){
+  const legacyVersion=process.env.LEGACY_APP_VERSION||'2.30.2';
   net.folder=path.resolve(process.env.LEGACY_APP_SITE);
   const legacy=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'allow'}),p=await legacy.newPage();
   await p.goto(origin);await ready(p);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
-  assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),'2.30.2');
+  assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),legacyVersion);
   await p.evaluate(()=>{S.locks=[{slug:'khaimera',role:'jungle'}];S.me='khaimera';save();});
   net.folder=current;await p.locator('#refresh').click();await p.waitForFunction(()=>!latestStatus.busy);
-  assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),'2.30.2');check('actual 2.30.2 data refresh reproduces the old-interface problem');
+  assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),legacyVersion);check('actual '+legacyVersion+' data refresh does not silently replace the active interface');
   await p.reload();await ready(p);assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),currentVersion);assert.equal(await p.evaluate(()=>S.me),'khaimera');
-  await p.evaluate(()=>changeRoute('more'));assert((await p.locator('#main').innerText()).includes('Running v'+currentVersion));check('actual 2.30.2 worker loads the new interface on navigation without clearing picks');
+  await p.evaluate(()=>changeRoute('more'));assert((await p.locator('#main').innerText()).includes('Running v'+currentVersion));check('actual '+legacyVersion+' worker loads the new interface on navigation without clearing picks');
   await legacy.close();
  }
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));fs.writeFileSync(path.join(root,'qa/app-updates-'+(process.env.BROWSER_ENGINE||'edge')+'.json'),JSON.stringify(report,null,2));}

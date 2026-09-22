@@ -66,6 +66,12 @@ jobs:
       - name: Show the browser verdicts
         if: always()
         run: cat qa/audit-regressions-browser.json || true
+      - name: Redesign journeys, landscape, tablet and evidence contrast
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13008/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_visual_redesign.cjs
       - name: Home-screen app upgrade preserves active choices and offline data
         env:
           START_PREVIEW: '1'

@@ -26,7 +26,13 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:12980/';let preview;
    assert.match(await page.locator('.meta-context > summary').innerText(),/Previous statistics.*not a current ranking/);
    assert.equal(await page.locator('.meta-context').evaluate(n=>n.open),false);
    const position=await page.locator('#mobile-all-list .mobile-hero-card').first().boundingBox();
-   assert(position.y+position.height<788,'first hero must be fully visible above navigation at normal text size');
+   assert(position.y+position.height<788,`first hero must be fully visible above navigation at normal text size (${width}px ${theme}: y=${position.y}, height=${position.height})`);
+   if(width===320){
+    await page.evaluate(()=>document.documentElement.style.setProperty('--sans','Verdana,sans-serif'));
+    const wide=await page.locator('#mobile-all-list .mobile-hero-card').first().boundingBox();
+    assert(wide.y+wide.height<788,`first hero also fits with a wider normal-size font: ${wide.y+wide.height}`);
+    await page.evaluate(()=>document.documentElement.style.removeProperty('--sans'));
+   }
    const alignment=await page.evaluate(()=>{const a=document.querySelector('#mobile-hero-search').getBoundingClientRect(),b=document.querySelector('#mobile-meta-order').getBoundingClientRect();return Math.abs(a.y-b.y)<1&&Math.abs(a.height-b.height)<1;});assert(alignment,'search and order controls aligned');
    const numbers=await page.evaluate(()=>[...document.querySelectorAll('#mobile-all-list .mobile-stat:has(strong)')].map(n=>Math.abs(n.querySelector('strong').getBoundingClientRect().right-n.querySelector('small').getBoundingClientRect().right)));assert(numbers.length&&numbers.every(gap=>gap<1),'win rates and samples share a right edge even without a tier badge');
    await page.locator('.meta-context > summary').click();assert.match(await page.locator('#meta-order-status').innerText(),/100-game line is eligibility, not confidence/);

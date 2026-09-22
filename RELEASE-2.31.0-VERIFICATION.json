@@ -1,0 +1,21 @@
+{
+  "version": "2.31.0",
+  "baseline": "067aa75d8c842c3e4ef039eed28f830884bd1dcf",
+  "scope": "Visual presentation, theme tokens, source-preserving navigation and release identity",
+  "browser_checks": {
+    "redesign_journeys": {"edge": 50, "webkit": 50},
+    "visual_polish": {"edge": 50, "webkit": 50},
+    "quick_companion_webkit": 36,
+    "focused_audit_guards": 11,
+    "themes": ["dark", "light"],
+    "viewports": ["320x844", "390x844", "640x360", "820x900", "1440x900"],
+    "large_text": "200%, plus wide fallback font",
+    "axe_violations": 0,
+    "javascript_errors": 0
+  },
+  "audit_adjustment": "V12 compares the hero status row with the profile card content width, accounting for its new padding and border. It still requires the entire content width and no mid-word breaks.",
+  "required_release_checks": ["Clean source ZIP Python and JavaScript suites", "Full exact-head CI", "Real service-worker upgrade and outage", "Actual 2.30.3 to 2.31.0 upgrade", "Hashed Windows install with protected data", "Live deployment metadata and all six ranks"],
+  "release_receipts": "Final results, CI SHA, deployment SHA, installation and package hash are recorded separately in RELEASE-2.31.0-RESULT.md",
+  "physical_device_and_screen_reader": "Not run",
+  "data_and_engine": "No recommendation engine, statistics, source dates, guidance or collection schedule changed"
+}
