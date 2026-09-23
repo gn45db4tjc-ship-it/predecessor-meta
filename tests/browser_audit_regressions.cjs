@@ -2077,6 +2077,90 @@ const probes = {
       || !/could not be loaded/i.test(seen.newDialog.first) || seen.newDialog.next !== ''
       || seen.retry.failing < 2 || seen.retry.firstWait !== 1 || seen.retry.retried.length !== 2 || seen.retry.afterSearch !== 2 || !seen.retry.retried.every(t => /could not be loaded/i.test(t)) || seen.retry.end !== 2
       || !seen.layout.phone || seen.layout.narrow.length > 0 || seen.layout.later.length > 0, seen);
+  },
+  /* 2.33: design critique of 2.32.0 (phone first). Measured at 375x812 with default text in the quick companion
+     (the harness defaults other probes to full details). */
+  async U1(browser) {
+    // The whole six-item starting build is readable on the hero page's first screen.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const seen = await page.evaluate(() => {
+      const plan = chosenPlan({slug: 'steel', role: 'jungle'}), nav = document.querySelector('#mobile-navigation')?.getBoundingClientRect().top ?? innerHeight;
+      const keys = plan.items.map(n => catalogKey('items', n) || n);
+      const firstOf = key => [...document.querySelectorAll('#main .item-button')].find(b => b.dataset.key === key && b.getBoundingClientRect().height > 0);
+      const shown = keys.map(key => { const b = firstOf(key), r = b?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= nav; });
+      return {items: plan.items.length, shown: shown.filter(Boolean).length, nav: Math.round(nav)};
+    });
+    verdict('U1', seen.items !== 6 || seen.shown < 6, seen);
+    await context.close();
+  },
+  async U2(browser) {
+    // "Adapt to my match" stays on screen above the phone navigation while the hero page scrolls.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const at = async y => page.evaluate(async y => { scrollTo(0, y); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const b = document.querySelector('#main [data-start-live]'), r = b?.getBoundingClientRect(), nav = document.querySelector('#mobile-navigation')?.getBoundingClientRect().top ?? innerHeight;
+      return {top: Math.round(r?.top ?? -1), bottom: Math.round(r?.bottom ?? -1), nav: Math.round(nav), visible: !!r && r.top >= 0 && r.bottom <= nav + 1}; }, y);
+    const seen = {top: await at(0), middle: await at(Math.round(await page.evaluate(() => document.documentElement.scrollHeight / 2)))};
+    verdict('U2', !seen.top.visible || !seen.middle.visible, seen);
+    await context.close();
+  },
+  async U3(browser) {
+    // Away from Meta, the status summary shares the rank row instead of adding a full-width banner; Meta keeps the full banner.
+    const {context, page} = await session(browser, {...phone, viewport: {width: 375, height: 812}});
+    const seen = await page.evaluate(() => {
+      B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'error', detail: 'A required source could not be refreshed for this probe.'}];
+      const measure = () => { const l = document.querySelector('#mobile-limits').getBoundingClientRect(), r = document.querySelector('#bracket').getBoundingClientRect();
+        return {limitsTop: Math.round(l.top), limitsBottom: Math.round(l.bottom), rankTop: Math.round(r.top), sameRow: l.bottom > r.top && l.top < r.bottom, detail: !!document.querySelector('#mobile-limits span:not([aria-hidden])')?.getClientRects().length}; };
+      companionPrefs.fullDetails = false; saveCompanionPrefs(); changeRoute('meta'); const meta = measure();
+      openHero('steel', 'jungle'); const hero = measure();
+      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); const live = measure();
+      return {meta, hero, live};
+    });
+    verdict('U3', !seen.meta.detail || !seen.hero.sameRow || !seen.live.sameRow, seen);
+    await context.close();
+  },
+  async U4(browser) {
+    // A problem in the optional Pred.gg source alone is not presented as a source failure on the phone.
+    const {context, page} = await session(browser, {...phone, viewport: {width: 375, height: 812}});
+    const seen = await page.evaluate(() => {
+      B.errors = [{source: 'Pred.gg all roles', severity: 'error', detail: 'Structured response unavailable.'}]; latestStatus.errors = [];
+      companionPrefs.fullDetails = false; saveCompanionPrefs(); changeRoute('meta'); const n = document.querySelector('#mobile-limits');
+      return {label: n.querySelector('strong')?.innerText || '', material: errors().some(e => isMaterialError(e))};
+    });
+    verdict('U4', !seen.material && /failure/i.test(seen.label), seen);
+    await context.close();
+  },
+  async U5(browser) {
+    // The hero sections are one row of tabs, not a two-row grid of large buttons.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const seen = await page.evaluate(() => { const tops = [...document.querySelectorAll('#main .simple-sections button')].map(b => Math.round(b.getBoundingClientRect().top));
+      return {buttons: tops.length, rows: new Set(tops).size, height: Math.round(document.querySelector('#main .simple-sections')?.getBoundingClientRect().height || 0)}; });
+    verdict('U5', seen.buttons < 4 || seen.rows > 1 || seen.height > 60, seen);
+    await context.close();
+  },
+  async U6(browser) {
+    // The build states its provenance once per group: no "Core"/"Flexible" line under every item, no "Reviewed choice" under every loadout slot.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const seen = await page.evaluate(() => {
+      const perItem = [...document.querySelectorAll('#main .simple-purchases > li > small')].filter(s => /^(Core|Flexible)$/.test(s.innerText.trim())).length;
+      const perSlot = [...document.querySelectorAll('#main .simple-setup > div > small')].filter(s => /Reviewed choice|Calculated selection/.test(s.innerText)).length;
+      const groups = [...document.querySelectorAll('#main .purchase-group')].map(h => h.innerText.trim());
+      return {perItem, perSlot, groups, items: document.querySelectorAll('#main .simple-purchases > li').length}; });
+    verdict('U6', seen.perItem > 0 || seen.perSlot > 0 || seen.groups.length < 2 || seen.items !== 6, seen);
+    await context.close();
+  },
+  async U7(browser) {
+    // Meta rows are an even height, and the row cue is an in-app chevron (with "Build ready" for an active reviewed build), not an external-link arrow.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    const seen = await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+      const rows = [...document.querySelectorAll('#mobile-all-list .mobile-hero-card')], heights = rows.map(r => Math.round(r.getBoundingClientRect().height));
+      const steel = rows.find(r => r.querySelector('[data-hero="steel"]'));
+      return {rows: rows.length, min: Math.min(...heights), max: Math.max(...heights), arrow: rows.filter(r => r.innerText.includes('↗')).length, steel: steel?.innerText.replace(/\s+/g, ' ') || ''}; });
+    verdict('U7', seen.max - seen.min > 16 || seen.arrow > 0 || !/Build ready/.test(seen.steel), seen);
+    await context.close();
   }
 };
 
