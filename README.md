@@ -1,3 +1,9 @@
+# Predecessor Meta - 2.31.1
+
+Live patch 1.17 build update: 55 heroes and 94 hero/role plans, including Valmont Midlane. 87 starting plans are supported; seven experimental roles remain explicitly unresolved. Official mechanics corrections, skills and patch implications retain their own evidence. Observed source dates and statistical patch labels are unchanged. The September 14 full strategy record remains historical. See [RELEASE-2.31.1.md](RELEASE-2.31.1.md) for the complete scope and the separate installation/publication receipts.
+
+## Previous release
+
 # Predecessor Meta — 2.31.0
 
 A larger visual redesign: midnight navy and ice blue in dark mode, porcelain and cobalt in light mode, portrait-led Meta cards, clearer navigation, and a numbered purchase list. Pre-match choices and shopping order are separate. More → Check app update refreshes the phone home-screen app without clearing your choices. See [RELEASE-2.31.0.md](RELEASE-2.31.0.md).

@@ -11,6 +11,7 @@ import predecessor_meta as base
 
 ROOT=Path(__file__).resolve().parent
 PUBLIC_FIELDS=set(('schema tool_version generated_at collector offline patch patch_conflicts bracket sources errors roles_order role_label tier_order thresholds heroes tier_list pairs pairs_meta pool_ratio pool_note matchup_note perks items omeda_items image_index failed_pages cache official guidance official_changes official_hotfix_changes corrections unverified_changes mechanics_resolutions mechanics_boundaries loadout_catalog description_reviews reviewed_definitions definition_review definition_issues community_builds scoped_statistics sampling_policy pred_game_data timings changes scoped_changes refresh_result saved_source_review session_notice latest_attempt legacy').split())
+PUBLIC_FIELDS.add('patch_support')  # reviewed public game facts; no local settings or paths
 
 def public_bundle(bundle):
     return {k:v for k,v in bundle.items() if k in PUBLIC_FIELDS or k == 'retained_sources'} if bundle else None

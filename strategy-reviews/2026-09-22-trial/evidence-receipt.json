@@ -1,0 +1,163 @@
+{
+  "started_at": "2026-09-22T14:06:18-05:00",
+  "requests": [
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/manifest.json",
+      "fetched_at": "2026-09-22T14:06:18-05:00",
+      "status": 200,
+      "seconds": 0.15,
+      "sha256": "50e01bb6cc07504f437b24d9eb3aa4e47f62a0239b4a32d16f5f09d042c684ff",
+      "expected_sha256": null,
+      "file": "manifest.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/review/index.json",
+      "fetched_at": "2026-09-22T14:06:18-05:00",
+      "status": 200,
+      "seconds": 0.08,
+      "sha256": "cda48e50260281549d3f532d18e3b2f33de34c8b1e610ee969759ba79a3a2df6",
+      "expected_sha256": null,
+      "file": "review-index.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/review/1.17_055041ceb71d_2026-09-14_2026-W39.json",
+      "fetched_at": "2026-09-22T14:06:18-05:00",
+      "status": 200,
+      "seconds": 0.19,
+      "sha256": "53621130dc20adfc3a3f1a699b7e29cec3d7424b410904ddd35fdc2a608fc7b4",
+      "expected_sha256": "53621130dc20adfc3a3f1a699b7e29cec3d7424b410904ddd35fdc2a608fc7b4",
+      "file": "packet.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-41695bab7576b62e96a874f5b10636213d915e4f278f613e459eac8898cfdc2e.json",
+      "fetched_at": "2026-09-22T14:06:18-05:00",
+      "status": 200,
+      "seconds": 0.43,
+      "sha256": "41695bab7576b62e96a874f5b10636213d915e4f278f613e459eac8898cfdc2e",
+      "expected_sha256": "41695bab7576b62e96a874f5b10636213d915e4f278f613e459eac8898cfdc2e",
+      "file": "gold.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-06a2112a7f049ef84924b55a24cb0088d9882a7a4aae2c1ef54b0d445c071f4f.json",
+      "fetched_at": "2026-09-22T14:06:19-05:00",
+      "status": 200,
+      "seconds": 0.29,
+      "sha256": "06a2112a7f049ef84924b55a24cb0088d9882a7a4aae2c1ef54b0d445c071f4f",
+      "expected_sha256": "06a2112a7f049ef84924b55a24cb0088d9882a7a4aae2c1ef54b0d445c071f4f",
+      "file": "bronze.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-3678703258faa8934ce2d22f60f9a0116515eddea490450561261b275b8f453f.json",
+      "fetched_at": "2026-09-22T14:06:19-05:00",
+      "status": 200,
+      "seconds": 0.27,
+      "sha256": "3678703258faa8934ce2d22f60f9a0116515eddea490450561261b275b8f453f",
+      "expected_sha256": "3678703258faa8934ce2d22f60f9a0116515eddea490450561261b275b8f453f",
+      "file": "silver.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-8368fc191a4fc7299337732d98c710939e7d644289efa2fbe6ff9d19c495916a.json",
+      "fetched_at": "2026-09-22T14:06:20-05:00",
+      "status": 200,
+      "seconds": 0.31,
+      "sha256": "8368fc191a4fc7299337732d98c710939e7d644289efa2fbe6ff9d19c495916a",
+      "expected_sha256": "8368fc191a4fc7299337732d98c710939e7d644289efa2fbe6ff9d19c495916a",
+      "file": "platinum.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-aece392bb7410cc799095236efacd519dfa6894992c2202c15fc86f9aa67e5ae.json",
+      "fetched_at": "2026-09-22T14:06:20-05:00",
+      "status": 200,
+      "seconds": 0.25,
+      "sha256": "aece392bb7410cc799095236efacd519dfa6894992c2202c15fc86f9aa67e5ae",
+      "expected_sha256": "aece392bb7410cc799095236efacd519dfa6894992c2202c15fc86f9aa67e5ae",
+      "file": "diamond.json"
+    },
+    {
+      "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-6868c0877baab065981f2ea0700df0839e6b61807cca9daca956b2d0d05edd8d.json",
+      "fetched_at": "2026-09-22T14:06:21-05:00",
+      "status": 200,
+      "seconds": 0.25,
+      "sha256": "6868c0877baab065981f2ea0700df0839e6b61807cca9daca956b2d0d05edd8d",
+      "expected_sha256": "6868c0877baab065981f2ea0700df0839e6b61807cca9daca956b2d0d05edd8d",
+      "file": "paragon.json"
+    },
+    {
+      "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=961200&count=40&maxlength=0&feeds=steam_community_announcements&format=json",
+      "fetched_at": "2026-09-22T14:06:22-05:00",
+      "status": 200,
+      "seconds": 0.95,
+      "sha256": "51f1c1dfd2892681ce0084dd3786ad3ee4a07392e09f69f0777fe03277e596f0",
+      "expected_sha256": null,
+      "file": "publisher.json"
+    },
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes",
+      "fetched_at": "2026-09-22T14:06:23-05:00",
+      "status": 200,
+      "seconds": 0.53,
+      "sha256": "fd43d7e35c0057e2b38ecaf404cbb5493dc8b712b34f3bc012d5719b0d2c488a",
+      "expected_sha256": null,
+      "file": "official-index.json"
+    },
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "fetched_at": "2026-09-22T14:06:24-05:00",
+      "status": 200,
+      "seconds": 0.45,
+      "sha256": "83194cfcca01d94c4cec3e6c9c99219ac531cbf27f124ec505410fb52f52a1a0",
+      "expected_sha256": null,
+      "file": "official-1.17.json"
+    },
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+      "fetched_at": "2026-09-22T14:06:25-05:00",
+      "status": 200,
+      "seconds": 0.38,
+      "sha256": "abd3321b165dfbbfd68dfd97daa412a7470cd4dccb85f7aef89771d1ada2e7a3",
+      "expected_sha256": null,
+      "file": "official-1.16.4.json"
+    },
+    {
+      "url": "https://omeda.city/heroes.json",
+      "fetched_at": "2026-09-22T14:06:28-05:00",
+      "status": 200,
+      "seconds": 1.13,
+      "sha256": "f54d5ab148f9351d98d9d0b0cbd6cd59b7aca29f999b44ce47cbcb43134dd57b",
+      "expected_sha256": null,
+      "file": "omeda-heroes.json"
+    },
+    {
+      "url": "https://omeda.city/items.json",
+      "fetched_at": "2026-09-22T14:06:30-05:00",
+      "status": 200,
+      "seconds": 0.9,
+      "sha256": "d8f9a3dbc4bde6952155214ed420ccf67b071360e094b4f33138305070cc524f",
+      "expected_sha256": null,
+      "file": "omeda-items.json"
+    }
+  ],
+  "live_confirmed": true,
+  "official_versions_found": [
+    "1.17",
+    "1.16.4",
+    "1.16",
+    "1.15.3",
+    "1.15",
+    "1.14.4",
+    "1.14",
+    "1.13.2",
+    "1.13",
+    "1.12.6",
+    "1.11"
+  ],
+  "live_confirmation": [
+    {
+      "title": "Update 1.17: Bloodtide - LIVE NOW!",
+      "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010503898",
+      "published_at": "2026-09-22T11:19:35+00:00",
+      "fingerprint": "b5d5baa9f3bfb1bd385b1ac22cd06eab56d939c3fb649e72ac810b10792e45be"
+    }
+  ],
+  "finished_at": "2026-09-22T14:06:30-05:00"
+}

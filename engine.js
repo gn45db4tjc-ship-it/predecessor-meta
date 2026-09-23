@@ -39,16 +39,26 @@
       return !!r&&r.patch===bundle.official?.live?.version&&r.patch===bundle.guidance?.patch&&bundle.official?.status==='verified'&&reviewReady();
     }
     function matchesAbilities(slug,texts) {return !!heroes[slug]&&Object.entries(texts||{}).length>0&&Object.entries(texts).every(([k,t])=>heroes[slug].abilities?.find(a=>a.key===k)?.text===t);}
+    function patchContext(slug){
+      const r=heroes[slug]?.patch_context;
+      if(!r)return null;
+      const active=!!bundle.patch_support?.active&&r.active===true&&buildPatchReady(r.patch)&&matchesAbilities(slug,r.source_abilities);
+      return {...r,active};
+    }
     function heroStrategy(slug) {
+      const patch=patchContext(slug);
+      if(patch?.active)return {...patch,pick_when:patch.summary,counterplay:patch.summary,status:'Reviewed patch implications; no outcome claim'};
       const review=bundle.guidance?.strategic_review,r=review?.heroes?.[slug];if(!r)return null;
       const active=strategyReady()&&matchesAbilities(slug,r.source_abilities);
       return {...r,active,patch:review.patch,reviewed_at:review.reviewed_at,status:active?bundle.guidance.status:'Patch or supporting ability text needs review'};
     }
     function counterIdeas(target,enemyRole='',{role='',bans=[],allies=[],enemies=[]}={}) {
       const blocked=new Set([...bans,...allies.map(p=>p.slug),...enemies.map(p=>p.slug)]),filled=new Set(allies.map(p=>p.role));
-      return (bundle.guidance?.strategic_review?.counter_picks||[]).filter(r=>r.target===target&&(!role||r.role===role)&&!blocked.has(r.slug)&&!filled.has(r.role)).map(r=>{
-        const active=strategyReady()&&Object.entries(r.source_abilities).every(([s,ts])=>matchesAbilities(s,ts));
-        return {...r,active,observation:currentMatchup({slug:r.slug,role:r.role},{slug:target,role:enemyRole},100),reviewed_at:bundle.guidance.strategic_review.reviewed_at};
+      const patch=patchContext(target);
+      const additions=patch?.active?(patch.counters||[]).map(r=>({...r,target,patch:patch.patch,reviewed_at:patch.reviewed_at,patchAddition:true})):[];
+      return [...additions,...(bundle.guidance?.strategic_review?.counter_picks||[])].filter(r=>r.target===target&&(!role||r.role===role)&&!blocked.has(r.slug)&&!filled.has(r.role)).map(r=>{
+        const active=(r.patchAddition?patch?.active:strategyReady())&&Object.entries(r.source_abilities).every(([s,ts])=>matchesAbilities(s,ts));
+        return {...r,active,observation:currentMatchup({slug:r.slug,role:r.role},{slug:target,role:enemyRole},100),reviewed_at:r.patchAddition?r.reviewed_at:bundle.guidance.strategic_review.reviewed_at};
       });
     }
     function buildAdaptations(slug,role) {
@@ -302,7 +312,7 @@
       const missingRole=!!(slug&&role&&!row);
       const due=strategyReviewDue({now}),review=slug&&role?buildReview(slug,role):null;
       const mechanicsChanged=!!(review?.changed?.length||review?.missing?.length||review?.invalid);
-      const currentGuidance=reviewReady()&&!due.due&&(!slug||!!review?.active);
+      const currentGuidance=review?.patch_review?!!review.active:reviewReady()&&!due.due&&(!slug||!!review?.active);
       return [
         {area:'Role and recommendation statistics',patch:p.patch,fetched_at:p.fetched_at,
           state:missingRole||!p.source?'unavailable':p.saved||p.patch!==live?'fallback':'current',
@@ -310,9 +320,9 @@
         {area:'Pair statistics',patch:bundle?.patch,fetched_at:bundle?.sources?.statz_hero_pages?.fetched_at,
           state:bundle?.pairs?.length||Object.keys(pairMap).length?'fallback':'unavailable',
           reason:'Statz pair samples are a broader dataset, not verified latest-balance-patch statistics. Gaps and sample sizes remain separate; no current-patch pair rate is inferred.'},
-        {area:'Written guidance',patch:g.patch,reviewed_at:review?.reviewed_at||g.reviewed_at,
+        {area:review?.patch_review?'Written build guidance':'Written guidance',patch:review?.patch||g.patch,reviewed_at:review?.reviewed_at||g.reviewed_at,
           state:currentGuidance?'current':g.patch?'fallback':'unavailable',
-          reason:currentGuidance?'Reviewed for the live patch; individual plans still require their supporting mechanics to match.':mechanicsChanged?'Supporting mechanics changed or are unavailable. Previous advice is inspection-only; affected choices are not activated.':!verificationCurrent()?'Live patch verification is unavailable. Previous guidance is dated reference only.':due.due?'Current strategy review is unavailable or due. Previous guidance is retained with its original patch and review date. '+due.reasons.map(r=>r.startsWith('The scheduled review date')?'The scheduled strategy review is overdue.':r).join(' '):'Due to lack of a verified current plan in this area, use the dated previous guidance as a fallback, not a newly reviewed recommendation.'}
+          reason:currentGuidance?(review?.patch_review?'This starting build was reviewed against the live patch. Current-patch outcome samples remain unavailable; tiers and team advice have separate review dates.':'Reviewed for the live patch; individual plans still require their supporting mechanics to match.'):mechanicsChanged?'Supporting mechanics changed or are unavailable. Previous advice is inspection-only; affected choices are not activated.':!verificationCurrent()?'Live patch verification is unavailable. Previous guidance is dated reference only.':due.due?'Current strategy review is unavailable or due. Previous guidance is retained with its original patch and review date. '+due.reasons.map(r=>r.startsWith('The scheduled review date')?'The scheduled strategy review is overdue.':r).join(' '):'Due to lack of a verified current plan in this area, use the dated previous guidance as a fallback, not a newly reviewed recommendation.'}
       ];
     }
     function evidenceState({now=Date.now()}={}) {
@@ -804,12 +814,29 @@
       if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
       const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(k=>Object.hasOwn(b,k)&&sameValue(a[k],b[k]));
     }
+    // Build reviews can advance independently of tiers, pair explanations and compositions.
+    // A targeted pass cannot mark the entire strategy packet as current.
+    function buildPatchReady(patch){
+      const r=bundle.guidance?.build_patch_review,articles=bundle.official?.articles||[];
+      return verificationCurrent()&&r?.patch===patch&&patch===bundle.official?.live?.version&&
+        Number.isFinite(Date.parse(r.reviewed_at))&&Date.parse(r.reviewed_at)<=Date.now()&&
+        Object.keys(r.article_fingerprints||{}).length>0&&
+        Object.entries(r.article_fingerprints).every(([v,h])=>articles.some(a=>a.status==='live'&&a.version===v&&a.fingerprint===h))&&
+        articles.filter(a=>a.status!=='announced').every(a=>r.article_fingerprints[a.version]===a.fingerprint);
+    }
+    function buildLoadoutDefinition(name){
+      const r=bundle.guidance?.build_patch_review;
+      const entry=Object.entries(r?.loadout_definitions||{}).find(([n])=>NK(n)===NK(name));
+      return entry?{name:entry[0],...entry[1],active:buildPatchReady(r.patch)}:null;
+    }
     function buildReview(slug,role){
       const r=(bundle.guidance?.builds||[]).find(x=>x.slug===slug&&x.role===role);if(!r)return null;
-      const current=bundle.guidance?.patch===r.patch&&bundle.official?.live?.version===r.patch&&reviewReady();
+      const independent=!!r.patch_review;
+      const current=independent?buildPatchReady(r.patch)&&Number.isFinite(Date.parse(r.reviewed_at))&&Date.parse(r.reviewed_at)<=Date.now()&&r.patch_review.reviewed_at===r.reviewed_at&&['changed','checked and retained','unresolved'].includes(r.patch_review.result)&&!!r.source_preconditions:bundle.guidance?.patch===r.patch&&bundle.official?.live?.version===r.patch&&reviewReady();
       const missing=[...r.core,...r.finish].filter(n=>!item(n)?.completed_item);
-      const tree=bundle.loadout_catalog?.eternals?.[r.eternal];
-      const invalid=!!bundle.loadout_catalog?.eternals&&(!tree||r.blessings.some((n,i)=>!tree['BLESSING_MINOR_'+(i+1)]?.includes(n)));
+      const catalog=independent?bundle.guidance?.build_patch_review?.loadout_catalog:bundle.loadout_catalog;
+      const tree=catalog?.eternals?.[r.eternal];
+      const invalid=(independent||!!catalog?.eternals)&&(!tree||r.blessings.some((n,i)=>!tree['BLESSING_MINOR_'+(i+1)]?.includes(n)));
       const changed=[],pre=r.source_preconditions;
       if(pre){
         for(const [key,text] of Object.entries(pre.abilities||{}))if(heroes[slug]?.abilities?.find(a=>a.key===key)?.text!==text)changed.push('Ability '+key);
@@ -817,9 +844,16 @@
           const actual=item(name);
           if(!actual||Object.entries(expected).some(([key,value])=>!sameValue(actual[key],value)))changed.push('Item '+name);
         }
-        for(const [name,text] of Object.entries(pre.perks||{}))if(!perkTextMatches(name,Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name))?.description,text))changed.push('Loadout '+name);
+        for(const [name,text] of Object.entries(pre.perks||{})){
+          const source=Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name));
+          // Mechanics do not vary by rank. A missing rank-local row can use the
+          // separately evidenced definition, but a conflicting row cannot.
+          const definition=independent&&!source?buildLoadoutDefinition(name):null;
+          if(!perkTextMatches(name,source?.description||(definition?.active?definition.description:null),text))changed.push('Loadout '+name);
+        }
       }
-      return {...r,active:current&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid};
+      const unresolved=independent&&r.patch_review?.result==='unresolved';
+      return {...r,active:current&&!unresolved&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':unresolved?'review unresolved: '+r.patch_review.limitation:missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid};
     }
     function perkTextMatches(name,actual,expected){
       if(actual===expected)return true;
@@ -836,7 +870,7 @@
       return {slug,role,items:names,core:names.slice(0,3),finish:names.slice(3),kind:'provisional',manual:forceObserved,title:forceObserved?'Selected source playstyle':names.length?'Provisional starting build':'Build recommendation unavailable',
         augment:selected?.perk,eternal:selected?.eternal,crest:crest?top(crest.upgrades,1)[0]?.display_name||crest.display_name:null,
         blessings:[top(selected?.common_perks_1,1)[0]?.name,top(selected?.common_perks_2,1)[0]?.name],skill_priority:selected?.skillUpgradePriority||[],
-        reason:!names.length?'No verified build evidence is eligible for an automatic starting sequence. Inspect the dated variants or previous reviewed plan below.':forceObserved?'You selected a source playstyle for this game. Its item choices form a provisional sequence; the reviewed plan remains available.':'No active authored plan for this hero/role. Start from the most-played variant and inspect its mechanics; win rate does not establish the best build.',
+        reason:!names.length?(review?.patch_review?.result==='unresolved'?'Current build review is unresolved: '+review.patch_review.limitation+' Previous guidance is available below.':'Current-patch build evidence is not available for this role. The previous reviewed build is available below with its original date.'):forceObserved?'You selected a source playstyle for this game. Its item choices form a provisional sequence; the reviewed plan remains available.':'No active authored plan for this hero/role. Start from the most-played variant and inspect its mechanics; win rate does not establish the best build.',
         caution:review&&!review.active?'Previous advice '+review.status+'.':'The full six combines source choices; no full-loadout win rate is inferred.',review};
     }
     function bestMatchup(ally, enemy) {
@@ -942,11 +976,12 @@
       // A different augment/Eternal lacks the reviewed kit preconditions used by the adaptation rules.
       const loadoutMismatch=variant!==null&&(NK(L.plan.augment)!==NK(review?.augment)||NK(L.plan.eternal)!==NK(review?.eternal));
       const baseline=variant!==null?L.plan.items:review?[...review.core,...review.finish]:[];
-      const unavailable=!review?.active||loadoutMismatch||baseline.length!==6||new Set(baseline.map(NK)).size!==6||baseline.some(n=>item(n)?.available_current_patch===false);
+      const adaptationPending=!!review?.patch_review&&!reviewReady();
+      const unavailable=!review?.active||adaptationPending||loadoutMismatch||baseline.length!==6||new Set(baseline.map(NK)).size!==6||baseline.some(n=>item(n)?.available_current_patch===false);
       const expectedCore=baseline.filter(n=>(variant!==null?L.plan.core:review?.core)?.includes(n)&&!L.owned.some(o=>NK(o)===NK(n)));
       const lostCore=expectedCore.some(n=>!L.slots.some(s=>NK(s.name)===NK(n)));
       const available=!unavailable&&!lostCore;
-      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
+      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':adaptationPending?'The starting build is patch-reviewed. Automatic match adaptations still need a current-patch kit and item review; inspect the reviewed alternatives on the build page.':loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
       const threatData=threat?heroProfile(threat):null;
       const explanations=[variant!==null?'Calculated adaptation of your selected source playstyle; its core is preserved. No win rate is claimed for this assembled path.':state==='ahead'?'Ahead: keep offensive timing unless your selected urgent need requires a flexible answer.':state==='behind'?'Behind: prioritize a compatible survival or utility answer within the flexible slots; preserve the core.':'Even: retain the reviewed core and answer compatible enemy-kit needs.'];
       if(threatData)explanations.push('Primary threat: '+threatData.name+'. '+(threatData.evidence[0]?threatData.evidence[0].ability+': '+(threatData.evidence[0].reason||threatData.evidence[0].tag):'No supported kit mechanism is available; no damage type is assumed.'));
@@ -960,7 +995,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

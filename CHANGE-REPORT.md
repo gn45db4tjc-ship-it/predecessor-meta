@@ -1,3 +1,9 @@
+# 2.31.1 - Bloodtide builds and Valmont
+
+This release adds Valmont, independently reviewed starting builds, 106 guarded official field corrections and 131 recorded patch-change dispositions. All 94 hero/role plans have dated verdicts: 87 supported and seven unresolved experimental roles. It preserves observed figures and dates, all six rank selections, saved choices and the prior full-strategy review date. See RELEASE-2.31.1.md and RELEASE-2.31.1-VERIFICATION.json for evidence and limitations; actual installation and publication are established by their separate receipts.
+
+## Previous changes
+
 # 2.30.2 — mobile visual polish
 
 Consistent system fonts work online, offline and in the Windows launcher. Search and sorting controls align; all five roles remain visible; build cells and the bottom navigation have clearer spacing and selected states. Meta brings hero cards forward while keeping previous-data warnings visible and detailed dates and eligibility rules accessible. A large-text source-details overflow and light-theme muted-text contrast are corrected. No source figures, recommendation logic, guidance dates or collection schedules changed.

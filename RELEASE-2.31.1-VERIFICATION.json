@@ -1,0 +1,355 @@
+{
+  "version": "2.31.1",
+  "baseline": "92d6297f82f5c589702ed950226daef5dc23f1f2",
+  "recorded_at": "2026-09-23T00:06:54+00:00",
+  "scope": "Patch-focused builds, Valmont and official mechanics reconciliation; not a new full weekly strategic review",
+  "roster": {
+    "heroes": 55,
+    "plans": 94,
+    "active_per_bracket": 87,
+    "changed": 25,
+    "checked_and_retained": 62,
+    "unresolved": 7
+  },
+  "official": [
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "checked_at": "2026-09-22T19:03:30-05:00",
+      "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+      "unchanged": true
+    },
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+      "checked_at": "2026-09-22T19:03:30-05:00",
+      "fingerprint": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992",
+      "unchanged": true
+    },
+    {
+      "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=961200&count=40&maxlength=0&feeds=steam_community_announcements&format=json",
+      "checked_at": "2026-09-22T19:03:31-05:00",
+      "sha256": "51f1c1dfd2892681ce0084dd3786ad3ee4a07392e09f69f0777fe03277e596f0",
+      "confirmation": {
+        "title": "Update 1.17: Bloodtide - LIVE NOW!",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010503898",
+        "date": 1790075975
+      }
+    }
+  ],
+  "six_brackets": [
+    {
+      "bracket": "bronze",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": [
+        "patch-1.16.4-perks-shred-spree-description",
+        "patch-1.17-perks-peal-description"
+      ]
+    },
+    {
+      "bracket": "silver",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": []
+    },
+    {
+      "bracket": "gold",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": []
+    },
+    {
+      "bracket": "platinum",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": []
+    },
+    {
+      "bracket": "diamond",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": [
+        "patch-1.16.4-perks-sanguine-slash-description",
+        "patch-1.16.4-perks-vital-essence-description"
+      ]
+    },
+    {
+      "bracket": "paragon",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": [
+        "patch-1.16.4-perks-sanguine-slash-description",
+        "patch-1.16.4-perks-vital-essence-description"
+      ]
+    }
+  ],
+  "runtime": [
+    {
+      "bracket": "gold",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
+    },
+    {
+      "bracket": "bronze",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
+    },
+    {
+      "bracket": "silver",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
+    },
+    {
+      "bracket": "platinum",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
+    },
+    {
+      "bracket": "diamond",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
+    },
+    {
+      "bracket": "paragon",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
+    }
+  ],
+  "new_browser_edge": {
+    "engine": "edge",
+    "checks": [
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "bracket": "gold",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "bronze",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "silver",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "platinum",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "diamond",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "paragon",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "data"
+      }
+    ],
+    "errors": [],
+    "physicalDevice": "Not run",
+    "passed": true
+  },
+  "new_browser_webkit": {
+    "engine": "webkit",
+    "checks": [
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "bracket": "gold",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "bronze",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "silver",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "platinum",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "diamond",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "paragon",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "data"
+      }
+    ],
+    "errors": [],
+    "physicalDevice": "Not run",
+    "passed": true
+  },
+  "existing_build_browser_webkit": "24 checks passed with actual staged bundles",
+  "tests": {
+    "python": "214 passed, one existing skip (215 run); clean package verifies final counts",
+    "javascript": "233 passed; clean package verifies final counts",
+    "publication_contract": "Release marker is inside the collector environment; regression catches malformed workflow nesting"
+  },
+  "corrections": 106,
+  "official_change_dispositions": 131,
+  "limitations": [
+    "Statz still labels the statistical dataset 1.16. Fresh collection does not establish a 1.17 match cohort. No Valmont sample is invented.",
+    "Gold+ is the editorial reference; six bracket samples remain separate. Public Pred.gg is optional and access stops are respected.",
+    "Tier grades, pair outcome comparisons and complete composition rankings are not newly proven by patch notes. Previous dated guidance remains available.",
+    "Muriel button mapping conflicts between official 1.17 headings and the source kit. Exact button allocation remains unavailable until confirmed. Wukong exceptional skill ranks are not replaced with a generic schedule.",
+    "Lilith inherits attack speed; her interaction with every item on-hit is unverified. The Valmont starter does not depend on pet on-hit triggers.",
+    "Automatic match substitutions and historical editorial tiers/compositions retain separate supporting-review gates.",
+    "Physical phone and real screen-reader acceptance not run."
+  ],
+  "release_status": "Validated local candidate. Exact commit CI, installation, source archive and live deployment have separate receipts; this record does not assert they happened."
+}

@@ -15,3 +15,19 @@ class CanonicalPublisherScope(unittest.TestCase):
         self.assertNotIn('uses:',text,'A reusable workflow would inherit data-updates cache scope again')
         self.assertNotIn('pages: write',text,'Dispatcher itself must not deploy')
         self.assertNotIn('id-token: write',text)
+
+    def test_release_refresh_marker_reaches_collector_environment(self):
+        lines=(Path(__file__).resolve().parents[1]/'.github/workflows/publish.yml').read_text().splitlines()
+        start=next(i for i,line in enumerate(lines) if line.strip()=='env:' and 'MANUAL_REFRESH:' in lines[i+1])
+        parent_indent=len(lines[start])-len(lines[start].lstrip())
+        environment={}
+        for line in lines[start+1:]:
+            if line.strip() and len(line)-len(line.lstrip()) <= parent_indent:
+                break
+            if ':' in line:
+                key,value=line.strip().split(':',1)
+                environment[key]=value.strip()
+        self.assertIn('COLLECTION_RELEASE',environment,'The release marker must be nested under the collection step env, or fresh release collection never starts')
+        self.assertIn('MANUAL_REFRESH',environment)
+        self.assertIn('DIAGNOSE_PRED',environment)
+        self.assertTrue(environment['COLLECTION_RELEASE'].strip("'\""))
