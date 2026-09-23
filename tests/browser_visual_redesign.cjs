@@ -18,8 +18,8 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13008/';let preview;
    await context.route('**/*',r=>new URL(r.request().url()).origin===new URL(base).origin?r.continue():r.abort());
    const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));await page.goto(base);await page.waitForFunction(()=>typeof B!=='undefined'&&B&&!latestStatus.busy);
    if(viewport.width<=700){
-    // The visible call to action must itself be clickable, not decorative dead space.
-    const cue=page.locator('#mobile-all-list .meta-card-cue').first();await cue.click();assert.equal(await page.evaluate(()=>S.route),'hero');
+    // The row is the call to action: 2.33 (U7) removed the separate arrow cue, so the card itself must open the hero.
+    const cue=page.locator('#mobile-all-list .mobile-hero-card').first();await cue.click();assert.equal(await page.evaluate(()=>S.route),'hero');
     await page.locator('[data-simple-section="alternatives"]').click();await page.locator('[data-choose-playstyle]').first().click();
     assert.equal(await page.locator('.simple-setup>div').count(),5);
     assert.equal(await page.locator('.simple-purchases>li').count(),6);

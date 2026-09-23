@@ -68,7 +68,6 @@
  .mobile-hero-card .mobile-stat{max-width:128px;gap:4px 6px}
  .mobile-stat strong{grid-column:2;font-size:var(--tr-xl);line-height:1.3}
  .mobile-stat small{font-size:var(--tr-sm);line-height:1.4}
- .mobile-row-source{grid-column:1/-1;border-top:1px solid var(--line);padding-top:6px;font-size:var(--tr-xs);line-height:1.5}
  .mobile-hero-head{grid-template-columns:64px minmax(0,1fr);gap:14px;align-items:center;margin:8px 0 12px;padding:8px 0 16px}
  .mobile-hero-head .portrait{width:64px;height:72px;border-radius:12px}
  .mobile-hero-head h1{font-size:var(--tr-hero);line-height:1.2;margin-bottom:8px}
@@ -165,7 +164,6 @@
 .skill-level-grid [aria-current=step]{outline-color:var(--brand-line);background:var(--brand-tint)}
 .more-grid button{display:flex;align-items:center;justify-content:space-between;border-radius:14px;background:var(--surface);padding:16px}
 .more-grid button::after{content:'↗';color:var(--brand-text);padding-left:12px}
-.meta-card-cue{display:none}
 @media(min-width:701px){
  .sidebar{padding:24px 14px}.sidebar .brand{font-size:var(--t-xl)}
  .page-head{padding:0 0 12px}.page-head h1{font-size:var(--t-4xl)}
@@ -202,10 +200,8 @@
  .mobile-hero-card .hero-cell{position:static;padding-bottom:0;gap:10px;font-size:var(--tr-base);min-height:52px;align-items:center}
  .mobile-hero-card .hero-cell .portrait{width:40px;height:48px;flex:none;border-radius:8px;background:var(--surface-3);border:1px solid var(--line-strong)}
  .mobile-hero-card .hero-cell .name{font-weight:750;line-height:1.2;letter-spacing:-.3px}
- .meta-card-cue{display:flex;font-size:0;color:var(--brand-text);pointer-events:none}.meta-card-cue>span{font-size:var(--tr-sm)}
  .mobile-stat strong{font-family:var(--sans);font-size:var(--tr-xl);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
  .mobile-hero-card .mobile-stat{max-width:120px}
- .mobile-row-source{padding-top:4px;color:var(--muted);font-size:var(--tr-xs)}
  .mobile-hero-head{padding:12px;grid-template-columns:52px minmax(0,1fr);gap:12px;margin:8px 0;background:var(--hero-wash)}
  .mobile-hero-head .portrait{width:52px;height:64px;border-radius:10px}
  .mobile-hero-head h1{font-size:var(--tr-title);font-weight:800;letter-spacing:-.5px;margin:0 0 4px}
@@ -224,7 +220,6 @@
  .large-text .topbar .tools>label:has(#bracket){flex:1 1 100%}
  .large-text .mobile-hero-head .portrait{width:56px;height:70px}
  .large-text .mobile-hero-head h1{font-size:var(--tr-title)}
- .large-text .meta-card-cue{position:static;margin-top:8px}
  .large-text .mobile-hero-card .hero-cell{flex-wrap:wrap;padding-bottom:0}
  .large-text .meta-hero-identity{padding:0}
  .large-text .mobile-hero-card .mobile-stat{max-width:none}
@@ -270,3 +265,61 @@
  .quick-candidate>button{max-width:160px;font-size:var(--tr-sm);margin:0}
  .large-text .quick-candidate{grid-template-columns:1fr}.large-text .quick-candidate>button{max-width:none}
 }
+/* 2.33 design priorities (phone, quick companion). */
+@media(max-width:700px){
+ /* Rec 1: the starting build at a glance, under the hero header. */
+ .build-strip{margin:0 0 10px;padding:10px 10px 8px;border:1px solid var(--line);border-radius:12px;background:var(--inset)}
+ .build-strip-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+ .build-strip-head strong{font-size:var(--tr-md)}
+ .build-strip-head .badge{font-size:var(--tr-xs)}
+ .build-strip-items{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;counter-reset:strip}
+ .build-strip-items li{counter-increment:strip;position:relative;min-width:0;display:flex;justify-content:center}
+ .build-strip-items li::after{content:counter(strip);position:absolute;top:-4px;left:-2px;min-width:16px;height:16px;border-radius:8px;background:var(--surface-3);color:var(--gold-text);line-height:16px;text-align:center;font-weight:700;pointer-events:none;font-size:var(--tr-xs)}
+ .build-strip .item-button{width:100%;min-width:44px;min-height:48px;padding:2px;justify-content:center;border-radius:10px}
+ .build-strip .item-button img{width:40px;height:40px;border-radius:8px}
+ .build-strip .item-name{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .adapt-dock{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));z-index:6;margin:16px -4px 0;padding:8px 4px;background:linear-gradient(to bottom,transparent,var(--bg) 28%)}
+ .adapt-dock>.primary{width:100%;min-height:48px;box-shadow:var(--shadow-nav)}
+ .adapt-dock+.simple-actions{margin-top:8px}
+ /* Rec 3: one scrolling row of section tabs. */
+ .simple-sections,.large-text .simple-sections{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:12px 0;gap:4px}
+ .simple-sections::-webkit-scrollbar{display:none}
+ .simple-sections button,.large-text .simple-sections button{flex:0 0 auto;grid-column:auto;min-width:0;padding:8px 14px;white-space:nowrap}
+ /* Rec 3: provenance once per group. */
+ .build-provenance{margin:-2px 0 8px}
+ .purchase-group{margin:10px 0 6px;font-size:var(--tr-sm);font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+ .simple-purchases+.purchase-group{margin-top:12px}
+ .simple-purchases li{align-items:center}
+ .simple-purchases .simple-position{line-height:1.2;align-self:center}
+ /* Rec 3: even Meta rows; in-app chevron and Build ready chip. */
+ .mobile-hero-card{grid-template-columns:minmax(0,1fr) 124px;align-items:center;min-height:72px}
+ .mobile-hero-card .hero-cell{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;text-align:left}
+ .mobile-hero-card .hero-cell>.portrait{grid-row:1/3}
+ .mobile-hero-card .hero-cell>.name{grid-column:2;align-self:end}
+ .mobile-hero-card .hero-cell:not(:has(.ready-chip))>.name{grid-row:1/3;align-self:center}
+ .ready-chip{grid-column:2;align-self:start;font-size:var(--tr-xs);font-weight:650;color:var(--gold-text);line-height:1.3}
+ .ready-chip::before{content:"\2713\00a0"}
+ .mobile-hero-card .mobile-stat{max-width:none;justify-items:end;text-align:right}
+ .mobile-hero-card .mobile-stat small{line-height:1.35}
+ .large-text .mobile-hero-card{grid-template-columns:minmax(0,1fr);min-height:0}
+ .large-text .mobile-hero-card .mobile-stat{justify-items:start;text-align:left}
+ /* Rec 2: required failures amber, optional-source limitations neutral; compact chip away from Meta. */
+ #mobile-limits:not(.material){border-bottom-color:var(--line)}
+ #mobile-limits:not(.material) strong{color:var(--text)}
+ .compact-context .topbar .tools{flex-wrap:nowrap;align-items:center}
+ .compact-context .topbar .tools>label:has(#bracket){flex:1 1 140px;font-size:0;gap:0}
+ .compact-context .topbar .tools>label:has(#bracket) select{font-size:var(--tr-base)}
+ .compact-context .topbar .tools #refresh{flex:0 0 44px;width:44px;padding:0;font-size:0}
+ .compact-context .topbar .tools #refresh::before{content:"\21bb";font-size:var(--tr-2xl);line-height:1}
+ .compact-context #mobile-limits{flex:0 0 auto;width:auto;min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:10px;gap:4px;background:var(--surface-2)}
+ .compact-context #mobile-limits.material{border-color:var(--amber)}
+ .compact-context #mobile-limits .limits-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .compact-context #mobile-limits .limits-sep{display:none}
+ .compact-context #mobile-limits strong::before{content:"\24d8\00a0"}
+ .compact-context #mobile-limits.material strong::before{content:"\26a0\00a0"}
+ .compact-context #mobile-limits>span:not([aria-hidden]){display:none}
+ .compact-context #mobile-limits span[aria-hidden]{font-size:0}
+ .compact-context #mobile-limits span[aria-hidden]::after{content:"\203a";font-size:var(--tr-lg)}
+ .large-text.compact-context .topbar .tools,.large-text .compact-context .topbar .tools{flex-wrap:wrap}
+}
+@media(max-height:480px){.adapt-dock{position:static}}
