@@ -95,7 +95,7 @@ def apply(bundle, packet, validate, clean, capabilities):
         # the historical 54-hero strategic review, whose date and coverage remain intact.
         supplement = {'patch': data['patch'], 'reviewed_at': data['reviewed_at'], 'article_fingerprints': data['article_fingerprints'],
                       'loadout_catalog': packet['loadout_catalog'], 'guidance': {'builds': data['plans'], 'build_patch_review': copy.deepcopy(build_pass)}}
-        supplement['guidance']['build_patch_review']['summary'] = {'changed': len(data['plans']), 'checked and retained': 0, 'unresolved': 0}
+        supplement['guidance']['build_patch_review']['summary'] = {k: sum(p.get('patch_review', {}).get('result') == k for p in data['plans']) for k in ('changed', 'checked and retained', 'unresolved')}
         validate(supplement, bundle)
         for plan in data['plans']:
             g['builds'] = [p for p in g.get('builds', []) if (p['slug'], p['role']) != (plan['slug'], plan['role'])] + [copy.deepcopy(plan)]

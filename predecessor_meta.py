@@ -3598,6 +3598,13 @@ def validate_guidance_packet(packet,bundle):
                 if 'expected' not in entry or 'accepted' not in entry or entry['expected'] is None or entry['accepted'] is None or not entry.get('reason'):raise ValueError('Reconciliation requires exact old/new values and reasoning')
                 if not isinstance(entry['expected'],type(entry['accepted'])):raise ValueError('Reconciled values must have the same type')
                 if not re.match(r'^https://pred\.gg/',str(entry.get('source',''))) or history_time(entry.get('source_fetched_at'))>reviewed:raise ValueError('Reconciled source requires a dated public evidence record')
+        adaptation=build_pass.get('adaptation_review')
+        if adaptation is not None:
+            # Authorizes match adaptation of active reviewed builds only while the data reproduce these exact classifications.
+            if not isinstance(adaptation,dict) or adaptation.get('patch')!=build_pass['patch'] or any(not isinstance(adaptation.get(k),str) or not adaptation[k].strip() for k in ('method','limitations')):raise ValueError('Adaptation review requires its patch, method and limitations')
+            history_time(adaptation.get('reviewed_at'))
+            c=adaptation.get('classifications')
+            if not isinstance(c,dict) or set(c)!={'items','heroes'} or not isinstance(c['items'],dict) or not c['items'] or not isinstance(c['heroes'],dict) or not c['heroes'] or any(not isinstance(v,list) or any(not isinstance(n,str) or not n for n in v) for v in c['items'].values()) or any(v is not None and (not isinstance(v,list) or any(not isinstance(t,str) for t in v)) for v in c['heroes'].values()):raise ValueError('Adaptation review requires exact item and kit classifications')
         if build_pass.get('loadout_catalog',{}).get('eternals')!=packet.get('loadout_catalog',{}).get('eternals'):raise ValueError('Build patch review must preserve evidenced Eternal membership')
         definitions=build_pass.get('loadout_definitions',{})
         if not isinstance(definitions,dict) or not definitions:raise ValueError('Build review needs evidenced loadout definitions')
