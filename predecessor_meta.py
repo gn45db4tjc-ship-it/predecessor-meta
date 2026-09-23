@@ -1848,8 +1848,12 @@ def attach_community_builds(bundle):
         bundle['errors'].append({'source':'Omeda community builds','severity':'warning','detail':str(exc)})
 
 
+import patch_support
+
+
 def enrich_bundle(bundle, official=None):
     bundle['official'] = official or {'status': 'unverified', 'error': 'Official patch has not been checked this session.'}
+    patch_support.prepare(bundle)
     packet_path = TOOL_DIR / 'reviewed_guidance.json'
     packet = json.loads(packet_path.read_text(encoding='utf-8')) if packet_path.exists() else {}
     if packet: validate_guidance_packet(packet,bundle)
@@ -1927,6 +1931,7 @@ def enrich_bundle(bundle, official=None):
             name = value.get('display_name') or value.get('name') or key
             fn = bundle.get('image_index', {}).get(kind, {}).get(norm_key(name))
             value['image_url'] = (STATZ_BASE + '/images/predecessor/' + directory + '/' + urllib.parse.quote(fn)) if fn else (omeda_icons.get(norm_key(name)) if kind=='items' else None)
+    patch_support.apply(bundle, packet, validate_guidance_packet, clean_text, derive_capabilities)
     return bundle
 
 
@@ -3127,6 +3132,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         attach_pred_game_data(bundle,progress,pages=pred_pages)
         retain_pred_partition(bundle, previous_pred_bundle(bracket))
+        patch_support.apply(bundle, json.loads((TOOL_DIR/'reviewed_guidance.json').read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})
     bundle['timings']={'cold_refresh_secs':round(time.perf_counter()-started,2),'hero_pages_secs':pull['secs']}
     if not fixture_dir:
@@ -3173,11 +3179,13 @@ def review_saved_sources(bundle):
     if build_pass and bundle.get('official',{}).get('live',{}).get('version')==build_pass['patch'] and bundle_is_publishable(bundle) and (bundle.get('guidance',{}).get('build_patch_review')!=build_pass or bundle.get('guidance',{}).get('builds')!=packet['guidance']['builds']):
         # Editorial-only replay also works when optional Pred.gg is absent. No raw
         # source reconstruction, fresh-fetch claim or observation update is needed.
-        validate_guidance_packet(packet,bundle)
         b=copy.deepcopy(bundle)
+        patch_support.prepare(b)
+        validate_guidance_packet(packet,b)
         b.setdefault('guidance',{})['builds']=copy.deepcopy(packet['guidance']['builds'])
         b['guidance']['build_patch_review']=copy.deepcopy(build_pass)
         b['tool_version']=VERSION
+        patch_support.apply(b, packet, validate_guidance_packet, clean_text, derive_capabilities)
         b['saved_build_review']={'reviewed_at':build_pass['reviewed_at'],'patch':build_pass['patch'],
             'applied_at':iso(now_utc()),'note':'Build-only editorial update. Statistical dates, patch labels and all other strategy review dates are unchanged.'}
         return b
@@ -3559,7 +3567,9 @@ def validate_guidance_packet(packet,bundle):
             for ref in refs:
                 history_time(ref.get('fetched_at'))
                 digest=ref.get('sha256','')
-                if ref.get('bracket') not in BRACKETS or not re.fullmatch(r'[a-f0-9]{64}',digest) or not ref.get('url','').endswith('/bundles/'+ref['bracket']+'-'+digest+'.json') or ref.get('upstream')!='https://statz.gg/predecessor':raise ValueError('Build definition requires an exact checksum-addressed source bundle')
+                if ref.get('official_patch'):
+                    if ref.get('official_patch') not in fingerprints or ref.get('fingerprint')!=fingerprints[ref['official_patch']] or ref.get('url')!=OFFICIAL_ORIGIN+'/en-US/news/patch-notes/Patch_Notes_'+ref['official_patch']:raise ValueError('Official build definition requires the reviewed article fingerprint')
+                elif ref.get('bracket') not in BRACKETS or not re.fullmatch(r'[a-f0-9]{64}',digest) or not ref.get('url','').endswith('/bundles/'+ref['bracket']+'-'+digest+'.json') or ref.get('upstream')!='https://statz.gg/predecessor':raise ValueError('Build definition requires an exact checksum-addressed source bundle')
         summary={'changed':0,'checked and retained':0,'unresolved':0}
         for plan in packet['guidance'].get('builds',[]):
             review=plan.get('patch_review')

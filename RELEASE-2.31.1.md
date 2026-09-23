@@ -1,52 +1,32 @@
-# 2.31.1 — September 22 build review for live patch 1.17
+# 2.31.1 — Bloodtide builds, Valmont and official patch reconciliation
 
-This update replaces the September 14 automatic starting recommendations with a separately dated build review. All 93 existing hero/role plans have a verdict: **25 changed, 61 checked and retained, 7 unresolved**. The supported 86 starting builds work in all six rank selections. Gold+ remains the editorial reference; the recommendations do not claim rank-specific performance.
+The app now includes **55 heroes and 94 hero/role plans**: 25 changed, 62 checked and retained, and seven explicitly unresolved experimental roles. **87 starting plans are usable in each of the six rank selections.** Gold+ remains the editorial reference; this does not claim equal performance across ranks.
 
-Examples of changes:
+## Changes
 
-- Yin Jungle no longer claims Onixian Quiver's ranged extra projectiles. Her plan explains the melee critical-chance and low-health mitigation effects.
-- Greystone Offlane brings Giant's Ring ahead of Aegis Of Agawar after the durability changes.
-- Serath Jungle uses Thraex with Savage Strikes and Ferocity; Weald remains a discussed alternative.
-- Affected plans account for Ground restrictions, Steel's Heavy Metal spell-shield fix, Gideon and Legion changes, and changed Eternal, blessing and item values.
-
-The review ledger is [strategy-reviews/2026-09-22-build-review.json](strategy-reviews/2026-09-22-build-review.json). It records the actual review date, decisions, alternatives, limitations, source dates, packet checksum and independent publisher confirmation that 1.17 was live. The official notes and Omeda kits/items were checked again on September 22. Pred.gg remains subject to its existing access pause; no paid API or access bypass was used.
+- **Valmont Midlane:** official role, artwork, kit and three augments; a reasoned six-item starting plan with crest, Eternal, both blessings and an authored 18-level skill order. Three conditional counterplay responses and three partner ideas explain their interactions. No invented Valmont rates, tier or previous build.
+- **Reviewed builds:** the earlier 93-plan pass and five-plan trial are included. Greystone Jungle buys armor before a third damage item; Serath has one stated default with Weald as an alternative; Gideon gets the safer level-two escape opening. Yin's melee build does not claim Quiver's ranged projectiles.
+- **106 guarded field corrections** reconcile source descriptions, item values and cooldowns against 1.17 and still-applicable earlier official changes. Original values remain inspectable. Already-updated fields are not changed twice. Unexpected values stay visible as conflicts; absent rank-local definitions may use separately evidenced descriptions without borrowing rates.
+- **131 official change rows** have a disposition covering buffs, nerfs, gameplay fixes, item/Eternal changes and changes that do not affect 5v5 build strength. Tracking repairs are not damage buffs; Crucible/ARAM/Brawl rules do not become 5v5 advice. Changed heroes have a closed “what changed” explanation.
+- **Skills:** independently authored schedules for Serath Jungle, Greystone Jungle, Steel Jungle, Gideon Midlane and Valmont Midlane. Muriel's conflicting button mapping and Wukong's exceptional rank rules suppress generic schedules with an explanation.
+- **Interface:** retain mobile simplicity, themes, saved picks and rank switching. Remove the duplicate alphabetical sort option. Add Valmont to planning even without samples. Keep new review metadata in the public export so his counterplay survives publishing.
 
 ## Evidence boundaries
 
-This is a **build-only patch transition**, not a completed full weekly strategy review. Tiers, pairings, counters, compositions, description corrections and authored level-by-level skill orders retain their separate status and dates. The existing review schedule is unchanged. Automatic match adaptations remain withheld where the broader current-patch kit/item review is still missing; the starting plan and its reviewed alternatives are available.
+This is a patch-focused build update and named patch implications, **not a newly dated full tier/composition/timing/damage-profile review**. Automatic match substitutions retain their broader supporting-review gate; starting plans and explicitly reviewed alternatives remain available. The five-plan trial and September 14 full strategy record remain separate historical artifacts.
 
-Observed statistics, sample counts, source timestamps and statistical patch labels are unchanged. The retained Statz dataset is still labelled 1.16; this release does not claim new 1.17 outcome samples. Neither rendering nor republishing a bundle refreshes its collection date.
+Available Statz statistics still carry dataset label **1.16** and an unconfirmed match window. A fresh download does not establish a 1.17 outcome cohort. Six brackets remain separate. Pred.gg uses accessible public embedded data only; unavailable or blocked pages do not trigger a bypass or paid API.
 
-Missing rank-local loadout descriptions can use a separately sourced mechanics definition from another checksum-verified public bundle. Its original rank, patch label, date and exact source remain visible. **No rates or samples cross between brackets.** A conflicting local definition prevents endorsement; it cannot be hidden by the fallback.
+Unresolved experimental roles: Akeron Support, Ikra Support, Maco Midlane, Scarlett Midlane, The Fey Carry, Wraith Support and Wukong Offlane. Dated fallback plans remain inspectable. Lilith's attack-speed inheritance does not establish every item on-hit interaction; the Valmont starter avoids that assumption. Vein Splitter removes his Ground.
 
-Seven experimental combinations remain unresolved: Akeron Support, Ikra Support, Maco Midlane, Scarlett Midlane, The Fey Carry, Wraith Support and Wukong Offlane. Each states a reason and retains its September 14 plan for inspection. Valmont has no complete source kit/loadout record in the collected roster and is explicitly recorded as a coverage gap.
+Official article fingerprints and the publisher's “LIVE NOW” announcement were rechecked before release. New live patches, changed hotfix content, failed verification or changed supporting fields withhold current endorsement. Editorial replay never rewrites outcome figures or collection dates.
 
-## Runtime and interface
+## Verification and release
 
-Build reviews have their own official article fingerprints and exact kit/item/loadout preconditions. A changed hotfix, new live patch, conflicting mechanics, incompatible blessings, missing item or unavailable patch verification withholds the recommendation. No missing statistic becomes a zero.
+See `RELEASE-2.31.1-VERIFICATION.json`. New regressions cover official-only heroes, field protection, existing upstream entries, correction conflicts/idempotence, public export, definition provenance, skill boundaries, bans and counterplay. Actual six-bracket bundles were exercised at 320/390/1440 widths in both themes, Edge and WebKit. Physical-device and real screen-reader acceptance are not claimed.
 
-The phone build screen shows the actual September 22 review date, patch and current-sample limitation. Meta also removes the duplicate "Hero name" sort when current rankings are unavailable: the menu offers alphabetical order and previous-dataset win rate, while retaining the saved tier preference for when it becomes usable again. Sources distinguishes the latest build review from the previous full strategy review. Unresolved plans show the September 14 fallback; if a future patch invalidates a completed September 22 plan, that newer plan becomes the historical fallback instead of reverting two reviews back. Manual variant selection and saved picks remain intact.
+The ZIP is extracted and tested independently. Exact-head CI, Windows installation and public deployment have separate receipts. This report alone does not assert deployment. Daily cloud collection and three-hour patch checks remain; the new collector release marker requests a fresh six-bracket pull for this release. Runner/source timestamps, not deployment time alone, verify collection.
 
-Saved-source publication can apply this editorial update even while optional Pred.gg is unavailable. It preserves existing observations and all other guidance dates. The current compact-core projection grows by about 40 KB compressed per rank (roughly 5.5%).
+On the home-screen app: **More → Check app update → Update app**, then **Reload latest data** if offered. Do not clear website data or uninstall; picks remain on the device.
 
-## Validation and reproduction
-
-See [RELEASE-2.31.1-VERIFICATION.json](RELEASE-2.31.1-VERIFICATION.json). Python and JavaScript regressions cover the independent review gate, same-version hotfix invalidation, missing-versus-conflicting definitions, incompatible loadouts, explicit unresolved verdicts and source-preserving replay.
-
-The existing build-label/overlap browser probes now explicitly restore the authored plans belonging to their committed historical seed. They test the same historical mechanics as before; the production gate is not relaxed to make a future review work against an older patch. X1 also requires nonempty slots, preventing a vacuous pass.
-
-The new real-bundle check runs with `PREVIEW_URL` pointing to a locally staged six-bracket review site:
-
-```
-node tests/browser_build_patch_review.cjs
-```
-
-The site is created with `tests/stage_preview.py`, supplying each original checksum-verified bracket bundle via `--seed`, plus output/state folders inside `qa/`. It exercises 320px, 390px and desktop, both themes, all six rank selections, saved picks, mechanics dialogs, Sources, historical fallback and hotfix invalidation. This is separate from CI's intentionally older committed seed. Physical phone and screen-reader acceptance are not claimed.
-
-## Release and recovery
-
-This document describes the staged candidate. Exact-head CI, installation, publication and live acceptance are recorded separately; this file alone is not evidence of deployment. Strategy publication retains the approval boundary in [STRATEGY-REVIEW-POLICY.md](STRATEGY-REVIEW-POLICY.md).
-
-After approval and publication, the home-screen app can use **More → Check app update → Update app**, then **Reload latest data**. Do not uninstall or clear website data. The 2.31.0-to-new-shell migration was tested with the real prior worker and retained picks.
-
-Installation must first create a hashed backup of replaced program files, including reviewed guidance, and preserve user data, snapshots and settings. Rollback restores that backup. Public rollback reverts the release merge through the existing verification and publication workflow; it does not rewrite historical source bundles.
+Windows installation creates a hashed backup and preserves data, settings and snapshots. After quitting the local app, `Roll Back 2.31.1.bat` restores 2.31.0. Website rollback is a reviewed source revert and Pages publication, not deletion of browser data.

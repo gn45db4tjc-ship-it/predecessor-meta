@@ -16,6 +16,7 @@
   const hero=bundle.heroes?.[plan.slug],stats=hero?.roles?.[plan.role],review=plan.skill_order_review;
   const result={kind:'unavailable',label:'Skill order unavailable',order:[],points:[],notes:[],priority:plan.skill_priority||[],source:null};
   const abilityMap=Object.fromEntries((hero?.abilities||[]).map(a=>[a.key,a]));
+  if(hero?.patch_context?.skill_order_boundary)return {...result,reason:hero.patch_context.skill_order_boundary};
   if(Object.values(KEYS).some(k=>!abilityMap[k]))return {...result,reason:'One or more ability names are missing. No button mapping is guessed.'};
   const supportingText=review?.source_abilities;
   const reviewedEvidence=review&&typeof review.reason==='string'&&review.reason.trim()&&Array.isArray(review.sources)&&review.sources.some(s=>/^https:\/\//.test(s.url||''))&&supportingText&&Object.values(KEYS).every(k=>typeof supportingText[k]==='string'&&supportingText[k]&&(abilityMap[k].text||abilityMap[k].description)===supportingText[k]);

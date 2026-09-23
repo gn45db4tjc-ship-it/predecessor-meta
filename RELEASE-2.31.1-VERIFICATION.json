@@ -1,282 +1,354 @@
 {
   "version": "2.31.1",
-  "checked_at": "2026-09-22T15:36:31+00:00",
-  "status": "Staged build review; exact-head CI, install and deployment recorded separately",
   "baseline": "92d6297f82f5c589702ed950226daef5dc23f1f2",
-  "review_scope": "93 existing plans: build-only 1.17 transition; not full strategy review",
-  "summary": {
+  "recorded_at": "2026-09-23T00:06:54+00:00",
+  "scope": "Patch-focused builds, Valmont and official mechanics reconciliation; not a new full weekly strategic review",
+  "roster": {
+    "heroes": 55,
+    "plans": 94,
+    "active_per_bracket": 87,
     "changed": 25,
-    "checked_and_retained": 61,
+    "checked_and_retained": 62,
     "unresolved": 7
   },
-  "tests": {
-    "python": "205 run: OK, one existing skip; verified again in the clean source package",
-    "javascript": "224 passed; verified again in the clean source package",
-    "real_bundle_browser_edge": 24,
-    "real_bundle_browser_webkit": 24,
-    "real_bundle_axe_violations": 0,
-    "existing_webkit_visual_states": 50,
-    "existing_webkit_companion_states": 36,
-    "actual_previous_worker_and_update_checks": [
-      "current app version visible in More",
-      "foreground check finds new interface without reloading active draft",
-      "update controls fit both phone widths and themes, including enlarged text and accessibility checks",
-      "hero evidence remains usable while update awaits the user",
-      "real network outage refuses update and preserves current screen",
-      "captive-portal document cannot masquerade as the update",
-      "unsaved selections prevent a reload when storage is blocked",
-      "explicit update loads new shell and preserves route, picks, inventory, theme, favorites and data dates",
-      "new worker survives a real offline restart with saved data",
-      "offline check never claims the app is verified current",
-      "legacy manifest without app version is not treated as proof of freshness",
-      "actual 2.31.0 data refresh does not silently replace the active interface",
-      "actual 2.31.0 worker loads the new interface on navigation without clearing picks"
-    ],
-    "historical_build_probes": [
-      "X1",
-      "X2",
-      "X3",
-      "X4",
-      "Y1",
-      "Y4"
-    ],
-    "full_browser_audit": "CI required; historical build probes now use the plans belonging to their seed; no eligibility gate weakened",
-    "meta_sort_menu": [
-      {
-        "engine": "edge",
-        "width": 320,
-        "duplicates": false,
-        "alphabetical": true,
-        "previousWinRate": true,
-        "selectionRestored": true,
-        "tierPreferencePreserved": true
-      },
-      {
-        "engine": "edge",
-        "width": 390,
-        "duplicates": false,
-        "alphabetical": true,
-        "previousWinRate": true,
-        "selectionRestored": true,
-        "tierPreferencePreserved": true
-      },
-      {
-        "engine": "webkit",
-        "width": 320,
-        "duplicates": false,
-        "alphabetical": true,
-        "previousWinRate": true,
-        "selectionRestored": true,
-        "tierPreferencePreserved": true
-      },
-      {
-        "engine": "webkit",
-        "width": 390,
-        "duplicates": false,
-        "alphabetical": true,
-        "previousWinRate": true,
-        "selectionRestored": true,
-        "tierPreferencePreserved": true
+  "official": [
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "checked_at": "2026-09-22T19:03:30-05:00",
+      "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+      "unchanged": true
+    },
+    {
+      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+      "checked_at": "2026-09-22T19:03:30-05:00",
+      "fingerprint": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992",
+      "unchanged": true
+    },
+    {
+      "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=961200&count=40&maxlength=0&feeds=steam_community_announcements&format=json",
+      "checked_at": "2026-09-22T19:03:31-05:00",
+      "sha256": "51f1c1dfd2892681ce0084dd3786ad3ee4a07392e09f69f0777fe03277e596f0",
+      "confirmation": {
+        "title": "Update 1.17: Bloodtide - LIVE NOW!",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1844115010503898",
+        "date": 1790075975
       }
-    ]
-  },
+    }
+  ],
   "six_brackets": [
     {
-      "rank": "gold",
-      "active": 86,
-      "unresolved": [
-        "akeron/support",
-        "ikra/support",
-        "maco/midlane",
-        "scarlett/midlane",
-        "the-fey/carry",
-        "wraith/support",
-        "wukong/offlane"
-      ],
-      "observed_fields_preserved": [
-        "heroes",
-        "items",
-        "perks",
-        "tier_list",
-        "pairs",
-        "sources",
-        "generated_at",
-        "patch",
-        "scoped_statistics",
-        "pred_game_data"
-      ],
-      "bundle_sha256": "f5098ae893a9a21374a88ebb690cdc82f8d8266ab88f48c90e170014562ed2e1"
+      "bracket": "bronze",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": [
+        "patch-1.16.4-perks-shred-spree-description",
+        "patch-1.17-perks-peal-description"
+      ]
     },
     {
-      "rank": "bronze",
-      "active": 86,
-      "unresolved": [
-        "akeron/support",
-        "ikra/support",
-        "maco/midlane",
-        "scarlett/midlane",
-        "the-fey/carry",
-        "wraith/support",
-        "wukong/offlane"
-      ],
-      "observed_fields_preserved": [
-        "heroes",
-        "items",
-        "perks",
-        "tier_list",
-        "pairs",
-        "sources",
-        "generated_at",
-        "patch",
-        "scoped_statistics",
-        "pred_game_data"
-      ],
-      "bundle_sha256": "462ba59cd25461c9fb006cac43f90bf9c4c9e484eeff327983dfd26940fd68da"
+      "bracket": "silver",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": []
     },
     {
-      "rank": "silver",
-      "active": 86,
-      "unresolved": [
-        "akeron/support",
-        "ikra/support",
-        "maco/midlane",
-        "scarlett/midlane",
-        "the-fey/carry",
-        "wraith/support",
-        "wukong/offlane"
-      ],
-      "observed_fields_preserved": [
-        "heroes",
-        "items",
-        "perks",
-        "tier_list",
-        "pairs",
-        "sources",
-        "generated_at",
-        "patch",
-        "scoped_statistics",
-        "pred_game_data"
-      ],
-      "bundle_sha256": "e97f285f9193034ab03cfa7479df8016f4be4ca0d15c317f17fe519885f9a7da"
+      "bracket": "gold",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": []
     },
     {
-      "rank": "platinum",
-      "active": 86,
-      "unresolved": [
-        "akeron/support",
-        "ikra/support",
-        "maco/midlane",
-        "scarlett/midlane",
-        "the-fey/carry",
-        "wraith/support",
-        "wukong/offlane"
-      ],
-      "observed_fields_preserved": [
-        "heroes",
-        "items",
-        "perks",
-        "tier_list",
-        "pairs",
-        "sources",
-        "generated_at",
-        "patch",
-        "scoped_statistics",
-        "pred_game_data"
-      ],
-      "bundle_sha256": "287e9363a2033ecc0a118bc60285c8fbe964891a33d41352a761c6ba20f45110"
+      "bracket": "platinum",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": []
     },
     {
-      "rank": "diamond",
-      "active": 86,
-      "unresolved": [
-        "akeron/support",
-        "ikra/support",
-        "maco/midlane",
-        "scarlett/midlane",
-        "the-fey/carry",
-        "wraith/support",
-        "wukong/offlane"
-      ],
-      "observed_fields_preserved": [
-        "heroes",
-        "items",
-        "perks",
-        "tier_list",
-        "pairs",
-        "sources",
-        "generated_at",
-        "patch",
-        "scoped_statistics",
-        "pred_game_data"
-      ],
-      "bundle_sha256": "45348e21f0c69f49a2f7754ea68aef8f3d6a372ace69c8b06ececcb88b63d126"
+      "bracket": "diamond",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": [
+        "patch-1.16.4-perks-sanguine-slash-description",
+        "patch-1.16.4-perks-vital-essence-description"
+      ]
     },
     {
-      "rank": "paragon",
-      "active": 86,
-      "unresolved": [
-        "akeron/support",
-        "ikra/support",
-        "maco/midlane",
-        "scarlett/midlane",
-        "the-fey/carry",
-        "wraith/support",
-        "wukong/offlane"
-      ],
-      "observed_fields_preserved": [
-        "heroes",
-        "items",
-        "perks",
-        "tier_list",
-        "pairs",
-        "sources",
-        "generated_at",
-        "patch",
-        "scoped_statistics",
-        "pred_game_data"
-      ],
-      "bundle_sha256": "5112ee69b7a05072db92b666c3f29ab95d9bc393b51fe330171bd5a000ecd446"
+      "bracket": "paragon",
+      "heroes": 55,
+      "plans": 94,
+      "source_dates_unchanged": true,
+      "statistics_label": "1.16",
+      "corrections": 106,
+      "conflicts": [
+        "patch-1.16.4-perks-sanguine-slash-description",
+        "patch-1.16.4-perks-vital-essence-description"
+      ]
     }
   ],
-  "compressed_core_sizes": [
+  "runtime": [
     {
-      "rank": "bronze",
-      "original_core_gzip": 708957,
-      "reviewed_core_gzip": 749142
+      "bracket": "gold",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
     },
     {
-      "rank": "silver",
-      "original_core_gzip": 718344,
-      "reviewed_core_gzip": 758781
+      "bracket": "bronze",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
     },
     {
-      "rank": "gold",
-      "original_core_gzip": 728539,
-      "reviewed_core_gzip": 769005
+      "bracket": "silver",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
     },
     {
-      "rank": "platinum",
-      "original_core_gzip": 733248,
-      "reviewed_core_gzip": 773705
+      "bracket": "platinum",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
     },
     {
-      "rank": "diamond",
-      "original_core_gzip": 720424,
-      "reviewed_core_gzip": 760813
+      "bracket": "diamond",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
     },
     {
-      "rank": "paragon",
-      "original_core_gzip": 681973,
-      "reviewed_core_gzip": 722390
+      "bracket": "paragon",
+      "active": 87,
+      "unexpected": [],
+      "valmontCounterIdeas": 3
     }
   ],
+  "new_browser_edge": {
+    "engine": "edge",
+    "checks": [
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "bracket": "gold",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "bronze",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "silver",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "platinum",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "diamond",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "paragon",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "data"
+      }
+    ],
+    "errors": [],
+    "physicalDevice": "Not run",
+    "passed": true
+  },
+  "new_browser_webkit": {
+    "engine": "webkit",
+    "checks": [
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 320,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "bracket": "gold",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "bronze",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "silver",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "platinum",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "diamond",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "bracket": "paragon",
+        "reviewedNewHero": true,
+        "statisticsUnchanged": true
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "route": "data"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "hero"
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "route": "data"
+      }
+    ],
+    "errors": [],
+    "physicalDevice": "Not run",
+    "passed": true
+  },
+  "existing_build_browser_webkit": "24 checks passed with actual staged bundles",
+  "tests": {
+    "python": "213 passed, one existing skip (214 run); clean package verifies final counts",
+    "javascript": "233 passed; clean package verifies final counts"
+  },
+  "corrections": 106,
+  "official_change_dispositions": 131,
   "limitations": [
-    "No current-patch outcome samples were created or claimed.",
-    "Seven experimental roles remain unresolved and Valmont coverage is missing.",
-    "Global tiers, counters, compositions, full mechanics descriptions and authored 18-level orders retain their own dates.",
-    "Automatic match adaptations require a separate current-patch kit/item review.",
-    "Physical phone and screen-reader acceptance not run.",
-    "No fresh cloud collector run or deployment is claimed by this report."
+    "Statz still labels the statistical dataset 1.16. Fresh collection does not establish a 1.17 match cohort. No Valmont sample is invented.",
+    "Gold+ is the editorial reference; six bracket samples remain separate. Public Pred.gg is optional and access stops are respected.",
+    "Tier grades, pair outcome comparisons and complete composition rankings are not newly proven by patch notes. Previous dated guidance remains available.",
+    "Muriel button mapping conflicts between official 1.17 headings and the source kit. Exact button allocation remains unavailable until confirmed. Wukong exceptional skill ranks are not replaced with a generic schedule.",
+    "Lilith inherits attack speed; her interaction with every item on-hit is unverified. The Valmont starter does not depend on pet on-hit triggers.",
+    "Automatic match substitutions and historical editorial tiers/compositions retain separate supporting-review gates.",
+    "Physical phone and real screen-reader acceptance not run."
   ],
-  "release_approval": "Required under the existing strategy policy before installation or publication"
+  "release_status": "Validated local candidate. Exact commit CI, installation, source archive and live deployment have separate receipts; this record does not assert they happened."
 }

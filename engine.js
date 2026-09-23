@@ -39,16 +39,26 @@
       return !!r&&r.patch===bundle.official?.live?.version&&r.patch===bundle.guidance?.patch&&bundle.official?.status==='verified'&&reviewReady();
     }
     function matchesAbilities(slug,texts) {return !!heroes[slug]&&Object.entries(texts||{}).length>0&&Object.entries(texts).every(([k,t])=>heroes[slug].abilities?.find(a=>a.key===k)?.text===t);}
+    function patchContext(slug){
+      const r=heroes[slug]?.patch_context;
+      if(!r)return null;
+      const active=!!bundle.patch_support?.active&&r.active===true&&buildPatchReady(r.patch)&&matchesAbilities(slug,r.source_abilities);
+      return {...r,active};
+    }
     function heroStrategy(slug) {
+      const patch=patchContext(slug);
+      if(patch?.active)return {...patch,pick_when:patch.summary,counterplay:patch.summary,status:'Reviewed patch implications; no outcome claim'};
       const review=bundle.guidance?.strategic_review,r=review?.heroes?.[slug];if(!r)return null;
       const active=strategyReady()&&matchesAbilities(slug,r.source_abilities);
       return {...r,active,patch:review.patch,reviewed_at:review.reviewed_at,status:active?bundle.guidance.status:'Patch or supporting ability text needs review'};
     }
     function counterIdeas(target,enemyRole='',{role='',bans=[],allies=[],enemies=[]}={}) {
       const blocked=new Set([...bans,...allies.map(p=>p.slug),...enemies.map(p=>p.slug)]),filled=new Set(allies.map(p=>p.role));
-      return (bundle.guidance?.strategic_review?.counter_picks||[]).filter(r=>r.target===target&&(!role||r.role===role)&&!blocked.has(r.slug)&&!filled.has(r.role)).map(r=>{
-        const active=strategyReady()&&Object.entries(r.source_abilities).every(([s,ts])=>matchesAbilities(s,ts));
-        return {...r,active,observation:currentMatchup({slug:r.slug,role:r.role},{slug:target,role:enemyRole},100),reviewed_at:bundle.guidance.strategic_review.reviewed_at};
+      const patch=patchContext(target);
+      const additions=patch?.active?(patch.counters||[]).map(r=>({...r,target,patch:patch.patch,reviewed_at:patch.reviewed_at,patchAddition:true})):[];
+      return [...additions,...(bundle.guidance?.strategic_review?.counter_picks||[])].filter(r=>r.target===target&&(!role||r.role===role)&&!blocked.has(r.slug)&&!filled.has(r.role)).map(r=>{
+        const active=(r.patchAddition?patch?.active:strategyReady())&&Object.entries(r.source_abilities).every(([s,ts])=>matchesAbilities(s,ts));
+        return {...r,active,observation:currentMatchup({slug:r.slug,role:r.role},{slug:target,role:enemyRole},100),reviewed_at:r.patchAddition?r.reviewed_at:bundle.guidance.strategic_review.reviewed_at};
       });
     }
     function buildAdaptations(slug,role) {
@@ -985,7 +995,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
