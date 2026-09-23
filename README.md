@@ -1,4 +1,10 @@
-# Predecessor Meta - 2.31.3
+# Predecessor Meta - 2.32.0
+
+Every hero/role build reviewed against live 1.17: 87 reviewed starting builds on all six ranks and in the Windows app, and Adapt to my match available again through a dated classification review. See [RELEASE-2.32.0.md](RELEASE-2.32.0.md) and [docs/BUILD-REVIEW-2.32.md](docs/BUILD-REVIEW-2.32.md) for every verdict and the remaining gaps. Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+## Previous release
+
+### 2.31.3
 
 Restores reviewed starting builds after refreshed source descriptions, corrects Ability Damage parsing, and separates build availability from tier/team review. See [RELEASE-2.31.3.md](RELEASE-2.31.3.md) for scope and remaining source conflicts. Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
