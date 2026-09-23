@@ -17,6 +17,21 @@ This release implements the three priority recommendations from the design criti
 
 The desktop layout and the "Full details" phone mode are unchanged.
 
+## Design system
+
+A design-system audit followed the phone changes; all five of its priorities are in this release. They apply to phone and desktop.
+
+- **Spacing and corners come from tokens.** Every padding, margin and gap below 40 px uses the spacing scale, which now includes 2 px and 6 px steps. Off-scale values moved to the nearest step: 617 values tokenised. Corner radius has four tokens: sm, md, lg and pill. Layout budgets are unchanged; the desktop status chrome is still 127 px.
+- **One tab-strip and one chip component.**
+  - The phone hero sections are a real tab list: screen readers announce the tabs and arrow keys move between them.
+  - The tab list wraps instead of scrolling sideways, which restores the 2.29 rule "phone tab strips do not scroll". The labels "Options" and "Counters" keep all five tabs on one row at 375 px.
+  - Evidence tags, status pills and "Build ready" share one chip shape. "Build ready" now uses the reviewed evidence style.
+- **One focus ring and visible selection in light mode.** A single 3 px focus ring now applies on every screen. Selection borders use a new indicator colour: in light mode it reaches 5.7:1 against the background, where it was about 2:1.
+- **A smaller token set.** The unused phone palette and two duplicate tokens are gone, and the phone type scale drops from ten sizes to six.
+- **Documentation.** `docs/DESIGN-SYSTEM.md` lists every token and shared component. A test fails when one is added without being documented.
+
+New probes DS1–DS6 reproduced each finding before its fix and are closed.
+
 ## Verification
 
 - Browser probes U1–U7 in `tests/browser_audit_regressions.cjs` reproduced each finding on 2.32.0 before the change. They were recorded as open in `tests/known-defects.json` and closed with the fix.
