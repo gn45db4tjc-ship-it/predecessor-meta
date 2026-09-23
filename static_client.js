@@ -96,7 +96,7 @@ if (APP_CONFIG.mode === 'static') {
     try {
       // Check a fresh document before leaving the usable one. Never clear caches or saved data.
       const target = new URL(location.href); target.searchParams.set('release', appUpdate.latest); target.searchParams.set('app_update', appUpdate.latest);
-      const response = await fetch(target, {cache: 'no-store', credentials: 'omit', signal: controller.signal});
+      const response = await fetch(target, {cache: 'no-store', credentials: 'same-origin', signal: controller.signal});
       if (!response.ok || response.headers.get('X-Predecessor-Cache') === 'offline') throw Error('Update unavailable');
       const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
       const version = doc.querySelector('meta[name="predecessor-app-version"]')?.content;
@@ -210,7 +210,8 @@ if (APP_CONFIG.mode === 'static') {
   };
 
   async function getJSON(url, signal) {
-    const response = await fetch(url, {signal, cache: 'no-store', credentials: 'omit'});
+    // Protected previews require their same-origin login cookie; never send it cross-origin.
+    const response = await fetch(url, {signal, cache: 'no-store', credentials: 'same-origin'});
     if (!response.ok) throw Error('Website data request returned HTTP ' + response.status);
     return response;
   }

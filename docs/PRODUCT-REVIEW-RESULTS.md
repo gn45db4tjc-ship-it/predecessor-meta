@@ -58,7 +58,11 @@ Viewport captures at normal text size; full-page and additional theme/desktop ca
 
 ## Deployment / safety
 
-The branch is intended for a pull request and an **existing Vercel project preview only**. At local handoff preparation, Vercel was signed out and no project binding was in the repository. The user offered to sign in. Do not invent a project URL, create a new project, or call localhost a Vercel deployment. Actual GitHub check/preview receipts belong in the pull request and final handoff once available.
+The user subsequently authorized creating the `predecessor-meta` Vercel project in their free Hobby workspace, solely for protected previews. Automatic production-domain assignment is disabled; no Git integration, custom domain, paid service or main-branch deployment was configured. Deployment receipts are recorded in the pull request.
+
+Vercel CLI 59.25.4 forced the first app deployment to Production despite an explicit `--target preview`. That deployment was immediately removed and zero deployments were verified. The user separately approved a blank setup page for the required initial production-labelled deployment. The app then deployed with the independently inspected target **Preview**. Keep the blank bootstrap to avoid re-triggering first-deployment promotion.
+
+Hosted verification exposed a real compatibility bug: `credentials: 'omit'` on same-origin publication and app-update requests discarded Vercel's authentication cookie. Both calls now use `same-origin`; cross-origin cookies are not enabled. The existing lifecycle browser test now requires a synthetic HttpOnly login cookie on its local server. It fails on the old code at initial publication loading and exercises core/evidence loading, interface updates and real offline restart with the correction. Original source dates and statistics are unchanged.
 
 There are no Supabase changes: this product has no relevant Supabase integration or database. Production remains GitHub Pages. The Windows installation and published datasets have not been modified. No paid API or service was used.
 

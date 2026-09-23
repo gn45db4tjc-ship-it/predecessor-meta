@@ -23,7 +23,9 @@ Guidance must have actual evidence, date and review scope. Patch-only build revi
 
 ## Deployment and safe work
 
-Production is GitHub Pages via `.github/workflows/publish.yml`; daily collection and patch checks run there. PR `verify.yml` tests without publication. Windows uses the same source locally. No linked Vercel project is committed; a Vercel preview requires identifying an existing project and authenticated access. Do not create a replacement project, database, app or framework port.
+Production is GitHub Pages via `.github/workflows/publish.yml`; daily collection and patch checks run there. PR `verify.yml` tests without publication. Windows uses the same source locally. On September 23 the user explicitly authorized the Vercel `predecessor-meta` project in Hobby workspace `9r9mh7vprb-1859` for protected previews. Local CLI bindings stay uncommitted. Automatic production-domain assignment is disabled; there is no Git integration or automatic main-branch deployment. Do not create another project, database, app or framework port.
+
+Vercel forced the first deployment to Production despite `--target preview`; it was immediately removed. The user then separately approved a blank setup deployment. Keep that blank bootstrap: removing all deployments can trigger the first-deployment behavior again. Only the blank page is authorized for that production-labelled slot. The actual app must remain a verified Preview. Static requests use `credentials: 'same-origin'` so deployment authentication works without forwarding credentials to other origins.
 
 Use isolated worktrees from verified current source; never change another agent's checkout. Preserve installed data and backups. This product-improvement task permits a feature branch and preview only: no main merge, production deployment or install. Regenerate `SOURCE-MANIFEST.json` hashes for app changes and label preview status honestly.
 
