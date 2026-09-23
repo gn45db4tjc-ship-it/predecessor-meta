@@ -185,6 +185,6 @@
     "tests/test_static_strategy_review.py": "0cc6fd51ec5bbc3226a44d8e0b3e4713b60c554d780119840d651c633a93dcf9",
     "tests/verification_guard.test.cjs": "bf449da15c3725ec7cc52f6cd0811f533f82c9dd3f9a907e3c9d0ce7066f68f2",
     "ui.html": "241dd883a5766c76131daf7a3539193f01c4d388864b8de1532017623f41bbcf",
-    "ui.js": "4fd14f330e1134099a6191baf24177ebdf15a98876a062b6ac249451a311e5d3"
+    "ui.js": "d504cefca0b7b507a6a6b63cf61b3fe93cdad1b85978c39a1427bb86ea955928"
   }
 }
