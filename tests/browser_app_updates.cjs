@@ -5,9 +5,10 @@ const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),
 const {spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..'),port=Number(process.env.UPDATE_PORT||12994),origin=`http://127.0.0.1:${port}/`;
 const current=path.join(root,'qa/update-current'),next=path.join(root,'qa/update-next');
-const net={folder:current,down:false,portal:false,noVersion:false},report={checks:[],errors:[]};
+const net={folder:current,down:false,portal:false,noVersion:false,protected:true},report={checks:[],errors:[]};
 const server=http.createServer((req,res)=>{
  if(net.down){req.socket.destroy();return;}
+ if(net.protected&&!(req.headers.cookie||'').split(';').some(c=>c.trim()==='preview_test=allowed')){res.writeHead(401);res.end('Preview login required');return;}
  const name=new URL(req.url,origin).pathname.slice(1)||'index.html',file=path.resolve(net.folder,name);
  if(!file.startsWith(net.folder+path.sep)||!fs.existsSync(file)){res.writeHead(404);res.end();return;}
  let body=fs.readFileSync(file);if(name==='index.html'&&net.portal)body=Buffer.from('<html><body>Login to this network</body></html>');
@@ -29,7 +30,8 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
  try{
  const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'allow',reducedMotion:'reduce'}),page=await context.newPage();
  page.on('pageerror',e=>report.errors.push({message:e.message,stack:e.stack,after:report.checks.at(-1)}));
- await page.goto(origin);await ready(page);await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
+ await context.addCookies([{name:'preview_test',value:'allowed',url:origin,httpOnly:true,sameSite:'Lax'}]);
+ await page.goto(origin);await page.waitForFunction(()=>typeof latestStatus!=='undefined'&&!latestStatus.busy);assert(await page.evaluate(()=>!!B),'protected same-origin publication loads with the existing login cookie');check('cookie-protected manifest and core load without disabling authentication');await ready(page);await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
  await page.evaluate(()=>{S.locks=[{slug:'khaimera',role:'jungle'}];S.enemies=[{slug:'gideon',role:'midlane'}];S.bans=['steel'];S.me='khaimera';S.liveContexts={'khaimera|jungle':{owned:['mutilator'],state:'ahead'}};companionPrefs.favorites=['khaimera|jungle'];save();saveCompanionPrefs();localStorage.setItem('predecessor-theme','light');changeRoute('more');});
  assert((await page.locator('[data-app-state]').last().innerText()).includes('latest app · v'+currentVersion));check('current app version visible in More');
  const before=await page.evaluate(()=>({draft:localStorage.getItem('predecessor-planner-v2'),prefs:localStorage.getItem(prefsKey),match:sessionStorage.getItem(matchKey),dates:B.generated_at}));
@@ -70,9 +72,11 @@ const check=(name)=>{report.checks.push(name);console.log('PASS '+name);};
  net.down=false;net.noVersion=true;await page.locator('[data-app-check]').click();await page.waitForFunction(()=>!document.querySelector('[data-app-check]').disabled);assert.match(await page.locator('[data-app-state]').last().innerText(),/unavailable/);check('legacy manifest without app version is not treated as proof of freshness');net.noVersion=false;
  assert.deepEqual(report.errors,[]);await context.close();
  if(process.env.LEGACY_APP_SITE){
+  net.protected=false; // Historical unprotected Pages shells intentionally omitted cookies.
   const legacyVersion=process.env.LEGACY_APP_VERSION||'2.30.2';
   net.folder=path.resolve(process.env.LEGACY_APP_SITE);
   const legacy=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'allow'}),p=await legacy.newPage();
+  await legacy.addCookies([{name:'preview_test',value:'allowed',url:origin,httpOnly:true,sameSite:'Lax'}]);
   await p.goto(origin);await ready(p);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   assert.equal(await p.evaluate(()=>APP_CONFIG.tool_version),legacyVersion);
   await p.evaluate(()=>{S.locks=[{slug:'khaimera',role:'jungle'}];S.me='khaimera';save();});
