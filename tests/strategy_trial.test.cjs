@@ -41,7 +41,8 @@ test('Gideon safety opening differs from the generic priority expansion; Muriel 
 });
 test('Serath has one stated default and Greystone purchases dedicated armor before a third damage item',()=>{
  const s=packet.guidance.builds.find(p=>p.slug==='serath'&&p.role==='jungle');
- assert.equal(s.eternal,'Thraex');assert.doesNotMatch(s.rune_note,/Weald is the default|current Pred.gg Jungle observations/);
+ // 2.32 build review: Weald became the stated default (every rank's leading Serath Jungle loadout); Thraex is the stated alternative.
+ assert.equal(s.eternal,'Weald');assert.match(s.rune_note,/Thraex .* alternative/);assert.doesNotMatch(s.rune_note,/current Pred.gg Jungle observations/);
  assert.match(s.rune_note,/proc-type damage/);
  const g=packet.guidance.builds.find(p=>p.slug==='greystone'&&p.role==='jungle');
  assert.equal(g.core[2],"Giant's Ring");assert.equal(g.finish[0],'Basilisk');

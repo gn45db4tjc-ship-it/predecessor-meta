@@ -1,0 +1,1377 @@
+{
+ "schema": 1,
+ "title": "2.32 full build review ledger",
+ "reviewer": "Claude (Opus 5.5) editorial review",
+ "started_at": "2026-09-23T15:20:00-05:00",
+ "editorial_reference": "Gold+",
+ "evidence": {
+  "official": "Patch 1.17 (live 2026-09-22) and 1.16.4 articles as collected 2026-09-23 14:24 CDT, fingerprints 271b9e0e… (1.17) and 0ca8b107… (1.16.4). No hotfix published; confirmed on predecessorgame.com 2026-09-23.",
+  "mechanics": "Pred.gg public definitions collected by the Windows app 2026-09-23 14:24 CDT (evidence/windows-bronze-2313.json), cross-checked against Omeda and the official notes.",
+  "pred_117": "Pred.gg 1.17 ranked Bronze+ role and item-position samples, 2026-09-23 14:24 CDT. The only current-patch outcome sample available; Pred.gg returned no structured data to later automated requests, which was respected.",
+  "pred_1164_gold": "Pred.gg 1.16.4 Gold+ samples, 2026-09-21 (previous patch).",
+  "statz": "Statz dataset labelled 1.16, collected 2026-09-23 14:52–14:56 CDT for all six ranks; broad dataset, previous patch.",
+  "limitation": "No Gold+ 1.17 outcome sample exists. Loadout (augment/Eternal) evidence is 1.16 only; 1.17 reduced Weald, Satariel and Lich, which is weighed where those variants lead."
+ },
+ "verdicts": {
+  "aurora|jungle": {
+   "verdict": "changed",
+   "reasoning": "Hypothermia has no recorded games in any rank (0 of 3,982 Gold+ games in 1.16) and the Fire Blossom opener appears in 10 of 447 current-patch Bronze+ games. Glacial Thorns carries the role in every rank (1.16 Gold+ 52.2–55.8% across Krix, Vesh and Lotus; Silver+ 54.7%), and 1.17 Bronze+ opens Magnify (276 games, 53.6%). Glacial Thorns adds a root at the dash origin to a kit already built on the ring root and the ultimate stun, which Spectral Schematics converts into damage. The 1.17 Shatter on-hit trim does not affect this ability-led path.",
+   "change": {
+    "augment": "Glacial Thorns",
+    "eternal": "Krix",
+    "blessings": [
+     "Regenerative Tissue",
+     "Predator"
+    ],
+    "crest": "Winter's Fury",
+    "core": [
+     "Magnify",
+     "Elafrost",
+     "Gaia Greaves"
+    ],
+    "finish": [
+     "Spectral Schematics",
+     "World Breaker",
+     "Flux Matrix"
+    ]
+   },
+   "alternative": "Glacial Thorns with Lotus (Masterpiece + Immaculate) and a Spirit Of Amir opener led Gold+ at 55.8% over 787 games in 1.16; take it for a damage-first clear when the lane can hold without your durability. Crystalline Cuirass replaces Flux Matrix against heavy magic damage.",
+   "limitation": "Loadout comparison is from the 1.16 Statz dataset; no Gold+ 1.17 outcome sample exists.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "boris|jungle": {
+   "verdict": "changed",
+   "reasoning": "Apex Hunter with Weald beats the plan's Apex Hunter with Thraex by about ten points in every rank with meaningful samples (1.16: Gold+ 55.6% over 2,943 vs 45.3% over 1,819; Bronze+ 57.9% vs 45.1%; Silver+ 54.9% vs 45.8%; Platinum+ 55.2% vs 43.1%). The 1.17 Wind-Rider cut (20%→15% attack speed) is small beside that gap. Boris scales through on-hit canisters and attack speed, which Weald's missiles and Dryad's Boon reward. Rapture (attack speed, health, omnivamp, on-hit damage near targets) replaces Basilisk, which is weak in current 1.17 Bronze+ data (58 games, 37.9%).",
+   "change": {
+    "eternal": "Weald",
+    "blessings": [
+     "Dryad's Boon",
+     "Wind-Rider"
+    ],
+    "crest": "Liberator",
+    "core": [
+     "Sky Splitter",
+     "Rapture",
+     "Draconum"
+    ],
+    "finish": [
+     "Void Helm",
+     "Citadel",
+     "Salvation"
+    ]
+   },
+   "alternative": "Thraex (Alpha's Court + Ferocity) with Basilisk remains a durable duel option, but it has trailed Weald in every sampled rank. Move Citadel earlier against physical burst.",
+   "limitation": "Loadout comparison is from 1.16 Statz; Weald was reduced in 1.17 and no Gold+ 1.17 outcome sample exists.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "zarus|jungle": {
+   "verdict": "changed",
+   "reasoning": "The Flow State + Thraex pair sits at 47–48% in every rank (1.16: Gold+ 47.8% over 910, Bronze+ 48.2%, Silver+ 47.5%, Platinum+ 47.3%). The same augment on Lotus reaches 57.8% over 979 Gold+ games and 55.9% over 980 Platinum+ games, and Lotus was not changed in 1.17. Early Bloom's extra level and Immaculate's damage reduction while healthy suit an arena engage from full health. The item path already matches what winning players buy.",
+   "change": {
+    "eternal": "Lotus",
+    "blessings": [
+     "Early Bloom",
+     "Immaculate"
+    ],
+    "crest": "Judgement"
+   },
+   "alternative": "The Ascended with Lotus (52.0% Gold+, 57.6% Silver+) scales without needing Evade resets. Tainted Blade replaces Basilisk against real healing.",
+   "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "serath|jungle": {
+   "verdict": "changed",
+   "reasoning": "Crushing Descent with Weald leads the plan's Thraex version in all four large samples (1.16: Gold+ 55.0% over 4,560 vs 52.3% over 2,017; Bronze+ 57.4% vs 51.0%; Silver+ 56.4% vs 48.2%; Platinum+ 54.0% vs 46.3%). 1.17 trims Serath's on-hit scaling and Wind-Rider, which apply to both loadouts, and fixes Weald missiles against proc damage in its favour. The existing items already match the winning variant.",
+   "change": {
+    "eternal": "Weald",
+    "blessings": [
+     "Dryad's Boon",
+     "Wind-Rider"
+    ]
+   },
+   "alternative": "Vital Resonance with Weald (56.4% Gold+) trades the Ascend stun for visage healing. Thraex (Savage Strikes + Ferocity) is the steadier duel loadout but has trailed Weald in every rank.",
+   "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "feng-mao|jungle": {
+   "verdict": "changed",
+   "reasoning": "Augmentation is almost never bought on Feng Mao (2 of 370 current-patch Bronze+ games; absent from every Statz variant), while Omen is the established second item (182 games, 48.9% in 1.17 Bronze+; core in every Gold+ Satariel variant). Omen's momentum-empowered attack and 20% non-ultimate cooldown refund suit his cast-and-attack weaving better than a bruiser attack-speed item. Legacy and Salvation were unobserved; Nightfall's ability healing and takedown shield support the reset pattern. The Imperial Duelist + Thraex duel theme is coherent and unrefuted and is retained.",
+   "change": {
+    "core": [
+     "Malady",
+     "Omen",
+     "The Perforator"
+    ],
+    "finish": [
+     "Envy",
+     "Nightfall",
+     "Legacy"
+    ]
+   },
+   "alternative": "Imperial Duelist with Satariel (Demonic Bargain + Psychosis) is the most-played setup (1.16 Gold+ 51.6% over 1,776, Silver+ 54.0%); 1.17 trimmed Satariel. Manta Scythe replaces Malady for faster clears.",
+   "limitation": "No sample exists for the Thraex loadout; the items rest on 1.17 Bronze+ and 1.16 Statz evidence.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "kallari|jungle": {
+   "verdict": "changed",
+   "reasoning": "Augmentation (1 of 224 current-patch games) and Deathstalker (7 games, 42.9%) are not how Kallari is played; Malady > Vanquisher > Spear Of Desolation is the core of every Gold+ variant, and Vanquisher is the 1.17 Bronze+ second item (179 games, 54.7%). Vanquisher's execute finishes the delayed mark and Spear's ultimate haste returns it sooner. The Deadly Finesse + Thraex loadout is coherent and unrefuted and is retained.",
+   "change": {
+    "core": [
+     "Malady",
+     "Vanquisher",
+     "Spear Of Desolation"
+    ],
+    "finish": [
+     "The Perforator",
+     "Envy",
+     "Mesmer"
+    ]
+   },
+   "alternative": "Deadly Finesse with Satariel (Hellfire Strikes + Psychosis) is the most-played loadout (1.16 Gold+ 50.9%, Platinum+ 53.6%); 1.17 trimmed Satariel. Move Mesmer ahead of The Perforator when a single spell blocks entry.",
+   "limitation": "No sample exists for the Thraex loadout.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "rampage|jungle": {
+   "verdict": "changed",
+   "reasoning": "The Rock & Awe + Krix pair itself is sound in Gold+ (56.0% over 899 in 1.16) and is retained. Its Fire Blossom > Dynamo opening is almost never bought (11 and 2 of 303 current-patch Bronze+ games), while every variant in every rank opens Overlord > Rapture > Cursed Scroll, and 1.17 Bronze+ confirms Overlord (378 games) and Rapture (177 games, 54.2%). Overlord's health scaling feeds Rampage's durability and boulder engages without spending a second item on a catch-only payoff.",
+   "change": {
+    "core": [
+     "Overlord",
+     "Rapture",
+     "Cursed Scroll"
+    ],
+    "finish": [
+     "Aegis Of Agawar",
+     "Giant's Ring",
+     "Void Helm"
+    ]
+   },
+   "alternative": "Tiny Titan (Regenerative Tissue + Cannibalism) is the most-played loadout (1.16 Gold+ 55.5% over 5,945) for an attack-speed duel pattern that accepts 40% more damage taken.",
+   "limitation": "Item evidence for Gold+ is 1.16 Statz; 1.17 evidence is Bronze+.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "khaimera|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Jungle Invasion + Thraex is observed and strong in Gold+ (52.9% over 2,114 in 1.16; Silver+ 56.0%), with Overlord and Basilisk in its core. The plan deliberately skips Rapture: extra attack speed is wasted inside Unleash's cap, and Draconum's healing ramp feeds Invigorate. 1.17 does not change the relevant mechanics.",
+   "alternative": "Jungle Invasion with Satariel led a smaller Platinum+ sample (57.8% over 836); Feral Ambush + Thraex is the most-played setup (50.5% Gold+).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "grux|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Sky Splitter and Basilisk match the observed core in every rank, and 1.17 Bronze+ confirms Sky Splitter (285 games, 55.1%). The only same-augment comparison (Silver+ Lust For Blood) shows Thraex no worse than Vermis (48.9% vs 47.5%). Rapture is weak in 1.17 Bronze+ (162 games, 43.2%), so Mutilator's health-scaling hits remain the third item.",
+   "alternative": "Red Mist with Weald (1.16 Gold+ 54.6% over 876) fits a team fight around several bleeding targets; Weald was reduced in 1.17.",
+   "limitation": "Gold+ loadout evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "kwang|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Spirit Of Amir > Oathkeeper matches every observed variant. Nihil is unobserved, but the observed Vesh setup is not better (44–48% in 1.16 Gold+, Silver+, Platinum+), so nothing refutes the sustained-fight choice. Role performance is below 50% in every sampled rank, so this is a situational pick.",
+   "alternative": "Slayer of the Heavens with Vesh (Tithe of Death + Millennia) and Gaussian Greaves is the observed setup.",
+   "limitation": "Kwang Jungle performs below 50% in every sampled rank; the Nihil loadout has no sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "riktor|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Wanton Warden is unobserved, but the 1.16 Zap O' 9-Chains core (Elafrost, Spectral Schematics) performs poorly in current 1.17 Bronze+ data (43.5% and 30.6%), while the plan's Fire Blossom opener performs better (58 games, 51.7%). The hook-and-hold tank plan is coherent; the evidence does not justify a switch.",
+   "alternative": "Zap O' 9-Chains with Elafrost > Spectral Schematics > Gaia Greaves is the 1.16 observed setup (48.4% Gold+).",
+   "limitation": "Riktor Jungle performs below 50% in most sampled ranks; small current-patch samples.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "scarlett|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Low-confidence role: 1.16 samples are poor in every rank (39–42%, tier D) and 1.17 Bronze+ is 49.2% over 252 games. The plan's bruiser items are rarely bought, but no evidence contradicts them, and the disputed Ashen Vow fields remain excluded from calculations as before. Retained with an explicit limitation rather than replaced by an equally weak observed path.",
+   "alternative": "1.17 Bronze+ players open Alternator (100 games, 59.0%) and add The Perforator or Tainted Blade.",
+   "limitation": "Low-confidence role; the plan's items have almost no sample and Ashen Vow base-damage fields remain disputed.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "sevarog|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Grim Harvest + Krix is the only observed loadout and Fire Blossom the observed opener; Fist Of Razuul replaces Elafrost, which is weak in 1.17 Bronze+ (47 games, 31.9%). Souls still require ability last hits.",
+   "alternative": "Elafrost second is the 1.16 observed path (47.8% Gold+).",
+   "limitation": "Role performs 45–51% across ranks.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "yin|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan is the observed loadout in every rank (Storm of Salvation + Weald: 1.16 Gold+ 53.3% over 2,057, Silver+ 55.1%) and its items lead 1.17 Bronze+ (Sky Splitter 59.4%, Onixian Quiver 54.8%). Forage and Taproot were trimmed in 1.17; Dryad's Boon is the tempo alternative.",
+   "alternative": "Tainted Rounds is the common third item against healing.",
+   "limitation": "Weald blessings were reduced in 1.17.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "crunch|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Combo Crunch + Thraex is the observed Gold+ loadout (50.4%) and the plan keeps its Augmentation and Salvation; 1.17 Bronze+ supports Augmentation (112 games) and Mutilator (40 games, 62.5%).",
+   "alternative": "Berserker's Axe is the common opener (1.17 Bronze+ 113 games, 45.1%).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "greystone|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Close Cut + Thraex with Overlord > Augmentation > Basilisk is the only observed setup (Bronze+ 48.0%, Silver+ 45.3%); the plan follows it. A reviewed 18-level order already exists.",
+   "alternative": "Salvation is the observed defensive fourth item.",
+   "limitation": "Role performs below 50%; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "terra|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Too few games to test (35 in 1.17 Bronze+; no Statz page); the plan's Elafrost opener is the most-bought first item in that small sample.",
+   "alternative": "Gaia Greaves second is the small-sample alternative.",
+   "limitation": "Almost no sample in any rank.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "yurei|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Low-confidence role: the observed assassin path performs poorly in 1.16 (Bronze+ 41.6%, Silver+ 43.8%, tier D) and 1.17 Bronze+ is 50.0% over 198 games. The plan's bruiser path with Soul Weaver's damage reduction is coherent but rarely bought; nothing contradicts it.",
+   "alternative": "The observed path is Malady > Spear Of Desolation > The Perforator with Vesh.",
+   "limitation": "Low-confidence role; the plan's items have almost no sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "wukong|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan's items (Mindrazor, Augmentation, The Perforator) match observed cores. Its Thraex pair is weak in Bronze+ (41.1% over 725), but the only better loadouts come from small Platinum+ samples (Demiurge 56.2% over 290, Satariel 57.1% over 126). The skill schedule stays deliberately unavailable because of the six-rank spirit abilities.",
+   "alternative": "Masterful Mimicry with Demiurge (Tri-Core + Bloatware) led Platinum+.",
+   "limitation": "Wukong's 1.17 durability cuts and small samples; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "akeron|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Too few games to test (81 in 1.17 Bronze+; no Statz page). The tank plan is coherent with the 1.17 scaling reductions, which lower his ability damage rather than his catch.",
+   "alternative": "Small samples lean toward Megacosm magic damage.",
+   "limitation": "Almost no sample in any rank.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "bayle|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Betrayer's Reqiuem is the observed augment and Basilisk the observed second item (1.17 Bronze+ 52.0%); the plan's Knell loadout is unobserved, and the observed Thraex version is poor (42–44%). Nothing better is evidenced.",
+   "alternative": "Earthshaker opener with Thraex is the observed setup.",
+   "limitation": "Role performs below 50%; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "countess|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "Sanguine Slash + Vesh is observed (Bronze+ 48.0%, Silver+ 46.2%) and Spirit Of Amir the dominant opener (1.17 Bronze+ 244 games). Oblivion Crown performs well in 1.17 Bronze+ (56 games, 60.7%).",
+   "alternative": "Wraith Leggings and Noxia are the observed second and third items.",
+   "limitation": "No Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "shinbi|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "1.17 Bronze+ Shinbi Jungle wins 58.8% over 85 games with exactly the plan's Spirit Of Amir > Oathkeeper > Magnify path. The Allegro + Aion loadout is unobserved but coherent for repeated Rushing Beat casts.",
+   "alternative": "Crescendo with Vesh is the 1.16 observed loadout (Bronze+ 47.2%).",
+   "limitation": "Small samples; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "steel|jungle": {
+   "verdict": "checked and retained",
+   "reasoning": "No Statz role sample; the plan's Fire Blossom opener is the most-bought first item in 1.17 Bronze+ (56 of 71 games, 51.8%). A reviewed 18-level order already exists.",
+   "alternative": "Elafrost second is the small-sample alternative.",
+   "limitation": "Small samples only.",
+   "reviewed_at": "2026-09-23T15:08:58-05:00",
+   "updated_at": "2026-09-23T15:08:58-05:00"
+  },
+  "lt-belica|midlane": {
+   "verdict": "changed",
+   "reasoning": "Combat Veteran with Lotus wins 62.3% over 775 Gold+ games and 60.2% over 756 Platinum+ games (1.16), against the plan's Devastating Bombs with Vesh at 50.3% and 50.8%, on the same item core. Steady experience plus Early Bloom's extra level at 12 brings a burst mage to higher ability ranks sooner; Lotus was not changed in 1.17.",
+   "change": {
+    "augment": "Combat Veteran",
+    "eternal": "Lotus",
+    "blessings": [
+     "Early Bloom",
+     "Immaculate"
+    ]
+   },
+   "alternative": "Devastating Bombs with Vesh (The Tenth Seal + Mind Rot) remains the most-played isolated-burst setup (50.3% Gold+).",
+   "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "gadget|midlane": {
+   "verdict": "changed",
+   "reasoning": "Auto-Lock Amp leads the plan's Blast Zone in every rank (1.16 Gold+ 52.7% over 3,996 vs 46.7% over 1,681; Bronze+ 53.5% vs 49.6%; Silver+ 50.4% vs 47.9%). Players open Azure Core > Entropy > Overseer in every rank; Megacosm, the plan's opener, was unchanged in 1.17; in every rank it is bought third against health stacking, not first, and Dreambinder appears in 4 of 539 current-patch Bronze+ games. The 1.17 empowered-mine buff helps both augments.",
+   "change": {
+    "augment": "Auto-Lock Amp",
+    "core": [
+     "Azure Core",
+     "Entropy",
+     "Overseer"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Auto-Lock Amp with Aion (Bottomless Vial + Runic Focus) and a Soulbinder opener suits long-range poke (Silver+ 55.1%).",
+   "limitation": "Loadout comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "neon|midlane": {
+   "verdict": "changed",
+   "reasoning": "Ghost in the Machine is the weakest observed Neon loadout in every rank (1.16 Gold+ 43.5%, Bronze+ 41.5%, Silver+ 42.4%, Platinum+ 43.3%), 4-7 points below RAM with the same Vesh Eternal. Players open Combustion > Wraith Leggings > Amulet Of Chaos; Megacosm, the plan's opener, was unchanged in 1.17; in every rank it is bought third against health stacking, not first, and Timewarp as an opener is weak in 1.17 Bronze+ (37 games, 35.1%).",
+   "change": {
+    "augment": "RAM",
+    "core": [
+     "Combustion",
+     "Wraith Leggings",
+     "Amulet Of Chaos"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "RAM with Aion and an Oathkeeper > Timewarp opener is the other common setup (Platinum+ 50.9%).",
+   "limitation": "Neon Mid performs below 50% in most ranks; comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "the-fey|midlane": {
+   "verdict": "changed",
+   "reasoning": "Wild Growth with Aion leads the plan's Natural Infusion with Vesh in three of four ranks (1.16 Gold+ 52.6% vs 50.2%, Bronze+ 58.0% vs 48.5%, Silver+ 54.4% vs 48.3%; level in Platinum+). Every variant opens Combustion > Wraith Leggings > Megacosm, confirmed in 1.17 Bronze+ (Combustion 593 games 55.0%, Wraith Leggings 361 games 54.6%); Dreambinder second appears in 11 games.",
+   "change": {
+    "augment": "Wild Growth",
+    "eternal": "Aion",
+    "blessings": [
+     "Bottomless Vial",
+     "Runic Focus"
+    ],
+    "core": [
+     "Combustion",
+     "Wraith Leggings",
+     "Megacosm"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Wild Growth with Vesh (Tithe of Death + Mind Rot) is the most-played setup (50.5% Gold+).",
+   "limitation": "Loadout comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "countess|midlane": {
+   "verdict": "changed",
+   "reasoning": "Every variant in every rank opens Combustion > Noxia > Wraith Leggings, and 1.17 Bronze+ confirms it (Combustion 220 games, Noxia 51.0%, Wraith Leggings 63.9%). The plan's Megacosm opener appears in 6 current-patch games and World Breaker in 4. The Sanguine Slash + Vesh loadout is observed and retained.",
+   "change": {
+    "core": [
+     "Combustion",
+     "Noxia",
+     "Wraith Leggings"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "Lifebinder"
+    ]
+   },
+   "alternative": "Shadow Echo with Vesh is the most-played loadout (46.1% Gold+).",
+   "limitation": "Countess Mid performs 45-48% across ranks.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "howitzer|midlane": {
+   "verdict": "changed",
+   "reasoning": "Combat Thrusters with Vesh is the only Gold+ loadout and is retained. Its observed core is Combustion > Wraith Leggings > Noxia in every rank; the plan's Megacosm second appears in 6 of 246 current-patch Bronze+ games.",
+   "change": {
+    "core": [
+     "Combustion",
+     "Wraith Leggings",
+     "Noxia"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Noxia before Wraith Leggings when the lane is not a kill threat (1.17 Bronze+ Noxia 55.1%).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "iggy-scorch|midlane": {
+   "verdict": "changed",
+   "reasoning": "Turret Maniac with Vesh is the observed loadout and is retained. Every rank opens Orb Of Growth > Entropy > Megacosm, and 1.17 Bronze+ confirms it (Orb Of Growth 244 games 59.0%, Entropy 57.0%, Megacosm third 63.0%). Megacosm, the plan's opener, was unchanged in 1.17; in every rank it is bought third against health stacking, not first.",
+   "change": {
+    "core": [
+     "Orb Of Growth",
+     "Entropy",
+     "Megacosm"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "World Breaker"
+    ]
+   },
+   "alternative": "Hold This! with the same items (50.9% Gold+) scales Molotov damage for longer games.",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "morigesh|midlane": {
+   "verdict": "changed",
+   "reasoning": "Cursed Infestation with Vesh is the best observed Gold+ loadout (47.9% vs 44.0%) and is retained, including its 1.17 Hive and Curse buffs. The purchase order is corrected: every rank opens Combustion > Lifebinder > Megacosm, and 1.17 Bronze+ confirms it (Combustion 177 games 53.1%, Lifebinder 104 games).",
+   "change": {
+    "core": [
+     "Combustion",
+     "Lifebinder",
+     "Megacosm"
+    ],
+    "finish": [
+     "Caustica",
+     "Oblivion Crown",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Timewarp opener appears in Bronze+ (1.17: 60 games, 53.3%).",
+   "limitation": "Morigesh Mid performs 45-48% across ranks.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "renna|midlane": {
+   "verdict": "changed",
+   "reasoning": "Netherward with Vesh is the dominant, strong loadout (1.16 Gold+ 52.4% over 8,267; Bronze+ 55.6%) and is retained. Every variant opens Entropy > Wraith Leggings > Overseer; the plan's Megacosm opener is weak in 1.17 Bronze+ (40 games, 35.0%) while Overseer reaches 52.1% over 284 games.",
+   "change": {
+    "core": [
+     "Entropy",
+     "Wraith Leggings",
+     "Overseer"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Caustica",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Netherward with Lotus (53.6% Gold+) for a snowball game; Lich + Millennia is the most-played blessing pair.",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "wraith|midlane": {
+   "verdict": "changed",
+   "reasoning": "The plan combined a magical augment, an attack-mark Eternal and magic items. Observed magic Wraith is the weakest setup in every rank (1.16 Gold+ 40.2%, Bronze+ 40.2%, Silver+ 39.8%, Platinum+ 43.3%), while physical Sniper's Bounty holds up (Gold+ 48.9% over 730, Platinum+ 52.1% over 709). Alternator adds 15% damage to the Alternate shot whose kills pay out through Sniper's Bounty; Vanquisher moves later because it is weak in 1.17 Bronze+ (65 games, 35.4%).",
+   "change": {
+    "augment": "Sniper's Bounty",
+    "eternal": "Satariel",
+    "blessings": [
+     "Demonic Bargain",
+     "Rite"
+    ],
+    "crest": "Pacifier",
+    "core": [
+     "Alternator",
+     "Infernum",
+     "The Perforator"
+    ],
+    "finish": [
+     "Vanquisher",
+     "Nightfall",
+     "Mesmer"
+    ]
+   },
+   "alternative": "Sniper's Bounty with Lotus (Flawless + Prima Donna; Platinum+ 54.7% over 404) avoids Satariel's health cost; 1.17 trimmed Satariel.",
+   "limitation": "Wraith Mid performs below 50% in most ranks; 1.17 Bronze+ physical samples are small.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "argus|midlane": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan is the observed Infinite Obliteration + Vesh build (1.16 Silver+ 51.6% over 2,986, Platinum+ 53.4%) with the observed Azure Core > Entropy > Wraith Leggings core, confirmed in 1.17 Bronze+ (Azure Core 336 games, Entropy 53.5%, Wraith Leggings 54.5%). Lich was trimmed in 1.17; Tithe of Death is the stated alternative.",
+   "alternative": "Mana Catalyst with Vesh (52.7% Gold+) for mana-independent trading.",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "gideon|midlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Event Horizon with Vesh is the best large Gold+ variant (54.0% over 4,086 in 1.16) and the items match every observed core, confirmed in 1.17 Bronze+ (Azure Core 633, Combustion 445, Wraith Leggings 57.0%). The 1.17 reductions (Event Horizon 5%->4%, Void Breach, Black Hole) trim damage without changing the build logic. A reviewed 18-level order already exists.",
+   "alternative": "Infinite Impact with Vesh is the most-played setup (51.3% Gold+).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "grim-exe|midlane": {
+   "verdict": "checked and retained",
+   "reasoning": "No Statz role sample in any rank and 22 current-patch Bronze+ games; nothing tests or contradicts the plan.",
+   "alternative": "None evidenced.",
+   "limitation": "Almost no sample in any rank.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "ikra|midlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Evidence conflicts. 1.16 Statz favours The Gloom (Gold+ 51.3% vs the plan's Cascade 46.1%), but the observed Combustion > Wraith Leggings path is poor in 1.17 Bronze+ (40.6% and 40.3%), while the plan's Prophecy opener fits Cascade's attack-speed payoff (23 games, 69.6%). No change is justified on this evidence.",
+   "alternative": "The Gloom with Vesh and a Combustion > Wraith Leggings > Noxia core (1.16 Gold+ 51.3%).",
+   "limitation": "Ikra Mid performs below 50% in most ranks; conflicting and small current-patch samples.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "valmont|midlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Current 1.17 Bronze+ data supports the plan's spell path: Azure Core first wins 54.1% over 412 games and Overseer 59.3% over 209, while the attack-speed Entropy/Prophecy route trails (44.4% and 46.6%). The current source disagrees with the official launch text on Bloodbound's attack-speed buff and slow, Arterial Grip's attack-speed steal (10-30% vs 20-40%), and basic-attack scaling (total vs bonus physical power); its Exsanguinate healing and Sanguine Banquet match the official numbers in different wording. The plan does not use attack speed, basic-attack scaling or Lilith item procs, so those conflicts do not affect it. The caution is updated because a current-patch sample now exists.",
+   "alternative": "Magnify fourth (1.17 Bronze+ 54.9%) against magic-armour stacking.",
+   "limitation": "Valmont Mid performs 45.5% over 433 1.17 Bronze+ games; no Gold+ sample. Bloodbound, Arterial Grip and basic-attack scaling remain disputed between the official launch text and the current source; the plan does not depend on them.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "maco|midlane": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role: 6 current-patch Bronze+ games and no Statz page in any rank. The loadout is valid but role strength cannot be established.",
+   "alternative": "Maco Support is the established role.",
+   "limitation": "Experimental role with no usable sample; kept out of automatic suggestions.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "scarlett|midlane": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role: 6 current-patch Bronze+ games and no Statz page in any rank. The loadout is valid but role strength cannot be established.",
+   "alternative": "Scarlett Jungle or Offlane are the observed roles.",
+   "limitation": "Experimental role with no usable sample; kept out of automatic suggestions.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "legion|midlane": {
+   "verdict": "unresolved",
+   "reasoning": "New role in the current data with no authored plan: 471 Bronze+ games in 1.16 (Scorched Earth + Vesh, 49.7%), 53 current-patch Bronze+ games, and no Gold+ sample. No plan is invented on that evidence; the labelled most-played observed variant is the fallback.",
+   "alternative": "Observed: Malady > Deathstalker > Spear Of Desolation with Vesh (Bronze+ only).",
+   "limitation": "No plan authored; Bronze+-only evidence.",
+   "reviewed_at": "2026-09-23T15:14:06-05:00",
+   "updated_at": "2026-09-23T15:14:06-05:00"
+  },
+  "adele|offlane": {
+   "verdict": "changed",
+   "reasoning": "The plan opened with the tank template Fire Blossom > Dynamo > Flux Matrix, but Dynamo appears in 1 of 123 current-patch Bronze+ games and Flux Matrix in none. Every rank opens Fist Of Razuul > Elafrost > Earthshaker (1.16), and 1.17 Bronze+ confirms Fist Of Razuul first (60 games, 56.7%). Fist turns Adele's health into periodic damage that suits Tyrant of Thorns' amplified Crown of Thorns. The Knell loadout is unobserved but unrefuted and is retained.",
+   "change": {
+    "core": [
+     "Fist Of Razuul",
+     "Elafrost",
+     "Earthshaker"
+    ],
+    "finish": [
+     "Fire Blossom",
+     "Unbroken Will",
+     "Stonewall"
+    ]
+   },
+   "alternative": "Tyrant of Thorns with Krix (Festering Wounds + Cannibalism) is the observed loadout (48.9% Gold+).",
+   "limitation": "Adele Offlane performs 44-49% across ranks.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "akeron|offlane": {
+   "verdict": "changed",
+   "reasoning": "The plan's tank items match the observed Nihil tank builds, which lead in Gold+ (52.9% over 935) and Platinum+ (54.1% over 848), while Krix appears only with magic items (48.1% Gold+). 1.17 lowered Akeron's magical-power scaling on every ability and raised Crushing Maw's bonus-health scaling, which favours tank Akeron.",
+   "change": {
+    "eternal": "Nihil",
+    "blessings": [
+     "Mana Siphon",
+     "Adaptive Plating"
+    ]
+   },
+   "alternative": "Death From Above with Xyris and a Magnify-led magic core (52.3% Gold+) before the 1.17 magical-power reductions.",
+   "limitation": "Gold+ loadout evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "aurora|offlane": {
+   "verdict": "changed",
+   "reasoning": "Glacial Thorns leads the plan's Hypothermia in Gold+ (51.5% vs 45.8%) and Silver+ (53.3% vs 51.5%). Every rank opens Magnify > Elafrost > Flux Matrix; the plan's Fire Blossom opener appears in 17 current-patch games. Festering Wounds turns Aurora's roots into anti-heal, and the crystal root adds another immobilize for Glacial Thorns.",
+   "change": {
+    "augment": "Glacial Thorns",
+    "eternal": "Krix",
+    "blessings": [
+     "Festering Wounds",
+     "Feeding Frenzy"
+    ],
+    "core": [
+     "Magnify",
+     "Elafrost",
+     "Flux Matrix"
+    ],
+    "finish": [
+     "World Breaker",
+     "Frostguard",
+     "Stonewall"
+    ]
+   },
+   "alternative": "Hypothermia with Krix is the most-played setup (Silver+ 51.5%) for an armour-shred, anti-attack-speed lane.",
+   "limitation": "Loadout comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "countess|offlane": {
+   "verdict": "changed",
+   "reasoning": "Every variant in every rank opens Orb Of Growth > Noxia > Lifebinder, and 1.17 Bronze+ confirms it (Orb Of Growth 83 games 57.8%, Noxia 57.0%, Lifebinder 61.5%). The plan's Megacosm opener appears in 15 current-patch games. The Sanguine Slash + Vesh loadout is observed and retained.",
+   "change": {
+    "core": [
+     "Orb Of Growth",
+     "Noxia",
+     "Lifebinder"
+    ],
+    "finish": [
+     "Overseer",
+     "Oblivion Crown",
+     "Caustica"
+    ]
+   },
+   "alternative": "Shadow Echo with Vesh (50.9% Gold+) repeats the swap damage.",
+   "limitation": "Countess Offlane performs 45-50% across ranks.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "greystone|offlane": {
+   "verdict": "changed",
+   "reasoning": "Close Cut with Krix beats Close Cut with Thraex in every rank (1.16 Gold+ 55.8% over 2,669 vs 51.8%; Bronze+ 56.0% vs 54.8%; Silver+ 57.3% vs 54.1%; Platinum+ 53.7% vs 47.7%). Krix's health scaling feeds Greystone's sustained front line. Augmentation stays second because it is strong in 1.17 Bronze+ (247 games, 59.5%), with Aegis Of Agawar third (194 games, 57.7%). Regenerative Tissue replaces the commonly paired Voracity: the published and current source definitions of Voracity describe different effects (healing from hero damage versus a max-health heal and gold on unit kills), so this plan does not rely on it.",
+   "change": {
+    "eternal": "Krix",
+    "blessings": [
+     "Regenerative Tissue",
+     "Cannibalism"
+    ],
+    "core": [
+     "Overlord",
+     "Augmentation",
+     "Aegis Of Agawar"
+    ],
+    "finish": [
+     "Basilisk",
+     "Void Helm",
+     "Giant's Ring"
+    ]
+   },
+   "alternative": "Tainted Oath with Krix (54.1% Gold+) blights a whole team; Imperial Soul with Krix led Platinum+ (57.2%).",
+   "limitation": "Loadout comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "sevarog|offlane": {
+   "verdict": "changed",
+   "reasoning": "Grim Harvest with Krix is retained. Unholy Pursuit led it in three ranks in 1.16 (Gold+ 51.4% vs 45.0%), but its soul reward differs between the published (3 souls) and current (2 souls) source definitions with no official note, so the lead may not survive and the switch is not made. The item order is corrected: Fist Of Razuul first, because the Fire Blossom opener is weak in 1.17 Bronze+ (149 games, 44.3%) while Fist reaches 58.1% over 74; Tainted Guard is the observed third item in every rank.",
+   "change": {
+    "core": [
+     "Fist Of Razuul",
+     "Fire Blossom",
+     "Tainted Guard"
+    ],
+    "finish": [
+     "Gaia Greaves",
+     "Void Helm",
+     "Stonewall"
+    ]
+   },
+   "alternative": "Unholy Pursuit (1.16 Gold+ 51.4%) once its soul reward is confirmed; the current source says 2 souls, the published definition 3.",
+   "limitation": "Sevarog Offlane performs 45-49% across ranks.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "scarlett|offlane": {
+   "verdict": "changed",
+   "reasoning": "The plan's Scarlet Dawn has no recorded games (0 of 7,007 Gold+); every variant runs Volcaic Slam. The observed Alternator > Earthshaker > The Perforator path leads current-patch Bronze+ (Alternator 365 games, 52.1%), while the plan's Augmentation appears in 9 games. Vesh is the most-played Eternal with this path (Gold+ 2,233 games).",
+   "change": {
+    "augment": "Volcaic Slam",
+    "eternal": "Vesh",
+    "blessings": [
+     "Lich",
+     "Mind Rot"
+    ],
+    "crest": "Judgement",
+    "core": [
+     "Alternator",
+     "Earthshaker",
+     "The Perforator"
+    ],
+    "finish": [
+     "Salvation",
+     "Nightfall",
+     "Legacy"
+    ]
+   },
+   "alternative": "Volcaic Slam with Marrow and a Mutilator > Tainted Blade > Terminus core (Silver+ 51.8%) for longer trades.",
+   "limitation": "Scarlett Offlane performs about 49% in every rank; Ashen Vow base-damage fields remain disputed and are not used.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "iggy-scorch|offlane": {
+   "verdict": "changed",
+   "reasoning": "Turret Maniac with Vesh is observed and strong (1.16 Gold+ 53.3%, Bronze+ 57.8%) and is retained. Every rank opens Orb Of Growth > Entropy > Megacosm, confirmed in 1.17 Bronze+ (Orb Of Growth 115 games, 60.0%).",
+   "change": {
+    "core": [
+     "Orb Of Growth",
+     "Entropy",
+     "Megacosm"
+    ],
+    "finish": [
+     "Dreambinder",
+     "Oblivion Crown",
+     "Caustica"
+    ]
+   },
+   "alternative": "Tainted Scepter second against healing (1.17 Bronze+ 62.9%).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "steel|offlane": {
+   "verdict": "changed",
+   "reasoning": "Heavy Metal with Krix is the observed loadout and is retained. Every variant's second item is Tainted Guard (1.17 Bronze+ 164 games, 53.7%), not Dynamo (8 games, 37.5%); Fire Blossom > Tainted Guard > Flux Matrix is the core in every rank.",
+   "change": {
+    "core": [
+     "Fire Blossom",
+     "Tainted Guard",
+     "Flux Matrix"
+    ],
+    "finish": [
+     "Unbroken Will",
+     "Fist Of Razuul",
+     "Stonewall"
+    ]
+   },
+   "alternative": "Heavy Metal with Idrisil (Mending + Icy Touch) for a physical lane (49.8% Gold+).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "terra|offlane": {
+   "verdict": "changed",
+   "reasoning": "Iron Resolve with Idrisil is the observed loadout and is retained. The unbought Dynamo is replaced by Tainted Guard, the second item in every rank. The role performs poorly in current 1.17 Bronze+ (38.5% over 148 games) across all item paths.",
+   "change": {
+    "core": [
+     "Elafrost",
+     "Tainted Guard",
+     "Fire Blossom"
+    ],
+    "finish": [
+     "Unbroken Will",
+     "Flux Matrix",
+     "Giant's Ring"
+    ]
+   },
+   "alternative": "Transference third is the observed alternative (1.16 Gold+ core).",
+   "limitation": "Terra Offlane performs 38.5% in 1.17 Bronze+ and 44-50% in 1.16.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "zarus|offlane": {
+   "verdict": "changed",
+   "reasoning": "The observed offlane path is Augmentation > Mutilator > Basilisk in every rank, and 1.17 Bronze+ confirms Augmentation first (125 games, 52.8%) and Mutilator (55.4%) over Berserker's Axe (8 games, 37.5%). Flow State is unobserved offlane but unrefuted and is retained: Master Of Spears is the common offlane augment (1.16 Gold+ 49.9%), but its cooldown penalty differs between the published (40%) and current (50%) source definitions with no official note, and its observed lead is small.",
+   "change": {
+    "core": [
+     "Augmentation",
+     "Mutilator",
+     "Basilisk"
+    ],
+    "finish": [
+     "Salvation",
+     "Citadel",
+     "Legacy"
+    ]
+   },
+   "alternative": "Master Of Spears (1.16 Gold+ 49.9%) once its thrown-spear cooldown penalty is confirmed; The Ascended with Thraex for a scaling lane.",
+   "limitation": "Zarus Offlane performs about 49% in every rank.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "bayle|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Bayle Offlane performs 43-50% in every rank with every observed loadout; none is clearly better than the plan. The plan is coherent and nothing contradicts it.",
+   "alternative": "Frenzied Fighter with Marrow and a Tainted Blade > Rapture > Cursed Scroll core (Silver+ 49.7%).",
+   "limitation": "Weak role; the plan's Berserker's Axe and Augmentation are rarely bought.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "crunch|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Combo Crunch with Thraex is the observed loadout (Gold+ 48.1%), and alternatives differ by under four points (Pilow 48.3% Gold+, 51.1% Platinum+). The plan keeps the observed Augmentation, Mutilator and Salvation.",
+   "alternative": "Mutilator first is stronger than Augmentation first in 1.17 Bronze+ (49.1% vs 41.4%); Pilow with Volcanica > Vyzar Carapace is the other observed setup.",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "grux|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Lust For Blood with Thraex is the most-played loadout in every rank (Gold+ 50.3% over 4,273; Bronze+ 52.4%; Silver+ 52.0%). Red Mist leads only in Gold+ (56.1%) and not elsewhere. Sky Splitter first is confirmed in 1.17 Bronze+ (551 games).",
+   "alternative": "Red Mist with Thraex and a Basilisk > Rapture > Draconum core (56.1% Gold+).",
+   "limitation": "Basilisk and Rapture are both weak in 1.17 Bronze+.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "khaimera|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Lane Lurker with Thraex is the only observed loadout (Silver+ 51.1%) and the plan follows its Overlord > Basilisk core.",
+   "alternative": "Rapture third is the observed alternative.",
+   "limitation": "Silver+ only; small current-patch sample.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "kwang|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Magnify > Oathkeeper matches every observed variant. Nihil is unobserved, but the observed Vesh setup is not better (47.9-49.4%), so nothing refutes the plan.",
+   "alternative": "Slayer of the Heavens with Vesh (Lich + Mind Rot) and Golem's Gift is the observed setup.",
+   "limitation": "Kwang Offlane performs below 50% in every rank; Magnify is weak in 1.17 Bronze+ (44.2%).",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "riktor|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan's Fire Blossom opener is the most-bought first item in 1.17 Bronze+ (59 games, 55.9%). Only Platinum+ has a Statz sample (Zap O' 9-Chains, 51.6%).",
+   "alternative": "Zap O' 9-Chains with a magic core (Platinum+).",
+   "limitation": "Small samples; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "serath|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Only Bronze+ has a Statz sample (Wrath Unleashed with Thraex, 42.4%, tier D) and 57 current-patch games; the plan's Sky Splitter and Storm Breaker lead that small sample. The jungle Weald evidence does not transfer to a lane without data.",
+   "alternative": "None evidenced.",
+   "limitation": "Weak, Bronze+-only evidence.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "shinbi|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan's Allegro with Aion is the best observed loadout in every rank (1.16 Gold+ 53.3%, Bronze+ 52.2%, Silver+ 53.0%, Platinum+ 54.5%), and its Orb Of Growth opener is confirmed in 1.17 Bronze+ (275 games).",
+   "alternative": "Tainted Scepter second against healing.",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "yin|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Storm of Salvation with Weald is the observed Gold+ loadout (54.1% over 773) and Sky Splitter leads 1.17 Bronze+ (63.6%).",
+   "alternative": "Tainted Rounds second against healing (1.17 Bronze+ 68.2%).",
+   "limitation": "Weald blessings were reduced in 1.17; Gold+ only.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "zinx|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "1.16 players use Terminal Treatment with a Prophecy > Orion > Spectra path, but those items do poorly in 1.17 Bronze+ (Orion 44.4%, Spectra 41.2%), and 1.17 buffed the plan's Disc Of Demise ricochet refund and Zinx's attack speed and Infuse healing. The plan's Prophecy opener matches the observed first item.",
+   "alternative": "Terminal Treatment with Thraex and Prophecy > Orion > Spectra (1.16 Gold+ 53.0%).",
+   "limitation": "Small current-patch sample (52 games).",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "feng-mao|offlane": {
+   "verdict": "checked and retained",
+   "reasoning": "Only Bronze+ has evidence and it is poor (Statz 39.6%, tier D; 53 current-patch games, where Omen does badly at 20.0%), so the jungle item change does not transfer. The plan is retained with a clear limitation.",
+   "alternative": "None evidenced.",
+   "limitation": "Weak, Bronze+-only evidence.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "wukong|offlane": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role: 20 current-patch Bronze+ games and no Statz page; 1.17 deliberately reduced Wukong's offlane value (Windsurge damage, base durability, clone gold). Role strength cannot be established.",
+   "alternative": "Wukong Jungle is the established role.",
+   "limitation": "Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.",
+   "reviewed_at": "2026-09-23T15:16:50-05:00",
+   "updated_at": "2026-09-23T15:16:50-05:00"
+  },
+  "skylar|carry": {
+   "verdict": "changed",
+   "reasoning": "Assault MK-II with Satariel beats the plan's Weald version in every rank (1.16 Gold+ 58.5% over 3,046 vs 51.8% over 2,845; Bronze+ 59.1% vs 54.6%; Silver+ 58.6% vs 52.5%; Platinum+ 53.9% vs 51.3%), on the same Plasma Blade > Vanquisher > Imperator core. 1.17 trimmed Satariel's per-stack stats (5% to 4%) and moved Demonic Bargain's second payment to level 10; that is small beside a four-to-seven-point lead. Broken Wings is the observed partner blessing.",
+   "change": {
+    "eternal": "Satariel",
+    "blessings": [
+     "Demonic Bargain",
+     "Broken Wings"
+    ]
+   },
+   "alternative": "Weald (Forage + Wind-Rider) avoids Satariel's health cost and death penalty (1.16 Gold+ 51.8%); Weald was reduced in 1.17 too.",
+   "limitation": "Loadout comparison is from 1.16 Statz; Satariel was trimmed in 1.17.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "legion|carry": {
+   "verdict": "changed",
+   "reasoning": "Scorched Earth beats the plan's Press the Advantage in all four ranks with the same Thraex loadout and items (1.16 Gold+ 54.6% over 1,441 vs 50.6% over 1,780; Bronze+ 53.7% vs 50.0%; Silver+ 52.0% vs 49.5%; Platinum+ 52.6% vs 44.8%). Napalm zones add area damage to the mines and ultimate without depending on takedowns to spawn a rally point.",
+   "change": {
+    "augment": "Scorched Earth"
+   },
+   "alternative": "Press the Advantage with Weald (Vanquisher > The Perforator path, 51.0% Gold+) for a snowball game.",
+   "limitation": "Rallying Roar gained a 20-second cooldown in 1.17; loadout comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "eden|carry": {
+   "verdict": "changed",
+   "reasoning": "The plan's Thraex is unobserved; Focal Lens with Lotus leads the observed loadouts (1.16 Gold+ 56.2% over 1,209, Silver+ 53.7%, Platinum+ 54.4% and 60.7%) while Weald sits near 50-52% and Vermis near 42-47%. Its core is Solaris > Vanquisher > Nuclear Rounds; Vanquisher moves first because it leads 1.17 Bronze+ openers (190 games, 54.2%) while a Solaris opener is weak there (44.6%). Legacy was never bought.",
+   "change": {
+    "eternal": "Lotus",
+    "blessings": [
+     "Masterpiece",
+     "Immaculate"
+    ],
+    "core": [
+     "Vanquisher",
+     "Solaris",
+     "Nuclear Rounds"
+    ],
+    "finish": [
+     "Imperator",
+     "Terminus",
+     "Mesmer"
+    ]
+   },
+   "alternative": "Focal Lens with Weald and a Terminus > Scattershot path (1.16 Gold+ 51.9%; Scattershot 64.2% in 1.17 Bronze+).",
+   "limitation": "Loadout comparison is from 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "kira|carry": {
+   "verdict": "changed",
+   "reasoning": "Every variant in every rank opens Solaris > Ashbringer > Imperator; the plan's Storm Breaker opener appears in 12 of 528 current-patch Bronze+ games. Solaris empowers the attack after each cast and Ashbringer's critical strikes cut non-ultimate cooldowns, which matches Bringer Of Mercy's cooldown reduction on Mercy damage. The loadout is observed and retained; 1.17 buffs Mercy damage and Dusk's mana refund.",
+   "change": {
+    "core": [
+     "Solaris",
+     "Ashbringer",
+     "Imperator"
+    ],
+    "finish": [
+     "Terminus",
+     "Demolisher",
+     "Mesmer"
+    ]
+   },
+   "alternative": "Siphoning Purge with Weald (1.16 Gold+ 49.5%, Silver+ 53.5%) adds healing; Lotus led a smaller Platinum+ sample (53.9%).",
+   "limitation": "Kira Carry performs 47-49% across ranks.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "twinblast|carry": {
+   "verdict": "changed",
+   "reasoning": "Every observed TwinBlast variant opens Solaris (1.17 Bronze+ 841 games); the plan's Mindrazor opener appears in 4 games. Vanquisher is the strongest common second item in 1.17 Bronze+ (226 games, 53.1%) and Imperator is weak there (43.3%). The Thraex loadout is unobserved but unrefuted and is retained; 1.17 widened his basic-attack hitbox.",
+   "change": {
+    "core": [
+     "Solaris",
+     "Vanquisher",
+     "Tainted Rounds"
+    ],
+    "finish": [
+     "Demolisher",
+     "Terminus",
+     "Mesmer"
+    ]
+   },
+   "alternative": "Amplified Burst with Weald (Forage + Wind-Rider) is the observed loadout (1.16 Gold+ 50.2%, Bronze+ 53.5%).",
+   "limitation": "TwinBlast Carry performs 46-51% across ranks; no sample for Thraex.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "grim-exe|carry": {
+   "verdict": "changed",
+   "reasoning": "The plan's System Restore with Satariel is observed and strong (1.16 Platinum+ 60.8% over 452 and 55.6% over 266), and every Satariel variant is at or above 53% in Gold+ and Silver+, while Vermis sits at 43-47% and Weald is unobserved. Every variant opens Lightning Hawk > Plasma Blade > Imperator, confirmed in 1.17 Bronze+ (Lightning Hawk 221 games, Plasma Blade 59.2%, Imperator 64.1%); the plan's Storm Breaker opener appears in 3 games.",
+   "change": {
+    "eternal": "Satariel",
+    "blessings": [
+     "Demonic Bargain",
+     "Psychosis"
+    ],
+    "core": [
+     "Lightning Hawk",
+     "Plasma Blade",
+     "Imperator"
+    ],
+    "finish": [
+     "Terminus",
+     "Caustica",
+     "Mesmer"
+    ]
+   },
+   "alternative": "Instant Reload with Satariel (1.16 Gold+ 53.6%, Silver+ 53.9%) for execute resets.",
+   "limitation": "Small Gold+ sample (632 games); Satariel was trimmed in 1.17.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "drongo|carry": {
+   "verdict": "checked and retained",
+   "reasoning": "Bring The Boom with Weald is the most-played loadout (1.16 Gold+ 50.9% over 4,823; Silver+ 52.1%) and the items match every observed core, confirmed in 1.17 Bronze+ (Lightning Hawk 709 games, Vanquisher 53.7%, Demolisher 57.3%). Shred Spree leads by about three points in Gold+ and two in Platinum+, not enough to overturn it.",
+   "alternative": "Shred Spree with Weald (1.16 Gold+ 54.0% over 2,001).",
+   "limitation": "Weald blessings were reduced in 1.17.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "revenant|carry": {
+   "verdict": "checked and retained",
+   "reasoning": "The items match every observed core (Vanquisher > Imperator > Terminus), and 1.17 Bronze+ confirms them (Vanquisher 486 games 54.3%, Imperator 55.2%, Terminus 55.6%, Demolisher 64.5%). Thraex is unobserved, but the observed Satariel setup is not better (49-52%), so nothing refutes it.",
+   "alternative": "Hellfire Blast with Satariel (Demonic Bargain + Psychosis), the most-played setup.",
+   "limitation": "No sample for the Thraex loadout.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "murdock|carry": {
+   "verdict": "checked and retained",
+   "reasoning": "Justice's Reach with Thraex is observed and level with the best Gold+ variant (49.8%). The observed Lightning Hawk > Vanquisher path is weak in 1.17 Bronze+ (46.5% and 46.8%), while the plan's Storm Breaker does well in a small sample (33 games, 57.6%). 1.17 buffed Murdock's passive, Buckshot and ultimate.",
+   "alternative": "Lightning Hawk > Vanquisher > Imperator is the 1.16 observed core.",
+   "limitation": "Murdock Carry performs 44-48% in 1.16.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "sparrow|carry": {
+   "verdict": "checked and retained",
+   "reasoning": "Sun Shards with Weald is the dominant loadout (1.16 Gold+ 52.0% over 6,858; Bronze+ 56.1%; Silver+ 54.0%) and the plan follows its Storm Breaker > Sky Splitter core, confirmed in 1.17 Bronze+ (412 and 347 games).",
+   "alternative": "Endless Hunt with a Lightning Hawk > Vanquisher path (1.16 Gold+ 53.2%).",
+   "limitation": "Weald blessings were reduced in 1.17.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "wraith|carry": {
+   "verdict": "checked and retained",
+   "reasoning": "Evidence is thin (Bronze+ 673 games at 43.5%, Platinum+ 394 games at 51.5%). The plan's Vanquisher is supported in 1.17 Bronze+ (59 games, 54.2%); nothing better is established.",
+   "alternative": "Sniper's Bounty with an Alternator opener (1.17 Bronze+ 116 games).",
+   "limitation": "Thin evidence; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "the-fey|carry": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role: 5 current-patch Bronze+ games and no Statz page in any rank. Role strength cannot be established.",
+   "alternative": "The Fey Midlane is the established role.",
+   "limitation": "Experimental role; kept out of automatic suggestions.",
+   "reviewed_at": "2026-09-23T15:18:19-05:00",
+   "updated_at": "2026-09-23T15:18:19-05:00"
+  },
+  "adele|support": {
+   "verdict": "changed",
+   "reasoning": "Seeds of Dominion leads the plan's Court of Roses in every rank (1.16 Gold+ 48.8% vs 46.6%; Bronze+ 56.3% vs 49.6%; Silver+ 51.6% vs 47.4%; Platinum+ 50.9% vs 44.6%), and Knell is unobserved on support. The Seeds path with Krix opens Dawnstar > Xenia (1.17 Bronze+ Dawnstar 51.2%, Xenia 53.6%); Frosted Lure is weak in 1.17 (22 games, 27.3%). Dawnstar's damage reduction and Xenia's ally shields turn Adele's lane presence into protection.",
+   "change": {
+    "augment": "Seeds of Dominion",
+    "eternal": "Krix",
+    "blessings": [
+     "Regenerative Tissue",
+     "Cannibalism"
+    ],
+    "core": [
+     "Dawnstar",
+     "Xenia",
+     "Dynamo"
+    ],
+    "finish": [
+     "Raiment of Renewal",
+     "Vanguardian",
+     "Tainted Charm"
+    ]
+   },
+   "alternative": "Seeds of Dominion with Pilow (Bioluminescence + Neurotoxin) and Dynamo > Frosted Lure > Xenia (1.16 Gold+ 51.5%, Platinum+ 55.1%).",
+   "limitation": "Adele Support performs 47-52% across ranks.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "argus|support": {
+   "verdict": "changed",
+   "reasoning": "Every observed Argus support variant opens Timewarp > Tainted Scepter > Dynamo, and 1.17 Bronze+ confirms Timewarp first (143 games). The plan's Galaxy Greaves second appears in 21 current-patch games and Enra's Blessing in 2. The Infinite Obliteration + Lotus loadout is retained: the observed Vesh setups are not better (45-48%).",
+   "change": {
+    "core": [
+     "Timewarp",
+     "Tainted Scepter",
+     "Dynamo"
+    ],
+    "finish": [
+     "Galaxy Greaves",
+     "Tainted Totem",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Mana Catalyst with Vesh (Tithe of Death + Phylactery) is the other observed setup.",
+   "limitation": "Argus Support performs 45-48% across ranks; no sample for the Lotus loadout.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "aurora|support": {
+   "verdict": "changed",
+   "reasoning": "Glacial Thorns with Krix is the only observed support loadout (1.16 Gold+ 49.2%, Silver+ 50.6%); the plan's Hypothermia has no games. Its core is Dynamo > Gaia Greaves > Flux Matrix, confirmed in 1.17 Bronze+ (Dynamo 44 games 52.3%, Gaia Greaves 66.7%); the plan's Frosted Lure and Galaxy Greaves appear in 3 and 5 games. Dynamo amplifies damage after Aurora's roots and stun.",
+   "change": {
+    "augment": "Glacial Thorns",
+    "eternal": "Krix",
+    "blessings": [
+     "Regenerative Tissue",
+     "Cannibalism"
+    ],
+    "core": [
+     "Dynamo",
+     "Gaia Greaves",
+     "Flux Matrix"
+    ],
+    "finish": [
+     "Tainted Charm",
+     "Vanguardian",
+     "Unbroken Will"
+    ]
+   },
+   "alternative": "Hypothermia remains an armour-shred option without a sample.",
+   "limitation": "Aurora Support performs 49-51%; small current-patch sample.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "dekker|support": {
+   "verdict": "changed",
+   "reasoning": "The plan's Photon Efficiency with Lotus is the best observed loadout (1.16 Gold+ 54.2% over 924, Platinum+ 52.8%) and is retained. Every variant in every rank opens Crescelia > Timewarp > Dynamo, confirmed in 1.17 Bronze+ (Crescelia 746 games, Timewarp 394, Dynamo 53.9%); the plan's Enra's Blessing is weak there (76 games, 35.5%).",
+   "change": {
+    "core": [
+     "Crescelia",
+     "Timewarp",
+     "Dynamo"
+    ],
+    "finish": [
+     "Tainted Scepter",
+     "Vanguardian",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Photon Efficiency with Vesh is the most-played setup (47.9% Gold+).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "gadget|support": {
+   "verdict": "changed",
+   "reasoning": "Gadget support is played as long-range poke: the only observed loadout is Auto-Lock Amp with Vesh and a Soulbinder > Entropy > Megacosm core in every rank (1.16 Gold+ 51.3%, Silver+ 50.1%, Platinum+ 51.5%), and Soulbinder leads 1.17 Bronze+ openers (78 games, 55.1%). The plan's Crescelia opener appears in 1 current-patch game and a Timewarp opener is weak (62 games, 35.5%).",
+   "change": {
+    "augment": "Auto-Lock Amp",
+    "eternal": "Vesh",
+    "blessings": [
+     "Lich",
+     "Mind Rot"
+    ],
+    "crest": "Tranquility",
+    "core": [
+     "Soulbinder",
+     "Entropy",
+     "Megacosm"
+    ],
+    "finish": [
+     "Oblivion Crown",
+     "Dreambinder",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Gadget Midlane uses the same Auto-Lock Amp loadout with an Azure Core opener.",
+   "limitation": "Small Gold+ sample (637 games).",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "lt-belica|support": {
+   "verdict": "changed",
+   "reasoning": "Devastating Bombs is unobserved on support; Combat Veteran is the observed support augment in every rank (1.16 Bronze+ 51.9%, Silver+ 50.1%), and with Lotus it led Platinum+ (56.8% over 289). Its core is Crescelia > Tainted Scepter > Dynamo, confirmed in 1.17 Bronze+ (Crescelia 208 games, Tainted Scepter 55.3%). The Lotus loadout with Flawless + Immaculate is retained.",
+   "change": {
+    "augment": "Combat Veteran",
+    "core": [
+     "Crescelia",
+     "Tainted Scepter",
+     "Dynamo"
+    ],
+    "finish": [
+     "Timewarp",
+     "Tainted Totem",
+     "Spellbreaker"
+    ]
+   },
+   "alternative": "Combat Veteran with Vesh (Tithe of Death + Mind Rot) is the most-played setup (1.16 Gold+ 48.0%).",
+   "limitation": "Lt. Belica Support performs 47-50% in most ranks.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "maco|support": {
+   "verdict": "changed",
+   "reasoning": "The plan's Shatterbloom with Exarch is observed and the better of the two main loadouts in Gold+ (47.1% vs 43.1%) and is retained. Every variant opens Crescelia, the strongest 1.17 Bronze+ opener (126 games, 57.1%), with Timewarp the best second item (45 games, 62.2%); the plan's Crystal Tear and Lunaria appear in 11 and 12 games.",
+   "change": {
+    "core": [
+     "Crescelia",
+     "Timewarp",
+     "Windcaller"
+    ],
+    "finish": [
+     "Everbloom",
+     "Tainted Totem",
+     "Vanguardian"
+    ]
+   },
+   "alternative": "Enra's Blessing second is the 1.16 observed path, but it is weak in 1.17 Bronze+ (50 games, 38.0%).",
+   "limitation": "Maco Support performs about 45% in Gold+, Bronze+ and Silver+.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "mourn|support": {
+   "verdict": "changed",
+   "reasoning": "The plan's Nightstalker with Knell is the best observed loadout (1.16 Gold+ 57.4% over 1,261; Silver+ 57.6%) and is retained. Every variant opens Hexbound Bracers, which leads 1.17 Bronze+ openers (229 games, 52.4%) despite its 1.17 heal-power trim; the plan's Dynamo opener is weak there (97 games, 44.3%) and Crystal Tear appears in 4 games. Astral Catalyst is the Knell variant's third item (1.17 Bronze+ 57.1%).",
+   "change": {
+    "core": [
+     "Hexbound Bracers",
+     "Dynamo",
+     "Astral Catalyst"
+    ],
+    "finish": [
+     "Tainted Totem",
+     "Devotion",
+     "Unbroken Will"
+    ]
+   },
+   "alternative": "Nightstalker with Exarch and Hexbound Bracers > Dynamo > Enra's Blessing is the most-played setup (52.2% Gold+).",
+   "limitation": "Hexbound Bracers heal and shield power was reduced in 1.17.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "narbash|support": {
+   "verdict": "changed",
+   "reasoning": "The plan's Percussive Tear with Exarch is the dominant loadout (1.16 Gold+ 53.5% over 3,268) and is retained. Every variant opens Truesilver Bracelet > Crystal Tear > Dynamo, confirmed in 1.17 Bronze+ (Truesilver 441 games, Crystal Tear 54.5%, Dynamo 60.9%); the plan's Hexbound Bracers opener appears in 23 games.",
+   "change": {
+    "core": [
+     "Truesilver Bracelet",
+     "Crystal Tear",
+     "Dynamo"
+    ],
+    "finish": [
+     "Everbloom",
+     "Windcaller",
+     "Devotion"
+    ]
+   },
+   "alternative": "Thonk with Exarch (1.16 Gold+ 55.2%) refunds cooldown on pickup.",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "phase|support": {
+   "verdict": "changed",
+   "reasoning": "Psychic Support with Exarch is observed and level with Kindred Surge (1.16 Gold+ 52.6% vs 53.2%; Silver+ 53.5% vs 52.4%) and is retained. Every variant opens Marshal > Enra's Blessing > Galaxy Greaves, confirmed in 1.17 Bronze+ (Marshal 473 games, Enra's Blessing 197, Galaxy Greaves 52.8%); the plan's Crystal Tear opener appears in 19 games at 42.1%. Official 1.17 lowered Essence Catalyst healing (12-80 to 10-61) and Hyperflux attack speed (40/60/80% to 35/55/75%); the current source matches those values. The source also says the passive can stack and that Hyperflux grants 35% rather than 135% movement speed, and gives Psychic Support 12% rather than 10% missing mana; the official notes do not mention these. The plan does not rely on stacking, the movement-speed value or the mana percentage.",
+   "change": {
+    "core": [
+     "Marshal",
+     "Enra's Blessing",
+     "Galaxy Greaves"
+    ],
+    "finish": [
+     "Windcaller",
+     "Devotion",
+     "Tainted Totem"
+    ]
+   },
+   "alternative": "Kindred Surge (Hyperflux movement speed and regeneration) is the most-played loadout (53.2% Gold+).",
+   "limitation": "Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage are disputed between the current source and the official notes; the plan does not depend on them.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "zinx|support": {
+   "verdict": "changed",
+   "reasoning": "The plan's Heal Matrix with Exarch is observed (1.16 Gold+ 48.9%, Silver+ 47.5%) and is retained; Disc Of Demise is similar. Every enchanter variant opens Marshal > Lunaria > Dynamo, and Marshal leads 1.17 Bronze+ enchanter openers (206 games, 52.4%); the plan's Crystal Tear opener appears in 10 games at 30.0%.",
+   "change": {
+    "core": [
+     "Marshal",
+     "Lunaria",
+     "Windcaller"
+    ],
+    "finish": [
+     "Everbloom",
+     "Tainted Totem",
+     "Devotion"
+    ]
+   },
+   "alternative": "Disc Of Demise with Exarch (1.16 Gold+ 50.9%), buffed in 1.17.",
+   "limitation": "Zinx Support performs 46-49% across ranks.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "muriel|support": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan is the dominant build: Sacrosanct with Exarch and Marshal > Crystal Tear > Windcaller (1.16 Gold+ 55.8% over 2,457), confirmed in 1.17 Bronze+ (Marshal 201 games, Crystal Tear 54.1%, Windcaller 56.1%). The 1.17 reductions to Sentinel, Alacrity and the ultimate lower her numbers without changing the build. The skill schedule stays unavailable because official 1.17 headings conflict with the source button mapping.",
+   "alternative": "Circuit Reset with Exarch (Platinum+ 58.8%).",
+   "limitation": "Muriel button mapping remains unconfirmed; no 18-level schedule is endorsed.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "riktor|support": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan is the dominant build: Wanton Warden with Krix and Dynamo > Xenia > Frosted Lure (1.16 Gold+ 48.2% over 6,616), confirmed in 1.17 Bronze+ (Dynamo 429 games, Xenia 53.2%, Frosted Lure 54.1%).",
+   "alternative": "Zap O' 9-Chains with Krix (Silver+ 52.0%).",
+   "limitation": "Riktor Support performs 48-51% across ranks.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "steel|support": {
+   "verdict": "checked and retained",
+   "reasoning": "The plan is the dominant build: Heavy Metal with Krix and Xenia > Dynamo > Gaia Greaves (1.16 Gold+ 52.6% over 10,909), confirmed in 1.17 Bronze+ (Xenia 57.9%, Dynamo 59.1%, Gaia Greaves 67.5%).",
+   "alternative": "Fire Blossom opener (1.17 Bronze+ 470 games, 58.5%).",
+   "limitation": "Gold+ evidence is 1.16 Statz.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "the-fey|support": {
+   "verdict": "checked and retained",
+   "reasoning": "Small samples support the plan's Crescelia > Timewarp opening (1.17 Bronze+ 61.2% and 56.3%; role 59.8% over 112 games); only Silver+ has a Statz sample (Wild Growth with Vesh, 51.1%).",
+   "alternative": "Wild Growth with Vesh and Astral Catalyst third (Silver+).",
+   "limitation": "Small samples; no Gold+ Statz sample.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "akeron|support": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role with no Statz page in any rank and a small current-patch sample; 1.17 lowered Akeron's magical-power scaling. Role strength cannot be established.",
+   "alternative": "Akeron Offlane is the established role.",
+   "limitation": "Experimental role; kept out of automatic suggestions.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "ikra|support": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role with no Statz page in any rank and a small current-patch sample. Role strength cannot be established.",
+   "alternative": "Ikra Midlane is the established role.",
+   "limitation": "Experimental role; kept out of automatic suggestions.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "wraith|support": {
+   "verdict": "unresolved",
+   "reasoning": "Experimental role with no Statz page in any rank and a small current-patch sample. Role strength cannot be established.",
+   "alternative": "Wraith Carry and Midlane are the established roles.",
+   "limitation": "Experimental role; kept out of automatic suggestions.",
+   "reviewed_at": "2026-09-23T15:20:36-05:00",
+   "updated_at": "2026-09-23T15:20:36-05:00"
+  },
+  "zinx|carry": {
+   "verdict": "unresolved",
+   "reasoning": "Newly offered role, Diamond+ only: 89 games in the Statz 1.16 dataset (Terminal Treatment + Weald, 58.4%), no other rank, and no 1.17 sample. A tier label on 89 games is not enough to author a carry plan for an enchanter; the labelled most-played observed variant is the fallback.",
+   "alternative": "Zinx Support (reviewed) for the same hero.",
+   "limitation": "No plan authored; 89 Diamond+ games only, previous patch.",
+   "reviewed_at": "2026-09-23T15:40:00-05:00",
+   "updated_at": "2026-09-23T15:40:00-05:00"
+  },
+  "rampage|offlane": {
+   "verdict": "unresolved",
+   "reasoning": "Newly offered role, Paragon only: 10 games in the Statz 1.16 dataset (The Rumbling + Nihil, 30%). No plan is authored on that evidence; the labelled observed variant is the fallback.",
+   "alternative": "Rampage Jungle (reviewed) for the same hero.",
+   "limitation": "No plan authored; 10 Paragon games only, previous patch.",
+   "reviewed_at": "2026-09-23T15:40:00-05:00",
+   "updated_at": "2026-09-23T15:40:00-05:00"
+  }
+ }
+}

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "patch": "1.17",
-  "reviewed_at": "2026-09-22T23:51:03+00:00",
+  "reviewed_at": "2026-09-23T20:38:00+00:00",
   "article_fingerprints": {
     "1.17": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
     "1.16.4": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992"
@@ -273,41 +273,60 @@
         "Alternate"
       ],
       "author": "Codex editorial review",
-      "reviewed_at": "2026-09-22T23:51:03+00:00",
+      "reviewed_at": "2026-09-23T15:14:06-05:00",
       "patch": "1.17",
       "why": "Azure Core supports mana and a farming phase; Megacosm rewards repeated ability contact; Dreambinder adds health and a slow to help remain in useful range. This spell-focused opening does not require Lilith to trigger item on-hits. Add penetration against magic armor, ultimate sustain for extended fights, and expensive power last.",
-      "caution": "New hero: no collected role, build, pairing or counter sample exists. This is an official-kit-based starting hypothesis, not a proven best build. Mana drain rises throughout Exsanguinate; toggle off between real fights. Anti-heal reduces recovery, immobilization breaks the tether, and there is no dash. Buy defense earlier when survival prevents sustained casting.",
+      "caution": "Current-patch sample: 45.5% over 433 1.17 Bronze+ games, with no Gold+ sample; treat this as a reasoned starting plan. Mana drain rises throughout Exsanguinate; toggle off between real fights. Anti-heal reduces recovery, immobilization breaks the tether, and there is no dash. Buy defense earlier when survival prevents sustained casting.",
       "rune_note": "Sanguine Banquet and Azure Core require actual farming before their mana payoff. Vesh rewards ability contact; Tithe of Death needs a takedown. Phylactery has a 20-second cooldown, so toggling Exsanguinate does not repeatedly grant its shield. Vein Splitter is a group-pressure alternative but removes Ground; Rupturing Fangs trades early damage for finishing power.",
       "sources": [
         {
-          "title": "Official live 1.17 changes",
+          "title": "Official 1.17 balance changes (live; no later hotfix published)",
           "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-22T14:06:24-05:00",
-          "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+          "fetched_at": "2026-09-23T14:24:24-05:00"
         },
         {
-          "title": "Official Midlane identity",
-          "url": "https://www.predecessorgame.com/en-US/heroes/valmont",
-          "fetched_at": "2026-09-22T23:51:03+00:00"
+          "title": "Statz Gold+ role builds (dataset 1.16; editorial reference, other ranks compared separately)",
+          "url": "https://statz.gg/predecessor/heroes/valmont/build/midlane/gold",
+          "fetched_at": "2026-09-23T14:53:13-05:00"
         },
         {
-          "title": "Item conditions",
-          "url": "https://omeda.city/items.json",
-          "fetched_at": "2026-09-22T23:51:03+00:00"
+          "title": "Pred.gg public kit and 1.17 ranked Bronze+ role/item samples",
+          "url": "https://pred.gg/heroes/valmont/hero?versions=167&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+          "fetched_at": "2026-09-23T14:07:47-05:00"
+        },
+        {
+          "title": "Pred.gg public item definitions (1.17, version 167)",
+          "url": "https://pred.gg/items?version=167",
+          "fetched_at": "2026-09-23T14:00:19-05:00"
         }
       ],
       "patch_review": {
-        "result": "changed",
-        "reviewed_at": "2026-09-22T23:51:03+00:00",
-        "reason": "Added a new official-kit-based Midlane plan, prioritizing mana economy and spell damage over unverified pet item interactions.",
-        "alternative": "Into early burst, replace or delay Overseer for Spellbreaker; against real healing replace Dreambinder or Overseer with Tainted Scepter when you can apply it. Prioritize Caustica earlier against meaningful magic armor. These are reviewed conditional options, not automatic ownership assumptions.",
-        "limitation": "No post-launch statistical evidence or controlled clear/DPS test. Pet on-hit triggers are unverified; do not assume them. An expensive six-item path is a direction, not a routine match outcome.",
+        "result": "checked and retained",
+        "reviewed_at": "2026-09-23T15:14:06-05:00",
+        "reviewer": "Claude (Opus 5.5) editorial build review, 2.32",
+        "reason": "Current 1.17 Bronze+ data supports the plan's spell path: Azure Core first wins 54.1% over 412 games and Overseer 59.3% over 209, while the attack-speed Entropy/Prophecy route trails (44.4% and 46.6%). The current source disagrees with the official launch text on Bloodbound's attack-speed buff and slow, Arterial Grip's attack-speed steal (10-30% vs 20-40%), and basic-attack scaling (total vs bonus physical power); its Exsanguinate healing and Sanguine Banquet match the official numbers in different wording. The plan does not use attack speed, basic-attack scaling or Lilith item procs, so those conflicts do not affect it. The caution is updated because a current-patch sample now exists.",
+        "alternative": "Magnify fourth (1.17 Bronze+ 54.9%) against magic-armour stacking.",
+        "limitation": "Valmont Mid performs 45.5% over 433 1.17 Bronze+ games; no Gold+ sample. Bloodbound, Arterial Grip and basic-attack scaling remain disputed between the official launch text and the current source; the plan does not depend on them.",
         "sources": [
           {
-            "title": "Official live 1.17 changes",
+            "title": "Official 1.17 balance changes (live; no later hotfix published)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T14:06:24-05:00",
-            "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+            "fetched_at": "2026-09-23T14:24:24-05:00"
+          },
+          {
+            "title": "Statz Gold+ role builds (dataset 1.16; editorial reference, other ranks compared separately)",
+            "url": "https://statz.gg/predecessor/heroes/valmont/build/midlane/gold",
+            "fetched_at": "2026-09-23T14:53:13-05:00"
+          },
+          {
+            "title": "Pred.gg public kit and 1.17 ranked Bronze+ role/item samples",
+            "url": "https://pred.gg/heroes/valmont/hero?versions=167&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+            "fetched_at": "2026-09-23T14:07:47-05:00"
+          },
+          {
+            "title": "Pred.gg public item definitions (1.17, version 167)",
+            "url": "https://pred.gg/items?version=167",
+            "fetched_at": "2026-09-23T14:00:19-05:00"
           }
         ]
       },
@@ -590,7 +609,8 @@
           "RMB": "Fire a Blood Tether 1600u that stops on the first target hit. The Tether deals 80/120/160/200/240 (+60% Magical Power) Magical Damage to the Target over 3s. While tethered, Valmont steals 20/25/30/35/40% Attack Speed from the target, and the Target is both Slowed by 25% and are Grounded.\nWhile the Tether is attached, if the Target moves 1800u away from Valmont, breaks Line of Sight from him, or if Valmont is hit by an Immobilizing Effect, the Tether breaks.",
           "R": "Valmont spreads his wings and transforms into an enhanced form. While in this form, Valmont automatically fires out up to 3 swarms of bats each second to nearby Enemy Units within a 1200u radius, dealing 40/70/100 (+22% Magical Power) Magical Damage. After striking, the bats return to Valmont, Healing him for 25/45/65 (+20% Magical Power) Health.\nExsanguinate’s Healing has 10% effectiveness against Non-Heroes.\nMana drain starts at 15 per second and increases by 5 per second while active."
         }
-      }
+      },
+      "review_scope": "2.32 build review against 1.17: economy, full item order, crest, augment, Eternal and blessings, skill priority and an alternative, with Gold+ as the editorial reference and each rank compared separately. Separate from tier, composition and strategy review, which are not marked current."
     }
   ],
   "corrections": [
