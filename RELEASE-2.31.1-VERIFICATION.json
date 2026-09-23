@@ -336,8 +336,9 @@
   },
   "existing_build_browser_webkit": "24 checks passed with actual staged bundles",
   "tests": {
-    "python": "213 passed, one existing skip (214 run); clean package verifies final counts",
-    "javascript": "233 passed; clean package verifies final counts"
+    "python": "214 passed, one existing skip (215 run); clean package verifies final counts",
+    "javascript": "233 passed; clean package verifies final counts",
+    "publication_contract": "Release marker is inside the collector environment; regression catches malformed workflow nesting"
   },
   "corrections": 106,
   "official_change_dispositions": 131,
