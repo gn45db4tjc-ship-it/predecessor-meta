@@ -1,5 +1,7 @@
 # Predecessor Meta - 2.31.1
 
+For contributors: read [shared AI context](docs/AI-CONTEXT.md) before changing the app. The [product improvement review](docs/PRODUCT-REVIEW.md) describes the current preview branch. Release notes below are history; current review scheduling is governed by the latest decision in `STRATEGY-REVIEW-POLICY.md`, not an older README paragraph.
+
 Live patch 1.17 build update: 55 heroes and 94 hero/role plans, including Valmont Midlane. 87 starting plans are supported; seven experimental roles remain explicitly unresolved. Official mechanics corrections, skills and patch implications retain their own evidence. Observed source dates and statistical patch labels are unchanged. The September 14 full strategy record remains historical. See [RELEASE-2.31.1.md](RELEASE-2.31.1.md) for the complete scope and the separate installation/publication receipts.
 
 ## Previous release
