@@ -46,7 +46,9 @@ class BuildPatchReviewTests(unittest.TestCase):
     def test_yin_melee_effect_and_serath_new_loadout_and_greystone_defense_are_recorded(self):
         rows={(r['slug'],r['role']):r for r in self.packet['guidance']['builds']}
         yin=rows['yin','jungle'];self.assertIn('does not grant Yin ranged extra projectiles',yin['why'])
-        self.assertEqual(rows['serath','jungle']['eternal'],'Thraex')
-        self.assertEqual(rows['greystone','offlane']['finish'][0],"Giant's Ring")
+        # 2.32 build review: Serath Jungle defaults to Weald (Thraex is the stated alternative); Greystone Offlane
+        # keeps dedicated defense through Aegis Of Agawar in the core and Giant's Ring in the finish.
+        self.assertEqual(rows['serath','jungle']['eternal'],'Weald')
+        self.assertIn('Aegis Of Agawar',rows['greystone','offlane']['core']);self.assertIn("Giant's Ring",rows['greystone','offlane']['finish'])
         for r in rows.values():self.assertTrue(r['previous_review']['reviewed_at'].startswith('2026-09-14'))
 if __name__=='__main__':unittest.main()

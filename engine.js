@@ -325,6 +325,7 @@
           reason:currentGuidance?(review?.patch_review?'This starting build was reviewed against the live patch. Current-patch outcome samples remain unavailable; tiers and team advice have separate review dates.':'Reviewed for the live patch; individual plans still require their supporting mechanics to match.'):mechanicsChanged?'Supporting mechanics changed or are unavailable. Previous advice is inspection-only; affected choices are not activated.':!verificationCurrent()?'Live patch verification is unavailable. Previous guidance is dated reference only.':due.due?'Current strategy review is unavailable or due. Previous guidance is retained with its original patch and review date. '+due.reasons.map(r=>r.startsWith('The scheduled review date')?'The scheduled strategy review is overdue.':r).join(' '):'Due to lack of a verified current plan in this area, use the dated previous guidance as a fallback, not a newly reviewed recommendation.'}
       ];
     }
+    let buildsState;   // per engine instance: the bundle and its reviews do not change
     function evidenceState({now=Date.now()}={}) {
       const policy=performancePolicy({now}),s=bundle?.sources||{},g=bundle?.guidance||{};
       // Statistics that no eligible source supplies are unavailable for ranking, whatever their own age.
@@ -339,8 +340,11 @@
       if(!policy.source&&verification.state==='verified')limitations.push(policy.note);
       else if(policy.source&&statistics.state==='unavailable')limitations.push('The role-statistics fetch date is missing or in the future, so they are not treated as current.');
       if(statzGap()){if(policy.source==='statz')statistics.coverage=statzGap();limitations.push(statzGapNote(s.statz_hero_pages).trim());}
-      if(guidance.state!=='reviewed')limitations.push('Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
-      return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
+      // Starting builds carry their own patch review; the overdue tier and strategy review does not make them unavailable.
+      const bpr=g.build_patch_review,builds=buildsState??=bpr&&buildPatchReady(bpr.patch)?{patch:bpr.patch,reviewed_at:bpr.reviewed_at,ready:(g.builds||[]).filter(r=>buildReview(r.slug,r.role)?.active).length,total:(g.builds||[]).length,
+        adaptation:guidance.state==='reviewed'||adaptationReview().ready?'reviewed':bpr.adaptation_review?'withheld':'pending'}:null;
+      if(guidance.state!=='reviewed')limitations.push(builds?'Tier, team and strategy guidance is dated advice for patch '+(guidance.patch||'unknown')+'. Starting builds were reviewed separately for patch '+builds.patch+'.':'Reviewed guidance is dated advice for patch '+(guidance.patch||'unknown')+'.');
+      return {version:1,checked_at:new Date(now).toISOString(),statistics,mechanics,verification,guidance,builds,ranking_current:rankingCurrent,advice_mode:rankingCurrent&&guidance.state==='reviewed'?'current':'saved',limitations,thresholds:{...EVIDENCE_HOURS}};
     }
     // ---- Strategy review: packets are prepared for a human reviewer. Building one is read-only: it never
     // changes a review status, a review date, a recommendation or an observation. ----
@@ -721,13 +725,33 @@
       {id: 'anti_heal', label: 'Anti-heal', test: E => E.healers >= 1, prio: E => 1.5 + E.healers, why: E => E.healWho.join(', ') + ' heal (self-sustain or ally healing in their ability text)', pick: it => /reduce (?:the |their |the target's |the source's )?healing/i.test(fxText(it)), show: it => fxMatch(it, /[^|•]*reduce (?:the |their |the target's |the source's )?healing[^|•]*/i)},
       {id: 'tenacity', label: 'Conditional CC protection · inspect', manual: true, test: E => E.hold >= 2 || E.cc >= 3, prio: E => 1 + 0.5 * E.hold, why: E => E.ccWho.join(', ') + ' bring hard crowd control. Check the exact ability and item trigger: protection is conditional and does not establish that every knock, suppression or other control is answered. Reviewed Tenacity is a rating, not percent reduction. Item-specific immunity and cleanse conditions still need inspection; no automatic CC swap is made.', pick: it => !!it.verified_stat_units?.Tenacity||/cc immun|self cleanse|on being immobilized/i.test(fxText(it)), show: it => (it.verified_stat_units?.Tenacity?'Official Tenacity rating '+it.stats.Tenacity+'. ':'')+fxText(it)},
       {id: 'tank_buster', label: 'Armor shred or % health damage', test: E => E.front >= 2, prio: E => 1 + 0.5 * E.front, why: E => E.frontWho.join(', ') + ' have frontline tools; consider this answer if they are actually buying health and armor',
-        pick: (it, me) => (me.penetration||me.off) === 'magical' ? /ignore \d+% of magical armor|reduce their magical armor|bonus magical armor|max(?:imum)? health as|bonus health as damage/i.test(fxText(it)) : (me.penetration||me.off) === 'physical' ? /ignore \d+% of (?:bonus )?physical armor|reduce their physical armor|shred \d+ physical armor|(?:max(?:imum)?|current) health as damage|physical armor decreased/i.test(fxText(it)) : /physical armor decreased|reduce their (?:physical|magical) armor|max(?:imum)? health as damage/i.test(fxText(it)),
+        pick: (it, me) => (me.penetration||me.off) === 'magical' ? /ignore \d+% of magical armor|reduce their magical armor|bonus magical armor|max(?:imum)? health as|bonus health as (?:(?:physical|magical|true) )?damage/i.test(fxText(it)) : (me.penetration||me.off) === 'physical' ? /ignore \d+% of (?:bonus )?physical armor|reduce their physical armor|shred \d+ physical armor|(?:max(?:imum)?|current) health as (?:(?:physical|magical|true) )?damage|physical armor decreased/i.test(fxText(it)) : /physical armor decreased|reduce their (?:physical|magical) armor|max(?:imum)? health as (?:(?:physical|magical|true) )?damage/i.test(fxText(it)),
         show: it => fxMatch(it, /[^|•]*(?:ignore \d+% of|reduce their|shred \d+|health as|armor decreased)[^|•]*/i)},
       {id: 'anti_shield', label: 'Anti-shield', test: E => E.shielders >= 1, prio: E => 1 + 0.5 * E.shielders, why: E => E.shieldWho.join(', ') + ' shield allies', pick: it => /shielded target/i.test(fxText(it)), show: it => fxMatch(it, /[^|]*shielded target[^|]*/i)},
       {id: 'spell_shield', label: 'Spell shield', test: (E, me) => E.magBurst >= 2 && !me.tanky, prio: () => 1.5, why: E => E.magBurstWho.join(', ') + ' are burst casters and you are not a frontliner', pick: it => /spell shield/i.test(fxText(it)), show: it => fxMatch(it, /[^|•]*spell shield[^|]*/i)},
       {id: 'anti_autos', label: 'Anti basic attack', test: (E, me) => E.autos >= 2 && me.tanky, prio: () => 1.5, why: E => E.autosWho.join(', ') + ' win through basic attacks and you will stand in front of them', pick: it => /reduce the source's attack speed|physical power reduced|reduce their damage dealt/i.test(fxText(it)), show: it => fxMatch(it, /[^|•]*(?:attack speed by|physical power reduced|damage dealt by)[^|•]*/i)},
       {id: 'burst_insurance', label: 'Burst insurance', test: (E, me) => E.burst >= 3 && !me.tanky, prio: () => 1, why: E => E.burstWho.join(', ') + ' can burst you down; a low-health shield buys a second', pick: it => /on going below \d+% health:[^|]*shield|resurrect/i.test(fxText(it)), show: it => fxMatch(it, /[^|]*(?:below \d+% health[^|]*shield|resurrect)[^|•]*/i)}
     ];
+    // What the adaptation rules act on: the completed items each item-need rule selects, and the base-kit tags each
+    // enemy contributes. A dated review of exactly these classifications, bound to the reviewed build patch, authorizes
+    // adapting an active reviewed build without renewing the global tier and strategy review.
+    let adaptationSnapshot=null;
+    function adaptationClassifications(){
+      if(adaptationSnapshot)return structuredClone(adaptationSnapshot);
+      const pool=Object.values(bundle.items||{}).filter(it=>it?.name&&it.completed_item&&it.available_current_patch!==false).sort((a,b)=>a.name.localeCompare(b.name));
+      const items={},kit={};
+      for(const r of ITEM_NEEDS)for(const off of r.id==='tank_buster'?['physical','magical','none']:[null])items[r.id+(off?':'+off:'')]=pool.filter(it=>r.pick(it,{off})).map(it=>it.name);
+      for(const slug of Object.keys(heroes).sort()){const p=heroProfile(slug);kit[slug]=p?[p.dmg,...['frontline','cc','healer','shielder','burst','autos'].filter(k=>p[k])]:null;}
+      adaptationSnapshot={items,heroes:kit};return structuredClone(adaptationSnapshot);
+    }
+    function adaptationReview(){
+      const r=bundle.guidance?.build_patch_review,a=r?.adaptation_review;
+      if(!a)return {ready:false,reason:null};
+      const dated=buildPatchReady(r.patch)&&a.patch===r.patch&&Number.isFinite(Date.parse(a.reviewed_at))&&Date.parse(a.reviewed_at)<=Date.now();
+      if(!dated)return {ready:false,reason:null};
+      return sameValue(a.classifications,adaptationClassifications())?{ready:true,reason:null,reviewed_at:a.reviewed_at}:
+        {ready:false,reason:'The starting build is patch-reviewed, but current item-effect or hero-kit classifications differ from the '+a.patch+' adaptation review. Automatic match adaptations are withheld; inspect the reviewed alternatives on the build page.'};
+    }
     function itemFit(it, me, measured) {
       const pp = statNum(it, 'Physical power') > 0, mp = statNum(it, 'Magical power') > 0, as = statNum(it, 'Attack speed') + statNum(it, 'Critical chance') > 0, hs = statNum(it, 'Heal and shield power') > 0;
       let score = 0; const why = [];
@@ -829,6 +853,11 @@
       const entry=Object.entries(r?.loadout_definitions||{}).find(([n])=>NK(n)===NK(name));
       return entry?{name:entry[0],...entry[1],active:buildPatchReady(r.patch)}:null;
     }
+    function reconciledBuildField(kind,subject,key,expected,actual){
+      const review=bundle.guidance?.build_patch_review?.source_reconciliation;
+      if(!review||!buildPatchReady(review.patch)||!Number.isFinite(Date.parse(review.reviewed_at))||Date.parse(review.reviewed_at)>Date.now()||!sameValue(review.article_fingerprints,bundle.guidance.build_patch_review.article_fingerprints))return null;
+      return (review.entries||[]).find(r=>r.kind===kind&&r.subject===subject&&r.key===key&&r.reason&&/^https:\/\//.test(r.source||'')&&Number.isFinite(Date.parse(r.source_fetched_at))&&Date.parse(r.source_fetched_at)<=Date.parse(review.reviewed_at)&&sameValue(r.expected,expected)&&sameValue(r.accepted,actual))||null;
+    }
     function buildReview(slug,role){
       const r=(bundle.guidance?.builds||[]).find(x=>x.slug===slug&&x.role===role);if(!r)return null;
       const independent=!!r.patch_review;
@@ -837,23 +866,30 @@
       const catalog=independent?bundle.guidance?.build_patch_review?.loadout_catalog:bundle.loadout_catalog;
       const tree=catalog?.eternals?.[r.eternal];
       const invalid=(independent||!!catalog?.eternals)&&(!tree||r.blessings.some((n,i)=>!tree['BLESSING_MINOR_'+(i+1)]?.includes(n)));
-      const changed=[],pre=r.source_preconditions;
+      const changed=[],reconciled=[],pre=r.source_preconditions;
+      const matches=(kind,subject,key,expected,actual)=>{
+        if(sameValue(expected,actual))return true;
+        const entry=independent&&reconciledBuildField(kind,subject,key,expected,actual);
+        if(entry)reconciled.push(entry);
+        return !!entry;
+      };
       if(pre){
-        for(const [key,text] of Object.entries(pre.abilities||{}))if(heroes[slug]?.abilities?.find(a=>a.key===key)?.text!==text)changed.push('Ability '+key);
+        for(const [key,text] of Object.entries(pre.abilities||{}))if(!matches('abilities',slug,key,text,heroes[slug]?.abilities?.find(a=>a.key===key)?.text))changed.push('Ability '+key);
         for(const [name,expected] of Object.entries(pre.items||{})){
           const actual=item(name);
-          if(!actual||Object.entries(expected).some(([key,value])=>!sameValue(actual[key],value)))changed.push('Item '+name);
+          if(!actual||Object.entries(expected).some(([key,value])=>!matches('items',name,key,value,actual[key])))changed.push('Item '+name);
         }
         for(const [name,text] of Object.entries(pre.perks||{})){
           const source=Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name));
           // Mechanics do not vary by rank. A missing rank-local row can use the
           // separately evidenced definition, but a conflicting row cannot.
           const definition=independent&&!source?buildLoadoutDefinition(name):null;
-          if(!perkTextMatches(name,source?.description||(definition?.active?definition.description:null),text))changed.push('Loadout '+name);
+          const actual=source?.description||(definition?.active?definition.description:null);
+          if(!perkTextMatches(name,actual,text)&&!matches('perks',name,'description',text,actual))changed.push('Loadout '+name);
         }
       }
       const unresolved=independent&&r.patch_review?.result==='unresolved';
-      return {...r,active:current&&!unresolved&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':unresolved?'review unresolved: '+r.patch_review.limitation:missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid};
+      return {...r,active:current&&!unresolved&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':unresolved?'review unresolved: '+r.patch_review.limitation:missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid,source_reconciliation:reconciled.length?{reviewed_at:bundle.guidance.build_patch_review.source_reconciliation.reviewed_at,entries:reconciled}:null};
     }
     function perkTextMatches(name,actual,expected){
       if(actual===expected)return true;
@@ -976,12 +1012,13 @@
       // A different augment/Eternal lacks the reviewed kit preconditions used by the adaptation rules.
       const loadoutMismatch=variant!==null&&(NK(L.plan.augment)!==NK(review?.augment)||NK(L.plan.eternal)!==NK(review?.eternal));
       const baseline=variant!==null?L.plan.items:review?[...review.core,...review.finish]:[];
-      const adaptationPending=!!review?.patch_review&&!reviewReady();
+      const adaptation=review?.patch_review&&!reviewReady()?adaptationReview():{ready:true};
+      const adaptationPending=!adaptation.ready;
       const unavailable=!review?.active||adaptationPending||loadoutMismatch||baseline.length!==6||new Set(baseline.map(NK)).size!==6||baseline.some(n=>item(n)?.available_current_patch===false);
       const expectedCore=baseline.filter(n=>(variant!==null?L.plan.core:review?.core)?.includes(n)&&!L.owned.some(o=>NK(o)===NK(n)));
       const lostCore=expectedCore.some(n=>!L.slots.some(s=>NK(s.name)===NK(n)));
       const available=!unavailable&&!lostCore;
-      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':adaptationPending?'The starting build is patch-reviewed. Automatic match adaptations still need a current-patch kit and item review; inspect the reviewed alternatives on the build page.':loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
+      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':adaptationPending?(adaptation.reason||'The starting build is patch-reviewed. Automatic match adaptations still need a current-patch kit and item review; inspect the reviewed alternatives on the build page.'):loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
       const threatData=threat?heroProfile(threat):null;
       const explanations=[variant!==null?'Calculated adaptation of your selected source playstyle; its core is preserved. No win rate is claimed for this assembled path.':state==='ahead'?'Ahead: keep offensive timing unless your selected urgent need requires a flexible answer.':state==='behind'?'Behind: prioritize a compatible survival or utility answer within the flexible slots; preserve the core.':'Even: retain the reviewed core and answer compatible enemy-kit needs.'];
       if(threatData)explanations.push('Primary threat: '+threatData.name+'. '+(threatData.evidence[0]?threatData.evidence[0].ability+': '+(threatData.evidence[0].reason||threatData.evidence[0].tag):'No supported kit mechanism is available; no damage type is assumed.'));
@@ -995,7 +1032,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

@@ -14,7 +14,8 @@ test('Valmont starter and legal skill schedule need no invented observed outcome
  const b=bundle(),e=M.create(b),p=e.plannedBuild('valmont','midlane');assert.equal(p.kind,'reviewed');assert.equal(p.items.length,6);
  assert.equal(e.performance({slug:'valmont',role:'midlane'}),null);assert.equal(e.pair('valmont','steel'),null);
  const k=K.make(b,p);assert.equal(k.kind,'reviewed');assert.equal(k.points.length,18);assert.ok(K.validOrder(k.order));
- assert.match(p.caution,/no collected/i);assert.match(p.rune_note,/20-second cooldown/);
+ // 2.32: a current-patch Bronze+ sample now exists; the caution states it and still claims no Gold+ sample.
+ assert.match(p.caution,/433 1\.17 Bronze\+ games, with no Gold\+ sample/);assert.match(p.rune_note,/20-second cooldown/);
 });
 test('three conditional responses respect bans, filled roles, changed evidence and do not fabricate samples',()=>{
  const b=bundle(),e=M.create(b);const rows=e.counterIdeas('valmont','midlane');assert.equal(rows.length,3);assert(rows.every(r=>r.active&&!r.observation));
