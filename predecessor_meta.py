@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.31.2"
+VERSION = "2.31.3"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2418,16 +2418,39 @@ def pred_identity(record,expected):
     return h
 
 
-def pred_markup(raw):
+def pred_markup(raw, *, legacy_damage_labels=False):
     """Normalize shorthand tags while preserving damage type independently of scaling icons."""
     def damage(m):
         text=m.group(2)
-        if re.search(r'\bdamage\b',text,re.I) and not re.search(r'physical|magical|magic',text,re.I):
+        if re.search(r'\bdamage\b',text,re.I) and not re.search(r'physical|magical|magic',text,re.I) and (legacy_damage_labels or not re.search(r'\bability\s+damage\b',text,re.I)):
             text=re.sub(r'\bdamage\b',('physical' if m.group(1).lower()=='attackdamagetext' else 'magical')+' damage',text,flags=re.I)
         return '<'+m.group(1)+'>'+text+'</'+m.group(1)+'>'
     raw=re.sub(r'<(AttackDamageText|AbilityPowerText)>([^<]*)</(?:AttackDamageText|AbilityPowerText)?>',damage,raw or '',flags=re.I)
     raw=re.sub(r'<(CC_Text|StatusEffectText)>([^<]*)</>',r'<\1>\2</\1>',raw,flags=re.I)
     return raw
+
+
+def repair_pred_text_labels(bundle):
+    """Repair only an exact old parser output, never a separately corrected field."""
+    changes=[]
+    def repair(parent,key,raw,path):
+        if not isinstance(raw,str):return
+        old=clean_text(pred_markup(raw,legacy_damage_labels=True))
+        new=clean_text(pred_markup(raw))
+        if old!=new and parent.get(key)==old:
+            parent[key]=new
+            changes.append({'path':path,'before':old,'after':new,'reason':'Ability Damage is a trigger category, not a magical damage type.'})
+    for key,p in bundle.get('perks',{}).items():
+        repair(p,'description',p.get('pred_raw',{}).get('description'),['perks',key,'description'])
+    for key,item in bundle.get('items',{}).items():
+        raw_effects=item.get('pred_raw',{}).get('effects',[])
+        for i,effect in enumerate(item.get('effects',[])):
+            matches=[r for r in raw_effects if r.get('name')==effect.get('name')]
+            if len(matches)!=1:continue
+            for field in ('text','condition'):
+                repair(effect,field,matches[0].get(field),['items',key,'effects',i,field])
+    if changes:bundle.setdefault('text_normalization_repairs',[]).extend(changes)
+    return changes
 
 
 def pred_meta(record,cohort,role=None):
@@ -3173,6 +3196,8 @@ def review_saved_sources(bundle):
     Complete or validated independent-source bundles with a raw-source audit
     trail support replay. Retained source partitions keep their status and dates.
     """
+    repaired=copy.deepcopy(bundle)
+    if repair_pred_text_labels(repaired):bundle=repaired
     packet_path=TOOL_DIR/'reviewed_guidance.json'
     packet=json.loads(packet_path.read_text(encoding='utf8')) if packet_path.exists() else {}
     build_pass=packet.get('guidance',{}).get('build_patch_review')
@@ -3557,6 +3582,22 @@ def validate_guidance_packet(packet,bundle):
         if not build_pass.get('scope') or not build_pass.get('limitations'):raise ValueError('Build patch review requires scope and limitations')
         fingerprints=build_pass.get('article_fingerprints',{})
         if not isinstance(fingerprints,dict) or build_pass['patch'] not in fingerprints or any(not re.fullmatch(r'[a-f0-9]{64}',str(v)) for v in fingerprints.values()):raise ValueError('Build patch review requires exact official fingerprints')
+        reconciliation=build_pass.get('source_reconciliation')
+        if reconciliation is not None:
+            if not isinstance(reconciliation,dict) or reconciliation.get('patch')!=build_pass['patch'] or reconciliation.get('article_fingerprints')!=fingerprints:raise ValueError('Source reconciliation must match the reviewed patch and articles')
+            reviewed=history_time(reconciliation.get('reviewed_at'))
+            if not reconciliation.get('scope') or not re.fullmatch(r'[a-f0-9]{64}',str(reconciliation.get('source_bundle_sha256',''))):raise ValueError('Source reconciliation requires scope and a source bundle checksum')
+            if not isinstance(reconciliation.get('entries'),list):raise ValueError('Source reconciliation entries must be a list')
+            seen=set()
+            for entry in reconciliation['entries']:
+                if not isinstance(entry,dict):raise ValueError('Invalid source reconciliation entry')
+                kind=entry.get('kind');key=entry.get('key');identity=(kind,entry.get('subject'),key)
+                allowed={'items':{'stats','effects','completed_item','total_price'},'abilities':{'LMB','RMB','Q','E','R','Passive','P'},'perks':{'description'}}
+                if kind not in allowed or key not in allowed[kind] or not isinstance(entry.get('subject'),str) or not entry['subject'] or identity in seen:raise ValueError('Invalid or duplicate reconciled field')
+                seen.add(identity)
+                if 'expected' not in entry or 'accepted' not in entry or entry['expected'] is None or entry['accepted'] is None or not entry.get('reason'):raise ValueError('Reconciliation requires exact old/new values and reasoning')
+                if not isinstance(entry['expected'],type(entry['accepted'])):raise ValueError('Reconciled values must have the same type')
+                if not re.match(r'^https://pred\.gg/',str(entry.get('source',''))) or history_time(entry.get('source_fetched_at'))>reviewed:raise ValueError('Reconciled source requires a dated public evidence record')
         if build_pass.get('loadout_catalog',{}).get('eternals')!=packet.get('loadout_catalog',{}).get('eternals'):raise ValueError('Build patch review must preserve evidenced Eternal membership')
         definitions=build_pass.get('loadout_definitions',{})
         if not isinstance(definitions,dict) or not definitions:raise ValueError('Build review needs evidenced loadout definitions')

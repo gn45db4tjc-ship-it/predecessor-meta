@@ -829,6 +829,11 @@
       const entry=Object.entries(r?.loadout_definitions||{}).find(([n])=>NK(n)===NK(name));
       return entry?{name:entry[0],...entry[1],active:buildPatchReady(r.patch)}:null;
     }
+    function reconciledBuildField(kind,subject,key,expected,actual){
+      const review=bundle.guidance?.build_patch_review?.source_reconciliation;
+      if(!review||!buildPatchReady(review.patch)||!Number.isFinite(Date.parse(review.reviewed_at))||Date.parse(review.reviewed_at)>Date.now()||!sameValue(review.article_fingerprints,bundle.guidance.build_patch_review.article_fingerprints))return null;
+      return (review.entries||[]).find(r=>r.kind===kind&&r.subject===subject&&r.key===key&&r.reason&&/^https:\/\//.test(r.source||'')&&Number.isFinite(Date.parse(r.source_fetched_at))&&Date.parse(r.source_fetched_at)<=Date.parse(review.reviewed_at)&&sameValue(r.expected,expected)&&sameValue(r.accepted,actual))||null;
+    }
     function buildReview(slug,role){
       const r=(bundle.guidance?.builds||[]).find(x=>x.slug===slug&&x.role===role);if(!r)return null;
       const independent=!!r.patch_review;
@@ -837,23 +842,30 @@
       const catalog=independent?bundle.guidance?.build_patch_review?.loadout_catalog:bundle.loadout_catalog;
       const tree=catalog?.eternals?.[r.eternal];
       const invalid=(independent||!!catalog?.eternals)&&(!tree||r.blessings.some((n,i)=>!tree['BLESSING_MINOR_'+(i+1)]?.includes(n)));
-      const changed=[],pre=r.source_preconditions;
+      const changed=[],reconciled=[],pre=r.source_preconditions;
+      const matches=(kind,subject,key,expected,actual)=>{
+        if(sameValue(expected,actual))return true;
+        const entry=independent&&reconciledBuildField(kind,subject,key,expected,actual);
+        if(entry)reconciled.push(entry);
+        return !!entry;
+      };
       if(pre){
-        for(const [key,text] of Object.entries(pre.abilities||{}))if(heroes[slug]?.abilities?.find(a=>a.key===key)?.text!==text)changed.push('Ability '+key);
+        for(const [key,text] of Object.entries(pre.abilities||{}))if(!matches('abilities',slug,key,text,heroes[slug]?.abilities?.find(a=>a.key===key)?.text))changed.push('Ability '+key);
         for(const [name,expected] of Object.entries(pre.items||{})){
           const actual=item(name);
-          if(!actual||Object.entries(expected).some(([key,value])=>!sameValue(actual[key],value)))changed.push('Item '+name);
+          if(!actual||Object.entries(expected).some(([key,value])=>!matches('items',name,key,value,actual[key])))changed.push('Item '+name);
         }
         for(const [name,text] of Object.entries(pre.perks||{})){
           const source=Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name));
           // Mechanics do not vary by rank. A missing rank-local row can use the
           // separately evidenced definition, but a conflicting row cannot.
           const definition=independent&&!source?buildLoadoutDefinition(name):null;
-          if(!perkTextMatches(name,source?.description||(definition?.active?definition.description:null),text))changed.push('Loadout '+name);
+          const actual=source?.description||(definition?.active?definition.description:null);
+          if(!perkTextMatches(name,actual,text)&&!matches('perks',name,'description',text,actual))changed.push('Loadout '+name);
         }
       }
       const unresolved=independent&&r.patch_review?.result==='unresolved';
-      return {...r,active:current&&!unresolved&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':unresolved?'review unresolved: '+r.patch_review.limitation:missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid};
+      return {...r,active:current&&!unresolved&&!missing.length&&!invalid&&!changed.length,status:!current?'needs review':unresolved?'review unresolved: '+r.patch_review.limitation:missing.length?'item metadata unavailable':invalid?'incompatible blessing tree':changed.length?'supporting mechanics changed; needs review':'reviewed',missing,changed,invalid,source_reconciliation:reconciled.length?{reviewed_at:bundle.guidance.build_patch_review.source_reconciliation.reviewed_at,entries:reconciled}:null};
     }
     function perkTextMatches(name,actual,expected){
       if(actual===expected)return true;

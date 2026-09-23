@@ -1,6 +1,6 @@
-# Predecessor Meta - 2.31.2
+# Predecessor Meta - 2.31.3
 
-Compact phone roster, saved shortcuts, reliable Quick Draft focus and protected-preview compatibility. See [RELEASE-2.31.2.md](RELEASE-2.31.2.md) for scope and the release path. Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Restores reviewed starting builds after refreshed source descriptions, corrects Ability Damage parsing, and separates build availability from tier/team review. See [RELEASE-2.31.3.md](RELEASE-2.31.3.md) for scope and remaining source conflicts. Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
 
