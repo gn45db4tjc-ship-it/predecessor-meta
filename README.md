@@ -1,3 +1,9 @@
+# Predecessor Meta - 2.31.2
+
+Compact phone roster, saved shortcuts, reliable Quick Draft focus and protected-preview compatibility. See [RELEASE-2.31.2.md](RELEASE-2.31.2.md) for scope and the release path. Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+## Previous release
+
 # Predecessor Meta - 2.31.1
 
 For contributors: read [shared AI context](docs/AI-CONTEXT.md) before changing the app. The [product improvement review](docs/PRODUCT-REVIEW.md) describes the current preview branch. Release notes below are history; current review scheduling is governed by the latest decision in `STRATEGY-REVIEW-POLICY.md`, not an older README paragraph.

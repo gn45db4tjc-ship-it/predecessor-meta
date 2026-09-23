@@ -774,7 +774,10 @@ document.addEventListener('error',e=>{if(e.target.tagName==='IMG'){const image=e
 document.addEventListener('click',async event=>{
  // Card whitespace and its statistics open the same hero as its native button.
  // An actual child button (including Remove favorite) always takes precedence.
- const el=event.target.closest('button')||event.target.closest('.mobile-hero-card')?.querySelector('[data-hero]');if(!el)return;const d=el.dataset;
+ const button=event.target.closest('button');
+ const control=event.target.closest('a,button,input,select,textarea,label,summary,[role],[tabindex],[contenteditable]:not([contenteditable="false"])');
+ const card=event.target.closest('.mobile-hero-card');
+ const el=button||(card&&(!control||!card.contains(control))&&card.querySelector('[data-hero]'));if(!el)return;const d=el.dataset;
  try{
   if(d.route)changeRoute(d.route);
   else if(d.hero)openHero(d.hero,d.role);

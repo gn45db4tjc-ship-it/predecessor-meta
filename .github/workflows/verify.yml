@@ -83,6 +83,12 @@ jobs:
           PREVIEW_URL: http://127.0.0.1:13022/
           BROWSER_CHANNEL: chrome
         run: node tests/browser_product_review.cjs
+      - name: Review corrections - focus redraw, native card controls and favorites
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13042/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_review_corrections.cjs
       - name: Show app upgrade verdicts
         if: always()
         run: cat qa/app-updates-edge.json || true

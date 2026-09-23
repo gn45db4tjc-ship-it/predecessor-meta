@@ -258,7 +258,7 @@
 .quick-candidate-identity{display:flex;align-items:center;gap:12px}.quick-candidate-identity h2{margin:0;font-size:var(--tr-xl)}
 .quick-candidate p{margin:0}.quick-candidate .badge{align-self:flex-start}.quick-candidate>button{margin-top:auto;min-height:44px}
 .quick-candidate.is-selected{border-color:var(--brand-line);box-shadow:inset 0 0 0 1px var(--brand-line)}
-.quick-setup>h2:focus{outline:2px solid var(--brand-line);outline-offset:4px;border-radius:4px}
+.quick-setup>h2:focus-visible{outline:2px solid var(--brand-line);outline-offset:4px;border-radius:4px}
 @media(max-width:700px){
  .mobile-hero-card{cursor:pointer}
  .mobile-hero-card:focus-within{outline:2px solid var(--brand-line);outline-offset:2px}
