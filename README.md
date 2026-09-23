@@ -1,6 +1,6 @@
-# Predecessor Meta — 2.31.1 build-review candidate
+# Predecessor Meta - 2.31.1
 
-September 22 build advice for live patch 1.17: 86 supported starting builds, seven explicitly unresolved specialist roles, and preserved historical fallback. Observed source dates and statistical labels remain unchanged. This is a build-only review; other strategy areas retain their own dates. See [RELEASE-2.31.1.md](RELEASE-2.31.1.md) for scope, evidence and release status.
+Live patch 1.17 build update: 55 heroes and 94 hero/role plans, including Valmont Midlane. 87 starting plans are supported; seven experimental roles remain explicitly unresolved. Official mechanics corrections, skills and patch implications retain their own evidence. Observed source dates and statistical patch labels are unchanged. The September 14 full strategy record remains historical. See [RELEASE-2.31.1.md](RELEASE-2.31.1.md) for the complete scope and the separate installation/publication receipts.
 
 ## Previous release
 

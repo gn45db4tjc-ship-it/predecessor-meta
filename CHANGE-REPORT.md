@@ -1,6 +1,6 @@
-# 2.31.1 — September 22 build review
+# 2.31.1 - Bloodtide builds and Valmont
 
-Independently reviewed starting builds can advance to patch 1.17 without relabelling the September 14 full strategy review or any observed statistics. Ninety-three plans have dated verdicts; 86 are supported and seven specialist roles remain unresolved. Exact mechanics and official-article preconditions still fail closed. Sources, phone dates and historical fallback distinguish the separate review scopes. See RELEASE-2.31.1.md and its verification report. Installation and publication require separate release acceptance.
+This release adds Valmont, independently reviewed starting builds, 106 guarded official field corrections and 131 recorded patch-change dispositions. All 94 hero/role plans have dated verdicts: 87 supported and seven unresolved experimental roles. It preserves observed figures and dates, all six rank selections, saved choices and the prior full-strategy review date. See RELEASE-2.31.1.md and RELEASE-2.31.1-VERIFICATION.json for evidence and limitations; actual installation and publication are established by their separate receipts.
 
 ## Previous changes
 
