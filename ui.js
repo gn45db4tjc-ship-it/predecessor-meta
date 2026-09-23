@@ -772,7 +772,9 @@ function downloadPlan(){const blob=new Blob([JSON.stringify(pendingSharedPlan,nu
 
 document.addEventListener('error',e=>{if(e.target.tagName==='IMG'){const image=e.target;let fallbacks=[];try{fallbacks=JSON.parse(image.dataset.fallbacks||'[]');}catch{}const fallback=fallbacks.shift();image.dataset.fallbacks=JSON.stringify(fallbacks);if(fallback&&fallback!=='#'&&image.src!==fallback)image.src=fallback;else{image.dataset.failed='true';image.hidden=true;}}},true);
 document.addEventListener('click',async event=>{
- const el=event.target.closest('button');if(!el)return;const d=el.dataset;
+ // Card whitespace and its statistics open the same hero as its native button.
+ // An actual child button (including Remove favorite) always takes precedence.
+ const el=event.target.closest('button')||event.target.closest('.mobile-hero-card')?.querySelector('[data-hero]');if(!el)return;const d=el.dataset;
  try{
   if(d.route)changeRoute(d.route);
   else if(d.hero)openHero(d.hero,d.role);

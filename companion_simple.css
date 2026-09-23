@@ -195,23 +195,23 @@
  .meta-context{background:var(--surface-2);border:1px solid var(--line);border-radius:12px}
  .meta-context>summary{padding-top:12px;padding-bottom:12px;color:var(--text-2)}
  #mobile-role-list>.section-title{margin-top:20px}
- .mobile-card-list{gap:12px}
- .mobile-hero-card{padding:14px;border-radius:16px;border-color:var(--line);gap:10px 12px;box-shadow:var(--card-shadow);background:var(--surface)}
+ .mobile-card-list{gap:6px}
+ .mobile-hero-card{position:relative;padding:10px 12px;border-radius:12px;border-color:var(--line);gap:4px 10px;box-shadow:none;background:var(--surface)}
  .mobile-hero-card:focus-within{border-color:var(--brand-line)}
  .meta-hero-identity{min-width:0;position:relative}
- .mobile-hero-card .hero-cell{position:relative;padding-bottom:20px;gap:12px;font-size:var(--tr-xl);min-height:90px;align-items:center}
- .mobile-hero-card .hero-cell .portrait{width:56px;height:70px;flex:none;border-radius:12px;background:var(--surface-3);border:1px solid var(--line-strong)}
+ .mobile-hero-card .hero-cell{position:static;padding-bottom:0;gap:10px;font-size:var(--tr-base);min-height:52px;align-items:center}
+ .mobile-hero-card .hero-cell .portrait{width:40px;height:48px;flex:none;border-radius:8px;background:var(--surface-3);border:1px solid var(--line-strong)}
  .mobile-hero-card .hero-cell .name{font-weight:750;line-height:1.2;letter-spacing:-.3px}
- .meta-card-cue{display:flex;justify-content:space-between;gap:4px;font-size:var(--tr-xs);color:var(--brand-text);position:absolute;bottom:0;left:0;right:0;pointer-events:none}
- .mobile-stat strong{font-family:var(--sans);font-size:var(--tr-title);font-weight:800;letter-spacing:-.7px}
+ .meta-card-cue{display:flex;font-size:0;color:var(--brand-text);pointer-events:none}.meta-card-cue>span{font-size:var(--tr-sm)}
+ .mobile-stat strong{font-family:var(--sans);font-size:var(--tr-xl);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
  .mobile-hero-card .mobile-stat{max-width:120px}
- .mobile-row-source{padding-top:8px;color:var(--muted);font-size:var(--tr-xs)}
- .mobile-hero-head{padding:20px 16px;grid-template-columns:80px minmax(0,1fr);gap:16px;margin:16px 0;background:var(--hero-wash)}
- .mobile-hero-head .portrait{width:80px;height:98px;border-radius:14px}
- .mobile-hero-head h1{font-size:var(--tr-3xl);font-weight:800;letter-spacing:-.8px}
+ .mobile-row-source{padding-top:4px;color:var(--muted);font-size:var(--tr-xs)}
+ .mobile-hero-head{padding:12px;grid-template-columns:52px minmax(0,1fr);gap:12px;margin:8px 0;background:var(--hero-wash)}
+ .mobile-hero-head .portrait{width:52px;height:64px;border-radius:10px}
+ .mobile-hero-head h1{font-size:var(--tr-title);font-weight:800;letter-spacing:-.5px;margin:0 0 4px}
  .mobile-hero-head label{flex-wrap:wrap;gap:4px 8px}.mobile-hero-head select{background:var(--surface);border-color:var(--control-line)}
- .simple-sections{gap:6px;margin:16px 0 20px}
- .simple-hero-section .panel{border-radius:18px;padding:16px}
+ .simple-sections{gap:6px;margin:12px 0}
+ .simple-hero-section .panel{border-radius:14px;padding:14px}
  .simple-build .item-name{font-size:var(--tr-lg);line-height:1.35;font-weight:650}
  .simple-actions{padding:16px 0;margin-top:8px;border-top:1px solid var(--line)}
  #mobile-navigation{padding:6px max(12px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));gap:8px;background:var(--rail);border-top:1px solid var(--line-strong)}
@@ -238,7 +238,7 @@
  #mobile-role-list>.section-title{margin-top:16px}
  .mobile-hero-card{padding:12px}
  .mobile-hero-card .hero-cell{font-size:var(--tr-base);gap:8px}
- .mobile-hero-card .hero-cell .portrait{width:44px;height:60px}
+ .mobile-hero-card .hero-cell .portrait{width:36px;height:44px}
  .mobile-hero-card .mobile-stat{max-width:108px}
  .mobile-stat strong{font-size:var(--tr-xl)}
  .simple-purchases li{grid-template-columns:24px minmax(0,1fr);gap:6px 10px}
@@ -247,3 +247,26 @@
  .simple-purchases .item-button{flex-direction:row;align-items:center}
 }
 @media(max-height:480px){#coach-dock{position:static}#mobile-navigation{position:static}}
+
+/* Focused companion refinements: retain the full roster, dates and evidence. */
+.saved-heroes{margin:8px 0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.saved-heroes section{padding:0 12px 12px}.saved-heroes h2{font-size:var(--tr-base);margin:8px 0}
+.saved-hero-list{display:grid;gap:6px}.saved-hero-list>div{display:flex;gap:6px;min-width:0}
+.saved-hero-list [data-hero]{display:flex;justify-content:space-between;align-items:center;gap:8px;flex:1;min-width:0;text-align:left}
+.saved-hero-list small{color:var(--muted);font-weight:400}.saved-hero-list .favorite-button{position:static;flex:none;min-width:44px;min-height:44px}
+.quick-candidate{display:flex;flex-direction:column;gap:10px;min-width:0}
+.quick-candidate-identity{display:flex;align-items:center;gap:12px}.quick-candidate-identity h2{margin:0;font-size:var(--tr-xl)}
+.quick-candidate p{margin:0}.quick-candidate .badge{align-self:flex-start}.quick-candidate>button{margin-top:auto;min-height:44px}
+.quick-candidate.is-selected{border-color:var(--brand-line);box-shadow:inset 0 0 0 1px var(--brand-line)}
+.quick-setup>h2:focus{outline:2px solid var(--brand-line);outline-offset:4px;border-radius:4px}
+@media(max-width:700px){
+ .mobile-hero-card{cursor:pointer}
+ .mobile-hero-card:focus-within{outline:2px solid var(--brand-line);outline-offset:2px}
+ .simple-build>h2{font-size:var(--tr-xl);margin:8px 0}.simple-build>.simple-source{margin:8px 0;line-height:1.45}
+ .simple-build .build-step{margin:14px 0 10px}.simple-setup>div{padding:10px}
+ .quick-candidates{gap:8px}.quick-candidate{padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+ .quick-candidate-identity{grid-column:1/-1}.quick-candidate-identity .portrait{width:36px;height:44px}
+ .quick-candidate>p{grid-column:1/-1}.quick-candidate>.badge{font-size:var(--tr-xs);align-self:center}
+ .quick-candidate>button{max-width:160px;font-size:var(--tr-sm);margin:0}
+ .large-text .quick-candidate{grid-template-columns:1fr}.large-text .quick-candidate>button{max-width:none}
+}
