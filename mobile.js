@@ -228,6 +228,13 @@ function roleListOrder(role){
  sampled.sort((a,b)=>{if(activeReview){const tiers={S:0,A:1,B:2,C:3,D:4},ar=E.metaReview(a.slug,role),br=E.metaReview(b.slug,role),gap=(ar?.active?tiers[ar.tier]??9:9)-(br?.active?tiers[br.tier]??9:9);if(gap)return gap;}return b.perf.wr-a.perf.wr||b.perf.played-a.perf.played||byName(a,b);});
  return sampled.concat(rest);
 }
+function savedHeroShortcuts(favorites,recent){
+ const seen=new Set(favorites.map(p=>p.slug+'|'+p.role));
+ const recentOnly=recent.filter(p=>!seen.has(p.slug+'|'+p.role));
+ if(!favorites.length&&!recentOnly.length)return '';
+ const shortcut=p=>`<button data-hero="${esc(p.slug)}" data-role="${esc(p.role)}">${esc(name(p.slug))}<small>${esc(labels[p.role])}</small></button>`;
+ return `<details class="saved-heroes" data-keep="saved-heroes"><summary>Your heroes · ${favorites.length} ${favorites.length===1?'favorite':'favorites'} · ${recentOnly.length} recent</summary>${favorites.length?`<section id="mobile-favorites"><h2>Favorites</h2><div class="saved-hero-list">${favorites.map(p=>`<div>${shortcut(p)}<button class="favorite-button" data-favorite="${esc(p.slug+'|'+p.role)}" aria-label="Remove ${esc(name(p.slug))} ${esc(labels[p.role])} from favorites">★</button></div>`).join('')}</div></section>`:''}${recentOnly.length?`<section id="mobile-recent"><h2>Recent</h2><div class="saved-hero-list">${recentOnly.map(p=>`<div>${shortcut(p)}</div>`).join('')}</div></section>`:''}</details>`;
+}
 function guidedHome(){
  const role=roleOrder.includes(S.role)?S.role:'jungle',query=String(companionPrefs.homeQuery||'').toLowerCase(),everyone=roleHeroes(role),rows=roleListOrder(role).filter(r=>name(r.slug).toLowerCase().includes(query));
  const order=companionPrefs.metaOrder||'reviewed',tiers=S.bracket==='gold'?E.metaReviewSummary(role):null,tiersLead=!!tiers?.active,policy=E.performancePolicy(),savedStats=policy.saved?' · saved statistics, fetched '+date(policy.fetched_at):'';
@@ -246,9 +253,8 @@ function guidedHome(){
  const listStatus=`<p id="meta-order-status">${esc(availability)} ${policy.source?esc(ordering+savedStats)+'. ':''}The 100-game line is eligibility, not confidence.${order==='name'?'':' Smaller or missing samples follow the eligible rows.'}</p>`;
  return (compact?'':mobileStatusHTML())+(companionError?note(esc(companionError),true):'')+head('Meta · '+esc(B.bracket?.label||''),labels[role]+' at a glance',compact?'Choose a hero. Build for your match.':esc(lead))+
  `<div class="role-choices compact" role="tablist" aria-label="Role">${roleOrder.map(r=>`<button role="tab" data-mobile-role="${r}" aria-selected="${role===r}">${labels[r]}</button>`).join('')}</div><div class="meta-list-controls"><label class="mobile-search"><span>Find a ${esc(labels[role].toLowerCase())}</span><input id="mobile-hero-search" type="search" autocomplete="off" placeholder="Hero name" value="${esc(companionPrefs.homeQuery)}"></label><label>Order by<select id="mobile-meta-order">${options(sortOptions,displayedOrder)}</select></label></div>`+
+ savedHeroShortcuts(favorites,recent)+
  `<section id="mobile-role-list">${compact?`<details class="meta-context" data-keep="meta-context"><summary>${esc(overview)}</summary><div class="detail-content">${mobileStatusHTML()}<p>${esc(lead)}</p>${listStatus}</div></details>`:''}<div class="section-title"><h2>${compact?'Heroes':'All '+esc(labels[role].toLowerCase())+' heroes'}</h2><small>Showing ${rows.length} of ${everyone.all.length}</small></div>${compact?'':listStatus}<div class="mobile-card-list" id="mobile-all-list">${rows.map(r=>heroTile({slug:r.slug,role})).join('')||empty('No hero matches this role and search.')}</div></section>`+
- (favorites.length?`<section id="mobile-favorites"><h2>Favorites</h2><div class="mobile-card-list">${favorites.map(p=>heroTile(p,{favorite:true})).join('')}</div></section>`:'')+
- (recent.length?`<section id="mobile-recent"><h2>Recent</h2><div class="mobile-card-list">${recent.map(p=>heroTile(p)).join('')}</div></section>`:'')+
  `<section id="mobile-changes"><div class="section-title"><h2>What changed</h2><button class="quiet" data-route="changes">All changes</button></div>${changes.length?`<div class="mobile-card-list">${changes.map(c=>`<article class="mobile-change">${heroButton(c.slug,c.role,true)}<strong class="${c.wr_delta>0?'positive':'negative'}">${pp(c.wr_delta)}</strong><small>${num(c.matches_from,0)} → ${num(c.matches_to,0)} games</small></article>`).join('')}</div>`:empty('No qualifying win-rate movement in the available same-rank comparison.')}</section>`;
 }
 function mobileHero(){
