@@ -281,8 +281,8 @@
  .adapt-dock>.primary{width:100%;min-height:48px;box-shadow:var(--shadow-nav)}
  .adapt-dock+.simple-actions{margin-top:var(--s2)}
  /* Rec 3 and 2.29 stage 1: one row of section tabs that wraps instead of scrolling. */
- .simple-sections,.large-text .simple-sections{display:flex;flex-wrap:wrap;overflow:visible;margin:var(--s3) 0;gap:var(--s1)}
- .simple-sections button,.large-text .simple-sections button{flex:1 1 auto;grid-column:auto;min-width:44px;padding:var(--s2) var(--s2);white-space:nowrap}
+ .simple-sections,.large-text .simple-sections{display:flex;flex-wrap:wrap;overflow:visible;margin:var(--s3) 0;gap:var(--s0-5)}
+ .simple-sections button,.large-text .simple-sections button{flex:1 1 auto;grid-column:auto;min-width:44px;padding:var(--s2) var(--s1-5);white-space:nowrap}
  /* Rec 3: provenance once per group. */
  .build-provenance{margin:calc(var(--s0-5) * -1) 0 var(--s2)}
  .purchase-group{margin:var(--s2) 0 var(--s1-5);font-size:var(--tr-sm);font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
