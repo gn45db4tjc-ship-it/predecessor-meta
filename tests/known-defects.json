@@ -2,7 +2,6 @@
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite.",
   "baseline": "2.23.0 / 9bac0c2",
   "open": [
-    "DS5",
     "DS6"
   ],
   "defects": {
