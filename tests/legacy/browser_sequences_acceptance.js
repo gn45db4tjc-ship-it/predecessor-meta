@@ -11,8 +11,12 @@
   const article=[...document.querySelectorAll('#main article')].find(a=>a.querySelector('.eyebrow')?.textContent===r.key);
   const disclosure=article?.querySelector('.sequence-evidence');
   if(!disclosure)throw Error('Timing panel unavailable '+r.slug+' '+r.key);
+  // The panel can sit inside another closed disclosure (for example beside a patch note); open those first, as a user would.
+  for(let e=disclosure.parentElement;e;e=e.parentElement)if(e.tagName==='DETAILS'&&!e.open)e.querySelector(':scope > summary').click();
   disclosure.querySelector('summary').click();
-  assert(disclosure.innerText.includes(r.note)&&disclosure.querySelector('a')?.href===r.source,'Timing and source '+r.slug+' '+r.key);
+  // A review whose supporting ability source no longer matches stays visible as withheld, never as current.
+  if(E.sequenceReview(r.slug,r.key)?.active)assert(disclosure.innerText.includes(r.note)&&disclosure.querySelector('a')?.href===r.source,'Timing and source '+r.slug+' '+r.key);
+  else assert(/needs review/i.test(disclosure.innerText)&&/withheld/.test(disclosure.innerText)&&!disclosure.innerText.includes(r.note),'Unmatched timing withheld '+r.slug+' '+r.key);
  }
  click('[data-route="meta"]');click('[data-meta-role="jungle"]');click('[data-hero="steel"]');click('[data-hero-tab="pairings"]');
  click('[data-pair="steel|gideon|jungle|midlane"]');
