@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.34.5
+# Predecessor Meta - 2.34.6
 
-The collector verifies Hotfix 1.17.1, which the publisher placed inside the 1.17 patch article, and the 1.17 reviews are checked against it: no advice changes, and reviewed builds and tiers stay active. See [RELEASE-2.34.5.md](RELEASE-2.34.5.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The Pred.gg sample counts the whole 1.17 line across Hotfix 1.17.1 (versions 167 and 168), labelled that way, so the reviewed Gold+ tiers have a current sample again once the Windows collector runs this release. See [RELEASE-2.34.6.md](RELEASE-2.34.6.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.34.5
+
+The collector verifies Hotfix 1.17.1, which the publisher placed inside the 1.17 patch article, and the 1.17 reviews are checked against it: no advice changes, and reviewed builds and tiers stay active. See [RELEASE-2.34.5.md](RELEASE-2.34.5.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.34.4
 
