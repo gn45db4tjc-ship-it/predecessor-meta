@@ -136,7 +136,7 @@
     "tests/browser_review_corrections.cjs": "d0f6aeb97d90d2d7ba164770f5bd88ffa4f7ad2641beee441ee09b9ffcd899cd",
     "tests/browser_revision2_modes.cjs": "757dae4555ef2b49cf95255f28b158c380c74f469a1946c760f904cde068b05e",
     "tests/browser_role_statistics.cjs": "a2cee45194cd0d6b798aaf3a702ebba89213140af301e82abac9321e7072eb2b",
-    "tests/browser_static.cjs": "e1009dcb481bcffede05d17b3d86130eff71c7017aeb8974ac24d19927ee3030",
+    "tests/browser_static.cjs": "97376306eb549251ffe51b9a6f486acbadd378d7f9dc054ce1443dca9a9e29cb",
     "tests/browser_visual_polish.cjs": "1b14571bc5c109c1e690333ec0da2f5ed28c9dd3ffa937d0b2ed06ead96186ce",
     "tests/browser_visual_redesign.cjs": "9c741368635a1caf0e96cc595afeee46748245cb080fee46f5250b9a16419af8",
     "tests/build_coach.test.cjs": "b246bb4aae577ab0796570982f417e3c3265413e02e136c03ccbca2a332fc52c",
