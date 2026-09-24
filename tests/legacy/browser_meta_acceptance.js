@@ -24,7 +24,8 @@
  assert(document.querySelector('#detail-body').innerText.includes('Officially reviewed fields'),'Ability opens official field provenance');close();
  click('[data-route="meta"]');click('[data-meta-role="jungle"]');click('[data-hero="countess"]');click('[data-hero-tab="kit"]');
  const feast=[...document.querySelectorAll('article')].find(a=>a.querySelector('h3')?.textContent==='Feast');
- assert(feast?.innerText.includes('135/215/285'),'Feast displays official damage');
+ // Officially reviewed damage: 135/215/285 through 1.16.4; the 1.17 notes fixed a Feast damage bug (135/200/265).
+ assert(feast?.innerText.includes('Officially reviewed fields')&&/deals (135\/215\/285|135\/200\/265) /.test(feast.innerText),'Feast displays official damage');
  assert(feast.innerText.includes('125 / 105 / 85s'),'Feast retains actual cooldown');
  assert(!feast.innerText.includes('deals 125/105/85'),'Malformed raw Feast damage stays collapsed');
  for(const route of [...document.querySelectorAll('#navigation [data-route]')].map(e=>e.dataset.route)){
