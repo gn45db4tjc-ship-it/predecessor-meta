@@ -14,9 +14,16 @@ const tiersReviewed=page=>page.evaluate(()=>B.guidance.patch===B.official?.live?
 // Steel from the Meta table when it is listed there; a source table can omit a hero, so fall back to the hero link.
 const openSteel=async page=>{const link=page.locator('#main .meta-table [data-hero="steel"]');if(await link.count())await link.first().click();else await page.evaluate(()=>openHero('steel','jungle'));};
 const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Number(n).toString(16).padStart(2,'0')).join(''):null;};
+let preview=null;
 (async()=>{
- const browser=await chromium.launch({headless:true,channel:'msedge',args:['--disable-gpu']});
- const report={engine:'Microsoft Edge on Windows',version:browser.version(),runs:[]};
+ // START_PREVIEW=1 serves PREVIEW_DIR (default: the seed site that browser_audit_regressions.cjs stages in CI).
+ if(process.env.START_PREVIEW==='1'){
+  preview=require('node:child_process').spawn(process.env.PYTHON_EXE||'python',['-B','-m','http.server',new URL(url).port,'--bind','127.0.0.1','--directory',process.env.PREVIEW_DIR||path.join(root,'qa','audit-site')],{windowsHide:true,stdio:'ignore'});
+  for(let attempt=0;;attempt++){try{if((await fetch(url)).ok)break;}catch{}if(attempt===50)throw Error('Preview did not start');await new Promise(r=>setTimeout(r,100));}
+ }
+ const channel=process.env.BROWSER_CHANNEL||'msedge';
+ const browser=await chromium.launch({headless:true,channel,args:['--disable-gpu']});
+ const report={engine:channel==='msedge'&&process.platform==='win32'?'Microsoft Edge on Windows':channel+' on '+process.platform,version:browser.version(),runs:[]};
  try{
   // 1536×864 at 1.25 device scale approximates Windows 125% scaling on a 1920×1080 monitor (browser emulation, not native scaling).
   for(const viewport of [{width:1920,height:1080,scale:1},{width:2560,height:1440,scale:1},{width:1536,height:864,scale:1.25}]){
@@ -208,5 +215,5 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
   fs.mkdirSync(path.join(root,'qa'),{recursive:true});
   fs.writeFileSync(path.join(root,'qa','edge-design-acceptance.json'),JSON.stringify(report,null,2));
   console.log(JSON.stringify({engine:report.engine,runs:report.runs.map(r=>({viewport:r.viewport,checks:r.checks.length}))}));
- }finally{await browser.close();}
-})().catch(error=>{console.error(error);process.exitCode=1;});
+ }finally{await browser.close();preview?.kill();}
+})().catch(error=>{console.error(error);preview?.kill();process.exitCode=1;});

@@ -10,12 +10,12 @@ let previewServer,outageServer;
 const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();outageServer.closeAllConnections();}};
 (async()=>{
  if(process.env.START_PREVIEW==='1'){
-  previewServer=spawn(process.env.PYTHON_EXE||'python',['-B','-m','http.server',new URL(url).port||'12926','--bind','127.0.0.1','--directory',path.join(root,'qa','site')],{windowsHide:true,stdio:'ignore'});
+  previewServer=spawn(process.env.PYTHON_EXE||'python',['-B','-m','http.server',new URL(url).port||'12926','--bind','127.0.0.1','--directory',process.env.PREVIEW_DIR||path.join(root,'qa','site')],{windowsHide:true,stdio:'ignore'});
   const deadline=Date.now()+10000;
   for(;;){try{const response=await fetch(url);if(response.ok)break;}catch{}if(Date.now()>deadline)throw Error('Preview server did not start');await new Promise(r=>setTimeout(r,100));}
  }
  const useWebkit=process.env.BROWSER_ENGINE==='webkit';
- const browser=await (useWebkit?webkit.launch({headless:true}):chromium.launch({headless:true,channel:'msedge'}));
+ const browser=await (useWebkit?webkit.launch({headless:true}):chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL||'msedge'}));
  const newContext=browser.newContext.bind(browser);browser.newContext=async (...args)=>{const c=await newContext(...args);await c.addInitScript(()=>{localStorage.setItem('predecessor-companion-v1',JSON.stringify({installSeen:true,fullDetails:true}));});return c;};
  const report={engine:useWebkit?'Playwright WebKit on Windows (not native Apple Safari)':'Microsoft Edge on Windows',version:browser.version(),runs:[]};
  try{
