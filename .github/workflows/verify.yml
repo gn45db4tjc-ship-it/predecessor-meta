@@ -51,6 +51,21 @@ jobs:
           PREVIEW_URL: http://127.0.0.1:12941/
           BROWSER_CHANNEL: chrome
         run: node tests/browser_companion_simple.cjs
+      # These two ran only by hand and went stale unnoticed. On the committed seed the legacy suites whose premise
+      # needs a current 1.17 build review (strategy, live) record a named skip; run both on a live six-rank site too.
+      - name: Static acceptance and legacy suites on the committed seed
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13051/
+          PREVIEW_DIR: qa/audit-site
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_static.cjs
+      - name: Design acceptance on the committed seed (hierarchy, contrast, phone shell)
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13052/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_design.cjs
       - name: Previous-dataset role statistics survive a patch rollover
         env:
           START_PREVIEW: '1'
