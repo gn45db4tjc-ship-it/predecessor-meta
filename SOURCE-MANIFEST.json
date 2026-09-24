@@ -118,7 +118,7 @@
     "tests/audit_regressions.test.cjs": "45fd422175c664eeb5e18dce2f98d8dff4dcb01af471dd93cfb1577cbeb80cdb",
     "tests/browser_app_updates.cjs": "42b2e844cd1d37106d2ddd854dacfcf23343cee750dd06588eeac5a7b2b39d11",
     "tests/browser_audit_regressions.cjs": "98babf41b575dc8efd53d11aa219ba68fc38ba87e92d8f79395459ab647db54e",
-    "tests/browser_build_patch_review.cjs": "24cbaed2668eaddcebb78b7f80900aa996e01e7ff778eda474df6237b8dc4f8d",
+    "tests/browser_build_patch_review.cjs": "507162f33adf486d4e5d6443a5d034777bbea51f2e2e360b701ba23f2b2b4da2",
     "tests/browser_companion.cjs": "2ef76d261362aca1bebb27b6c42dab6ee7c1e2b995110f4da7f98b9a7c96dbf3",
     "tests/browser_companion_accessibility.cjs": "a2d39a332090998a2bc54ccb29845b2dcf130a0109e1592c7c1e0688c6087cf5",
     "tests/browser_companion_simple.cjs": "123fadc4bc1d91e30785abe8785bc7312c9e4b425d39d8c101850ed332cab4ba",
