@@ -148,6 +148,19 @@
     "RS3": "Stage 5: reference catalog opens a bounded first page but search and Show more reach the entire catalog",
     "RS4": "Sources: publishing-method paragraphs must not push the status heading below the first half of a phone screen",
     "ML1": "Meta completion: the entire role list is visible on arrival, with explicit ordering and no hidden heroes",
-    "ML2": "Meta completion: name and observed-rate ordering work, keep small samples separate, and survive reload"
+    "ML2": "Meta completion: name and observed-rate ordering work, keep small samples separate, and survive reload",
+    "U1": "DESIGN 2.33 (critique of 2.32.0): at 375x812 the hero page does not show all six starting-build items on the first screen",
+    "U2": "DESIGN 2.33: 'Adapt to my match' is not on screen above the phone navigation at the top and middle of the hero page",
+    "U3": "DESIGN 2.33: away from Meta the phone status summary is a separate full-width banner instead of sharing the rank row (Meta keeps the full banner)",
+    "U4": "DESIGN 2.33: an optional Pred.gg problem alone is labelled a source failure on the phone",
+    "U5": "DESIGN 2.33: the phone hero sections wrap into a multi-row grid of large buttons instead of one tab row",
+    "U6": "DESIGN 2.33: the phone build repeats 'Core'/'Flexible' under every item and 'Reviewed choice' under every loadout slot instead of stating provenance once per group",
+    "U7": "DESIGN 2.33: phone Meta rows differ in height, use an external-link arrow as the row cue, or omit 'Build ready' for an active reviewed build",
+    "DS1": "DESIGN SYSTEM 2.33: spacing declarations use pixel literals off the --s* token scale (for example 10px, 6px, 14px)",
+    "DS2": "DESIGN SYSTEM 2.33: corner radius is written as literals (3-20px) instead of the four radius tokens sm, md, lg and pill",
+    "DS3": "DESIGN SYSTEM 2.33: the phone hero sections are not a tablist with one selected tab, scroll sideways (against 2.29 stage 1), or look different from the Meta role tabs",
+    "DS4": "DESIGN SYSTEM 2.33: evidence tags, status pills and the Build ready chip do not share one chip base and geometry",
+    "DS5": "DESIGN SYSTEM 2.33: focus rings differ between phone and desktop, or selection indicators use gold that falls below 3:1 in the light theme",
+    "DS6": "DESIGN SYSTEM 2.33: the token set keeps a parallel --phone-* palette, alias/duplicate tokens (--serif, --gold-soft) or more than six rem type steps"
   }
 }

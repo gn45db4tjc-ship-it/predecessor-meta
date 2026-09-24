@@ -35,6 +35,8 @@ Never read, print, copy or package the publisher private key or `.local-publishe
 
 No production package build, TypeScript or lint tool is configured. `package.json` pins development Playwright/axe. Run `python -B -m unittest discover -s tests -p "test_static*.py"`, `node --test tests/*.test.cjs`, syntax checks for changed JS, then `tests/stage_preview.py` and relevant browser suites. Browser tests support `PREVIEW_URL`, `START_PREVIEW`, `BROWSER_CHANNEL`, `BROWSER_ENGINE`, `PYTHON_EXE`, `PLAYWRIGHT_PATH` and `AXE_PATH` where documented in each script. Use only dated preview seeds, never a live collection disguised as a test.
 
+Styling follows `docs/DESIGN-SYSTEM.md`: tokens only (spacing, radius, type, colour), one chip and one tab-strip component, one focus ring. Add or change a token there in the same change; `tests/test_static_design_system.py` and audit probes DS1-DS6 enforce it.
+
 Escape source text and validate URLs; retain accessible labels, 44px phone targets, focus/Escape return, reflow, deep links, Back/Forward, disclosure state and offline data dates. Keep observed, calculated, reviewed and official claims distinct. Follow the existing probes-first rule: reproduce a defect before fixing it, retain the result, and update the affected test and defect ledger together where applicable (`DESIGN-2.29-ACCEPTANCE.md`, `tests/known-defects.json`). Meaningful fixtures test behavior rather than mirror implementation. No physical-device or screen-reader acceptance claim from axe alone.
 
 ## Caution / debt

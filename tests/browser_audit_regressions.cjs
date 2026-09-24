@@ -2077,6 +2077,90 @@ const probes = {
       || !/could not be loaded/i.test(seen.newDialog.first) || seen.newDialog.next !== ''
       || seen.retry.failing < 2 || seen.retry.firstWait !== 1 || seen.retry.retried.length !== 2 || seen.retry.afterSearch !== 2 || !seen.retry.retried.every(t => /could not be loaded/i.test(t)) || seen.retry.end !== 2
       || !seen.layout.phone || seen.layout.narrow.length > 0 || seen.layout.later.length > 0, seen);
+  },
+  /* 2.33: design critique of 2.32.0 (phone first). Measured at 375x812 with default text in the quick companion
+     (the harness defaults other probes to full details). */
+  async U1(browser) {
+    // The whole six-item starting build is readable on the hero page's first screen.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const seen = await page.evaluate(() => {
+      const plan = chosenPlan({slug: 'steel', role: 'jungle'}), nav = document.querySelector('#mobile-navigation')?.getBoundingClientRect().top ?? innerHeight;
+      const keys = plan.items.map(n => catalogKey('items', n) || n);
+      const firstOf = key => [...document.querySelectorAll('#main .item-button')].find(b => b.dataset.key === key && b.getBoundingClientRect().height > 0);
+      const shown = keys.map(key => { const b = firstOf(key), r = b?.getBoundingClientRect(); return !!r && r.top >= 0 && r.bottom <= nav; });
+      return {items: plan.items.length, shown: shown.filter(Boolean).length, nav: Math.round(nav)};
+    });
+    verdict('U1', seen.items !== 6 || seen.shown < 6, seen);
+    await context.close();
+  },
+  async U2(browser) {
+    // "Adapt to my match" stays on screen above the phone navigation while the hero page scrolls.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const at = async y => page.evaluate(async y => { scrollTo(0, y); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const b = document.querySelector('#main [data-start-live]'), r = b?.getBoundingClientRect(), nav = document.querySelector('#mobile-navigation')?.getBoundingClientRect().top ?? innerHeight;
+      return {top: Math.round(r?.top ?? -1), bottom: Math.round(r?.bottom ?? -1), nav: Math.round(nav), visible: !!r && r.top >= 0 && r.bottom <= nav + 1}; }, y);
+    const seen = {top: await at(0), middle: await at(Math.round(await page.evaluate(() => document.documentElement.scrollHeight / 2)))};
+    verdict('U2', !seen.top.visible || !seen.middle.visible, seen);
+    await context.close();
+  },
+  async U3(browser) {
+    // Away from Meta, the status summary shares the rank row instead of adding a full-width banner; Meta keeps the full banner.
+    const {context, page} = await session(browser, {...phone, viewport: {width: 375, height: 812}});
+    const seen = await page.evaluate(() => {
+      B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'error', detail: 'A required source could not be refreshed for this probe.'}];
+      const measure = () => { const l = document.querySelector('#mobile-limits').getBoundingClientRect(), r = document.querySelector('#bracket').getBoundingClientRect();
+        return {limitsTop: Math.round(l.top), limitsBottom: Math.round(l.bottom), rankTop: Math.round(r.top), sameRow: l.bottom > r.top && l.top < r.bottom, detail: !!document.querySelector('#mobile-limits span:not([aria-hidden])')?.getClientRects().length}; };
+      companionPrefs.fullDetails = false; saveCompanionPrefs(); changeRoute('meta'); const meta = measure();
+      openHero('steel', 'jungle'); const hero = measure();
+      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); const live = measure();
+      return {meta, hero, live};
+    });
+    verdict('U3', !seen.meta.detail || !seen.hero.sameRow || !seen.live.sameRow, seen);
+    await context.close();
+  },
+  async U4(browser) {
+    // A problem in the optional Pred.gg source alone is not presented as a source failure on the phone.
+    const {context, page} = await session(browser, {...phone, viewport: {width: 375, height: 812}});
+    const seen = await page.evaluate(() => {
+      B.errors = [{source: 'Pred.gg all roles', severity: 'error', detail: 'Structured response unavailable.'}]; latestStatus.errors = [];
+      companionPrefs.fullDetails = false; saveCompanionPrefs(); changeRoute('meta'); const n = document.querySelector('#mobile-limits');
+      return {label: n.querySelector('strong')?.innerText || '', material: errors().some(e => isMaterialError(e))};
+    });
+    verdict('U4', !seen.material && /failure/i.test(seen.label), seen);
+    await context.close();
+  },
+  async U5(browser) {
+    // The hero sections are one row of tabs, not a two-row grid of large buttons.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const seen = await page.evaluate(() => { const tops = [...document.querySelectorAll('#main .simple-sections button')].map(b => Math.round(b.getBoundingClientRect().top));
+      return {buttons: tops.length, rows: new Set(tops).size, height: Math.round(document.querySelector('#main .simple-sections')?.getBoundingClientRect().height || 0)}; });
+    verdict('U5', seen.buttons < 4 || seen.rows > 1 || seen.height > 60, seen);
+    await context.close();
+  },
+  async U6(browser) {
+    // The build states its provenance once per group: no "Core"/"Flexible" line under every item, no "Reviewed choice" under every loadout slot.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    const seen = await page.evaluate(() => {
+      const perItem = [...document.querySelectorAll('#main .simple-purchases > li > small')].filter(s => /^(Core|Flexible)$/.test(s.innerText.trim())).length;
+      const perSlot = [...document.querySelectorAll('#main .simple-setup > div > small')].filter(s => /Reviewed choice|Calculated selection/.test(s.innerText)).length;
+      const groups = [...document.querySelectorAll('#main .purchase-group')].map(h => h.innerText.trim());
+      return {perItem, perSlot, groups, items: document.querySelectorAll('#main .simple-purchases > li').length}; });
+    verdict('U6', seen.perItem > 0 || seen.perSlot > 0 || seen.groups.length < 2 || seen.items !== 6, seen);
+    await context.close();
+  },
+  async U7(browser) {
+    // Meta rows are an even height, and the row cue is an in-app chevron (with "Build ready" for an active reviewed build), not an external-link arrow.
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+    const seen = await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+      const rows = [...document.querySelectorAll('#mobile-all-list .mobile-hero-card')], heights = rows.map(r => Math.round(r.getBoundingClientRect().height));
+      const steel = rows.find(r => r.querySelector('[data-hero="steel"]'));
+      return {rows: rows.length, min: Math.min(...heights), max: Math.max(...heights), arrow: rows.filter(r => r.innerText.includes('↗')).length, steel: steel?.innerText.replace(/\s+/g, ' ') || ''}; });
+    verdict('U7', seen.max - seen.min > 16 || seen.arrow > 0 || !/Build ready/.test(seen.steel), seen);
+    await context.close();
   }
 };
 
@@ -2239,6 +2323,150 @@ probes.W4 = async browser => {
   await context.close();
   verdict('W4', scale.sizes.length === 0 || offenders.length > 0,
     {type_scale: scale.sizes, space_scale: scale.spaces, font_size_literals: offenders.length, offenders: offenders.slice(0, 8)});
+};
+
+/* ---------------------------------------------------------------------------
+   DS-series: 2.33 design-system audit. Spacing and radius come from tokens, one tab-strip
+   and one chip pattern, one focus ring, indicators that pass 3:1, and a trimmed token set. */
+const SPACING = /^(?:padding|margin|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?$/;
+
+probes.DS1 = async browser => {
+  /* Spacing resolves through the --s* scale. Hairlines (0, ±1px) and layout reservations of
+     40px or more (room for the fixed phone navigation, for example) are not spacing steps. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const offenders = [];
+  for (const r of rules) {
+    if (/^:root/.test(r.selector.trim())) continue;
+    const body = r.text.slice(r.text.indexOf('{') + 1, -1);
+    for (const decl of body.split(';')) {
+      const [prop, ...rest] = decl.split(':');
+      if (!prop || !rest.length || !SPACING.test(prop.trim())) continue;
+      for (const m of rest.join(':').matchAll(/(-?\d*\.?\d+)px/g)) {
+        const n = Math.abs(parseFloat(m[1]));
+        if (n <= 1 || n >= 40) continue;
+        offenders.push({selector: r.selector.slice(0, 60), decl: decl.trim().slice(0, 60), media: r.media.slice(0, 30)});
+        break;
+      }
+    }
+  }
+  await context.close();
+  verdict('DS1', offenders.length > 0, {count: offenders.length, offenders: offenders.slice(0, 8)});
+};
+
+probes.DS2 = async browser => {
+  /* Corner radius comes from four tokens: sm, md, lg and pill. Circles (50%) and square corners (0) are shapes, not steps. */
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const tokens = await page.evaluate(() => { const cs = getComputedStyle(document.documentElement), out = {};
+    for (const r of document.querySelectorAll('style')) for (const m of (r.textContent.match(/--radius[\w-]*(?=:)/g) || [])) out[m] = cs.getPropertyValue(m).trim();
+    return out; });
+  const offenders = [];
+  for (const r of rules) {
+    if (/^:root/.test(r.selector.trim())) continue;
+    const body = r.text.slice(r.text.indexOf('{') + 1, -1);
+    for (const decl of body.split(';')) {
+      const [prop, ...rest] = decl.split(':');
+      if (!prop || !rest.length || !/radius$/.test(prop.trim()) || prop.trim().startsWith('--')) continue;
+      const parts = rest.join(':').trim().split(/\s+(?![^(]*\))/);
+      if (parts.some(v => !/^(0|0px|50%|inherit|var\(--radius-(sm|md|lg|pill)\))$/.test(v))) offenders.push({selector: r.selector.slice(0, 60), decl: decl.trim().slice(0, 60)});
+    }
+  }
+  const names = Object.keys(tokens).sort().join(',');
+  await context.close();
+  verdict('DS2', offenders.length > 0 || names !== '--radius-lg,--radius-md,--radius-pill,--radius-sm', {tokens, count: offenders.length, offenders: offenders.slice(0, 8)});
+};
+
+probes.DS3 = async browser => {
+  /* One tab-strip pattern: content-switching strips are tablists with one selected tab, they share
+     the selected treatment, and on the phone they wrap rather than scroll sideways (2.29 stage 1). */
+  const seen = {};
+  for (const width of [320, 375, 412]) {
+    const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width, height: 812}});
+    await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); });
+    await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+    seen[width] = await page.evaluate(() => {
+      const strip = document.querySelector('#main .simple-sections'), tabs = [...strip.querySelectorAll('button')];
+      const hero = {role: strip.getAttribute('role'), tabs: tabs.map(t => t.getAttribute('role')), selected: tabs.filter(t => t.getAttribute('aria-selected') === 'true').length,
+        scrolls: strip.scrollWidth > strip.clientWidth + 1, short: tabs.filter(t => t.getBoundingClientRect().height < 44).length};
+      const sel = tabs.find(t => t.getAttribute('aria-selected') === 'true') || tabs.find(t => t.getAttribute('aria-current') === 'true');
+      const look = el => el ? (s => [s.backgroundColor, s.color, s.borderTopColor].join('|'))(getComputedStyle(el)) : null;
+      const heroLook = look(sel);
+      changeRoute('meta');
+      const roleSel = document.querySelector('#main [data-mobile-role][aria-selected="true"]');
+      const roleStrip = roleSel?.closest('[role=tablist]');
+      return {hero, heroLook, roleLook: look(roleSel), roleScrolls: roleStrip ? roleStrip.scrollWidth > roleStrip.clientWidth + 1 : null};
+    });
+    await context.close();
+  }
+  const bad = Object.values(seen).some(s => s.hero.role !== 'tablist' || s.hero.tabs.some(r => r !== 'tab') || s.hero.selected !== 1 || s.hero.scrolls || s.hero.short || s.roleScrolls || s.heroLook !== s.roleLook);
+  verdict('DS3', bad, seen);
+};
+
+probes.DS4 = async browser => {
+  /* One chip pattern: evidence tags, status pills and the Build ready chip share the chip base and its geometry. */
+  const read = el => el ? (s => ({chip: el.classList.contains('chip'), radius: s.borderTopLeftRadius, pad: s.paddingTop + ' ' + s.paddingLeft, size: s.fontSize, weight: s.fontWeight}))(getComputedStyle(el)) : null;
+  const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+  const phoneSeen = await page.evaluate(read => { read = new Function('return ' + read)();
+    companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
+    const host = document.createElement('div'); host.innerHTML = badge('Reviewed', 'reviewed'); document.querySelector('#main').append(host);
+    const out = {tag: read(host.firstElementChild), ready: read(document.querySelector('#mobile-all-list .ready-chip'))}; host.remove(); return out; }, read.toString());
+  await context.close();
+  const d = await session(browser, desktop);
+  const pill = await d.page.evaluate(read => { read = new Function('return ' + read)(); return read(document.querySelector('#patch-strip .status-pill')); }, read.toString());
+  await d.context.close();
+  const all = {...phoneSeen, pill}, list = Object.values(all);
+  const same = k => new Set(list.map(v => v && v[k])).size === 1;
+  verdict('DS4', list.some(v => !v || !v.chip) || !same('radius') || !same('pad') || !same('size') || !same('weight'), all);
+};
+
+probes.DS5 = async browser => {
+  /* One focus ring (the --focus token, 3px) on phone and desktop, and selection indicators that reach 3:1
+     against every surface in both themes. Gold stays a fill colour; indicators use --indicator. */
+  const contrast = await (async () => {
+    const out = {};
+    for (const theme of ['dark', 'light']) {
+      const {context, page} = await session(browser, desktop);
+      out[theme] = await page.evaluate(theme => {
+        document.documentElement.setAttribute('data-theme', theme);
+        const probe = document.createElement('span'); document.body.append(probe);
+        const rgb = v => { probe.style.color = ''; probe.style.color = `var(${v})`; const m = getComputedStyle(probe).color.match(/\d+(\.\d+)?/g); return m ? m.slice(0, 3).map(Number) : null; };
+        const lum = c => { const f = x => { x /= 255; return x <= .03928 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4; }; return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]); };
+        const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+        const res = {};
+        for (const fg of ['--focus', '--indicator']) { const c = rgb(fg); if (!getComputedStyle(document.documentElement).getPropertyValue(fg).trim()) { res[fg] = 'missing'; continue; }
+          res[fg] = Math.min(...['--bg', '--surface', '--surface-2', '--inset'].map(bg => ratio(c, rgb(bg)))).toFixed(2); }
+        probe.remove(); return res; }, theme);
+      await context.close();
+    }
+    return out;
+  })();
+  const {context, page} = await session(browser, desktop);
+  const rules = await page.evaluate(readRules);
+  const goldLines = rules.filter(r => /(?:border[\w-]*|outline[\w-]*|box-shadow)\s*:[^;]*var\(--gold\)/.test(r.text)).map(r => r.selector.slice(0, 50));
+  const focusDesk = await (async () => { await page.keyboard.press('Tab'); for (let i = 0; i < 30; i++) { const ok = await page.evaluate(() => document.activeElement?.tagName === 'BUTTON'); if (ok) break; await page.keyboard.press('Tab'); }
+    return page.evaluate(() => { const s = getComputedStyle(document.activeElement); return s.outlineWidth + ' ' + s.outlineStyle + ' ' + s.outlineColor; }); })();
+  const focusColor = await page.evaluate(() => { const p = document.createElement('span'); p.style.color = 'var(--focus)'; document.body.append(p); const c = getComputedStyle(p).color; p.remove(); return c; });
+  await context.close();
+  const ph = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
+  await ph.page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); });
+  await ph.page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
+  const focusPhone = await (async () => { await ph.page.evaluate(() => document.querySelector('#main .back, #main [data-route="meta"]')?.focus()); await ph.page.keyboard.press('Tab');
+    for (let i = 0; i < 40; i++) { const ok = await ph.page.evaluate(() => !!document.activeElement?.closest('.simple-sections')); if (ok) break; await ph.page.keyboard.press('Tab'); }
+    return ph.page.evaluate(() => { const s = getComputedStyle(document.activeElement); return s.outlineWidth + ' ' + s.outlineStyle + ' ' + s.outlineColor; }); })();
+  await ph.context.close();
+  const want = '3px solid ' + focusColor;
+  const weak = Object.entries(contrast).flatMap(([t, r]) => Object.entries(r).filter(([, v]) => v === 'missing' || Number(v) < 3).map(([k, v]) => t + ' ' + k + ' ' + v));
+  verdict('DS5', weak.length > 0 || goldLines.length > 0 || focusDesk !== want || focusPhone !== want, {contrast, weak, gold_indicators: goldLines.slice(0, 8), focusDesk, focusPhone, want});
+};
+
+probes.DS6 = async browser => {
+  /* A trimmed token set: no parallel phone palette, no aliases or duplicate tokens, and a rem type scale of at most six steps. */
+  const {context, page} = await session(browser, desktop);
+  const names = await page.evaluate(() => { const set = new Set(); for (const s of document.querySelectorAll('style')) for (const m of (s.textContent.match(/--[\w-]+(?=\s*:)/g) || [])) set.add(m); return [...set]; });
+  await context.close();
+  const phoneTokens = names.filter(n => n.startsWith('--phone-')), aliases = names.filter(n => ['--serif', '--gold-soft'].includes(n)), rem = names.filter(n => /^--tr-/.test(n));
+  verdict('DS6', phoneTokens.length > 0 || aliases.length > 0 || rem.length > 6, {phoneTokens, aliases, rem});
 };
 
 
