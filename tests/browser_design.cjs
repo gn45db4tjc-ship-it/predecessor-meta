@@ -9,8 +9,8 @@ const lum=hex=>{const c=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(v=
 const ratio=(a,b)=>{const [x,y]=[lum(a),lum(b)];return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
 // A required-source failure must be named in the material notices; with none, no failure may be claimed there.
 const materialNotice=()=>{const box=document.querySelector('#material-notices'),shown=box.innerText,line=document.querySelector('.status-line').innerText,required=errors().filter(e=>isMaterialError(e));if(!required.length)return !errors().some(e=>shown.includes(e.source));return box.getClientRects().length>0&&/Source failure/.test(line)&&shown.includes(required[0].source)&&shown.includes(required[0].detail)&&(required.length===1||shown.includes((required.length-1)+' more in Status details'));};
-// Reviewed tiers are shown only while the strategy review matches the live patch (not after a new patch).
-const tiersReviewed=page=>page.evaluate(()=>B.guidance.patch===B.official?.live?.version);
+// Reviewed tiers are shown only while active: a review for the live patch and the Pred.gg cohort it was written from.
+const tiersReviewed=page=>page.evaluate(()=>(B.guidance.meta_review?.entries||[]).some(r=>E.metaReview(r.slug,r.role)?.active));
 // Steel from the Meta table when it is listed there; a source table can omit a hero, so fall back to the hero link.
 const openSteel=async page=>{const link=page.locator('#main .meta-table [data-hero="steel"]');if(await link.count())await link.first().click();else await page.evaluate(()=>openHero('steel','jungle'));};
 const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Number(n).toString(16).padStart(2,'0')).join(''):null;};

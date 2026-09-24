@@ -1,8 +1,10 @@
 // Run with agent-browser eval against an isolated app profile. Exercises DOM controls.
 (async()=>{
  const results=[],assert=(v,s)=>{if(!v)throw Error(s);results.push(s);};
- // Premise: the reviewed tier table describes the live patch. After a new patch it is withheld until reviewed again.
- if(B.guidance.patch!==B.official?.live?.version)return {passed:0,skipped:['reviewed tiers are for '+B.guidance.patch+', live patch is '+B.official?.live?.version]};
+ // Premise: reviewed tiers are active. They need a review for the live patch AND the Pred.gg cohort it was written
+ // from (the engine's metaReview); a publication without that cohort keeps showing the observed table instead.
+ const tiers=(B.guidance.meta_review?.entries||[]).map(r=>E.metaReview(r.slug,r.role)).filter(Boolean);
+ if(!tiers.some(t=>t.active))return {passed:0,skipped:['reviewed tiers not active: '+([...new Set(tiers.map(t=>t.status))].join('; ')||'no tier review')+' (review '+B.guidance.meta_review?.patch+', live '+B.official?.live?.version+')']};
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing control '+s);e.click();};
  const close=()=>{if(document.querySelector('#detail').open)click('#close-detail');};
  close();click('[data-route="meta"]');

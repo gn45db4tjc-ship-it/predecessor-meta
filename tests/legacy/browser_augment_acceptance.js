@@ -5,10 +5,13 @@
  const select=(s,v)=>{const e=document.querySelector(s);if(!e)throw Error('Missing '+s);e.value=v;e.dispatchEvent(new Event('change',{bubbles:true}));};
  const summary=s=>[...document.querySelectorAll('#main summary')].find(e=>e.textContent.startsWith(s));
  if(document.querySelector('#detail').open)click('#close-detail');let count=0;
- // A default augment is marked reviewed only while its role plan is patch-reviewed and the capability review matches
- // the verified live patch. Otherwise the same context must stay visible and be labelled Needs review.
- // A plan whose augment has no capability review (for example one changed by a later build review) shows no such context.
- const reviewed=(slug,role)=>{const plan=E.buildReview(slug,role);return (B.guidance.capability_reviews||[]).filter(r=>r.slug===slug&&r.augment===plan?.augment).map(r=>!!plan.active&&B.official?.status==='verified'&&r.patch===B.official.live?.version);};
+ // Each default-augment note is current only while its role plan is patch-reviewed, the capability review matches the
+ // verified live patch, and the collected augment and ability texts still match the reviewed ones (the engine's
+ // plannedKit notes). Otherwise the same context must stay visible and be labelled Needs review. A plan whose augment
+ // has no capability review (for example one changed by a later build review) shows no such context.
+ const reviewed=(slug,role)=>{const plan=E.buildReview(slug,role),notes=E.plannedKit(slug,role)?.loadout_notes||[];
+  for(const n of notes)assert(!n.active||(!!plan?.active&&B.official?.status==='verified'&&(B.guidance.capability_reviews||[]).some(r=>r.slug===slug&&r.augment===n.augment&&r.patch===B.official.live?.version)),'Current augment context needs an active plan and a current review '+slug+' '+role);
+  return notes.map(n=>!!n.active);};
  for(const role of ['jungle','support','carry','midlane','offlane']){
   click('[data-route="meta"]');click('[data-meta-role="'+role+'"]');
   // Planning eligibility exceeds a statistical table's coverage. Inspect every authored role.
