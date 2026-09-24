@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "title": "2.34 one-time 1.17 strategy review",
- "reviewed_at": "2026-09-24T00:39:00-05:00",
+ "reviewed_at": "2026-09-24T00:56:00-05:00",
  "reviewer": "Claude (Opus 5.5) editorial strategy review, 2.34",
  "editorial_reference": "Gold+",
  "roles": {
@@ -1267,7 +1267,7 @@
      "old_tier": "C",
      "tier": "C",
      "why": "Safeguard and Hamstring enable short ability-attack trades before Earth Shatter can finish a damaged target.",
-     "watch": "His offlane sample is small in both patches and favors specialists. Reaping Dash no longer teleports through a Ground effect, and the finishing ultimate is not an opening catch.",
+     "watch": "His offlane sample is small in both patches and favors specialists. Reaping Dash can no longer teleport while he is hit by a Ground effect, and the finishing ultimate is not an opening catch.",
      "ability_keys": [
       "RMB",
       "Q",
@@ -1284,7 +1284,7 @@
      "old_tier": "S",
      "tier": "S",
      "why": "Make Way and Sacred Oath create sustained lane pressure; Stone Forged Soul can extend the time he occupies frontline space.",
-     "watch": "1.17 lowered his base health and armour growth, so buy real defense on time. Personal survival is not allied peel; the draft still needs a reliable catch.",
+     "watch": "1.17 lowered his base health and armor growth, so buy real defense on time. Personal survival is not allied peel; the draft still needs a reliable catch.",
      "ability_keys": [
       "Q",
       "E",
@@ -1514,7 +1514,7 @@
      "old_tier": "A",
      "tier": "A",
      "why": "Refibrillator attacks with Bad Medicine and Ricochet give a ranged attack-and-spell lane with a stun, and Neural Regenesis can save a planned fight; another slot must supply frontline.",
-     "watch": "The offlane sample is small in both patches. 1.17 raised both attack speed and base attack time, so it is not a plain attack-speed buff, and the Infuse change mainly helps the support plan.",
+     "watch": "The offlane sample is modest on 1.16.4 and very small on 1.17. 1.17 raised both attack speed and base attack time, so it is not a plain attack-speed buff, and the Infuse change mainly helps the support plan.",
      "ability_keys": [
       "LMB",
       "Q",
@@ -3037,13 +3037,13 @@
   "pools_note": "Ordered working pools for Gold+ planning on patch 1.17. Choose the job first: direct catch, secondary dive, sustained damage or protection. These are reviewed preferences, not measured ranks; where a 1.17 grade moved, the order follows it. Specialist and lower-priority heroes remain selectable.",
   "notes": [
    "Jungle: Zarus (containment for a mid or support to convert) and Aurora (layered magical control) are the S starting points on 1.17. Serath moved to A: 1.17 trimmed her on-hit and Heresy burn scaling and the Wind-Rider attack speed her plan uses, so she is the second-wave diver rather than the first pick. Khaimera (A) has the steadiest large early 1.17 jungle sample for sustained pressure. Steel is the direct tank catch, with a very small early jungle sample and Heavy Metal attacks that no longer break spell shields. Rampage stays A as a durable long-range boulder catch, but his early 1.17 dip is flagged for the next review.",
-   "Mid: Lt. Belica (compact catch), Gideon and The Fey (prepared area control) stay S. 1.17 trimmed Gideon's damage, and a Ground effect such as Valmont's tether now stops Torn Space, so protect his entry and channel rather than relying on raw damage. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont is new and has no reviewed tier until a Gold+ sample exists.",
+   "Mid: Lt. Belica (compact catch), Gideon and The Fey (prepared area control) stay S. 1.17 trimmed Gideon's damage, and a Ground effect such as Valmont's tether now stops Torn Space, so protect his entry and channel rather than relying on raw damage. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont is new on 1.17 and has no reviewed tier yet; his early Gold+ midlane sample (354 games, heavily banned) is too new to grade.",
    "Carry: Drongo, Sparrow, Eden and Legion stay S. Drongo supplies silence and physical shred, Sparrow needs protected attack time, Eden rewards practiced heat and stance management, and Legion's Scorched Earth plan adds area pressure, though his early 1.17 result is the weakest of the four and should be rechecked. Revenant is the A burst alternative; Murdock rose to B on 1.17 damage buffs, and GRIM.exe's early drop has no kit reason yet.",
    "Support: choose Steel for a direct opening, Mourn for catch plus sustain, Muriel for amplification and protection when initiation already exists, or Narbash for a grouped fight. Muriel keeps S after broad 1.17 trims, including a weaker and costlier Reversal, so position her carefully. Phase stays A after health and Hyperflux trims. Riktor remains a B hook-execution option, and his early 1.17 result makes him the support grade most likely to fall.",
    "Offlane: Greystone remains the pressure default, but 1.17 lowered his base health and armor growth, and Stone Forged Soul is a 2.5s stasis heal, not an extra life. Akeron supplies sustain and frontline on a health build; Grux punishes reachable melee fights, though a Ground effect now interrupts Stampede; Shinbi supplies magical skirmishing. Scarlett and Iggy & Scorch are strong alternatives, Iggy only when another role supplies frontline. Countess's early offlane result fell despite the Feast fix. Terra and Serath offlane stay C and do not inherit another role's grade.",
    "Pred.gg 1.17 matchup rows cover about 1.5 days and pool all roles, and the counter, anti-counter and lane-counter views are one table, not separate evidence. They describe observed games with the named hero present, not proof of a lane or ability interaction. Use the reviewed counterplay to decide which response you can execute.",
    "Community builds are alternative hypotheses. The 2.32 build review compared their item sequences with 1.17 item effects and your role plan; popularity or a high conditional build rate cannot establish that a purchase caused the wins.",
-   "Patch 1.17 strategy review (23 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B."
+   "Patch 1.17 strategy review (23-24 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B."
   ],
   "notes_review": "All eight notes rewritten for 1.17. Notes 0-4 named 1.16.4 facts ('Serath is the second-wave damage pick' under an S grade, 'Steel ... smaller current sample', 'Rampage remains a durable alternative rather than disappearing after nerfs', 'stronger current role evidence', 'Skylar and Revenant remain usable ... old automatic carry pool'). They now follow the five ledgers' grades: the four grade moves are named, Khaimera and the flagged Rampage, Legion and Riktor are described as the reviewers asked, and the 1.17 mechanics that change play are stated without numbers (Serath's scaling and Wind-Rider cuts, Heavy Metal and spell shields, Ground stopping Torn Space and interrupting Stampede, Muriel's Reversal trim, Phase's health and Hyperflux trim, Stone Forged Soul as a stasis heal). Hyperflux movement speed and Narbash's drum-solo scaling are not mentioned because their source-text changes are unannounced. Valmont's tether is named as the Ground source because it is the only one in the 1.17 kit text; the Vein Splitter exception is left to his plan. Note 5 now says the Pred.gg tables are one pooled table over about 1.5 days, per the brief. Note 6 now points at the 2.32 build review's 1.17 item comparison. Note 7 replaced the 14 September/20 September scheduling text with what this review is, and states it schedules nothing further, consistent with STRATEGY-REVIEW-POLICY.md's one-time-trial decision.",
   "build_advice": [
@@ -3055,13 +3055,13 @@
    },
    {
     "name": "Separate clear from catch utility",
-    "text": "Dynamo pays off only when you immobilize an enemy and allies hit it during the next 2.5s. The tank jungle plans pair Fire Blossom's burn clear with Dynamo for the catch; Overlord is the farming and health-stacking opener for plans where you are not the sole initiator, such as Greystone, Khaimera and Rampage. Do not buy both clear openers by habit while the next objective needs armor and catch utility.",
+    "text": "Dynamo pays off only when you immobilize an enemy and allies hit it during the next 2.5s. The Riktor, Steel and Terra jungle plans pair Fire Blossom's burn clear with Dynamo for the catch; Overlord is the farming and health-stacking opener for plans where you are not the sole initiator, such as Greystone, Khaimera and Rampage. Do not buy both clear openers by habit while the next objective needs armor and catch utility.",
     "verdict": "changed",
     "review": "Neither item changed on 1.17. Dynamo's Immobilizer makes an immobilized enemy take 8% more damage for 2.5s; Overlord's Colossal Cleave scales with health and Devourer permanently adds health on kills. No 2.32 plan buys both Dynamo and Overlord, so the old 'do not buy both clear engines' was unclear about which two items it meant; the 2.32 tank junglers (Steel, Riktor, Terra) run Fire Blossom with Dynamo, while Greystone, Khaimera and Rampage open Overlord. Text rewritten to name that split; the advice itself is unchanged."
    },
    {
     "name": "Serath: finishing chain versus a marked duel",
-    "text": "Weald is the default Eternal for Serath's attack-speed and on-hit jungle plan. The 2.32 build review kept it over Thraex because Weald led in the 1.16 loadout samples; those are separate conditional samples, not a causal test, and 1.17 has not re-measured the split. Dryad's Boon still shortens basic-ability cooldowns on each attack, and Wind-Rider, which follows her teleport or leap entry, gives less attack speed on 1.17. Weald fires only against a hero below 30% health, with a 10s cooldown per hero, so it does not amplify every attack. Keep Thraex for a deliberately sustained marked-target duel.",
+    "text": "Weald is the default Eternal for Serath's attack-speed and on-hit jungle plan. The 2.32 build review switched it from Thraex to Weald because Weald led in the 1.16 loadout samples; those are separate conditional samples, not a causal test, and 1.17 has not re-measured the split. Dryad's Boon still shortens basic-ability cooldowns on each attack, and Wind-Rider, which follows her teleport or leap entry, gives less attack speed on 1.17. Weald fires only against a hero below 30% health, with a 10s cooldown per hero, so it does not amplify every attack. Keep Thraex for a deliberately sustained marked-target duel.",
     "verdict": "changed",
     "review": "'Current Pred.gg Jungle observations favor it' was stale: the 2.32 build review's basis was the 1.16 Statz loadout comparison (Weald ahead of Thraex in all four large brackets), and it states no Gold+ 1.17 loadout outcome exists. The 1.17 perk text confirms Weald (below 30% health, 10s per-hero cooldown), Dryad's Boon (0.15s basic-cooldown cut on hit) and Wind-Rider (now 15% attack speed after a dash, leap, teleport or leaving stealth; official cut from 20%). Serath's Heaven's Fury teleport and Ascend leap both trigger Wind-Rider. The jungle reviewer's S to A move does not change which loadout the plan uses."
    },
@@ -3074,7 +3074,7 @@
   ],
   "summary": "One-time Patch 1.17 strategy review for Gold+ play. Tier grades, hero counterplay, counter picks, build adaptations, compositions and working pools were re-checked against exact 1.17 ability text, the official 1.17 changes and the 2.32 build plans. Early 1.17 results cover about 1.5 days, so grades moved only where a kit reason and the evidence agreed. The playbook still favors a coherent win condition over assembling five high win rates.",
   "title": "Patch 1.17 decision playbook",
-  "historical_note": "One-time review for patch 1.17, written on 23 September 2026 as a Gold+ (ranks 27-36) reference. Grades are dated editorial judgments, not win probabilities. Evidence limits: Pred.gg 1.17 Gold+ data covered about 1.5 days (30-770 games per hero and role, with intervals of roughly 4 to 10 points either way); Bronze+ figures contain the Gold+ games; the 14 September 1.16.4 review samples are large but from the previous patch; Statz is a lagging 1.16 comparison. Earlier council judgments and the 14 September review remain background, and observed rates, calculated kit fit and personal working pools stay separate.",
+  "historical_note": "One-time review for patch 1.17, written on 23-24 September 2026 as a Gold+ (ranks 27-36) reference. Grades are dated editorial judgments, not win probabilities. Evidence limits: Pred.gg 1.17 Gold+ data covered about 1.5 days (fewer than 30 to about 770 games per hero and role, with intervals of roughly 4 to 18 points either way); Bronze+ figures contain the Gold+ games; the 14 September 1.16.4 review samples are large but from the previous patch; Statz is a lagging 1.16 comparison. Earlier council judgments and the 14 September review remain background, and observed rates, calculated kit fit and personal working pools stay separate.",
   "consistency_findings": [
    {
     "ledger": "offlane",

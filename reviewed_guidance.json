@@ -1,6 +1,6 @@
 {
   "patch": "1.17",
-  "reviewed_at": "2026-09-24T00:39:00-05:00",
+  "reviewed_at": "2026-09-24T00:56:00-05:00",
   "article_fingerprints": {
     "1.17": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
     "1.16.4": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992"
@@ -53,13 +53,13 @@
     },
     "notes": [
       "Jungle: Zarus (containment for a mid or support to convert) and Aurora (layered magical control) are the S starting points on 1.17. Serath moved to A: 1.17 trimmed her on-hit and Heresy burn scaling and the Wind-Rider attack speed her plan uses, so she is the second-wave diver rather than the first pick. Khaimera (A) has the steadiest large early 1.17 jungle sample for sustained pressure. Steel is the direct tank catch, with a very small early jungle sample and Heavy Metal attacks that no longer break spell shields. Rampage stays A as a durable long-range boulder catch, but his early 1.17 dip is flagged for the next review.",
-      "Mid: Lt. Belica (compact catch), Gideon and The Fey (prepared area control) stay S. 1.17 trimmed Gideon's damage, and a Ground effect such as Valmont's tether now stops Torn Space, so protect his entry and channel rather than relying on raw damage. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont is new and has no reviewed tier until a Gold+ sample exists.",
+      "Mid: Lt. Belica (compact catch), Gideon and The Fey (prepared area control) stay S. 1.17 trimmed Gideon's damage, and a Ground effect such as Valmont's tether now stops Torn Space, so protect his entry and channel rather than relying on raw damage. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont is new on 1.17 and has no reviewed tier yet; his early Gold+ midlane sample (354 games, heavily banned) is too new to grade.",
       "Carry: Drongo, Sparrow, Eden and Legion stay S. Drongo supplies silence and physical shred, Sparrow needs protected attack time, Eden rewards practiced heat and stance management, and Legion's Scorched Earth plan adds area pressure, though his early 1.17 result is the weakest of the four and should be rechecked. Revenant is the A burst alternative; Murdock rose to B on 1.17 damage buffs, and GRIM.exe's early drop has no kit reason yet.",
       "Support: choose Steel for a direct opening, Mourn for catch plus sustain, Muriel for amplification and protection when initiation already exists, or Narbash for a grouped fight. Muriel keeps S after broad 1.17 trims, including a weaker and costlier Reversal, so position her carefully. Phase stays A after health and Hyperflux trims. Riktor remains a B hook-execution option, and his early 1.17 result makes him the support grade most likely to fall.",
       "Offlane: Greystone remains the pressure default, but 1.17 lowered his base health and armor growth, and Stone Forged Soul is a 2.5s stasis heal, not an extra life. Akeron supplies sustain and frontline on a health build; Grux punishes reachable melee fights, though a Ground effect now interrupts Stampede; Shinbi supplies magical skirmishing. Scarlett and Iggy & Scorch are strong alternatives, Iggy only when another role supplies frontline. Countess's early offlane result fell despite the Feast fix. Terra and Serath offlane stay C and do not inherit another role's grade.",
       "Pred.gg 1.17 matchup rows cover about 1.5 days and pool all roles, and the counter, anti-counter and lane-counter views are one table, not separate evidence. They describe observed games with the named hero present, not proof of a lane or ability interaction. Use the reviewed counterplay to decide which response you can execute.",
       "Community builds are alternative hypotheses. The 2.32 build review compared their item sequences with 1.17 item effects and your role plan; popularity or a high conditional build rate cannot establish that a purchase caused the wins.",
-      "Patch 1.17 strategy review (23 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B."
+      "Patch 1.17 strategy review (23-24 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B."
     ],
     "compositions": [
       {
@@ -314,11 +314,11 @@
       },
       {
         "name": "Separate clear from catch utility",
-        "text": "Dynamo pays off only when you immobilize an enemy and allies hit it during the next 2.5s. The tank jungle plans pair Fire Blossom's burn clear with Dynamo for the catch; Overlord is the farming and health-stacking opener for plans where you are not the sole initiator, such as Greystone, Khaimera and Rampage. Do not buy both clear openers by habit while the next objective needs armor and catch utility."
+        "text": "Dynamo pays off only when you immobilize an enemy and allies hit it during the next 2.5s. The Riktor, Steel and Terra jungle plans pair Fire Blossom's burn clear with Dynamo for the catch; Overlord is the farming and health-stacking opener for plans where you are not the sole initiator, such as Greystone, Khaimera and Rampage. Do not buy both clear openers by habit while the next objective needs armor and catch utility."
       },
       {
         "name": "Serath: finishing chain versus a marked duel",
-        "text": "Weald is the default Eternal for Serath's attack-speed and on-hit jungle plan. The 2.32 build review kept it over Thraex because Weald led in the 1.16 loadout samples; those are separate conditional samples, not a causal test, and 1.17 has not re-measured the split. Dryad's Boon still shortens basic-ability cooldowns on each attack, and Wind-Rider, which follows her teleport or leap entry, gives less attack speed on 1.17. Weald fires only against a hero below 30% health, with a 10s cooldown per hero, so it does not amplify every attack. Keep Thraex for a deliberately sustained marked-target duel."
+        "text": "Weald is the default Eternal for Serath's attack-speed and on-hit jungle plan. The 2.32 build review switched it from Thraex to Weald because Weald led in the 1.16 loadout samples; those are separate conditional samples, not a causal test, and 1.17 has not re-measured the split. Dryad's Boon still shortens basic-ability cooldowns on each attack, and Wind-Rider, which follows her teleport or leap entry, gives less attack speed on 1.17. Weald fires only against a hero below 30% health, with a 10s cooldown per hero, so it does not amplify every attack. Keep Thraex for a deliberately sustained marked-target duel."
       },
       {
         "name": "Carry buffs must fit the firing pattern",
@@ -343,7 +343,7 @@
         "url": "https://omeda.city/heroes.json"
       }
     ],
-    "historical_note": "One-time review for patch 1.17, written on 23 September 2026 as a Gold+ (ranks 27-36) reference. Grades are dated editorial judgments, not win probabilities. Evidence limits: Pred.gg 1.17 Gold+ data covered about 1.5 days (30-770 games per hero and role, with intervals of roughly 4 to 10 points either way); Bronze+ figures contain the Gold+ games; the 14 September 1.16.4 review samples are large but from the previous patch; Statz is a lagging 1.16 comparison. Earlier council judgments and the 14 September review remain background, and observed rates, calculated kit fit and personal working pools stay separate.",
+    "historical_note": "One-time review for patch 1.17, written on 23-24 September 2026 as a Gold+ (ranks 27-36) reference. Grades are dated editorial judgments, not win probabilities. Evidence limits: Pred.gg 1.17 Gold+ data covered about 1.5 days (fewer than 30 to about 770 games per hero and role, with intervals of roughly 4 to 18 points either way); Bronze+ figures contain the Gold+ games; the 14 September 1.16.4 review samples are large but from the previous patch; Statz is a lagging 1.16 comparison. Earlier council judgments and the 14 September review remain background, and observed rates, calculated kit fit and personal working pools stay separate.",
     "builds": [
       {
         "slug": "adele",
@@ -637,7 +637,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan opened with the tank template Fire Blossom > Dynamo > Flux Matrix, but Dynamo appears in 1 of 123 current-patch Bronze+ games and Flux Matrix in none. Every rank opens Fist Of Razuul > Elafrost > Earthshaker (1.16), and 1.17 Bronze+ confirms Fist Of Razuul first (60 games, 56.7%). Fist turns Adele's health into periodic damage that suits Tyrant of Thorns' amplified Crown of Thorns. The Knell loadout is unobserved but unrefuted and is retained. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Adele Offlane performs 44-49% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -1083,7 +1083,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Seeds of Dominion leads the plan's Court of Roses in every rank (1.16 Gold+ 48.8% vs 46.6%; Bronze+ 56.3% vs 49.6%; Silver+ 51.6% vs 47.4%; Platinum+ 50.9% vs 44.6%), and Knell is unobserved on support. The Seeds path with Krix opens Dawnstar > Xenia (1.17 Bronze+ Dawnstar 51.2%, Xenia 53.6%); Frosted Lure is weak in 1.17 (22 games, 27.3%). Dawnstar's damage reduction and Xenia's ally shields turn Adele's lane presence into protection. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Adele Support performs 47-52% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -1516,7 +1516,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Too few games to test (81 in 1.17 Bronze+; no Statz page). The tank plan is coherent with the 1.17 scaling reductions, which lower his ability damage rather than his catch. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Almost no sample in any rank.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -1924,7 +1924,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's tank items match the observed Nihil tank builds, which lead in Gold+ (52.9% over 935) and Platinum+ (54.1% over 848), while Krix appears only with magic items (48.1% Gold+). 1.17 lowered Akeron's magical-power scaling on every ability and raised Crushing Maw's bonus-health scaling, which favours tank Akeron. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ loadout evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -2351,7 +2351,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan is the observed Infinite Obliteration + Vesh build (1.16 Silver+ 51.6% over 2,986, Platinum+ 53.4%) with the observed Azure Core > Entropy > Wraith Leggings core, confirmed in 1.17 Bronze+ (Azure Core 336 games, Entropy 53.5%, Wraith Leggings 54.5%). Lich was trimmed in 1.17; Tithe of Death is the stated alternative. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -2814,7 +2814,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Every observed Argus support variant opens Timewarp > Tainted Scepter > Dynamo, and 1.17 Bronze+ confirms Timewarp first (143 games). The plan's Galaxy Greaves second appears in 21 current-patch games and Enra's Blessing in 2. The Infinite Obliteration + Lotus loadout is retained: the observed Vesh setups are not better (45-48%). This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Argus Support performs 45-48% across ranks; no sample for the Lotus loadout.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -3247,7 +3247,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Hypothermia has no recorded games in any rank (0 of 3,982 Gold+ games in 1.16) and the Fire Blossom opener appears in 10 of 447 current-patch Bronze+ games. Glacial Thorns carries the role in every rank (1.16 Gold+ 52.2–55.8% across Krix, Vesh and Lotus; Silver+ 54.7%), and 1.17 Bronze+ opens Magnify (276 games, 53.6%). Glacial Thorns adds a root at the dash origin to a kit already built on the ring root and the ultimate stun, which Spectral Schematics converts into damage. The 1.17 Shatter on-hit trim does not affect this ability-led path. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from the 1.16 Statz dataset; no Gold+ 1.17 outcome sample exists.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -3661,7 +3661,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Glacial Thorns leads the plan's Hypothermia in Gold+ (51.5% vs 45.8%) and Silver+ (53.3% vs 51.5%). Every rank opens Magnify > Elafrost > Flux Matrix; the plan's Fire Blossom opener appears in 17 current-patch games. Festering Wounds turns Aurora's roots into anti-heal, and the crystal root adds another immobilize for Glacial Thorns. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -4086,7 +4086,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Glacial Thorns with Krix is the only observed support loadout (1.16 Gold+ 49.2%, Silver+ 50.6%); the plan's Hypothermia has no games. Its core is Dynamo > Gaia Greaves > Flux Matrix, confirmed in 1.17 Bronze+ (Dynamo 44 games 52.3%, Gaia Greaves 66.7%); the plan's Frosted Lure and Galaxy Greaves appear in 3 and 5 games. Dynamo amplifies damage after Aurora's roots and stun. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Aurora Support performs 49-51%; small current-patch sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -4515,7 +4515,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Betrayer's Reqiuem is the observed augment and Basilisk the observed second item (1.17 Bronze+ 52.0%); the plan's Knell loadout is unobserved, and the observed Thraex version is poor (42–44%). Nothing better is evidenced. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Role performs below 50%; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -4944,7 +4944,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Bayle Offlane performs 43-50% in every rank with every observed loadout; none is clearly better than the plan. The plan is coherent and nothing contradicts it. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weak role; the plan's Berserker's Axe and Augmentation are rarely bought.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -5365,7 +5365,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Apex Hunter with Weald beats the plan's Apex Hunter with Thraex by about ten points in every rank with meaningful samples (1.16: Gold+ 55.6% over 2,943 vs 45.3% over 1,819; Bronze+ 57.9% vs 45.1%; Silver+ 54.9% vs 45.8%; Platinum+ 55.2% vs 43.1%). The 1.17 Wind-Rider cut (20%→15% attack speed) is small beside that gap. Boris scales through on-hit canisters and attack speed, which Weald's missiles and Dryad's Boon reward. Rapture (attack speed, health, omnivamp, on-hit damage near targets) replaces Basilisk, which is weak in current 1.17 Bronze+ data (58 games, 37.9%). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz; Weald was reduced in 1.17 and no Gold+ 1.17 outcome sample exists.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -5795,7 +5795,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Sanguine Slash + Vesh is observed (Bronze+ 48.0%, Silver+ 46.2%) and Spirit Of Amir the dominant opener (1.17 Bronze+ 244 games). Oblivion Crown performs well in 1.17 Bronze+ (56 games, 60.7%). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "No Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -6233,7 +6233,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Every variant in every rank opens Orb Of Growth > Noxia > Lifebinder, and 1.17 Bronze+ confirms it (Orb Of Growth 83 games 57.8%, Noxia 57.0%, Lifebinder 61.5%). The plan's Megacosm opener appears in 15 current-patch games. The Sanguine Slash + Vesh loadout is observed and retained. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Countess Offlane performs 45-50% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -6671,7 +6671,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Every variant in every rank opens Combustion > Noxia > Wraith Leggings, and 1.17 Bronze+ confirms it (Combustion 220 games, Noxia 51.0%, Wraith Leggings 63.9%). The plan's Megacosm opener appears in 6 current-patch games and World Breaker in 4. The Sanguine Slash + Vesh loadout is observed and retained. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Countess Mid performs 45-48% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -7103,7 +7103,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Combo Crunch + Thraex is the observed Gold+ loadout (50.4%) and the plan keeps its Augmentation and Salvation; 1.17 Bronze+ supports Augmentation (112 games) and Mutilator (40 games, 62.5%). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -7521,7 +7521,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Combo Crunch with Thraex is the observed loadout (Gold+ 48.1%), and alternatives differ by under four points (Pilow 48.3% Gold+, 51.1% Platinum+). The plan keeps the observed Augmentation, Mutilator and Salvation. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -7961,7 +7961,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Photon Efficiency with Lotus is the best observed loadout (1.16 Gold+ 54.2% over 924, Platinum+ 52.8%) and is retained. Every variant in every rank opens Crescelia > Timewarp > Dynamo, confirmed in 1.17 Bronze+ (Crescelia 746 games, Timewarp 394, Dynamo 53.9%); the plan's Enra's Blessing is weak there (76 games, 35.5%). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -8363,7 +8363,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Bring The Boom with Weald is the most-played loadout (1.16 Gold+ 50.9% over 4,823; Silver+ 52.1%) and the items match every observed core, confirmed in 1.17 Bronze+ (Lightning Hawk 709 games, Vanquisher 53.7%, Demolisher 57.3%). Shred Spree leads by about three points in Gold+ and two in Platinum+, not enough to overturn it. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weald blessings were reduced in 1.17.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -8779,7 +8779,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Thraex is unobserved; Focal Lens with Lotus leads the observed loadouts (1.16 Gold+ 56.2% over 1,209, Silver+ 53.7%, Platinum+ 54.4% and 60.7%) while Weald sits near 50-52% and Vermis near 42-47%. Its core is Solaris > Vanquisher > Nuclear Rounds; Vanquisher moves first because it leads 1.17 Bronze+ openers (190 games, 54.2%) while a Solaris opener is weak there (44.6%). Legacy was never bought. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -9230,7 +9230,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Augmentation is almost never bought on Feng Mao (2 of 370 current-patch Bronze+ games; absent from every Statz variant), while Omen is the established second item (182 games, 48.9% in 1.17 Bronze+; core in every Gold+ Satariel variant). Omen's momentum-empowered attack and 20% non-ultimate cooldown refund suit his cast-and-attack weaving better than a bruiser attack-speed item. Legacy and Salvation were unobserved; Nightfall's ability healing and takedown shield support the reset pattern. The Imperial Duelist + Thraex duel theme is coherent and unrefuted and is retained. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "No sample exists for the Thraex loadout; the items rest on 1.17 Bronze+ and 1.16 Statz evidence.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -9664,7 +9664,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Only Bronze+ has evidence and it is poor (Statz 39.6%, tier D; 53 current-patch games, where Omen does badly at 20.0%), so the jungle item change does not transfer. The plan is retained with a clear limitation. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weak, Bronze+-only evidence.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -10075,7 +10075,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's System Restore with Satariel is observed and strong (1.16 Platinum+ 60.8% over 452 and 55.6% over 266), and every Satariel variant is at or above 53% in Gold+ and Silver+, while Vermis sits at 43-47% and Weald is unobserved. Every variant opens Lightning Hawk > Plasma Blade > Imperator, confirmed in 1.17 Bronze+ (Lightning Hawk 221 games, Plasma Blade 59.2%, Imperator 64.1%); the plan's Storm Breaker opener appears in 3 games. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small Gold+ sample (632 games); Satariel was trimmed in 1.17.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -10513,7 +10513,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Auto-Lock Amp leads the plan's Blast Zone in every rank (1.16 Gold+ 52.7% over 3,996 vs 46.7% over 1,681; Bronze+ 53.5% vs 49.6%; Silver+ 50.4% vs 47.9%). Players open Azure Core > Entropy > Overseer in every rank; Megacosm, the plan's opener, was unchanged in 1.17; in every rank it is bought third against health stacking, not first, and Dreambinder appears in 4 of 539 current-patch Bronze+ games. The 1.17 empowered-mine buff helps both augments. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -10964,7 +10964,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Gadget support is played as long-range poke: the only observed loadout is Auto-Lock Amp with Vesh and a Soulbinder > Entropy > Megacosm core in every rank (1.16 Gold+ 51.3%, Silver+ 50.1%, Platinum+ 51.5%), and Soulbinder leads 1.17 Bronze+ openers (78 games, 55.1%). The plan's Crescelia opener appears in 1 current-patch game and a Timewarp opener is weak (62 games, 35.5%). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small Gold+ sample (637 games).",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -11386,7 +11386,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Event Horizon with Vesh is the best large Gold+ variant (54.0% over 4,086 in 1.16) and the items match every observed core, confirmed in 1.17 Bronze+ (Azure Core 633, Combustion 445, Wraith Leggings 57.0%). The 1.17 reductions (Event Horizon 5%->4%, Void Breach, Black Hole) trim damage without changing the build logic. A reviewed 18-level order already exists. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -11890,7 +11890,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Close Cut + Thraex with Overlord > Augmentation > Basilisk is the only observed setup (Bronze+ 48.0%, Silver+ 45.3%); the plan follows it. A reviewed 18-level order already exists. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Role performs below 50%; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -12387,7 +12387,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Close Cut with Krix beats Close Cut with Thraex in every rank (1.16 Gold+ 55.8% over 2,669 vs 51.8%; Bronze+ 56.0% vs 54.8%; Silver+ 57.3% vs 54.1%; Platinum+ 53.7% vs 47.7%). Krix's health scaling feeds Greystone's sustained front line. Augmentation stays second because it is strong in 1.17 Bronze+ (247 games, 59.5%), with Aegis Of Agawar third (194 games, 57.7%). Regenerative Tissue replaces the commonly paired Voracity: the published and current source definitions of Voracity describe different effects (healing from hero damage versus a max-health heal and gold on unit kills), so this plan does not rely on it. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -12816,7 +12816,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Sky Splitter and Basilisk match the observed core in every rank, and 1.17 Bronze+ confirms Sky Splitter (285 games, 55.1%). The only same-augment comparison (Silver+ Lust For Blood) shows Thraex no worse than Vermis (48.9% vs 47.5%). Rapture is weak in 1.17 Bronze+ (162 games, 43.2%), so Mutilator's health-scaling hits remain the third item. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ loadout evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -13233,7 +13233,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Lust For Blood with Thraex is the most-played loadout in every rank (Gold+ 50.3% over 4,273; Bronze+ 52.4%; Silver+ 52.0%). Red Mist leads only in Gold+ (56.1%) and not elsewhere. Sky Splitter first is confirmed in 1.17 Bronze+ (551 games). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Basilisk and Rapture are both weak in 1.17 Bronze+.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -13667,7 +13667,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Combat Thrusters with Vesh is the only Gold+ loadout and is retained. Its observed core is Combustion > Wraith Leggings > Noxia in every rank; the plan's Megacosm second appears in 6 of 246 current-patch Bronze+ games. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -14096,7 +14096,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Turret Maniac with Vesh is observed and strong (1.16 Gold+ 53.3%, Bronze+ 57.8%) and is retained. Every rank opens Orb Of Growth > Entropy > Megacosm, confirmed in 1.17 Bronze+ (Orb Of Growth 115 games, 60.0%). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -14527,7 +14527,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Turret Maniac with Vesh is the observed loadout and is retained. Every rank opens Orb Of Growth > Entropy > Megacosm, and 1.17 Bronze+ confirms it (Orb Of Growth 244 games 59.0%, Entropy 57.0%, Megacosm third 63.0%). Megacosm, the plan's opener, was unchanged in 1.17; in every rank it is bought third against health stacking, not first. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -14957,7 +14957,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Evidence conflicts. 1.16 Statz favours The Gloom (Gold+ 51.3% vs the plan's Cascade 46.1%), but the observed Combustion > Wraith Leggings path is poor in 1.17 Bronze+ (40.6% and 40.3%), while the plan's Prophecy opener fits Cascade's attack-speed payoff (23 games, 69.6%). No change is justified on this evidence. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Ikra Mid performs below 50% in most ranks; conflicting and small current-patch samples.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -15405,7 +15405,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Augmentation (1 of 224 current-patch games) and Deathstalker (7 games, 42.9%) are not how Kallari is played; Malady > Vanquisher > Spear Of Desolation is the core of every Gold+ variant, and Vanquisher is the 1.17 Bronze+ second item (179 games, 54.7%). Vanquisher's execute finishes the delayed mark and Spear's ultimate haste returns it sooner. The Deadly Finesse + Thraex loadout is coherent and unrefuted and is retained. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "No sample exists for the Thraex loadout.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -15833,7 +15833,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Jungle Invasion + Thraex is observed and strong in Gold+ (52.9% over 2,114 in 1.16; Silver+ 56.0%), with Overlord and Basilisk in its core. The plan deliberately skips Rapture: extra attack speed is wasted inside Unleash's cap, and Draconum's healing ramp feeds Invigorate. 1.17 does not change the relevant mechanics. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -16258,7 +16258,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Lane Lurker with Thraex is the only observed loadout (Silver+ 51.1%) and the plan follows its Overlord > Basilisk core. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Silver+ only; small current-patch sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -16666,7 +16666,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Every variant in every rank opens Solaris > Ashbringer > Imperator; the plan's Storm Breaker opener appears in 12 of 528 current-patch Bronze+ games. Solaris empowers the attack after each cast and Ashbringer's critical strikes cut non-ultimate cooldowns, which matches Bringer Of Mercy's cooldown reduction on Mercy damage. The loadout is observed and retained; 1.17 buffs Mercy damage and Dusk's mana refund. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Kira Carry performs 47-49% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -17100,7 +17100,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Spirit Of Amir > Oathkeeper matches every observed variant. Nihil is unobserved, but the observed Vesh setup is not better (44–48% in 1.16 Gold+, Silver+, Platinum+), so nothing refutes the sustained-fight choice. Role performance is below 50% in every sampled rank, so this is a situational pick. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Kwang Jungle performs below 50% in every sampled rank; the Nihil loadout has no sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -17518,7 +17518,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Magnify > Oathkeeper matches every observed variant. Nihil is unobserved, but the observed Vesh setup is not better (47.9-49.4%), so nothing refutes the plan. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Kwang Offlane performs below 50% in every rank; Magnify is weak in 1.17 Bronze+ (44.2%).",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -17944,7 +17944,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Scorched Earth beats the plan's Press the Advantage in all four ranks with the same Thraex loadout and items (1.16 Gold+ 54.6% over 1,441 vs 50.6% over 1,780; Bronze+ 53.7% vs 50.0%; Silver+ 52.0% vs 49.5%; Platinum+ 52.6% vs 44.8%). Napalm zones add area damage to the mines and ultimate without depending on takedowns to spawn a rally point. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Rallying Roar gained a 20-second cooldown in 1.17; loadout comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -18116,7 +18116,7 @@
           "Secondary"
         ],
         "why": "Mid Legion is a physical area caster: Saturation Charge and Frag Order clear waves and trade, and Scorched Earth leaves napalm where the mines explode and under Orbital Sanction. Malady, Deathstalker and Spear Of Desolation pass 100 physical power and 30 physical penetration, which lengthen the mine slow and widen Orbital Sanction, and the rifle gains damage per point of penetration; Deathstalker's attack speed becomes haste through the passive. Vesh turns a share of ability damage on heroes into a damage-over-time effect, so trade with mines and grenade, then place the orbital where the enemy must stand.",
-        "caution": "Consecutive mines on one target deal 25% damage and napalm lasts 3 seconds, so this plan clears and zones better than it bursts one target. Frag Order's missing-health bonus needs 45 haste from purchased items: Ortus, Malady, Spear Of Desolation, The Perforator and Infernum reach 51 only at the fifth item, and haste converted from attack speed is not counted. Mid has no support to peel: Frag Order's self-launch and Rally Point's knockback are your only defensive tools, so buy Dread earlier into magical burst.",
+        "caution": "Consecutive mines on one target deal 25% damage and napalm lasts 3 seconds, so this plan clears and zones better than it bursts one target. Frag Order's missing-health bonus needs 45 haste from purchased items: Malady, Spear Of Desolation, The Perforator and Infernum give 43, reaching 51 at the fifth item only if Ortus's 8 counts as a purchased item; haste converted from attack speed is not counted. Mid has no support to peel: Frag Order's self-launch, Rally Point's knockback and Saturation Charge's slow are your defensive tools, so buy Dread earlier into magical burst.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -18197,7 +18197,7 @@
               "Q",
               "Passive"
             ],
-            "reason": "Damaging abilities and basic attacks apply Kindling; four stacks ignite the target for maximum-health physical damage that grows against bonus armor. The mana and haste support repeated casts, and with this item purchased haste reaches 45. Whether each mine applies its own stack is not stated."
+            "reason": "Damaging abilities and basic attacks apply Kindling; four stacks ignite the target for maximum-health physical damage that grows against bonus armor. The mana and haste support repeated casts, and with this item, item haste reaches 43 (51 if the crest counts). Whether each mine applies its own stack is not stated."
           },
           {
             "item": "Dread",
@@ -18405,7 +18405,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-24): Newly authored from the 1.17 kit. Mines, grenade and orbital all scale with physical power, the rifle and Orbital Sanction's radius bonus reward 30 penetration, and bonus attack speed converts to haste, so mid Legion is a physical area caster. The plan follows what mid players actually buy. The Pred.gg 1.17 Bronze+ Midlane item tables (108 games in their own base; the role row counts 83, which include the 31 Gold+ games) open with Malady in 70 games; the most common three-item core is Malady > Deathstalker > Spear Of Desolation (10 games); The Perforator (18 games third, 10 fifth) and Infernum (11 second, 11 fourth) are the common later purchases; and Scorched Earth (67 games), Ortus (61), Tithe of Death (17) and Mind Rot (23) lead their slots. The only Statz variant, 1.16 Bronze+ (471 games, Scorched Earth + Vesh, 49.7%), is the same core with The Perforator fourth. One departure from observed purchases: Vanquisher is the most common second item (28 games), but its critical chance helps only basic attacks and adds no haste, so the plan keeps Deathstalker, whose attack speed the passive turns into haste. Vesh is kept over Weald (27 and 28 games) because most mid Legion damage is ability damage and 1.17 reduced Weald's Forage and Wind-Rider. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Midlane 31 games (22 wins) and Bronze+ 83 games (43 wins), which are nested, not independent. There is no Gold+ item or loadout sample; purchase counts are Bronze+ only and overlap between positions. No whole-build win rate is inferred.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -18796,7 +18796,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Combat Veteran with Lotus wins 62.3% over 775 Gold+ games and 60.2% over 756 Platinum+ games (1.16), against the plan's Devastating Bombs with Vesh at 50.3% and 50.8%, on the same item core. Steady experience plus Early Bloom's extra level at 12 brings a burst mage to higher ability ranks sooner; Lotus was not changed in 1.17. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -19250,7 +19250,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Devastating Bombs is unobserved on support; Combat Veteran is the observed support augment in every rank (1.16 Bronze+ 51.9%, Silver+ 50.1%), and with Lotus it led Platinum+ (56.8% over 289). Its core is Crescelia > Tainted Scepter > Dynamo, confirmed in 1.17 Bronze+ (Crescelia 208 games, Tainted Scepter 55.3%). The Lotus loadout with Flawless + Immaculate is retained. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Lt. Belica Support performs 47-50% in most ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -19683,7 +19683,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Shatterbloom with Exarch is observed and the better of the two main loadouts in Gold+ (47.1% vs 43.1%) and is retained. Every variant opens Crescelia, the strongest 1.17 Bronze+ opener (126 games, 57.1%), with Timewarp the best second item (45 games, 62.2%); the plan's Crystal Tear and Lunaria appear in 11 and 12 games. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Maco Support performs about 45% in Gold+, Bronze+ and Silver+.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -20123,7 +20123,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Cursed Infestation with Vesh is the best observed Gold+ loadout (47.9% vs 44.0%) and is retained, including its 1.17 Hive and Curse buffs. The purchase order is corrected: every rank opens Combustion > Lifebinder > Megacosm, and 1.17 Bronze+ confirms it (Combustion 177 games 53.1%, Lifebinder 104 games). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Morigesh Mid performs 45-48% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -20585,7 +20585,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Nightstalker with Knell is the best observed loadout (1.16 Gold+ 57.4% over 1,261; Silver+ 57.6%) and is retained. Every variant opens Hexbound Bracers, which leads 1.17 Bronze+ openers (229 games, 52.4%) despite its 1.17 heal-power trim; the plan's Dynamo opener is weak there (97 games, 44.3%) and Crystal Tear appears in 4 games. Astral Catalyst is the Knell variant's third item (1.17 Bronze+ 57.1%). This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Hexbound Bracers heal and shield power was reduced in 1.17.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -20994,7 +20994,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Justice's Reach with Thraex is observed and level with the best Gold+ variant (49.8%). The observed Lightning Hawk > Vanquisher path is weak in 1.17 Bronze+ (46.5% and 46.8%), while the plan's Storm Breaker does well in a small sample (33 games, 57.6%). 1.17 buffed Murdock's passive, Buckshot and ultimate. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Murdock Carry performs 44-48% in 1.16.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -21429,7 +21429,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan is the dominant build: Sacrosanct with Exarch and Marshal > Crystal Tear > Windcaller (1.16 Gold+ 55.8% over 2,457), confirmed in 1.17 Bronze+ (Marshal 201 games, Crystal Tear 54.1%, Windcaller 56.1%). The 1.17 reductions to Sentinel, Alacrity and the ultimate lower her numbers without changing the build. The skill schedule stays unavailable because official 1.17 headings conflict with the source button mapping. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Muriel button mapping remains unconfirmed; no 18-level schedule is endorsed.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -21882,7 +21882,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Percussive Tear with Exarch is the dominant loadout (1.16 Gold+ 53.5% over 3,268) and is retained. Every variant opens Truesilver Bracelet > Crystal Tear > Dynamo, confirmed in 1.17 Bronze+ (Truesilver 441 games, Crystal Tear 54.5%, Dynamo 60.9%); the plan's Hexbound Bracers opener appears in 23 games. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -22323,7 +22323,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Ghost in the Machine is the weakest observed Neon loadout in every rank (1.16 Gold+ 43.5%, Bronze+ 41.5%, Silver+ 42.4%, Platinum+ 43.3%), 4-7 points below RAM with the same Vesh Eternal. Players open Combustion > Wraith Leggings > Amulet Of Chaos; Megacosm, the plan's opener, was unchanged in 1.17; in every rank it is bought third against health stacking, not first, and Timewarp as an opener is weak in 1.17 Bronze+ (37 games, 35.1%). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Neon Mid performs below 50% in most ranks; comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -22788,7 +22788,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Psychic Support with Exarch is observed and level with Kindred Surge (1.16 Gold+ 52.6% vs 53.2%; Silver+ 53.5% vs 52.4%) and is retained. Every variant opens Marshal > Enra's Blessing > Galaxy Greaves, confirmed in 1.17 Bronze+ (Marshal 473 games, Enra's Blessing 197, Galaxy Greaves 52.8%); the plan's Crystal Tear opener appears in 19 games at 42.1%. Official 1.17 lowered Essence Catalyst healing (12-80 to 10-61) and Hyperflux attack speed (40/60/80% to 35/55/75%); the current source matches those values. The source also says the passive can stack and that Hyperflux grants 35% rather than 135% movement speed, and gives Psychic Support 12% rather than 10% missing mana; the official notes do not mention these. The plan does not rely on stacking, the movement-speed value or the mana percentage. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage are disputed between the current source and the official notes; the plan does not depend on them.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -23242,7 +23242,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The Rock & Awe + Krix pair itself is sound in Gold+ (56.0% over 899 in 1.16) and is retained. Its Fire Blossom > Dynamo opening is almost never bought (11 and 2 of 303 current-patch Bronze+ games), while every variant in every rank opens Overlord > Rapture > Cursed Scroll, and 1.17 Bronze+ confirms Overlord (378 games) and Rapture (177 games, 54.2%). Overlord's health scaling feeds Rampage's durability and boulder engages without spending a second item on a catch-only payoff. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Item evidence for Gold+ is 1.16 Statz; 1.17 evidence is Bronze+.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -23410,7 +23410,7 @@
           "Alternate"
         ],
         "why": "Offlane Rampage is a health-scaling lane bruiser: Pounce scales with health, Rumble's passive turns health into physical power, and Krix and every item add health. Elafrost empowers the attack after each cast with health-scaled area magic damage and a slow, and its mana regeneration keeps Rumble and Pounce available in a long lane; Overlord's cleave trades and pushes the wave, and minion kills add permanent health. Tainted Guard answers basic-attacking offlaners. Later, throw the boulder from range for your team (Rock & Awe adds damage with distance) and hold space in Behemoth.",
-        "caution": "The passive's regeneration doubles only in the jungle, so lane sustain comes from Regenerative Tissue, Behemoth and items; back off after a lost trade instead of relying on it. Rock & Awe's bonus needs a long throw, which is easier to dodge; in lane the boulder is mainly a stun for your jungler. Move Void Helm ahead of Tainted Guard against a magical laner. Unlike the jungle plan there is no Predator: camp-leader bonuses do not apply in lane.",
+        "caution": "The passive's regeneration doubles only in the jungle, so in lane rely on Regenerative Tissue, Behemoth and the passive's heal when immobilised; back off after a lost trade instead of relying on regeneration. Rock & Awe's bonus needs a long throw, which is easier to dodge; in lane the boulder is mainly a stun for your jungler. Move Void Helm ahead of Tainted Guard against a magical laner. Unlike the jungle plan there is no Predator: camp-leader bonuses do not apply in lane.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -23454,7 +23454,7 @@
               "E",
               "RMB"
             ],
-            "reason": "Health, armour, mana regeneration and haste. Each cast empowers the next basic attack with 70 (+2% health) area magic damage and a 35% slow, so attack after Rumble or Pounce in a trade. Its bonus against monsters does not matter in lane."
+            "reason": "Health, armor, mana regeneration and haste. Each cast empowers the next basic attack with 70 (+2% health) area magic damage and a 35% slow, so attack after Rumble or Pounce in a trade. Its bonus against monsters does not matter in lane."
           },
           {
             "item": "Overlord",
@@ -23470,7 +23470,7 @@
               "E",
               "Passive"
             ],
-            "reason": "Health and physical armour; heroes that basic attack you have their healing reduced by 45% and take a bleed. It answers attacking offlaners, not spell healing."
+            "reason": "Health and physical armor; heroes that basic attack you have their healing reduced by 45% and take a bleed. It answers attacking offlaners, not spell healing."
           },
           {
             "item": "Void Helm",
@@ -23478,7 +23478,7 @@
               "R",
               "Passive"
             ],
-            "reason": "Health, magical armour and haste, and 20% more healing from all sources. Behemoth and the passive restore health, so it pairs with them against a magical threat; whether plain regeneration counts as healing is not stated."
+            "reason": "Health, magical armor and haste, and 20% more healing from all sources. Behemoth and the passive restore health, so it pairs with them against a magical threat; whether plain regeneration counts as healing is not stated."
           },
           {
             "item": "Aegis Of Agawar",
@@ -23486,14 +23486,14 @@
               "E",
               "R"
             ],
-            "reason": "Health that becomes physical power, plus 10% total armours that double below 40% health, so damage and durability rise together."
+            "reason": "Health that becomes physical power, plus 10% total armors that double below 40% health, so damage and durability rise together."
           },
           {
             "item": "Giant's Ring",
             "ability_keys": [
               "R"
             ],
-            "reason": "Health, physical armour and haste. Basic attacks taken shorten non-ultimate cooldowns, and casting Behemoth adds size, 8% mitigation and doubles that refund for 6 seconds."
+            "reason": "Health, physical armor and haste. Basic attacks taken shorten non-ultimate cooldowns, and casting Behemoth adds size, 8% mitigation and doubles that refund for 6 seconds."
           }
         ],
         "review_scope": "2.34 build review against 1.17 for a newly authored plan: economy, full item order, crest, augment, Eternal and blessings, skill priority and an alternative, with Gold+ as the editorial reference and each rank compared separately. Separate from tier, composition and strategy review, which are not marked current.",
@@ -23692,8 +23692,8 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
-          "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-24): Newly authored from the 1.17 kit as a lane bruiser, not a jungle clear. Pounce, Rumble's passive physical power, Rumble's slow, Behemoth and the passive all scale with maximum health, so Krix and every item add health. The jungle plan's Predator (camp-leader kills) and the passive's doubled jungle regeneration do not apply in lane, so Cannibalism replaces Predator and Regenerative Tissue carries lane sustain. Elafrost gives armour, mana regeneration for 80-mana Pounce and Boulder Throw, and an empowered, slowing attack after each cast; Overlord keeps the jungle plan's health-scaling cleave for trades and waves, and its unit-kill health works on minions. Tainted Guard answers basic-attacking offlaners and opened the only observed offlane build (Statz 1.16 Paragon+, 10 games, The Rumbling + Nihil, 3 wins). Rock & Awe, Krix and Saphir's Mantle are kept from the reviewed jungle plan; Saphir's Mantle evolves from damage taken and unit kills, both of which happen in lane. Skills: Rumble first (its damage and health-to-power ratio rise and its cooldown falls from 9 to 5 seconds with rank), then Boulder Throw, whose base damage and stun rise with rank and whose damage Rock & Awe multiplies, as in the observed Paragon+ order. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
+          "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-24): Newly authored from the 1.17 kit as a lane bruiser, not a jungle clear. Pounce, Rumble's passive physical power, Rumble's slow, Behemoth and the passive all scale with maximum health, so Krix and every item add health. The jungle plan's Predator (camp-leader kills) and the passive's doubled jungle regeneration do not apply in lane, so Cannibalism replaces Predator and Regenerative Tissue carries lane sustain. Elafrost gives armor, mana regeneration for 80-mana Pounce and Boulder Throw, and an empowered, slowing attack after each cast; Overlord keeps the jungle plan's health-scaling cleave for trades and waves, and its unit-kill health works on minions. Tainted Guard answers basic-attacking offlaners and opened the only observed offlane build (Statz 1.16 Paragon+, 10 games, The Rumbling + Nihil, 3 wins). Rock & Awe, Krix and Saphir's Mantle are kept from the reviewed jungle plan; Saphir's Mantle evolves from damage taken and unit kills, both of which happen in lane. Skills: Rumble first (its damage and health-to-power ratio rise and its cooldown falls from 9 to 5 seconds with rank), then Boulder Throw, whose base damage and stun rise with rank and whose damage Rock & Awe multiplies, as in the observed Paragon+ order. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Offlane 18 games (10 wins) and Bronze+ 26 games (15 wins), which are nested, not independent. There is no Gold+ (or Bronze+) item or loadout sample; the only build observation is 10 Statz 1.16 Paragon+ games. No whole-build win rate is inferred.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
           "rank_note": "Pred.gg 1.17 ranked role results at review time. Only Gold+ and Bronze+ were collected, and Bronze+ contains the Gold+ games; the other ranks have no 1.17 Pred.gg sample in this review.",
@@ -23738,7 +23738,7 @@
           "result": "changed",
           "reviewed_at": "2026-09-24T00:18:00-05:00",
           "reviewer": "Claude (Opus 5.5) editorial build review, 2.34",
-          "reason": "Newly authored from the 1.17 kit as a lane bruiser, not a jungle clear. Pounce, Rumble's passive physical power, Rumble's slow, Behemoth and the passive all scale with maximum health, so Krix and every item add health. The jungle plan's Predator (camp-leader kills) and the passive's doubled jungle regeneration do not apply in lane, so Cannibalism replaces Predator and Regenerative Tissue carries lane sustain. Elafrost gives armour, mana regeneration for 80-mana Pounce and Boulder Throw, and an empowered, slowing attack after each cast; Overlord keeps the jungle plan's health-scaling cleave for trades and waves, and its unit-kill health works on minions. Tainted Guard answers basic-attacking offlaners and opened the only observed offlane build (Statz 1.16 Paragon+, 10 games, The Rumbling + Nihil, 3 wins). Rock & Awe, Krix and Saphir's Mantle are kept from the reviewed jungle plan; Saphir's Mantle evolves from damage taken and unit kills, both of which happen in lane. Skills: Rumble first (its damage and health-to-power ratio rise and its cooldown falls from 9 to 5 seconds with rank), then Boulder Throw, whose base damage and stun rise with rank and whose damage Rock & Awe multiplies, as in the observed Paragon+ order.",
+          "reason": "Newly authored from the 1.17 kit as a lane bruiser, not a jungle clear. Pounce, Rumble's passive physical power, Rumble's slow, Behemoth and the passive all scale with maximum health, so Krix and every item add health. The jungle plan's Predator (camp-leader kills) and the passive's doubled jungle regeneration do not apply in lane, so Cannibalism replaces Predator and Regenerative Tissue carries lane sustain. Elafrost gives armor, mana regeneration for 80-mana Pounce and Boulder Throw, and an empowered, slowing attack after each cast; Overlord keeps the jungle plan's health-scaling cleave for trades and waves, and its unit-kill health works on minions. Tainted Guard answers basic-attacking offlaners and opened the only observed offlane build (Statz 1.16 Paragon+, 10 games, The Rumbling + Nihil, 3 wins). Rock & Awe, Krix and Saphir's Mantle are kept from the reviewed jungle plan; Saphir's Mantle evolves from damage taken and unit kills, both of which happen in lane. Skills: Rumble first (its damage and health-to-power ratio rise and its cooldown falls from 9 to 5 seconds with rank), then Boulder Throw, whose base damage and stun rise with rank and whose damage Rock & Awe multiplies, as in the observed Paragon+ order.",
           "alternative": "The Rumbling with Nihil (Mana Siphon + Terror) and Tainted Guard > Syonic Echo > Elafrost, the only observed offlane build: constant Rumble for a lane that must hold waves, at the cost of a 60% self-slow while active and extra mana. Not the default: the sample is 10 games and the sources disagree on the augment (no cooldown in the published Paragon text, a refund on damage in current Pred.gg text).",
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Offlane 18 games (10 wins) and Bronze+ 26 games (15 wins), which are nested, not independent. There is no Gold+ (or Bronze+) item or loadout sample; the only build observation is 10 Statz 1.16 Paragon+ games. No whole-build win rate is inferred.",
           "sources": [
@@ -24065,7 +24065,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Netherward with Vesh is the dominant, strong loadout (1.16 Gold+ 52.4% over 8,267; Bronze+ 55.6%) and is retained. Every variant opens Entropy > Wraith Leggings > Overseer; the plan's Megacosm opener is weak in 1.17 Bronze+ (40 games, 35.0%) while Overseer reaches 52.1% over 284 games. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -24482,7 +24482,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The items match every observed core (Vanquisher > Imperator > Terminus), and 1.17 Bronze+ confirms them (Vanquisher 486 games 54.3%, Imperator 55.2%, Terminus 55.6%, Demolisher 64.5%). Thraex is unobserved, but the observed Satariel setup is not better (49-52%), so nothing refutes it. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "No sample for the Thraex loadout.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -24906,7 +24906,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Wanton Warden is unobserved, but the 1.16 Zap O' 9-Chains core (Elafrost, Spectral Schematics) performs poorly in current 1.17 Bronze+ data (43.5% and 30.6%), while the plan's Fire Blossom opener performs better (58 games, 51.7%). The hook-and-hold tank plan is coherent; the evidence does not justify a switch. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Riktor Jungle performs below 50% in most sampled ranks; small current-patch samples.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -25360,7 +25360,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan is the dominant build: Wanton Warden with Krix and Dynamo > Xenia > Frosted Lure (1.16 Gold+ 48.2% over 6,616), confirmed in 1.17 Bronze+ (Dynamo 429 games, Xenia 53.2%, Frosted Lure 54.1%). This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Riktor Support performs 48-51% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -25773,7 +25773,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan's Fire Blossom opener is the most-bought first item in 1.17 Bronze+ (59 games, 55.9%). Only Platinum+ has a Statz sample (Zap O' 9-Chains, 51.6%). This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small samples; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -26202,7 +26202,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Low-confidence role: 1.16 samples are poor in every rank (39–42%, tier D) and 1.17 Bronze+ is 49.2% over 252 games. The plan's bruiser items are rarely bought, but no evidence contradicts them, and the disputed Ashen Vow fields remain excluded from calculations as before. Retained with an explicit limitation rather than replaced by an equally weak observed path. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Low-confidence role; the plan's items have almost no sample and Ashen Vow base-damage fields remain disputed.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -26643,7 +26643,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Scarlet Dawn has no recorded games (0 of 7,007 Gold+); every variant runs Volcaic Slam. The observed Alternator > Earthshaker > The Perforator path leads current-patch Bronze+ (Alternator 365 games, 52.1%), while the plan's Augmentation appears in 9 games. Vesh is the most-played Eternal with this path (Gold+ 2,233 games). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Scarlett Offlane performs about 49% in every rank; Ashen Vow base-damage fields remain disputed and are not used.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -27081,7 +27081,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Crushing Descent with Weald leads the plan's Thraex version in all four large samples (1.16: Gold+ 55.0% over 4,560 vs 52.3% over 2,017; Bronze+ 57.4% vs 51.0%; Silver+ 56.4% vs 48.2%; Platinum+ 54.0% vs 46.3%). 1.17 trims Serath's on-hit scaling and Wind-Rider, which apply to both loadouts, and fixes Weald missiles against proc damage in its favour. The existing items already match the winning variant. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -27572,7 +27572,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Only Bronze+ has a Statz sample (Wrath Unleashed with Thraex, 42.4%, tier D) and 57 current-patch games; the plan's Sky Splitter and Storm Breaker lead that small sample. The jungle Weald evidence does not transfer to a lane without data. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weak, Bronze+-only evidence.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -28000,7 +28000,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Grim Harvest + Krix is the only observed loadout and Fire Blossom the observed opener; Fist Of Razuul replaces Elafrost, which is weak in 1.17 Bronze+ (47 games, 31.9%). Souls still require ability last hits. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Role performs 45–51% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -28421,7 +28421,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Grim Harvest with Krix is retained. Unholy Pursuit led it in three ranks in 1.16 (Gold+ 51.4% vs 45.0%), but its soul reward differs between the published (3 souls) and current (2 souls) source definitions with no official note, so the lead may not survive and the switch is not made. The item order is corrected: Fist Of Razuul first, because the Fire Blossom opener is weak in 1.17 Bronze+ (149 games, 44.3%) while Fist reaches 58.1% over 74; Tainted Guard is the observed third item in every rank. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Sevarog Offlane performs 45-49% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -28852,7 +28852,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): 1.17 Bronze+ Shinbi Jungle wins 58.8% over 85 games with exactly the plan's Spirit Of Amir > Oathkeeper > Magnify path. The Allegro + Aion loadout is unobserved but coherent for repeated Rushing Beat casts. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small samples; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -29300,7 +29300,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan's Allegro with Aion is the best observed loadout in every rank (1.16 Gold+ 53.3%, Bronze+ 52.2%, Silver+ 53.0%, Platinum+ 54.5%), and its Orb Of Growth opener is confirmed in 1.17 Bronze+ (275 games). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -29704,7 +29704,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Assault MK-II with Satariel beats the plan's Weald version in every rank (1.16 Gold+ 58.5% over 3,046 vs 51.8% over 2,845; Bronze+ 59.1% vs 54.6%; Silver+ 58.6% vs 52.5%; Platinum+ 53.9% vs 51.3%), on the same Plasma Blade > Vanquisher > Imperator core. 1.17 trimmed Satariel's per-stack stats (5% to 4%) and moved Demonic Bargain's second payment to level 10; that is small beside a four-to-seven-point lead. Broken Wings is the observed partner blessing. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz; Satariel was trimmed in 1.17.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -30114,7 +30114,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Sun Shards with Weald is the dominant loadout (1.16 Gold+ 52.0% over 6,858; Bronze+ 56.1%; Silver+ 54.0%) and the plan follows its Storm Breaker > Sky Splitter core, confirmed in 1.17 Bronze+ (412 and 347 games). This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weald blessings were reduced in 1.17.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -30525,7 +30525,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Heavy Metal with Krix is the observed loadout and is retained. Every variant's second item is Tainted Guard (1.17 Bronze+ 164 games, 53.7%), not Dynamo (8 games, 37.5%); Fire Blossom > Tainted Guard > Flux Matrix is the core in every rank. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -30980,7 +30980,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan is the dominant build: Heavy Metal with Krix and Xenia > Dynamo > Gaia Greaves (1.16 Gold+ 52.6% over 10,909), confirmed in 1.17 Bronze+ (Xenia 57.9%, Dynamo 59.1%, Gaia Greaves 67.5%). This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -31411,7 +31411,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): No Statz role sample; the plan's Fire Blossom opener is the most-bought first item in 1.17 Bronze+ (56 of 71 games, 51.8%). A reviewed 18-level order already exists. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small samples only.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -31911,7 +31911,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Too few games to test (35 in 1.17 Bronze+; no Statz page); the plan's Elafrost opener is the most-bought first item in that small sample. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Almost no sample in any rank.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -32345,7 +32345,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Iron Resolve with Idrisil is the observed loadout and is retained. The unbought Dynamo is replaced by Tainted Guard, the second item in every rank. The role performs poorly in current 1.17 Bronze+ (38.5% over 148 games) across all item paths. This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Terra Offlane performs 38.5% in 1.17 Bronze+ and 44-50% in 1.16.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -32793,7 +32793,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Wild Growth with Aion leads the plan's Natural Infusion with Vesh in three of four ranks (1.16 Gold+ 52.6% vs 50.2%, Bronze+ 58.0% vs 48.5%, Silver+ 54.4% vs 48.3%; level in Platinum+). Every variant opens Combustion > Wraith Leggings > Megacosm, confirmed in 1.17 Bronze+ (Combustion 593 games 55.0%, Wraith Leggings 361 games 54.6%); Dreambinder second appears in 11 games. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -33224,7 +33224,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Small samples support the plan's Crescelia > Timewarp opening (1.17 Bronze+ 61.2% and 56.3%; role 59.8% over 112 games); only Silver+ has a Statz sample (Wild Growth with Vesh, 51.1%). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small samples; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -33634,7 +33634,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): Every observed TwinBlast variant opens Solaris (1.17 Bronze+ 841 games); the plan's Mindrazor opener appears in 4 games. Vanquisher is the strongest common second item in 1.17 Bronze+ (226 games, 53.1%) and Imperator is weak there (43.3%). The Thraex loadout is unobserved but unrefuted and is retained; 1.17 widened his basic-attack hitbox. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "TwinBlast Carry performs 46-51% across ranks; no sample for Thraex.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -34077,7 +34077,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan combined a magical augment, an attack-mark Eternal and magic items. Observed magic Wraith is the weakest setup in every rank (1.16 Gold+ 40.2%, Bronze+ 40.2%, Silver+ 39.8%, Platinum+ 43.3%), while physical Sniper's Bounty holds up (Gold+ 48.9% over 730, Platinum+ 52.1% over 709). Alternator adds 15% damage to the Alternate shot whose kills pay out through Sniper's Bounty; Vanquisher moves later because it is weak in 1.17 Bronze+ (65 games, 35.4%). This strategy review checked it against the 1.17 tier (C), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Wraith Mid performs below 50% in most ranks; 1.17 Bronze+ physical samples are small.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -34506,7 +34506,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Evidence is thin (Bronze+ 673 games at 43.5%, Platinum+ 394 games at 51.5%). The plan's Vanquisher is supported in 1.17 Bronze+ (59 games, 54.2%); nothing better is established. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Thin evidence; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -34925,7 +34925,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan's items (Mindrazor, Augmentation, The Perforator) match observed cores. Its Thraex pair is weak in Bronze+ (41.1% over 725), but the only better loadouts come from small Platinum+ samples (Demiurge 56.2% over 290, Satariel 57.1% over 126). The skill schedule stays deliberately unavailable because of the six-rank spirit abilities. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Wukong's 1.17 durability cuts and small samples; no Gold+ Statz sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -35333,7 +35333,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): The plan is the observed loadout in every rank (Storm of Salvation + Weald: 1.16 Gold+ 53.3% over 2,057, Silver+ 55.1%) and its items lead 1.17 Bronze+ (Sky Splitter 59.4%, Onixian Quiver 54.8%). Forage and Taproot were trimmed in 1.17; Dryad's Boon is the tempo alternative. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weald blessings were reduced in 1.17.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -35748,7 +35748,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Storm of Salvation with Weald is the observed Gold+ loadout (54.1% over 773) and Sky Splitter leads 1.17 Bronze+ (63.6%). This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Weald blessings were reduced in 1.17; Gold+ only.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -36177,7 +36177,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): Low-confidence role: the observed assassin path performs poorly in 1.16 (Bronze+ 41.6%, Silver+ 43.8%, tier D) and 1.17 Bronze+ is 50.0% over 198 games. The plan's bruiser path with Soul Weaver's damage reduction is coherent but rarely bought; nothing contradicts it. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Low-confidence role; the plan's items have almost no sample.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -36614,7 +36614,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The Flow State + Thraex pair sits at 47–48% in every rank (1.16: Gold+ 47.8% over 910, Bronze+ 48.2%, Silver+ 47.5%, Platinum+ 47.3%). The same augment on Lotus reaches 57.8% over 979 Gold+ games and 55.9% over 980 Platinum+ games, and Lotus was not changed in 1.17. Early Bloom's extra level and Immaculate's damage reduction while healthy suit an arena engage from full health. The item path already matches what winning players buy. This strategy review checked it against the 1.17 tier (S), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -37033,7 +37033,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The observed offlane path is Augmentation > Mutilator > Basilisk in every rank, and 1.17 Bronze+ confirms Augmentation first (125 games, 52.8%) and Mutilator (55.4%) over Berserker's Axe (8 games, 37.5%). Flow State is unobserved offlane but unrefuted and is retained: Master Of Spears is the common offlane augment (1.16 Gold+ 49.9%), but its cooldown penalty differs between the published (40%) and current (50%) source definitions with no official note, and its observed lead is small. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Zarus Offlane performs about 49% in every rank.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -37455,7 +37455,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): 1.16 players use Terminal Treatment with a Prophecy > Orion > Spectra path, but those items do poorly in 1.17 Bronze+ (Orion 44.4%, Spectra 41.2%), and 1.17 buffed the plan's Disc Of Demise ricochet refund and Zinx's attack speed and Infuse healing. The plan's Prophecy opener matches the observed first item. This strategy review checked it against the 1.17 tier (A), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Small current-patch sample (52 games).",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -37909,7 +37909,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-23): The plan's Heal Matrix with Exarch is observed (1.16 Gold+ 48.9%, Silver+ 47.5%) and is retained; Disc Of Demise is similar. Every enchanter variant opens Marshal > Lunaria > Dynamo, and Marshal leads 1.17 Bronze+ enchanter openers (206 games, 52.4%); the plan's Crystal Tear opener appears in 10 games at 30.0%. This strategy review checked it against the 1.17 tier (B), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Zinx Support performs 46-49% across ranks.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -38069,7 +38069,7 @@
           "Alternate"
         ],
         "why": "Carry Zinx is a ranged on-hit attacker, not a healer: every Refibrillator hit adds physical base damage and a stacking magical damage-over-time effect, Prophecy adds magical on-hit damage, and Terminal Treatment raises on-hit damage as the target's health falls. Spectra and Orion supply attack speed (Orion converts item haste), and Typhoon's stacks add more while you keep attacking. Open with Bad Medicine or Ricochet, attack while the slow or stun holds, and keep Infuse for your support and Neural Regenesis for whoever is about to die.",
-        "caution": "1.17 raised attack speed to 115% but lengthened base attack time to 1.5, cut Terminal Treatment to 25% and slowed Typhoon's scaling and dash, so do not read this as an attack-speed buff. The published loadout text still calls Terminal Treatment an Infuse effect of up to 60%; the official note and current Pred.gg text put it on Refibrillator at up to 25%, and the plan relies only on that. Zinx has no dash of her own: Typhoon's Mirage at four stacks is the only one, so stand behind your support and buy Spellbreaker earlier into magical burst.",
+        "caution": "1.17 raised attack speed to 115% but lengthened base attack time to 1.5, cut Terminal Treatment to 25% and slowed Typhoon's scaling and dash, so do not read this as an attack-speed buff. The published loadout text still calls Terminal Treatment an Infuse effect of up to 60%; the official note gives 25% (as additional DoT damage) and current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%, and the plan relies only on that. Zinx has no dash of her own: Typhoon's Mirage at four stacks is the only one, so stand behind your support and buy Spellbreaker earlier into magical burst.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -38127,7 +38127,7 @@
               "LMB",
               "Q"
             ],
-            "reason": "Magical power, mana and haste. Hasty converts 80% of your item haste into attack speed, and each on-hit attack makes the target take 2% more damage for 3.5 seconds, up to 16%, which also raises Ricochet and Bad Medicine damage."
+            "reason": "Magical power, mana and haste. Hasty converts 80% of your item haste into attack speed, and each on-hit attack increases your damage to that target by 2% for 3.5 seconds, up to 16%, which also raises your Ricochet and Bad Medicine damage."
           },
           {
             "item": "Magnify",
@@ -38370,7 +38370,7 @@
         },
         "maintenance_review": {
           "result": "changed",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (changed, 2026-09-24): Newly authored from the 1.17 kit. Refibrillator carries a physical base and a stacking magical damage-over-time effect scaled by magical power and level, so carry Zinx is an on-hit attacker with magical scaling, not a health-scaling bruiser or a healer: attack speed multiplies both parts, Prophecy adds magical on-hit damage, and Orion and Typhoon turn haste and attacking into more attack speed. Terminal Treatment is the only augment that raises on-hit damage (official 1.17: 35% to 25%); Disc Of Demise adds control, not attack damage. Weald, Prophecy > Spectra > Orion and Typhoon follow the only observed carry build (Statz 1.16 Diamond+, 89 games, Terminal Treatment + Weald, 58.4%); Weald's volley at heroes below 30% health applies on-hit effects at 30% effectiveness and gains projectiles from bonus attack speed. Of its blessings, Dryad's Boon lets attacks shorten Ricochet and Bad Medicine; Barkskin (41 games) is kept over Taproot (38), which heals from bonus physical power she does not buy, and Wind-Rider (10), which needs a dash. The finish (Magnify, Caustica, Spellbreaker) comes from the reviewed Zinx Offlane plan: sustain, magical penetration and spell protection. The 2.32 Offlane review noted weak 1.17 Bronze+ Offlane results for Orion and Spectra; those are another role's small item samples and are not treated as carry evidence. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Carry 23 games (12 wins) and Bronze+ 67 games (34 wins), which are nested, not independent. There is no Gold+ (or Bronze+) item or loadout sample; the only build observation is Statz 1.16 Diamond+ (89 games, previous patch). No whole-build win rate is inferred. The published Terminal Treatment text (Infuse, up to 60%) disagrees with the official note and current Pred.gg text (Refibrillator, up to 25%); the plan relies only on the official value.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -38785,7 +38785,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role with no Statz page in any rank and a small current-patch sample; 1.17 lowered Akeron's magical-power scaling. Role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -39204,7 +39204,7 @@
         },
         "maintenance_review": {
           "result": "checked and retained",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (checked and retained, 2026-09-23): No Statz role sample in any rank and 22 current-patch Bronze+ games; nothing tests or contradicts the plan. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Almost no sample in any rank.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -39696,7 +39696,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role with no Statz page in any rank and a small current-patch sample. Role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -40176,7 +40176,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role: 6 current-patch Bronze+ games and no Statz page in any rank. The loadout is valid but role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role with no usable sample; kept out of automatic suggestions.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -40646,7 +40646,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role: 6 current-patch Bronze+ games and no Statz page in any rank. The loadout is valid but role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role with no usable sample; kept out of automatic suggestions.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -41124,7 +41124,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role: 5 current-patch Bronze+ games and no Statz page in any rank. Role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -41609,7 +41609,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role with no Statz page in any rank and a small current-patch sample. Role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -42071,7 +42071,7 @@
         },
         "maintenance_review": {
           "result": "unresolved",
-          "reviewed_at": "2026-09-24T00:39:00-05:00",
+          "reviewed_at": "2026-09-24T00:56:00-05:00",
           "reason": "The plan's current verdict is its 1.17 build review (unresolved, 2026-09-23): Experimental role: 20 current-patch Bronze+ games and no Statz page; 1.17 deliberately reduced Wukong's offlane value (Windsurge damage, base durability, clone gold). Role strength cannot be established. This strategy review checked it against the 1.17 tier (no tier authored for this role), hero note, counter and composition decisions and changed no plan field.",
           "limitation": "Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.",
           "scope": "1.17 strategy review: tier, hero note, counters, build adaptations and compositions, checked against the plan from the 1.17 build review (purchase order, economy, crest, augment, Eternal, blessings, skill priority, alternatives).",
@@ -42213,7 +42213,7 @@
       "bracket": "gold",
       "bracket_label": "Gold+",
       "mode": "RANKED",
-      "reviewed_at": "2026-09-24T00:39:00-05:00",
+      "reviewed_at": "2026-09-24T00:56:00-05:00",
       "author": "Claude (Opus 5.5) editorial strategy review, 2.34",
       "scope": "General ranked planning for Patch 1.17 with composition-specific conditions; Gold+ evidence. One-time review; no claim of a professional-play or all-rank consensus.",
       "tier_definitions": {
@@ -42640,7 +42640,7 @@
           "role": "offlane",
           "tier": "C",
           "why": "Safeguard and Hamstring enable short ability-attack trades before Earth Shatter can finish a damaged target.",
-          "watch": "His offlane sample is small in both patches and favors specialists. Reaping Dash no longer teleports through a Ground effect, and the finishing ultimate is not an opening catch.",
+          "watch": "His offlane sample is small in both patches and favors specialists. Reaping Dash can no longer teleport while he is hit by a Ground effect, and the finishing ultimate is not an opening catch.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42736,7 +42736,7 @@
           "role": "offlane",
           "tier": "S",
           "why": "Make Way and Sacred Oath create sustained lane pressure; Stone Forged Soul can extend the time he occupies frontline space.",
-          "watch": "1.17 lowered his base health and armour growth, so buy real defense on time. Personal survival is not allied peel; the draft still needs a reliable catch.",
+          "watch": "1.17 lowered his base health and armor growth, so buy real defense on time. Personal survival is not allied peel; the draft still needs a reliable catch.",
           "ability_keys": [
             "Q",
             "E",
@@ -43840,7 +43840,7 @@
           "role": "offlane",
           "tier": "A",
           "why": "Refibrillator attacks with Bad Medicine and Ricochet give a ranged attack-and-spell lane with a stun, and Neural Regenesis can save a planned fight; another slot must supply frontline.",
-          "watch": "The offlane sample is small in both patches. 1.17 raised both attack speed and base attack time, so it is not a plain attack-speed buff, and the Infuse change mainly helps the support plan.",
+          "watch": "The offlane sample is modest on 1.16.4 and very small on 1.17. 1.17 raised both attack speed and base attack time, so it is not a plain attack-speed buff, and the Infuse change mainly helps the support plan.",
           "ability_keys": [
             "LMB",
             "Q",
@@ -46609,7 +46609,7 @@
     },
     "strategic_review": {
       "patch": "1.17",
-      "reviewed_at": "2026-09-24T00:39:00-05:00",
+      "reviewed_at": "2026-09-24T00:56:00-05:00",
       "method": "Authored synthesis of 1.17 kits and official changes, the current reviewed plans, Pred.gg Gold+ 1.17 role and matchup results (small, about 1.5 days) and the retained 1.16.4 review. Counterplay is a tactical judgment, not a measured lane advantage. Each note is shown only while the ability text it relies on is unchanged. Source roles, sample scopes and disagreements remain separate.",
       "heroes": {
         "adele": {
@@ -47829,7 +47829,7 @@
       ]
     },
     "maintenance_review": {
-      "reviewed_at": "2026-09-24T00:39:00-05:00",
+      "reviewed_at": "2026-09-24T00:56:00-05:00",
       "kind": "1.17 strategy review",
       "patch": "1.17",
       "summary": {
