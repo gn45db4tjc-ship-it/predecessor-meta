@@ -26,7 +26,11 @@
   // No block when nothing applies, or when no build can be shown ("Build recommendation unavailable") to adapt.
   if(!E.buildAdaptations(p.slug,p.role).length||!E.plannedBuild(p.slug,p.role).items.length){assert(!d,'No build-decision block without a build to adapt '+p.slug+' '+p.item);continue;}
   d.querySelector('summary').click();
-  if(strategyCurrent&&E.buildReview(p.slug,p.role)?.active)assert(d.innerText.includes(p.reason)&&d.querySelector('[data-catalog]'),'Conditional build decision '+p.slug+' '+p.item);
+  // Each decision has its own trigger (item effects, replaced slot, tactical note); follow that decision, and never
+  // allow one to be active without a current strategy review and an active plan.
+  const decision=E.buildAdaptations(p.slug,p.role).find(x=>x.item===p.item&&x.reason===p.reason);
+  assert(!decision?.active||(strategyCurrent&&E.buildReview(p.slug,p.role)?.active),'Active decision needs current strategy and plan '+p.slug+' '+p.item);
+  if(decision?.active)assert(d.innerText.includes(p.reason)&&d.querySelector('[data-catalog]'),'Conditional build decision '+p.slug+' '+p.item);
   else assert(d.innerText.includes('the earlier adaptation needs review')&&!d.innerText.includes(p.reason),'Unreviewed build decision withheld '+p.slug+' '+p.item);
  }
  click('[data-route="live"]');click('#clear-locks');click('#clear-enemies');

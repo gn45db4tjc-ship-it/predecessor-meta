@@ -1,4 +1,4 @@
-// Run against a staged six-bracket September 23 (2.32.0) build review publication. This is a
+// Run against a staged six-bracket publication carrying the September 23 (2.32.0) build review. This is a
 // real-bundle acceptance check, not a source collector or a replacement for CI's
 // deliberately older, committed seed. See RELEASE-2.31.1.md for invocation.
 'use strict';
@@ -24,8 +24,8 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
   assert.doesNotMatch(text,/No verified build evidence is eligible/);
   assert.equal(await page.evaluate(()=>E.plannedBuild('steel','jungle').items.length),6);
   if(width<700){assert.equal(await page.locator('.simple-purchases>li').count(),6);assert.equal(await page.locator('.simple-setup>div').count(),5);}
-  assert.equal(await page.evaluate(()=>B.guidance.patch),'1.16.4');
-  assert.match(await page.evaluate(()=>B.guidance.reviewed_at),/^2026-09-14/);
+  // The build review keeps its own date; it never re-dates the tier/strategy guidance (reviewed separately, e.g. 2.34.0).
+  assert(await page.evaluate(()=>{const g=B.guidance;return /^\d+\.\d+/.test(g.patch)&&g.patch===g.strategic_review?.patch&&!!g.reviewed_at&&g.reviewed_at!==g.build_patch_review.reviewed_at;}),'Strategy guidance keeps its own dated review');
   // Missing local mechanics metadata must remain usable as a dated definition,
   // without borrowing another rank's rates or changing the category.
   const missing=await page.evaluate(()=>{const key=n=>String(n).toLowerCase().replace(/[^a-z0-9]/g,'');return Object.keys(B.guidance.build_patch_review.loadout_definitions).find(n=>!Object.values(B.perks).some(p=>key(p.display_name||p.name)===key(n)));});
@@ -64,7 +64,7 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
     await page.evaluate(()=>openHero('steel','jungle'));
     await page.waitForFunction(()=>E.buildReview('steel','jungle')?.active);
     assert.match(await page.locator('#main').innerText(),/September 23/);
-    assert.equal(await page.evaluate(()=>B.guidance.patch),'1.16.4');report.checks.push({bracket,currentBuild:true});
+    assert(await page.evaluate(()=>B.guidance.reviewed_at!==B.guidance.build_patch_review.reviewed_at));report.checks.push({bracket,currentBuild:true});
    }
    await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B?.bracket?.segment==='gold'&&!latestStatus.busy);
   }

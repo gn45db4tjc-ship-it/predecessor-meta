@@ -1,5 +1,5 @@
 (()=>{
- const checks=[],assert=(ok,message)=>{if(!ok)throw Error(message);checks.push(message);};
+ const checks=[],skipped=[],assert=(ok,message)=>{if(!ok)throw Error(message);checks.push(message);};
  // Premise: the reviewed kit corrections describe the live patch.
  if(B.guidance.patch!==B.official?.live?.version)return {passed:0,skipped:['kit corrections are for '+B.guidance.patch+', live patch is '+B.official?.live?.version]};
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing control '+s);e.click();};
@@ -13,9 +13,13 @@
  assert(!serenity.innerText.includes('charges Serenity for 1.4s'),'Wrong charge absent');
  assert(serenity.innerText.includes('Projectile radius: 85'),'Actual projectile radius shown');
  assert(serenity.innerText.includes('Projectile speed: 3900'),'Actual projectile speed shown');
- assert(sentinel.innerText.includes('25/35/45% at Muriel levels 1/7/13'),'Readable Sentinel tiers');
- assert(sentinel.innerText.includes("affected ally's level 1"),'Sentinel recipient specified');
- assert(sentinel.innerText.includes('20.5% at level 18'),'Sentinel maximum explained');
+ // The readable Sentinel values come from the 1.12-era reviewed reconciliation; 1.17 changed the passive and retired it.
+ if(sentinel.innerText.includes('Reviewed source reconciliation')){
+  assert(sentinel.innerText.includes('25/35/45% at Muriel levels 1/7/13'),'Readable Sentinel tiers');
+  assert(sentinel.innerText.includes("affected ally's level 1"),'Sentinel recipient specified');
+  assert(sentinel.innerText.includes('20.5% at level 18'),'Sentinel maximum explained');
+ }else skipped.push('Sentinel 1.12-era reconciliation values: reconciliation not applied to this publication');
+ // Always required: a per-level source list must never be shown raw.
  assert(!sentinel.innerText.includes('25/25/25'),'Malformed raw progression stays collapsed');
  assert(document.documentElement.scrollWidth<=innerWidth,'Kit has no horizontal overflow');
  assert([...document.querySelectorAll('#main article .pre')].every(e=>e.scrollWidth<=e.clientWidth+1),'Long numeric progressions wrap inside their cards');
@@ -23,5 +27,5 @@
  click('[data-hero-tab="builds"]');
  assert(document.querySelector('#main').innerText.includes('Reviewed'),'Reviewed Muriel build preserved');
  click('[data-hero-tab="kit"]');card('Serenity').scrollIntoView({block:'center'});
- return {passed:checks.length,checks,viewport:[innerWidth,innerHeight]};
+ return {passed:checks.length,checks,skipped,viewport:[innerWidth,innerHeight]};
 })()
