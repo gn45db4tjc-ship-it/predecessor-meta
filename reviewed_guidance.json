@@ -2,7 +2,7 @@
   "patch": "1.17",
   "reviewed_at": "2026-09-24T01:56:00-05:00",
   "article_fingerprints": {
-    "1.17": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+    "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5",
     "1.16.4": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992"
   },
   "planning_roles": {
@@ -327,7 +327,7 @@
     ],
     "sources": [
       {
-        "title": "Official 1.17 balance changes (live 22 Sep; no later hotfix published at review)",
+        "title": "Official 1.17 balance changes (live 22 Sep; Hotfix 1.17.1 checked 24 Sep)",
         "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17"
       },
       {
@@ -381,7 +381,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -745,7 +745,7 @@
           "limitation": "Adele Offlane performs 44-49% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -816,7 +816,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -1191,7 +1191,7 @@
           "limitation": "Adele Support performs 47-52% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -1262,7 +1262,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -1624,7 +1624,7 @@
           "limitation": "Almost no sample in any rank.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -1683,7 +1683,7 @@
         "rune_note": "Nihil grows your powers and armours while you keep damaging heroes, more with level and takedowns, which suits Akeron's long contact trades. Mana Siphon steals mana with each ability hit on a hero; Adaptive Plating adds armour of the damage type you take in hero combat and resets out of combat. Both blessings fit their Nihil slots.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -2032,7 +2032,7 @@
           "limitation": "Gold+ loadout evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -2088,7 +2088,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -2459,7 +2459,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -2525,7 +2525,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -2922,7 +2922,7 @@
           "limitation": "Argus Support performs 45-48% across ranks; no sample for the Lotus loadout.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -2990,7 +2990,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -3355,7 +3355,7 @@
           "limitation": "Loadout comparison is from the 1.16 Statz dataset; no Gold+ 1.17 outcome sample exists.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -3414,7 +3414,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -3769,7 +3769,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -3828,7 +3828,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -4194,7 +4194,7 @@
           "limitation": "Aurora Support performs 49-51%; small current-patch sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -4262,7 +4262,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -4623,7 +4623,7 @@
           "limitation": "Role performs below 50%; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -4692,7 +4692,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -5052,7 +5052,7 @@
           "limitation": "Weak role; the plan's Berserker's Axe and Augmentation are rarely bought.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -5121,7 +5121,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -5473,7 +5473,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz; Weald was reduced in 1.17 and no Gold+ 1.17 outcome sample exists.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -5531,7 +5531,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -5903,7 +5903,7 @@
           "limitation": "No Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -5972,7 +5972,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -6341,7 +6341,7 @@
           "limitation": "Countess Offlane performs 45-50% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -6410,7 +6410,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -6779,7 +6779,7 @@
           "limitation": "Countess Mid performs 45-48% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -6848,7 +6848,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -7211,7 +7211,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -7270,7 +7270,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -7629,7 +7629,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -7688,7 +7688,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -8069,7 +8069,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -8124,7 +8124,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -8471,7 +8471,7 @@
           "limitation": "Weald blessings were reduced in 1.17.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -8540,7 +8540,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -8895,7 +8895,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -8964,7 +8964,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -9338,7 +9338,7 @@
           "limitation": "No sample exists for the Thraex loadout; the items rest on 1.17 Bronze+ and 1.16 Statz evidence.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -9406,7 +9406,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -9772,7 +9772,7 @@
           "limitation": "Weak, Bronze+-only evidence.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -9840,7 +9840,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -10183,7 +10183,7 @@
           "limitation": "Small Gold+ sample (632 games); Satariel was trimmed in 1.17.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -10250,7 +10250,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -10621,7 +10621,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -10680,7 +10680,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -11072,7 +11072,7 @@
           "limitation": "Small Gold+ sample (637 games).",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -11128,7 +11128,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -11494,7 +11494,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -11621,7 +11621,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -11998,7 +11998,7 @@
           "limitation": "Role performs below 50%; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -12121,7 +12121,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -12495,7 +12495,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -12563,7 +12563,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -12924,7 +12924,7 @@
           "limitation": "Gold+ loadout evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -12983,7 +12983,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -13341,7 +13341,7 @@
           "limitation": "Basilisk and Rapture are both weak in 1.17 Bronze+.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -13400,7 +13400,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -13775,7 +13775,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -13833,7 +13833,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -14204,7 +14204,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -14263,7 +14263,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -14635,7 +14635,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -14694,7 +14694,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -15065,7 +15065,7 @@
           "limitation": "Ikra Mid performs below 50% in most ranks; conflicting and small current-patch samples.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -15133,7 +15133,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -15513,7 +15513,7 @@
           "limitation": "No sample exists for the Thraex loadout.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -15580,7 +15580,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -15941,7 +15941,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -16005,7 +16005,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -16366,7 +16366,7 @@
           "limitation": "Silver+ only; small current-patch sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -16433,7 +16433,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -16774,7 +16774,7 @@
           "limitation": "Kira Carry performs 47-49% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -16833,7 +16833,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -17208,7 +17208,7 @@
           "limitation": "Kwang Jungle performs below 50% in every sampled rank; the Nihil loadout has no sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -17267,7 +17267,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -17626,7 +17626,7 @@
           "limitation": "Kwang Offlane performs below 50% in every rank; Magnify is weak in 1.17 Bronze+ (44.2%).",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -17682,7 +17682,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -18052,7 +18052,7 @@
           "limitation": "Rallying Roar gained a 20-second cooldown in 1.17; loadout comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -18120,7 +18120,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T21:27:41-05:00"
           },
@@ -18456,7 +18456,7 @@
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Midlane 31 games (22 wins) and Bronze+ 83 games (43 wins), which are nested, not independent. There is no Gold+ item or loadout sample; purchase counts are Bronze+ only and overlap between positions. No whole-build win rate is inferred.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T21:27:41-05:00"
             },
@@ -18526,7 +18526,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -18904,7 +18904,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -18968,7 +18968,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -19358,7 +19358,7 @@
           "limitation": "Lt. Belica Support performs 47-50% in most ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -19425,7 +19425,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -19791,7 +19791,7 @@
           "limitation": "Maco Support performs about 45% in Gold+, Bronze+ and Silver+.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -19860,7 +19860,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -20231,7 +20231,7 @@
           "limitation": "Morigesh Mid performs 45-48% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -20290,7 +20290,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -20693,7 +20693,7 @@
           "limitation": "Hexbound Bracers heal and shield power was reduced in 1.17.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -20760,7 +20760,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -21102,7 +21102,7 @@
           "limitation": "Murdock Carry performs 44-48% in 1.16.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -21158,7 +21158,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -21537,7 +21537,7 @@
           "limitation": "Muriel button mapping remains unconfirmed; no 18-level schedule is endorsed.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -21605,7 +21605,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -21990,7 +21990,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -22059,7 +22059,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -22431,7 +22431,7 @@
           "limitation": "Neon Mid performs below 50% in most ranks; comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -22499,7 +22499,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -22896,7 +22896,7 @@
           "limitation": "Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage are disputed between the current source and the official notes; the plan does not depend on them.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -22961,7 +22961,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -23350,7 +23350,7 @@
           "limitation": "Item evidence for Gold+ is 1.16 Statz; 1.17 evidence is Bronze+.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -23414,7 +23414,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T21:27:41-05:00"
           },
@@ -23743,7 +23743,7 @@
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Offlane 18 games (10 wins) and Bronze+ 26 games (15 wins), which are nested, not independent. There is no Gold+ (or Bronze+) item or loadout sample; the only build observation is 10 Statz 1.16 Paragon+ games. No whole-build win rate is inferred.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T21:27:41-05:00"
             },
@@ -23811,7 +23811,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -24173,7 +24173,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -24238,7 +24238,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -24590,7 +24590,7 @@
           "limitation": "No sample for the Thraex loadout.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -24654,7 +24654,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -25014,7 +25014,7 @@
           "limitation": "Riktor Jungle performs below 50% in most sampled ranks; small current-patch samples.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -25079,7 +25079,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -25464,7 +25464,7 @@
           "limitation": "Riktor Support performs 48-51% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -25529,7 +25529,7 @@
         "rune_note": "Regenerative Tissue supports recovery between lane trades. Cannibalism rewards takedown participation. Predator requires camp-leader kills, so it remains a deliberate jungle-route option rather than the lane default. Both selected blessings fit their Krix slots.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -25881,7 +25881,7 @@
           "limitation": "Small samples; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -25949,7 +25949,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -26310,7 +26310,7 @@
           "limitation": "Low-confidence role; the plan's items have almost no sample and Ashen Vow base-damage fields remain disputed.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -26383,7 +26383,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -26751,7 +26751,7 @@
           "limitation": "Scarlett Offlane performs about 49% in every rank; Ashen Vow base-damage fields remain disputed and are not used.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -26821,7 +26821,7 @@
         "rune_note": "Weald with Dryad's Boon and Wind-Rider is this plan's choice: Dryad's Boon shortens cooldowns as you attack, and Wind-Rider needs a dash or leap to trigger. Patch 1.17 lowers Wind-Rider's attack speed to 15% but fixes Weald triggering on proc-type damage. Thraex with Savage Strikes and Ferocity remains a sustained-contact alternative; older conditional sample rates do not choose between them.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -27189,7 +27189,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -27314,7 +27314,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -27680,7 +27680,7 @@
           "limitation": "Weak, Bronze+-only evidence.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -27750,7 +27750,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -28108,7 +28108,7 @@
           "limitation": "Role performs 45–51% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -28166,7 +28166,7 @@
         "rune_note": "Regenerative Tissue supports recovery between lane trades. Cannibalism rewards takedown participation. Predator requires camp-leader kills, so it remains a deliberate jungle-route option rather than the lane default. Both selected blessings fit their Krix slots.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -28529,7 +28529,7 @@
           "limitation": "Sevarog Offlane performs 45-49% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -28584,7 +28584,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -28960,7 +28960,7 @@
           "limitation": "Small samples; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -29024,7 +29024,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -29408,7 +29408,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -29472,7 +29472,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -29812,7 +29812,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz; Satariel was trimmed in 1.17.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -29880,7 +29880,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -30222,7 +30222,7 @@
           "limitation": "Weald blessings were reduced in 1.17.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -30277,7 +30277,7 @@
         "rune_note": "Regenerative Tissue supports recovery between trades. Cannibalism rewards participation in fights; Predator instead requires camp leader kills and should be a route-specific option rather than the default lane assumption. Both choices are valid Krix slots. No full-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -30633,7 +30633,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -30699,7 +30699,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -31084,7 +31084,7 @@
           "limitation": "Gold+ evidence is 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -31150,7 +31150,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -31519,7 +31519,7 @@
           "limitation": "Small samples only.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -31643,7 +31643,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -32019,7 +32019,7 @@
           "limitation": "Almost no sample in any rank.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -32086,7 +32086,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -32453,7 +32453,7 @@
           "limitation": "Terra Offlane performs 38.5% in 1.17 Bronze+ and 44-50% in 1.16.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -32523,7 +32523,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -32901,7 +32901,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -32959,7 +32959,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -33332,7 +33332,7 @@
           "limitation": "Small samples; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -33390,7 +33390,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -33742,7 +33742,7 @@
           "limitation": "TwinBlast Carry performs 46-51% across ranks; no sample for Thraex.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -33801,7 +33801,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -34185,7 +34185,7 @@
           "limitation": "Wraith Mid performs below 50% in most ranks; 1.17 Bronze+ physical samples are small.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -34243,7 +34243,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -34614,7 +34614,7 @@
           "limitation": "Thin evidence; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -34672,7 +34672,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -35033,7 +35033,7 @@
           "limitation": "Wukong's 1.17 durability cuts and small samples; no Gold+ Statz sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -35089,7 +35089,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -35441,7 +35441,7 @@
           "limitation": "Weald blessings were reduced in 1.17.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -35506,7 +35506,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -35856,7 +35856,7 @@
           "limitation": "Weald blessings were reduced in 1.17; Gold+ only.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -35924,7 +35924,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -36285,7 +36285,7 @@
           "limitation": "Low-confidence role; the plan's items have almost no sample.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -36350,7 +36350,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -36722,7 +36722,7 @@
           "limitation": "Loadout comparison is from 1.16 Statz; no Gold+ 1.17 outcome sample exists.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -36777,7 +36777,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -37141,7 +37141,7 @@
           "limitation": "Zarus Offlane performs about 49% in every rank.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -37199,7 +37199,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -37563,7 +37563,7 @@
           "limitation": "Small current-patch sample (52 games).",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -37622,7 +37622,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -38017,7 +38017,7 @@
           "limitation": "Zinx Support performs 46-49% across ranks.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -38073,7 +38073,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T21:27:41-05:00"
           },
@@ -38421,7 +38421,7 @@
           "limitation": "Newly authored on very small samples: Pred.gg 1.17 Gold+ Carry 23 games (12 wins) and Bronze+ 67 games (34 wins), which are nested, not independent. There is no Gold+ (or Bronze+) item or loadout sample; the only build observation is Statz 1.16 Diamond+ (89 games, previous patch). No whole-build win rate is inferred. The published Terminal Treatment text (Infuse, up to 60%) disagrees with the official note and current Pred.gg text (Refibrillator, up to 25%); the plan relies only on the official value.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T21:27:41-05:00"
             },
@@ -38897,7 +38897,7 @@
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -38956,7 +38956,7 @@
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -39316,7 +39316,7 @@
           "limitation": "Almost no sample in any rank.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -39808,7 +39808,7 @@
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -40288,7 +40288,7 @@
           "limitation": "Experimental role with no usable sample; kept out of automatic suggestions.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -40758,7 +40758,7 @@
           "limitation": "Experimental role with no usable sample; kept out of automatic suggestions.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -41236,7 +41236,7 @@
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -41721,7 +41721,7 @@
           "limitation": "Experimental role; kept out of automatic suggestions.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -42183,7 +42183,7 @@
           "limitation": "Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.",
           "sources": [
             {
-              "title": "Official 1.17 balance changes (live; no later hotfix published)",
+              "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
               "fetched_at": "2026-09-23T14:24:24-05:00"
             },
@@ -47922,7 +47922,7 @@
       "scope": "2.32 full build review of every hero/role plan against live 1.17, jungle first: economy, items and order, crest, augment, Eternal, blessings, skill priority and alternatives. Gold+ is the editorial reference; the six ranks were compared separately and not pooled. This does not review tiers, compositions or strategy.",
       "limitations": "No Gold+ 1.17 outcome sample exists: current-patch outcomes are Pred.gg 1.17 Bronze+ only, and loadout comparisons use the Statz 1.16 dataset. 1.17 reductions to Weald, Satariel and Lich are weighed where those loadouts lead. Level-by-level skill orders were not re-endorsed.",
       "article_fingerprints": {
-        "1.17": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+        "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5",
         "1.16.4": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992"
       },
       "loadout_catalog": {
@@ -48688,9 +48688,9 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -49534,9 +49534,9 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -50732,63 +50732,63 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -50917,9 +50917,9 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -51284,9 +51284,9 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -51918,9 +51918,9 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -52230,21 +52230,21 @@
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             },
             {
               "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-              "fetched_at": "2026-09-22T14:06:24-05:00",
+              "fetched_at": "2026-09-24T17:35:55-05:00",
               "official_patch": "1.17",
-              "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+              "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
             }
           ]
         },
@@ -54311,7 +54311,7 @@
         "reviewed_at": "2026-09-23T20:38:00+00:00",
         "scope": "Exact source-field reconciliation for the 2.32 build review. Each entry names the published and current public definitions, the reason the difference does not change the reviewed plan, and its dated source. Numeric source-only differences are identified as public definitions, not officially verified mechanics. Statistics and the global strategy review are unchanged.",
         "article_fingerprints": {
-          "1.17": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+          "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5",
           "1.16.4": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992"
         },
         "source_bundle_sha256": "d1f3391825599202bda05e1faf19e9f0c58f3538cbdc5081f0cbebfa196b5e4d",
@@ -67202,6 +67202,81 @@
       "source": "https://pred.gg/items?version=167",
       "source_fetched_at": "2026-09-23T14:06:09-05:00",
       "reviewed_at": "2026-09-24T00:37:47-05:00"
+    }
+  ],
+  "hotfix_reviews": [
+    {
+      "hotfix": "1.17.1",
+      "patch": "1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00",
+      "release_date": "2026-09-24",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "fetched_at": "2026-09-24T17:35:55-05:00",
+      "previous_fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+      "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5",
+      "publisher_announcement": "Steam: \"Hotfix 1.17.1 - Patch Notes\", 2026-09-24T10:24:12Z",
+      "article_change": "The 1.17 article gained only the \"Hotfix v1.17.1\" heading, its date paragraph, its nine-line change list and a divider image; every other block is unchanged.",
+      "result": "checked and retained",
+      "scope": "Builds, loadout definitions, tiers, strategy, compositions and patch support reviewed for 1.17 stay as reviewed: no hotfix line changes a number or a mechanic they state. The 1.17 article pins move to the re-fetched article; review dates of the underlying reviews are unchanged.",
+      "changes": [
+        {
+          "entity": "Valmont",
+          "change": "Fixed Valmont Emote having no VO",
+          "category": "cosmetic/audio",
+          "reason": "Emote voice line only; no gameplay effect."
+        },
+        {
+          "entity": "Valmont · Sanguine Banquet",
+          "change": "Fixed an issue with Valmont's Sanguine Banquet regenerating mana incorrectly",
+          "category": "gameplay",
+          "reason": "The hotfix does not describe the incorrect behaviour or its direction. The reviewed Valmont plan and loadout quote the official launch text (2% (+0.5% Bonus Mana) Omnivamp; +2 maximum mana per nearby minion death, +30 per hero death), which the hotfix does not change, and no reviewed advice depends on mana regeneration from this augment. No numerical performance effect is inferred."
+        },
+        {
+          "entity": "Valmont · Passive",
+          "change": "Fixed an issue with Valmont's Passive Description",
+          "category": "display/operations",
+          "reason": "Description text fix. Reviewed Valmont text comes from the official 1.17 kit, which this hotfix does not change; source-text differences remain governed by source reconciliation."
+        },
+        {
+          "entity": "Valmont · Unleashed skin",
+          "change": "Fixed an issue with the Crown Placement on Valmont's Unleashed skin",
+          "category": "cosmetic/audio",
+          "reason": "Skin crown placement only; no gameplay effect."
+        },
+        {
+          "entity": "Victorious banner",
+          "change": "Fixed an issue with Victorious banner having incorrect drop shadow",
+          "category": "cosmetic/audio",
+          "reason": "Banner drop shadow only; no gameplay effect."
+        },
+        {
+          "entity": "Quests",
+          "change": "Fixed an issue with Crucible wins not being tracked on Quests",
+          "category": "tracking only",
+          "reason": "Crucible wins now count for quests; progression tracking, not match performance."
+        },
+        {
+          "entity": "Gideon · Black Hole",
+          "change": "Fixed an issue with Gideon's Black Hole pulling enemies if interrupted on cast",
+          "category": "gameplay",
+          "reason": "An interrupted cast no longer pulls enemies. Reviewed Gideon advice already says to interrupt Black Hole before its 2.75s channel completes and to protect Gideon during it; the fix makes that interrupt advice more reliable and contradicts none of it. No numerical performance effect is inferred."
+        },
+        {
+          "entity": "Gideon · Mana bar",
+          "change": "Fixed an issue with Gideon's Mana bar reflecting incorrect values on remote perspective",
+          "category": "display/operations",
+          "reason": "Mana bar shown to other players only; no gameplay effect."
+        },
+        {
+          "entity": "Localisation",
+          "change": "Fixed various issues with Localisation",
+          "category": "display/operations",
+          "reason": "Text localisation only; no gameplay effect."
+        }
+      ],
+      "limitations": [
+        "Observed 1.17 rates include games played before Hotfix 1.17.1 (24 Sep), when Sanguine Banquet's mana regeneration and Black Hole's interrupted cast behaved incorrectly. Rates are shown as observed; Valmont and Gideon grades are rechecked in the planned follow-up review."
+      ]
     }
   ]
 }

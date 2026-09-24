@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.34.4"
+VERSION = "2.34.5"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1517,12 +1517,23 @@ def official_parse(html, url):
     publication = re.search(r'>\s*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},\s*(20\d\d)\s*<',html,re.I)
     publication_year = int(publication.group(2)) if publication else now_utc().year
     hotfixes = []
-    for tag,value in p.blocks:
+    def hotfix_date(day,month,year):
+        try: return dt.datetime.strptime('%s %s %s'%(day,month,year or publication_year),'%d %B %Y').date().isoformat()
+        except ValueError: return None
+    hotfix_status=lambda date:'announced' if date and date>today else 'live' if date else 'release date unverified'
+    for i,(tag,value) in enumerate(p.blocks):
         h = re.fullmatch(r'\s*(?:hotfix\s*)?v?(\d+\.\d+\.\d+)\s*[-–:]\s*(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)(?:\s+(20\d\d))?\s*',value,re.I)
         if h:
-            try: date=dt.datetime.strptime('%s %s %s'%(h.group(2),h.group(3),h.group(4) or publication_year),'%d %B %Y').date().isoformat()
-            except ValueError: date=None
-            hotfixes.append({'heading':value,'version':h.group(1),'release_date':date,'status':'announced' if date and date>today else 'live' if date else 'release date unverified'})
+            date=hotfix_date(h.group(2),h.group(3),h.group(4))
+            hotfixes.append({'heading':value,'version':h.group(1),'release_date':date,'status':hotfix_status(date)})
+            continue
+        # 1.17.1 layout: a "Hotfix v1.17.1" heading, then a paragraph holding only its date ("24th September 2026").
+        h = re.fullmatch(r'\s*hotfix\s+v?(\d+\.\d+\.\d+)\s*',value,re.I) if tag.startswith('h') else None
+        if h:
+            following=next((v for t,v in p.blocks[i+1:] if t!='image'),'')
+            d=re.fullmatch(r'\s*(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)(?:,?\s+(20\d\d))?\s*',following)
+            date=hotfix_date(*d.groups()) if d else None
+            hotfixes.append({'heading':value,'version':h.group(1),'release_date':date,'status':hotfix_status(date)})
         elif tag.startswith('h') and re.search(r'hotfix\s+v?\d+\.\d+\.\d+',value,re.I):
             hotfixes.append({'heading':value,'status':'release date unverified'})
     # Fingerprint actual article blocks; excludes nav, relative publication times and scripts.
@@ -1646,7 +1657,10 @@ def fetch_official(force_history=False):
     if previous and patch_tuple(live['version'])<patch_tuple(previous):
         raise ValueError('Official discovery regressed from previously verified '+previous+' to '+live['version']+'. A stale index or unverified rollback must be resolved before claiming a current patch.')
     announced={a['version'] for a in articles if a['status']=='announced'}
-    unresolved=[r for r in publisher['entries'] if patch_tuple(r['version'])>patch_tuple(live['version']) and r['status']!='announced' and r['version'] not in announced]
+    # A hotfix published inside the live official article, on the same patch line and with a release date that has
+    # passed, is the official full notes for the publisher's announcement of that hotfix (1.17.1 in the 1.17 article).
+    embedded={h['version'] for h in live.get('hotfixes',[]) if h.get('status')=='live' and str(h.get('version','')).startswith(live['version']+'.')}
+    unresolved=[r for r in publisher['entries'] if patch_tuple(r['version'])>patch_tuple(live['version']) and r['status']!='announced' and r['version'] not in announced and r['version'] not in embedded]
     if unresolved:raise ValueError('Publisher reports a newer update whose live release/full notes are not verified: '+', '.join(r['title'] for r in unresolved))
     # Reviewed definitions depend on older launch/rework notes too. Keep these checks
     # separate from the current patch status; a failed dependency cannot become a current definition.
@@ -1736,7 +1750,7 @@ def attach_official_changes(bundle, official):
         versions={h.get('version'):h for h in article.get('hotfixes', []) if h.get('status')=='live'}
         active=None; parent=None; field=''
         for tag,text in article.get('blocks', []):
-            match=re.match(r'^v?(\d+\.\d+\.\d+)\s*[-–:]',text,re.I)
+            match=re.match(r'^v?(\d+\.\d+\.\d+)\s*[-–:]',text,re.I) or (re.fullmatch(r'\s*hotfix\s+v?(\d+\.\d+\.\d+)\s*',text,re.I) if tag.startswith('h') else None)
             if match: active=match.group(1) if match.group(1) in versions else None;parent=None;field='';continue
             if tag=='h2' and text.strip().lower()!='hotfixes': active=None
             if not active: continue
