@@ -541,7 +541,7 @@ if (APP_CONFIG.mode === 'static') {
   }
   document.addEventListener('click', event => {
     const id = event.target.closest('button')?.id;
-    if (!['refresh','export','install-app'].includes(id)) return;
+    if (!['refresh','export','more-export','install-app'].includes(id)) return;
     event.preventDefault(); event.stopImmediatePropagation();
     if (id === 'refresh') checkPublication(true);
     else if (id === 'install-app') installSharedApp().catch(error => toast(error.message));

@@ -1,4 +1,10 @@
-# Predecessor Meta - 2.33.1
+# Predecessor Meta - 2.33.2
+
+The phone More screen's Export snapshot button has its own id, so each page has one element with `id="export"`. Nothing visible changes. See [RELEASE-2.33.2.md](RELEASE-2.33.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+## Previous release
+
+### 2.33.1
 
 Items & loadouts lists the item and perk definitions from Statz, Omeda.city and official reviews, each with its source named, when Pred.gg's catalogue is unavailable, as it is on the published 1.17 ranks. Compose now names the one setting that helps when no statistics source is eligible. See [RELEASE-2.33.1.md](RELEASE-2.33.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
