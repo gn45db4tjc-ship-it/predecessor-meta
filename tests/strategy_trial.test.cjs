@@ -10,7 +10,8 @@ function fixture(entry){
  return {plan:{...plan,kind:'reviewed'},bundle};
 }
 test('five-plan trial stays separate from a full strategy review and preserves all six source scopes',()=>{
- assert.equal(trial.plans.length,5);assert.equal(packet.patch,'1.16.4');assert.match(packet.reviewed_at,/^2026-09-14/);
+ // The 22 Sep trial never renewed the packet; the 24 Sep 1.17 strategy review (2.34) did.
+ assert.equal(trial.plans.length,5);assert.equal(packet.patch,'1.17');assert.match(packet.reviewed_at,/^2026-09-24/);
  assert.equal(trial.recurrence,'None authorized by this trial');
  for(const p of trial.plans){
   assert.equal(new Set(p.brackets.map(b=>b.bracket)).size,6);

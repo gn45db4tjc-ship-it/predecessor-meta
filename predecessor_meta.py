@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.33.0"
+VERSION = "2.34.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -76,6 +76,13 @@ UI_TEMPLATE = TOOL_DIR / "ui.html"
 OUT_HTML = TOOL_DIR / "Predecessor Meta.html"
 OUT_HTML_OFFLINE = TOOL_DIR / "Predecessor Meta (offline).html"
 SETTINGS_FILE = TOOL_DIR / "settings.json"
+# Test staging may pair a dated historical fixture with its own dated review packet (tests/stage_preview.py).
+# Production never sets this; the packet is always TOOL_DIR/reviewed_guidance.json.
+GUIDANCE_PACKET_OVERRIDE = None
+
+
+def guidance_packet_path():
+    return Path(GUIDANCE_PACKET_OVERRIDE) if GUIDANCE_PACKET_OVERRIDE else TOOL_DIR / 'reviewed_guidance.json'
 LATEST_BUNDLE = DATA_DIR / "latest_bundle.json"
 OFFLINE_BUNDLE = DATA_DIR / "offline_bundle.json"
 
@@ -1643,7 +1650,7 @@ def fetch_official(force_history=False):
     if unresolved:raise ValueError('Publisher reports a newer update whose live release/full notes are not verified: '+', '.join(r['title'] for r in unresolved))
     # Reviewed definitions depend on older launch/rework notes too. Keep these checks
     # separate from the current patch status; a failed dependency cannot become a current definition.
-    packet_path=TOOL_DIR/'reviewed_guidance.json'
+    packet_path=guidance_packet_path()
     packet=json.loads(packet_path.read_text(encoding='utf8')) if packet_path.exists() else {}
     if packet: validate_guidance_packet(packet,None)
     history={'articles':[],'errors':[],'cached_articles':0,
@@ -1854,7 +1861,7 @@ import patch_support
 def enrich_bundle(bundle, official=None):
     bundle['official'] = official or {'status': 'unverified', 'error': 'Official patch has not been checked this session.'}
     patch_support.prepare(bundle)
-    packet_path = TOOL_DIR / 'reviewed_guidance.json'
+    packet_path = guidance_packet_path()
     packet = json.loads(packet_path.read_text(encoding='utf-8')) if packet_path.exists() else {}
     if packet: validate_guidance_packet(packet,bundle)
     bundle['guidance'] = copy.deepcopy(packet.get('guidance', {}))
@@ -2711,7 +2718,7 @@ def apply_pred_game_data(bundle):
 def apply_pred_source_corrections(bundle):
     """Resolve unavailable earlier fields against explicitly reviewed Pred.gg encodings."""
     if bundle.get('official',{}).get('status')!='verified' or bundle.get('guidance',{}).get('status')!='reviewed for current patch':return
-    packet=json.loads((TOOL_DIR/'reviewed_guidance.json').read_text(encoding='utf8'))
+    packet=json.loads(guidance_packet_path().read_text(encoding='utf8'))
     rules={r['id']:r for r in packet['corrections']+packet['mechanics_resolutions']}
     alternatives={r['id']:r for r in packet.get('pred_source_preconditions',[])}
     history=bundle['official'].get('definition_history',{})
@@ -3155,7 +3162,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         attach_pred_game_data(bundle,progress,pages=pred_pages)
         retain_pred_partition(bundle, previous_pred_bundle(bracket))
-        patch_support.apply(bundle, json.loads((TOOL_DIR/'reviewed_guidance.json').read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
+        patch_support.apply(bundle, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})
     bundle['timings']={'cold_refresh_secs':round(time.perf_counter()-started,2),'hero_pages_secs':pull['secs']}
     if not fixture_dir:
@@ -3198,7 +3205,7 @@ def review_saved_sources(bundle):
     """
     repaired=copy.deepcopy(bundle)
     if repair_pred_text_labels(repaired):bundle=repaired
-    packet_path=TOOL_DIR/'reviewed_guidance.json'
+    packet_path=guidance_packet_path()
     packet=json.loads(packet_path.read_text(encoding='utf8')) if packet_path.exists() else {}
     build_pass=packet.get('guidance',{}).get('build_patch_review')
     if build_pass and bundle.get('official',{}).get('live',{}).get('version')==build_pass['patch'] and bundle_is_publishable(bundle) and (bundle.get('guidance',{}).get('build_patch_review')!=build_pass or bundle.get('guidance',{}).get('builds')!=packet['guidance']['builds']):

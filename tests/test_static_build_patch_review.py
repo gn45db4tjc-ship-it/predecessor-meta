@@ -8,12 +8,16 @@ class BuildPatchReviewTests(unittest.TestCase):
         self.packet=json.loads((Path(m.__file__).parent/'reviewed_guidance.json').read_text(encoding='utf8'))
     def test_build_only_review_does_not_advance_full_strategy_dates(self):
         m.validate_guidance_packet(self.packet,None)
-        self.assertEqual(self.packet['patch'],'1.16.4')
-        self.assertTrue(self.packet['reviewed_at'].startswith('2026-09-14'))
+        # The strategy dates move only with an actual strategy review: the 2.34 one-time 1.17 review (24 Sep),
+        # not the 23 Sep build-only pass, whose own date stays separate.
+        self.assertEqual(self.packet['patch'],'1.17')
+        self.assertTrue(self.packet['reviewed_at'].startswith('2026-09-24'))
+        self.assertEqual(self.packet['guidance']['maintenance_review']['kind'],'1.17 strategy review')
+        self.assertTrue(self.packet['guidance']['build_patch_review']['reviewed_at'].startswith('2026-09-23'))
         review=self.packet['guidance']['build_patch_review']
-        self.assertEqual(sum(review['summary'].values()),93)
+        self.assertEqual(sum(review['summary'].values()),96)
         self.assertEqual(review['patch'],'1.17')
-        self.assertEqual(self.packet['guidance']['maintenance_review']['next_weekly_review'],'2026-09-20T13:15:00-05:00')
+        self.assertEqual(self.packet['guidance']['maintenance_review']['next_weekly_review'],'2026-09-27T13:15:00-05:00')
     def test_missing_fingerprints_or_mechanics_cannot_be_approved(self):
         for mutate in (lambda p:p['guidance']['build_patch_review']['article_fingerprints'].clear(),lambda p:p['guidance']['builds'][0].pop('source_preconditions')):
             p=copy.deepcopy(self.packet);mutate(p)
@@ -50,5 +54,9 @@ class BuildPatchReviewTests(unittest.TestCase):
         # keeps dedicated defense through Aegis Of Agawar in the core and Giant's Ring in the finish.
         self.assertEqual(rows['serath','jungle']['eternal'],'Weald')
         self.assertIn('Aegis Of Agawar',rows['greystone','offlane']['core']);self.assertIn("Giant's Ring",rows['greystone','offlane']['finish'])
-        for r in rows.values():self.assertTrue(r['previous_review']['reviewed_at'].startswith('2026-09-14'))
+        # Plans that existed on 14 Sep keep that review as their previous one; the three plans first authored in 2.34 have none.
+        new={('legion','midlane'),('zinx','carry'),('rampage','offlane')}
+        for key,r in rows.items():
+            if key in new:self.assertNotIn('previous_review',r);self.assertEqual(r['patch_review']['result'],'changed')
+            else:self.assertTrue(r['previous_review']['reviewed_at'].startswith('2026-09-14'))
 if __name__=='__main__':unittest.main()

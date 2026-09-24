@@ -49,7 +49,7 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
   assert.equal(await page.evaluate(()=>S.me),'serath');assert.equal(await page.evaluate(()=>S.enemies[0].role),'support');
   await page.evaluate(()=>changeRoute('data'));
   assert.match(await page.locator('#main').innerText(),/Latest build patch review/);
-  assert.match(await page.locator('#main').innerText(),/Previous full strategy review/);
+  assert.match(await page.locator('#main').innerText(),/Full strategy review/);
   await page.addScriptTag({path:process.env.AXE_PATH||require.resolve('axe-core/axe.min.js')});
   for(const route of ['data','hero','live']){
    await page.evaluate(r=>r==='hero'?openHero('steel','jungle'):changeRoute(r),route);

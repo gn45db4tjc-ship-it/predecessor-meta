@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.33.0
+# Predecessor Meta - 2.34.0
 
-Build first on the phone: the six-item starting build and Adapt to my match are on the hero page's first screen, status is shown in full once on Meta and as a compact chip elsewhere, and repeated provenance lines are stated once per group. See [RELEASE-2.33.0.md](RELEASE-2.33.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Tiers, strategy notes, counter-picks, build adaptations, team compositions and pools reviewed for live 1.17 (Gold+ reference), with four grade changes and three new starting plans (Legion Midlane, Zinx Carry, Rampage Offlane). One-time review; no recurring AI reviews. See [RELEASE-2.34.0.md](RELEASE-2.34.0.md) and [docs/STRATEGY-REVIEW-2.34.md](docs/STRATEGY-REVIEW-2.34.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.33.0
+
+Build first on the phone: the six-item starting build and Adapt to my match are on the hero page's first screen, status is shown in full once on Meta and as a compact chip elsewhere, and repeated provenance lines are stated once per group. See [RELEASE-2.33.0.md](RELEASE-2.33.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.32.0
 

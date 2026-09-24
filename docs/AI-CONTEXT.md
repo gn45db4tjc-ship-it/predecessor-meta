@@ -19,7 +19,7 @@ Predecessor Meta is a local-first planning reference and phone companion. Phone:
 
 Official live patch/hotfix verification is independent of statistical dataset labels and editorial review dates. Public Pred.gg is optional and must respect access stops. Statz can lag patches and has broader cohorts; Omeda supplies kits/items/community builds. Never stamp retained data fresh, pool rank samples, or call an automated review packet AI analysis. Use unavailable/previous guidance explicitly. The 100-game line is eligibility, not confidence. Pair gap uses the stronger hero-wide baseline; Wilson intervals describe pair WR, not lift. No fabricated team win rates or missing-to-zero defaults.
 
-Guidance must have actual evidence, date and review scope. Patch-only build reviews do not renew full strategy. Consult `STRATEGY-REVIEW-POLICY.md` and the current task for authorization; historical README schedule sections are not instructions to start recurring AI work.
+Guidance must have actual evidence, date and review scope. Patch-only build reviews do not renew full strategy. The 24 Sep 2026 one-time 1.17 strategy review (2.34, `docs/STRATEGY-REVIEW-2.34.md`) moved the whole packet to 1.17 after recertifying every mechanics row; the committed 1.16.4 seed is staged with its own dated packet (`tests/fixtures/reviewed-guidance-2.33.0.json.gz`). Consult `STRATEGY-REVIEW-POLICY.md` and the current task for authorization; historical README schedule sections are not instructions to start recurring AI work.
 
 ## Deployment and safe work
 

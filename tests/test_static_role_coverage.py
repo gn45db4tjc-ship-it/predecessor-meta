@@ -13,10 +13,10 @@ class RoleReviewTests(unittest.TestCase):
     def setUp(self):
         self.packet=json.loads((p.base.TOOL_DIR/'reviewed_guidance.json').read_text(encoding='utf8'))
 
-    def test_authored_packet_valid_and_covers_93_unique_roles(self):
+    def test_authored_packet_valid_and_covers_96_unique_roles(self):
         p.base.validate_guidance_packet(self.packet,None)
         plans=self.packet['guidance']['builds']
-        self.assertEqual(len({(r['slug'],r['role']) for r in plans}),93)
+        self.assertEqual(len({(r['slug'],r['role']) for r in plans}),96)
         self.assertEqual(sum(bool(r.get('experimental_role')) for r in plans),7)
 
     def test_missing_purchase_or_loadout_precondition_rejected(self):
