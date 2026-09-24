@@ -3640,6 +3640,29 @@ probes.ML1 = async browser => {
  }
  await context.close();verdict('ML1',seen.some(s=>!s.order||JSON.stringify(s.shown)!==JSON.stringify(s.wanted)),seen);
 };
+/* LB1/LB2 reproduce the published 1.17 state on the seed: Pred.gg's catalogue collection failed with empty maps
+   (the bundle keeps its item and perk definitions), and no role-statistics source is eligible. */
+probes.LB1 = async browser => {
+ const {context,page}=await session(browser,desktop);
+ const seen=await page.evaluate(()=>{
+  Object.assign(B.pred_game_data,{status:'failed',items:{},perks:{},errors:[{source:'Pred.gg game data',severity:'error',detail:'Pred.gg catalog hero join failed'}]});E=MetaEngine.create(B);
+  const read=kind=>{S.libraryKind=kind;S.libraryQuery='';S.libraryLimit=40;changeRoute('library');const main=document.querySelector('#main').textContent;
+   return {rows:document.querySelectorAll('.library-grid>article').length,count:document.querySelector('#library-count')?.textContent,total:Object.keys(B[kind]).length,noMatch:/No entries match/.test(main),named:/Pred\.gg catalogue unavailable/.test(main)&&/catalog hero join failed/.test(main),kicker:document.querySelector('#main .eyebrow')?.textContent};};
+  return {items:read('items'),perks:read('perks')};
+ });
+ await page.locator('#library-query').fill('no-such-reference-xyz');const empty=await page.locator('#main').innerText();
+ await context.close();
+ const bad=x=>x.rows<1||x.rows>40||x.count!=='Showing '+Math.min(40,x.total)+' of '+x.total+' entries'||x.noMatch||!x.named||/^Reference · Pred\.gg \+/.test(x.kicker||'');
+ verdict('LB1',bad(seen.items)||bad(seen.perks)||!/No entries match/.test(empty),{...seen,search:empty.slice(-80)});
+};
+probes.LB2 = async browser => {
+ const {context,page}=await session(browser,desktop);
+ await page.evaluate(()=>{B.scoped_statistics.status='failed';B.sources.pred_scoped.status='failed';B.sources.statz_tierlist.status='failed';E=MetaEngine.create(B);Object.assign(S,{locks:[],enemies:[],bans:[],size:3,compRole:'auto',includeUnsampled:false});compositions=null;save();});
+ await generate(page);
+ const seen=await page.evaluate(()=>({source:E.performancePolicy().source,alternatives:compositions.alternatives.length,text:document.querySelector('#compositions .empty')?.textContent||''}));
+ await context.close();
+ verdict('LB2',seen.source!==null||seen.alternatives!==0||!seen.text.includes('Allow fills without role samples')||/Change a constraint/.test(seen.text),seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}

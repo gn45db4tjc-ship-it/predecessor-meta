@@ -161,6 +161,8 @@
     "DS3": "DESIGN SYSTEM 2.33: the phone hero sections are not a tablist with one selected tab, scroll sideways (against 2.29 stage 1), or look different from the Meta role tabs",
     "DS4": "DESIGN SYSTEM 2.33: evidence tags, status pills and the Build ready chip do not share one chip base and geometry",
     "DS5": "DESIGN SYSTEM 2.33: focus rings differ between phone and desktop, or selection indicators use gold that falls below 3:1 in the light theme",
-    "DS6": "DESIGN SYSTEM 2.33: the token set keeps a parallel --phone-* palette, alias/duplicate tokens (--serif, --gold-soft) or more than six rem type steps"
+    "DS6": "DESIGN SYSTEM 2.33: the token set keeps a parallel --phone-* palette, alias/duplicate tokens (--serif, --gold-soft) or more than six rem type steps",
+    "LB1": "Items & loadouts shows \"Showing 0 of 0 entries\" and \"No entries match this search\" when the Pred.gg catalogue is empty although the bundle holds item and perk definitions, and does not say Pred.gg is unavailable (ui.js libraryView)",
+    "LB2": "Compose with no eligible role-statistics source says \"Change a constraint to continue\" although only allowing fills without role samples can produce a result (ui.js plannerView)"
   }
 }
