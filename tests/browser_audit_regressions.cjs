@@ -3670,21 +3670,24 @@ probes.LB3 = async browser => {
  await context.close();verdict('LB3',ids>1||!downloaded,{ids,downloaded});
 };
 probes.LB4 = async browser => {
- // An iPhone 13 screen in Safari (390x664): Items & loadouts must start its entries on the first screen with the live
+ // An iPhone 13 screen in Safari (390x664): Items & loadouts must show its whole first entry on the first screen with the live
  // 1.17 state (Pred.gg catalogue empty, fallback note shown), without sideways scrolling.
  const {context,page}=await session(browser,{viewport:{width:390,height:664},isMobile:true,hasTouch:true});
  const seen=await page.evaluate(()=>{
-  Object.assign(B.pred_game_data,{status:'failed',items:{},perks:{},errors:[{source:'Pred.gg game data',severity:'error',detail:'Pred.gg catalog hero join failed'}]});E=MetaEngine.create(B);
+  // As published for 1.17: Pred.gg's catalogue and its rank-scoped statistics both failed, which also adds the
+  // "authored tier review covers ..." sentence to the rank note above the page.
+  Object.assign(B.pred_game_data,{status:'failed',items:{},perks:{},errors:[{source:'Pred.gg game data',severity:'error',detail:'Pred.gg catalog hero join failed'}]});
+  Object.assign(B.scoped_statistics,{status:'failed',bracket:null,bracket_label:null,patch:null});B.sources.pred_scoped.status='failed';E=MetaEngine.create(B);
   S.libraryKind='items';S.libraryQuery='';S.libraryLimit=40;changeRoute('library');window.scrollTo(0,0);
   const r=s=>document.querySelector(s)?.getBoundingClientRect(),nav=document.querySelector('#mobile-navigation')?.getBoundingClientRect();
-  return {kindTop:Math.round(r('#library-kind').top),queryTop:Math.round(r('#library-query').top),firstRowTop:Math.round(r('.library-grid>article').top),screenBottom:Math.round(nav?.top??innerHeight),overflow:document.documentElement.scrollWidth>391};
+  return {kindTop:Math.round(r('#library-kind').top),queryTop:Math.round(r('#library-query').top),firstRowTop:Math.round(r('.library-grid>article').top),firstRowBottom:Math.round(r('.library-grid>article').bottom),screenBottom:Math.round(nav?.top??innerHeight),overflow:document.documentElement.scrollWidth>391,referenceSentence:/authored tier review covers/.test(document.querySelector('#main .rank-evidence')?.textContent||'')};
  });
  await context.close();
  // The narrowest supported phone with large text: the Show select must not push the page sideways. Widths are fixed
  // numbers because mobile emulation widens innerWidth to fit overflowing content.
  const narrow=await session(browser,{viewport:{width:320,height:640},isMobile:true,hasTouch:true});
  seen.narrowOverflow=await narrow.page.evaluate(()=>{companionPrefs.large=true;document.documentElement.classList.add('large-text');S.libraryKind='perks';changeRoute('library');return document.documentElement.scrollWidth>321;});
- await narrow.context.close();verdict('LB4',Math.abs(seen.kindTop-seen.queryTop)>8||seen.firstRowTop>=seen.screenBottom||seen.overflow||seen.narrowOverflow,seen);
+ await narrow.context.close();verdict('LB4',Math.abs(seen.kindTop-seen.queryTop)>8||seen.firstRowBottom>seen.screenBottom||seen.overflow||seen.narrowOverflow,seen);
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));

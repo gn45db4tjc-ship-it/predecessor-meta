@@ -1,7 +1,7 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [],
+  "open": ["LB4"],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -165,6 +165,6 @@
     "LB1": "Items & loadouts shows \"Showing 0 of 0 entries\" and \"No entries match this search\" when the Pred.gg catalogue is empty although the bundle holds item and perk definitions, and does not say Pred.gg is unavailable (ui.js libraryView)",
     "LB2": "Compose with no eligible role-statistics source says \"Change a constraint to continue\" although only allowing fills without role samples can produce a result (ui.js plannerView)",
     "LB3": "On phones the More screen and the hidden top bar both render a button with id=\"export\" (duplicate id), or the More screen's Export snapshot no longer downloads (mobile.js moreView)",
-    "LB4": "On an iPhone 13 screen (390x664) Items & loadouts stacks Show and Find on separate rows and its first entry starts below the first screen, or the page scrolls sideways (also at 320px with large text) (ui.js libraryView, mobile.css)"
+    "LB4": "On an iPhone 13 screen (390x664) Items & loadouts stacks Show and Find on separate rows or its first entry is not wholly on the first screen, or the page scrolls sideways (also at 320px with large text) (ui.js libraryView, mobile.css)"
   }
 }
