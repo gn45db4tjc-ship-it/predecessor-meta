@@ -28,7 +28,7 @@ class ReviewLedgerTests(unittest.TestCase):
     def test_all_plans_have_dated_evidence_and_mechanic_preconditions(self):
         m.validate_guidance_packet(self.packet,None)
         plans=self.packet['guidance']['builds']
-        self.assertEqual(len(plans),93)
+        self.assertEqual(len(plans),96)
         for p in plans:
             self.assertEqual(set(p['source_preconditions']['items']),set(p['core']+p['finish']+[p['crest']]))
             self.assertEqual(set(p['source_preconditions']['perks']),set([p['augment'],p['eternal']]+p['blessings']))
@@ -48,7 +48,11 @@ class ReviewLedgerTests(unittest.TestCase):
         self.packet['guidance']['builds'][0]['maintenance_review'].update(result='unresolved',limitation='')
         with self.assertRaisesRegex(ValueError,'explicit limitation'):m.validate_guidance_packet(self.packet,None)
 
-    def test_initial_review_does_not_replace_next_sunday(self):
+    def test_one_time_review_schedules_no_next_review(self):
+        # STRATEGY-REVIEW-POLICY.md (21 Sep): no recurring review is scheduled, so none is dated here.
         review=self.packet['guidance']['maintenance_review']
-        self.assertEqual(review['kind'],'initial strategy review')
-        self.assertEqual(review['next_weekly_review'],'2026-09-20T13:15:00-05:00')
+        self.assertEqual(review['kind'],'1.17 strategy review')
+        self.assertNotIn('next_weekly_review',review)
+        m.validate_guidance_packet(self.packet,None)
+        review['next_weekly_review']='not a date'
+        with self.assertRaises(ValueError):m.validate_guidance_packet(self.packet,None)

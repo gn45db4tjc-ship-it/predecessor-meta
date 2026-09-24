@@ -2387,6 +2387,459 @@
       "patch": "1.17",
       "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
       "reason": "Official dash cooldown"
+    },
+    {
+      "id": "patch-1.17-heroes-akeron-abilities-1-menu_description",
+      "path": [
+        "heroes",
+        "akeron",
+        "abilities",
+        1,
+        "menu_description"
+      ],
+      "before": "Akeron deals 70/90/110/130/150 <AttackDamageText>(+65%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+40%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText><HealthText>(+4%</HealthText><img id=\"HealthIconGreen\"></img><HealthText>)</HealthText> physical damage in a cone. Enemies close to Akeron take 1.35x damage.<br>\n<br>\nAkeron also heals for 8/12/16/20/24 <HealthText>(+1.75/2.5/3.25/4/4.75%</HealthText><img id=\"HealthIconGreen\"></img><HealthText>)</HealthText>. The heal is reduced to 20% for Non-Heroes, and increased by 200% on kill.<br>\n<br>\nIf an Enemy Hero is killed, Akeron becomes Awakened.<br>\n<br>\nWhile Akeron is attached to terrain, this ability becomes a roar, affecting the area around him.<br>\n<br>\nAwakened: Shred 15/17.5/20/22.5/25% Physical Armor and Magical Armor for 5s.",
+      "after": "Akeron deals 70/90/110/130/150 <AttackDamageText>(+65%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+35%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText><HealthText>(+4.5%</><img id=\"HealthIconGreen\"></><HealthText>)</> physical damage in a cone. Enemies close to Akeron take 1.35x damage.\n\nAkeron also heals for 8/12/16/20/24 <HealthText>(+1.75/2.5/3.25/4/4.75%</><img id=\"HealthIconGreen\"></><HealthText>)</>. The heal is reduced to 20% for Non-Heroes, and increased by 200% on kill.\n\nIf an Enemy Hero is killed, Akeron becomes Awakened.\n\nWhile Akeron is attached to terrain, this ability becomes a roar, affecting the area around him.\n\nAwakened: Shred 15/17.5/20/22.5/25% Physical Armor and Magical Armor for 5s.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 RMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-akeron-abilities-2-menu_description",
+      "path": [
+        "heroes",
+        "akeron",
+        "abilities",
+        2,
+        "menu_description"
+      ],
+      "before": "Akeron opens his maw and launches the Demon's Eye forward. The Eye moves slowly, firing off 10 (+10%<img id=\"AbilityHaste\"></img>) fireballs around it. Refire the ability to pause the Eye mid-flight.<br>\n<br>\nEach fireball deals 18/29/40/51/62 <AbilityPowerText>(+16%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage and Slows Enemies by 7%, up to a max of 35%. <br>\n<br>\nIf an Enemy is within range, the Eye will fire an additional homing fireball at them. Each subsequent hit on the same Target deals 20% less damage, stacking up to a 80% reduction.<br>\n<br>\nWhen Awakened, the number of fireballs is increased by 50%.",
+      "after": "Akeron opens his maw and launches the Demon's Eye forward. The Eye moves slowly, firing off 10 (+10%<img id=\"AbilityHaste\"></>) fireballs around it. Refire the ability to pause the Eye mid-flight.\n\nEach fireball deals 18/29/40/51/62 <AbilityPowerText>(+14%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage and Slows Enemies by 7%, up to a max of 35%. \n\nIf an Enemy is within range, the Eye will fire an additional homing fireball at them. Each subsequent hit on the same Target deals 20% less damage, stacking up to a 80% reduction.\n\nWhen Awakened, the number of fireballs is increased by 50%.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 Q change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-akeron-abilities-3-menu_description",
+      "path": [
+        "heroes",
+        "akeron",
+        "abilities",
+        3,
+        "menu_description"
+      ],
+      "before": "Akeron fires a web, stopping on the first Target hit and causing various effects depending on the Target's type.<br>\n<br>\n<EffectText>Heroes or Units:</EffectText> Damages for 70/95/120/145/170 <AbilityPowerText>(+35%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage and Roots for 1s, also creating a web field that Slows Enemies by 35%.<br>\n<br>\n<EffectText>World:</EffectText> Lashes to it for up to 5s. While attached to terrain, Akeron can use abilities or leap to the ground, dealing 60/85/110/135/160 <AttackDamageText>(+50%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+35%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> physical damage, Knocking Up, and Stunning Enemies for 1s.<br>\n<br>\nAwakened: Root and Stun Duration increased to 1.25.",
+      "after": "Akeron fires a web, stopping on the first Target hit and causing various effects depending on the Target's type.\n\n<EffectText>Heroes or Units:</> Damages for 70/95/120/145/170 <AbilityPowerText>(+30%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage and Roots for 1s, also creating a web field that Slows Enemies by 35%.\n\n<EffectText>World:</> Lashes to it for up to 5s. While attached to terrain, Akeron can use abilities or leap to the ground, dealing 60/85/110/135/160 <AttackDamageText>(+50%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+30%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> physical damage, Knocking Up, and Stunning Enemies for 1s.\n\nAwakened: Root and Stun Duration increased to 1.25.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 E change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-akeron-abilities-4-menu_description",
+      "path": [
+        "heroes",
+        "akeron",
+        "abilities",
+        4,
+        "menu_description"
+      ],
+      "before": "Akeron <CC_Text>Slows</CC_Text> himself by 35% while <CC_Text>Pulling</CC_Text> and dealing 15/20/25 <AbilityPowerText>(+5%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage to all Enemies in a cone every 0.25s for 3s.<br>\n<br>\nIf an Enemy Hero collides with Akeron, he bites them, dealing 55/75/95 <AttackDamageText>(+75%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+40%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> physical damage while healing for <HealthText>2.5/3.5/4.5%</HealthText> Missing Health + <HealthText>40/50/60%</HealthText> of bite damage dealt.<br>\n<br>\nAkeron Executes Enemies bitten under 12% <AttackDamageText>(+3.5%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+2.5%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> of their Max Health.<br>\n<br>\nEach time Akeron successfully executes a Hero, he gains <HealthText>100/125/150 Maximum Health</HealthText> permanently, also healing for 2.5x the bite value.",
+      "after": "Akeron <CC_Text>Slows</CC_Text> himself by 35% while <CC_Text>Pulling</CC_Text> and dealing 15/20/25 <AbilityPowerText>(+4%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage to all Enemies in a cone every 0.25s for 3s.\n\nIf an Enemy Hero collides with Akeron, he bites them, dealing 55/75/95 <AttackDamageText>(+75%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+40%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> physical damage while healing for <HealthText>2.5/3.5/4.5%</> Missing Health + <HealthText>40/50/60%</> of bite damage dealt.\n\nAkeron Executes Enemies bitten under 12% <AttackDamageText>(+3.5%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+2.5%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> of their Max Health.\n\nEach time Akeron successfully executes a Hero, he gains <HealthText>100/125/150 Maximum Health</> permanently, also healing for 2.5x the bite value.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 R change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-gadget-abilities-2-menu_description",
+      "path": [
+        "heroes",
+        "gadget",
+        "abilities",
+        2,
+        "menu_description"
+      ],
+      "before": "Launch a sticky mine that attaches to any Enemy Hero in its path, or any nearby Unit upon landing. <br>\n<br>\nAfter 2.5s, the mine explodes, dealing 90/120/150/180/210 <AbilityPowerText>(+70%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage.<br>\n<br>\nLanding a Basic Attack against an Enemy with an attached Sticky Mine empowers it, dealing 110/150/190/230/270 <AbilityPowerText>(+95%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage instead.<br>\n<br>\nSticky Mines that attach to yourself or Allied Units are also empowered.",
+      "after": "Launch a sticky mine that attaches to any Enemy Hero in its path, or any nearby Unit upon landing. \n\nAfter 2.5s, the mine explodes, dealing 90/120/150/180/210 <AbilityPowerText>(+70%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage.\n\nLanding a Basic Attack against an Enemy with an attached Sticky Mine empowers it, dealing 110/155/200/245/290 <AbilityPowerText>(+95%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage instead.\n\nSticky Mines that attach to yourself or Allied Units are also empowered.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 Q change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-gadget-abilities-3-menu_description",
+      "path": [
+        "heroes",
+        "gadget",
+        "abilities",
+        3,
+        "menu_description"
+      ],
+      "before": "Throw forward an electrical gate that lasts 2.5s, granting Allied Units that pass through it 40% decaying movement speed for 2.5s. <br>\n<br>\nIf an Enemy passes through, the gate deals 70/90/110/130/150 <AbilityPowerText>(+40%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage and Roots them for 1s.",
+      "after": "Throw forward an electrical gate that lasts 2.5s, granting Allied Units that pass through it 50% decaying movement speed for 2.5s. \n\nIf an Enemy passes through, the gate deals 70/90/110/130/150 <AbilityPowerText>(+40%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage and Roots them for 1s.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 E change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-kira-abilities-0-menu_description",
+      "path": [
+        "heroes",
+        "kira",
+        "abilities",
+        0,
+        "menu_description"
+      ],
+      "before": "Ranged basic attack dealing 54/56.45/59.03/61.74/64.59/67.56/70.67/73.91/77.28/80.78/84.41/88.17/92.06/96.09/100.24/104.53/108.95/113.5 <AttackDamageText>(+80%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> physical damage.",
+      "after": "Ranged basic attack dealing 53/55.59/58.32/61.19/64.19/67.34/70.62/74.04/77.6/81.3/85.14/89.12/93.24/97.49/101.89/106.42/111.09/115.9 <AttackDamageText>(+80%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> physical damage.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 LMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-kira-abilities-1-menu_description",
+      "path": [
+        "heroes",
+        "kira",
+        "abilities",
+        1,
+        "menu_description"
+      ],
+      "before": "Equip Mercy to fire a powerful shot dealing 20/25/30/35/40 <AttackDamageText>(+74/78/82/86/90%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> physical damage and applying 3 stacks of Vengeance to the Target.<br>\n<br>\nMercy benefits from Lifesteal, can Critically Strike, and applies on-hit effects.",
+      "after": "Equip Mercy to fire a powerful shot dealing 25/30/35/40/45 <AttackDamageText>(+74/78/82/86/90%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> physical damage and applying 3 stacks of Vengeance to the Target.\n\nMercy benefits from Lifesteal, can Critically Strike, and applies on-hit effects.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 RMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-kira-abilities-2-menu_description",
+      "path": [
+        "heroes",
+        "kira",
+        "abilities",
+        2,
+        "menu_description"
+      ],
+      "before": "Passive: Apply Vengeance to enemies by dealing basic attack or ability damage, increasing damage you deal to them by 0.75% for 3.5s, stacking infinitely.<br>\n<br>\nActive: Purify all Enemy Units afflicted with Vengeance, dealing 45/65/85/105/125 physical damage, plus an additional 6/8/10/12/14 <AttackDamageText>(+12%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> damage per stack, and Slowing them by 10/15/20/25/30% for 1s.<br>\n<br>\nThe cooldown is reset if Dusk kills any target.",
+      "after": "Passive: Apply Vengeance to enemies by dealing basic attack or ability damage, increasing damage you deal to them by 0.75% for 3.5s, stacking infinitely.\n\nActive: Purify all Enemy Units afflicted with Vengeance, dealing 45/65/85/105/125 physical damage, plus an additional 6/8/10/12/14 <AttackDamageText>(+12%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> damage per stack, and Slowing them by 10/15/20/25/30% for 1s.\n\nThe cooldown is reset and 35% Mana is refunded if Dusk kills any target.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 Q change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-morigesh-abilities-4-menu_description",
+      "path": [
+        "heroes",
+        "morigesh",
+        "abilities",
+        4,
+        "menu_description"
+      ],
+      "before": "After a brief channel, Summon a horde of insects to stab the Marked target, dealing 300/430/560 <AbilityPowerText>(+80%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage.<br>\n<br>\nThe Mark is removed upon casting this ability.",
+      "after": "After a brief channel, Summon a horde of insects to stab the Marked target, dealing 320/450/580 <AbilityPowerText>(+80%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage.\n\nThe Mark is removed upon casting this ability.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 R change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-murdock-abilities-1-menu_description",
+      "path": [
+        "heroes",
+        "murdock",
+        "abilities",
+        1,
+        "menu_description"
+      ],
+      "before": "Discharge a Terrain piercing shotgun blast, dealing 60/85/110/135/160 <AttackDamageText>(+100/120/140/160/180%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> physical damage to all Enemies hit, decreasing by up to 50% based on distance and Shredding their physical armor by 15% for 4s.<br>\n<br>\nThe blast Pushes Enemies Back, its force increasing at close range.",
+      "after": "Discharge a Terrain piercing shotgun blast, dealing 60/90/120/150/180 <AttackDamageText>(+100/120/140/160/180%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> physical damage to all Enemies hit, decreasing by up to 50% based on distance and Shredding their physical armor by 15% for 4s.\n\nThe blast Pushes Enemies Back, its force increasing at close range.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 RMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-murdock-abilities-4-menu_description",
+      "path": [
+        "heroes",
+        "murdock",
+        "abilities",
+        4,
+        "menu_description"
+      ],
+      "before": "Murdock kneels, preparing an energized sniper shot with unlimited range that can travel through anything.<br>\n<br>\nWhile targeting, using the Alternate Ability input will zoom the scope inwards.<br>\n<br>\nUpon firing, it deals 250/400/550 <AttackDamageText>(+115%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+100%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> physical damage to all Enemies in its path, ignoring any physical armor.",
+      "after": "Murdock kneels, preparing an energized sniper shot with unlimited range that can travel through anything.\n\nWhile targeting, using the Alternate Ability input will zoom the scope inwards.\n\nUpon firing, it deals 280/430/580 <AttackDamageText>(+120%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText><AbilityPowerText>(+100%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> physical damage to all Enemies in its path, ignoring any physical armor.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 R change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-wukong-abilities-1-menu_description",
+      "path": [
+        "heroes",
+        "wukong",
+        "abilities",
+        1,
+        "menu_description"
+      ],
+      "before": "Spirit:<br>\nWukong dashes forward dealing 60/90/120/150/180/210 <AttackDamageText>(+90%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> damage and Slowing everything hit by 40% for 0.5s.<br>\n<br>\nBody:<br>\nWukong enlarges his staff sending it forward dealing 60/85/110/135/160/185 <AttackDamageText>(+100%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> damage, Slowing for 30% for 0.75s and forcing away all enemies and Clones.",
+      "after": "Spirit:\nWukong dashes forward dealing 60/85/110/135/160/185 <AttackDamageText>(+100%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> damage and Slowing everything hit by 40% for 0.5s.\n\nBody:\nWukong enlarges his staff sending it forward dealing 60/85/110/135/160/185 <AttackDamageText>(+100%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> damage, Slowing for 30% for 0.75s and forcing away all enemies and Clones.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 RMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-wukong-abilities-3-menu_description",
+      "path": [
+        "heroes",
+        "wukong",
+        "abilities",
+        3,
+        "menu_description"
+      ],
+      "before": "Spirit:<br>\nWukong spins his staff around himself gaining 25% <AttackDamageText>(+50%</AttackDamageText><img id=\"PhysPen\"></img><AttackDamageText>)</AttackDamageText> Damage Reduction for the duration. Afterwards he throws the staff forward dealing 60/80/100/120/140/160 <AttackDamageText>(+70%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> damage and Stunning for 0.8s.<br>\n<br>\nBody:<br>\nWukong enlarges his staff and slams down to the ground dealing 60/100/140/180/220/260 <AttackDamageText>(+135%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> damage and slowing by 40% for 0.75. This damage is increased by drop distance up to 1500 units. Minions receive 60% less damage.",
+      "after": "Spirit:\nWukong spins his staff around himself gaining 25% <AttackDamageText>(+50%</AttackDamageText><img id=\"PhysPen\"></><AttackDamageText>)</AttackDamageText> Damage Reduction for the duration. Afterwards he throws the staff forward dealing 60/80/100/120/140/160 <AttackDamageText>(+70%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> damage and Stunning for 0.8s.\n\nBody:\nWukong enlarges his staff and slams down to the ground dealing 60/100/140/180/220/260 <AttackDamageText>(+135%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> damage and slowing by 40% for 0.75. This damage is increased by drop distance up to 1500 units. Minions receive 70% less damage.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 E change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-zinx-abilities-1-menu_description",
+      "path": [
+        "heroes",
+        "zinx",
+        "abilities",
+        1,
+        "menu_description"
+      ],
+      "before": "Fire a healing bolt at an Ally that restores 60/95/130/165/200 <AbilityPowerText>(+50%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> Health, increasing by up to 40% based on their missing health.",
+      "after": "Fire a healing bolt at an Ally that restores 60/95/130/165/200 <AbilityPowerText>(+50%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> Health, increasing by up to 50% based on their missing health.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 RMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-aurora-abilities-0-menu_description",
+      "path": [
+        "heroes",
+        "aurora",
+        "abilities",
+        0,
+        "menu_description"
+      ],
+      "before": "Melee basic attack dealing 62/65.01/68.18/71.51/75.01/78.66/82.48/86.46/90.6/94.9/99.36/103.98/108.76/113.71/118.81/124.08/129.51/135.1 <AttackDamageText>(+75%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> physical damage.<br>\n<br>\nAdditionally deals <AbilityPowerText>(+30%</AbilityPowerText><img id=\"APIconBlue\"></img><AbilityPowerText>)</AbilityPowerText> magical damage on-hit.",
+      "after": "Melee basic attack dealing 62/65.01/68.18/71.51/75.01/78.66/82.48/86.46/90.6/94.9/99.36/103.98/108.76/113.71/118.81/124.08/129.51/135.1 <AttackDamageText>(+75%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> physical damage.\n\nAdditionally deals <AbilityPowerText>(+25%</AbilityPowerText><img id=\"APIconBlue\"></><AbilityPowerText>)</AbilityPowerText> magical damage on-hit.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 LMB change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-heroes-murdock-abilities-5-menu_description",
+      "path": [
+        "heroes",
+        "murdock",
+        "abilities",
+        5,
+        "menu_description"
+      ],
+      "before": "Landing 5 successful Basic Attacks will cause Murdock's next Basic Attack to have 400 increased range and deal <AttackDamageText>(+36-60%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> bonus damage. ",
+      "after": "Landing 5 successful Basic Attacks will cause Murdock's next Basic Attack to have 400 increased range and deal <AttackDamageText>(+40-64%</AttackDamageText><img id=\"ADIconOrange\"></img><AttackDamageText>)</AttackDamageText> bonus damage. ",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 Passive change; served site text is the 1.16 value.",
+      "accepted_before": [
+        "Landing 5 successful Basic Attacks will cause Murdock's next Basic Attack to have 400 increased range and deal <AttackDamageText>(+36-60%</AttackDamageText><img id=\"ADIconOrange\"></><AttackDamageText>)</AttackDamageText> bonus damage. "
+      ]
+    },
+    {
+      "id": "patch-1.17-heroes-gadget-abilities-3-cost",
+      "path": [
+        "heroes",
+        "gadget",
+        "abilities",
+        3,
+        "cost"
+      ],
+      "before": [
+        65.0,
+        65.0,
+        65.0,
+        65.0,
+        65.0
+      ],
+      "after": [
+        75.0,
+        75.0,
+        75.0,
+        75.0,
+        75.0
+      ],
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 cost change."
+    },
+    {
+      "id": "patch-1.17-heroes-morigesh-abilities-1-cooldown",
+      "path": [
+        "heroes",
+        "morigesh",
+        "abilities",
+        1,
+        "cooldown"
+      ],
+      "before": [
+        8.0,
+        7.25,
+        6.5,
+        5.75,
+        5.0
+      ],
+      "after": [
+        8.5,
+        7.5,
+        6.5,
+        5.5,
+        4.5
+      ],
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 cooldown change."
+    },
+    {
+      "id": "patch-1.17-heroes-morigesh-abilities-2-cooldown",
+      "path": [
+        "heroes",
+        "morigesh",
+        "abilities",
+        2,
+        "cooldown"
+      ],
+      "before": [
+        14.0,
+        13.0,
+        12.0,
+        11.0,
+        10.0
+      ],
+      "after": [
+        12.0,
+        11.25,
+        10.5,
+        9.75,
+        9.0
+      ],
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 cooldown change."
+    },
+    {
+      "id": "patch-1.17-heroes-zinx-abilities-4-cooldown",
+      "path": [
+        "heroes",
+        "zinx",
+        "abilities",
+        4,
+        "cooldown"
+      ],
+      "before": [
+        160.0,
+        140.0,
+        120.0
+      ],
+      "after": [
+        150.0,
+        135.0,
+        120.0
+      ],
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 cooldown change."
+    },
+    {
+      "id": "patch-1.17-perks-disc-of-demise-description",
+      "path": [
+        "perks",
+        "disc-of-demise",
+        "description"
+      ],
+      "before": "Ricochet bounces 25% further and each hit reduces its Current Cooldown by 5%, increased to 10% for Heroes.",
+      "after": "Ricochet bounces 25% further and each hit reduces its Current Cooldown by 6%, increased to 12% for Heroes.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 disc-of-demise change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-perks-forage-description",
+      "path": [
+        "perks",
+        "forage",
+        "description"
+      ],
+      "before": "Gain 3 additional Gold and 4 additional XP per Minion or Monster Kill.",
+      "after": "Gain 3 additional Gold and 3 additional XP per Minion or Monster Kill.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 forage change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-perks-hellfire-strikes-description",
+      "path": [
+        "perks",
+        "hellfire-strikes",
+        "description"
+      ],
+      "before": "Basic Attacks deal 3 (+1.5 per Level) True Damage On-Hit.",
+      "after": "Basic Attacks deal 3 (+1.25 per Level) True Damage On-Hit.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 hellfire-strikes change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-perks-satariel-description",
+      "path": [
+        "perks",
+        "satariel",
+        "description"
+      ],
+      "before": "Takedowns grant a stack of Fearless, up to 6 times. Your Max Health is reduced by 6% (+6.5% Melee/+7.5% Ranged per Fearless). Gain +5% (+4% per Fearless) Physical Power, Magical Power and Attack Speed. Fearless stacks are lost on Death.",
+      "after": "Takedowns grant a stack of Fearless, up to 6 times. Your Max Health is reduced by 6% (+6.5% Melee/+7.5% Ranged per Fearless). Gain +4% (+4% per Fearless) Physical Power, Magical Power and Attack Speed. Fearless stacks are lost on Death.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 satariel change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-perks-taproot-description",
+      "path": [
+        "perks",
+        "taproot",
+        "description"
+      ],
+      "before": "Basic Attacks restore 1 (+8% Bonus Physical Power) Health On-Hit.",
+      "after": "Basic Attacks restore 1 (+7% Bonus Physical Power) Health On-Hit.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 taproot change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-perks-wind-rider-description",
+      "path": [
+        "perks",
+        "wind-rider",
+        "description"
+      ],
+      "before": "Gain 20% (+1% per Level) Attack Speed for 4s after using a Dash, Leap, Teleport or upon leaving Stealth.",
+      "after": "Gain 15% (+1% per Level) Attack Speed for 4s after using a Dash, Leap, Teleport or upon leaving Stealth.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 wind-rider change; served site text is the 1.16 value."
+    },
+    {
+      "id": "patch-1.17-perks-terminal-treatment-description",
+      "path": [
+        "perks",
+        "terminal-treatment",
+        "description"
+      ],
+      "before": "Infuse's On-Hit damage increases by 0-60%, based on Target's Missing Health.",
+      "after": "Refibrillator's On-Hit damage increases by 0-25%, based on Target's Missing Health.",
+      "patch": "1.17",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reason": "Official 1.17 terminal-treatment change; served site text is the 1.16 value."
     }
   ],
   "hero_context": {

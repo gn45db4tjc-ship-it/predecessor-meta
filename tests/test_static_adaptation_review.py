@@ -18,9 +18,10 @@ class AdaptationReviewTests(unittest.TestCase):
         self.assertEqual(review['patch'], self.packet['guidance']['build_patch_review']['patch'])
         self.assertTrue(review['classifications']['items']['anti_heal'])
         self.assertTrue(all(name.startswith('Tainted') for name in review['classifications']['items']['anti_heal']))
-        # A build review never renews the global tier and strategy review.
-        self.assertEqual(self.packet['patch'], '1.16.4')
-        self.assertTrue(self.packet['reviewed_at'].startswith('2026-09-14'))
+        # A build review never renews the global tier and strategy review; only the 24 Sep 1.17 strategy review did.
+        self.assertEqual(self.packet['patch'], '1.17')
+        self.assertTrue(self.packet['reviewed_at'].startswith('2026-09-24'))
+        self.assertNotEqual(self.packet['reviewed_at'], review['reviewed_at'])
 
     def test_invalid_adaptation_reviews_are_rejected(self):
         def mutate(change):

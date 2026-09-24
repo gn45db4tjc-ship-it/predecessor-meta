@@ -47,9 +47,12 @@
     }
     function heroStrategy(slug) {
       const patch=patchContext(slug);
-      if(patch?.active)return {...patch,pick_when:patch.summary,counterplay:patch.summary,status:'Reviewed patch implications; no outcome claim'};
-      const review=bundle.guidance?.strategic_review,r=review?.heroes?.[slug];if(!r)return null;
-      const active=strategyReady()&&matchesAbilities(slug,r.source_abilities);
+      const review=bundle.guidance?.strategic_review,r=review?.heroes?.[slug];
+      const active=!!r&&strategyReady()&&matchesAbilities(slug,r.source_abilities);
+      // A full review of the same patch completed after the interim patch note supersedes it; otherwise the note wins.
+      const superseded=active&&!!patch&&review.patch===patch.patch&&Date.parse(review.reviewed_at)>=Date.parse(patch.reviewed_at);
+      if(patch?.active&&!superseded)return {...patch,pick_when:patch.summary,counterplay:patch.summary,status:'Reviewed patch implications; no outcome claim'};
+      if(!r)return null;
       return {...r,active,patch:review.patch,reviewed_at:review.reviewed_at,status:active?bundle.guidance.status:'Patch or supporting ability text needs review'};
     }
     function counterIdeas(target,enemyRole='',{role='',bans=[],allies=[],enemies=[]}={}) {
@@ -63,7 +66,7 @@
     }
     function buildAdaptations(slug,role) {
       const plan=buildReview(slug,role);
-      return (bundle.guidance?.strategic_review?.build_adaptations||[]).filter(r=>r.slug===slug&&r.role===role).map(r=>({...r,active:strategyReady()&&!!heroStrategy(slug)?.active&&!!plan?.active&&[...plan.core,...plan.finish].includes(r.replace)&&!!bundle.items?.[r.item_key]?.completed_item&&JSON.stringify(bundle.items[r.item_key].effects)===JSON.stringify(r.item_effects),reorder:[...(plan?.core||[]),...(plan?.finish||[])].includes(r.item)}));
+      return (bundle.guidance?.strategic_review?.build_adaptations||[]).filter(r=>r.slug===slug&&r.role===role).map(r=>({...r,active:strategyReady()&&!!heroStrategy(slug)?.active&&!!plan?.active&&[...plan.core,...plan.finish].includes(r.replace)&&!!bundle.items?.[r.item_key]?.completed_item&&sameValue(bundle.items[r.item_key].effects,r.item_effects),reorder:[...(plan?.core||[]),...(plan?.finish||[])].includes(r.item)}));
     }
     function reviewedComposition(index) {
       const c=bundle.guidance?.compositions?.[index];if(!c)return null;
