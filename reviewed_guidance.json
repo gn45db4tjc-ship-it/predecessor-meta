@@ -67229,7 +67229,7 @@
           "entity": "Valmont · Sanguine Banquet",
           "change": "Fixed an issue with Valmont's Sanguine Banquet regenerating mana incorrectly",
           "category": "gameplay",
-          "reason": "Mana regeneration was incorrect in game. The reviewed Valmont plan and loadout text quote the official launch values (2 mana per nearby minion death, 30 per hero death), which the fix restores; no advice depended on the incorrect regeneration. No numerical performance effect is inferred."
+          "reason": "The hotfix does not describe the incorrect behaviour or its direction. The reviewed Valmont plan and loadout quote the official launch text (2% (+0.5% Bonus Mana) Omnivamp; +2 maximum mana per nearby minion death, +30 per hero death), which the hotfix does not change, and no reviewed advice depends on mana regeneration from this augment. No numerical performance effect is inferred."
         },
         {
           "entity": "Valmont · Passive",
@@ -67273,6 +67273,9 @@
           "category": "display/operations",
           "reason": "Text localisation only; no gameplay effect."
         }
+      ],
+      "limitations": [
+        "Observed 1.17 rates include games played before Hotfix 1.17.1 (24 Sep), when Sanguine Banquet's mana regeneration and Black Hole's interrupted cast behaved incorrectly. Rates are shown as observed; Valmont and Gideon grades are rechecked in the planned follow-up review."
       ]
     }
   ]

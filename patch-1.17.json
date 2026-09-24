@@ -4778,7 +4778,7 @@
       "change": "Fixed an issue with Valmont's Sanguine Banquet regenerating mana incorrectly",
       "category": "gameplay",
       "result": "checked and retained",
-      "reason": "Mana regeneration was incorrect in game. The reviewed Valmont plan and loadout text quote the official launch values (2 mana per nearby minion death, 30 per hero death), which the fix restores; no advice depended on the incorrect regeneration. No numerical performance effect is inferred.",
+      "reason": "The hotfix does not describe the incorrect behaviour or its direction. The reviewed Valmont plan and loadout quote the official launch text (2% (+0.5% Bonus Mana) Omnivamp; +2 maximum mana per nearby minion death, +30 per hero death), which the hotfix does not change, and no reviewed advice depends on mana regeneration from this augment. No numerical performance effect is inferred.",
       "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
       "reviewed_at": "2026-09-24T22:35:54+00:00"
     },
@@ -4858,6 +4858,7 @@
     "Gold+ is the editorial reference; six bracket samples remain separate. Public Pred.gg is optional and access stops are respected.",
     "Tier grades, pair outcome comparisons and complete composition rankings are not newly proven by patch notes. Previous dated guidance remains available.",
     "Muriel button mapping conflicts between official 1.17 headings and the source kit. Exact button allocation remains unavailable until confirmed. Wukong exceptional skill ranks are not replaced with a generic schedule.",
-    "Lilith inherits attack speed; her interaction with every item on-hit is unverified. The Valmont starter does not depend on pet on-hit triggers."
+    "Lilith inherits attack speed; her interaction with every item on-hit is unverified. The Valmont starter does not depend on pet on-hit triggers.",
+    "Observed 1.17 rates include games played before Hotfix 1.17.1 (24 Sep), when Sanguine Banquet's mana regeneration and Black Hole's interrupted cast behaved incorrectly. Rates are shown as observed; Valmont and Gideon grades are rechecked in the planned follow-up review."
   ]
 }
