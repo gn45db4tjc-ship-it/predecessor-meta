@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.34.4
+# Predecessor Meta - 2.34.5
 
-Muriel's Sentinel passive reads as its official values (25/35/45% anti-heal at levels 1/7/13 and the 1.17 heal and shield bonus) instead of the source's malformed per-level list. See [RELEASE-2.34.4.md](RELEASE-2.34.4.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The collector verifies Hotfix 1.17.1, which the publisher placed inside the 1.17 patch article, and the 1.17 reviews are checked against it: no advice changes, and reviewed builds and tiers stay active. See [RELEASE-2.34.5.md](RELEASE-2.34.5.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.34.4
+
+Muriel's Sentinel passive reads as its official values (25/35/45% anti-heal at levels 1/7/13 and the 1.17 heal and shield bonus) instead of the source's malformed per-level list. See [RELEASE-2.34.4.md](RELEASE-2.34.4.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.34.3
 
