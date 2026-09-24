@@ -1,4 +1,10 @@
-# Predecessor Meta - 2.34.0
+# Predecessor Meta - 2.34.1
+
+On an iPhone-sized screen, Items & loadouts now shows its first entries without scrolling: Show and Find share one row on phones, the Pred.gg note's summary is one line, and small phones with large text no longer scroll sideways. See [RELEASE-2.34.1.md](RELEASE-2.34.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+## Previous release
+
+### 2.34.0
 
 Tiers, strategy notes, counter-picks, build adaptations, team compositions and pools reviewed for live 1.17 (Gold+ reference), with four grade changes and three new starting plans (Legion Midlane, Zinx Carry, Rampage Offlane). One-time review; no recurring AI reviews. See [RELEASE-2.34.0.md](RELEASE-2.34.0.md) and [docs/STRATEGY-REVIEW-2.34.md](docs/STRATEGY-REVIEW-2.34.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 

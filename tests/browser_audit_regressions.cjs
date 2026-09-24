@@ -3669,6 +3669,23 @@ probes.LB3 = async browser => {
  let downloaded=false;try{const [d]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.locator('#main button:has-text("Export snapshot")').click()]);downloaded=!!d.suggestedFilename();}catch{}
  await context.close();verdict('LB3',ids>1||!downloaded,{ids,downloaded});
 };
+probes.LB4 = async browser => {
+ // An iPhone 13 screen in Safari (390x664): Items & loadouts must start its entries on the first screen with the live
+ // 1.17 state (Pred.gg catalogue empty, fallback note shown), without sideways scrolling.
+ const {context,page}=await session(browser,{viewport:{width:390,height:664},isMobile:true,hasTouch:true});
+ const seen=await page.evaluate(()=>{
+  Object.assign(B.pred_game_data,{status:'failed',items:{},perks:{},errors:[{source:'Pred.gg game data',severity:'error',detail:'Pred.gg catalog hero join failed'}]});E=MetaEngine.create(B);
+  S.libraryKind='items';S.libraryQuery='';S.libraryLimit=40;changeRoute('library');window.scrollTo(0,0);
+  const r=s=>document.querySelector(s)?.getBoundingClientRect(),nav=document.querySelector('#mobile-navigation')?.getBoundingClientRect();
+  return {kindTop:Math.round(r('#library-kind').top),queryTop:Math.round(r('#library-query').top),firstRowTop:Math.round(r('.library-grid>article').top),screenBottom:Math.round(nav?.top??innerHeight),overflow:document.documentElement.scrollWidth>391};
+ });
+ await context.close();
+ // The narrowest supported phone with large text: the Show select must not push the page sideways. Widths are fixed
+ // numbers because mobile emulation widens innerWidth to fit overflowing content.
+ const narrow=await session(browser,{viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ seen.narrowOverflow=await narrow.page.evaluate(()=>{companionPrefs.large=true;document.documentElement.classList.add('large-text');S.libraryKind='perks';changeRoute('library');return document.documentElement.scrollWidth>321;});
+ await narrow.context.close();verdict('LB4',Math.abs(seen.kindTop-seen.queryTop)>8||seen.firstRowTop>=seen.screenBottom||seen.overflow||seen.narrowOverflow,seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
