@@ -48,7 +48,11 @@ class ReviewLedgerTests(unittest.TestCase):
         self.packet['guidance']['builds'][0]['maintenance_review'].update(result='unresolved',limitation='')
         with self.assertRaisesRegex(ValueError,'explicit limitation'):m.validate_guidance_packet(self.packet,None)
 
-    def test_strategy_review_keeps_next_sunday(self):
+    def test_one_time_review_schedules_no_next_review(self):
+        # STRATEGY-REVIEW-POLICY.md (21 Sep): no recurring review is scheduled, so none is dated here.
         review=self.packet['guidance']['maintenance_review']
         self.assertEqual(review['kind'],'1.17 strategy review')
-        self.assertEqual(review['next_weekly_review'],'2026-09-27T13:15:00-05:00')
+        self.assertNotIn('next_weekly_review',review)
+        m.validate_guidance_packet(self.packet,None)
+        review['next_weekly_review']='not a date'
+        with self.assertRaises(ValueError):m.validate_guidance_packet(self.packet,None)

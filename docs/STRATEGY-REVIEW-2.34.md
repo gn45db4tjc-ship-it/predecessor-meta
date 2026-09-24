@@ -22,7 +22,8 @@ Reviewed 2026-09-24 by Claude (Opus 5.5) editorial review. One-time review at th
 
 - **Tiers**: 85 entries; 4 grade changes; the rest retained, most with corrected text. 70 of 85 tiers rest on the Gold+ 1.17 sample; 15 have fewer than 100 current games.
 - **Hero notes**: 54; **counter-picks**: 16; **build adaptations**: 13; **compositions**: 12.
-- **New plans**: Legion Midlane, Zinx Carry and Rampage Offlane (see below). Build review summary {'changed': 48, 'checked and retained': 41, 'unresolved': 7}.
+- **New plans**: Legion Midlane, Zinx Carry and Rampage Offlane (see below). Plans by 1.17 build-review verdict: 48 changed, 41 checked and retained, 7 unresolved (the three new plans count as changed, reviewed 24 Sep).
+- **This review's own per-plan verdicts**: 3 changed, 86 checked and retained, 7 unresolved; it changed no field of an existing plan.
 - **On the Windows Gold+ 1.17 data** every reviewed item is active: 90 of 97 builds (the 7 are experimental roles), 70 tiers, 54 hero notes, 16 counter-picks, 13 adaptations and 12 compositions.
 - **On the published six ranks** (no Pred.gg sample): 90 of 97 builds active; tiers wait for a current Pred.gg Gold+ sample; Khaimera and Mourn notes, and the 2 compositions with them, wait because the site still shows their older ability wording; 5 of 13 adaptations are active and 8 wait on item-text wording that differs from the reviewed 1.17 text.
 

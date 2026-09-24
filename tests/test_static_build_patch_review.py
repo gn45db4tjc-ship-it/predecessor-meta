@@ -17,7 +17,7 @@ class BuildPatchReviewTests(unittest.TestCase):
         review=self.packet['guidance']['build_patch_review']
         self.assertEqual(sum(review['summary'].values()),96)
         self.assertEqual(review['patch'],'1.17')
-        self.assertEqual(self.packet['guidance']['maintenance_review']['next_weekly_review'],'2026-09-27T13:15:00-05:00')
+        self.assertNotIn('next_weekly_review',self.packet['guidance']['maintenance_review'])
     def test_missing_fingerprints_or_mechanics_cannot_be_approved(self):
         for mutate in (lambda p:p['guidance']['build_patch_review']['article_fingerprints'].clear(),lambda p:p['guidance']['builds'][0].pop('source_preconditions')):
             p=copy.deepcopy(self.packet);mutate(p)

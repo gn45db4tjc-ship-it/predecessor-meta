@@ -600,7 +600,7 @@ function maintenanceHTML(){
  const pass=B.guidance?.build_patch_review;
  const buildReview=pass?`<details><summary>Latest build patch review · ${esc(date(pass.reviewed_at))}</summary><div class="detail-content"><p>${esc(pass.scope)}</p><p>${Object.entries(pass.summary).map(([label,n])=>`${num(n,0)} ${esc(label)}`).join(' · ')}</p><p>${esc(pass.limitations)}</p><p>${esc(pass.new_hero_gap)}</p></div></details>`:'';
  const r=B.guidance?.maintenance_review;if(!r)return buildReview;
- return buildReview+`<details><summary>Full strategy review · ${esc(date(r.reviewed_at))}</summary><div class="detail-content"><p>${esc(r.note)}</p><p>${Object.entries(r.summary).map(([label,n])=>`${num(n,0)} ${esc(label)}`).join(' · ')}</p><p>${esc(r.rank_note)}</p><p>Next weekly review: ${esc(date(r.next_weekly_review))}. Refreshing statistics does not perform this strategy review.</p></div></details>`;
+ return buildReview+`<details><summary>Full strategy review · ${esc(date(r.reviewed_at))}</summary><div class="detail-content"><p>${esc(r.note)}</p><p>${Object.entries(r.summary).map(([label,n])=>`${num(n,0)} ${esc(label)}`).join(' · ')}</p><p>${esc(r.rank_note)}</p><p>${r.next_weekly_review?`Next weekly review: ${esc(date(r.next_weekly_review))}.`:'No recurring strategy review is scheduled.'} Refreshing statistics does not perform this strategy review.</p></div></details>`;
 }
 function planReviewHTML(plan){
  const r=plan.maintenance_review;if(!r)return '';

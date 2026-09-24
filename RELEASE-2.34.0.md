@@ -52,6 +52,7 @@ This release carries a one-time editorial review of everything the 2.32 build re
   - The committed Gold seed, collected on 1.16.4, is now staged with its own dated review packet (`tests/fixtures/reviewed-guidance-2.33.0.json.gz`), so its historical probes keep a coherent state.
   - Production always reads `reviewed_guidance.json`. `guidance_packet_path()` is overridden only by `tests/stage_preview.py`.
 - **Label.** "Previous full strategy review" now reads "Full strategy review".
+- **No next review date.** The review records no next review date, and the app now says "No recurring strategy review is scheduled". This matches the 21 September policy that recurring reviews are not scheduled.
 
 ## Limitations
 

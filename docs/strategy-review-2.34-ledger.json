@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "title": "2.34 one-time 1.17 strategy review",
- "reviewed_at": "2026-09-24T00:56:00-05:00",
+ "reviewed_at": "2026-09-24T01:56:00-05:00",
  "reviewer": "Claude (Opus 5.5) editorial strategy review, 2.34",
  "editorial_reference": "Gold+",
  "roles": {
@@ -2106,7 +2106,7 @@
      "target": "narbash",
      "role": "carry",
      "verdict": "changed",
-     "reason": "Keep Gag Grenade to silence Narbash before he can start Crash Bang Boom!, and use a compatible anti-heal purchase if grouped restoration is the problem. [2.34 consistency pass: aligned with the other role reviews and the 1.17 ability text.]",
+     "reason": "Keep Gag Grenade to silence Narbash before he can start Crash Bang Boom!, and use a compatible anti-heal purchase if grouped restoration is the problem.",
      "limit": "Silence alone is not sustained anti-heal, and the support can continue protecting after it ends. Whether silence ends a drum solo already in progress is not verified.",
      "ability_keys": {
       "slug": [
@@ -2118,7 +2118,7 @@
        "R"
       ]
      },
-     "review": "Narbash's R text changed only in its per-hit scaling (4%/7% down to 3%/5%). Crash Bang Boom! is still a 3s channel. His grouped restoration still comes from Song of My People (Healing Aura) and March! (Healing). A compatible anti-heal purchase exists for Drongo: build adaptation #2, Tainted Rounds, which cuts healing by 45% on basic attacks. Drongo's E was dropped from the cited abilities because the tactic does not use Rad Rounds, and Narbash's Q was added for the March! healing. The Pred.gg carry table has no Drongo-versus-Narbash row. Uncertainty: neither 1.17 ability text states that silence interrupts an ongoing channel. This is retained prior advice, and the mechanic is unverified here."
+     "review": "Narbash's R text changed only in its per-hit scaling (4%/7% down to 3%/5%). Crash Bang Boom! is still a 3s channel. His grouped restoration still comes from Song of My People (Healing Aura) and March! (Healing). A compatible anti-heal purchase exists for Drongo: build adaptation #2, Tainted Rounds, which cuts healing by 45% on basic attacks. Drongo's E was dropped from the cited abilities because the tactic does not use Rad Rounds, and Narbash's Q was added for the March! healing. The Pred.gg carry table has no Drongo-versus-Narbash row. Uncertainty: neither 1.17 ability text states that silence interrupts an ongoing channel. This is retained prior advice, and the mechanic is unverified here. [2.34 consistency pass: aligned with the other role reviews and the 1.17 ability text.]"
     },
     {
      "index": 10,

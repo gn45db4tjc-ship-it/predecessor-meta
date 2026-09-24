@@ -3667,7 +3667,8 @@ def validate_guidance_packet(packet,bundle):
             if not str(ref.get('url','')).startswith('https://pred.gg/'):raise ValueError('Equivalent perk wording needs its observed source')
     if maintenance is not None:
         history_time(maintenance.get('reviewed_at'))
-        history_time(maintenance.get('next_weekly_review'))
+        # A one-time review may leave the next review unscheduled; a stated date must still be valid.
+        if maintenance.get('next_weekly_review') is not None: history_time(maintenance['next_weekly_review'])
         results={'changed':0,'checked and retained':0,'unresolved':0}
         for plan in packet['guidance'].get('builds',[]):
             review=plan.get('maintenance_review',{})
