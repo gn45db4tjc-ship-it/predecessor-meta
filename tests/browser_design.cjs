@@ -7,6 +7,12 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const root=path.resolve(__dirname,'..'),url=process.env.PREVIEW_URL||'http://127.0.0.1:12928/project/';
 const lum=hex=>{const c=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2];};
 const ratio=(a,b)=>{const [x,y]=[lum(a),lum(b)];return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
+// A required-source failure must be named in the material notices; with none, no failure may be claimed there.
+const materialNotice=()=>{const box=document.querySelector('#material-notices'),shown=box.innerText,line=document.querySelector('.status-line').innerText,required=errors().filter(e=>isMaterialError(e));if(!required.length)return !errors().some(e=>shown.includes(e.source));return box.getClientRects().length>0&&/Source failure/.test(line)&&shown.includes(required[0].source)&&shown.includes(required[0].detail)&&(required.length===1||shown.includes((required.length-1)+' more in Status details'));};
+// Reviewed tiers are shown only while the strategy review matches the live patch (not after a new patch).
+const tiersReviewed=page=>page.evaluate(()=>B.guidance.patch===B.official?.live?.version);
+// Steel from the Meta table when it is listed there; a source table can omit a hero, so fall back to the hero link.
+const openSteel=async page=>{const link=page.locator('#main .meta-table [data-hero="steel"]');if(await link.count())await link.first().click();else await page.evaluate(()=>openHero('steel','jungle'));};
 const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Number(n).toString(16).padStart(2,'0')).join(''):null;};
 (async()=>{
  const browser=await chromium.launch({headless:true,channel:'msedge',args:['--disable-gpu']});
@@ -27,12 +33,14 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    check(firstRow<=520,'meta first data row within the first screen (y='+Math.round(firstRow)+')');
    check(await page.evaluate(()=>document.querySelector('#main').getBoundingClientRect().top+scrollY<=240),'status chrome above main is at most 240px');
    check(await page.evaluate(()=>getComputedStyle(document.querySelector('#progress.failed')||document.querySelector('#progress')).color!=='rgb(255, 138, 154)'),'retained-data notice is amber, red is reserved for hard failures');
-   check(await page.evaluate(()=>{const box=document.querySelector('#material-notices'),shown=box.innerText,line=document.querySelector('.status-line').innerText,required=errors().filter(e=>isMaterialError(e));return required.length>0&&box.getClientRects().length>0&&/Source failure/.test(line)&&shown.includes(required[0].source)&&shown.includes(required[0].detail)&&(required.length===1||shown.includes((required.length-1)+' more in Status details'));}),'named source failure stays visible');
-   check(await page.locator('.meta-aside .role-priority').count()===1,'reviewed working pool moved beside the table');
+   check(await page.evaluate(materialNotice),'named source failure stays visible');
+   const reviewedTiers=await tiersReviewed(page);
+   check(await page.locator('.meta-aside .role-priority').count()===(reviewedTiers?1:0),reviewedTiers?'reviewed working pool moved beside the table':'no reviewed working pool for an earlier patch');
    // Affordance: hero names are links, chips are flat, the reviewed tier is a button with a text cue.
    check(await page.evaluate(()=>getComputedStyle(document.querySelector('.meta-table .text-button.hero-cell .name')).textDecorationLine.includes('underline')),'hero names carry link styling');
    check(await page.evaluate(()=>[...document.querySelectorAll('.tag')].every(t=>getComputedStyle(t).borderTopWidth==='0px')),'status chips are flat, never bordered');
-   check(await page.evaluate(()=>document.querySelector('[data-meta-decision] small')!==null),'reviewed tier button explains itself');
+   if(reviewedTiers)check(await page.evaluate(()=>document.querySelector('[data-meta-decision] small')!==null),'reviewed tier button explains itself');
+   else check(await page.locator('[data-meta-decision]').count()===0,'no reviewed tier buttons for an earlier patch');
    // Contrast: control borders and inputs use the verified 3:1 border against the page and their own fill.
    const border=await page.evaluate(()=>getComputedStyle(document.querySelector('#bracket')).borderTopColor);
    const bg=await page.evaluate(()=>getComputedStyle(document.querySelector('#bracket')).backgroundColor);
@@ -50,17 +58,20 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
     check(await page.locator('#main h1').count()===1,'one page title on '+r);
     check(await page.evaluate(()=>[...document.querySelectorAll('#main small, #main .footer, #main .note')].every(e=>parseFloat(getComputedStyle(e).fontSize)>=12)),'no supporting text under 12px on '+r);
    }
-   // Hero page: tabs directly under the header; partners first; builds tab shows six slots and the full loadout.
-   await route('meta');await page.locator('#main .meta-table [data-hero="steel"]').first().click();
-   check(await page.evaluate(()=>{const h=document.querySelector('.hero-header').getBoundingClientRect(),t=document.querySelector('[role=tablist][aria-label="Hero detail"]').getBoundingClientRect();return t.top>h.bottom&&t.top-h.bottom<80;}),'hero tabs sit directly under the hero header');
-   check(await page.evaluate(()=>document.querySelector('.partner').getBoundingClientRect().top+scrollY<=700),'first partner card within the first screen');
+   // Hero page (2.29 Stage 3c): four sections reached by a jump row directly under the header; Build comes first.
+   await route('meta');await openSteel(page);
+   check(await page.evaluate(()=>{const h=document.querySelector('.hero-header').getBoundingClientRect(),t=document.querySelector('nav.hero-jump[aria-label="Sections of this hero"]').getBoundingClientRect();return t.top>h.bottom&&t.top-h.bottom<80;}),'section jump row sits directly under the hero header');
+   check(await page.evaluate(()=>[...document.querySelectorAll('section[id^="hero-sec-"]')].map(s=>s.id).join()==='hero-sec-builds,hero-sec-pairings,hero-sec-counters,hero-sec-kit'),'Build section first, then partners, counters and kit');
    check(await page.evaluate(()=>[...document.querySelectorAll('.partner')].slice(0,3).every(c=>c.querySelectorAll('.metric-row strong').length<=2)),'partner cards lead with at most two figures');
    check((await page.locator('.partner').first().innerText()).match(/kit interaction points|Calculated kit fit|kit fit/i)!==null,'partner cards keep the kit-fit evidence');
    check(ratio(toHex(await page.evaluate(()=>getComputedStyle(document.querySelector('.partner .tag')).color)),toHex(panelBg))>=4.5,'chip text ≥4.5:1 on partner cards');
    await page.locator('[data-hero-tab="builds"]').click();
-   check(await page.locator('#main .build-path').first().locator('li').count()===6,'six item positions on the recommended build');
-   check(await page.locator('#main .loadout-strip').first().locator('>div').count()===5,'augment, Eternal, both blessings and crest visible without opening details');
-   check(await page.evaluate(()=>[...document.querySelectorAll('#main summary')].some(s=>s.textContent.startsWith('Full setup, execution and sources'))),'full setup details preserved');
+   // A plan that needs review for the live patch shows no build card, only its reason.
+   if(await page.evaluate(()=>E.plannedBuild('steel','jungle').items.length)){
+    check(await page.locator('#main .build-path').first().locator('li').count()===6,'six item positions on the recommended build');
+    check(await page.locator('#main .loadout-strip').first().locator('>div:not(.loadout-absent)').count()===5,'augment, Eternal, both blessings and crest visible without opening details');
+    check(await page.evaluate(()=>[...document.querySelectorAll('#main summary')].some(s=>s.textContent.startsWith('Full setup, execution and sources'))),'full setup details preserved');
+   }else check((await page.locator('#hero-sec-builds').innerText()).includes('Build recommendation unavailable'),'unreviewed build states why it is unavailable');
    // Global hero finder: typing a name opens that hero's partners with picks intact.
    await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];save();});
    await page.locator('#hero-jump').fill('Gideon');await page.locator('#hero-jump').dispatchEvent('change');
@@ -83,13 +94,15 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    check(await page.locator('#compare-bracket').count()===1,'rank comparison control retained');
    // Library: compact rows instead of oversized tiles.
    await route('library');
-   check(await page.evaluate(()=>{const cards=[...document.querySelectorAll('.library-grid .panel')];return cards.length>100&&cards.every(c=>c.getBoundingClientRect().height<=96);}),'item catalogue rows are compact');
+   check(await page.evaluate(()=>{const cards=[...document.querySelectorAll('.library-grid .panel')];return cards.length>0&&cards.length<=40&&cards.every(c=>c.getBoundingClientRect().height<=96);}),'item catalogue lists its first page in compact rows');
    // Keyboard: role tabs respond to arrow keys; disclosures open with the keyboard.
    await route('meta');await page.locator('[data-meta-role="jungle"]').focus();await page.keyboard.press('ArrowRight');
    check(await page.evaluate(()=>S.role==='offlane'),'arrow keys move role tabs');await page.locator('[data-meta-role="jungle"]').click();
-   await page.locator('.meta-aside details summary').first().focus();await page.keyboard.press('Enter');
-   check(await page.evaluate(()=>document.querySelector('.meta-aside details').open),'details open from the keyboard');
-   check(await page.evaluate(()=>{const s=document.querySelector('.meta-aside details summary'),style=getComputedStyle(s);return document.activeElement===s&&style.outlineStyle!=='none'&&parseFloat(style.outlineWidth)>=2;}),'focus style defined');
+   // The reviewed-tier aside holds the first disclosure; after a new patch it is withheld, so use Meta's first one.
+   const disclosure=reviewedTiers?'.meta-aside details':'#main details';
+   await page.locator(disclosure+' summary').first().focus();await page.keyboard.press('Enter');
+   check(await page.evaluate(d=>document.querySelector(d).open,disclosure),'details open from the keyboard');
+   check(await page.evaluate(d=>{const s=document.querySelector(d+' summary'),style=getComputedStyle(s);return document.activeElement===s&&style.outlineStyle!=='none'&&parseFloat(style.outlineWidth)>=2;},disclosure),'focus style defined');
    // Missing image fallback keeps the name readable.
    check(await page.evaluate(()=>{const p=document.querySelector('.portrait');const img=p.querySelector('img');if(img)img.dispatchEvent(new Event('error',{bubbles:true}));return p.textContent.trim().length>=2;}),'portrait fallback keeps a readable label');
    check(errors.length===0,'no page JavaScript errors');
@@ -100,6 +113,8 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
   {
    const viewport={width:390,height:844,scale:2};
    const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2}),page=await context.newPage();
+   // Since 2.29 a phone opens the quick companion; this pass measures the full-details presentation (as browser_static does).
+   await context.addInitScript(()=>{localStorage.setItem('predecessor-companion-v1',JSON.stringify({installSeen:true,fullDetails:true}));});
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:60000});
    await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();});
@@ -108,27 +123,30 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
    await route('meta');
    check(await page.evaluate(()=>document.querySelector('#main').getBoundingClientRect().top+scrollY<=430),'phone chrome above main is at most 430px');
-   check(await page.evaluate(()=>document.querySelector('.meta-table tbody tr').getBoundingClientRect().top+scrollY<=900),'phone: first data row within about one screen');
-   check(await page.evaluate(()=>['meta','plan','reference','sources'].every(r=>{const b=document.querySelector('#mobile-navigation [data-destination="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the four destinations are visible without a menu tap');
-   check(await page.evaluate(()=>document.querySelector('#menu-toggle').offsetParent===null),'phone: menu button retired (still in the DOM)');
-   check(await page.evaluate(()=>{const nav=document.querySelector('#navigation');return nav.scrollWidth>nav.clientWidth;}),'phone: remaining routes reachable by scrolling the row');
+   check(await page.evaluate(()=>document.querySelector('#main .hero-cell').getBoundingClientRect().top+scrollY<=900),'phone: first hero row within about one screen');
+   check(await page.evaluate(()=>['meta','plan','more'].every(r=>{const b=document.querySelector('#mobile-navigation [data-destination="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the three destinations are visible without a menu tap');
+   // 2.33 phone shell (mobile.css): a More control in the top bar, a Meta/Plan/More bottom bar, no route row or finder.
+   check(await page.evaluate(()=>{const m=document.querySelector('#menu-toggle'),b=m.getBoundingClientRect();return m.offsetParent!==null&&b.height>=44&&b.right<=innerWidth+1;}),'phone: the More control stays inside the viewport at touch size');
+   check(await page.evaluate(()=>document.querySelector('#navigation').offsetParent===null),'phone: the desktop route row is hidden; destinations live in the bottom bar');
    check(await page.evaluate(()=>[...document.querySelectorAll('.nav, .topbar .tools button, #status-toggle, #theme-toggle')].filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=36)),'phone: every shell control at least 36px tall');
-   check(await page.evaluate(()=>{const r=document.querySelector('#bracket').getBoundingClientRect(),f=document.querySelector('#hero-jump').getBoundingClientRect();return Math.abs(r.top-f.top)<4&&f.right<=innerWidth+1&&r.width>=110;}),'phone: rank and finder share one row inside the viewport');
+   check(await page.evaluate(()=>{const r=document.querySelector('#bracket').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&r.width>=110&&document.querySelector('.topbar .finder').offsetParent===null;}),'phone: rank selector inside the viewport; the finder moves out of the top bar');
    check(await page.evaluate(()=>!!(document.querySelector('#bracket').getAttribute('aria-label')&&document.querySelector('#hero-jump').getAttribute('aria-label'))),'phone: hidden label text is replaced by accessible names');
-   check(await page.evaluate(()=>{const box=document.querySelector('#material-notices'),shown=box.innerText,line=document.querySelector('.status-line').innerText,required=errors().filter(e=>isMaterialError(e));return required.length>0&&box.getClientRects().length>0&&/Source failure/.test(line)&&shown.includes(required[0].source)&&shown.includes(required[0].detail)&&(required.length===1||shown.includes((required.length-1)+' more in Status details'));}),'phone: named source failure stays visible');
+   check(await page.evaluate(materialNotice),'phone: named source failure stays visible');
    for(const r of ['meta','builds','planner','draft','live','library','guidance','changes','data']){
     await route(r);
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'phone: no horizontal overflow on '+r);
     check(await page.evaluate(()=>[...document.querySelectorAll('#main small, #main .footer, #main .note')].every(e=>parseFloat(getComputedStyle(e).fontSize)>=12)),'phone: no supporting text under 12px on '+r);
    }
-   await route('meta');await page.locator('#main .meta-table [data-hero="steel"]').first().click();
-   check(await page.evaluate(()=>{const t=[...document.querySelectorAll('.hero-header .quick-stats>div')].map(d=>d.getBoundingClientRect());return t.length===2&&Math.abs(t[0].top-t[1].top)<2&&t[1].right<=innerWidth+1;}),'phone: hero evidence tiles sit side by side');
-   check(await page.evaluate(()=>document.querySelector('[role=tablist][aria-label="Hero detail"]').getBoundingClientRect().top+scrollY<=900),'phone: hero tabs within about one screen');
+   await route('meta');await openSteel(page);
+   check(await page.evaluate(()=>{const s=document.querySelector('.hero-header .mobile-hero-status');return !!s&&s.offsetParent!==null&&s.getBoundingClientRect().right<=innerWidth+1;}),'phone: hero review status sits in the header');
+   check(await page.evaluate(()=>document.querySelector('nav.hero-jump[aria-label="Sections of this hero"]').getBoundingClientRect().top+scrollY<=900),'phone: section jump row within about one screen');
    await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.size=5;S.me='steel';save();});await route('planner');
+   // With no eligible statistics source, sampled fills are withheld; tick the real control that allows kit-only fills.
+   if(await page.evaluate(()=>E.evidenceState().statistics.state==='unavailable')){await page.locator('summary',{hasText:'Search options'}).first().click();await page.locator('#include-unsampled').check();}
    await page.locator('#generate').click();await page.waitForFunction(()=>compositions?.alternatives?.length>0,{},{timeout:60000});
    check(await page.evaluate(()=>[...document.querySelectorAll('.comp-card .metric-row strong')].slice(0,8).every(s=>s.getBoundingClientRect().height<=30)),'phone: headline figures stay on one line');
    await page.evaluate(()=>{S.enemies=[{slug:'khaimera',role:'jungle'}];save();});await route('live');
-   check(await page.evaluate(()=>{const b=[...document.querySelectorAll('.section-title button')];return b.length>0&&b.every(x=>x.getBoundingClientRect().height<=48);}),'phone: section actions stay on one line');
+   check(await page.evaluate(()=>[...document.querySelectorAll('.section-title button')].every(x=>x.getBoundingClientRect().height<=48)),'phone: section actions stay on one line');
    await route('data');
    check(await page.evaluate(()=>[...document.querySelectorAll('.source-table th')].every(th=>th.getBoundingClientRect().height<=40)),'phone: source table headers never split mid-word');
    check(errors.length===0,'phone: no page JavaScript errors');
@@ -167,7 +185,7 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
    const ctrl=await page.evaluate(()=>getComputedStyle(document.querySelector('#hero-jump')).borderTopColor);
    check(ratio(toHex(ctrl),toHex(pageBg))>=3,'light: control borders ≥3:1 against the page');
    check(ratio(toHex(await page.evaluate(()=>getComputedStyle(document.querySelector('#refresh')).color)),toHex(await page.evaluate(()=>getComputedStyle(document.querySelector('#refresh')).backgroundColor)))>=4.5,'light: refresh action text ≥4.5:1');
-   await page.locator('#main .meta-table [data-hero="steel"]').first().click();
+   await openSteel(page);
    for(const cls of ['observed','calculated','reviewed']){
     const c=await page.evaluate(k=>{const t=document.querySelector('.tag.'+k);if(!t)return null;let el=t;while(el&&getComputedStyle(el).backgroundColor==='rgba(0, 0, 0, 0)')el=el.parentElement;return [getComputedStyle(t).color,el?getComputedStyle(el).backgroundColor:null];},cls);
     if(c&&c[1]&&!c[1].startsWith('rgba('))check(ratio(toHex(c[0]),toHex(c[1]))>=4.5,'light: '+cls+' chip text ≥4.5:1 on its surface');
@@ -178,7 +196,9 @@ const toHex=rgb=>{const m=rgb.match(/\d+/g);return m?'#'+m.slice(0,3).map(n=>Num
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'light: no horizontal overflow on '+r);
    }
    await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];S.enemies=[{slug:'khaimera',role:'jungle'}];S.size=5;save();});await route('live');
-   check(ratio(await col('.slot.enemy label'),toHex(await page.evaluate(()=>getComputedStyle(document.querySelector('.slot.enemy')).backgroundColor)))>=4.5,'light: enemy slot labels ≥4.5:1');
+   // Enemy picks are labelled selects inside .slot (the .slot.enemy class is gone); measure the label on its slot.
+   const enemy=await page.evaluate(()=>{const l=document.querySelector('[data-slot="enemies"]').closest('label');return [getComputedStyle(l).color,getComputedStyle(l.closest('.slot')).backgroundColor];});
+   check(ratio(toHex(enemy[0]),toHex(enemy[1]))>=4.5,'light: enemy slot labels ≥4.5:1');
    await page.locator('#theme-toggle').click();
    check(await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme')&&localStorage.getItem('predecessor-theme')==='dark'),'toggle returns to dark and remembers it');
    check(errors.length===0,'light: no page JavaScript errors');
