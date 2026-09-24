@@ -853,6 +853,23 @@
       const entry=Object.entries(r?.loadout_definitions||{}).find(([n])=>NK(n)===NK(name));
       return entry?{name:entry[0],...entry[1],active:buildPatchReady(r.patch)}:null;
     }
+    // Items & loadouts list. The Pred.gg catalogue is listed when this publication collected it. When it is empty or
+    // missing (Pred.gg unavailable), the bundle's own definitions are listed instead, each tagged with the source that
+    // supplied it; nothing is relabelled as Pred.gg and no missing value is filled in. pred reports why Pred.gg is absent.
+    function libraryCatalog(kind){
+      if(kind!=='items'&&kind!=='perks')throw Error('Unknown catalogue: '+kind);
+      const p=bundle?.pred_game_data,s=bundle?.sources||{},byName=(a,b)=>a.name.localeCompare(b.name);
+      const pred={collected:!!p,status:p?.status||s.pred_game_data?.status||null,patch:p?.cohort?.patch||null,
+        error:(p?.errors||[]).find(e=>e?.detail)?.detail||null,fetched_at:s.pred_game_data?.fetched_at||null};
+      const price=v=>finite(v)?v:null;
+      const predRows=Object.entries(p?.[kind]||{}).filter(([,r])=>r?.name).map(([key,r])=>({key,name:r.name,rarity:r.rarity||null,price:price(r.price),hero:r.hero||null,eternal:r.eternal||null,slot:r.slot||null,origin:'pred'}));
+      if(predRows.length)return {kind,source:'pred',rows:predRows.sort(byName),pred,origins:{pred:predRows.length}};
+      const origin=it=>it.reviewed_patch?'official':/^Pred\.gg/.test(it.source||'')?'pred':/omeda\.city/.test(it.source||'')?'omeda':'statz';
+      const rows=Object.entries(bundle?.[kind]||{}).map(([key,it])=>({key,name:it?.display_name||it?.name||'',rarity:it?.item_meta?.rarity||null,price:price(it?.total_price),
+        hero:it?.hero||null,eternal:it?.eternal||null,slot:it?.slot||null,origin:origin(it||{})})).filter(r=>r.name).sort(byName);
+      const origins={};for(const r of rows)origins[r.origin]=(origins[r.origin]||0)+1;
+      return {kind,source:rows.length?'bundle':null,rows,pred,origins,statz:{patch:bundle?.patch||null,fetched_at:s.statz_hero_pages?.fetched_at||null},omeda:{fetched_at:s.omeda_items?.fetched_at||null}};
+    }
     function reconciledBuildField(kind,subject,key,expected,actual){
       const review=bundle.guidance?.build_patch_review?.source_reconciliation;
       if(!review||!buildPatchReady(review.patch)||!Number.isFinite(Date.parse(review.reviewed_at))||Date.parse(review.reviewed_at)>Date.now()||!sameValue(review.article_fingerprints,bundle.guidance.build_patch_review.article_fingerprints))return null;
@@ -1032,7 +1049,7 @@
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
     // ==== end BUILDS ====
-    return {heroes,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
