@@ -39,7 +39,10 @@ class OfficialPatchSupportTests(unittest.TestCase):
             d={**self.d,'corrections':[{'path':path}]}
             with self.assertRaisesRegex(ValueError,'protected'):self.apply(self.b,d)
     def test_coverage_keeps_all_changes_and_non_power_fixes_separate(self):
-        rows=self.d['coverage'];self.assertEqual(len(rows),131)
+        rows=self.d['coverage'];self.assertEqual(len(rows),140)
+        # Hotfix 1.17.1 (24 Sep) adds its nine lines, each with a reason and a review date; none is a balance number.
+        hotfix=[r for r in rows if r['section']=='Hotfix 1.17.1'];self.assertEqual(len(hotfix),9)
+        self.assertTrue(all(r['result']=='checked and retained' and r['reviewed_at']>='2026-09-24' for r in hotfix))
         self.assertTrue(any(r['category']=='tracking only' for r in rows));self.assertTrue(any(r['category']=='other modes' for r in rows))
         self.assertTrue(all(r['reason'] and r['source'] and r['reviewed_at'] for r in rows))
     def test_publication_retains_patch_support_without_exposing_local_settings(self):

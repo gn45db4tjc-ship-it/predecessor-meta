@@ -3,7 +3,7 @@
   "patch": "1.17",
   "reviewed_at": "2026-09-23T20:38:00+00:00",
   "article_fingerprints": {
-    "1.17": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+    "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5",
     "1.16.4": "0ca8b1077b094e6a607aaabe7218d63cb33a9b3b42fd77ea193f7bc3e3024992"
   },
   "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
@@ -11,8 +11,8 @@
     {
       "title": "Official live 1.17 changes",
       "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-      "fetched_at": "2026-09-22T14:06:24-05:00",
-      "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+      "fetched_at": "2026-09-24T17:35:55-05:00",
+      "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
     }
   ],
   "heroes": {
@@ -162,8 +162,8 @@
       "official_kit": {
         "patch": "1.17",
         "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-        "fetched_at": "2026-09-22T14:06:24-05:00",
-        "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9",
+        "fetched_at": "2026-09-24T17:35:55-05:00",
+        "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5",
         "identity_source": "https://www.predecessorgame.com/en-US/heroes/valmont",
         "identity_sha256": "c8a60559dcdb69b0ed306d012ba8bfe1e58574e6e1a84880e40ea3397e00f7d8"
       },
@@ -212,9 +212,9 @@
       "sources": [
         {
           "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-22T14:06:24-05:00",
+          "fetched_at": "2026-09-24T17:35:55-05:00",
           "official_patch": "1.17",
-          "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+          "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
         }
       ]
     },
@@ -224,9 +224,9 @@
       "sources": [
         {
           "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-22T14:06:24-05:00",
+          "fetched_at": "2026-09-24T17:35:55-05:00",
           "official_patch": "1.17",
-          "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+          "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
         }
       ]
     },
@@ -236,9 +236,9 @@
       "sources": [
         {
           "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-22T14:06:24-05:00",
+          "fetched_at": "2026-09-24T17:35:55-05:00",
           "official_patch": "1.17",
-          "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+          "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
         }
       ]
     }
@@ -280,7 +280,7 @@
       "rune_note": "Sanguine Banquet and Azure Core require actual farming before their mana payoff. Vesh rewards ability contact; Tithe of Death needs a takedown. Phylactery has a 20-second cooldown, so toggling Exsanguinate does not repeatedly grant its shield. Vein Splitter is a group-pressure alternative but removes Ground; Rupturing Fangs trades early damage for finishing power.",
       "sources": [
         {
-          "title": "Official 1.17 balance changes (live; no later hotfix published)",
+          "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
           "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
           "fetched_at": "2026-09-23T14:24:24-05:00"
         },
@@ -309,7 +309,7 @@
         "limitation": "Valmont Mid performs 45.5% over 433 1.17 Bronze+ games; no Gold+ sample. Bloodbound, Arterial Grip and basic-attack scaling remain disputed between the official launch text and the current source; the plan does not depend on them.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; no later hotfix published)",
+            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
             "fetched_at": "2026-09-23T14:24:24-05:00"
           },
@@ -599,8 +599,8 @@
           {
             "title": "Official live 1.17 changes",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-22T14:06:24-05:00",
-            "fingerprint": "271b9e0e7c6766a55901acc48ae72acff0284e23c8ddf984ae563749ab4516b9"
+            "fetched_at": "2026-09-24T17:35:55-05:00",
+            "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
           }
         ],
         "source_abilities": {
@@ -4761,6 +4761,96 @@
       "reason": "No build-power adjustment; UI/cosmetic correction in the game, not a change to this app.",
       "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
       "reviewed_at": "2026-09-22T23:51:03+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Valmont",
+      "change": "Fixed Valmont Emote having no VO",
+      "category": "cosmetic/audio",
+      "result": "checked and retained",
+      "reason": "Emote voice line only; no gameplay effect.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Valmont · Sanguine Banquet",
+      "change": "Fixed an issue with Valmont's Sanguine Banquet regenerating mana incorrectly",
+      "category": "gameplay",
+      "result": "checked and retained",
+      "reason": "Mana regeneration was incorrect in game. The reviewed Valmont plan and loadout text quote the official launch values (2 mana per nearby minion death, 30 per hero death), which the fix restores; no advice depended on the incorrect regeneration. No numerical performance effect is inferred.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Valmont · Passive",
+      "change": "Fixed an issue with Valmont's Passive Description",
+      "category": "display/operations",
+      "result": "checked and retained",
+      "reason": "Description text fix. Reviewed Valmont text comes from the official 1.17 kit, which this hotfix does not change; source-text differences remain governed by source reconciliation.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Valmont · Unleashed skin",
+      "change": "Fixed an issue with the Crown Placement on Valmont's Unleashed skin",
+      "category": "cosmetic/audio",
+      "result": "checked and retained",
+      "reason": "Skin crown placement only; no gameplay effect.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Victorious banner",
+      "change": "Fixed an issue with Victorious banner having incorrect drop shadow",
+      "category": "cosmetic/audio",
+      "result": "checked and retained",
+      "reason": "Banner drop shadow only; no gameplay effect.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Quests",
+      "change": "Fixed an issue with Crucible wins not being tracked on Quests",
+      "category": "tracking only",
+      "result": "checked and retained",
+      "reason": "Crucible wins now count for quests; progression tracking, not match performance.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Gideon · Black Hole",
+      "change": "Fixed an issue with Gideon's Black Hole pulling enemies if interrupted on cast",
+      "category": "gameplay",
+      "result": "checked and retained",
+      "reason": "An interrupted cast no longer pulls enemies. Reviewed Gideon advice already says to interrupt Black Hole before its 2.75s channel completes and to protect Gideon during it; the fix makes that interrupt advice more reliable and contradicts none of it. No numerical performance effect is inferred.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Gideon · Mana bar",
+      "change": "Fixed an issue with Gideon's Mana bar reflecting incorrect values on remote perspective",
+      "category": "display/operations",
+      "result": "checked and retained",
+      "reason": "Mana bar shown to other players only; no gameplay effect.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
+    },
+    {
+      "section": "Hotfix 1.17.1",
+      "entity": "Localisation",
+      "change": "Fixed various issues with Localisation",
+      "category": "display/operations",
+      "result": "checked and retained",
+      "reason": "Text localisation only; no gameplay effect.",
+      "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+      "reviewed_at": "2026-09-24T22:35:54+00:00"
     }
   ],
   "limitations": [
