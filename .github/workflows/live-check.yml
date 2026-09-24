@@ -1,0 +1,70 @@
+name: Nightly live-data check
+
+# Read-only. Runs the static and design browser suites against the six rank bundles the live site currently
+# publishes, rendered with this checkout. CI's own browser steps use the committed seed; problems that only appear
+# on real data (a new patch, a paused source, a retired correction) otherwise go unnoticed. It never collects,
+# publishes or deploys, and a failure changes nothing on the site.
+on:
+  schedule:
+    # UTC, after the 17:23 full daily collection has had time to publish.
+    - cron: '47 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-check
+  cancel-in-progress: true
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Install pinned verification tooling (no browser download)
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+      - name: Download the live six-rank bundles (sha256 checked against the live manifest)
+        run: python -B tests/fetch_live_bundles.py qa/live-bundles
+      - name: Render them with this checkout
+        run: |
+          seeds=()
+          for bundle in qa/live-bundles/*.json; do seeds+=(--seed "$bundle"); done
+          python -B tests/stage_preview.py --output qa/live-site --state-dir qa/live-state "${seeds[@]}"
+      - name: Static acceptance and legacy suites on live data
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13061/
+          PREVIEW_DIR: qa/live-site
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_static.cjs
+      - name: Design acceptance on live data
+        # Runs even when the static step failed, so one night reports both.
+        if: success() || failure()
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13062/
+          PREVIEW_DIR: qa/live-site
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_design.cjs
+      - name: Keep the browser reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: live-check-reports
+          path: |
+            qa/*.json
+            qa/*.png
+          if-no-files-found: ignore
+          retention-days: 14
