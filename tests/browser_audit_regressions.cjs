@@ -3677,9 +3677,14 @@ probes.LB4 = async browser => {
   Object.assign(B.pred_game_data,{status:'failed',items:{},perks:{},errors:[{source:'Pred.gg game data',severity:'error',detail:'Pred.gg catalog hero join failed'}]});E=MetaEngine.create(B);
   S.libraryKind='items';S.libraryQuery='';S.libraryLimit=40;changeRoute('library');window.scrollTo(0,0);
   const r=s=>document.querySelector(s)?.getBoundingClientRect(),nav=document.querySelector('#mobile-navigation')?.getBoundingClientRect();
-  return {kindTop:Math.round(r('#library-kind').top),queryTop:Math.round(r('#library-query').top),firstRowTop:Math.round(r('.library-grid>article').top),screenBottom:Math.round(nav?.top??innerHeight),overflow:document.documentElement.scrollWidth>innerWidth+1};
+  return {kindTop:Math.round(r('#library-kind').top),queryTop:Math.round(r('#library-query').top),firstRowTop:Math.round(r('.library-grid>article').top),screenBottom:Math.round(nav?.top??innerHeight),overflow:document.documentElement.scrollWidth>391};
  });
- await context.close();verdict('LB4',Math.abs(seen.kindTop-seen.queryTop)>8||seen.firstRowTop>=seen.screenBottom||seen.overflow,seen);
+ await context.close();
+ // The narrowest supported phone with large text: the Show select must not push the page sideways. Widths are fixed
+ // numbers because mobile emulation widens innerWidth to fit overflowing content.
+ const narrow=await session(browser,{viewport:{width:320,height:640},isMobile:true,hasTouch:true});
+ seen.narrowOverflow=await narrow.page.evaluate(()=>{companionPrefs.large=true;document.documentElement.classList.add('large-text');S.libraryKind='perks';changeRoute('library');return document.documentElement.scrollWidth>321;});
+ await narrow.context.close();verdict('LB4',Math.abs(seen.kindTop-seen.queryTop)>8||seen.firstRowTop>=seen.screenBottom||seen.overflow||seen.narrowOverflow,seen);
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
