@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.34.2
+# Predecessor Meta - 2.34.3
 
-Keeps each rank's Pred.gg data when a Patch 1.17 supplement correction conflicts, instead of discarding it for the whole collection. See [RELEASE-2.34.2.md](RELEASE-2.34.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+On phones, Items & loadouts now shows the whole first entry without scrolling on current iPhones with the live 1.17 data; the page intro line is hidden on phones. See [RELEASE-2.34.3.md](RELEASE-2.34.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.34.2
+
+Keeps each rank's Pred.gg data when a Patch 1.17 supplement correction conflicts, instead of discarding it for the whole collection. See [RELEASE-2.34.2.md](RELEASE-2.34.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.34.1
 
