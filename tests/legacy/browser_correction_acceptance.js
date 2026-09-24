@@ -1,5 +1,7 @@
 (()=>{
  const checks=[],assert=(ok,message)=>{if(!ok)throw Error(message);checks.push(message);};
+ // Premise: the reviewed kit corrections describe the live patch.
+ if(B.guidance.patch!==B.official?.live?.version)return {passed:0,skipped:['kit corrections are for '+B.guidance.patch+', live patch is '+B.official?.live?.version]};
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing control '+s);e.click();};
  if(document.querySelector('#detail').open)click('#close-detail');
  click('[data-route="meta"]');click('[data-meta-role="support"]');click('[data-hero="muriel"]');

@@ -1,5 +1,7 @@
 (()=>{
  const checks=[],assert=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
+ // Premise: the sequence review describes the live patch.
+ if(B.guidance.patch!==B.official?.live?.version)return {passed:0,skipped:['sequence review is for '+B.guidance.patch+', live patch is '+B.official?.live?.version]};
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing '+s);e.click();};
  const close=()=>{if(document.querySelector('#detail').open)click('#close-detail');};
  close();
