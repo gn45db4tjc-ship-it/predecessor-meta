@@ -206,6 +206,7 @@ Moving the reviewed packet to 1.17 re-activates its corrections, mechanics resol
 
 - Build adaptations compared item effects as raw JSON text, so identical effects listed in a different field order withheld the adaptation. They are now compared by value, like build preconditions (`tests/strategy_review_117.test.cjs`, which failed before the fix).
 - The interim 22 Sep patch note always replaced the hero strategy for 27 heroes. A full strategy review of the same patch completed after that note now supersedes it; the note still wins over an older or withheld review and stays shown in the Build and Kit sections.
+- The build-only replay applied to saved data at publication did not make a new plan's role selectable, so a new plan could exist but not be opened until the next full collection. It now uses the same step as a fresh collection (`tests/test_static_replay_planning_roles.py`, which failed before the fix).
 
 ## Limitations
 

@@ -46,7 +46,8 @@ This release carries a one-time editorial review of everything the 2.32 build re
   - 11 exact reconciliation entries keep every build that was active still active.
 - **Engine fixes.** This review found two defects, and each fix has a test that failed before it:
   - build adaptations now compare item effects by value rather than by the order the source lists fields;
-  - a full strategy review of the same patch now supersedes the interim 22 September patch note as the hero's strategy summary. The note stays visible in the Build and Kit sections.
+  - a full strategy review of the same patch now supersedes the interim 22 September patch note as the hero's strategy summary. The note stays visible in the Build and Kit sections;
+  - the build-only update that runs on saved data at publication now makes each reviewed plan's role selectable, as a fresh collection already did. The three new plans can therefore be opened in every rank straight away, labelled as planning roles with no statistical sample (`tests/test_static_replay_planning_roles.py`).
 - **Test staging.**
   - The committed Gold seed, collected on 1.16.4, is now staged with its own dated review packet (`tests/fixtures/reviewed-guidance-2.33.0.json.gz`), so its historical probes keep a coherent state.
   - Production always reads `reviewed_guidance.json`. `guidance_packet_path()` is overridden only by `tests/stage_preview.py`.

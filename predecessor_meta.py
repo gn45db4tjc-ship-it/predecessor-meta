@@ -1912,16 +1912,8 @@ def enrich_bundle(bundle, official=None):
             except (KeyError, IndexError, TypeError): pass
     attach_reviewed_definitions(bundle,packet,current)
     audit_definitions(bundle)
+    add_planning_roles(bundle, packet, reviewed, 'current' if current else 'needs review')
     for slug, h in bundle.get('heroes', {}).items():
-        reviewed_roles = packet.get('planning_roles', {}).get(slug, []) + [
-            plan['role'] for plan in packet.get('guidance', {}).get('builds', []) if plan['slug'] == slug]
-        for r in reviewed_roles:
-            if r in ROLES and r not in h.get('roles_order', []):
-                plan = next((p for p in packet.get('guidance', {}).get('builds', []) if p['slug']==slug and p['role']==r), {})
-                h.setdefault('roles_order', []).append(r)
-                label = 'Experimental editorial planning role' if plan.get('experimental_role') else 'Reviewed planning role'
-                h.setdefault('role_evidence', {})[r] = '%s (%s); %s' % (label, reviewed, 'current' if current else 'needs review')
-                h['roles'].setdefault(r, {'status':'unavailable','error':label+'; no Statz role sample in this bracket.'})
         for ability in h.get('abilities', []):
             ability['text'] = clean_text(ability.get('menu_description') or ability.get('text') or ability.get('game_description'))
             ability['game_text'] = clean_text(ability.get('game_description') or ability.get('game_text'))
@@ -1940,6 +1932,21 @@ def enrich_bundle(bundle, official=None):
             value['image_url'] = (STATZ_BASE + '/images/predecessor/' + directory + '/' + urllib.parse.quote(fn)) if fn else (omeda_icons.get(norm_key(name)) if kind=='items' else None)
     patch_support.apply(bundle, packet, validate_guidance_packet, clean_text, derive_capabilities)
     return bundle
+
+
+def add_planning_roles(bundle, packet, version, state):
+    """Make every reviewed plan's role selectable. A role the source does not offer is labelled as a planning role
+    with no statistical sample; offered roles, their samples and their order are left untouched."""
+    builds = packet.get('guidance', {}).get('builds', [])
+    for slug, h in bundle.get('heroes', {}).items():
+        reviewed_roles = packet.get('planning_roles', {}).get(slug, []) + [plan['role'] for plan in builds if plan['slug'] == slug]
+        for r in reviewed_roles:
+            if r in ROLES and r not in h.get('roles_order', []):
+                plan = next((p for p in builds if p['slug']==slug and p['role']==r), {})
+                h.setdefault('roles_order', []).append(r)
+                label = 'Experimental editorial planning role' if plan.get('experimental_role') else 'Reviewed planning role'
+                h.setdefault('role_evidence', {})[r] = '%s (%s); %s' % (label, version, state)
+                h.setdefault('roles', {}).setdefault(r, {'status':'unavailable','error':label+'; no Statz role sample in this bracket.'})
 
 
 def attach_reviewed_definitions(bundle,packet,current):
@@ -3216,6 +3223,8 @@ def review_saved_sources(bundle):
         validate_guidance_packet(packet,b)
         b.setdefault('guidance',{})['builds']=copy.deepcopy(packet['guidance']['builds'])
         b['guidance']['build_patch_review']=copy.deepcopy(build_pass)
+        # A replayed plan's role is selectable, as after a fresh collection; no sample is created.
+        add_planning_roles(b, packet, 'build review ' + build_pass['patch'], 'saved sources')
         b['tool_version']=VERSION
         patch_support.apply(b, packet, validate_guidance_packet, clean_text, derive_capabilities)
         b['saved_build_review']={'reviewed_at':build_pass['reviewed_at'],'patch':build_pass['patch'],
