@@ -114,7 +114,7 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    check(await visitorPage.evaluate(()=>S.locks.length===0),'another visitor previews without replacing draft');
    await visitorPage.locator('#use-shared-plan').click();
    check(await visitorPage.evaluate(()=>S.locks.length===2&&S.locks[0].slug==='steel'),'another visitor can import shared picks');await visitor.close();
-   await openMore();const downloadPromise=page.waitForEvent('download');await page.locator('#export:visible').click();const download=await downloadPromise;
+   await openMore();const downloadPromise=page.waitForEvent('download');await page.locator('#export:visible, #more-export:visible').click();const download=await downloadPromise;
    const exported=path.join(reportDir,(useWebkit?'webkit':'edge')+'-'+viewport.width+'-snapshot.html');await download.saveAs(exported);
    check(/<main id="main" tabindex="-1"><\/main>/.test(fs.readFileSync(exported,'utf8')),'export does not serialize visitor draft into page markup');
    const snapshot=await context.newPage();await snapshot.goto('file:///'+exported.replace(/\\/g,'/'));

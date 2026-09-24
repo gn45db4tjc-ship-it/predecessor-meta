@@ -3663,6 +3663,12 @@ probes.LB2 = async browser => {
  await context.close();
  verdict('LB2',seen.source!==null||seen.alternatives!==0||!seen.text.includes('Allow fills without role samples')||/Change a constraint/.test(seen.text),seen);
 };
+probes.LB3 = async browser => {
+ const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('more'));
+ const ids=await page.evaluate(()=>document.querySelectorAll('[id="export"]').length);
+ let downloaded=false;try{const [d]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.locator('#main button:has-text("Export snapshot")').click()]);downloaded=!!d.suggestedFilename();}catch{}
+ await context.close();verdict('LB3',ids>1||!downloaded,{ids,downloaded});
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
