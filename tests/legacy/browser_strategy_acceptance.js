@@ -1,6 +1,9 @@
 // Isolated QA only: changes picks and opens details using real DOM controls.
 (async()=>{
  const results=[],assert=(v,s)=>{if(!v)throw Error(s);results.push(s);};
+ // Premise: the reviewed plans exercised here are active for the live patch.
+ const inactive=[['dekker','support'],['gideon','midlane']].filter(([h,r])=>!E.buildReview(h,r)?.active);
+ if(inactive.length)return {passed:0,skipped:['reviewed plan not active: '+inactive.map(p=>p.join(' ')).join(', ')]};
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing '+s);e.click();};
  const select=(s,v)=>{const e=document.querySelector(s);if(!e)throw Error('Missing '+s);e.value=v;e.dispatchEvent(new Event('change',{bubbles:true}));};
  if(document.querySelector('#detail').open)click('#close-detail');

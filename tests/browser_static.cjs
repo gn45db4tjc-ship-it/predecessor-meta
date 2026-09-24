@@ -93,6 +93,9 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
       .replace('const click=s=>{',`const click=s=>{if((${legacyScreenClick.toString()})(s))return;`)
       .replace("[...document.querySelectorAll('#navigation [data-route]')].map(e=>e.dataset.route)",JSON.stringify(['meta','builds','planner','draft','live','library','guidance','changes','data']));
      const result=await page.evaluate(code);
+     // A suite whose premise does not hold for this publication (for example a review dated for an earlier
+     // patch) returns a named skip. Run this file on both the committed seed and a current publication.
+     if(result.skipped?.length)(run.skipped||=[]).push(...result.skipped.map(s=>suite+': '+s));
      run.checks.push('existing '+suite+': '+(result.passed??result.checks)+' assertions');
     }
    }
