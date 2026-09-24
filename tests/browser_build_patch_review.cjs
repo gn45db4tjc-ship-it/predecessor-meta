@@ -1,4 +1,4 @@
-// Run against a staged six-bracket September 22 review publication. This is a
+// Run against a staged six-bracket September 23 (2.32.0) build review publication. This is a
 // real-bundle acceptance check, not a source collector or a replacement for CI's
 // deliberately older, committed seed. See RELEASE-2.31.1.md for invocation.
 'use strict';
@@ -20,7 +20,7 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
   await page.evaluate(()=>openHero('steel','jungle'));
   await page.waitForFunction(()=>E.buildReview('steel','jungle')?.active);
   let text=await page.locator('#main').innerText();
-  assert.match(text,/September 22|9\/22\/2026/);assert.match(text,/1\.17/);
+  assert.match(text,/September 23|9\/23\/2026/);assert.match(text,/1\.17/);
   assert.doesNotMatch(text,/No verified build evidence is eligible/);
   assert.equal(await page.evaluate(()=>E.plannedBuild('steel','jungle').items.length),6);
   if(width<700){assert.equal(await page.locator('.simple-purchases>li').count(),6);assert.equal(await page.locator('.simple-setup>div').count(),5);}
@@ -35,12 +35,16 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
   await page.keyboard.press('Escape');assert.equal(await page.locator('#detail').evaluate(d=>d.open),false);
   await page.evaluate(()=>openHero('wukong','offlane'));
   text=await page.locator('#main').innerText();assert.match(text,/unresolved/i);assert.match(text,/September 14|9\/14\/2026/);assert.match(text,/Previous reviewed plan/);
-  if(width<700){assert.match(text,/Previous guidance September 14/);assert.doesNotMatch(text,/Previous guidance September 22/);}
+  if(width<700){assert.match(text,/Previous guidance September 14/);assert.doesNotMatch(text,/Previous guidance September 23/);}
   assert.equal(await page.evaluate(()=>E.plannedBuild('wukong','offlane').items.length),0);
   await page.evaluate(()=>openHero('serath','jungle'));
-  assert.equal(await page.evaluate(()=>E.plannedBuild('serath','jungle').eternal),'Thraex');
+  // 2.32.0 reverted the September 22 Thraex choice: Weald now leads in every rank.
+  assert.deepEqual(await page.evaluate(()=>{const r=E.buildReview('serath','jungle');return [r?.active,r?.patch];}),[true,'1.17']);
+  assert.equal(await page.evaluate(()=>E.plannedBuild('serath','jungle').eternal),'Weald');
   await page.evaluate(()=>{S.locks=[{slug:'serath',role:'jungle'}];S.me='serath';S.enemies=[{slug:'steel',role:'support'}];save();changeRoute('live');});
-  assert.match(await page.locator('#main').innerText(),/Automatic match adaptations still need/);
+  // 2.32.0 added a dated adaptation_review, so the live route adapts the reviewed build.
+  assert.equal(await page.evaluate(()=>E.evidenceState().builds?.adaptation),'reviewed');
+  text=await page.locator('#main').innerText();assert.match(text,/Next: [^\n]+\nReviewed/);assert.doesNotMatch(text,/Automatic match adaptations still need/);
   await page.reload();await page.waitForFunction(()=>typeof B!=='undefined'&&B&&!latestStatus.busy);
   assert.equal(await page.evaluate(()=>S.me),'serath');assert.equal(await page.evaluate(()=>S.enemies[0].role),'support');
   await page.evaluate(()=>changeRoute('data'));
@@ -59,7 +63,7 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
     await page.waitForFunction(b=>B?.bracket?.segment===b&&!latestStatus.busy,bracket);
     await page.evaluate(()=>openHero('steel','jungle'));
     await page.waitForFunction(()=>E.buildReview('steel','jungle')?.active);
-    assert.match(await page.locator('#main').innerText(),/September 22/);
+    assert.match(await page.locator('#main').innerText(),/September 23/);
     assert.equal(await page.evaluate(()=>B.guidance.patch),'1.16.4');report.checks.push({bracket,currentBuild:true});
    }
    await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B?.bracket?.segment==='gold'&&!latestStatus.busy);
@@ -70,7 +74,7 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13027/';
   assert.equal(await page.evaluate(()=>E.buildReview('steel','jungle').active),false);
   assert.match(await page.locator('#main').innerText(),/Previous reviewed plan/);
   assert.match(await page.locator('#main').innerText(),/Previous reviewed plan .*v1\.17/);
-  if(width<700)assert.match(await page.locator('#main').innerText(),/Previous guidance September 22/);
+  if(width<700)assert.match(await page.locator('#main').innerText(),/Previous guidance September 23/);
   assert.equal(await page.evaluate(()=>S.me),'serath');
   await context.close();
  }
