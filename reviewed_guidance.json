@@ -21237,7 +21237,7 @@
             "Q": "Sanctify the ground with an angelic light for 6s. \nAllies within the area gain 10/12.5/15/17.5/20% Total Attack Speed and restore 60/80/100/120/140 (+20% magical power) Health over its lifetime.\nEnemies within the area have their Total Attack Speed reduced by 10/11.5/13/14.5/16% and receive 90/120/150/180/210 (+50% magical power) magical damage over its lifetime.",
             "E": "Throw an orb that applies a 80/120/160/200/240 (+50% magical power) shield to the first Allied Hero it touches, granting them 15/17.5/20/22.5/25% Decaying Movement Speed for 4s.\nRemains in the world for 8s if untouched.",
             "R": "Prepare for flight, allowing Muriel to target an Allied Hero anywhere in the world, granting them 30% Damage Reduction and a 280/480/680 (+100% magical power) Shield for 2.5s as you soar to their location.\nOn arrival, nearby Enemies take 100/160/220 (+40% magical power) magical damage and are Knocked Up for 0.5s.",
-            "Passive": "Muriel's damaging abilities reduce Enemy Healing by 25/25/25/25/25/25/35/35/35/35/35/35/45/45/45/45/45/45/35/45% for 4s.\nAllies affected by Muriel's abilities gain 10% (+0.4% per Level) increased Healing and Shielding Received for 4s."
+            "Passive": "Muriel's damaging abilities reduce Enemy Healing by 25/35/45% at Muriel levels 1/7/13 for 4s.\nAllies affected by Muriel's abilities gain increased Healing and Shielding Received for 4s: 10% at the affected ally's level 1, plus 0.4 percentage points per level after the first, reaching 16.8% at level 18."
           },
           "items": {
             "Marshal": {
