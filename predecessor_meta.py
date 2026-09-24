@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.34.1"
+VERSION = "2.34.4"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2732,7 +2732,10 @@ def apply_pred_source_corrections(bundle):
     checked={a['url']:a.get('fingerprint') for a in history.get('articles',[])+bundle['official'].get('articles',[])}
     for audit in bundle['corrections']+bundle['mechanics_resolutions']:
         if not audit['status'].startswith('conflict'):continue
-        rule=rules[audit['id']];path=copy.deepcopy(rule['path'])
+        # Receipts from the patch-1.17.json supplement are reconciled by patch_support, not by packet rules.
+        rule=rules.get(audit['id'])
+        if rule is None:continue
+        path=copy.deepcopy(rule['path'])
         if correction_scope_error(rule):continue
         if any(checked.get(a['url'])!=a['fingerprint'] for a in rule.get('official_dependencies',[])):continue
         if path[0] not in ('items','perks'):continue

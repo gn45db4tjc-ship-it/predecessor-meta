@@ -1,8 +1,20 @@
-# Predecessor Meta - 2.34.1
+# Predecessor Meta - 2.34.4
 
-On an iPhone-sized screen, Items & loadouts now shows its first entries without scrolling: Show and Find share one row on phones, the Pred.gg note's summary is one line, and small phones with large text no longer scroll sideways. See [RELEASE-2.34.1.md](RELEASE-2.34.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Muriel's Sentinel passive reads as its official values (25/35/45% anti-heal at levels 1/7/13 and the 1.17 heal and shield bonus) instead of the source's malformed per-level list. See [RELEASE-2.34.4.md](RELEASE-2.34.4.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.34.3
+
+On phones, Items & loadouts now shows the whole first entry without scrolling on current iPhones with the live 1.17 data; the page intro line is hidden on phones. See [RELEASE-2.34.3.md](RELEASE-2.34.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+### 2.34.2
+
+Keeps each rank's Pred.gg data when a Patch 1.17 supplement correction conflicts, instead of discarding it for the whole collection. See [RELEASE-2.34.2.md](RELEASE-2.34.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+### 2.34.1
+
+On an iPhone-sized screen, Items & loadouts now shows its first entries without scrolling: Show and Find share one row on phones, the Pred.gg note's summary is one line, and small phones with large text no longer scroll sideways. See [RELEASE-2.34.1.md](RELEASE-2.34.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.34.0
 
