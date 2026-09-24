@@ -9,32 +9,42 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
  const browser=await (process.env.BROWSER_ENGINE==='webkit'?webkit.launch({headless:true}):chromium.launch({channel:'msedge',headless:true}));
  const results=[];
  try{
-  for(const mode of ['local','static','current']){
+  // 'current' needs a real publication whose official check failed; it runs only when FAILURE_URL names one.
+  const modes=['local','static',...(process.env.FAILURE_URL?['current']:[])];
+  if(!process.env.FAILURE_URL)console.log('Not run: failed-official-check mode (set FAILURE_URL to a real failed publication).');
+  for(const mode of modes){
    const url=mode==='local'?(process.env.LOCAL_URL||'http://127.0.0.1:12933/'):(mode==='current'?(process.env.FAILURE_URL||'http://127.0.0.1:12932/current/'):(process.env.PREVIEW_URL||'http://127.0.0.1:12932/project/'));
    for(const viewport of [{width:1920,height:1080},{width:390,height:844}]){
     const context=await browser.newContext({viewport,acceptDownloads:true});
     const page=await context.newPage(),errors=[],checks=[];
-    page.on('pageerror',e=>errors.push(e.message));
+    // Playwright's WebKit reports a cancelled same-origin status poll ("... /api/status due to access control checks.")
+    // as a page error even though poll() catches the rejection; Edge does not. Only that message is ignored.
+    page.on('pageerror',e=>{if(!(process.env.BROWSER_ENGINE==='webkit'&&/\/api\/[a-z-]+ due to access control checks\.$/.test(e.message)))errors.push(e.message);});
     const check=(ok,label)=>{assert(ok,mode+' '+viewport.width+': '+label);checks.push(label)};
     await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>B&&!latestStatus.busy);
-    check(await page.locator('#theme-toggle').isVisible(),'theme toggle visible');
+    // 2.33 phone shell: the theme switch lives on More and the Meta list search replaces the top-bar finder.
+    const phone=viewport.width<700,themeControl=phone?'#companion-theme':'#theme-toggle';
+    if(phone)await goToScreen(page,'more');
+    check(await page.locator(themeControl).isVisible(),'theme toggle visible');
     const original=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tiers:B.tier_list}));
     await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.enemies=[{slug:'khaimera',role:'jungle'}];S.me='steel';S.size=5;save();});
     if(mode==='local')await page.waitForFunction(()=>!plannerSaveRunning);
     for(const theme of ['dark','light']){
-     if(theme==='light') {await page.locator('#theme-toggle').focus();await page.keyboard.press('Enter');}
+     if(theme==='light') {if(phone)await goToScreen(page,'more');await page.locator(themeControl).focus();await page.keyboard.press('Enter');}
      check(await page.evaluate(t=>(document.documentElement.dataset.theme||'dark')===t,theme),theme+' keyboard switch');
      for(const route of routes){
       await goToScreen(page,route);
       check(await page.locator('#main h1').count()===1&&!(await page.locator('#main').innerText()).includes('could not render'),theme+' '+route+' renders');
       check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),theme+' '+route+' no overflow');
      }
-     await page.locator('#navigation [data-route="meta"]').click();
+     await goToScreen(page,'meta');
      await page.screenshot({path:path.join(qa,`${process.env.BROWSER_ENGINE||'edge'}-${mode}-${viewport.width}-${theme}.png`)});
-     await page.locator('#hero-jump').fill('Steel');await page.locator('#hero-jump').press('Tab');
+     if(phone){await page.locator('#mobile-hero-search').fill('Steel');await page.locator('#main [data-hero="steel"]:visible').first().click();}
+     else{await page.locator('#hero-jump').fill('Steel');await page.locator('#hero-jump').press('Tab');}
      check(await page.locator('#main h1').innerText()==='Steel','finder opens Steel');
-     await page.locator('[data-hero-tab="builds"]').focus();await page.keyboard.press('Enter');
-     check(await page.locator('.build-path').count()>0,theme+' build visible');
+     // The phone's quick hero view shows the build itself (.simple-purchases) without a Build jump button.
+     if(await page.locator('[data-hero-tab="builds"]').count()){await page.locator('[data-hero-tab="builds"]').focus();await page.keyboard.press('Enter');}
+     check(await page.locator('.build-path, .simple-purchases').count()>0,theme+' build visible');
      if(!await page.locator('#main [data-catalog]:visible').count()){
       await page.locator('#main summary').filter({hasText:'Previous reviewed plan'}).click();
       check(mode==='current',theme+' withheld plan remains inspectable as history');
@@ -52,13 +62,15 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
      check((await page.locator('#patch-strip').textContent()).includes('Last verified patch'),'failed check labels the older verification');
      check(await page.evaluate(()=>E.plannedBuild('dekker','support').kind!=='reviewed'),'unverified current patch does not activate advice');
     }
-    const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#export').click()]);
+    if(phone)await goToScreen(page,'more');   // phones export from More
+    const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#export:visible').click()]);
     const snapshot=path.join(qa,`snapshot-${process.env.BROWSER_ENGINE||'edge'}-${mode}-${viewport.width}.html`);
     await download.saveAs(snapshot);
     const exported=await context.newPage();await exported.goto('file:///'+snapshot.replace(/\\/g,'/'),{waitUntil:'domcontentloaded'});await exported.waitForFunction(()=>B);
     check(await exported.evaluate(()=>APP_CONFIG.mode==='export'),'standalone export opens');
     const exportTheme=await exported.evaluate(()=>document.documentElement.dataset.theme||'dark');
-    await exported.locator('#theme-toggle').click();
+    if(phone)await exported.locator('#mobile-navigation [data-destination="more"]').click();
+    await exported.locator(themeControl+':visible').click();
     check(await exported.evaluate(t=>(document.documentElement.dataset.theme||'dark')!==t,exportTheme),'standalone export theme works');
     check(await exported.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tiers:B.tier_list}))===original,'export observations unchanged');
     check(errors.length===0,'no JavaScript errors');

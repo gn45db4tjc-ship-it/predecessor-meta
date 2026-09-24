@@ -1,6 +1,8 @@
 // Run with agent-browser eval against an isolated app profile. Exercises DOM controls.
 (async()=>{
  const results=[],assert=(v,s)=>{if(!v)throw Error(s);results.push(s);};
+ // Premise: the reviewed tier table describes the live patch. After a new patch it is withheld until reviewed again.
+ if(B.guidance.patch!==B.official?.live?.version)return {passed:0,skipped:['reviewed tiers are for '+B.guidance.patch+', live patch is '+B.official?.live?.version]};
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing control '+s);e.click();};
  const close=()=>{if(document.querySelector('#detail').open)click('#close-detail');};
  close();click('[data-route="meta"]');
