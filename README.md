@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.34.6
+# Predecessor Meta - 2.35.0
 
-The Pred.gg sample counts the whole 1.17 line across Hotfix 1.17.1 (versions 167 and 168), labelled that way, so the reviewed Gold+ tiers have a current sample again once the Windows collector runs this release. See [RELEASE-2.34.6.md](RELEASE-2.34.6.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Each build's skill order is a chart: hero levels 1–18 run left to right, one row per ability, and the ticked box at each level is the ability to rank up, with the order's reviewed, observed or calculated label kept. See [RELEASE-2.35.0.md](RELEASE-2.35.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.34.6
+
+The Pred.gg sample counts the whole 1.17 line across Hotfix 1.17.1 (versions 167 and 168), labelled that way, so the reviewed Gold+ tiers have a current sample again once the Windows collector runs this release. See [RELEASE-2.34.6.md](RELEASE-2.34.6.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.34.5
 
