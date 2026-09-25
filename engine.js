@@ -247,7 +247,7 @@
       const retainedAge=(now-Date.parse(bundle.sources?.pred_scoped?.fetched_at))/3600000;
       const recentRetained=c?.status==='retained'&&c.bracket===bundle.bracket?.segment&&retainedAge>=0&&retainedAge<=30;
       const exact=bundle.official?.status==='verified'&&(['ok','partial'].includes(c?.status)||recentRetained)&&c.patch===live;
-      if(exact)return {source:'pred',label:'Pred.gg '+c.patch+' · '+c.bracket_label+' Ranked',patch:c.patch,
+      if(exact)return {source:'pred',label:'Pred.gg '+c.patch+(c.hotfixes?.length?' + Hotfix '+c.hotfixes.join(', '):'')+' · '+c.bracket_label+' Ranked',patch:c.patch,
         fetched_at:bundle.sources?.pred_scoped?.fetched_at,note:(recentRetained?'Latest refresh unavailable. Using retained exact-patch observations collected within 30 hours, with their original dates. ':'')+'Observed exact-patch cohort. Missing roles stay unavailable; sources are not pooled.'};
       const s=bundle.sources,compatible=bundle.official?.status==='verified'&&typeof bundle.patch==='string'&&
         (bundle.patch===live||String(live).startsWith(bundle.patch+'.'));
@@ -525,7 +525,7 @@
       if(!verificationCurrent())return null;
       const rows=matchup(ally,enemy),live=bundle?.official?.live?.version;
       const scope=bundle?.pred_game_data?.role_data?.[ally.slug]?.[ally.role]?.counters;
-      if(!['ok','partial'].includes(bundle.pred_game_data?.status)||!['ok','partial'].includes(bundle.scoped_statistics?.status)||bundle?.official?.status!=='verified'||scope?.status!=='ok'||scope.patch!==live||scope.role!==ally.role||scope.mode!=='RANKED'||scope.bracket!==bundle?.scoped_statistics?.bracket_label||scope.version_id!==bundle?.scoped_statistics?.versions?.[0]||!scope.tables?.counters?.cohort_verified)return null;
+      if(!['ok','partial'].includes(bundle.pred_game_data?.status)||!['ok','partial'].includes(bundle.scoped_statistics?.status)||bundle?.official?.status!=='verified'||scope?.status!=='ok'||scope.patch!==live||scope.role!==ally.role||scope.mode!=='RANKED'||scope.bracket!==bundle?.scoped_statistics?.bracket_label||scope.version_id!==(bundle?.scoped_statistics?.versions||[]).join(',')||!scope.tables?.counters?.cohort_verified)return null;
       const row=rows.filter(r=>r.source==='Pred.gg'&&r.patch===live&&r.played>=min&&finite(r.wr)).sort((a,b)=>b.played-a.played)[0];
       return row?{...row,retained:bundle.pred_game_data?.status==='retained'}:null;
     }
@@ -792,7 +792,7 @@
       if(!rows)return {pool:measuredItemPool(stats),issues:['Pred.gg item-position collection unavailable. Historical Statz observations are inspection-only and add no current-patch fit points.'],status:'unavailable'};
       const pool={},issues=[],c=bundle.scoped_statistics,live=bundle.official?.live?.version;
       let urlHero=null,query={};try{urlHero=decodeURIComponent(rows.url?.match(/^https:\/\/pred\.gg\/heroes\/([^/]+)\/items(?:\?|$)/)?.[1]||'');query=Object.fromEntries((rows.url.split('?')[1]||'').split('&').map(x=>x.split('=').map(decodeURIComponent)));}catch{}
-      if(bundle.official?.status!=='verified'||c?.status!=='ok'||(bundle.bracket?.label&&NK(c.bracket_label)!==NK(bundle.bracket.label))||c.patch!==live||rows.status!=='ok'||rows.patch!==live||rows.bracket!==c.bracket_label||rows.mode!=='RANKED'||rows.role!==role||rows.version_id!==c.versions?.[0]||NK(urlHero)!==NK(slug))
+      if(bundle.official?.status!=='verified'||c?.status!=='ok'||(bundle.bracket?.label&&NK(c.bracket_label)!==NK(bundle.bracket.label))||c.patch!==live||rows.status!=='ok'||rows.patch!==live||rows.bracket!==c.bracket_label||rows.mode!=='RANKED'||rows.role!==role||rows.version_id!==(c.versions||[]).join(',')||NK(urlHero)!==NK(slug))
         return {pool,issues:['Pred.gg item evidence excluded: hero, role, patch, bracket, mode or version does not match the verified current cohort.'],status:'scope mismatch'};
       const sameSet=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&[...a].sort().join('|')===[...b].sort().join('|');
       if(query.versions!==rows.version_id||query.gameMode!=='RANKED'||query.role!==role.toUpperCase()||!sameSet(query.ranks?.split(','),c.ranks)||(rows.cohort_filter&&(!sameSet(rows.cohort_filter.versions,c.versions)||!sameSet(rows.cohort_filter.ranks,c.ranks)||!sameSet(rows.cohort_filter.gameModes,['RANKED'])||!sameSet(rows.cohort_filter.roles,[role.toUpperCase()]))))

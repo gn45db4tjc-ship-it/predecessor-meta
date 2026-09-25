@@ -68,7 +68,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.34.5"
+VERSION = "2.34.6"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -900,7 +900,8 @@ def history_cohort(value):
         if not isinstance(a,list) or not a or any(not isinstance(x,str) or not x for x in a) or len(set(a))!=len(a): raise ValueError('History invalid '+k)
         if k!='gameModes' and any(not x.isdigit() for x in a): raise ValueError('History invalid '+k+' IDs')
         result[k]=sorted(a,key=int) if k!='gameModes' else sorted(a)
-    if len(result['versions'])!=1 or result['gameModes']!=['RANKED']: raise ValueError('History needs one patch and ranked mode')
+    # One patch line: the patch and, when present, its officially verified hotfixes (1.17 + 1.17.1 = versions 167, 168).
+    if result['gameModes']!=['RANKED']: raise ValueError('History needs one patch and ranked mode')
     return result
 
 
@@ -2212,13 +2213,31 @@ def pred_catalog(payloads):
     return next((d for d in payloads if 'NewestVersion' in d and 'versions' in d),None)
 
 
-def pred_cohort(catalog, official_version, bracket):
+def live_hotfix_versions(official):
+    """Hotfixes the verified official live article dates as live, on its own patch line (1.17.1 in the 1.17 article)."""
+    live=(official or {}).get('live') or {}
+    if (official or {}).get('status')!='verified' or not live.get('version'):return []
+    return sorted({h['version'] for h in live.get('hotfixes',[]) if h.get('status')=='live' and str(h.get('version','')).startswith(live['version']+'.')},key=patch_tuple)
+
+
+def pred_cohort(catalog, official_version, bracket, hotfixes=()):
+    """The exact official live patch, plus Pred.gg versions for its officially verified hotfixes (Will, 24 Sep 2026:
+    count the whole 1.17 line, before and after Hotfix 1.17.1). Observations use every included version; definitions
+    and kits use the newest. Any other newest version withholds the current-patch label."""
     if not catalog: raise ValueError('Pred.gg: version/rank catalog missing')
-    versions=[v for v in catalog['versions'] if isinstance(v.get('name'),str) and v['name'].lstrip('v')==official_version]
+    named=lambda name:[v for v in catalog['versions'] if isinstance(v.get('name'),str) and v['name'].lstrip('v')==name]
+    versions=named(official_version)
     if len(versions)!=1: raise ValueError('Pred.gg: exact official live patch is not available; no neighbouring patches substituted')
-    version=versions[0]
-    if str(catalog.get('NewestVersion',{}).get('id'))!=str(version['id']):
-        raise ValueError('Pred.gg newest version differs from the verified official live patch; current-patch label withheld')
+    version=versions[0];line=[version]
+    for hotfix in hotfixes:
+        if not str(hotfix).startswith(official_version+'.'): raise ValueError('Pred.gg: hotfix '+str(hotfix)+' is outside the verified live patch line')
+        found=named(hotfix)
+        if len(found)>1: raise ValueError('Pred.gg: hotfix version '+str(hotfix)+' is ambiguous')
+        line+=found
+    newest=next((v for v in line if str(v['id'])==str(catalog.get('NewestVersion',{}).get('id'))),None)
+    if newest is None:
+        raise ValueError('Pred.gg newest version differs from the verified official live patch and its verified hotfixes; current-patch label withheld')
+    included=[v for v in line if patch_tuple(v['name'].lstrip('v'))<=patch_tuple(newest['name'].lstrip('v'))]
     # Rank IDs belong to the active rating system, not guessed enum positions.
     current=[r for r in catalog.get('ratings',[]) if r.get('endTime') is None and r.get('ranks')]
     rating=max(current,key=lambda x:x.get('startTime','')) if current else None
@@ -2227,8 +2246,15 @@ def pred_cohort(catalog, official_version, bracket):
     if bracket not in tiers: raise ValueError('Pred.gg: unsupported rank bracket')
     ranks=sorted({r['id'] for r in rating['ranks'] if str(r.get('tierName','')).lower() in tiers[tiers.index(bracket):]},key=int)
     if not ranks: raise ValueError('Pred.gg: selected rank IDs unavailable')
-    return {'versions':[version['id']],'gameModes':['RANKED'],'ranks':ranks,'patch':official_version,
+    ids=sorted({str(v['id']) for v in included},key=int);fixes=[v['name'].lstrip('v') for v in included if v is not version]
+    return {'versions':ids,'definition_version':str(newest['id']),'hotfixes':fixes,'gameModes':['RANKED'],'ranks':ranks,'patch':official_version,
+            'label':'Pred.gg '+official_version+(' + Hotfix '+', '.join(fixes) if fixes else '')+' (version'+('s ' if len(ids)>1 else ' ')+', '.join(ids)+')',
             'release_date':version['releaseDate'],'rating':rating['name'],'bracket':bracket,'bracket_label':bracket.title()+'+'}
+
+
+def pred_definition_version(cohort):
+    """Item, Eternal and kit definitions come from the newest included Pred.gg version."""
+    return str(cohort.get('definition_version') or cohort['versions'][-1])
 
 
 def pred_stats_url(cohort,role=None):
@@ -2288,7 +2314,7 @@ def attach_scoped_statistics(bundle,progress=lambda s:None,fetch=None,pages=None
     try:
         if bundle.get('official',{}).get('status')!='verified': raise ValueError('Official live patch is unverified; current-patch statistics withheld')
         payloads,when,secs=get(PRED_BASE+'/heroes')
-        catalog=pred_catalog(payloads);cohort=pred_cohort(catalog,bundle['official']['live']['version'],bundle['bracket']['segment'])
+        catalog=pred_catalog(payloads);cohort=pred_cohort(catalog,bundle['official']['live']['version'],bundle['bracket']['segment'],live_hotfix_versions(bundle['official']))
         scoped.update(cohort);records.append({'url':PRED_BASE+'/heroes','fetched_at':when,'secs':secs,'status':'ok'})
         for role in [None]+list(ROLES):
             label=role or 'all roles';progress('Checking exact-patch ranked statistics: '+label+'…')
@@ -2483,7 +2509,8 @@ def repair_pred_text_labels(bundle):
 
 def pred_meta(record,cohort,role=None):
     return {'source':'Pred.gg','url':record['url'],'fetched_at':record['fetched_at'],'cache_hit':record['cache_hit'],
-            'patch':cohort['patch'],'version_id':cohort['versions'][0],'bracket':cohort['bracket_label'] if role else None,
+            'patch':cohort['patch'],'version_id':','.join(cohort['versions']) if role else pred_definition_version(cohort),
+            'hotfixes':list(cohort.get('hotfixes',[])),'bracket':cohort['bracket_label'] if role else None,
             'role':role,'mode':'RANKED' if role else None}
 
 
@@ -2558,7 +2585,7 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
     def error(label,e):out['errors'].append({'source':'Pred.gg '+label,'severity':'error','detail':str(e)})
     try:
         if bundle.get('official',{}).get('status')!='verified':raise ValueError('Official live patch unverified; Pred.gg game-data update withheld')
-        boot=pages.get(PRED_BASE+'/heroes',ttl=0);cat=pred_catalog(boot['payloads']);cohort=pred_cohort(cat,bundle['official']['live']['version'],bundle['bracket']['segment']);out['cohort']=cohort
+        boot=pages.get(PRED_BASE+'/heroes',ttl=0);cat=pred_catalog(boot['payloads']);cohort=pred_cohort(cat,bundle['official']['live']['version'],bundle['bracket']['segment'],live_hotfix_versions(bundle['official']));out['cohort']=cohort
         roster={};by_slug={norm_key(s):s for s in bundle['heroes']}
         for h in cat['heroes']:
             s=by_slug.get(norm_key(h.get('slug')))
@@ -2589,7 +2616,7 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
         batch(jobs,'hero overview',overview)
         jobs=[]
         for path,kind in [('/items','items'),('/eternals','eternals')]:
-            jobs.append(((kind,None,None),PRED_BASE+path+'?version='+cohort['versions'][0],86400))
+            jobs.append(((kind,None,None),PRED_BASE+path+'?version='+pred_definition_version(cohort),86400))
         for s,rec in overview_pages.items():
             h=roster[s];paths={urllib.parse.urlparse(u).path for u in rec['links']};base='/heroes/'+h['slug']
             for suffix,kind in [('/hero','hero'),('','overview'),('/counters','counters'),('/items','items')]:
@@ -2614,7 +2641,7 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
                     keys.add(a['key'])
                     for field in ('cost','cooldown'):
                         if not isinstance(a.get(field),list) or any(type(v)not in(int,float) or not math.isfinite(v) or v<0 for v in a[field]):raise ValueError('Pred.gg ability '+field+' invalid')
-                out['heroes'][s]={'data':d,'roster_data':roster[s]['data'],**pred_meta(rec,cohort),'patch_binding':'Public hero page selected with versions='+cohort['versions'][0]+'; kit has no independent version echo.'}
+                out['heroes'][s]={'data':d,'roster_data':roster[s]['data'],**pred_meta(rec,cohort),'patch_binding':'Public hero page selected with versions='+','.join(cohort['versions'])+'; kit has no independent version echo.'}
             else:out['role_data'].setdefault(s,{}).setdefault(role,{})[kind]=pred_role_data(rec,roster[s],cohort,role,kind,bundle['heroes'])
         batch(jobs,'kits, builds and matchups',detail)
         out['assets']=sorted(assets)
@@ -2636,7 +2663,7 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
 
 def apply_pred_game_data(bundle):
     """Update effective mechanics; protected reviewed fields win, and original values remain inspectable."""
-    out=bundle['pred_game_data'];cohort=out['cohort'];version=cohort['versions'][0];audits=[]
+    out=bundle['pred_game_data'];cohort=out['cohort'];version=pred_definition_version(cohort);audits=[]
     protected={}
     for r in bundle.get('corrections',[])+bundle.get('mechanics_resolutions',[]):
         if r.get('status') in ('official correction applied','source already current','source already matches reviewed value','reviewed source reconciliation applied','source already updated'):
