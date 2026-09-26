@@ -3548,7 +3548,13 @@ def visor_look_path():
 
 def read_visor_look(path=None, now=None):
     """What /api/look serves: {'available': True, 'look': {...}, 'tokens': {...}} or {'available': False, 'reason':
-    'missing' | 'unreadable' | 'invalid' | 'stale'}. Never raises; every failure is the app's normal look."""
+    'missing' | 'unreadable' | 'invalid' | 'stale'}. Never raises: the local page and endpoint depend on it, and
+    every failure simply means the app's normal look."""
+    try: return _read_visor_look(path, now)
+    except Exception: return {'available': False, 'reason': 'unreadable'}
+
+
+def _read_visor_look(path, now):
     path = Path(path) if path is not None else visor_look_path()
     if path is None: return {'available': False, 'reason': 'missing'}
     key = str(path)

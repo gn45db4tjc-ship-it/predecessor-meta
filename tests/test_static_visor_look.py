@@ -144,6 +144,14 @@ class Fallback(VisorFileCase):
             self.assertIsNone(app.visor_look_path())
             self.assertEqual(app.read_visor_look(), {'available': False, 'reason': 'missing'})
 
+    def test_nothing_about_the_file_can_break_the_local_page(self):
+        with mock.patch.object(app, 'visor_look_path', return_value=Path('bad\x00path')):
+            self.assertEqual(app.read_visor_look(), {'available': False, 'reason': 'unreadable'})
+            self.assertIn('VisorLook.start({"available":false', app.render_html(None, {'mode': 'local', 'tool_version': app.VERSION}))
+        self.write(sample())
+        with mock.patch.object(app, 'derive_visor_tokens', side_effect=ZeroDivisionError):
+            self.assertFalse(self.read()['available'])
+
     def test_a_folder_in_place_of_the_file_is_unreadable(self):
         self.path.mkdir()
         self.assertFalse(self.read()['available'])
