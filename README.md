@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.37.1
+# Predecessor Meta - 2.38.0
 
-The phone app is faster. On return visits, a rank's data files open straight from the phone when their bytes still match the checksum in their names, instead of being downloaded again (the core file is 924 KB); a new publication is noticed exactly as before. Reviewed-build lookups no longer re-read every loadout definition, and Pred.gg icons load at 128px on high-density screens. Nothing shown or labelled changes. See [RELEASE-2.37.1.md](RELEASE-2.37.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The phone opens on a third of the data. A rank's first download is now 0.36 MB compressed instead of 1.10 MB (Gold+): the Meta list draws from it at once, and the rest of the hero and build data (the guide) follows straight away. Hero pages, Match and desktop screens wait for the guide and say so; nothing is worked out without it, and what is shown does not change. See [RELEASE-2.38.0.md](RELEASE-2.38.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.37.1
+
+The phone app is faster. On return visits, a rank's data files open straight from the phone when their bytes still match the checksum in their names, instead of being downloaded again (the core file is 924 KB); a new publication is noticed exactly as before. Reviewed-build lookups no longer re-read every loadout definition, and Pred.gg icons load at 128px on high-density screens. Nothing shown or labelled changes. See [RELEASE-2.37.1.md](RELEASE-2.37.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.37.0
 
