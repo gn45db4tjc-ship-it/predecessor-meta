@@ -55,7 +55,7 @@ function skillChartHTML(plan,guide){
  const rows=SKILL_CHART_ROWS.map(token=>{
   const first=cells.find(p=>p.token===token);if(!first)return '';
   const icon=abilities[first.key]?.image_url;
-  return `<tr data-skill-row="${esc(token)}"><th scope="row"><span class="skill-chart-ability">${icon?`<img src="${esc(icon)}" alt="" width="24" height="24" loading="lazy">`:''}<span class="skill-chart-name">${esc(first.name)}</span><kbd>${esc(first.key)}</kbd></span></th>${cells.map(p=>p.token===token
+  return `<tr data-skill-row="${esc(token)}"><th scope="row"><span class="skill-chart-ability">${icon?`<img src="${esc(icon)}"${sharpIcon(icon)} alt="" width="24" height="24" loading="lazy">`:''}<span class="skill-chart-name">${esc(first.name)}</span><kbd>${esc(first.key)}</kbd></span></th>${cells.map(p=>p.token===token
    ?`<td class="is-ticked"><span class="skill-box" aria-hidden="true">✓</span><span class="sr-only">Level ${p.level}, rank ${p.rank}</span></td>`
    :`<td><span class="skill-box" aria-hidden="true"></span></td>`).join('')}</tr>`;
  }).join('');
