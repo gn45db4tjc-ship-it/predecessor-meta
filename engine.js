@@ -197,7 +197,7 @@
       if(!rules.length)return base;
       const h={...base,capability_evidence:structuredClone(base.capability_evidence||{}),loadout_notes:[]};heroIds.set(h,slug);
       for(const r of rules){
-        const perk=Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(r.augment));
+        const perk=perksByName.get(NK(r.augment));
         const supplement=Object.values(bundle.reviewed_definitions||{}).find(d=>NK(d.name)===NK(r.augment)&&d.active);
         const description=perk?.description||supplement?.description;
         const matching=plan.active&&bundle.official?.status==='verified'&&r.patch===bundle.official?.live?.version&&perkTextMatches(r.augment,description,r.augment_description)&&base.abilities?.find(a=>a.key===r.ability_key)?.text===r.ability_text;
@@ -650,6 +650,10 @@
     const NK = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const itemsByName = new Map(Object.entries(bundle?.items || {}).flatMap(([k, it]) => [[NK(it.name || k), it], [NK(k), it]]));
     const item = n => itemsByName.get(NK(n)) || null;
+    // Perks by normalised name, built once like itemsByName (2.37.1): the first perk with a name wins, as the
+    // linear find it replaces did. Values are the bundle's own objects, so their fields are always read live.
+    const perksByName = new Map();
+    for (const p of Object.values(bundle?.perks || {})) { const k = NK(p?.display_name || p?.name); if (!perksByName.has(k)) perksByName.set(k, p); }
     const statNum = (it, k) => { const n = parseFloat(it && it.stats ? it.stats[k] : NaN); return Number.isFinite(n) ? n : 0; };
     const fxText = it => (it?.effects || []).map(e => (e.name || '') + ': ' + (e.condition || '') + ' ' + (e.text || '')).join(' | ').replace(/�/g, '•').replace(/\s+/g, ' ');
     const fxMatch = (it, rx) => { const m = fxText(it).match(rx); return m ? m[0].trim() : ''; };
@@ -900,7 +904,7 @@
           if(!actual||Object.entries(expected).some(([key,value])=>!matches('items',name,key,value,actual[key])))changed.push('Item '+name);
         }
         for(const [name,text] of Object.entries(pre.perks||{})){
-          const source=Object.values(bundle.perks||{}).find(p=>NK(p.display_name||p.name)===NK(name));
+          const source=perksByName.get(NK(name));
           // Mechanics do not vary by rank. A missing rank-local row can use the
           // separately evidenced definition, but a conflicting row cannot.
           const definition=independent&&!source?buildLoadoutDefinition(name):null;
