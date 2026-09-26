@@ -21,22 +21,31 @@ destinationSections=function(){
 };
 function detailModeButton(){return `<button class="quiet" data-reading-mode>${companionPrefs.fullDetails?'Quick companion view':'Full details'}</button>`;}
 function planDate(plan){const review=plan.kind==='reviewed'?plan:previousReviewedBuild(plan.review);return `<p class="simple-source ${plan.kind!=='reviewed'?'warning':''}">${plan.kind==='reviewed'?'Reviewed':'Previous guidance'} ${esc(dayDate(review?.reviewed_at))} · patch ${esc(review?.patch||'unverified')}${!review?.patch_review&&E.strategyReviewDue().due?' · review due':''}${plan.manual?' · selected source playstyle remains a calculated sequence':''}</p>`;}
-function simpleSetup(plan){return `<div class="simple-setup">${[['Augment',plan.augment,'perks'],['Eternal',plan.eternal,'perks'],['Blessing 1',plan.blessings?.[0],'perks'],['Blessing 2',plan.blessings?.[1],'perks'],['Crest',plan.crest,'items']].map(([label,n,kind])=>`<div><small>${label}</small>${n?itemButton(n,kind):'<strong>Unavailable</strong>'}</div>`).join('')}</div>`;}
+function simpleSetup(plan){return `<div class="simple-setup">${[['Augment',plan.augment,'perks'],['Eternal',plan.eternal,'perks'],['Blessing<span class="setup-n"> 1</span>',plan.blessings?.[0],'perks'],['Blessing<span class="setup-n"> 2</span>',plan.blessings?.[1],'perks'],['Crest',plan.crest,'items']].map(([label,n,kind])=>`<div><small>${label}</small>${n?itemButton(n,kind):'<strong>Unavailable</strong>'}</div>`).join('')}</div>`;}
 function simplePurchases(plan){
  const items=plan.items||[],core=Math.min(plan.core?.length||0,items.length);
  const group=(label,from,to)=>to>from?`<h4 class="purchase-group">${label} · ${to-from>1?(from+1)+'–'+to:from+1}</h4><ol class="simple-purchases" start="${from+1}">${items.slice(from,to).map((n,j)=>`<li><span class="simple-position">${from+j+1}</span>${itemButton(n)}</li>`).join('')}</ol>`:'';
  return group('Core',0,core)+group('Flexible',core,items.length);
 }
-// Rec 1: the whole starting build at a glance, directly under the hero header, with its provenance.
-function buildStripHTML(p){
- const plan=chosenPlan(p);if(!plan.items?.length)return '';
- const category=plan.manual?{text:'Calculated sequence',type:'calculated'}:buildCategory(plan);
- return `<section class="build-strip" aria-label="Starting build: ${esc(plan.items.join(', '))}"><div class="build-strip-head"><strong>Starting build</strong>${badge(category.text,category.type)}</div><ol class="build-strip-items">${plan.items.map(n=>`<li>${itemButton(n)}</li>`).join('')}</ol></section>`;
+// 2.37.0 phone build card: the six items once (Core, then Flexible), the loadout in one row, and one provenance
+// line whose dialog holds the category, dates, reason, alternatives and sources. Nothing is dropped, only moved.
+function buildAboutHTML(plan){
+ const category=plan.manual?{text:'Calculated sequence · selected source playstyle',type:'calculated'}:buildCategory(plan);
+ return `${badge(category.text,category.type)}${planDate(plan)}${plan.patch_review?'<p class="simple-source">Patch-reviewed starting point · current-patch build statistics unavailable.</p>':''}<p class="simple-source">${plan.kind==='reviewed'?'Reviewed choices':'Calculated selection'} · no whole-loadout win rate is claimed.</p>${plan.reason?`<p>${esc(plan.reason)}</p>`:''}<div class="detail-content">${plannedBuildHTML(plan,true)}</div>`;
 }
-function simpleBuildHTML(p,{quick=false}={}){
- const plan=chosenPlan(p),choice=buildSelection(p),category=plan.manual?{text:'Calculated sequence · selected source playstyle',type:'calculated'}:buildCategory(plan);
- return `<section class="panel simple-build" data-selected-plan="${esc(p.slug+'|'+p.role)}">${badge(category.text,category.type)}<h2>${quick?'Set these before the match':'Your starting build'}</h2>${planDate(plan)}${plan.patch_review?'<p class="simple-source">Patch-reviewed starting point · current-patch build statistics unavailable.</p>':''}${choice.status==='invalid'?note(esc(choice.reason),true)+`<button data-reset-playstyle="${esc(p.slug+'|'+p.role)}">Use the available starting plan</button>`:''}${plan.items.length?`<h3 class="build-step"><span aria-hidden="true">01</span> Pre-match loadout</h3><p class="simple-source build-provenance">${plan.kind==='reviewed'?'Reviewed choices':'Calculated selection'} · no whole-loadout win rate is claimed.</p>${simpleSetup(plan)}${quick?'<details data-keep="quick-purchases"><summary>Purchase order after loading in</summary>':''}<h3 class="build-step"><span aria-hidden="true">02</span> Purchase order</h3>${simplePurchases(plan)}${quick?'</details>':''}<p>${esc(String(plan.reason||'').split(/(?<=[.!?])\s+/)[0])}</p><details data-keep="simple-build-evidence"><summary>Why this build, alternatives & source evidence</summary><div class="detail-content">${plannedBuildHTML(plan,true)}</div></details>`:note(esc(plan.reason||'No eligible current build. Previous guidance remains available below.'),true)+previousBuildHTML(plan)}</section>`;
+function simpleBuildHTML(p){
+ const plan=chosenPlan(p),choice=buildSelection(p),category=plan.manual?{text:'Calculated sequence',type:'calculated'}:buildCategory(plan);
+ const review=plan.kind==='reviewed'?plan:previousReviewedBuild(plan.review),key=esc(p.slug+'|'+p.role);
+ const invalid=choice.status==='invalid'?note(esc(choice.reason),true)+`<button data-reset-playstyle="${key}">Use the available starting plan</button>`:'';
+ if(!plan.items.length)return `<section class="panel simple-build" data-selected-plan="${key}"><h2>Starting build</h2>${invalid}${note(esc(plan.reason||'No eligible current build. Previous guidance remains available below.'),true)}${previousBuildHTML(plan)}</section>`;
+ return `<section class="panel simple-build simple-build--compact" data-selected-plan="${key}"><h2 class="sr-only">Starting build</h2>${invalid}${simplePurchases(plan)}${simpleSetup(plan)}<button type="button" class="build-about" data-build-about="${key}">${badge(category.text,category.type)}<span>${esc(dayDate(review?.reviewed_at))} · ${esc(review?.patch||'unverified')}</span><span class="build-about-more">Why this build ›</span></button></section>`;
 }
+// One line of observed context: the saved-date badge replaces the fetch date instead of repeating it.
+function compactRoleText(perf){const saved=savedTag(perf.fetched_at,perf.retained);return saved+pct(perf.wr)+' · '+games(perf.played)+' · '+esc(perf.source)+' '+esc(perf.patch||'')+(saved?'':' · '+esc(dayDate(perf.fetched_at)))+(perf.inspection_only?' · previous dataset':'');}
+document.addEventListener('click',event=>{
+ const el=event.target.closest('[data-build-about]');if(!el)return;event.preventDefault();event.stopImmediatePropagation();
+ const [slug,role]=el.dataset.buildAbout.split('|');detail(name(slug)+' · '+labels[role]+' · why this build',buildAboutHTML(chosenPlan({slug,role})));
+},true);
 // Rows follow the in-game ability bar; the ultimate sits last so its 6/11/16 ticks read as a separate line.
 const SKILL_CHART_ROWS=['Primary','Secondary','Alternate','Ultimate'];
 function skillChartHTML(plan,guide){
@@ -54,21 +63,35 @@ function skillChartHTML(plan,guide){
  return `<div class="skill-chart-scroll" role="region" aria-label="Skill order chart, levels 1 to 18" tabindex="0"><table class="skill-chart"><caption class="sr-only">Skill points by hero level for ${esc(name(plan.slug))}. Each column is a level; the ticked box is the ability to rank up.</caption><thead><tr><th scope="col" class="skill-chart-corner">Level</th>${head}</tr></thead><tbody>${rows}</tbody></table></div><p class="skill-chart-legend" aria-hidden="true">${legend}</p>`;
 }
 // Build-page alternates by enemy team type (engine teamAlternates): calculated item rules on the reviewed core.
+// 2.37.0 phone Kit: every section starts closed. Each ability shows its key, name and first sentence; the full
+// card (values, corrections, verification notes) opens on tap. A flagged ability says so in its summary.
+function compactKitHTML(h){
+ const notes=patchNotes('hero',S.hero).replace('<details open>','<details data-keep="kit-patch-notes">');
+ const flagged=(a,i)=>!!a.description_issue||(B.description_reviews||[]).some(r=>r.path?.[0]==='heroes'&&r.path[1]===h.slug&&r.path[2]==='abilities'&&r.path[3]===i);
+ const first=t=>{const s=String(t||'').split(/(?<=[.!?])\s+/)[0];return s.length>110?s.slice(0,107)+'…':s;};
+ return `<div class="skill-guide-head"><h2>Kit</h2>${badge('Calculated capabilities')}</div>${h.official_kit?sourceLine(h.official_kit.source,h.official_kit.fetched_at,'Official '+h.official_kit.patch+' kit'):''}${notes}${relevantChanges('hero',S.hero).length?note('Only listed corrections are applied to the source fields; use the official notes for other changed values.',true):''}<div class="coverage">${(h.capabilities||[]).map(c=>`<button class="quiet" data-capability="${esc(c)}">${esc(c.replaceAll('_',' '))}</button>`).join('')}</div><div class="kit-abilities">${(h.abilities||[]).map((a,i)=>`<details class="kit-ability" data-keep="kit-ability-${i}"><summary><kbd>${esc(a.key)}</kbd><span><strong>${esc(a.display_name)}</strong>${flagged(a,i)?' · <em>needs verification</em>':''}<small>${esc(first(a.text))}</small></span></summary>${kitAbilityHTML(h,a,i)}</details>`).join('')}</div>${correctionAudit('heroes',S.hero)}`;
+}
 function teamAlternatesHTML(p){
  const choice=buildSelection(p);if(choice.status==='invalid')return '';
  let r;try{r=E.teamAlternates(p,{variant:choice.index});}catch(e){return '';}
  const head=`<div class="skill-guide-head"><h2>Adapt to the enemy team</h2>${badge('Calculated · item rules','calculated')}</div>`;
  if(!r.available)return `<section class="team-alternates panel" data-team-alternates="${esc(p.slug+'|'+p.role)}">${head}<p class="simple-source">${esc(r.reason)}</p></section>`;
- const body=x=>x.status==='swap'?x.swaps.map(s=>`<div class="team-alt-change"><span>Swap</span>${itemButton(s.from)}<span aria-hidden="true">→</span><span class="sr-only">for</span>${itemButton(s.to)}</div><small>Item ${s.position}${s.evidence?' · '+esc(s.evidence):''}</small>`).join('')
-  :x.status==='covered'?`<div class="team-alt-change"><span>Already in this build</span>${x.coveredBy.map(n=>itemButton(n)).join('')}</div>${x.earlier?`<small>Buy ${esc(x.earlier.item)} earlier, as item ${x.earlier.position}.</small>`:''}`
-  :`<small>No calculated swap fits this build's flexible slots; keep the starting build.</small>`;
- return `<section class="team-alternates panel" data-team-alternates="${esc(p.slug+'|'+p.role)}">${head}<p class="simple-source">Find the row that matches the enemy team. ${esc(r.note)}</p><ul class="team-alt-list">${r.rows.map(x=>`<li data-team-type="${esc(x.id)}" data-status="${esc(x.status)}"><strong class="team-alt-type">${esc(x.label)}</strong>${body(x)}</li>`).join('')}</ul></section>`;
+ // 2.37.0: one line per swap; answers already in the build and types with no fitting swap fold into one line each.
+ // The qualifying effect is one tap away in the item's own dialog.
+ const short={tanky:'Tanky',healing:'Healing',magical:'Magic damage',physical:'Physical damage',burst:'Burst',magic_burst:'Magic burst',shields:'Shields',basic_attacks:'Basic attacks'},label=x=>short[x.id]||x.label;
+ const swaps=r.rows.filter(x=>x.status==='swap'),covered=r.rows.filter(x=>x.status==='covered'),none=r.rows.filter(x=>x.status==='none');
+ // When every swap replaces the same flexible item, say so once in the intro instead of on each row.
+ const froms=[...new Set(swaps.flatMap(x=>x.swaps.map(s=>s.from)))],oneFrom=froms.length===1?froms[0]:'';
+ const swapRows=swaps.map(x=>x.swaps.map(s=>`<li data-team-type="${esc(x.id)}" data-status="swap"><strong class="team-alt-type">${esc(label(x))}</strong><span class="team-alt-change">${itemButton(s.to)}<small${oneFrom?' class="sr-only"':''}>replaces ${esc(s.from)}${s.evidence?`<span class="sr-only"> · ${esc(s.evidence)}</span>`:''}</small></span></li>`).join('')).join('');
+ const coveredRow=covered.length?`<li data-status="covered"><strong class="team-alt-type">Already covered</strong><small>${covered.map(x=>`${esc(label(x))} (${x.coveredBy.map(esc).join(', ')})`).join(' · ')}${covered.filter(x=>x.earlier).map(x=>` · buy ${esc(x.earlier.item)} earlier, as item ${x.earlier.position}`).join('')}</small></li>`:'';
+ const noneRow=none.length?`<li data-status="none"><strong class="team-alt-type">No swap fits</strong><small>${none.map(x=>esc(label(x))).join(' · ')}</small></li>`:'';
+ return `<section class="team-alternates panel" data-team-alternates="${esc(p.slug+'|'+p.role)}">${head}<p class="simple-source">${oneFrom?`Against each team type, swap ${esc(oneFrom)} for the item shown`:'One flexible swap per enemy team type'}; the core stays. Calculated, not a win prediction.</p><ul class="team-alt-list">${swapRows}${coveredRow}${noneRow}</ul></section>`;
 }
 function skillPointsHTML(plan){
  const choice=buildSelection(plan),guide=SkillGuide.make(B,plan,{variantIndex:choice.index}),key=plan.slug+'|'+plan.role;
  if(!guide.points.length)return `<section class="skill-guide panel"><h2>Skill order · unavailable</h2><p>${esc(guide.reason)}</p></section>`;
  const source=guide.source||{};
- return `<section class="skill-guide panel" data-skill-guide="${esc(key)}"><div class="skill-guide-head"><h2>Skill order · levels 1–18</h2>${badge(guide.label,guide.kind==='reviewed'?'reviewed':guide.kind==='observed'?'observed':'calculated')}</div>${skillChartHTML(plan,guide)}<p class="simple-source">Read left to right: each column is a hero level, and the ticked box is the ability to rank up. Names first; keys are default PC bindings.</p><details data-keep="skill-reason"><summary>Why this order & source</summary><p>${esc(guide.reason)}</p>${Number.isFinite(source.wr)&&Number.isFinite(source.played)?`<p>Observed sequence: ${pct(source.wr)} win rate · ${games(source.played)}.</p>`:''}<p class="simple-source">${guide.kind==='observed'?'Statz dataset '+esc(source.patch)+' · fetched '+esc(date(source.fetched_at)):guide.kind==='reviewed'?'Order reviewed '+esc(date(source.reviewed_at)):'Priority reviewed '+esc(date(source.reviewed_at))+'; this exact allocation still needs review.'}${source.url?' · '+link(source.url,'Source'):''}</p>${guide.notes.map(n=>note(esc(n),true)).join('')}</details></section>`;
+ return `<section class="skill-guide panel" data-skill-guide="${esc(key)}"><div class="skill-guide-head"><h2>Skill order · levels 1–18</h2>${badge(guide.label,guide.kind==='reviewed'?'reviewed':guide.kind==='observed'?'observed':'calculated')}</div>${skillChartHTML(plan,guide)}<details data-keep="skill-reason"><summary>Why this order & source</summary><p>${esc(guide.reason)}</p>${Number.isFinite(source.wr)&&Number.isFinite(source.played)?`<p>Observed sequence: ${pct(source.wr)} win rate · ${games(source.played)}.</p>`:''}<p class="simple-source">${guide.kind==='observed'?'Statz dataset '+esc(source.patch)+' · fetched '+esc(date(source.fetched_at)):guide.kind==='reviewed'?'Order reviewed '+esc(date(source.reviewed_at)):'Priority reviewed '+esc(date(source.reviewed_at))+'; this exact allocation still needs review.'}${source.url?' · '+link(source.url,'Source'):''}</p>${guide.notes.map(n=>note(esc(n),true)).join('')}</details></section>`;
 }
 function alternativesHTML(p){
  const stats=B.heroes[p.slug]?.roles?.[p.role],rows=stats?.builds||[];
@@ -87,8 +110,9 @@ mobileHero=function(){
  const p={slug:S.hero,role:S.heroRole},hero=E.heroes[p.slug];if(!hero)return guidedHome();
  const perf=E.displayPerformance(p),counter=RecommendationView.counterplay(E,E.heroes,p.slug,p.role),tab=['pairings','counters','kit'].includes(S.heroTab)?S.heroTab:quickAlternative?'alternatives':'builds';
  const buttons=[['builds','Build'],['alternatives','Options'],...(counter.available?[['counters','Counters']]:[]),['pairings','Partners'],['kit','Kit']];
- const body=tab==='alternatives'?alternativesHTML(p):tab==='pairings'?patchContextHTML(p.slug,'partners')+simplePartnersHTML(p):tab==='counters'?simpleCountersHTML(p):tab==='kit'?patchContextHTML(p.slug)+kitView(hero):simpleBuildHTML(p)+teamAlternatesHTML(p)+patchContextHTML(p.slug)+skillPointsHTML(chosenPlan(p));
- return `<button class="text-button" data-route="meta">← Meta</button><div class="hero-header mobile-hero-head">${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div></div>${buildStripHTML(p)}<p class="simple-source">${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</p><div class="simple-sections tab-strip tab-strip--segmented" role="tablist" aria-label="Hero sections">${buttons.map(([id,label])=>`<button role="tab" data-simple-section="${id}" aria-selected="${id===tab}" tabindex="${id===tab?0:-1}"${id===tab?` aria-controls="hero-sec-${tab==='alternatives'?'builds':tab}"`:''}>${label}</button>`).join('')}</div><section id="hero-sec-${tab==='alternatives'?'builds':tab}" class="simple-hero-section" role="tabpanel" aria-label="${esc(buttons.find(b=>b[0]===tab)?.[1]||'Build')}">${body}</section><div class="adapt-dock"><button class="primary" data-start-live="true">Adapt to my match</button></div><div class="simple-actions">${detailModeButton()}<button id="favorite-hero" aria-pressed="${companionPrefs.favorites.includes(p.slug+'|'+p.role)}">Favorite</button><button id="share-hero">Share</button></div>`;
+ const body=tab==='alternatives'?alternativesHTML(p):tab==='pairings'?patchContextHTML(p.slug,'partners')+simplePartnersHTML(p):tab==='counters'?simpleCountersHTML(p):tab==='kit'?patchContextHTML(p.slug)+compactKitHTML(hero):simpleBuildHTML(p)+skillPointsHTML(chosenPlan(p))+teamAlternatesHTML(p)+patchContextHTML(p.slug);
+ const fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
+ return `<div class="hero-header mobile-hero-head mobile-hero-head--compact">${art(p.slug,'large')}<div class="hero-head-main"><h1>${esc(name(p.slug))}</h1><label><span class="sr-only">Role</span><select id="mobile-hero-role" aria-label="Role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><div class="hero-head-actions"><button id="favorite-hero" aria-pressed="${fav}" aria-label="Favorite ${esc(name(p.slug))} ${esc(labels[p.role])}">${fav?'★':'☆'}</button><button id="share-hero" aria-label="Share ${esc(name(p.slug))}">Share</button></div><button class="primary hero-use-match" data-start-live="true">Use in Match</button></div><p class="simple-source hero-context">${perf?compactRoleText(perf):esc(roleSampleText(p.slug,p.role))}</p><div class="simple-sections tab-strip tab-strip--segmented" role="tablist" aria-label="Hero sections">${buttons.map(([id,label])=>`<button role="tab" data-simple-section="${id}" aria-selected="${id===tab}" tabindex="${id===tab?0:-1}"${id===tab?` aria-controls="hero-sec-${tab==='alternatives'?'builds':tab}"`:''}>${label}</button>`).join('')}</div><section id="hero-sec-${tab==='alternatives'?'builds':tab}" class="simple-hero-section" role="tabpanel" aria-label="${esc(buttons.find(b=>b[0]===tab)?.[1]||'Build')}">${body}</section><div class="simple-actions">${detailModeButton()}</div>`;
 };
 function draftInputs(){return JSON.stringify([S.candidateRole,S.locks,S.enemies,S.bans,companionPrefs.heroPools[S.candidateRole]||[],B.generated_at,S.bracket]);}
 function quickEvidenceKey(){return JSON.stringify([B.generated_at,B.patch,B.official?.live?.version,S.bracket]);}
@@ -165,13 +189,25 @@ function matchGridHTML(mode){
  return `<label class="match-search">${mode==='me'?'Find your hero':'Find an enemy hero'}<input id="match-search" type="search" autocomplete="off" placeholder="Hero name"></label>
  <div class="match-grid" role="group" aria-label="${mode==='me'?'Choose your hero':'Enemy heroes'}">${heroes.map(s=>`<button type="button" class="match-hero" data-match-pick="${esc(s)}" data-match-mode="${mode}" data-name="${esc(name(s).toLowerCase())}" ${mode==='enemy'?`aria-pressed="${chosen.has(s)}"`:''}>${art(s,'tiny')}<span>${esc(name(s))}</span></button>`).join('')}</div>`;
 }
+// One adaptBuild per enemy line-up: the Enemy team summary and the result below share it.
+function matchAdapted(me,enemies){
+ const choice=buildSelection(me),key=[me.slug,me.role,choice.status,choice.index,enemies.map(e=>e.slug+':'+e.role).join(',')].join('|'),c=matchAdapted.cache;
+ if(c&&c.key===key&&c.E===E)return c.a;
+ let a;try{if(choice.status==='invalid')throw Error(choice.reason);a=E.adaptBuild(me,[],enemies,{state:'even',primaryThreat:null,variant:choice.index});}
+ catch(e){a={error:e.message};}
+ matchAdapted.cache={key,E,a};return a;
+}
+function matchSummaryHTML(me,enemies){
+ if(!enemies.length||buildSelection(me).status==='invalid')return '';
+ const a=matchAdapted(me,enemies);if(a.error||!a.available)return '';
+ return `<p class="match-summary">${a.swaps.length?`<strong>${a.swaps.length===1?'1 swap':a.swaps.length+' swaps'}:</strong> ${a.swaps.map(s=>`${esc(s.to)} <span>for ${esc(s.from)}</span>`).join(' · ')}`:'<strong>Keep the starting build</strong> for these enemies.'}</p>`;
+}
 function matchResultHTML(me,enemies){
  const selection=buildSelection(me);
  if(selection.status==='invalid')return `<section class="panel match-result"><h2>Choose your playstyle again</h2>${note(esc(selection.reason),true)}<button data-reset-playstyle="${esc(me.slug+'|'+me.role)}">Use the starting plan</button></section>`;
  if(!enemies.length)return `<section class="panel match-result"><h2>No enemies yet</h2><p class="simple-source">Tap the enemy heroes you can see. Until then, these are this build's answers by enemy team type.</p></section>${teamAlternatesHTML(me)}`;
- const choice=buildSelection(me);
- let a;try{if(choice.status==='invalid')throw Error(choice.reason);a=E.adaptBuild(me,[],enemies,{state:'even',primaryThreat:null,variant:choice.index});}
- catch(e){return `<section class="panel match-result">${note(esc(e.message),true)}</section>`;}
+ const a=matchAdapted(me,enemies);
+ if(a.error)return `<section class="panel match-result">${note(esc(a.error),true)}</section>`;
  const types=matchTeamTypes(a.enemyProfile||{});
  const typesHTML=`<section class="panel match-types"><div class="skill-guide-head"><h2>Enemy team type</h2>${badge('Calculated · enemy kits','calculated')}</div>${types.length?`<ul class="match-type-list">${types.map(([label,n,who])=>`<li><strong>${esc(label)}</strong> <span>${n}${esc(who)}</span></li>`).join('')}</ul>`:'<p class="simple-source">No team type stands out from these kits yet.</p>'}<p class="simple-source">Counted from each hero's kit, not from what they buy or how much damage they deal.</p></section>`;
  if(!a.available)return typesHTML+`<section class="panel match-result"><h2>Build for this match</h2>${note(esc(a.unavailableReason),true)}<button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open the build page</button></section>`;
@@ -191,8 +227,8 @@ function matchView(){
  const me=matchMe(),enemies=matchEnemies(),picking=!me||S.matchPicking==='me'?'me':'enemy';
  const intro=head('Match',me?name(me.slug)+' · '+labels[me.role]:'Your match',me?'Tap the enemy heroes you can see. The build below updates as you go.':'Choose who you play, then tap the enemy heroes you can see.');
  const meHTML=me?`<section class="panel match-me"><div class="match-me-row">${art(me.slug,'')}<div><strong>${esc(name(me.slug))}</strong><label>Role<select id="match-role">${options(E.roles(me.slug).map(r=>[r,labels[r]]),me.role)}</select></label></div></div><div class="match-actions"><button type="button" data-match-change="me">${picking==='me'?'Keep '+esc(name(me.slug)):'Change hero'}</button><button type="button" data-match-new="true">New match</button></div></section>`:'';
- const enemyHTML=me?`<section class="panel match-enemies"><div class="skill-guide-head"><h2>Enemy team · ${enemies.length}/5</h2></div>${enemies.length?`<ul class="match-chips">${enemies.map(e=>`<li><button type="button" class="match-chip" data-match-pick="${esc(e.slug)}" data-match-mode="enemy" aria-label="Remove ${esc(name(e.slug))}">${art(e.slug,'tiny')}<span>${esc(name(e.slug))}</span><span aria-hidden="true">×</span></button></li>`).join('')}</ul>`:'<p class="simple-source">None yet.</p>'}</section>`:'';
- return intro+meHTML+(picking==='me'?`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:enemyHTML+matchResultHTML(me,enemies)+`<details class="panel match-pick" data-keep="match-enemy-grid" ${enemies.length<5?'open':''}><summary>Add enemy heroes</summary>${matchGridHTML('enemy')}</details>`);
+ const enemyHTML=me?`<section class="panel match-enemies"><div class="skill-guide-head"><h2>Enemy team · ${enemies.length}/5</h2></div>${enemies.length?`<ul class="match-chips">${enemies.map(e=>`<li><button type="button" class="match-chip" data-match-pick="${esc(e.slug)}" data-match-mode="enemy" aria-label="Remove ${esc(name(e.slug))}">${art(e.slug,'tiny')}<span>${esc(name(e.slug))}</span><span aria-hidden="true">×</span></button></li>`).join('')}</ul>${matchSummaryHTML(me,enemies)}`:'<p class="simple-source">None yet.</p>'}</section>`:'';
+ return intro+meHTML+(picking==='me'?`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:enemyHTML+`<details class="panel match-pick" data-keep="match-enemy-grid" ${enemies.length<5?'open':''}><summary>Add enemy heroes</summary>${matchGridHTML('enemy')}</details>`+matchResultHTML(me,enemies));
 }
 document.addEventListener('click',event=>{
  const el=event.target.closest('[data-match-pick],[data-match-change],[data-match-new]');if(!el)return;
