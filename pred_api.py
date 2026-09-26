@@ -19,14 +19,16 @@ pred_stats_url(cohort, role)) with the API's result wrapped as the page's embedd
 pred_catalog, pred_cohort and pred_parse_stats run unchanged and keep all their checks (cohort echo, hero join,
 counts). Wiring later is one argument: attach_scoped_statistics(bundle, fetch=pred_api.page_fetch).
 
-Live re-check (three small requests, no key):  python -B pred_api.py --validate
+Live re-check (nine small requests, no key):  python -B pred_api.py --validate
 """
 import json
 import os
+import re
 import sys
 import time
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 API_URL = 'https://pred.gg/gql'
 PRED_BASE = 'https://pred.gg'
@@ -54,6 +56,10 @@ STATS_QUERY = """query PredMetaStats($versions: [ID!], $gameModes: [GameMode!], 
     }
   }
 }"""
+
+
+# Per-hero page queries, generated from the responses Pred.gg embeds in its own pages and validated live (see the file's note).
+QUERIES = {k: v for k, v in json.loads((Path(__file__).with_name('pred_api_queries.json')).read_text(encoding='utf-8')).items() if not k.startswith('_')}
 
 
 class PredApiError(ValueError):
@@ -109,27 +115,69 @@ def stats_variables(url):
     return variables
 
 
-def page_fetch(url, *, token=None, post=None):
-    """Drop-in for http_get on the collector's Pred.gg hero URLs: (page_html, status, seconds).
+HERO_PAGE = re.compile(r'/heroes/([a-z0-9-]+)(/hero|/counters|/items)?')
 
-    The API data is wrapped exactly like the page's embedded response, so pred_payloads and every existing check
-    downstream apply unchanged. Other Pred.gg pages (hero detail, items, Eternals) are not covered yet.
+
+def route(url):
+    """Map a collector URL to (query, variables, hero slug or None). Unknown routes are refused rather than guessed.
+
+    Hero pages use every requested version for observations and the newest one for kit definitions, like pred_cohort.
+    """
+    parts = urllib.parse.urlsplit(url)
+    if parts.scheme + '://' + parts.netloc != PRED_BASE or parts.fragment:
+        raise ValueError('pred_api: not a Pred.gg URL: ' + url)
+    if parts.path == '/heroes':
+        return (CATALOG_QUERY, {}, None) if not parts.query else (STATS_QUERY, stats_variables(url), None)
+    query = urllib.parse.parse_qs(parts.query, strict_parsing=True) if parts.query else {}
+    if parts.path in ('/items', '/eternals'):
+        if set(query) != {'version'}: raise ValueError('pred_api: definitions need exactly one version: ' + url)
+        return QUERIES['items' if parts.path == '/items' else 'eternals'], {'definitionVersion': query['version'][0]}, None
+    match = HERO_PAGE.fullmatch(parts.path)
+    if not match: raise ValueError('pred_api: unsupported Pred.gg page: ' + url)
+    slug, page = match.group(1), (match.group(2) or '/overview')[1:]
+    stats = stats_variables(PRED_BASE + '/heroes?' + parts.query)
+    if (page == 'hero') != (stats['roles'] is None): raise ValueError('pred_api: role filter does not fit this page: ' + url)
+    name = {'hero': 'kit', 'overview': 'overview', 'counters': 'counters', 'items': 'hero_items'}[page]
+    variables = {'slug': slug, **stats, 'definitionVersion': max(stats['versions'], key=int)}
+    used = QUERIES[name].split('{', 1)[0]
+    return QUERIES[name], {k: v for k, v in variables.items() if '$' + k + ':' in used}, slug
+
+
+def _icons(value):
+    if isinstance(value, dict):
+        for k, v in value.items():
+            if k in ('icon', 'smallIcon') and isinstance(v, str) and re.fullmatch(r'[0-9a-f]{8,}', v): yield v
+            else: yield from _icons(v)
+    elif isinstance(value, list):
+        for v in value: yield from _icons(v)
+
+
+def page_fetch(url, *, token=None, post=None):
+    """Drop-in for http_get / PredPages(fetch=...) on the collector's Pred.gg URLs: (page_html, status, seconds).
+
+    The API data is wrapped like the page's embedded response, so pred_payloads and every downstream check apply
+    unchanged. The API has no navigation or image markup, so the page also carries the links the collector follows
+    (hero routes named by the API's own slugs) and image URLs in Pred.gg's observed '/assets/<icon>_64.webp' form;
+    if that naming ever differs, images degrade to names as the site already allows.
     """
     started = time.perf_counter()
     token = token if token is not None else token_from_environment()
-    if url == PRED_BASE + '/heroes':
-        data = graphql(CATALOG_QUERY, token=token, post=post)
-    else:
-        data = graphql(STATS_QUERY, stats_variables(url), token=token, post=post)
+    query, variables, slug = route(url)
+    data = graphql(query, variables, token=token, post=post)
     embedded = json.dumps({'status': 200, 'statusText': 'OK', 'headers': {}, 'body': json.dumps({'data': data})})
     # pred_payloads reads the script body as JSON without unescaping, so only a closing tag is neutralised ("<\/" is valid JSON).
-    page = '<script type="application/json" data-sveltekit-fetched data-url="/gql">' + embedded.replace('</', '<\\/') + '</script>'
-    return page, 200, round(time.perf_counter() - started, 3)
+    page = ['<script type="application/json" data-sveltekit-fetched data-url="/gql">' + embedded.replace('</', '<\\/') + '</script>']
+    slugs = [slug] if slug else ([h['slug'] for h in data.get('heroes') or [] if re.fullmatch(r'[a-z0-9-]+', str(h.get('slug')))] if query == CATALOG_QUERY else [])
+    for s in slugs:
+        page += ['<a href="/heroes/%s%s"></a>' % (s, suffix) for suffix in ('', '/hero', '/counters', '/items')]
+    page += ['<img src="%s/assets/%s_64.webp">' % (PRED_BASE, icon) for icon in sorted(set(_icons(data)))]
+    return ''.join(page), 200, round(time.perf_counter() - started, 3)
 
 
 def validate_live():
-    """Three anonymous requests: the catalog answers, statistics are refused for authorization only, and a misspelt
-    field is rejected by name (proof that the statistics query itself is valid)."""
+    """Nine anonymous requests: the catalog answers, statistics are refused for authorization only, a misspelt field
+    is rejected by name (proof that the statistics query itself is valid), and each per-hero page query either answers
+    (kit, item and Eternal definitions) or is refused for authorization only (builds, items, matchups)."""
     catalog = graphql(CATALOG_QUERY)
     print('catalog ok:', len(catalog['heroes']), 'heroes; newest version', catalog['NewestVersion'])
     variables = {'versions': [catalog['NewestVersion']['id']], 'gameModes': ['RANKED'], 'ranks': None, 'roles': ['JUNGLE']}
@@ -144,6 +192,18 @@ def validate_live():
         print('control: NOT rejected as invalid (validation is not running first; re-check the control)')
     except PredApiError as error:
         print('control: misspelt field rejected by name, as expected:', error)
+    # Per-hero pages: definitions answer anonymously; observations are refused for authorization only.
+    newest = catalog['NewestVersion']['id']
+    cohort = 'versions=' + newest + '&gameMode=RANKED&ranks=' + ','.join(r['id'] for g in catalog['ratings'] for r in g['ranks'][:1])
+    for url in ('/heroes/valmont/hero?' + cohort, '/items?version=' + newest, '/eternals?version=' + newest,
+                '/heroes/valmont?' + cohort + '&role=MIDLANE', '/heroes/valmont/items?' + cohort + '&role=MIDLANE',
+                '/heroes/valmont/counters?' + cohort + '&role=MIDLANE'):
+        query, variables, _ = route(PRED_BASE + url)
+        try:
+            data = graphql(query, variables)
+            print(url.split('?')[0] + ': answered (' + str(len(json.dumps(data))) + ' bytes)')
+        except PredApiUnauthorized as error:
+            print(url.split('?')[0] + ': refused for authorization only:', error)
 
 
 if __name__ == '__main__':
