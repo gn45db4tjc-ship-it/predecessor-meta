@@ -428,8 +428,8 @@
  .team-alt-list .team-alt-change .item-button{min-height:44px}
  .simple-build--compact .simple-setup>div>small:first-child{white-space:nowrap}
  .simple-build--compact .setup-n{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
- .match-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s1-5)}
- .match-hero{min-height:64px;padding:var(--s1-5) var(--s0-5);overflow-wrap:break-word;line-height:1.2}
+ .match-grid{grid-template-columns:repeat(auto-fill,minmax(4.75rem,1fr));gap:var(--s1-5)}
+ .match-hero{min-height:64px;padding:var(--s1-5) var(--s0-5);line-height:1.2}
  .match-search{align-items:stretch;text-align:left}.match-search input{width:100%}
  .match-me-row strong{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
  .match-me-row label{margin-top:0}
@@ -437,7 +437,7 @@
  .mobile-hero-card .hero-cell:has(.no-build-chip) .portrait{grid-row:1 / span 2}
  .mobile-hero-card .hero-cell:has(.no-build-chip) .name{align-self:end}
  .mobile-hero-card .no-build-chip{align-self:start;white-space:normal}
- .meta-build-note{margin:0 0 var(--s2)}
+ .meta-build-note{margin:var(--s2) 0 0}
 }
 @media(max-width:360px){
  .simple-build--compact .simple-setup{grid-template-columns:repeat(3,minmax(0,1fr))}

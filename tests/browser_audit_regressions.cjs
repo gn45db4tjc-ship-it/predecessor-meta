@@ -2016,13 +2016,16 @@ probes.DS3 = async browser => {
 };
 
 probes.DS4 = async browser => {
-  /* One chip pattern: evidence tags, status pills and the Build ready chip share the chip base and its geometry. */
+  /* One chip pattern: evidence tags, status pills and the phone build flag share the chip base and its geometry.
+     2.37.0 replaced "Build ready" on almost every row with a flag on the few heroes without an active reviewed build. */
   const read = el => el ? (s => ({chip: el.classList.contains('chip'), radius: s.borderTopLeftRadius, pad: s.paddingTop + ' ' + s.paddingLeft, size: s.fontSize, weight: s.fontWeight}))(getComputedStyle(el)) : null;
   const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
   const phoneSeen = await page.evaluate(read => { read = new Function('return ' + read)();
     companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
     const host = document.createElement('div'); host.innerHTML = badge('Reviewed', 'reviewed'); document.querySelector('#main').append(host);
-    const out = {tag: read(host.firstElementChild), ready: read(document.querySelector('#mobile-all-list .ready-chip'))}; host.remove(); return out; }, read.toString());
+    const unreviewed = Object.keys(E.heroes).flatMap(slug => E.roles(slug).map(role => ({slug, role}))).find(p => !E.buildReview(p.slug, p.role)?.active);
+    if (unreviewed) host.insertAdjacentHTML('beforeend', heroTile(unreviewed));
+    const out = {tag: read(host.firstElementChild), flag: read(host.querySelector('.no-build-chip'))}; host.remove(); return out; }, read.toString());
   await context.close();
   const d = await session(browser, desktop);
   const pill = await d.page.evaluate(read => { read = new Function('return ' + read)(); return read(document.querySelector('#patch-strip .status-pill')); }, read.toString());
@@ -3187,9 +3190,10 @@ probes.LB1 = async browser => {
  verdict('LB1',bad(seen.items)||bad(seen.perks)||!/No entries match/.test(empty),{...seen,search:empty.slice(-80)});
 };
 probes.LB3 = async browser => {
- const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('more'));
+ // 2.37.0: Export snapshot is a desktop tool (the sidebar); the phone More no longer offers it.
+ const {context,page}=await session(browser,desktop);await page.evaluate(()=>changeRoute('more'));
  const ids=await page.evaluate(()=>document.querySelectorAll('[id="export"]').length);
- let downloaded=false;try{const [d]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.locator('#main button:has-text("Export snapshot")').click()]);downloaded=!!d.suggestedFilename();}catch{}
+ let downloaded=false;try{const [d]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.locator('#export').click()]);downloaded=!!d.suggestedFilename();}catch{}
  await context.close();verdict('LB3',ids>1||!downloaded,{ids,downloaded});
 };
 probes.LB4 = async browser => {
