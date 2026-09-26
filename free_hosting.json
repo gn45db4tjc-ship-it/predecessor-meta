@@ -6,6 +6,8 @@
   "patch_window_hours": 48,
   "required_retry_hours": 3,
   "required_retry_limit": 2,
+  "local_collector_recent_hours": 4,
+  "local_collector_daily_grace_hours": 5,
   "brackets": [
     "gold",
     "bronze",

@@ -65,12 +65,34 @@ def live_signature(official):
     return hashlib.sha256(json.dumps(rows).encode()).hexdigest()
 
 
+def waits_for_local_collector(state, now):
+    """The cloud's daily run waits while the Windows collector is connected and recent (2.37.2).
+
+    The cloud cannot read Pred.gg's public pages, so collecting first only turned the Windows collector's Pred.gg
+    sample into a "retained" copy and withheld every tier until the Windows daily collection arrived. The Windows
+    collector checks every three hours and runs the same daily boundary, so the cloud gives it a grace period and
+    then collects as before. Only GitHub runs wait; the Windows collector itself always collects at the boundary."""
+    if os.environ.get('GITHUB_ACTIONS') != 'true':
+        return False
+    collector = state.get('local_collector') or {}
+    try:
+        checked = utc_time(collector['checked_at'])
+    except (KeyError, TypeError, ValueError):
+        return False
+    recent = dt.timedelta(hours=CONFIG.get('local_collector_recent_hours', 4))
+    grace = dt.timedelta(hours=CONFIG.get('local_collector_daily_grace_hours', 5))
+    return (collector.get('status') == 'connected' and dt.timedelta(0) <= now - checked <= recent
+            and now - daily_boundary(now) < grace)
+
+
 def collection_reason(state, official, now, manual=False):
     signature = live_signature(official)
     if manual:
         return 'Manual update'
     last = state.get('last_full_attempt_at')
-    if not last or utc_time(last) < daily_boundary(now):
+    if not last:
+        return 'Daily update'
+    if utc_time(last) < daily_boundary(now) and not waits_for_local_collector(state, now):
         return 'Daily update'
     retry = state.get('required_retry') or {}
     if (retry.get('pending') and not retry.get('blocked')
@@ -427,6 +449,15 @@ def next_daily_at(now):
     return base.iso(boundary)
 
 
+def next_expected_daily_at(state, now):
+    """While the cloud waits for the Windows collector, today's attempt is still due: at the latest, the cloud's own
+    collection when the grace period ends."""
+    last = state.get('last_full_attempt_at')
+    if last and utc_time(last) < daily_boundary(now) and waits_for_local_collector(state, now):
+        return base.iso(daily_boundary(now) + dt.timedelta(hours=CONFIG.get('local_collector_daily_grace_hours', 5)))
+    return next_daily_at(now)
+
+
 def source_age_state(when, now=None):
     now = now or base.now_utc()
     try:
@@ -447,7 +478,7 @@ def render_site(folder, out, state):
                 'patch_check': state.get('patch_check', {}), 'cohorts': {},
                 'last_verified_patch_check': state.get('last_verified_patch_check'),
                 'last_full_attempt_at': state.get('last_full_attempt_at'),
-                'next_expected_attempt_at': (state.get('required_retry') or {}).get('next_at') or next_daily_at(now),
+                'next_expected_attempt_at': (state.get('required_retry') or {}).get('next_at') or next_expected_daily_at(state, now),
                 'run_id': os.environ.get('GITHUB_RUN_ID'),
                 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
                 'required_retry': state.get('required_retry', {})}
