@@ -174,7 +174,9 @@
 .skill-chart td.is-ticked .skill-box{background:var(--brand);border-color:transparent;color:var(--brand-ink)}
 .skill-chart tr[data-skill-row=Ultimate] td.is-ticked .skill-box{background:var(--gold);color:var(--gold-ink)}
 .skill-chart td.is-ticked.is-current .skill-box{outline-offset:1px}
-@media(max-width:520px){.skill-chart-name{max-width:6.5em;font-size:var(--tr-xs)}.skill-chart kbd{display:none}}
+.skill-chart-legend{display:none}
+/* Phones: the row shows icon + key so more levels fit; the legend names each key, and the names stay in the row headers for screen readers. */
+@media(max-width:520px){.skill-chart-ability{gap:var(--s1)}.skill-chart-ability img{width:20px;height:20px}.skill-chart-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.skill-chart kbd{margin-left:0}.skill-chart th[scope=row],.skill-chart th.skill-chart-corner{padding:var(--s0-5) var(--s1)}.skill-box{width:22px;height:22px;font-size:var(--tr-xs)}.skill-chart-level.is-current>span{min-width:22px;height:20px}.skill-chart-legend{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3);margin:0 0 var(--s2);font-size:var(--tr-xs);color:var(--text-2)}.skill-chart-legend kbd{padding:0 var(--s1);border:1px solid var(--line-strong);border-radius:var(--radius-sm);font-family:var(--mono);font-size:var(--tr-xs);color:var(--muted);background:var(--surface)}}
 .more-grid button{display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius-lg);background:var(--surface);padding:var(--s4)}
 .more-grid button::after{content:'↗';color:var(--brand-text);padding-left:var(--s3)}
 @media(min-width:701px){
