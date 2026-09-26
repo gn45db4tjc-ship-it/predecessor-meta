@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.36.0
+# Predecessor Meta - 2.36.1
 
-Match replaces Compose, Draft and Live: pick your hero, tap the enemies you see, and read the enemy team type and the adapted build. Every build page lists calculated changes by enemy team type (tanky, healing, magic-heavy, physical-heavy, burst, shields), and the skill order is the level chart alone. See [RELEASE-2.36.0.md](RELEASE-2.36.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The Windows app can follow the Visor's colours. In the dark theme, surfaces take the Visor's tint at the app's own brightness, and its accent colours selection and brand details, lightened where needed to meet WCAG AA. Evidence, warning and text colours are unchanged, the light theme is untouched, and "Follow the Visor's colours" under the theme switch turns it off. The website behaves exactly as in 2.36.0: it cannot read local files, and only its version number advances. See [RELEASE-2.36.1.md](RELEASE-2.36.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.36.0
+
+Match replaces Compose, Draft and Live: pick your hero, tap the enemies you see, and read the enemy team type and the adapted build. Every build page lists calculated changes by enemy team type (tanky, healing, magic-heavy, physical-heavy, burst, shields), and the skill order is the level chart alone. See [RELEASE-2.36.0.md](RELEASE-2.36.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.35.1
 
