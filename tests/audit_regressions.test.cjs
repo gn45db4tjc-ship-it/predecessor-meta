@@ -110,7 +110,7 @@ test('F: all six saved brackets survive a release and are served offline afterwa
   await next.install(); await next.activate();
   for (const [index, url] of saved.entries()) {
     const reply = await next.fetch(url);
-    assert.equal(reply.headers.get('X-Predecessor-Cache'), 'offline');
+    assert.equal(reply.headers.get('X-Predecessor-Cache'), 'saved');   // 2.37.1: a checksum-named file is served from its verified saved copy
     assert.equal(JSON.parse(await reply.text()).bracket.segment, BRACKETS[index]);
   }
 });
@@ -237,7 +237,7 @@ test('F guard (2.27.0): a saved compact core and evidence file are served offlin
   await data.put(new Request(coreURL), new Response(core)); await data.put(new Request(heroURL), new Response(hero));
   for (const [url, body] of [[coreURL, core], [heroURL, hero]]) {
     const reply = await sw.fetch(url);
-    assert.equal(reply.headers.get('X-Predecessor-Cache'), 'offline');
+    assert.equal(reply.headers.get('X-Predecessor-Cache'), 'saved');   // 2.37.1: a checksum-named file is served from its verified saved copy
     assert.equal(await reply.text(), body);
   }
   await assert.rejects(sw.fetch(SITE + 'bundles/gold-hero-grux-' + 'e'.repeat(64) + '.json'), 'evidence that was never saved fails instead of being made up');
@@ -277,8 +277,29 @@ test('F guard: a saved bracket is served offline and labelled as such', async ()
   const storage = cacheStorage(), sw = worker(SW, storage, offline);
   await sw.install(); await sw.activate();
   const reply = await sw.fetch(await pageCommits(storage, 'gold', bundleBody('gold')));
-  assert.equal(reply.headers.get('X-Predecessor-Cache'), 'offline');
+  assert.equal(reply.headers.get('X-Predecessor-Cache'), 'saved');
   assert.equal(JSON.parse(await reply.text()).bracket.segment, 'gold');
+});
+
+test('F guard (2.37.1): online, a saved checksum-named file is served without asking the network', async () => {
+  const storage = cacheStorage();let asked = 0;
+  const sw = worker(SW, storage, async () => { asked++; return new Response('network', {status: 200}); });
+  await sw.install(); await sw.activate();
+  const body = bundleBody('gold'), reply = await sw.fetch(await pageCommits(storage, 'gold', body));
+  assert.equal(await reply.text(), body);
+  assert.equal(reply.headers.get('X-Predecessor-Cache'), 'saved');
+  assert.equal(asked, 0, 'the network was asked for a file whose saved bytes match its name');
+});
+
+test('F guard (2.37.1): a saved copy whose bytes no longer match its name is deleted and fetched again', async () => {
+  const storage = cacheStorage(), body = bundleBody('gold'), url = bundleURL('gold', body);
+  const sw = worker(SW, storage, async () => new Response(body, {status: 200}));
+  await sw.install(); await sw.activate();
+  await (await storage.open(DATA)).put(new Request(url), new Response(body + ' '));
+  const reply = await sw.fetch(url);
+  assert.equal(await reply.text(), body);
+  assert.equal(reply.headers.get('X-Predecessor-Cache'), null);
+  assert.ok(!(await stored(storage, url)), 'the damaged copy was kept');
 });
 
 test('F guard: online, data comes from the network untouched and the page is kept for offline starts', async () => {

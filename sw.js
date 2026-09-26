@@ -125,15 +125,31 @@ async function networkFirst(request, {data = false, fallback = null} = {}) {
   }
 }
 
+// A rank bundle or evidence file is named after the SHA-256 of its bytes, so a saved copy whose bytes still match
+// its name is the file itself. It is served without a network round trip (2.37.1), online or offline, labelled
+// 'saved'; the page verifies it again as it always does. A copy that no longer matches is deleted and the network
+// is asked, as before. The manifest and the page stay network-first: they are what says whether anything changed.
+async function savedImmutable(request) {
+  const path = new URL(request.url).pathname, match = path.match(PART) || path.match(BUNDLE);
+  if (!match) return null;
+  const digest = match[match.length - 1], data = await caches.open(DATA_CACHE), cached = await data.match(request.url);
+  if (!cached) return null;
+  const bytes = await cached.arrayBuffer(), actual = await sha256(bytes);
+  if (actual === digest) { const headers = new Headers(cached.headers); headers.set('X-Predecessor-Cache', 'saved'); return new Response(bytes, {status: 200, headers}); }
+  if (actual) await data.delete(request.url);   // without SubtleCrypto nothing can be checked, so nothing is deleted
+  return null;
+}
+
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || !localRequest(request)) return;
   const url = new URL(request.url);
-  const data = url.pathname.endsWith('/manifest.json') || BUNDLE.test(url.pathname) || PART.test(url.pathname);
+  const immutable = BUNDLE.test(url.pathname) || PART.test(url.pathname), data = url.pathname.endsWith('/manifest.json') || immutable;
   // The explicit app updater checks a fresh root document before navigation. Treat that fetch like
   // navigation too: never serve a cached online response as proof that the release is reachable.
   const shellDocument = url.pathname === ROOT.pathname || url.pathname === new URL('index.html', ROOT).pathname;
   if (request.mode === 'navigate' || shellDocument) event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT)}));
+  else if (data && immutable) event.respondWith(savedImmutable(request).catch(() => null).then(saved => saved || networkFirst(request, {data: true})));
   else if (data) event.respondWith(networkFirst(request, {data: true}));
   else event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => rememberShell(request, response))));
 });
