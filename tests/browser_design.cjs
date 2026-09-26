@@ -130,8 +130,9 @@ let preview=null;
    check(await page.evaluate(()=>document.querySelector('#main').getBoundingClientRect().top+scrollY<=430),'phone chrome above main is at most 430px');
    check(await page.evaluate(()=>document.querySelector('#main .hero-cell').getBoundingClientRect().top+scrollY<=900),'phone: first hero row within about one screen');
    check(await page.evaluate(()=>['meta','match','more'].every(r=>{const b=document.querySelector('#mobile-navigation [data-destination="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the three destinations are visible without a menu tap');
-   // 2.33 phone shell (mobile.css): a More control in the top bar, a Meta/Match/More bottom bar (Plan before 2.36.0), no route row or finder.
-   check(await page.evaluate(()=>{const m=document.querySelector('#menu-toggle'),b=m.getBoundingClientRect();return m.offsetParent!==null&&b.height>=44&&b.right<=innerWidth+1;}),'phone: the More control stays inside the viewport at touch size');
+   // Phone shell (mobile.css): a Meta/Match/More bottom bar (Plan before 2.36.0), no route row or finder. 2.37.0 removed the top-bar
+   // More button, which repeated the bottom bar's More.
+   check(await page.evaluate(()=>{const m=document.querySelector('#mobile-navigation [data-destination="more"]'),b=m.getBoundingClientRect(),top=document.querySelector('#menu-toggle');return m.offsetParent!==null&&b.height>=44&&b.right<=innerWidth+1&&(!top||top.offsetParent===null);}),'phone: More is the bottom-bar destination at touch size, with no duplicate in the top bar');
    check(await page.evaluate(()=>document.querySelector('#navigation').offsetParent===null),'phone: the desktop route row is hidden; destinations live in the bottom bar');
    check(await page.evaluate(()=>[...document.querySelectorAll('.nav, .topbar .tools button, #status-toggle, #theme-toggle')].filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=36)),'phone: every shell control at least 36px tall');
    check(await page.evaluate(()=>{const r=document.querySelector('#bracket').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&r.width>=110&&document.querySelector('.topbar .finder').offsetParent===null;}),'phone: rank selector inside the viewport; the finder moves out of the top bar');
