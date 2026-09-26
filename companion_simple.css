@@ -433,4 +433,12 @@
  .match-search{align-items:stretch;text-align:left}.match-search input{width:100%}
  .match-me-row strong{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
  .match-me-row label{margin-top:0}
+ .mobile-hero-card .hero-cell:has(.no-build-chip){display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--s2);row-gap:var(--s0-5);align-items:center;justify-items:start;text-align:left}
+ .mobile-hero-card .hero-cell:has(.no-build-chip) .portrait{grid-row:1 / span 2}
+ .mobile-hero-card .hero-cell:has(.no-build-chip) .name{align-self:end}
+ .mobile-hero-card .no-build-chip{align-self:start;white-space:normal}
+ .meta-build-note{margin:0 0 var(--s2)}
+}
+@media(max-width:360px){
+ .simple-build--compact .simple-setup{grid-template-columns:repeat(3,minmax(0,1fr))}
 }

@@ -57,8 +57,9 @@ function trimRemovedScreens(code,suite){
    const started=Date.now();await page.goto(url,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
    const run={viewport,readyMs:Date.now()-started,checks:[],errors};const check=(value,label)=>{assert(value,label);run.checks.push(label);};
-   // At 700px and below the app renders its phone presentation: the sidebar actions (install, share, export) move under More.
-   const phone=viewport.width<=700,openMore=async()=>{if(phone)await page.locator('#menu-toggle').click();};
+   // At 700px and below the app renders its phone presentation: the sidebar actions move under More, which is the bottom bar's
+   // third destination (2.37.0 removed the duplicate More button from the top bar).
+   const phone=viewport.width<=700,openMore=async()=>{if(phone)await page.locator('#mobile-navigation [data-destination="more"]').click();};
    check(await page.evaluate(()=>APP_CONFIG.mode==='static'),'static mode');
    if(phone){await openMore();check(await page.locator('#companion-install').isVisible(),'install and offline help under More on the phone');}
    else check(await page.locator('#install-app').isVisible(),'install app control');

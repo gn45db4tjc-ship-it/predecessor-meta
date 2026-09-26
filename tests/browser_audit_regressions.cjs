@@ -386,7 +386,8 @@ const probes = {
   },
   /* Third review round (2.25.0). */
   async G1(browser) {
-    const {context, page} = await session(browser, phone);
+    // 2.37.0: the review packet is a desktop tool; the phone More menu no longer offers it.
+    const {context, page} = await session(browser, desktop);
     await page.evaluate(() => changeRoute('more'));
     const waiting = page.waitForEvent('download');
     await page.locator('#download-review-packet').click();
