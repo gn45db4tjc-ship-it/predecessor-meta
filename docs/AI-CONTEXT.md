@@ -13,6 +13,7 @@ Predecessor Meta is a local-first planning reference and phone companion. Phone:
 - `ui.js` / `ui.html`: desktop/shared rendering, dialogs and base styles. `mobile.js`: phone/state/history wrappers. `companion_simple.js` / `.css`: focused companion flow. `companion_state.js`: selected-build identity; `skill_guide.js`: validated skill-point schedules.
 - `static_publish.py`, `projection.py`, `projection_client.js`, `static_client.js`: per-bracket publication, checksums, compact core and lazy hero/shared evidence. `sw.js`: offline cache/update policy. Preserve release and dataset identities separately.
 - `shared_server.py`: optional narrowly scoped shared server. Do not expose owner-only local endpoints.
+- `visor_look.js` + `predecessor_meta.py` section 12b: the Windows app's optional Visor colours. It uses `/api/look` on the loopback server and is inlined only in `mode:'local'` pages. It derives dark-theme brand and surface tokens only. The hosted site never includes it. See `docs/DESIGN-SYSTEM.md` ("Following the Visor").
 - JSON bundles and snapshots, no SQL/database or product authentication. Personal preferences use localStorage; active match context uses sessionStorage. No Supabase project is required or configured.
 
 ## Sources and claims
