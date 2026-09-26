@@ -1,0 +1,4385 @@
+{
+ "kit": {
+  "hero": {
+   "availableVersions": [
+    {
+     "id": "144",
+     "name": "1.13.2",
+     "releaseDate": "2026-04-28T11:05:44Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "145",
+     "name": "1.14",
+     "releaseDate": "2026-05-19T09:03:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "146",
+     "name": "1.14.1",
+     "releaseDate": "2026-05-21T09:01:29Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "147",
+     "name": "1.14.2",
+     "releaseDate": "2026-05-28T09:00:43Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "148",
+     "name": "1.14.3",
+     "releaseDate": "2026-06-02T09:01:41Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "149",
+     "name": "1.14.4",
+     "releaseDate": "2026-06-09T11:00:54Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "150",
+     "name": "1.14.5",
+     "releaseDate": "2026-06-11T09:00:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "151",
+     "name": "1.14.6",
+     "releaseDate": "2026-06-12T08:59:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "152",
+     "name": "1.15",
+     "releaseDate": "2026-06-30T09:01:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "153",
+     "name": "1.15.1",
+     "releaseDate": "2026-07-02T09:01:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "154",
+     "name": "1.15.2",
+     "releaseDate": "2026-07-07T08:59:37Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "155",
+     "name": "1.15.2+1",
+     "releaseDate": "2026-07-10T10:00:42Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "156",
+     "name": "1.15.3",
+     "releaseDate": "2026-07-21T09:03:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "157",
+     "name": "1.15.4",
+     "releaseDate": "2026-07-22T13:02:29Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "158",
+     "name": "1.16",
+     "releaseDate": "2026-08-11T09:02:31Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "159",
+     "name": "1.16+1",
+     "releaseDate": "2026-08-12T16:44:23Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "160",
+     "name": "1.16.1",
+     "releaseDate": "2026-08-14T11:00:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "161",
+     "name": "1.16.1+1",
+     "releaseDate": "2026-08-18T08:38:32Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "162",
+     "name": "1.16.2",
+     "releaseDate": "2026-08-19T16:01:00Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "163",
+     "name": "1.16.2+1",
+     "releaseDate": "2026-08-20T09:19:08Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "164",
+     "name": "1.16.2+2",
+     "releaseDate": "2026-08-21T10:57:19Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "165",
+     "name": "1.16.3",
+     "releaseDate": "2026-08-24T11:01:47Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "166",
+     "name": "1.16.4",
+     "releaseDate": "2026-09-01T10:03:55Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "167",
+     "name": "1.17",
+     "releaseDate": "2026-09-22T10:00:42Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "168",
+     "name": "1.17.1",
+     "releaseDate": "2026-09-24T10:00:42Z",
+     "patchType": "HOTFIX"
+    }
+   ],
+   "data": {
+    "displayName": "Valmont",
+    "attributes": [
+     {
+      "stat": "MAX_MANA",
+      "values": [
+       400.0,
+       42.0,
+       44.25,
+       46.5,
+       48.75,
+       51.0,
+       53.25,
+       55.5,
+       57.75,
+       60.0,
+       62.25,
+       64.5,
+       66.75,
+       69.0,
+       71.25,
+       73.5,
+       75.75,
+       78.0
+      ],
+      "id": "222085"
+     },
+     {
+      "stat": "MANA",
+      "values": [
+       400.0,
+       42.0,
+       44.25,
+       46.5,
+       48.75,
+       51.0,
+       53.25,
+       55.5,
+       57.75,
+       60.0,
+       62.25,
+       64.5,
+       66.75,
+       69.0,
+       71.25,
+       73.5,
+       75.75,
+       78.0
+      ],
+      "id": "222086"
+     },
+     {
+      "stat": "MOVEMENT_SPEED",
+      "values": [
+       665.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "id": "222087"
+     },
+     {
+      "stat": "ABILITY_MODIFIER",
+      "values": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "id": "222088"
+     },
+     {
+      "stat": "MAX_LEVEL",
+      "values": [
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0,
+       18.0
+      ],
+      "id": "222089"
+     },
+     {
+      "stat": "DAMAGE_MODIFIER",
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "id": "222090"
+     },
+     {
+      "stat": "BASIC_ATTACK_TIME",
+      "values": [
+       1.4,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "id": "222091"
+     },
+     {
+      "stat": "ABILITY_ARMOR",
+      "values": [
+       29.0,
+       0.8049999999999997,
+       0.848125,
+       0.89125,
+       0.934375,
+       0.9774999999999999,
+       1.020625,
+       1.06375,
+       1.106875,
+       1.1500000000000001,
+       1.193125,
+       1.23625,
+       1.279375,
+       1.3225,
+       1.365625,
+       1.40875,
+       1.451875,
+       1.495
+      ],
+      "id": "222092"
+     },
+     {
+      "stat": "BASIC_MODIFIER",
+      "values": [
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "id": "222093"
+     },
+     {
+      "stat": "MANA_REGEN",
+      "values": [
+       1.3,
+       0.1399999999999999,
+       0.1475,
+       0.155,
+       0.1625,
+       0.17,
+       0.1775,
+       0.185,
+       0.1925,
+       0.2,
+       0.2075,
+       0.215,
+       0.2225,
+       0.23,
+       0.23750000000000002,
+       0.245,
+       0.2525,
+       0.26
+      ],
+      "id": "222094"
+     },
+     {
+      "stat": "UNIT_TYPE",
+      "values": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "id": "222095"
+     },
+     {
+      "stat": "ATTACK_SPEED",
+      "values": [
+       125.0,
+       1.1899999999999977,
+       1.25375,
+       1.3175,
+       1.38125,
+       1.445,
+       1.50875,
+       1.5725,
+       1.63625,
+       1.7,
+       1.76375,
+       1.8275000000000001,
+       1.89125,
+       1.955,
+       2.01875,
+       2.0825,
+       2.14625,
+       2.21
+      ],
+      "id": "222096"
+     },
+     {
+      "stat": "MAX_HEALTH",
+      "values": [
+       685.0,
+       93.10000000000002,
+       98.08749999999999,
+       103.07499999999999,
+       108.0625,
+       113.05,
+       118.0375,
+       123.02499999999999,
+       128.0125,
+       133.0,
+       137.98749999999998,
+       142.975,
+       147.96249999999998,
+       152.95,
+       157.9375,
+       162.925,
+       167.9125,
+       172.9
+      ],
+      "id": "222097"
+     },
+     {
+      "stat": "BASIC_ARMOR",
+      "values": [
+       28.0,
+       3.990000000000002,
+       4.20375,
+       4.4175,
+       4.6312500000000005,
+       4.845000000000001,
+       5.05875,
+       5.2725,
+       5.48625,
+       5.7,
+       5.91375,
+       6.1275,
+       6.34125,
+       6.555,
+       6.76875,
+       6.9825,
+       7.19625,
+       7.41
+      ],
+      "id": "222098"
+     },
+     {
+      "stat": "CLEAVE",
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "id": "222099"
+     },
+     {
+      "stat": "ATTACK_RANGE",
+      "values": [
+       1500.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "id": "222100"
+     },
+     {
+      "stat": "DAMAGE",
+      "values": [
+       49.0,
+       2.799999999999997,
+       2.9499999999999997,
+       3.0999999999999996,
+       3.25,
+       3.4,
+       3.55,
+       3.6999999999999997,
+       3.8499999999999996,
+       4.0,
+       4.1499999999999995,
+       4.3,
+       4.449999999999999,
+       4.6,
+       4.75,
+       4.9,
+       5.05,
+       5.2
+      ],
+      "id": "222101"
+     },
+     {
+      "stat": "HEALTH_REGEN",
+      "values": [
+       1.0,
+       0.10499999999999998,
+       0.110625,
+       0.11624999999999999,
+       0.121875,
+       0.1275,
+       0.133125,
+       0.13875,
+       0.144375,
+       0.15,
+       0.155625,
+       0.16125,
+       0.166875,
+       0.1725,
+       0.178125,
+       0.18375,
+       0.18937500000000002,
+       0.195
+      ],
+      "id": "222102"
+     },
+     {
+      "stat": "HEALTH",
+      "values": [
+       685.0,
+       93.10000000000002,
+       98.08749999999999,
+       103.07499999999999,
+       108.0625,
+       113.05,
+       118.0375,
+       123.02499999999999,
+       128.0125,
+       133.0,
+       137.98749999999998,
+       142.975,
+       147.96249999999998,
+       152.95,
+       157.9375,
+       162.925,
+       167.9125,
+       172.9
+      ],
+      "id": "222103"
+     }
+    ],
+    "mainAttributes": {
+     "abilityPower": 7,
+     "attackPower": 7,
+     "durability": 5,
+     "mobility": 1
+    },
+    "abilities": [
+     {
+      "key": "BASIC",
+      "displayName": "Crimson Sigil",
+      "icon": "7067ed0f172dce03",
+      "cooldown": [],
+      "cost": [],
+      "type": "RANGED",
+      "menuDescription": "Ranged basic attack dealing 49/51.8/54.75/57.85/61.1/64.5/68.05/71.75/75.6/79.6/83.75/88.05/92.5/97.1/101.85/106.75/111.8/117 <AttackDamageText>(+60%</><img id=\"ADIconOrange\"></><AttackDamageText>)</> physical damage.",
+      "simplifiedDescription": "Torture your enemies by firing powerful blood strikes.",
+      "video": "81d7e7b2c0d653bd",
+      "id": "70159"
+     },
+     {
+      "key": "ALTERNATE",
+      "displayName": "Arterial Grip",
+      "icon": "ceee06ca9073e90a",
+      "cooldown": [
+       16.0,
+       15.0,
+       14.0,
+       13.0,
+       12.0
+      ],
+      "cost": [
+       80.0,
+       90.0,
+       100.0,
+       110.0,
+       120.0
+      ],
+      "type": "COMPLEX",
+      "menuDescription": "Valmont uses his blood to bind an Enemy to him, dealing 80/120/160/200/240 <AbilityPowerText>(+60%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> magical damage over 3s. \n\nWhen binding an Enemy, they are grounded and slowed by 25% for 3s.\n\nValmont steals 10/15/20/25/30% attack speed from the bound Enemy.\n\nIf Valmont is affected by Crowd Control or the Enemy cuts line of sight or gets far enough away from Valmont, the bind is broken.",
+      "simplifiedDescription": "Bind an unfortunate Soul to you, dealing damage over time whilst slowing and grounding them. Steal attack speed from them whilst tethered.",
+      "video": "781f5a1c5989756e",
+      "id": "70160"
+     },
+     {
+      "key": "PRIMARY",
+      "displayName": "Rupture",
+      "icon": "724ddb8e2e9392d2",
+      "cooldown": [
+       8.0,
+       7.5,
+       7.0,
+       6.5,
+       6.0
+      ],
+      "cost": [
+       60.0,
+       65.0,
+       70.0,
+       75.0,
+       80.0
+      ],
+      "type": "DAMAGE",
+      "menuDescription": "Valmont manifests 5 blood-forged blades above his head. \nOver the next 0.75s, these blades sequentially launch forward.\n\nEach Blade detonates upon impact, dealing 20/29/38/47/56 <AbilityPowerText>(+15%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> magical damage in a small area.",
+      "simplifiedDescription": "Manifest replicas of your Blade. After a short delay, they sequentially launch forward, dealing damage in a small area.",
+      "video": "5c1a58b9fa20cdb5",
+      "id": "70161"
+     },
+     {
+      "key": "SECONDARY",
+      "displayName": "Bloodbound",
+      "icon": "d1020108399d3f3a",
+      "cooldown": [
+       12.0,
+       11.0,
+       10.0,
+       9.0,
+       8.0
+      ],
+      "cost": [
+       40.0,
+       50.0,
+       60.0,
+       70.0,
+       80.0
+      ],
+      "type": "DAMAGE",
+      "menuDescription": "Active: Valmont launches Lilith, dealing 70/90/110/130/150 <AbilityPowerText>(+60%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> magical damage.\nDamaging an Enemy grants 20/25/30/35/40% attack speed for 4s.\n\nIncreasing the level of Bloodbound increases the strike damage of Hemophagia by 8 magical damage.",
+      "simplifiedDescription": "Actively target Lilith dealing Damage to Enemies in an area whilst gaining Attack Speed. Whenever Bloodbound is leveled, the Damage of Hemophagias is increased.",
+      "video": "b1b12f13cac01863",
+      "id": "70162"
+     },
+     {
+      "key": "ULTIMATE",
+      "displayName": "Exsanguinate",
+      "icon": "13712aa7e65b5a41",
+      "cooldown": [
+       25.0,
+       15.0,
+       5.0
+      ],
+      "cost": [
+       15.0,
+       15.0,
+       15.0
+      ],
+      "type": "COMPLEX",
+      "menuDescription": "Unleash up to 3 swarms of bats, dealing 40/70/100 <AbilityPowerText>(+22%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> magical damage.\n\nUpon hitting the Enemy, bats return to Valmont, restoring 2.5/4.5/6.5 <AbilityPowerText>(+2%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> health.\nWhen hitting Heroes 10x the amount of health is restored instead.\n\nExsanguinate costs 5 Mana more for every Second it is active. ",
+      "simplifiedDescription": "Unleash terrifying swarms of bats that deal magical damage when hitting enemies. The Bats then return and heal Valmont. ",
+      "video": "d0d84137d4d496fa",
+      "id": "70163"
+     },
+     {
+      "key": "PASSIVE",
+      "displayName": "Hemophagia",
+      "icon": "870537ff3f436a0f",
+      "cooldown": [],
+      "cost": [],
+      "type": "UTILITY",
+      "menuDescription": "When Valmont deals damage to an Enemy with Crimson Sigil or Bloodbound causes Lilith to strike them, dealing 15/23/31/39/47/23/31/39/47 (Based on Bloodbound Level) <AbilityPowerText>(+15%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> magical damage.\n\nThe more attack speed Valmont has, the shorter the delay between strikes is. \n\nWhenever any Enemy dies around Lilith, their soul is consumed and you restore 3/4/5/6/7/8/9/10/12/14/17/20/23/26/29/33/37/41-41 Mana (Based on Hero Level).\n\nConsuming the soul of an Enemy Hero restores 35% Maximum Mana additionally.",
+      "simplifiedDescription": "Lilith hunts her prey, striking Enemies damaged by you. Regenerate Mana by consuming souls of Enemies killed around Lilith. Restoration is increased on Hero Deaths.",
+      "video": null,
+      "id": "70164"
+     }
+    ],
+    "perks": [
+     {
+      "aggressionTypes": [
+       "FINISHER"
+      ],
+      "description": "Rupture's Blades deal 20% less Damage, but their Damage increases by up to 100% based on the Target's Missing Health.",
+      "displayName": "Rupturing Fangs",
+      "displayOrder": 0,
+      "icon": "724ddb8e2e9392d2",
+      "name": "Perk_Impaler_DamageBlades",
+      "perk": {
+       "id": "788"
+      },
+      "slot": "HERO_SPECIFIC_1",
+      "id": "20808"
+     },
+     {
+      "aggressionTypes": [
+       "SCALING"
+      ],
+      "description": "Gain 2% (+0.5% Bonus Mana) Omnivamp. Minion deaths near Lilith permanently increase Valmont's Maximum Mana by 2. Hero deaths increase it by 30.",
+      "displayName": "Sanguine Banquet",
+      "displayOrder": 0,
+      "icon": "870537ff3f436a0f",
+      "name": "Perk_Impaler_ManaPassive",
+      "perk": {
+       "id": "771"
+      },
+      "slot": "HERO_SPECIFIC_1",
+      "id": "20809"
+     },
+     {
+      "aggressionTypes": [
+       "AREA_DAMAGE"
+      ],
+      "description": "Arterial Grip no longer Grounds but automatically branches to nearby Enemy Targets (800u) near the Primary Target, applying 80% of the Damage and 100% of the Slow.",
+      "displayName": "Vein Splitter",
+      "displayOrder": 0,
+      "icon": "ceee06ca9073e90a",
+      "name": "Perk_Impaler_TetherBranch",
+      "perk": {
+       "id": "779"
+      },
+      "slot": "HERO_SPECIFIC_1",
+      "id": "20810"
+     }
+    ],
+    "id": "11700"
+   },
+   "id": "56"
+  }
+ },
+ "overview": {
+  "hero": {
+   "id": "56",
+   "name": "Impaler",
+   "slug": "valmont",
+   "availableVersions": [
+    {
+     "id": "144",
+     "name": "1.13.2",
+     "releaseDate": "2026-04-28T11:05:44Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "145",
+     "name": "1.14",
+     "releaseDate": "2026-05-19T09:03:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "146",
+     "name": "1.14.1",
+     "releaseDate": "2026-05-21T09:01:29Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "147",
+     "name": "1.14.2",
+     "releaseDate": "2026-05-28T09:00:43Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "148",
+     "name": "1.14.3",
+     "releaseDate": "2026-06-02T09:01:41Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "149",
+     "name": "1.14.4",
+     "releaseDate": "2026-06-09T11:00:54Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "150",
+     "name": "1.14.5",
+     "releaseDate": "2026-06-11T09:00:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "151",
+     "name": "1.14.6",
+     "releaseDate": "2026-06-12T08:59:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "152",
+     "name": "1.15",
+     "releaseDate": "2026-06-30T09:01:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "153",
+     "name": "1.15.1",
+     "releaseDate": "2026-07-02T09:01:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "154",
+     "name": "1.15.2",
+     "releaseDate": "2026-07-07T08:59:37Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "155",
+     "name": "1.15.2+1",
+     "releaseDate": "2026-07-10T10:00:42Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "156",
+     "name": "1.15.3",
+     "releaseDate": "2026-07-21T09:03:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "157",
+     "name": "1.15.4",
+     "releaseDate": "2026-07-22T13:02:29Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "158",
+     "name": "1.16",
+     "releaseDate": "2026-08-11T09:02:31Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "159",
+     "name": "1.16+1",
+     "releaseDate": "2026-08-12T16:44:23Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "160",
+     "name": "1.16.1",
+     "releaseDate": "2026-08-14T11:00:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "161",
+     "name": "1.16.1+1",
+     "releaseDate": "2026-08-18T08:38:32Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "162",
+     "name": "1.16.2",
+     "releaseDate": "2026-08-19T16:01:00Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "163",
+     "name": "1.16.2+1",
+     "releaseDate": "2026-08-20T09:19:08Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "164",
+     "name": "1.16.2+2",
+     "releaseDate": "2026-08-21T10:57:19Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "165",
+     "name": "1.16.3",
+     "releaseDate": "2026-08-24T11:01:47Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "166",
+     "name": "1.16.4",
+     "releaseDate": "2026-09-01T10:03:55Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "167",
+     "name": "1.17",
+     "releaseDate": "2026-09-22T10:00:42Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "168",
+     "name": "1.17.1",
+     "releaseDate": "2026-09-24T10:00:42Z",
+     "patchType": "HOTFIX"
+    }
+   ],
+   "data": {
+    "displayName": "Valmont",
+    "altDisplayName": "The Impaler",
+    "icon": "34db6cddbeaece42",
+    "classes": [
+     "MAGE"
+    ],
+    "roles": [
+     "MIDLANE"
+    ],
+    "abilities": [
+     {
+      "cooldown": [],
+      "cost": [],
+      "displayName": "Crimson Sigil",
+      "gameDescription": "<Header>Ranged Basic Attack.</>\n• Deals <AttackDamageText>{Damage}</>(<img id=\"ADIconOrange\"></>)<AttackDamageText>Damage</>.\n• Attacks per second: <EffectText>{AttackSpeed}</>.",
+      "icon": "7067ed0f172dce03",
+      "key": "BASIC",
+      "menuDescription": "Ranged basic attack dealing 49/51.8/54.75/57.85/61.1/64.5/68.05/71.75/75.6/79.6/83.75/88.05/92.5/97.1/101.85/106.75/111.8/117 <AttackDamageText>(+60%</><img id=\"ADIconOrange\"></><AttackDamageText>)</> physical damage.",
+      "type": "RANGED",
+      "id": "70489"
+     },
+     {
+      "cooldown": [
+       16.0,
+       15.0,
+       14.0,
+       13.0,
+       12.0
+      ],
+      "cost": [
+       80.0,
+       90.0,
+       100.0,
+       110.0,
+       120.0
+      ],
+      "displayName": "Arterial Grip",
+      "gameDescription": "<Header>Use your blood to bind an unfortunate Soul.</>\n• Deals <AbilityPowerText>{Damage}</>(<img id=\"APIconBlue\"></>)<AbilityPowerText>Damage</> over <AbilityPowerText>{Duration}s</>.\n• <CC_Text>Grounds</> and <CC_Text>Slows</> them by <CC_Text>{Slow}%</> for <CC_Text>{Duration}s</>.\n• <EffectText>Steal</> <AttackDamageText>{AttackSpeed}% Attack Speed</> from the Enemy.\n\n• Crowd Control, Line of Sight or Distance can destroy the bind.",
+      "icon": "ceee06ca9073e90a",
+      "key": "ALTERNATE",
+      "menuDescription": "Valmont uses his blood to bind an Enemy to him, dealing 80/120/160/200/240 <AbilityPowerText>(+60%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> magical damage over 3s. \n\nWhen binding an Enemy, they are grounded and slowed by 25% for 3s.\n\nValmont steals 10/15/20/25/30% attack speed from the bound Enemy.\n\nIf Valmont is affected by Crowd Control or the Enemy cuts line of sight or gets far enough away from Valmont, the bind is broken.",
+      "type": "COMPLEX",
+      "id": "70490"
+     }
+    ],
+    "id": "11755"
+   },
+   "coreBuild": {
+    "results": [
+     {
+      "core1Item": {
+       "id": "224",
+       "data": {
+        "item": {
+         "id": "224",
+         "slug": "entropy"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Deal <AbilityPowerText>3 (+3.5%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> additional <AbilityPowerText>Damage</>.\n• Each Ability can only trigger this effect once every <EffectText>0.2s</>, per Target.",
+          "name": "Degradation",
+          "active": false,
+          "condition": "<Condition> On dealing Ability Damage:</>",
+          "cooldown": null,
+          "id": "83399"
+         },
+         {
+          "text": "Damage Dealt: <EffectText>{DamageDealt}</>\nDamage Dealt to Heroes: <EffectText>{DamageDealtHeroes}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83400"
+         }
+        ],
+        "smallIcon": "8ec42990259655f1",
+        "icon": "835879973f016b3d",
+        "displayName": "Entropy",
+        "aggressionType": "OFFENSE",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 70.0,
+          "id": "156253"
+         },
+         {
+          "stat": "MANA",
+          "value": 400.0,
+          "id": "156254"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156255"
+         }
+        ],
+        "id": "64413",
+        "__typename": "ItemData"
+       }
+      },
+      "core2Item": {
+       "id": "155",
+       "data": {
+        "item": {
+         "id": "155",
+         "slug": "prophecy"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Deal <AbilityPowerText>20 (+15%</><img id=\"APIconBlue\"></><AbilityPowerText>) Damage</> <EffectText>On-Hit</>.",
+          "name": "Magical Strikes",
+          "active": false,
+          "condition": "<Condition>On Basic Attacks:</>",
+          "cooldown": null,
+          "id": "83511"
+         },
+         {
+          "text": "Damage Dealt: <EffectText>{DamageDealt}</>\nDamage Dealt to Heroes: <EffectText>{DamageDealtHeroes}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83512"
+         }
+        ],
+        "smallIcon": "bc89fbe4849fe250",
+        "icon": "5bbc9e57f1eaad5a",
+        "displayName": "Prophecy",
+        "aggressionType": "ON_HIT",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 75.0,
+          "id": "156412"
+         },
+         {
+          "stat": "ATTACK_SPEED",
+          "value": 30.0,
+          "id": "156413"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156414"
+         }
+        ],
+        "id": "64463",
+        "__typename": "ItemData"
+       }
+      },
+      "core3Item": {
+       "id": "124",
+       "data": {
+        "item": {
+         "id": "124",
+         "slug": "dreambinder"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 2650,
+        "effects": [
+         {
+          "text": "• <CC_Text>Slows</> by <CC_Text>30%</> for <CC_Text>1s</>.\n• Reduced to <CC_Text>20%</> for DoT Abilities.",
+          "name": "Chilling Spells",
+          "active": false,
+          "condition": "<Condition>On dealing Ability Damage:</>",
+          "cooldown": null,
+          "id": "83383"
+         },
+         {
+          "text": "<AbilityName>Restriction:</> Does not apply with Proc Damage.",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83384"
+         }
+        ],
+        "smallIcon": "5169956c3cea7667",
+        "icon": "8ec243ea25038fed",
+        "displayName": "Dreambinder",
+        "aggressionType": "SLOWING_SPELLS",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 70.0,
+          "id": "156229"
+         },
+         {
+          "stat": "HEALTH",
+          "value": 325.0,
+          "id": "156230"
+         }
+        ],
+        "id": "64406",
+        "__typename": "ItemData"
+       }
+      },
+      "matchesPlayedBuildOrder": 48,
+      "matchesWonBuildOrder": 25,
+      "startItem1": [
+       {
+        "item": {
+         "id": "46",
+         "data": {
+          "item": {
+           "id": "46",
+           "slug": "codex"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 350,
+          "effects": [],
+          "smallIcon": "d7f81b52a8f0d868",
+          "icon": "61132f6ebb9c4b11",
+          "displayName": "Codex",
+          "aggressionType": "OFFENSE",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 12.0,
+            "id": "156017"
+           }
+          ],
+          "id": "64301",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 42,
+        "matchesWonBuildOrder": 21
+       },
+       {
+        "item": {
+         "id": "59",
+         "data": {
+          "item": {
+           "id": "59",
+           "slug": "spirit-beads"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 350,
+          "effects": [],
+          "smallIcon": "bf26cb4c6fb91047",
+          "icon": "975855dcb29505a5",
+          "displayName": "Spirit Beads",
+          "aggressionType": "OFFENSE",
+          "stats": [
+           {
+            "stat": "MANA",
+            "value": 150.0,
+            "id": "156030"
+           }
+          ],
+          "id": "64315",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 4,
+        "matchesWonBuildOrder": 2
+       }
+      ],
+      "startItem2": [
+       {
+        "item": {
+         "id": "77",
+         "data": {
+          "item": {
+           "id": "77",
+           "slug": "dusk-stave"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 1250,
+          "effects": [],
+          "smallIcon": "3b77e2c0515577fb",
+          "icon": "0d2ecf8cac5929bc",
+          "displayName": "Dusk Stave",
+          "aggressionType": "OFFENSE",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 30.0,
+            "id": "156059"
+           },
+           {
+            "stat": "MANA",
+            "value": 200.0,
+            "id": "156060"
+           }
+          ],
+          "id": "64335",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 42,
+        "matchesWonBuildOrder": 21
+       },
+       {
+        "item": {
+         "id": "71",
+         "data": {
+          "item": {
+           "id": "71",
+           "slug": "chronomatic-wand"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 1000,
+          "effects": [],
+          "smallIcon": "57bd969f30fd90be",
+          "icon": "c4b40f8057cf70f3",
+          "displayName": "Chronomatic Wand",
+          "aggressionType": "OFFENSE",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 30.0,
+            "id": "156046"
+           },
+           {
+            "stat": "ABILITY_HASTE",
+            "value": 8.0,
+            "id": "156047"
+           }
+          ],
+          "id": "64328",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 6,
+        "matchesWonBuildOrder": 4
+       }
+      ],
+      "fourthItems": [
+       {
+        "item": {
+         "id": "150",
+         "data": {
+          "item": {
+           "id": "150",
+           "slug": "oblivion-crown"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 3450,
+          "effects": [
+           {
+            "text": "• Increase your <AbilityPowerText>Magical Power</> by <AbilityPowerText>25%</>.",
+            "name": "Eradicate",
+            "active": false,
+            "condition": null,
+            "cooldown": null,
+            "id": "83487"
+           }
+          ],
+          "smallIcon": "f6e678c02846a20e",
+          "icon": "c5fd20409af2178f",
+          "displayName": "Oblivion Crown",
+          "aggressionType": "DAMAGE_AMP",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 120.0,
+            "id": "156376"
+           }
+          ],
+          "id": "64451",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 24,
+        "matchesWonBuildOrder": 15
+       },
+       {
+        "item": {
+         "id": "168",
+         "data": {
+          "item": {
+           "id": "168",
+           "slug": "tainted-scepter"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 3000,
+          "effects": [
+           {
+            "text": "• Reduce the Target's <HealthText>Healing</> by <HealthText>45%</> for <HealthText>4s</>.",
+            "name": "Blighted Spells",
+            "active": false,
+            "condition": "<Condition>On Dealing</> <AbilityPowerText>Magical Damage</><Condition>:</>",
+            "cooldown": null,
+            "id": "83569"
+           },
+           {
+            "text": "• Gain a stack of <EffectText>Malice</>.\n• Stacks up to <EffectText>15</> times.\n• Takedowns grant <EffectText>15</> stacks instantly.\n• Hitting a Hero with Ability Damage will deal <EffectText>1.5</> <AbilityPowerText>(+1%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> <EffectText>Damage</> per stack.",
+            "name": "Malice",
+            "active": false,
+            "condition": "<Condition>Once every second:</>",
+            "cooldown": null,
+            "id": "83570"
+           },
+           {
+            "text": "Damage Dealt: <EffectText>{DamageDealt}</>",
+            "name": "",
+            "active": false,
+            "condition": null,
+            "cooldown": null,
+            "id": "83571"
+           }
+          ],
+          "smallIcon": "0c155ea31f02fc4f",
+          "icon": "ff4a3eb6d15fa851",
+          "displayName": "Tainted Scepter",
+          "aggressionType": "ANTI_HEAL",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 75.0,
+            "id": "156492"
+           },
+           {
+            "stat": "HEALTH",
+            "value": 200.0,
+            "id": "156493"
+           },
+           {
+            "stat": "ABILITY_HASTE",
+            "value": 10.0,
+            "id": "156494"
+           }
+          ],
+          "id": "64489",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 3,
+        "matchesWonBuildOrder": 3
+       }
+      ],
+      "fifthItems": [
+       {
+        "item": {
+         "id": "142",
+         "data": {
+          "item": {
+           "id": "142",
+           "slug": "magnify"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 3000,
+          "effects": [
+           {
+            "text": "• Reduce their <AbilityPowerText>Magical Armor</> by <AbilityPowerText>6%</> for <AbilityPowerText>3.5s</>.\n• Stacks up to <EffectText>5</> times.",
+            "name": "Shredding Spells",
+            "active": false,
+            "condition": "<Condition>Upon damaging Heroes with an Ability:</>",
+            "cooldown": null,
+            "id": "83457"
+           }
+          ],
+          "smallIcon": "283e8fd87299f1e6",
+          "icon": "5c33f1c40f2c49be",
+          "displayName": "Magnify",
+          "aggressionType": "DUELING",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 60.0,
+            "id": "156337"
+           },
+           {
+            "stat": "HEALTH",
+            "value": 300.0,
+            "id": "156338"
+           },
+           {
+            "stat": "ABILITY_HASTE",
+            "value": 15.0,
+            "id": "156339"
+           },
+           {
+            "stat": "OMNIVAMP",
+            "value": 10.0,
+            "id": "156340"
+           }
+          ],
+          "id": "64439",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 8,
+        "matchesWonBuildOrder": 5
+       },
+       {
+        "item": {
+         "id": "150",
+         "data": {
+          "item": {
+           "id": "150",
+           "slug": "oblivion-crown"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 3450,
+          "effects": [
+           {
+            "text": "• Increase your <AbilityPowerText>Magical Power</> by <AbilityPowerText>25%</>.",
+            "name": "Eradicate",
+            "active": false,
+            "condition": null,
+            "cooldown": null,
+            "id": "83487"
+           }
+          ],
+          "smallIcon": "f6e678c02846a20e",
+          "icon": "c5fd20409af2178f",
+          "displayName": "Oblivion Crown",
+          "aggressionType": "DAMAGE_AMP",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 120.0,
+            "id": "156376"
+           }
+          ],
+          "id": "64451",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 3,
+        "matchesWonBuildOrder": 2
+       }
+      ],
+      "sixthItems": [
+       {
+        "item": {
+         "id": "168",
+         "data": {
+          "item": {
+           "id": "168",
+           "slug": "tainted-scepter"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 3000,
+          "effects": [
+           {
+            "text": "• Reduce the Target's <HealthText>Healing</> by <HealthText>45%</> for <HealthText>4s</>.",
+            "name": "Blighted Spells",
+            "active": false,
+            "condition": "<Condition>On Dealing</> <AbilityPowerText>Magical Damage</><Condition>:</>",
+            "cooldown": null,
+            "id": "83569"
+           },
+           {
+            "text": "• Gain a stack of <EffectText>Malice</>.\n• Stacks up to <EffectText>15</> times.\n• Takedowns grant <EffectText>15</> stacks instantly.\n• Hitting a Hero with Ability Damage will deal <EffectText>1.5</> <AbilityPowerText>(+1%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> <EffectText>Damage</> per stack.",
+            "name": "Malice",
+            "active": false,
+            "condition": "<Condition>Once every second:</>",
+            "cooldown": null,
+            "id": "83570"
+           },
+           {
+            "text": "Damage Dealt: <EffectText>{DamageDealt}</>",
+            "name": "",
+            "active": false,
+            "condition": null,
+            "cooldown": null,
+            "id": "83571"
+           }
+          ],
+          "smallIcon": "0c155ea31f02fc4f",
+          "icon": "ff4a3eb6d15fa851",
+          "displayName": "Tainted Scepter",
+          "aggressionType": "ANTI_HEAL",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 75.0,
+            "id": "156492"
+           },
+           {
+            "stat": "HEALTH",
+            "value": 200.0,
+            "id": "156493"
+           },
+           {
+            "stat": "ABILITY_HASTE",
+            "value": 10.0,
+            "id": "156494"
+           }
+          ],
+          "id": "64489",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 1,
+        "matchesWonBuildOrder": 0
+       },
+       {
+        "item": {
+         "id": "150",
+         "data": {
+          "item": {
+           "id": "150",
+           "slug": "oblivion-crown"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 3450,
+          "effects": [
+           {
+            "text": "• Increase your <AbilityPowerText>Magical Power</> by <AbilityPowerText>25%</>.",
+            "name": "Eradicate",
+            "active": false,
+            "condition": null,
+            "cooldown": null,
+            "id": "83487"
+           }
+          ],
+          "smallIcon": "f6e678c02846a20e",
+          "icon": "c5fd20409af2178f",
+          "displayName": "Oblivion Crown",
+          "aggressionType": "DAMAGE_AMP",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 120.0,
+            "id": "156376"
+           }
+          ],
+          "id": "64451",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 1,
+        "matchesWonBuildOrder": 1
+       }
+      ],
+      "crests": [
+       {
+        "item": {
+         "id": "25",
+         "data": {
+          "item": {
+           "id": "25",
+           "slug": "soulbearer"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 0,
+          "effects": [
+           {
+            "text": "• Gain a <EffectText>100</> <AbilityPowerText>(+35</><img id=\"APIconBlue\"></><AbilityPowerText>)</> <ManaText>(+6%</><img id=\"ManaBlue\"></><ManaText>)</> <EffectText>Shield</> for <EffectText>8s</>.\n• Gain <EffectText>20% Magical Lifesteal</> and <EffectText>10% Movement Speed</> for <EffectText>8s</>.",
+            "name": "Anima",
+            "active": true,
+            "condition": null,
+            "cooldown": "120s",
+            "id": "83217"
+           }
+          ],
+          "smallIcon": "ceaf73b702d8348a",
+          "icon": "77251e583f744177",
+          "displayName": "Soulbearer",
+          "aggressionType": "SUSTAINED_FIGHTING",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 30.0,
+            "id": "155939"
+           },
+           {
+            "stat": "MANA",
+            "value": 200.0,
+            "id": "155940"
+           },
+           {
+            "stat": "ABILITY_HASTE",
+            "value": 8.0,
+            "id": "155941"
+           }
+          ],
+          "id": "64275",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 37,
+        "matchesWonBuildOrder": 18
+       },
+       {
+        "item": {
+         "id": "21",
+         "data": {
+          "item": {
+           "id": "21",
+           "slug": "epoch"
+          },
+          "version": {
+           "id": "168"
+          },
+          "totalPrice": 0,
+          "effects": [
+           {
+            "text": "• Enter <EffectText>Stasis</> for <EffectText>2.5s</>.",
+            "name": "Stasis Device",
+            "active": true,
+            "condition": null,
+            "cooldown": "165s",
+            "id": "83211"
+           }
+          ],
+          "smallIcon": "3a3490777ba306bf",
+          "icon": "2c58a772041be740",
+          "displayName": "Epoch",
+          "aggressionType": "STASIS",
+          "stats": [
+           {
+            "stat": "MAGICAL_POWER",
+            "value": 30.0,
+            "id": "155927"
+           },
+           {
+            "stat": "MANA",
+            "value": 200.0,
+            "id": "155928"
+           },
+           {
+            "stat": "ABILITY_HASTE",
+            "value": 8.0,
+            "id": "155929"
+           }
+          ],
+          "id": "64271",
+          "__typename": "ItemData"
+         }
+        },
+        "matchesPlayedBuildOrder": 7,
+        "matchesWonBuildOrder": 4
+       }
+      ],
+      "heroPerks": [
+       {
+        "perk": {
+         "id": "771",
+         "data": {
+          "hero": {
+           "id": "56",
+           "slug": "valmont"
+          },
+          "aggressionTypes": [
+           "SCALING"
+          ],
+          "description": "Gain 2% (+0.5% Bonus Mana) Omnivamp. Minion deaths near Lilith permanently increase Valmont's Maximum Mana by 2. Hero deaths increase it by 30.",
+          "displayName": "Sanguine Banquet",
+          "displayOrder": 0,
+          "icon": "870537ff3f436a0f",
+          "name": "Perk_Impaler_ManaPassive",
+          "slot": "HERO_SPECIFIC_1",
+          "id": "21086"
+         }
+        },
+        "matchesPlayedBuildOrder": 46,
+        "matchesWonBuildOrder": 23
+       },
+       {
+        "perk": {
+         "id": "779",
+         "data": {
+          "hero": {
+           "id": "56",
+           "slug": "valmont"
+          },
+          "aggressionTypes": [
+           "AREA_DAMAGE"
+          ],
+          "description": "Arterial Grip no longer Grounds but automatically branches to nearby Enemy Targets (800u) near the Primary Target, applying 80% of the Damage and 100% of the Slow.",
+          "displayName": "Vein Splitter",
+          "displayOrder": 0,
+          "icon": "ceee06ca9073e90a",
+          "name": "Perk_Impaler_TetherBranch",
+          "slot": "HERO_SPECIFIC_1",
+          "id": "21087"
+         }
+        },
+        "matchesPlayedBuildOrder": 1,
+        "matchesWonBuildOrder": 1
+       }
+      ],
+      "commonPerks1": [],
+      "commonPerks2": [],
+      "eternals": [
+       {
+        "perk": {
+         "id": "649",
+         "data": {
+          "hero": null,
+          "aggressionTypes": [],
+          "description": "<EffectText>Ability Damage</> dealt to Enemy Heroes deals +<EffectText>7% (+0.4% per Minute)</> of that Damage as a <EffectText>3s DoT</>.",
+          "displayName": "Vesh",
+          "displayOrder": 9,
+          "icon": "e9a96d26ded5473e",
+          "eternalCategoryData": {
+           "displayName": "Sovereigns",
+           "color": "008DFA",
+           "id": "217"
+          },
+          "minorBlessings": [
+           {
+            "id": "21262",
+            "displayName": "Lich",
+            "icon": "cf207270c6a36f7b",
+            "slot": "BLESSING_MINOR_1",
+            "perk": {
+             "id": "659"
+            }
+           },
+           {
+            "id": "21267",
+            "displayName": "Tithe of Death",
+            "icon": "96dab9aa483ac426",
+            "slot": "BLESSING_MINOR_1",
+            "perk": {
+             "id": "652"
+            }
+           },
+           {
+            "id": "21266",
+            "displayName": "The Tenth Seal",
+            "icon": "f0829c1b0eabed82",
+            "slot": "BLESSING_MINOR_1",
+            "perk": {
+             "id": "650"
+            }
+           },
+           {
+            "id": "21264",
+            "displayName": "Mind Rot",
+            "icon": "7ad3a3570e9f9f15",
+            "slot": "BLESSING_MINOR_2",
+            "perk": {
+             "id": "653"
+            }
+           },
+           {
+            "id": "21265",
+            "displayName": "Phylactery",
+            "icon": "1fc5d9174e03cedc",
+            "slot": "BLESSING_MINOR_2",
+            "perk": {
+             "id": "651"
+            }
+           },
+           {
+            "id": "21263",
+            "displayName": "Millennia",
+            "icon": "f0829c1b0eabed82",
+            "slot": "BLESSING_MINOR_2",
+            "perk": {
+             "id": "677"
+            }
+           }
+          ],
+          "name": "Eternal_Vesh",
+          "slot": "ETERNAL_1",
+          "id": "21016"
+         }
+        },
+        "matchesPlayedBuildOrder": 41,
+        "matchesWonBuildOrder": 21
+       },
+       {
+        "perk": {
+         "id": "654",
+         "data": {
+          "hero": null,
+          "aggressionTypes": [],
+          "description": "Casting an Ability grants <ManaText>+1 Mana Regen</> for <ManaText>8s</> <EffectText>(Max 5 Stacks)</>. Additionally, gain <GoldText>Gold</> equal to <AbilityPowerText>6%</> of <AbilityPowerText>Ability Damage</> dealt to Enemy Heroes.",
+          "displayName": "Aion",
+          "displayOrder": 15,
+          "icon": "4a2b9ca1811c6b20",
+          "eternalCategoryData": {
+           "displayName": "Anomalies",
+           "color": "933DF3",
+           "id": "211"
+          },
+          "minorBlessings": [
+           {
+            "id": "21187",
+            "displayName": "Philosopher",
+            "icon": "28c7faa1f9d542a9",
+            "slot": "BLESSING_MINOR_1",
+            "perk": {
+             "id": "655"
+            }
+           },
+           {
+            "id": "21189",
+            "displayName": "Sacrifice",
+            "icon": "3e0beff61455402b",
+            "slot": "BLESSING_MINOR_1",
+            "perk": {
+             "id": "697"
+            }
+           },
+           {
+            "id": "21185",
+            "displayName": "Bottomless Vial",
+            "icon": "aad775b7234939ad",
+            "slot": "BLESSING_MINOR_1",
+            "perk": {
+             "id": "712"
+            }
+           },
+           {
+            "id": "21184",
+            "displayName": "Arcane Resonance",
+            "icon": "96dab9aa483ac426",
+            "slot": "BLESSING_MINOR_2",
+            "perk": {
+             "id": "656"
+            }
+           },
+           {
+            "id": "21186",
+            "displayName": "Perfection",
+            "icon": "96dab9aa483ac426",
+            "slot": "BLESSING_MINOR_2",
+            "perk": {
+             "id": "706"
+            }
+           },
+           {
+            "id": "21188",
+            "displayName": "Runic Focus",
+            "icon": "f0829c1b0eabed82",
+            "slot": "BLESSING_MINOR_2",
+            "perk": {
+             "id": "718"
+            }
+           }
+          ],
+          "name": "Eternal_Aion",
+          "slot": "ETERNAL_1",
+          "id": "21003"
+         }
+        },
+        "matchesPlayedBuildOrder": 2,
+        "matchesWonBuildOrder": 1
+       }
+      ],
+      "minorBlessing1": [
+       {
+        "perk": {
+         "id": "659",
+         "data": {
+          "aggressionTypes": [],
+          "description": "Gain <AbilityPowerText>4%/7%/10%/14% Magical Lifesteal</>.",
+          "displayName": "Lich",
+          "displayOrder": 1,
+          "icon": "cf207270c6a36f7b",
+          "name": "Blessing_Vesh_Lich",
+          "slot": "BLESSING_MINOR_1",
+          "id": "21262"
+         }
+        },
+        "matchesPlayedBuildOrder": 41,
+        "matchesWonBuildOrder": 21
+       },
+       {
+        "perk": {
+         "id": "667",
+         "data": {
+          "aggressionTypes": [],
+          "description": "<EffectText>Level Up</> again at <EffectText>Level 12</>.",
+          "displayName": "Early Bloom",
+          "displayOrder": 1,
+          "icon": "28c7faa1f9d542a9",
+          "name": "Blessing_Lotus_EarlyBloom",
+          "slot": "BLESSING_MINOR_1",
+          "id": "21220"
+         }
+        },
+        "matchesPlayedBuildOrder": 1,
+        "matchesWonBuildOrder": 1
+       }
+      ],
+      "minorBlessing2": [
+       {
+        "perk": {
+         "id": "653",
+         "data": {
+          "aggressionTypes": [],
+          "description": "<EffectText>Vesh</> also deals <HealthText>2%</> of the <HealthText>Target's Current Health</> over the <EffectText>Duration</>.",
+          "displayName": "Mind Rot",
+          "displayOrder": 1,
+          "icon": "7ad3a3570e9f9f15",
+          "name": "Blessing_Vesh_MindRot",
+          "slot": "BLESSING_MINOR_2",
+          "id": "21264"
+         }
+        },
+        "matchesPlayedBuildOrder": 38,
+        "matchesWonBuildOrder": 21
+       },
+       {
+        "perk": {
+         "id": "718",
+         "data": {
+          "aggressionTypes": [],
+          "description": "Gain <AbilityPowerText>+0.15% Magical Power</> per <ManaText>1% Current Mana</>.",
+          "displayName": "Runic Focus",
+          "displayOrder": 3,
+          "icon": "f0829c1b0eabed82",
+          "name": "Blessing_Aion_RunicFocus",
+          "slot": "BLESSING_MINOR_2",
+          "id": "21188"
+         }
+        },
+        "matchesPlayedBuildOrder": 2,
+        "matchesWonBuildOrder": 1
+       }
+      ],
+      "primaryAbilities": [
+       {
+        "level": 1,
+        "matchesPlayedBuildOrder": 28
+       },
+       {
+        "level": 2,
+        "matchesPlayedBuildOrder": 17
+       },
+       {
+        "level": 3,
+        "matchesPlayedBuildOrder": 3
+       },
+       {
+        "level": 4,
+        "matchesPlayedBuildOrder": 39
+       },
+       {
+        "level": 5,
+        "matchesPlayedBuildOrder": 37
+       },
+       {
+        "level": 6,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 7,
+        "matchesPlayedBuildOrder": 36
+       },
+       {
+        "level": 8,
+        "matchesPlayedBuildOrder": 13
+       },
+       {
+        "level": 9,
+        "matchesPlayedBuildOrder": 38
+       },
+       {
+        "level": 10,
+        "matchesPlayedBuildOrder": 5
+       },
+       {
+        "level": 11,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 12,
+        "matchesPlayedBuildOrder": 9
+       },
+       {
+        "level": 13,
+        "matchesPlayedBuildOrder": 4
+       },
+       {
+        "level": 14,
+        "matchesPlayedBuildOrder": 2
+       },
+       {
+        "level": 15,
+        "matchesPlayedBuildOrder": 3
+       },
+       {
+        "level": 16,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 17,
+        "matchesPlayedBuildOrder": 2
+       },
+       {
+        "level": 18,
+        "matchesPlayedBuildOrder": 1
+       }
+      ],
+      "secondaryAbilities": [
+       {
+        "level": 1,
+        "matchesPlayedBuildOrder": 18
+       },
+       {
+        "level": 2,
+        "matchesPlayedBuildOrder": 20
+       },
+       {
+        "level": 3,
+        "matchesPlayedBuildOrder": 11
+       },
+       {
+        "level": 4,
+        "matchesPlayedBuildOrder": 8
+       },
+       {
+        "level": 5,
+        "matchesPlayedBuildOrder": 9
+       },
+       {
+        "level": 6,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 7,
+        "matchesPlayedBuildOrder": 11
+       },
+       {
+        "level": 8,
+        "matchesPlayedBuildOrder": 31
+       },
+       {
+        "level": 9,
+        "matchesPlayedBuildOrder": 7
+       },
+       {
+        "level": 10,
+        "matchesPlayedBuildOrder": 34
+       },
+       {
+        "level": 11,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 12,
+        "matchesPlayedBuildOrder": 31
+       },
+       {
+        "level": 13,
+        "matchesPlayedBuildOrder": 36
+       },
+       {
+        "level": 14,
+        "matchesPlayedBuildOrder": 6
+       },
+       {
+        "level": 15,
+        "matchesPlayedBuildOrder": 5
+       },
+       {
+        "level": 16,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 17,
+        "matchesPlayedBuildOrder": 5
+       },
+       {
+        "level": 18,
+        "matchesPlayedBuildOrder": 3
+       }
+      ],
+      "ultimateAbilities": [
+       {
+        "level": 1,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 2,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 3,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 4,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 5,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 6,
+        "matchesPlayedBuildOrder": 47
+       },
+       {
+        "level": 7,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 8,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 9,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 10,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 11,
+        "matchesPlayedBuildOrder": 46
+       },
+       {
+        "level": 12,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 13,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 14,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 15,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 16,
+        "matchesPlayedBuildOrder": 36
+       },
+       {
+        "level": 17,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 18,
+        "matchesPlayedBuildOrder": 0
+       }
+      ],
+      "alternateAbilities": [
+       {
+        "level": 1,
+        "matchesPlayedBuildOrder": 2
+       },
+       {
+        "level": 2,
+        "matchesPlayedBuildOrder": 11
+       },
+       {
+        "level": 3,
+        "matchesPlayedBuildOrder": 34
+       },
+       {
+        "level": 4,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 5,
+        "matchesPlayedBuildOrder": 2
+       },
+       {
+        "level": 6,
+        "matchesPlayedBuildOrder": 1
+       },
+       {
+        "level": 7,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 8,
+        "matchesPlayedBuildOrder": 4
+       },
+       {
+        "level": 9,
+        "matchesPlayedBuildOrder": 3
+       },
+       {
+        "level": 10,
+        "matchesPlayedBuildOrder": 8
+       },
+       {
+        "level": 11,
+        "matchesPlayedBuildOrder": 0
+       },
+       {
+        "level": 12,
+        "matchesPlayedBuildOrder": 8
+       },
+       {
+        "level": 13,
+        "matchesPlayedBuildOrder": 8
+       },
+       {
+        "level": 14,
+        "matchesPlayedBuildOrder": 39
+       },
+       {
+        "level": 15,
+        "matchesPlayedBuildOrder": 33
+       },
+       {
+        "level": 16,
+        "matchesPlayedBuildOrder": 2
+       },
+       {
+        "level": 17,
+        "matchesPlayedBuildOrder": 22
+       },
+       {
+        "level": 18,
+        "matchesPlayedBuildOrder": 12
+       }
+      ]
+     }
+    ],
+    "filter": {
+     "gameModes": [
+      "RANKED"
+     ],
+     "ranks": [
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38"
+     ],
+     "roles": [
+      "MIDLANE"
+     ],
+     "versions": [
+      "167",
+      "168"
+     ]
+    }
+   }
+  }
+ },
+ "counters": {
+  "hero": {
+   "availableVersions": [
+    {
+     "id": "144",
+     "name": "1.13.2",
+     "releaseDate": "2026-04-28T11:05:44Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "145",
+     "name": "1.14",
+     "releaseDate": "2026-05-19T09:03:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "146",
+     "name": "1.14.1",
+     "releaseDate": "2026-05-21T09:01:29Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "147",
+     "name": "1.14.2",
+     "releaseDate": "2026-05-28T09:00:43Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "148",
+     "name": "1.14.3",
+     "releaseDate": "2026-06-02T09:01:41Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "149",
+     "name": "1.14.4",
+     "releaseDate": "2026-06-09T11:00:54Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "150",
+     "name": "1.14.5",
+     "releaseDate": "2026-06-11T09:00:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "151",
+     "name": "1.14.6",
+     "releaseDate": "2026-06-12T08:59:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "152",
+     "name": "1.15",
+     "releaseDate": "2026-06-30T09:01:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "153",
+     "name": "1.15.1",
+     "releaseDate": "2026-07-02T09:01:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "154",
+     "name": "1.15.2",
+     "releaseDate": "2026-07-07T08:59:37Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "155",
+     "name": "1.15.2+1",
+     "releaseDate": "2026-07-10T10:00:42Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "156",
+     "name": "1.15.3",
+     "releaseDate": "2026-07-21T09:03:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "157",
+     "name": "1.15.4",
+     "releaseDate": "2026-07-22T13:02:29Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "158",
+     "name": "1.16",
+     "releaseDate": "2026-08-11T09:02:31Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "159",
+     "name": "1.16+1",
+     "releaseDate": "2026-08-12T16:44:23Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "160",
+     "name": "1.16.1",
+     "releaseDate": "2026-08-14T11:00:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "161",
+     "name": "1.16.1+1",
+     "releaseDate": "2026-08-18T08:38:32Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "162",
+     "name": "1.16.2",
+     "releaseDate": "2026-08-19T16:01:00Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "163",
+     "name": "1.16.2+1",
+     "releaseDate": "2026-08-20T09:19:08Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "164",
+     "name": "1.16.2+2",
+     "releaseDate": "2026-08-21T10:57:19Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "165",
+     "name": "1.16.3",
+     "releaseDate": "2026-08-24T11:01:47Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "166",
+     "name": "1.16.4",
+     "releaseDate": "2026-09-01T10:03:55Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "167",
+     "name": "1.17",
+     "releaseDate": "2026-09-22T10:00:42Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "168",
+     "name": "1.17.1",
+     "releaseDate": "2026-09-24T10:00:42Z",
+     "patchType": "HOTFIX"
+    }
+   ],
+   "data": {
+    "displayName": "Valmont",
+    "id": "11755"
+   },
+   "counters": {
+    "results": [
+     {
+      "matchesPlayed": 1,
+      "matchupHero": {
+       "slug": "yin",
+       "data": {
+        "displayName": "Yin",
+        "icon": "bfc3eccbe70a90c4",
+        "roles": [
+         "JUNGLE"
+        ],
+        "id": "11786"
+       },
+       "id": "40"
+      },
+      "loserate": 1.0,
+      "winrate": 0.0,
+      "firstTowerTime": 1397.0,
+      "firstTowerTimeDiff": 60.0
+     },
+     {
+      "matchesPlayed": 2,
+      "matchupHero": {
+       "slug": "zinx",
+       "data": {
+        "displayName": "Zinx",
+        "icon": "1a5b70c3f1ffe3d8",
+        "roles": [
+         "SUPPORT"
+        ],
+        "id": "11787"
+       },
+       "id": "38"
+      },
+      "loserate": 1.0,
+      "winrate": 0.0,
+      "firstTowerTime": 1254.0,
+      "firstTowerTimeDiff": -90.5
+     },
+     {
+      "matchesPlayed": 2,
+      "matchupHero": {
+       "slug": "grim-exe",
+       "data": {
+        "displayName": "GRIM.exe",
+        "icon": "ae6f5a33a6ca0197",
+        "roles": [
+         "CARRY"
+        ],
+        "id": "11746"
+       },
+       "id": "35"
+      },
+      "loserate": 1.0,
+      "winrate": 0.0,
+      "firstTowerTime": 1089.0,
+      "firstTowerTimeDiff": -221.5
+     }
+    ],
+    "filter": {
+     "gameModes": [
+      "RANKED"
+     ],
+     "ranks": [
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38"
+     ],
+     "roles": [
+      "MIDLANE"
+     ],
+     "versions": [
+      "167",
+      "168"
+     ]
+    }
+   },
+   "antiCounters": {
+    "results": [
+     {
+      "matchesPlayed": 1,
+      "matchupHero": {
+       "slug": "dekker",
+       "data": {
+        "displayName": "Dekker",
+        "icon": "d32d7231c8ba2a06",
+        "roles": [
+         "SUPPORT"
+        ],
+        "id": "11740"
+       },
+       "id": "2"
+      },
+      "loserate": 0.0,
+      "winrate": 1.0,
+      "firstTowerTime": 1657.0,
+      "firstTowerTimeDiff": 473.0
+     },
+     {
+      "matchesPlayed": 1,
+      "matchupHero": {
+       "slug": "drongo",
+       "data": {
+        "displayName": "Drongo",
+        "icon": "eb8262687d01a47b",
+        "roles": [
+         "CARRY"
+        ],
+        "id": "11742"
+       },
+       "id": "3"
+      },
+      "loserate": 0.0,
+      "winrate": 1.0,
+      "firstTowerTime": 1129.0,
+      "firstTowerTimeDiff": -436.0
+     },
+     {
+      "matchesPlayed": 1,
+      "matchupHero": {
+       "slug": "sparrow",
+       "data": {
+        "displayName": "Sparrow",
+        "icon": "2e5cd516a76bc5ae",
+        "roles": [
+         "CARRY"
+        ],
+        "id": "11775"
+       },
+       "id": "19"
+      },
+      "loserate": 0.0,
+      "winrate": 1.0,
+      "firstTowerTime": 1516.0,
+      "firstTowerTimeDiff": 97.0
+     }
+    ]
+   },
+   "laneCounters": {
+    "results": [
+     {
+      "matchesPlayed": 2,
+      "matchupHero": {
+       "slug": "scarlett",
+       "data": {
+        "displayName": "Scarlett",
+        "icon": "37aabf2b8621c570",
+        "roles": [
+         "OFFLANE",
+         "JUNGLE"
+        ],
+        "id": "11770"
+       },
+       "id": "53"
+      },
+      "loserate": 0.5,
+      "winrate": 0.5,
+      "firstTowerTime": 1479.0,
+      "firstTowerTimeDiff": 677.0
+     },
+     {
+      "matchesPlayed": 2,
+      "matchupHero": {
+       "slug": "twinblast",
+       "data": {
+        "displayName": "TwinBlast",
+        "icon": "f32efa3accc81aa3",
+        "roles": [
+         "CARRY"
+        ],
+        "id": "11781"
+       },
+       "id": "28"
+      },
+      "loserate": 1.0,
+      "winrate": 0.0,
+      "firstTowerTime": 1532.0,
+      "firstTowerTimeDiff": 669.0
+     },
+     {
+      "matchesPlayed": 1,
+      "matchupHero": {
+       "slug": "dekker",
+       "data": {
+        "displayName": "Dekker",
+        "icon": "d32d7231c8ba2a06",
+        "roles": [
+         "SUPPORT"
+        ],
+        "id": "11740"
+       },
+       "id": "2"
+      },
+      "loserate": 0.0,
+      "winrate": 1.0,
+      "firstTowerTime": 1657.0,
+      "firstTowerTimeDiff": 473.0
+     }
+    ]
+   },
+   "id": "56"
+  }
+ },
+ "hero_items": {
+  "hero": {
+   "id": "56",
+   "availableVersions": [
+    {
+     "id": "144",
+     "name": "1.13.2",
+     "releaseDate": "2026-04-28T11:05:44Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "145",
+     "name": "1.14",
+     "releaseDate": "2026-05-19T09:03:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "146",
+     "name": "1.14.1",
+     "releaseDate": "2026-05-21T09:01:29Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "147",
+     "name": "1.14.2",
+     "releaseDate": "2026-05-28T09:00:43Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "148",
+     "name": "1.14.3",
+     "releaseDate": "2026-06-02T09:01:41Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "149",
+     "name": "1.14.4",
+     "releaseDate": "2026-06-09T11:00:54Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "150",
+     "name": "1.14.5",
+     "releaseDate": "2026-06-11T09:00:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "151",
+     "name": "1.14.6",
+     "releaseDate": "2026-06-12T08:59:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "152",
+     "name": "1.15",
+     "releaseDate": "2026-06-30T09:01:53Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "153",
+     "name": "1.15.1",
+     "releaseDate": "2026-07-02T09:01:54Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "154",
+     "name": "1.15.2",
+     "releaseDate": "2026-07-07T08:59:37Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "155",
+     "name": "1.15.2+1",
+     "releaseDate": "2026-07-10T10:00:42Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "156",
+     "name": "1.15.3",
+     "releaseDate": "2026-07-21T09:03:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "157",
+     "name": "1.15.4",
+     "releaseDate": "2026-07-22T13:02:29Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "158",
+     "name": "1.16",
+     "releaseDate": "2026-08-11T09:02:31Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "159",
+     "name": "1.16+1",
+     "releaseDate": "2026-08-12T16:44:23Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "160",
+     "name": "1.16.1",
+     "releaseDate": "2026-08-14T11:00:07Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "161",
+     "name": "1.16.1+1",
+     "releaseDate": "2026-08-18T08:38:32Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "162",
+     "name": "1.16.2",
+     "releaseDate": "2026-08-19T16:01:00Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "163",
+     "name": "1.16.2+1",
+     "releaseDate": "2026-08-20T09:19:08Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "164",
+     "name": "1.16.2+2",
+     "releaseDate": "2026-08-21T10:57:19Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "165",
+     "name": "1.16.3",
+     "releaseDate": "2026-08-24T11:01:47Z",
+     "patchType": "HOTFIX"
+    },
+    {
+     "id": "166",
+     "name": "1.16.4",
+     "releaseDate": "2026-09-01T10:03:55Z",
+     "patchType": "BALANCE"
+    },
+    {
+     "id": "167",
+     "name": "1.17",
+     "releaseDate": "2026-09-22T10:00:42Z",
+     "patchType": "CONTENT"
+    },
+    {
+     "id": "168",
+     "name": "1.17.1",
+     "releaseDate": "2026-09-24T10:00:42Z",
+     "patchType": "HOTFIX"
+    }
+   ],
+   "data": {
+    "displayName": "Valmont",
+    "abilities": [
+     {
+      "displayName": "Crimson Sigil",
+      "icon": "7067ed0f172dce03",
+      "key": "BASIC",
+      "id": "70159"
+     },
+     {
+      "displayName": "Arterial Grip",
+      "icon": "ceee06ca9073e90a",
+      "key": "ALTERNATE",
+      "id": "70160"
+     },
+     {
+      "displayName": "Rupture",
+      "icon": "724ddb8e2e9392d2",
+      "key": "PRIMARY",
+      "id": "70161"
+     },
+     {
+      "displayName": "Bloodbound",
+      "icon": "d1020108399d3f3a",
+      "key": "SECONDARY",
+      "id": "70162"
+     },
+     {
+      "displayName": "Exsanguinate",
+      "icon": "13712aa7e65b5a41",
+      "key": "ULTIMATE",
+      "id": "70163"
+     },
+     {
+      "displayName": "Hemophagia",
+      "icon": "870537ff3f436a0f",
+      "key": "PASSIVE",
+      "id": "70164"
+     }
+    ],
+    "perks": [
+     {
+      "hero": {
+       "id": "56",
+       "slug": "valmont"
+      },
+      "aggressionTypes": [
+       "FINISHER"
+      ],
+      "description": "Rupture's Blades deal 20% less Damage, but their Damage increases by up to 100% based on the Target's Missing Health.",
+      "displayName": "Rupturing Fangs",
+      "displayOrder": 0,
+      "icon": "724ddb8e2e9392d2",
+      "name": "Perk_Impaler_DamageBlades",
+      "perk": {
+       "id": "788"
+      },
+      "slot": "HERO_SPECIFIC_1",
+      "id": "20808"
+     },
+     {
+      "hero": {
+       "id": "56",
+       "slug": "valmont"
+      },
+      "aggressionTypes": [
+       "SCALING"
+      ],
+      "description": "Gain 2% (+0.5% Bonus Mana) Omnivamp. Minion deaths near Lilith permanently increase Valmont's Maximum Mana by 2. Hero deaths increase it by 30.",
+      "displayName": "Sanguine Banquet",
+      "displayOrder": 0,
+      "icon": "870537ff3f436a0f",
+      "name": "Perk_Impaler_ManaPassive",
+      "perk": {
+       "id": "771"
+      },
+      "slot": "HERO_SPECIFIC_1",
+      "id": "20809"
+     }
+    ],
+    "id": "11700"
+   },
+   "simpleBuild": {
+    "heroPerk": null,
+    "heroAugment": [
+     {
+      "perk": {
+       "id": "771",
+       "data": {
+        "hero": {
+         "id": "56",
+         "slug": "valmont"
+        },
+        "aggressionTypes": [
+         "SCALING"
+        ],
+        "description": "Gain 2% (+0.5% Bonus Mana) Omnivamp. Minion deaths near Lilith permanently increase Valmont's Maximum Mana by 2. Hero deaths increase it by 30.",
+        "displayName": "Sanguine Banquet",
+        "displayOrder": 0,
+        "icon": "870537ff3f436a0f",
+        "name": "Perk_Impaler_ManaPassive",
+        "slot": "HERO_SPECIFIC_1",
+        "id": "21086"
+       }
+      },
+      "matchesPlayed": 786,
+      "matchesWon": 378
+     },
+     {
+      "perk": {
+       "id": "779",
+       "data": {
+        "hero": {
+         "id": "56",
+         "slug": "valmont"
+        },
+        "aggressionTypes": [
+         "AREA_DAMAGE"
+        ],
+        "description": "Arterial Grip no longer Grounds but automatically branches to nearby Enemy Targets (800u) near the Primary Target, applying 80% of the Damage and 100% of the Slow.",
+        "displayName": "Vein Splitter",
+        "displayOrder": 0,
+        "icon": "ceee06ca9073e90a",
+        "name": "Perk_Impaler_TetherBranch",
+        "slot": "HERO_SPECIFIC_1",
+        "id": "21087"
+       }
+      },
+      "matchesPlayed": 32,
+      "matchesWon": 15
+     }
+    ],
+    "common1Augment": [],
+    "common2Augment": [],
+    "eternals": [
+     {
+      "perk": {
+       "id": "638",
+       "data": {
+        "hero": null,
+        "aggressionTypes": [],
+        "description": "Basic Attacks <EffectText>Mark</> an Enemy Hero for <EffectText>3s</>. You deal <EffectText>+3% (+0.4% per level) Damage</> to them and take <EffectText>1.5% (+0.35% per level) less Damage</> from them.",
+        "displayName": "Thraex",
+        "displayOrder": 4,
+        "icon": "c71c7e4015fea6d2",
+        "eternalCategoryData": {
+         "displayName": "Primarchs",
+         "color": "F39C3D",
+         "id": "209"
+        },
+        "minorBlessings": [
+         {
+          "id": "21250",
+          "displayName": "Alpha's Court",
+          "icon": "8bb741ea699d8bfb",
+          "slot": "BLESSING_MINOR_1",
+          "perk": {
+           "id": "662"
+          }
+         },
+         {
+          "id": "21254",
+          "displayName": "Savage Strikes",
+          "icon": "d558b3d5296e9463",
+          "slot": "BLESSING_MINOR_1",
+          "perk": {
+           "id": "639"
+          }
+         },
+         {
+          "id": "21255",
+          "displayName": "The King",
+          "icon": "28c7faa1f9d542a9",
+          "slot": "BLESSING_MINOR_1",
+          "perk": {
+           "id": "693"
+          }
+         },
+         {
+          "id": "21251",
+          "displayName": "Ferocity",
+          "icon": "d558b3d5296e9463",
+          "slot": "BLESSING_MINOR_2",
+          "perk": {
+           "id": "644"
+          }
+         },
+         {
+          "id": "21253",
+          "displayName": "Rallying Roar",
+          "icon": "9cb00cedab7ea0d0",
+          "slot": "BLESSING_MINOR_2",
+          "perk": {
+           "id": "640"
+          }
+         },
+         {
+          "id": "21252",
+          "displayName": "Golden Mane",
+          "icon": "03d42fce67b0057b",
+          "slot": "BLESSING_MINOR_2",
+          "perk": {
+           "id": "710"
+          }
+         }
+        ],
+        "name": "Eternal_Thraex",
+        "slot": "ETERNAL_1",
+        "id": "21014"
+       }
+      },
+      "matchesPlayed": 18,
+      "matchesWon": 12
+     },
+     {
+      "perk": {
+       "id": "646",
+       "data": {
+        "hero": null,
+        "aggressionTypes": [],
+        "description": "Gain <HealthText>5%</> <EffectText>(+1% per Level)</> <HealthText>Max Health</> and <EffectText>Bonus Size</> equal to <EffectText>0.5%</> of your <HealthText>Max Health</>.",
+        "displayName": "Krix",
+        "displayOrder": 6,
+        "icon": "c0c90c6a2a6195b9",
+        "eternalCategoryData": {
+         "displayName": "Dreadnoughts",
+         "color": "50A96A",
+         "id": "206"
+        },
+        "minorBlessings": [
+         {
+          "id": "21215",
+          "displayName": "Voracity",
+          "icon": "a8fb3e36ef37fcc7",
+          "slot": "BLESSING_MINOR_1",
+          "perk": {
+           "id": "658"
+          }
+         },
+         {
+          "id": "21219",
+          "displayName": "Regenerative Tissue",
+          "icon": "aad775b7234939ad",
+          "slot": "BLESSING_MINOR_1",
+          "perk": {
+           "id": "647"
+          }
+         },
+         {
+          "id": "21217",
+          "displayName": "Festering Wounds",
+          "icon": "cf207270c6a36f7b",
+          "slot": "BLESSING_MINOR_1",
+          "perk": {
+           "id": "704"
+          }
+         },
+         {
+          "id": "21214",
+          "displayName": "Cannibalism",
+          "icon": "a10f5c9cbe39d92e",
+          "slot": "BLESSING_MINOR_2",
+          "perk": {
+           "id": "657"
+          }
+         },
+         {
+          "id": "21216",
+          "displayName": "Feeding Frenzy",
+          "icon": "d558b3d5296e9463",
+          "slot": "BLESSING_MINOR_2",
+          "perk": {
+           "id": "685"
+          }
+         },
+         {
+          "id": "21218",
+          "displayName": "Predator",
+          "icon": "8bb741ea699d8bfb",
+          "slot": "BLESSING_MINOR_2",
+          "perk": {
+           "id": "648"
+          }
+         }
+        ],
+        "name": "Eternal_Krix",
+        "slot": "ETERNAL_1",
+        "id": "21008"
+       }
+      },
+      "matchesPlayed": 16,
+      "matchesWon": 8
+     }
+    ],
+    "minorBlessing1": [
+     {
+      "perk": {
+       "id": "639",
+       "data": {
+        "aggressionTypes": [],
+        "description": "Deal <AttackDamageText>1.5 (+0.4 per Level) Physical Damage</> <EffectText>On-Hit</>. Attacking an Enemy Hero <EffectText>increases</> this by <AttackDamageText>100%</> for <EffectText>3s (Max 3 Stacks)</>. <HealthText>Heals</> for the <AttackDamageText>Damage</> dealt.",
+        "displayName": "Savage Strikes",
+        "displayOrder": 2,
+        "icon": "d558b3d5296e9463",
+        "name": "Blessing_Thraex_SavageStrikes",
+        "slot": "BLESSING_MINOR_1",
+        "id": "21254"
+       }
+      },
+      "matchesPlayed": 9,
+      "matchesWon": 5
+     },
+     {
+      "perk": {
+       "id": "650",
+       "data": {
+        "aggressionTypes": [],
+        "description": "At <EffectText>Level 10</>, gain <EffectText>+5% Ultimate Damage</> and <EffectText>+25 Ultimate Ability Haste</>.",
+        "displayName": "The Tenth Seal",
+        "displayOrder": 3,
+        "icon": "f0829c1b0eabed82",
+        "name": "Blessing_Vesh_TheTenthSeal",
+        "slot": "BLESSING_MINOR_1",
+        "id": "21266"
+       }
+      },
+      "matchesPlayed": 11,
+      "matchesWon": 6
+     }
+    ],
+    "minorBlessing2": [
+     {
+      "perk": {
+       "id": "640",
+       "data": {
+        "aggressionTypes": [],
+        "description": "Gain <EffectText>+10 Ultimate Haste</>. Casting your <EffectText>Ultimate</> grants you and Allies within <EffectText>1500 Units +25% Movement Speed</> for <EffectText>4s</>. <EffectText>(20s CD)</>.",
+        "displayName": "Rallying Roar",
+        "displayOrder": 2,
+        "icon": "9cb00cedab7ea0d0",
+        "name": "Blessing_Thraex_RallyingRoar",
+        "slot": "BLESSING_MINOR_2",
+        "id": "21253"
+       }
+      },
+      "matchesPlayed": 6,
+      "matchesWon": 6
+     },
+     {
+      "perk": {
+       "id": "644",
+       "data": {
+        "aggressionTypes": [],
+        "description": "Gain <AttackDamageText>+1% Total Attack Speed</> <EffectText>per Second</> in <EffectText>Hero Combat</>. <EffectText>Stacks infinitely</> and resets when <EffectText>Out of Combat</>.",
+        "displayName": "Ferocity",
+        "displayOrder": 1,
+        "icon": "d558b3d5296e9463",
+        "name": "Blessing_Thraex_Ferocity",
+        "slot": "BLESSING_MINOR_2",
+        "id": "21251"
+       }
+      },
+      "matchesPlayed": 12,
+      "matchesWon": 6
+     }
+    ],
+    "crest": [
+     {
+      "matchesPlayed": 569,
+      "matchesWon": 287,
+      "summedBuyTime": 468296,
+      "item": {
+       "id": "25",
+       "slug": "soulbearer",
+       "data": {
+        "item": {
+         "id": "25",
+         "slug": "soulbearer"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 0,
+        "effects": [
+         {
+          "text": "• Gain a <EffectText>100</> <AbilityPowerText>(+35</><img id=\"APIconBlue\"></><AbilityPowerText>)</> <ManaText>(+6%</><img id=\"ManaBlue\"></><ManaText>)</> <EffectText>Shield</> for <EffectText>8s</>.\n• Gain <EffectText>20% Magical Lifesteal</> and <EffectText>10% Movement Speed</> for <EffectText>8s</>.",
+          "name": "Anima",
+          "active": true,
+          "condition": null,
+          "cooldown": "120s",
+          "id": "83217"
+         }
+        ],
+        "smallIcon": "ceaf73b702d8348a",
+        "icon": "77251e583f744177",
+        "displayName": "Soulbearer",
+        "aggressionType": "SUSTAINED_FIGHTING",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 30.0,
+          "id": "155939"
+         },
+         {
+          "stat": "MANA",
+          "value": 200.0,
+          "id": "155940"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 8.0,
+          "id": "155941"
+         }
+        ],
+        "id": "64275",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 166,
+      "matchesWon": 73,
+      "summedBuyTime": 142628,
+      "item": {
+       "id": "21",
+       "slug": "epoch",
+       "data": {
+        "item": {
+         "id": "21",
+         "slug": "epoch"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 0,
+        "effects": [
+         {
+          "text": "• Enter <EffectText>Stasis</> for <EffectText>2.5s</>.",
+          "name": "Stasis Device",
+          "active": true,
+          "condition": null,
+          "cooldown": "165s",
+          "id": "83211"
+         }
+        ],
+        "smallIcon": "3a3490777ba306bf",
+        "icon": "2c58a772041be740",
+        "displayName": "Epoch",
+        "aggressionType": "STASIS",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 30.0,
+          "id": "155927"
+         },
+         {
+          "stat": "MANA",
+          "value": 200.0,
+          "id": "155928"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 8.0,
+          "id": "155929"
+         }
+        ],
+        "id": "64271",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "firstTier3": [
+     {
+      "matchesPlayed": 313,
+      "matchesWon": 145,
+      "summedBuyTime": 194097,
+      "item": {
+       "id": "224",
+       "slug": "entropy",
+       "data": {
+        "item": {
+         "id": "224",
+         "slug": "entropy"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Deal <AbilityPowerText>3 (+3.5%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> additional <AbilityPowerText>Damage</>.\n• Each Ability can only trigger this effect once every <EffectText>0.2s</>, per Target.",
+          "name": "Degradation",
+          "active": false,
+          "condition": "<Condition> On dealing Ability Damage:</>",
+          "cooldown": null,
+          "id": "83399"
+         },
+         {
+          "text": "Damage Dealt: <EffectText>{DamageDealt}</>\nDamage Dealt to Heroes: <EffectText>{DamageDealtHeroes}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83400"
+         }
+        ],
+        "smallIcon": "8ec42990259655f1",
+        "icon": "835879973f016b3d",
+        "displayName": "Entropy",
+        "aggressionType": "OFFENSE",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 70.0,
+          "id": "156253"
+         },
+         {
+          "stat": "MANA",
+          "value": 400.0,
+          "id": "156254"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156255"
+         }
+        ],
+        "id": "64413",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 181,
+      "matchesWon": 99,
+      "summedBuyTime": 99416,
+      "item": {
+       "id": "108",
+       "slug": "azure-core",
+       "data": {
+        "item": {
+         "id": "108",
+         "slug": "azure-core"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Gain a <EffectText>100</> <ManaText>(+12%</><img id=\"ManaBlue\"></><ManaText>)</> <EffectText>Shield</> for <EffectText>5s</>.",
+          "name": "Spirit Shield",
+          "active": false,
+          "condition": "<Condition>On going below</> <HealthText>40% Health</><Condition>:</>",
+          "cooldown": "90s",
+          "id": "83328"
+         },
+         {
+          "text": "• Gain <ManaText>5 Max Mana</>.\n• Camp Leaders grant <ManaText>15</>.\n• Stacks up to <ManaText>400</>.\n• At <ManaText>400</>, gain <AbilityPowerText>(+3.5%</><img id=\"ManaBlue\"></><AbilityPowertext>) Magical Power</>.",
+          "name": "Font",
+          "active": false,
+          "condition": "<Condition>On Killing any Unit:</>",
+          "cooldown": null,
+          "id": "83329"
+         },
+         {
+          "text": "Power Gained: <EffectText>{Power}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83330"
+         }
+        ],
+        "smallIcon": "768a271c66344407",
+        "icon": "8a0a32f3bcfd0ff9",
+        "displayName": "Azure Core",
+        "aggressionType": "SCALING_MANA",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 70.0,
+          "id": "156159"
+         },
+         {
+          "stat": "MANA",
+          "value": 450.0,
+          "id": "156160"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156161"
+         }
+        ],
+        "id": "64385",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "secondTier3": [
+     {
+      "matchesPlayed": 204,
+      "matchesWon": 102,
+      "summedBuyTime": 195419,
+      "item": {
+       "id": "155",
+       "slug": "prophecy",
+       "data": {
+        "item": {
+         "id": "155",
+         "slug": "prophecy"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Deal <AbilityPowerText>20 (+15%</><img id=\"APIconBlue\"></><AbilityPowerText>) Damage</> <EffectText>On-Hit</>.",
+          "name": "Magical Strikes",
+          "active": false,
+          "condition": "<Condition>On Basic Attacks:</>",
+          "cooldown": null,
+          "id": "83511"
+         },
+         {
+          "text": "Damage Dealt: <EffectText>{DamageDealt}</>\nDamage Dealt to Heroes: <EffectText>{DamageDealtHeroes}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83512"
+         }
+        ],
+        "smallIcon": "bc89fbe4849fe250",
+        "icon": "5bbc9e57f1eaad5a",
+        "displayName": "Prophecy",
+        "aggressionType": "ON_HIT",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 75.0,
+          "id": "156412"
+         },
+         {
+          "stat": "ATTACK_SPEED",
+          "value": 30.0,
+          "id": "156413"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156414"
+         }
+        ],
+        "id": "64463",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 143,
+      "matchesWon": 71,
+      "summedBuyTime": 138999,
+      "item": {
+       "id": "224",
+       "slug": "entropy",
+       "data": {
+        "item": {
+         "id": "224",
+         "slug": "entropy"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Deal <AbilityPowerText>3 (+3.5%</><img id=\"APIconBlue\"></><AbilityPowerText>)</> additional <AbilityPowerText>Damage</>.\n• Each Ability can only trigger this effect once every <EffectText>0.2s</>, per Target.",
+          "name": "Degradation",
+          "active": false,
+          "condition": "<Condition> On dealing Ability Damage:</>",
+          "cooldown": null,
+          "id": "83399"
+         },
+         {
+          "text": "Damage Dealt: <EffectText>{DamageDealt}</>\nDamage Dealt to Heroes: <EffectText>{DamageDealtHeroes}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83400"
+         }
+        ],
+        "smallIcon": "8ec42990259655f1",
+        "icon": "835879973f016b3d",
+        "displayName": "Entropy",
+        "aggressionType": "OFFENSE",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 70.0,
+          "id": "156253"
+         },
+         {
+          "stat": "MANA",
+          "value": 400.0,
+          "id": "156254"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156255"
+         }
+        ],
+        "id": "64413",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "thirdTier3": [
+     {
+      "matchesPlayed": 106,
+      "matchesWon": 54,
+      "summedBuyTime": 130036,
+      "item": {
+       "id": "124",
+       "slug": "dreambinder",
+       "data": {
+        "item": {
+         "id": "124",
+         "slug": "dreambinder"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 2650,
+        "effects": [
+         {
+          "text": "• <CC_Text>Slows</> by <CC_Text>30%</> for <CC_Text>1s</>.\n• Reduced to <CC_Text>20%</> for DoT Abilities.",
+          "name": "Chilling Spells",
+          "active": false,
+          "condition": "<Condition>On dealing Ability Damage:</>",
+          "cooldown": null,
+          "id": "83383"
+         },
+         {
+          "text": "<AbilityName>Restriction:</> Does not apply with Proc Damage.",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83384"
+         }
+        ],
+        "smallIcon": "5169956c3cea7667",
+        "icon": "8ec243ea25038fed",
+        "displayName": "Dreambinder",
+        "aggressionType": "SLOWING_SPELLS",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 70.0,
+          "id": "156229"
+         },
+         {
+          "stat": "HEALTH",
+          "value": 325.0,
+          "id": "156230"
+         }
+        ],
+        "id": "64406",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 106,
+      "matchesWon": 63,
+      "summedBuyTime": 133653,
+      "item": {
+       "id": "225",
+       "slug": "overseer",
+       "data": {
+        "item": {
+         "id": "225",
+         "slug": "overseer"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3100,
+        "effects": [
+         {
+          "text": "• Deals <EffectText>15%</> more damage.  \n• <HealthText>Heals</> you for <HealthText>25%</> of the damage dealt to Heroes.",
+          "name": "Exalted",
+          "active": false,
+          "condition": "<Condition>Enhance your Ultimate Ability:</>",
+          "cooldown": null,
+          "id": "83504"
+         },
+         {
+          "text": "Damage Dealt: <EffectText>{DamageDealt}</>\nDamage Dealt to Heroes: <EffectText>{DamageDealtHeroes}</>\nHealth Restored: <EffectText>{HealthRestored}</>",
+          "name": "",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83505"
+         }
+        ],
+        "smallIcon": "26c80d36c3d7c67e",
+        "icon": "e26221f71d5c4288",
+        "displayName": "Overseer",
+        "aggressionType": "SUSTAIN",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 85.0,
+          "id": "156394"
+         },
+         {
+          "stat": "MAGICAL_PENETRATION",
+          "value": 8.0,
+          "id": "156395"
+         },
+         {
+          "stat": "MAGICAL_LIFESTEAL",
+          "value": 7.0,
+          "id": "156396"
+         }
+        ],
+        "id": "64458",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "fourthTier3": [
+     {
+      "matchesPlayed": 80,
+      "matchesWon": 50,
+      "summedBuyTime": 121178,
+      "item": {
+       "id": "150",
+       "slug": "oblivion-crown",
+       "data": {
+        "item": {
+         "id": "150",
+         "slug": "oblivion-crown"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3450,
+        "effects": [
+         {
+          "text": "• Increase your <AbilityPowerText>Magical Power</> by <AbilityPowerText>25%</>.",
+          "name": "Eradicate",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83487"
+         }
+        ],
+        "smallIcon": "f6e678c02846a20e",
+        "icon": "c5fd20409af2178f",
+        "displayName": "Oblivion Crown",
+        "aggressionType": "DAMAGE_AMP",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 120.0,
+          "id": "156376"
+         }
+        ],
+        "id": "64451",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 77,
+      "matchesWon": 47,
+      "summedBuyTime": 116840,
+      "item": {
+       "id": "142",
+       "slug": "magnify",
+       "data": {
+        "item": {
+         "id": "142",
+         "slug": "magnify"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Reduce their <AbilityPowerText>Magical Armor</> by <AbilityPowerText>6%</> for <AbilityPowerText>3.5s</>.\n• Stacks up to <EffectText>5</> times.",
+          "name": "Shredding Spells",
+          "active": false,
+          "condition": "<Condition>Upon damaging Heroes with an Ability:</>",
+          "cooldown": null,
+          "id": "83457"
+         }
+        ],
+        "smallIcon": "283e8fd87299f1e6",
+        "icon": "5c33f1c40f2c49be",
+        "displayName": "Magnify",
+        "aggressionType": "DUELING",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 60.0,
+          "id": "156337"
+         },
+         {
+          "stat": "HEALTH",
+          "value": 300.0,
+          "id": "156338"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156339"
+         },
+         {
+          "stat": "OMNIVAMP",
+          "value": 10.0,
+          "id": "156340"
+         }
+        ],
+        "id": "64439",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "fifthTier3": [
+     {
+      "matchesPlayed": 64,
+      "matchesWon": 39,
+      "summedBuyTime": 113286,
+      "item": {
+       "id": "150",
+       "slug": "oblivion-crown",
+       "data": {
+        "item": {
+         "id": "150",
+         "slug": "oblivion-crown"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3450,
+        "effects": [
+         {
+          "text": "• Increase your <AbilityPowerText>Magical Power</> by <AbilityPowerText>25%</>.",
+          "name": "Eradicate",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83487"
+         }
+        ],
+        "smallIcon": "f6e678c02846a20e",
+        "icon": "c5fd20409af2178f",
+        "displayName": "Oblivion Crown",
+        "aggressionType": "DAMAGE_AMP",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 120.0,
+          "id": "156376"
+         }
+        ],
+        "id": "64451",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 40,
+      "matchesWon": 24,
+      "summedBuyTime": 69643,
+      "item": {
+       "id": "142",
+       "slug": "magnify",
+       "data": {
+        "item": {
+         "id": "142",
+         "slug": "magnify"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3000,
+        "effects": [
+         {
+          "text": "• Reduce their <AbilityPowerText>Magical Armor</> by <AbilityPowerText>6%</> for <AbilityPowerText>3.5s</>.\n• Stacks up to <EffectText>5</> times.",
+          "name": "Shredding Spells",
+          "active": false,
+          "condition": "<Condition>Upon damaging Heroes with an Ability:</>",
+          "cooldown": null,
+          "id": "83457"
+         }
+        ],
+        "smallIcon": "283e8fd87299f1e6",
+        "icon": "5c33f1c40f2c49be",
+        "displayName": "Magnify",
+        "aggressionType": "DUELING",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 60.0,
+          "id": "156337"
+         },
+         {
+          "stat": "HEALTH",
+          "value": 300.0,
+          "id": "156338"
+         },
+         {
+          "stat": "ABILITY_HASTE",
+          "value": 15.0,
+          "id": "156339"
+         },
+         {
+          "stat": "OMNIVAMP",
+          "value": 10.0,
+          "id": "156340"
+         }
+        ],
+        "id": "64439",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "sixthTier3": [
+     {
+      "matchesPlayed": 38,
+      "matchesWon": 23,
+      "summedBuyTime": 75798,
+      "item": {
+       "id": "150",
+       "slug": "oblivion-crown",
+       "data": {
+        "item": {
+         "id": "150",
+         "slug": "oblivion-crown"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3450,
+        "effects": [
+         {
+          "text": "• Increase your <AbilityPowerText>Magical Power</> by <AbilityPowerText>25%</>.",
+          "name": "Eradicate",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83487"
+         }
+        ],
+        "smallIcon": "f6e678c02846a20e",
+        "icon": "c5fd20409af2178f",
+        "displayName": "Oblivion Crown",
+        "aggressionType": "DAMAGE_AMP",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 120.0,
+          "id": "156376"
+         }
+        ],
+        "id": "64451",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     },
+     {
+      "matchesPlayed": 16,
+      "matchesWon": 9,
+      "summedBuyTime": 32270,
+      "item": {
+       "id": "178",
+       "slug": "world-breaker",
+       "data": {
+        "item": {
+         "id": "178",
+         "slug": "world-breaker"
+        },
+        "version": {
+         "id": "168"
+        },
+        "totalPrice": 3200,
+        "effects": [
+         {
+          "text": "• Increases your <AbilityPowerText>Magical Damage</> dealt by <AbilityPowerText>2%</> for <AbilityPowerText>4.5s</>.\n• Stacks up to <EffectText>6</> times.",
+          "name": "Fiend",
+          "active": false,
+          "condition": "<Condition>On dealing</> <AbilityPowerText>Magical Damage</> <Condition>to a Hero:</>",
+          "cooldown": "1s",
+          "id": "83604"
+         },
+         {
+          "text": "• Gain <HealthText>(+5%</><img id=\"HealthIconGreen\"></><HealthText>)</> <AbilityPowerText>Magical Power</>.",
+          "name": "Maya",
+          "active": false,
+          "condition": null,
+          "cooldown": null,
+          "id": "83605"
+         }
+        ],
+        "smallIcon": "34ec2795078d2f0a",
+        "icon": "d372b25cf8cf04f3",
+        "displayName": "World Breaker",
+        "aggressionType": "DAMAGE_AMP",
+        "stats": [
+         {
+          "stat": "MAGICAL_POWER",
+          "value": 45.0,
+          "id": "156550"
+         },
+         {
+          "stat": "HEALTH",
+          "value": 350.0,
+          "id": "156551"
+         },
+         {
+          "stat": "TENACITY",
+          "value": 75.0,
+          "id": "156552"
+         }
+        ],
+        "id": "64507",
+        "__typename": "ItemData",
+        "buildsInto": []
+       }
+      },
+      "__typename": "HeroSimpleItemStatistic"
+     }
+    ],
+    "abilityBasic": [],
+    "abilitySecondary": [
+     {
+      "level": 1,
+      "matchesPlayed": 294,
+      "matchesWon": 131,
+      "summedLevelTime": 9121,
+      "__typename": "HeroSimpleAbilityStatistic"
+     },
+     {
+      "level": 2,
+      "matchesPlayed": 525,
+      "matchesWon": 271,
+      "summedLevelTime": 55215,
+      "__typename": "HeroSimpleAbilityStatistic"
+     }
+    ],
+    "abilityPrimary": [
+     {
+      "level": 1,
+      "matchesPlayed": 643,
+      "matchesWon": 321,
+      "summedLevelTime": 17459,
+      "__typename": "HeroSimpleAbilityStatistic"
+     },
+     {
+      "level": 2,
+      "matchesPlayed": 269,
+      "matchesWon": 124,
+      "summedLevelTime": 28062,
+      "__typename": "HeroSimpleAbilityStatistic"
+     }
+    ],
+    "abilityUltimate": [
+     {
+      "level": 5,
+      "matchesPlayed": 1,
+      "matchesWon": 1,
+      "summedLevelTime": 296,
+      "__typename": "HeroSimpleAbilityStatistic"
+     },
+     {
+      "level": 6,
+      "matchesPlayed": 951,
+      "matchesWon": 459,
+      "summedLevelTime": 313791,
+      "__typename": "HeroSimpleAbilityStatistic"
+     }
+    ],
+    "abilityAlternate": [
+     {
+      "level": 1,
+      "matchesPlayed": 21,
+      "matchesWon": 10,
+      "summedLevelTime": 667,
+      "__typename": "HeroSimpleAbilityStatistic"
+     },
+     {
+      "level": 2,
+      "matchesPlayed": 164,
+      "matchesWon": 67,
+      "summedLevelTime": 17457,
+      "__typename": "HeroSimpleAbilityStatistic"
+     }
+    ],
+    "filter": {
+     "gameModes": [
+      "RANKED"
+     ],
+     "ranks": [
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38"
+     ],
+     "roles": [
+      "MIDLANE"
+     ],
+     "versions": [
+      "167",
+      "168"
+     ]
+    }
+   }
+  }
+ },
+ "items": {
+  "items": [
+   {
+    "id": "172",
+    "slug": "truesilver-bracelet",
+    "data": {
+     "id": "64495",
+     "gameId": 500609,
+     "rarity": "EPIC",
+     "class": "SUPPORT",
+     "displayName": "Truesilver Bracelet",
+     "icon": "4f02b316d90a2887",
+     "smallIcon": "456c58ece9cb2dfb",
+     "totalPrice": 2350,
+     "aggressionType": "ANTI_DISRUPTION",
+     "stats": [
+      {
+       "stat": "MAGICAL_POWER",
+       "value": 35.0,
+       "showPercent": false,
+       "id": "156511"
+      },
+      {
+       "stat": "HEALTH",
+       "value": 200.0,
+       "showPercent": false,
+       "id": "156512"
+      },
+      {
+       "stat": "BASE_MANA_REGENERATION",
+       "value": 75.0,
+       "showPercent": true,
+       "id": "156513"
+      },
+      {
+       "stat": "HEAL_AND_SHIELD_POWER",
+       "value": 10.0,
+       "showPercent": true,
+       "id": "156514"
+      }
+     ],
+     "version": {
+      "id": "168"
+     },
+     "item": {
+      "id": "172",
+      "slug": "truesilver-bracelet"
+     },
+     "effects": [
+      {
+       "text": "• Gain a <EffectText>100</> <HealthText>(+18%</><img id=\"HealthIconGreen\"></><HealthText>)</> <EffectText>Shield</> for <EffectText>4s</>.\n• While the <EffectText>Shield</> holds you are <EffectText>CC Immune</>.\n• When removed, it explodes dealing <AbilityPowerText>Damage</> equal to <EffectText>40%</> of the initial <EffectText>Shield</>.",
+       "name": "Reprisal",
+       "active": false,
+       "condition": "<Condition>On casting your Ultimate:</>",
+       "cooldown": "40s",
+       "id": "83582"
+      }
+     ]
+    }
+   },
+   {
+    "id": "84",
+    "slug": "horned-plate",
+    "data": {
+     "id": "64342",
+     "gameId": 400021,
+     "rarity": "RARE",
+     "class": "NONE",
+     "displayName": "Horned Plate",
+     "icon": "ff7b0d05fb043d70",
+     "smallIcon": "b78c9fabe033062e",
+     "totalPrice": 850,
+     "aggressionType": "OFFENSE",
+     "stats": [
+      {
+       "stat": "PHYSICAL_ARMOR",
+       "value": 25.0,
+       "showPercent": false,
+       "id": "156073"
+      }
+     ],
+     "version": {
+      "id": "168"
+     },
+     "item": {
+      "id": "84",
+      "slug": "horned-plate"
+     },
+     "effects": [
+      {
+       "text": "• Reduce the Source's <HealthText>Healing</> by <HealthText>35%</> for <HealthText>3s</>.",
+       "name": "Blighted Skin",
+       "active": false,
+       "condition": "<Condition> On being hit by a Basic Attack:</>",
+       "cooldown": null,
+       "id": "83293"
+      }
+     ]
+    }
+   },
+   {
+    "id": "178",
+    "slug": "world-breaker",
+    "data": {
+     "id": "64507",
+     "gameId": 500416,
+     "rarity": "EPIC",
+     "class": "MAGE",
+     "displayName": "World Breaker",
+     "icon": "d372b25cf8cf04f3",
+     "smallIcon": "34ec2795078d2f0a",
+     "totalPrice": 3200,
+     "aggressionType": "DAMAGE_AMP",
+     "stats": [
+      {
+       "stat": "MAGICAL_POWER",
+       "value": 45.0,
+       "showPercent": false,
+       "id": "156550"
+      },
+      {
+       "stat": "HEALTH",
+       "value": 350.0,
+       "showPercent": false,
+       "id": "156551"
+      },
+      {
+       "stat": "TENACITY",
+       "value": 75.0,
+       "showPercent": true,
+       "id": "156552"
+      }
+     ],
+     "version": {
+      "id": "168"
+     },
+     "item": {
+      "id": "178",
+      "slug": "world-breaker"
+     },
+     "effects": [
+      {
+       "text": "• Increases your <AbilityPowerText>Magical Damage</> dealt by <AbilityPowerText>2%</> for <AbilityPowerText>4.5s</>.\n• Stacks up to <EffectText>6</> times.",
+       "name": "Fiend",
+       "active": false,
+       "condition": "<Condition>On dealing</> <AbilityPowerText>Magical Damage</> <Condition>to a Hero:</>",
+       "cooldown": "1s",
+       "id": "83604"
+      },
+      {
+       "text": "• Gain <HealthText>(+5%</><img id=\"HealthIconGreen\"></><HealthText>)</> <AbilityPowerText>Magical Power</>.",
+       "name": "Maya",
+       "active": false,
+       "condition": null,
+       "cooldown": null,
+       "id": "83605"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "eternals": {
+  "eternalCategories": [
+   {
+    "id": "2",
+    "name": "EternalCategory_Divines",
+    "data": {
+     "id": "212",
+     "displayName": "Divines",
+     "displayNameSingular": "Divine",
+     "description": "Radiant entities known for their unyielding preservation and transcendent aura, standing as bastions of absolute light against the encroachment of the void.",
+     "color": "E0C134",
+     "version": {
+      "id": "168"
+     },
+     "perks": [
+      {
+       "id": "21009",
+       "name": "Eternal_Lotus",
+       "displayName": "Lotus",
+       "description": "Every <EffectText>2 Minutes</> and for each Takedown you achieve, randomly gain <EffectText>+1% Damage</>, <EffectText>+4 Ability Haste</>, <EffectText>+0.75% Movement Speed</>, or <HealthText>+1.5% Max Health</>.",
+       "displayOrder": 12,
+       "icon": "fa6821a911385595",
+       "aggressionTypes": [],
+       "slot": "ETERNAL_1",
+       "perk": {
+        "id": "666"
+       },
+       "minorBlessings": [
+        {
+         "id": "21220",
+         "name": "Blessing_Lotus_EarlyBloom",
+         "displayName": "Early Bloom",
+         "description": "<EffectText>Level Up</> again at <EffectText>Level 12</>.",
+         "displayOrder": 1,
+         "icon": "28c7faa1f9d542a9",
+         "aggressionTypes": [],
+         "slot": "BLESSING_MINOR_1",
+         "perk": {
+          "id": "667"
+         }
+        },
+        {
+         "id": "21221",
+         "name": "Blessing_Lotus_Flawless",
+         "displayName": "Flawless",
+         "description": "Ability hits on Enemy Heroes <HealthText>heal</> you and Allies within <EffectText>1000 Units</> for <HealthText>8</> <AbilityPowerText>(+10% Magical Power)</> <EffectText>(Once per cast)</>.",
+         "displayOrder": 2,
+         "icon": "cf207270c6a36f7b",
+         "aggressionTypes": [],
+         "slot": "BLESSING_MINOR_1",
+         "perk": {
+          "id": "683"
+         }
+        },
+        {
+         "id": "21224",
+         "name": "Blessing_Lotus_Masterpiece",
+         "displayName": "Masterpiece",
+         "description": "Kills grant <EffectText>+4% Damage</> and <EffectText>+5% Movement Speed</> for <EffectText>12s</>.",
+         "displayOrder": 3,
+         "icon": "8bb741ea699d8bfb",
+         "aggressionTypes": [],
+         "slot": "BLESSING_MINOR_1",
+         "perk": {
+          "id": "714"
+         }
+        },
+        {
+         "id": "21223",
+         "name": "Blessing_Lotus_Immaculate",
+         "displayName": "Immaculate",
+         "description": "Gain <EffectText>+12% Damage Reduction</> while above <HealthText>85% Health</>.",
+         "displayOrder": 1,
+         "icon": "4b2db6004e485410",
+         "aggressionTypes": [],
+         "slot": "BLESSING_MINOR_2",
+         "perk": {
+          "id": "668"
+         }
+        },
+        {
+         "id": "21225",
+         "name": "Blessing_Lotus_PrimaDonna",
+         "displayName": "Prima Donna",
+         "description": "Deal <EffectText>+10% bonus Damage</> to Enemy Heroes, but take <EffectText>+6% Damage</> from <EffectText>all sources</>.",
+         "displayOrder": 2,
+         "icon": "f0829c1b0eabed82",
+         "aggressionTypes": [],
+         "slot": "BLESSING_MINOR_2",
+         "perk": {
+          "id": "715"
+         }
+        },
+        {
+         "id": "21222",
+         "name": "Blessing_Lotus_Fragrance",
+         "displayName": "Fragrance",
+         "description": "Deal <AbilityPowerText>+4% Magical Damage</> and <EffectText>+12% True Damage</> to Enemy Heroes within <EffectText>800 Units</>.",
+         "displayOrder": 3,
+         "icon": "f0829c1b0eabed82",
+         "aggressionTypes": [],
+         "slot": "BLESSING_MINOR_2",
+         "perk": {
+          "id": "682"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ }
+}
