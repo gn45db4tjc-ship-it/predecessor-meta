@@ -1,7 +1,7 @@
 /* Approved companion flow, on top of the existing data, history and dialog systems. */
 'use strict';
 for(const key of ['selectedBuilds','heroPools'])if(!companionPrefs[key]||typeof companionPrefs[key]!=='object'||Array.isArray(companionPrefs[key]))companionPrefs[key]={};
-let quickDraft={role:null,publication:null,signature:null,rows:[],preview:null},quickAlternative=false;
+let quickAlternative=false;
 const fullMobileHero=mobileHero;
 const standardNavigation=destinationNavigation,standardSections=destinationSections;
 const simpleMode=()=>companionMedia.matches&&!companionPrefs.fullDetails;
@@ -119,13 +119,6 @@ mobileHero=function(){
  const fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
  return `<div class="hero-header mobile-hero-head mobile-hero-head--compact">${art(p.slug,'large')}<div class="hero-head-main"><h1>${esc(name(p.slug))}</h1><label><span class="sr-only">Role</span><select id="mobile-hero-role" aria-label="Role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><div class="hero-head-actions"><button id="favorite-hero" aria-pressed="${fav}" aria-label="Favorite ${esc(name(p.slug))} ${esc(labels[p.role])}">${fav?'★':'☆'}</button><button id="share-hero" aria-label="Share ${esc(name(p.slug))}">Share</button></div><button class="primary hero-use-match" data-start-live="true">Use in Match</button></div><p class="simple-source hero-context">${perf?compactRoleText(perf):esc(roleSampleText(p.slug,p.role))}</p><div class="simple-sections tab-strip tab-strip--segmented" role="tablist" aria-label="Hero sections">${buttons.map(([id,label])=>`<button role="tab" data-simple-section="${id}" aria-selected="${id===tab}" tabindex="${id===tab?0:-1}"${id===tab?` aria-controls="hero-sec-${tab==='alternatives'?'builds':tab}"`:''}>${label}</button>`).join('')}</div><section id="hero-sec-${tab==='alternatives'?'builds':tab}" class="simple-hero-section" role="tabpanel" aria-label="${esc(buttons.find(b=>b[0]===tab)?.[1]||'Build')}">${body}</section><div class="simple-actions">${detailModeButton()}</div>`;
 };
-function draftInputs(){return JSON.stringify([S.candidateRole,S.locks,S.enemies,S.bans,companionPrefs.heroPools[S.candidateRole]||[],B.generated_at,S.bracket]);}
-function quickEvidenceKey(){return JSON.stringify([B.generated_at,B.patch,B.official?.live?.version,S.bracket]);}
-function refreshQuickDraft(wide=false){
- const pool=companionPrefs.heroPools[S.candidateRole]||[];
- const rows=E.recommend(S.locks,{role:S.candidateRole,bans:S.bans,enemies:S.enemies,min:100,metric:'kit'}).filter(c=>wide||!pool.length||pool.includes(c.picks[c.picks.length-1].slug));
- quickDraft={role:S.candidateRole,publication:B.generated_at,evidence:quickEvidenceKey(),signature:draftInputs(),preview:null,rows:rows.slice(0,3).map(c=>{const p=c.picks[c.picks.length-1],fit=c.links?.find(l=>l.a===p.slug||l.b===p.slug)?.fit,reason=fit?.reasons?.[0];return {p,reason:reason?.summary||reason?.text||'Fits the selected role; inspect its kit and team coverage.'};})};
-}
 // A legacy Builds route remains a complete reference page. It is no longer a duplicate primary destination.
 const oldRenderCompanion=renderCompanion;
 renderCompanion=function(){if(B&&companionMedia.matches&&S.route==='builds'){$('#main').innerHTML=mobileBuilds();return true;}return oldRenderCompanion();};
@@ -139,22 +132,15 @@ const oldOpenHeroSimple=openHero;
 openHero=function(...args){quickAlternative=false;oldOpenHeroSimple(...args);};
 document.addEventListener('click',event=>{
  const el=event.target.closest('button');if(!el)return;const d=el.dataset;
- const handles=['readingMode','simpleSection','choosePlaystyle','resetPlaystyle','quickRefresh','quickPool','quickWide','quickPreview','quickLock','liveVariant','liveDefault'].some(k=>k in d);
+ const handles=['readingMode','simpleSection','choosePlaystyle','resetPlaystyle'].some(k=>k in d);
  if(!handles)return;event.preventDefault();event.stopImmediatePropagation();
  try{
-  if('liveVariant' in d||'liveDefault' in d){const me=S.locks.find(p=>p.slug===S.me);if(!me)throw Error('Choose your hero first.');choosePlaystyle(me,'liveDefault' in d?null:Number(d.liveVariant));}
-  else if('readingMode' in d){companionPrefs.fullDetails=!companionPrefs.fullDetails;saveCompanionPrefs();}
+  if('readingMode' in d){companionPrefs.fullDetails=!companionPrefs.fullDetails;saveCompanionPrefs();}
   else if(d.simpleSection){quickAlternative=d.simpleSection==='alternatives';S.heroTab=quickAlternative?'builds':d.simpleSection;}
   else if(d.choosePlaystyle){const [slug,role,i]=d.choosePlaystyle.split('|');choosePlaystyle({slug,role},Number(i));quickAlternative=false;S.heroTab='builds';}
   else if(d.resetPlaystyle){const [slug,role]=d.resetPlaystyle.split('|');choosePlaystyle({slug,role},null);quickAlternative=false;}
-  else if('quickRefresh' in d)refreshQuickDraft();
-  else if('quickWide' in d)refreshQuickDraft(true);
-  else if(d.quickPool){const pool=companionPrefs.heroPools[S.candidateRole]||[];if(pool.includes(d.quickPool))companionPrefs.heroPools[S.candidateRole]=pool.filter(s=>s!==d.quickPool);else if(pool.length<3)companionPrefs.heroPools[S.candidateRole]=[...pool,d.quickPool];else throw Error('Your pool has three heroes. Remove one to replace it.');saveCompanionPrefs();}
-  else if(d.quickPreview){if(quickDraft.evidence!==quickEvidenceKey())throw Error('Evidence changed. Refresh the shortlist before reading a new setup.');const why=CompanionState.blocked(d.quickPreview,S.candidateRole,{allies:S.locks,enemies:S.enemies,bans:S.bans},E);if(why)throw Error(why);quickDraft.preview=d.quickPreview;}
-  else if(d.quickLock){if(quickDraft.evidence!==quickEvidenceKey())throw Error('Evidence changed. Refresh the shortlist before locking this setup.');const why=CompanionState.blocked(d.quickLock,S.candidateRole,{allies:S.locks,enemies:S.enemies,bans:S.bans},E);if(why)throw Error(why);const result=useInLive(d.quickLock,S.candidateRole);save();render();recordNavigation();showUndo(result.before,'Hero selected for this match.');return;}
   render();recordNavigation(true);
   if(d.simpleSection)document.querySelector(`[data-simple-section="${d.simpleSection}"]`)?.focus({preventScroll:true});
-  else if(d.quickPreview){const heading=document.querySelector('.quick-setup>h2');heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});document.querySelector('.quick-setup')?.scrollIntoView({block:'start'});}
  }catch(e){toast(e.message);}
 },true);
 

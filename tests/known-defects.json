@@ -1,16 +1,7 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite. Ids under 'retired' belong to removed features; their probes were deleted and the runner skips them.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [
-    "PD1",
-    "PD2",
-    "PD3",
-    "PD4",
-    "PD5",
-    "PD6",
-    "PD7",
-    "PD8"
-  ],
+  "open": [],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -159,12 +150,12 @@
     "ML1": "Meta completion: the entire role list is visible on arrival, with explicit ordering and no hidden heroes",
     "ML2": "Meta completion: name and observed-rate ordering work, keep small samples separate, and survive reload",
     "U1": "DESIGN 2.33 (critique of 2.32.0): at 375x812 the hero page does not show all six starting-build items on the first screen",
-    "U2": "DESIGN 2.33: 'Adapt to my match' is not on screen above the phone navigation at the top and middle of the hero page",
-    "U3": "DESIGN 2.33: away from Meta the phone status summary is a separate full-width banner instead of sharing the rank row (Meta keeps the full banner)",
+    "U2": "DESIGN 2.37: the phone hero header has no 'Use in Match' button on screen above the navigation when the page opens",
+    "U3": "DESIGN 2.37: on a phone screen (Meta included) the status summary is a separate full-width banner instead of sharing the rank row",
     "U4": "DESIGN 2.33: an optional Pred.gg problem alone is labelled a source failure on the phone",
     "U5": "DESIGN 2.33: the phone hero sections wrap into a multi-row grid of large buttons instead of one tab row",
     "U6": "DESIGN 2.33: the phone build repeats 'Core'/'Flexible' under every item and 'Reviewed choice' under every loadout slot instead of stating provenance once per group",
-    "U7": "DESIGN 2.33: phone Meta rows differ in height, use an external-link arrow as the row cue, or omit 'Build ready' for an active reviewed build",
+    "U7": "DESIGN 2.37: phone Meta rows differ in height, use an external-link arrow as the row cue, or repeat 'Build ready' on heroes whose reviewed build is active",
     "DS1": "DESIGN SYSTEM 2.33: spacing declarations use pixel literals off the --s* token scale (for example 10px, 6px, 14px)",
     "DS2": "DESIGN SYSTEM 2.33: corner radius is written as literals (3-20px) instead of the four radius tokens sm, md, lg and pill",
     "DS3": "DESIGN SYSTEM 2.33: the phone hero sections are not a tablist with one selected tab, scroll sideways (against 2.29 stage 1), or look different from the Meta role tabs",

@@ -1705,18 +1705,18 @@ const probes = {
     await context.close();
   },
   async U2(browser) {
-    // "Adapt to my match" stays on screen above the phone navigation while the hero page scrolls.
+    // 2.37.0: the hero header carries "Use in Match", on screen above the phone navigation when the page opens (no sticky dock).
     const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
     await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
     const at = async y => page.evaluate(async y => { scrollTo(0, y); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
       const b = document.querySelector('#main [data-start-live]'), r = b?.getBoundingClientRect(), nav = document.querySelector('#mobile-navigation')?.getBoundingClientRect().top ?? innerHeight;
       return {top: Math.round(r?.top ?? -1), bottom: Math.round(r?.bottom ?? -1), nav: Math.round(nav), visible: !!r && r.top >= 0 && r.bottom <= nav + 1}; }, y);
     const seen = {top: await at(0), middle: await at(Math.round(await page.evaluate(() => document.documentElement.scrollHeight / 2)))};
-    verdict('U2', !seen.top.visible || !seen.middle.visible, seen);
+    verdict('U2', !seen.top.visible, seen);
     await context.close();
   },
   async U3(browser) {
-    // Away from Meta, the status summary shares the rank row instead of adding a full-width banner; Meta keeps the full banner.
+    // 2.37.0: on every phone screen, Meta included, the status summary shares the rank row instead of adding a full-width banner.
     const {context, page} = await session(browser, {...phone, viewport: {width: 375, height: 812}});
     const seen = await page.evaluate(() => {
       B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'error', detail: 'A required source could not be refreshed for this probe.'}];
@@ -1727,7 +1727,7 @@ const probes = {
       Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('match'); const live = measure();
       return {meta, hero, live};
     });
-    verdict('U3', !seen.meta.detail || !seen.hero.sameRow || !seen.live.sameRow, seen);
+    verdict('U3', !seen.meta.sameRow || !seen.hero.sameRow || !seen.live.sameRow, seen);
     await context.close();
   },
   async U4(browser) {
@@ -1763,13 +1763,14 @@ const probes = {
     await context.close();
   },
   async U7(browser) {
-    // Meta rows are an even height, and the row cue is an in-app chevron (with "Build ready" for an active reviewed build), not an external-link arrow.
+    // Meta rows are an even height with an in-app cue, not an external-link arrow. 2.37.0: an active reviewed build is the norm, so
+    // "Build ready" is gone; only a hero without one is flagged.
     const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
     const seen = await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
       const rows = [...document.querySelectorAll('#mobile-all-list .mobile-hero-card')], heights = rows.map(r => Math.round(r.getBoundingClientRect().height));
       const steel = rows.find(r => r.querySelector('[data-hero="steel"]'));
       return {rows: rows.length, min: Math.min(...heights), max: Math.max(...heights), arrow: rows.filter(r => r.innerText.includes('↗')).length, steel: steel?.innerText.replace(/\s+/g, ' ') || ''}; });
-    verdict('U7', seen.max - seen.min > 16 || seen.arrow > 0 || !/Build ready/.test(seen.steel), seen);
+    verdict('U7', seen.max - seen.min > 16 || seen.arrow > 0 || /Build ready/.test(seen.steel), seen);
     await context.close();
   }
 };
