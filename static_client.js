@@ -349,8 +349,10 @@ if (APP_CONFIG.mode === 'static') {
       MetaProjection.merge(raw, value);
       annex.loaded.add(id); annex.failed.delete(id);
       B = displayedBundle(raw, site.loadedEntry); E = MetaEngine.create(B);
-      saveEvidence(part.url, bytes);
-      redrawForAnnex(id);
+      // The guide redraws at once and is saved before this resolves: the first check waits for it, so 'up to date'
+      // means every screen can open and the guide is available offline. Evidence files share one batched redraw.
+      if (id === 'guide') { requestRedraw(true); refreshDialog(new Set([id])); await saveEvidence(part.url, bytes); }
+      else { saveEvidence(part.url, bytes); redrawForAnnex(id); }
       return 'loaded';
     })().catch(error => {
       if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }
