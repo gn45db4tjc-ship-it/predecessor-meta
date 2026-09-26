@@ -1,4 +1,4 @@
-"""Audit item 11: the website delivery projection (core + evidence annexes)."""
+"""Audit item 11: the website delivery projection (core + guide + evidence annexes; the guide since 2.38.0)."""
 import copy, gzip, json, unittest
 from pathlib import Path
 
@@ -19,82 +19,108 @@ class ProjectionRoundTrip(unittest.TestCase):
     def setUp(self):
         self.bundle = seed()
 
-    def test_core_and_annexes_reproduce_the_full_bundle_exactly(self):
-        core, heroes, shared = P.split(self.bundle)
-        rebuilt = P.merge(core, shared, *heroes.values())
-        self.assertEqual(P.dumps(rebuilt), P.dumps(self.bundle), 'bytes, key order included')
+    def test_core_guide_and_annexes_reproduce_the_full_bundle_exactly_in_any_order(self):
+        core, heroes, shared, guide = P.split(self.bundle)
+        for overlays in ([guide, shared, *heroes.values()], [*heroes.values(), shared, guide], [shared, guide, *heroes.values()]):
+            rebuilt = P.merge(core, *overlays)
+            self.assertEqual(P.dumps(rebuilt), P.dumps(self.bundle), 'bytes, key order included')
 
     def test_the_published_parts_round_trip_through_their_encoding(self):
         parts = P.build(self.bundle)
-        decoded = [P.decode(json.loads(parts['shared']))] + [P.decode(json.loads(v)) for v in parts['heroes'].values()]
+        decoded = [P.decode(json.loads(parts['guide'])), P.decode(json.loads(parts['shared']))] + [P.decode(json.loads(v)) for v in parts['heroes'].values()]
         self.assertEqual(P.dumps(P.merge(P.decode(json.loads(parts['core'])), *decoded)), P.dumps(self.bundle))
 
-    def test_display_only_fields_leave_the_core_and_engine_fields_stay(self):
-        core, heroes, shared = P.split(self.bundle)
+    def test_first_screen_fields_stay_in_the_core_and_the_rest_moves_out(self):
+        # 2.38.0: the core holds what the phone's first screen reads; tests/projection.test.cjs checks the engine answers.
+        core, heroes, shared, guide = P.split(self.bundle)
         slug = next(s for s, h in self.bundle['heroes'].items() if h.get('previous_abilities') is not None)
         self.assertNotIn('previous_abilities', core['heroes'][slug])
         self.assertIn('previous_abilities', heroes[slug]['heroes'][slug])
         self.assertNotIn('definition_history', core['official'])
         self.assertIn('definition_history', shared['official'])
-        for key in ('guidance', 'tier_list', 'pairs', 'scoped_statistics', 'official_changes'):
+        for key in ('tier_list', 'scoped_statistics', 'sources', 'bracket'):
             self.assertEqual(core.get(key), self.bundle.get(key), key + ' stays whole in the core')
+        for key in ('pairs', 'official_changes'):
+            if key in self.bundle:
+                self.assertNotIn(key, core, key + ' is read only after the first screen')
+                self.assertEqual(guide[key], self.bundle[key])
+        for key in ('meta_review', 'damage_review', 'build_patch_review', 'status', 'patch'):
+            if key in self.bundle['guidance']:
+                self.assertEqual(core['guidance'].get(key), self.bundle['guidance'][key], 'guidance.' + key + ' is read by the Meta list')
+        for index, build in enumerate(self.bundle['guidance'].get('builds') or []):
+            kept = core['guidance']['builds'][index]
+            for key in P.BUILD_CORE_FIELDS - {'patch_review'}:
+                self.assertEqual(kept.get(key), build.get(key), 'buildReview reads ' + key)
+            self.assertLessEqual(set(kept), P.BUILD_CORE_FIELDS)
         ability = next(a for a in self.bundle['heroes'][slug]['abilities'] if 'pred_raw' in a)
-        kept = core['heroes'][slug]['abilities'][self.bundle['heroes'][slug]['abilities'].index(ability)]
+        index = self.bundle['heroes'][slug]['abilities'].index(ability)
+        kept = core['heroes'][slug]['abilities'][index]
         self.assertNotIn('pred_raw', kept)
-        self.assertEqual(kept.get('game_description'), ability.get('game_description'), 'the engine reads ability descriptions')
+        self.assertEqual(kept.get('text'), ability.get('text'), 'buildReview compares ability text')
+        self.assertNotIn('game_description', kept, 'no page code reads the game descriptions')
+        if 'game_text' in ability:
+            self.assertEqual(guide['heroes'][slug]['abilities']['$items'][str(index)]['game_text'], ability['game_text'])
 
     def test_fields_that_are_not_listed_stay_in_the_core(self):
         bundle = copy.deepcopy(self.bundle)
         bundle['a_new_top_level_field'] = {'value': 1}
         slug = next(iter(bundle['heroes']))
         bundle['heroes'][slug]['a_new_hero_field'] = [1, 2, 3]
-        core, _, _ = P.split(bundle)
+        core = P.split(bundle)[0]
         self.assertEqual(core['a_new_top_level_field'], {'value': 1})
         self.assertEqual(core['heroes'][slug]['a_new_hero_field'], [1, 2, 3])
 
-    def test_tier3_item_tables_stay_in_the_core_only_while_the_pred_cohort_is_ok(self):
-        # engine currentItemPool reads the six Tier 3 tables only when scoped_statistics.status is 'ok'.
-        for status, in_core in (('ok', True), ('retained', False), ('partial', False)):
+    def test_tier3_item_tables_are_in_the_guide_only_while_the_pred_cohort_is_ok(self):
+        # engine currentItemPool reads the six Tier 3 tables only when scoped_statistics.status is 'ok'; otherwise they are
+        # display-only evidence in the hero's file. Neither is read by the first screen.
+        for status, in_guide in (('ok', True), ('retained', False), ('partial', False)):
             bundle = copy.deepcopy(self.bundle)
             bundle['scoped_statistics']['status'] = status
-            core, heroes, _ = P.split(bundle)
+            core, heroes, shared, guide = P.split(bundle)
             slug, roles = next((s, r) for s, r in bundle['pred_game_data']['role_data'].items() if any('items' in d for d in r.values()))
             role = next(r for r, d in roles.items() if 'items' in d)
-            tables = core['pred_game_data']['role_data'][slug][role]['items'].get('tables', {})
-            self.assertEqual('firstTier3' in tables, in_core, status)
-            self.assertFalse(any(k not in P.TIER3 for k in tables), 'other item tables never stay in the core')
-            self.assertEqual(P.dumps(P.merge(core, *heroes.values(), P.split(bundle)[2])), P.dumps(bundle))
+            self.assertEqual(core['pred_game_data']['role_data'][slug][role]['items'], {'tables': {}}, 'the core keeps the empty section')
+            moved = guide.get('pred_game_data', {}).get('role_data', {}).get(slug, {}).get(role, {}).get('items', {}).get('tables', {})
+            self.assertEqual('firstTier3' in moved, in_guide, status)
+            self.assertFalse(any(k not in P.TIER3 + ('$order',) for k in moved), 'other item tables never go to the guide')
+            self.assertEqual(P.dumps(P.merge(core, *heroes.values(), shared, guide)), P.dumps(bundle))
 
-    def test_the_counters_table_stays_in_the_core_only_when_its_cohort_is_verified(self):
+    def test_the_counters_table_is_in_the_guide_only_when_its_cohort_is_verified(self):
         # engine matchup reads tables.counters rows only when cohort_verified is true; the other tables never.
         bundle = copy.deepcopy(self.bundle)
         slug, roles = next((s, r) for s, r in bundle['pred_game_data']['role_data'].items() if any('counters' in d for d in r.values()))
         role = next(r for r, d in roles.items() if 'counters' in d)
         tables = bundle['pred_game_data']['role_data'][slug][role]['counters']['tables']
-        for verified, in_core in ((True, True), (1, True), ({}, True), ('yes', True), (False, False), (None, False), (0, False), ('', False)):
+        for verified, in_guide in ((True, True), (1, True), ({}, True), ('yes', True), (False, False), (None, False), (0, False), ('', False)):
             tables['counters'] = dict(tables.get('counters') or {}, cohort_verified=verified)
-            core, _, _ = P.split(bundle)
-            kept = core['pred_game_data']['role_data'][slug][role]['counters']['tables']
-            self.assertEqual('counters' in kept, in_core, verified)
-            self.assertNotIn('antiCounters', kept)
-            self.assertNotIn('laneCounters', kept)
+            core, heroes, _, guide = P.split(bundle)
+            self.assertEqual(core['pred_game_data']['role_data'][slug][role]['counters']['tables'], {})
+            moved = guide['pred_game_data']['role_data'][slug][role]['counters'].get('tables', {})
+            self.assertEqual('counters' in moved, in_guide, verified)
+            self.assertNotIn('antiCounters', moved)
+            self.assertNotIn('laneCounters', moved)
 
-    def test_counters_section_details_stay_in_the_core(self):
-        # 2.28.0: the Counters tab renders its supported matchups and the section's source line and saved label from the core,
-        # before the hero's evidence file arrives; only the tables may move out.
-        core, _, _ = P.split(self.bundle)
+    def test_counters_section_details_are_in_the_guide(self):
+        # The Counters tab renders its supported matchups, source line and saved label from these details; it waits for
+        # the guide (2.38.0), never for the hero's evidence file.
+        core, heroes, _, guide = P.split(self.bundle)
         checked = 0
         for slug, roles in ((self.bundle.get('pred_game_data') or {}).get('role_data') or {}).items():
             for role, data in (roles or {}).items():
                 counters = (data or {}).get('counters')
                 if not isinstance(counters, dict):
                     continue
-                kept = core['pred_game_data']['role_data'][slug][role]['counters']
+                moved = guide['pred_game_data']['role_data'][slug][role]['counters']
                 for key, value in counters.items():
                     if key != 'tables':
-                        self.assertEqual(kept.get(key), value, (slug, role, key))
+                        self.assertEqual(moved.get(key), value, (slug, role, key))
                 checked += 1
         self.assertGreater(checked, 0, 'the seed has counters sections')
+
+    def test_the_core_is_under_a_quarter_of_the_bundle(self):
+        # 2.38.0: what the phone downloads before its first screen.
+        parts = P.build(self.bundle)
+        self.assertLess(len(parts['core']), len(P.dumps(self.bundle)) * 0.25)
 
     def test_reserved_projection_keys_in_a_bundle_are_refused(self):
         bundle = copy.deepcopy(self.bundle)
@@ -164,7 +190,7 @@ class PublishedProjection(unittest.TestCase):
         self.assertEqual(hashlib.sha256(full).hexdigest(), entry['sha256'], 'the full bundle stays published as before')
         p = entry['projection']
         self.assertEqual(p['version'], P.VERSION)
-        parts = [('core', p['core'])] + [('shared', p['shared'])] + [('hero-' + slug, v) for slug, v in p['heroes'].items()]
+        parts = [('core', p['core']), ('guide', p['guide']), ('shared', p['shared'])] + [('hero-' + slug, v) for slug, v in p['heroes'].items()]
         self.assertEqual(set(p['heroes']), set(P.split(json.loads(full))[1]), 'one evidence file per hero that has display-only evidence')
         decoded = {}
         for kind, part in parts:

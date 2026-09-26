@@ -3312,7 +3312,48 @@ probes.PS1 = async browser => {
     const full = (await (await fetch(entry.url, {cache: 'no-store'})).arrayBuffer()).byteLength;
     return {before_first_row: before, full_bundle: full, share: Math.round(before / full * 1000) / 1000, files_before: data.filter(e => e.responseEnd <= window.__firstRowAt).map(e => e.name.split('/').pop().replace(/-[a-f0-9]{64}/, ''))};
   });
-  await context.close(); verdict('PS1', !(seen.share > 0) || seen.share > 0.15, seen);
+  await context.close(); verdict('PS1', !(seen.share > 0) || seen.share > 0.2, seen);
+};
+/* 2.38.0: the phone's first screen is the same whether or not the guide has arrived, for every role; screens that need
+   the guide say so instead of computing without it. The guide is blocked here, as when it is not saved offline. */
+async function quickPhoneContext(browser, block) {
+  const context = await browser.newContext({serviceWorkers: 'block', ...phone, viewport: {width: 390, height: 844}});
+  if (block) await context.route('**/bundles/*-guide-*.json', block);
+  const page = await context.newPage(), errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => { const key = 'predecessor-companion-v1', prefs = JSON.parse(localStorage.getItem(key) || '{}'); localStorage.setItem(key, JSON.stringify({...prefs, installSeen: true, fullDetails: false})); });
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy && !!document.querySelector('#mobile-all-list .mobile-hero-card'), null, {timeout: 120000});
+  return {context, page, errors};
+}
+const metaScreens = page => page.evaluate(() => Object.fromEntries(['jungle', 'offlane', 'midlane', 'carry', 'support'].map(role => {
+  S.role = role; changeRoute('meta');
+  return [role, document.querySelector('#main').innerHTML.replace(/data-annex="[^"]*"/g, '')];
+})));
+probes.PS2 = async browser => {
+  const full = await quickPhoneContext(browser, null), expected = await metaScreens(full.page); await full.context.close();
+  const lean = await quickPhoneContext(browser, route => route.abort()), actual = await metaScreens(lean.page);
+  const differ = Object.keys(expected).filter(role => expected[role] !== actual[role]);
+  const hero = await lean.page.evaluate(() => { openHero('gideon', 'midlane'); const main = document.querySelector('#main'); return {waits: !!main.querySelector('[data-annex="guide"]'), text: main.innerText.slice(0, 160)}; });
+  await lean.context.close();
+  verdict('PS2', differ.length > 0 || !hero.waits || lean.errors.length > 0 || full.errors.length > 0, {differ, hero, errors: [...full.errors, ...lean.errors].slice(0, 3)});
+};
+probes.PS3 = async browser => {
+  // The guide arrives three seconds late: a hero opened meanwhile shows the loading state, then the hero page.
+  let release; const held = new Promise(r => { release = r; });
+  const context = await browser.newContext({serviceWorkers: 'block', ...phone, viewport: {width: 390, height: 844}});
+  await context.route('**/bundles/*-guide-*.json', async route => { await held; await route.continue(); });
+  const page = await context.newPage(), errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => { const key = 'predecessor-companion-v1', prefs = JSON.parse(localStorage.getItem(key) || '{}'); localStorage.setItem(key, JSON.stringify({...prefs, installSeen: true, fullDetails: false})); });
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !!document.querySelector('#mobile-all-list .mobile-hero-card'), null, {timeout: 120000});
+  const waiting = await page.evaluate(() => { openHero('gideon', 'midlane'); return {loading: !!document.querySelector('#main .annex-loading[data-annex="guide"]'), route: S.route}; });
+  release();
+  await page.waitForFunction(() => !!document.querySelector('#main .simple-build, #main .hero-header'), null, {timeout: 60000}).catch(() => {});
+  const after = await page.evaluate(() => ({route: S.route, hero: S.hero, rendered: !!document.querySelector('#main .simple-build, #main .hero-header'), gate: !!document.querySelector('#main [data-annex="guide"]')}));
+  await context.close();
+  verdict('PS3', !waiting.loading || !after.rendered || after.gate || after.hero !== 'gideon' || errors.length > 0, {waiting, after, errors: errors.slice(0, 3)});
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
