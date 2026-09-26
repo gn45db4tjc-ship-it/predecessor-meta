@@ -1,0 +1,332 @@
+{
+ "data": {
+  "heroes": [
+   {
+    "id": "56",
+    "name": "Impaler",
+    "slug": "valmont",
+    "data": {
+     "id": "11755",
+     "name": "Impaler",
+     "displayName": "Valmont",
+     "icon": "34db6cddbeaece42",
+     "altDisplayName": "The Impaler",
+     "classes": [
+      "MAGE"
+     ],
+     "roles": [
+      "MIDLANE"
+     ],
+     "hero": {
+      "id": "56",
+      "slug": "valmont"
+     }
+    }
+   },
+   {
+    "id": "7",
+    "name": "Gideon",
+    "slug": "gideon",
+    "data": {
+     "id": "11748",
+     "name": "Gideon",
+     "displayName": "Gideon",
+     "icon": "12e99f1dcdfbf7d6",
+     "altDisplayName": "Rift Walker",
+     "classes": [
+      "MAGE"
+     ],
+     "roles": [
+      "MIDLANE"
+     ],
+     "hero": {
+      "id": "7",
+      "slug": "gideon"
+     }
+    }
+   },
+   {
+    "id": "8",
+    "name": "Grux",
+    "slug": "grux",
+    "data": {
+     "id": "11750",
+     "name": "Grux",
+     "displayName": "Grux",
+     "icon": "4d1f268b89b454f6",
+     "altDisplayName": "Forsaken Warlord",
+     "classes": [
+      "FIGHTER"
+     ],
+     "roles": [
+      "OFFLANE",
+      "JUNGLE"
+     ],
+     "hero": {
+      "id": "8",
+      "slug": "grux"
+     }
+    }
+   }
+  ],
+  "NewestVersion": {
+   "id": "168"
+  },
+  "versions": [
+   {
+    "id": "166",
+    "name": "1.16.4",
+    "patchType": "BALANCE",
+    "releaseDate": "2026-09-01T10:03:55Z"
+   },
+   {
+    "id": "167",
+    "name": "1.17",
+    "patchType": "CONTENT",
+    "releaseDate": "2026-09-22T10:00:42Z"
+   },
+   {
+    "id": "168",
+    "name": "1.17.1",
+    "patchType": "HOTFIX",
+    "releaseDate": "2026-09-24T10:00:42Z"
+   }
+  ],
+  "items": [
+   {
+    "id": "238",
+    "name": "CyberneticDrive",
+    "slug": "cybernetic-drive",
+    "data": {
+     "id": "64390",
+     "displayName": "Cybernetic Drive",
+     "icon": "51033c7aee03db3f",
+     "smallIcon": "a5950ef89ff8974f",
+     "rarity": "EPIC"
+    }
+   },
+   {
+    "id": "220",
+    "name": "Penumbra",
+    "slug": "penumbra",
+    "data": {
+     "id": "64461",
+     "displayName": "Penumbra",
+     "icon": "adfccb3028c07055",
+     "smallIcon": "0cb10028842294df",
+     "rarity": "EPIC"
+    }
+   }
+  ],
+  "ratings": [
+   {
+    "id": "12",
+    "group": "S1S5",
+    "name": "Season 1 - Split 5",
+    "suffix": "VP",
+    "startTime": "2026-06-30T12:00:00Z",
+    "endTime": null,
+    "ranks": [
+     {
+      "id": "36",
+      "abbreviation": "P",
+      "divisionIdx": 0,
+      "icon": "228ce78233215776",
+      "name": "Paragon",
+      "ratingMax": 666666.0,
+      "ratingMin": 1400.0,
+      "tierIdx": 5,
+      "tierName": "Paragon"
+     },
+     {
+      "id": "21",
+      "abbreviation": "B3",
+      "divisionIdx": 0,
+      "icon": "26389cf81c492cde",
+      "name": "Bronze III",
+      "ratingMax": 100.0,
+      "ratingMin": 0.0,
+      "tierIdx": 0,
+      "tierName": "Bronze"
+     },
+     {
+      "id": "22",
+      "abbreviation": "B2",
+      "divisionIdx": 1,
+      "icon": "26389cf81c492cde",
+      "name": "Bronze II",
+      "ratingMax": 200.0,
+      "ratingMin": 100.0,
+      "tierIdx": 0,
+      "tierName": "Bronze"
+     },
+     {
+      "id": "23",
+      "abbreviation": "B1",
+      "divisionIdx": 2,
+      "icon": "26389cf81c492cde",
+      "name": "Bronze I",
+      "ratingMax": 300.0,
+      "ratingMin": 200.0,
+      "tierIdx": 0,
+      "tierName": "Bronze"
+     },
+     {
+      "id": "24",
+      "abbreviation": "S3",
+      "divisionIdx": 0,
+      "icon": "fc69387012302b46",
+      "name": "Silver III",
+      "ratingMax": 400.0,
+      "ratingMin": 300.0,
+      "tierIdx": 1,
+      "tierName": "Silver"
+     },
+     {
+      "id": "25",
+      "abbreviation": "S2",
+      "divisionIdx": 1,
+      "icon": "fc69387012302b46",
+      "name": "Silver II",
+      "ratingMax": 500.0,
+      "ratingMin": 400.0,
+      "tierIdx": 1,
+      "tierName": "Silver"
+     },
+     {
+      "id": "26",
+      "abbreviation": "S1",
+      "divisionIdx": 2,
+      "icon": "fc69387012302b46",
+      "name": "Silver I",
+      "ratingMax": 600.0,
+      "ratingMin": 500.0,
+      "tierIdx": 1,
+      "tierName": "Silver"
+     },
+     {
+      "id": "27",
+      "abbreviation": "G3",
+      "divisionIdx": 0,
+      "icon": "bd3235ed2d814c4d",
+      "name": "Gold III",
+      "ratingMax": 700.0,
+      "ratingMin": 600.0,
+      "tierIdx": 2,
+      "tierName": "Gold"
+     },
+     {
+      "id": "28",
+      "abbreviation": "G2",
+      "divisionIdx": 1,
+      "icon": "bd3235ed2d814c4d",
+      "name": "Gold II",
+      "ratingMax": 800.0,
+      "ratingMin": 700.0,
+      "tierIdx": 2,
+      "tierName": "Gold"
+     },
+     {
+      "id": "29",
+      "abbreviation": "G1",
+      "divisionIdx": 2,
+      "icon": "bd3235ed2d814c4d",
+      "name": "Gold I",
+      "ratingMax": 900.0,
+      "ratingMin": 800.0,
+      "tierIdx": 2,
+      "tierName": "Gold"
+     },
+     {
+      "id": "30",
+      "abbreviation": "P3",
+      "divisionIdx": 0,
+      "icon": "82f82fede2ff80be",
+      "name": "Platinum III",
+      "ratingMax": 1000.0,
+      "ratingMin": 900.0,
+      "tierIdx": 3,
+      "tierName": "Platinum"
+     },
+     {
+      "id": "31",
+      "abbreviation": "P2",
+      "divisionIdx": 1,
+      "icon": "82f82fede2ff80be",
+      "name": "Platinum II",
+      "ratingMax": 1100.0,
+      "ratingMin": 1000.0,
+      "tierIdx": 3,
+      "tierName": "Platinum"
+     },
+     {
+      "id": "32",
+      "abbreviation": "P1",
+      "divisionIdx": 2,
+      "icon": "82f82fede2ff80be",
+      "name": "Platinum I",
+      "ratingMax": 1200.0,
+      "ratingMin": 1100.0,
+      "tierIdx": 3,
+      "tierName": "Platinum"
+     },
+     {
+      "id": "33",
+      "abbreviation": "D3",
+      "divisionIdx": 0,
+      "icon": "ecb7e9ae11b82dbc",
+      "name": "Diamond III",
+      "ratingMax": 1300.0,
+      "ratingMin": 1200.0,
+      "tierIdx": 4,
+      "tierName": "Diamond"
+     },
+     {
+      "id": "34",
+      "abbreviation": "D2",
+      "divisionIdx": 1,
+      "icon": "ecb7e9ae11b82dbc",
+      "name": "Diamond II",
+      "ratingMax": 1400.0,
+      "ratingMin": 1300.0,
+      "tierIdx": 4,
+      "tierName": "Diamond"
+     },
+     {
+      "id": "35",
+      "abbreviation": "D1",
+      "divisionIdx": 2,
+      "icon": "ecb7e9ae11b82dbc",
+      "name": "Diamond I",
+      "ratingMax": 1500.0,
+      "ratingMin": 1400.0,
+      "tierIdx": 4,
+      "tierName": "Diamond"
+     }
+    ]
+   }
+  ],
+  "eternalCategories": [
+   {
+    "id": "6",
+    "name": "EternalCategory_Primarchs",
+    "data": {
+     "id": "216",
+     "displayName": "Primarchs",
+     "perks": [
+      {
+       "id": "21014",
+       "name": "Eternal_Thraex",
+       "displayName": "Thraex"
+      },
+      {
+       "id": "21011",
+       "name": "Eternal_Nihil",
+       "displayName": "Nihil"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}
