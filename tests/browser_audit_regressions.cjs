@@ -3293,6 +3293,27 @@ probes.PD8 = async browser => {
       build_ready_chips: cards.filter(c => /Build ready/.test(c.textContent)).length}; });
   await context.close(); verdict('PD8', seen.placeholder_tiers > 0 || seen.build_ready_chips > 0, seen);
 };
+/* 2.38.0 speed: the phone's first screen (the Meta list) shows before the rest of the hero and build data downloads.
+   Counts the rank data that had finished downloading when the first Meta row appeared, against the full rank bundle. */
+probes.PS1 = async browser => {
+  const context = await browser.newContext({serviceWorkers: 'block', ...phone, viewport: {width: 390, height: 844}});
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    const key = 'predecessor-companion-v1', prefs = JSON.parse(localStorage.getItem(key) || '{}');
+    localStorage.setItem(key, JSON.stringify({...prefs, installSeen: true, fullDetails: false}));
+    new MutationObserver((_, observer) => { if (document.querySelector('#mobile-all-list .mobile-hero-card')) { window.__firstRowAt = performance.now(); observer.disconnect(); } })
+      .observe(document, {childList: true, subtree: true});
+  });
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy && !!window.__firstRowAt, null, {timeout: 120000});
+  const seen = await page.evaluate(async () => {
+    const entry = publishedCohorts.gold, data = performance.getEntriesByType('resource').filter(e => /\/bundles\/gold-/.test(e.name));
+    const before = data.filter(e => e.responseEnd <= window.__firstRowAt).reduce((n, e) => n + e.decodedBodySize, 0);
+    const full = (await (await fetch(entry.url, {cache: 'no-store'})).arrayBuffer()).byteLength;
+    return {before_first_row: before, full_bundle: full, share: Math.round(before / full * 1000) / 1000, files_before: data.filter(e => e.responseEnd <= window.__firstRowAt).map(e => e.name.split('/').pop().replace(/-[a-f0-9]{64}/, ''))};
+  });
+  await context.close(); verdict('PS1', !(seen.share > 0) || seen.share > 0.15, seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
