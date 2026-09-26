@@ -1,8 +1,8 @@
 /* Approved companion flow, on top of the existing data, history and dialog systems. */
 'use strict';
-for(const key of ['selectedBuilds','skillLevels','heroPools'])if(!companionPrefs[key]||typeof companionPrefs[key]!=='object'||Array.isArray(companionPrefs[key]))companionPrefs[key]={};
+for(const key of ['selectedBuilds','heroPools'])if(!companionPrefs[key]||typeof companionPrefs[key]!=='object'||Array.isArray(companionPrefs[key]))companionPrefs[key]={};
 let quickDraft={role:null,publication:null,signature:null,rows:[],preview:null},quickAlternative=false;
-const fullMobileHero=mobileHero,fullMobileLive=liveMobile,fullMobileDraft=mobileDraft,fullDesktopDraft=draftView;
+const fullMobileHero=mobileHero;
 const standardNavigation=destinationNavigation,standardSections=destinationSections;
 const simpleMode=()=>companionMedia.matches&&!companionPrefs.fullDetails;
 function buildSelection(p){const ref=companionPrefs.selectedBuilds[p.slug+'|'+p.role];if(!ref&&S.liveVariant!=null&&S.me===p.slug&&S.locks.some(a=>a.slug===p.slug&&a.role===p.role))return {status:'invalid',index:null,reason:'A playstyle saved by the previous app needs to be chosen again. Its old variant number cannot identify the same build after an update.'};return CompanionState.resolve(B,E,ref,p.slug,p.role);}
@@ -12,8 +12,8 @@ function choosePlaystyle(p,index){const key=p.slug+'|'+p.role;if(index===null)de
 adviceFor=function(p){const choice=buildSelection(p),enemies=coachEnemies(p),ctx={...contextFor(p)};if(choice.status==='invalid')throw Error(choice.reason);if(ctx.primaryThreat&&!enemies.some(e=>e.slug===ctx.primaryThreat))delete ctx.primaryThreat;return E.adaptBuild(p,S.locks.filter(a=>a.slug!==p.slug).concat(p),enemies,{...ctx,variant:choice.index});};
 destinationNavigation=function(phone){
  if(!phone)return standardNavigation(phone);
- const current=['planner','draft','live'].includes(S.route)?'plan':['meta','hero','builds'].includes(S.route)?'meta':'more';
- return [['meta','Meta','meta'],['plan','Plan','draft'],['more','More','more']].map(([id,label,route])=>`<button class="nav" data-destination="${id}" data-route="${route}" ${companionMedia.matches&&current===id?'aria-current="page"':''}>${destinationIcon(id)}<span>${label}</span></button>`).join('');
+ const current=['match','planner','draft','live'].includes(S.route)?'match':['meta','hero','builds'].includes(S.route)?'meta':'more';
+ return [['meta','Meta','meta'],['match','Match','match'],['more','More','more']].map(([id,label,route])=>`<button class="nav" data-destination="${id}" data-route="${route}" ${companionMedia.matches&&current===id?'aria-current="page"':''}>${destinationIcon(id)}<span>${label}</span></button>`).join('');
 };
 destinationSections=function(){
  if(companionMedia.matches&&['builds','more','data','library','guidance','changes'].includes(S.route))return '';
@@ -41,26 +41,36 @@ function simpleBuildHTML(p,{quick=false}={}){
 }
 // Rows follow the in-game ability bar; the ultimate sits last so its 6/11/16 ticks read as a separate line.
 const SKILL_CHART_ROWS=['Primary','Secondary','Alternate','Ultimate'];
-function skillChartHTML(plan,guide,level){
+function skillChartHTML(plan,guide){
  const abilities=Object.fromEntries((B.heroes?.[plan.slug]?.abilities||[]).map(a=>[a.key,a])),rank={};
  const cells=guide.points.map(p=>({...p,rank:rank[p.token]=(rank[p.token]||0)+1}));
- const current=l=>l===level?' is-current':'';
- const head=cells.map(p=>`<th scope="col" class="skill-chart-level${current(p.level)}"${p.level===level?' aria-current="step"':''}><span>${p.level}</span></th>`).join('');
+ const head=cells.map(p=>`<th scope="col" class="skill-chart-level">${p.level}</th>`).join('');
  const rows=SKILL_CHART_ROWS.map(token=>{
   const first=cells.find(p=>p.token===token);if(!first)return '';
   const icon=abilities[first.key]?.image_url;
   return `<tr data-skill-row="${esc(token)}"><th scope="row"><span class="skill-chart-ability">${icon?`<img src="${esc(icon)}" alt="" width="24" height="24" loading="lazy">`:''}<span class="skill-chart-name">${esc(first.name)}</span><kbd>${esc(first.key)}</kbd></span></th>${cells.map(p=>p.token===token
-   ?`<td class="is-ticked${current(p.level)}"><span class="skill-box" aria-hidden="true">✓</span><span class="sr-only">Level ${p.level}, rank ${p.rank}</span></td>`
-   :`<td class="${current(p.level).trim()}"><span class="skill-box" aria-hidden="true"></span></td>`).join('')}</tr>`;
+   ?`<td class="is-ticked"><span class="skill-box" aria-hidden="true">✓</span><span class="sr-only">Level ${p.level}, rank ${p.rank}</span></td>`
+   :`<td><span class="skill-box" aria-hidden="true"></span></td>`).join('')}</tr>`;
  }).join('');
  const legend=SKILL_CHART_ROWS.map(token=>cells.find(p=>p.token===token)).filter(Boolean).map(p=>`<span><kbd>${esc(p.key)}</kbd> ${esc(p.name)}</span>`).join('');
  return `<div class="skill-chart-scroll" role="region" aria-label="Skill order chart, levels 1 to 18" tabindex="0"><table class="skill-chart"><caption class="sr-only">Skill points by hero level for ${esc(name(plan.slug))}. Each column is a level; the ticked box is the ability to rank up.</caption><thead><tr><th scope="col" class="skill-chart-corner">Level</th>${head}</tr></thead><tbody>${rows}</tbody></table></div><p class="skill-chart-legend" aria-hidden="true">${legend}</p>`;
 }
+// Build-page alternates by enemy team type (engine teamAlternates): calculated item rules on the reviewed core.
+function teamAlternatesHTML(p){
+ const choice=buildSelection(p);if(choice.status==='invalid')return '';
+ let r;try{r=E.teamAlternates(p,{variant:choice.index});}catch(e){return '';}
+ const head=`<div class="skill-guide-head"><h2>Adapt to the enemy team</h2>${badge('Calculated · item rules','calculated')}</div>`;
+ if(!r.available)return `<section class="team-alternates panel" data-team-alternates="${esc(p.slug+'|'+p.role)}">${head}<p class="simple-source">${esc(r.reason)}</p></section>`;
+ const body=x=>x.status==='swap'?x.swaps.map(s=>`<div class="team-alt-change"><span>Swap</span>${itemButton(s.from)}<span aria-hidden="true">→</span><span class="sr-only">for</span>${itemButton(s.to)}</div><small>Item ${s.position}${s.evidence?' · '+esc(s.evidence):''}</small>`).join('')
+  :x.status==='covered'?`<div class="team-alt-change"><span>Already in this build</span>${x.coveredBy.map(n=>itemButton(n)).join('')}</div>${x.earlier?`<small>Buy ${esc(x.earlier.item)} earlier, as item ${x.earlier.position}.</small>`:''}`
+  :`<small>No calculated swap fits this build's flexible slots; keep the starting build.</small>`;
+ return `<section class="team-alternates panel" data-team-alternates="${esc(p.slug+'|'+p.role)}">${head}<p class="simple-source">Find the row that matches the enemy team. ${esc(r.note)}</p><ul class="team-alt-list">${r.rows.map(x=>`<li data-team-type="${esc(x.id)}" data-status="${esc(x.status)}"><strong class="team-alt-type">${esc(x.label)}</strong>${body(x)}</li>`).join('')}</ul></section>`;
+}
 function skillPointsHTML(plan){
  const choice=buildSelection(plan),guide=SkillGuide.make(B,plan,{variantIndex:choice.index}),key=plan.slug+'|'+plan.role;
  if(!guide.points.length)return `<section class="skill-guide panel"><h2>Skill order · unavailable</h2><p>${esc(guide.reason)}</p></section>`;
- const level=Math.max(1,Math.min(18,Number(companionPrefs.skillLevels[key])||1)),point=guide.points[level-1],source=guide.source||{};
- return `<section class="skill-guide panel" data-skill-guide="${esc(key)}"><div class="skill-guide-head"><h2>Skill order · levels 1–18</h2>${badge(guide.label,guide.kind==='reviewed'?'reviewed':guide.kind==='observed'?'observed':'calculated')}</div>${skillChartHTML(plan,guide,level)}<p class="simple-source">Read left to right: each column is a hero level, and the ticked box is the ability to rank up. Names first; keys are default PC bindings.</p><label>Your hero level<select data-skill-level-select>${options(guide.points.map(r=>[String(r.level),'Level '+r.level]),String(level))}</select></label><p class="skill-answer" aria-live="polite">Level ${level}: put the point in <strong>${esc(point.name)}</strong> (${esc(point.key)}).</p><details data-keep="skill-reason"><summary>Why this order & source</summary><p>${esc(guide.reason)}</p>${Number.isFinite(source.wr)&&Number.isFinite(source.played)?`<p>Observed sequence: ${pct(source.wr)} win rate · ${games(source.played)}.</p>`:''}<p class="simple-source">${guide.kind==='observed'?'Statz dataset '+esc(source.patch)+' · fetched '+esc(date(source.fetched_at)):guide.kind==='reviewed'?'Order reviewed '+esc(date(source.reviewed_at)):'Priority reviewed '+esc(date(source.reviewed_at))+'; this exact allocation still needs review.'}${source.url?' · '+link(source.url,'Source'):''}</p>${guide.notes.map(n=>note(esc(n),true)).join('')}</details></section>`;
+ const source=guide.source||{};
+ return `<section class="skill-guide panel" data-skill-guide="${esc(key)}"><div class="skill-guide-head"><h2>Skill order · levels 1–18</h2>${badge(guide.label,guide.kind==='reviewed'?'reviewed':guide.kind==='observed'?'observed':'calculated')}</div>${skillChartHTML(plan,guide)}<p class="simple-source">Read left to right: each column is a hero level, and the ticked box is the ability to rank up. Names first; keys are default PC bindings.</p><details data-keep="skill-reason"><summary>Why this order & source</summary><p>${esc(guide.reason)}</p>${Number.isFinite(source.wr)&&Number.isFinite(source.played)?`<p>Observed sequence: ${pct(source.wr)} win rate · ${games(source.played)}.</p>`:''}<p class="simple-source">${guide.kind==='observed'?'Statz dataset '+esc(source.patch)+' · fetched '+esc(date(source.fetched_at)):guide.kind==='reviewed'?'Order reviewed '+esc(date(source.reviewed_at)):'Priority reviewed '+esc(date(source.reviewed_at))+'; this exact allocation still needs review.'}${source.url?' · '+link(source.url,'Source'):''}</p>${guide.notes.map(n=>note(esc(n),true)).join('')}</details></section>`;
 }
 function alternativesHTML(p){
  const stats=B.heroes[p.slug]?.roles?.[p.role],rows=stats?.builds||[];
@@ -79,15 +89,8 @@ mobileHero=function(){
  const p={slug:S.hero,role:S.heroRole},hero=E.heroes[p.slug];if(!hero)return guidedHome();
  const perf=E.displayPerformance(p),counter=RecommendationView.counterplay(E,E.heroes,p.slug,p.role),tab=['pairings','counters','kit'].includes(S.heroTab)?S.heroTab:quickAlternative?'alternatives':'builds';
  const buttons=[['builds','Build'],['alternatives','Options'],...(counter.available?[['counters','Counters']]:[]),['pairings','Partners'],['kit','Kit']];
- const body=tab==='alternatives'?alternativesHTML(p):tab==='pairings'?patchContextHTML(p.slug,'partners')+simplePartnersHTML(p):tab==='counters'?simpleCountersHTML(p):tab==='kit'?patchContextHTML(p.slug)+kitView(hero):simpleBuildHTML(p)+patchContextHTML(p.slug)+skillPointsHTML(chosenPlan(p));
+ const body=tab==='alternatives'?alternativesHTML(p):tab==='pairings'?patchContextHTML(p.slug,'partners')+simplePartnersHTML(p):tab==='counters'?simpleCountersHTML(p):tab==='kit'?patchContextHTML(p.slug)+kitView(hero):simpleBuildHTML(p)+teamAlternatesHTML(p)+patchContextHTML(p.slug)+skillPointsHTML(chosenPlan(p));
  return `<button class="text-button" data-route="meta">← Meta</button><div class="hero-header mobile-hero-head">${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div></div>${buildStripHTML(p)}<p class="simple-source">${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</p><div class="simple-sections tab-strip tab-strip--segmented" role="tablist" aria-label="Hero sections">${buttons.map(([id,label])=>`<button role="tab" data-simple-section="${id}" aria-selected="${id===tab}" tabindex="${id===tab?0:-1}"${id===tab?` aria-controls="hero-sec-${tab==='alternatives'?'builds':tab}"`:''}>${label}</button>`).join('')}</div><section id="hero-sec-${tab==='alternatives'?'builds':tab}" class="simple-hero-section" role="tabpanel" aria-label="${esc(buttons.find(b=>b[0]===tab)?.[1]||'Build')}">${body}</section><div class="adapt-dock"><button class="primary" data-start-live="true">Adapt to my match</button></div><div class="simple-actions">${detailModeButton()}<button id="favorite-hero" aria-pressed="${companionPrefs.favorites.includes(p.slug+'|'+p.role)}">Favorite</button><button id="share-hero">Share</button></div>`;
-};
-liveMobile=function(){
- if(companionPrefs.fullDetails)return fullMobileLive()+detailModeButton();
- const me=S.locks.find(p=>p.slug===S.me);if(!me)return fullMobileLive();
- let a;try{a=adviceFor(me);}catch(e){return head('Live game','Check your selected build',esc(e.message))+`<button data-hero="${esc(me.slug)}" data-role="${me.role}">Choose a build</button>${detailModeButton()}`;}
- const plan=chosenPlan(me);
- return head('Live game',name(me.slug)+' · '+labels[me.role],'Add only what you know; your starting build remains available.')+`<div class="live-actions"><button data-new-match="true">New match</button><button data-live-lookup="true">Change my hero</button></div><section class="panel coach"><h2>${a.nextPurchase?'Next: '+esc(a.nextPurchase.name):a.available?'Six items owned':'Next purchase unavailable'}</h2>${a.available?`${badge(buildCategory(a.plan,a.nextPurchase).text,'calculated')}<p>${esc(a.explanations[0])}</p>${a.nextPurchase?itemButton(a.nextPurchase.name)+supportingSample(a.nextPurchase.measured,a.slots.indexOf(a.nextPurchase)+1):''}<details><summary>Suggested purchase path & reasons</summary><ol class="build-path">${a.slots.map((slot,i)=>`<li>${itemButton(slot.name)}${badge(buildCategory(a.plan,slot).text,'calculated')}<p>${esc(slot.label)}</p>${supportingSample(slot.measured,i+1)}</li>`).join('')}</ol>${a.changes.map(c=>`<p>${esc(c.item)}: ${esc(c.reason)}</p>`).join('')}</details>`:note(esc(a.unavailableReason),true)}${planDate(plan)}</section><button class="primary" data-edit-situation="${esc(me.slug+'|'+me.role)}">Add teammates, enemies & owned items</button>${skillPointsHTML(plan)}<details data-keep="compare-start"><summary>My original starting build</summary>${simpleBuildHTML(me)}</details>${detailModeButton()}`;
 };
 function draftInputs(){return JSON.stringify([S.candidateRole,S.locks,S.enemies,S.bans,companionPrefs.heroPools[S.candidateRole]||[],B.generated_at,S.bracket]);}
 function quickEvidenceKey(){return JSON.stringify([B.generated_at,B.patch,B.official?.live?.version,S.bracket]);}
@@ -96,14 +99,6 @@ function refreshQuickDraft(wide=false){
  const rows=E.recommend(S.locks,{role:S.candidateRole,bans:S.bans,enemies:S.enemies,min:100,metric:'kit'}).filter(c=>wide||!pool.length||pool.includes(c.picks[c.picks.length-1].slug));
  quickDraft={role:S.candidateRole,publication:B.generated_at,evidence:quickEvidenceKey(),signature:draftInputs(),preview:null,rows:rows.slice(0,3).map(c=>{const p=c.picks[c.picks.length-1],fit=c.links?.find(l=>l.a===p.slug||l.b===p.slug)?.fit,reason=fit?.reasons?.[0];return {p,reason:reason?.summary||reason?.text||'Fits the selected role; inspect its kit and team coverage.'};})};
 }
-function quickDraftView(){
- if(quickDraft.role!==S.candidateRole)quickDraft={role:S.candidateRole,rows:[],preview:null};
- const pool=companionPrefs.heroPools[S.candidateRole]||[],state={allies:S.locks,enemies:S.enemies,bans:S.bans},stale=quickDraft.signature!==draftInputs();
- const changed=quickDraft.evidence!==quickEvidenceKey(),blocked=p=>CompanionState.blocked(p.slug,p.role,state,E)||(changed?'Evidence changed — refresh shortlist':'');
- return head('Plan · quick draft','Choose from three','Prepare before your turn. Suggestions stay put until you update them.')+`<div class="toolbar"><label>Your role<select id="candidate-role">${options(roleOrder.map(r=>[r,labels[r]]),S.candidateRole)}</select></label><button class="primary" data-quick-refresh>Show my shortlist</button></div><details data-keep="personal-pool"><summary>My ${esc(labels[S.candidateRole])} heroes · ${pool.length}/3</summary><p>Optional familiar-hero pool. An empty pool considers everyone.</p><div class="simple-pool">${Object.keys(E.heroes).filter(s=>E.roles(s).includes(S.candidateRole)).sort((a,b)=>name(a).localeCompare(name(b))).map(s=>`<button data-quick-pool="${s}" aria-pressed="${pool.includes(s)}">${esc(name(s))}</button>`).join('')}</div></details>${quickDraft.rows.length&&stale?note('Picks, rank or evidence changed. This shortlist has stayed in place; update it when ready. Unavailable heroes cannot be locked.',true):''}<div class="grid three quick-candidates">${quickDraft.rows.map(({p,reason})=>`<article class="panel quick-candidate ${quickDraft.preview===p.slug?'is-selected':''}"><div class="quick-candidate-identity">${art(p.slug)}<h2>${esc(name(p.slug))}</h2></div><p>${esc(reason)}</p>${badge('Calculated kit-fit ordering','calculated')}<button data-quick-preview="${esc(p.slug)}" aria-pressed="${quickDraft.preview===p.slug}" ${blocked(p)?'disabled':''}>${esc(blocked(p)||'See pre-match setup')}</button></article>`).join('')}</div>${!quickDraft.rows.length?empty('Show your shortlist when ready. Fewer than three eligible heroes will show fewer suggestions.'):''}<button data-quick-wide>Show other heroes</button>${quickDraft.preview&&!changed?`<section class="quick-setup"><h2 id="quick-setup-${esc(quickDraft.preview)}-${esc(S.candidateRole)}" tabindex="-1">${esc(name(quickDraft.preview))}</h2>${simpleBuildHTML({slug:quickDraft.preview,role:S.candidateRole},{quick:true})}<button class="primary" data-quick-lock="${esc(quickDraft.preview)}" ${blocked({slug:quickDraft.preview,role:S.candidateRole})?'disabled':''}>Use this hero & continue to match</button></section>`:''}<button data-reading-mode>Full draft details</button>`;
-}
-mobileDraft=function(){return companionPrefs.fullDetails?fullMobileDraft()+detailModeButton():quickDraftView();};
-draftView=function(){return companionPrefs.fullDetails?fullDesktopDraft()+detailModeButton():quickDraftView();};
 // A legacy Builds route remains a complete reference page. It is no longer a duplicate primary destination.
 const oldRenderCompanion=renderCompanion;
 renderCompanion=function(){if(B&&companionMedia.matches&&S.route==='builds'){$('#main').innerHTML=mobileBuilds();return true;}return oldRenderCompanion();};
@@ -135,7 +130,94 @@ document.addEventListener('click',event=>{
   else if(d.quickPreview){const heading=document.querySelector('.quick-setup>h2');heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});document.querySelector('.quick-setup')?.scrollIntoView({block:'start'});}
  }catch(e){toast(e.message);}
 },true);
-// Keep the chosen level's column in view when the chart scrolls sideways on a phone; the ability column is sticky.
-function revealSkillLevel(chart){const cell=chart.querySelector('.skill-chart-level.is-current');if(!cell)return;const pinned=chart.querySelector('.skill-chart-corner')?.offsetWidth||0,left=cell.offsetLeft-pinned,right=cell.offsetLeft+cell.offsetWidth;if(left<chart.scrollLeft)chart.scrollLeft=left;else if(right>chart.scrollLeft+chart.clientWidth)chart.scrollLeft=right-chart.clientWidth;}
-function updateSkillLevel(el,level){const block=el.closest('[data-skill-guide]');if(!block||!Number.isInteger(level)||level<1||level>18)return;companionPrefs.skillLevels[block.dataset.skillGuide]=level;saveCompanionPrefs();const y=scrollY,x=block.querySelector('.skill-chart-scroll')?.scrollLeft||0;render();const next=document.querySelector(`[data-skill-guide="${CSS.escape(block.dataset.skillGuide)}"]`);if(next){const chart=next.querySelector('.skill-chart-scroll');if(chart){chart.scrollLeft=x;revealSkillLevel(chart);}next.querySelector('select')?.focus({preventScroll:true});}scrollTo(0,y);}
-document.addEventListener('change',event=>{if(event.target.matches('[data-skill-level-select]')){event.stopImmediatePropagation();updateSkillLevel(event.target,Number(event.target.value));}},true);
+
+// ==== MATCH (2.36): one screen replaces Compose, Draft and Live ====
+// Pick your hero, tap the enemies you can see, and read the team type and the adapted build.
+// Enemy roles are assigned only because the engine needs one hero per role; they do not change the advice here.
+const LEGACY_MATCH_ROUTES=['planner','draft','live'];
+function matchMe(){return S.locks.find(p=>p.slug===S.me)||null;}
+function matchEnemies(){const me=matchMe();return S.enemies.filter(e=>!me||e.slug!==me.slug);}
+function matchSetMe(slug){
+ if(!E.heroes[slug])throw Error('Choose an available hero.');
+ // Default to a role with an active reviewed build, so the adapted build has a plan to start from.
+ const current=matchMe(),roles=E.roles(slug),role=current?.slug===slug?current.role:roles.find(r=>E.buildReview(slug,r)?.active)||roles[0];
+ S.enemies=S.enemies.filter(e=>e.slug!==slug);S.bans=[];S.locks=[{slug,role}];S.me=slug;S.liveVariant=null;S.matchPicking='enemy';save();
+}
+function matchAddEnemy(slug){
+ const me=matchMe();if(!E.heroes[slug]||slug===me?.slug)throw Error('Choose an available enemy hero.');
+ if(S.enemies.some(e=>e.slug===slug)){S.enemies=S.enemies.filter(e=>e.slug!==slug);save();return;}
+ if(S.enemies.length>=5)throw Error('An enemy team has five heroes. Remove one first.');
+ const taken=new Set(S.enemies.map(e=>e.role)),role=E.roles(slug).find(r=>!taken.has(r))||roleOrder.find(r=>!taken.has(r));
+ S.enemies=[...S.enemies,{slug,role}];save();
+}
+function matchTeamTypes(profile){
+ const who=list=>list?.length?' · '+list.map(s=>name(s)).join(', '):'',types=[];
+ if(profile.front>=2)types.push(['Tanky',profile.front,who(profile.frontWho)]);
+ if(profile.healers>=1)types.push(['Healing',profile.healers,who(profile.healWho)]);
+ if(profile.mag>=2)types.push(['Magic damage',profile.mag,who(profile.magWho)]);
+ if(profile.phys>=2)types.push(['Physical damage',profile.phys,who(profile.physWho)]);
+ if(profile.burst>=3)types.push(['Burst',profile.burst,who(profile.burstWho)]);
+ if(profile.shielders>=1)types.push(['Shields',profile.shielders,who(profile.shieldWho)]);
+ if(profile.hold>=2||profile.cc>=3)types.push(['Crowd control',profile.cc,who(profile.ccWho)]);
+ return types;
+}
+function matchGridHTML(mode){
+ const me=matchMe(),chosen=new Set(S.enemies.map(e=>e.slug));
+ const heroes=Object.keys(E.heroes).filter(s=>mode==='me'||s!==me?.slug).sort((a,b)=>name(a).localeCompare(name(b)));
+ return `<label class="match-search">${mode==='me'?'Find your hero':'Find an enemy hero'}<input id="match-search" type="search" autocomplete="off" placeholder="Hero name"></label>
+ <div class="match-grid" role="group" aria-label="${mode==='me'?'Choose your hero':'Enemy heroes'}">${heroes.map(s=>`<button type="button" class="match-hero" data-match-pick="${esc(s)}" data-match-mode="${mode}" data-name="${esc(name(s).toLowerCase())}" ${mode==='enemy'?`aria-pressed="${chosen.has(s)}"`:''}>${art(s,'tiny')}<span>${esc(name(s))}</span></button>`).join('')}</div>`;
+}
+function matchResultHTML(me,enemies){
+ const selection=buildSelection(me);
+ if(selection.status==='invalid')return `<section class="panel match-result"><h2>Choose your playstyle again</h2>${note(esc(selection.reason),true)}<button data-reset-playstyle="${esc(me.slug+'|'+me.role)}">Use the starting plan</button></section>`;
+ if(!enemies.length)return `<section class="panel match-result"><h2>No enemies yet</h2><p class="simple-source">Tap the enemy heroes you can see. Until then, these are this build's answers by enemy team type.</p></section>${teamAlternatesHTML(me)}`;
+ const choice=buildSelection(me);
+ let a;try{if(choice.status==='invalid')throw Error(choice.reason);a=E.adaptBuild(me,[],enemies,{state:'even',primaryThreat:null,variant:choice.index});}
+ catch(e){return `<section class="panel match-result">${note(esc(e.message),true)}</section>`;}
+ const types=matchTeamTypes(a.enemyProfile||{});
+ const typesHTML=`<section class="panel match-types"><div class="skill-guide-head"><h2>Enemy team type</h2>${badge('Calculated · enemy kits','calculated')}</div>${types.length?`<ul class="match-type-list">${types.map(([label,n,who])=>`<li><strong>${esc(label)}</strong> <span>${n}${esc(who)}</span></li>`).join('')}</ul>`:'<p class="simple-source">No team type stands out from these kits yet.</p>'}<p class="simple-source">Counted from each hero's kit, not from what they buy or how much damage they deal.</p></section>`;
+ if(!a.available)return typesHTML+`<section class="panel match-result"><h2>Build for this match</h2>${note(esc(a.unavailableReason),true)}<button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open the build page</button></section>`;
+ const base=new Set(a.baseline.map(n=>n.toLowerCase())),changed=new Map(a.swaps.map(s=>[s.to.toLowerCase(),s]));
+ const rows=a.slots.map((s,i)=>{const swap=changed.get(s.name.toLowerCase()),moved=!swap&&base.has(s.name.toLowerCase())&&a.baseline.findIndex(n=>n.toLowerCase()===s.name.toLowerCase())!==i;
+  return `<li class="${swap?'is-changed':''}"><span class="simple-position">${i+1}</span>${itemButton(s.name)}${swap?`<small>Replaces ${esc(swap.from)}${s.candidate?.trigger?.condition?' · '+esc(s.candidate.trigger.condition):''}</small>`:moved?'<small>Bought earlier for this match</small>':''}</li>`;}).join('');
+ const reasons=a.swaps.map(s=>`<li><strong>${esc(s.to)}</strong>: ${esc(s.reason)}</li>`).join('');
+ const unmet=(a.unmet||[]).map(id=>a.needs.find(n=>n.id===id)?.label||id);
+ return typesHTML+`<section class="panel match-result"><div class="skill-guide-head"><h2>Build for this match</h2>${badge(a.swaps.length?'Calculated changes':'Starting build kept',a.swaps.length?'calculated':'reviewed')}</div>
+ <ol class="simple-purchases match-build">${rows}</ol>
+ ${reasons?`<ul class="match-reasons">${reasons}</ul>`:'<p class="simple-source">No change is needed for these enemies under the item rules; keep the starting build.</p>'}
+ ${unmet.length?`<p class="simple-source">Not changed automatically: ${esc(unmet.join(', '))}.</p>`:''}
+ <p class="simple-source">${esc(a.note)}</p>
+ <button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open ${esc(name(me.slug))}'s build page</button></section>`;
+}
+function matchView(){
+ const me=matchMe(),enemies=matchEnemies(),picking=!me||S.matchPicking==='me'?'me':'enemy';
+ const intro=head('Match',me?name(me.slug)+' · '+labels[me.role]:'Your match',me?'Tap the enemy heroes you can see. The build below updates as you go.':'Choose who you play, then tap the enemy heroes you can see.');
+ const meHTML=me?`<section class="panel match-me"><div class="match-me-row">${art(me.slug,'')}<div><strong>${esc(name(me.slug))}</strong><label>Role<select id="match-role">${options(E.roles(me.slug).map(r=>[r,labels[r]]),me.role)}</select></label></div></div><div class="match-actions"><button type="button" data-match-change="me">${picking==='me'?'Keep '+esc(name(me.slug)):'Change hero'}</button><button type="button" data-match-new="true">New match</button></div></section>`:'';
+ const enemyHTML=me?`<section class="panel match-enemies"><div class="skill-guide-head"><h2>Enemy team · ${enemies.length}/5</h2></div>${enemies.length?`<ul class="match-chips">${enemies.map(e=>`<li><button type="button" class="match-chip" data-match-pick="${esc(e.slug)}" data-match-mode="enemy" aria-label="Remove ${esc(name(e.slug))}">${art(e.slug,'tiny')}<span>${esc(name(e.slug))}</span><span aria-hidden="true">×</span></button></li>`).join('')}</ul>`:'<p class="simple-source">None yet.</p>'}</section>`:'';
+ return intro+meHTML+(picking==='me'?`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:enemyHTML+matchResultHTML(me,enemies)+`<details class="panel match-pick" data-keep="match-enemy-grid" ${enemies.length<5?'open':''}><summary>Add enemy heroes</summary>${matchGridHTML('enemy')}</details>`);
+}
+document.addEventListener('click',event=>{
+ const el=event.target.closest('[data-match-pick],[data-match-change],[data-match-new]');if(!el)return;
+ event.preventDefault();event.stopImmediatePropagation();
+ try{
+  const key=el.dataset.matchPick,mode=el.dataset.matchMode,y=scrollY;
+  if(key)mode==='me'?matchSetMe(key):matchAddEnemy(key);
+  else if(el.dataset.matchChange){S.matchPicking=S.matchPicking==='me'&&matchMe()?'enemy':'me';}
+  else if(el.dataset.matchNew){S.enemies=[];S.bans=[];S.matchPicking='enemy';save();}
+  // Keep keyboard focus: the same grid button survives the redraw; a removed chip or the finished hero grid hands
+  // focus to that hero's grid button or to the enemy search.
+  redrawKeepingFocus();
+  if(key&&!$('#main').contains(document.activeElement))(mode==='me'?$('#match-search'):document.querySelector(`.match-hero[data-match-pick="${CSS.escape(key)}"]`))?.focus({preventScroll:true});
+  if(mode==='enemy')scrollTo(0,y);
+ }catch(e){toast(e.message);}
+},true);
+document.addEventListener('input',event=>{
+ if(event.target.id!=='match-search')return;
+ const q=event.target.value.trim().toLowerCase();
+ for(const b of event.target.closest('.match-pick')?.querySelectorAll('.match-hero')||[])b.hidden=!!q&&!b.dataset.name.includes(q);
+});
+document.addEventListener('change',event=>{
+ if(event.target.id!=='match-role')return;event.stopImmediatePropagation();
+ const me=matchMe(),role=event.target.value;if(!me||!E.roles(me.slug).includes(role))return;
+ S.locks=[{slug:me.slug,role}];S.liveVariant=null;save();render();
+},true);
