@@ -13,6 +13,12 @@ test('a build-only review restores a starting build without refreshing global st
  assert.equal(b.guidance.patch,'1.16.4');assert.equal(b.guidance.status,'needs review');assert.deepEqual(b,before);
  assert.equal(e.freshnessAreas({slug:'hero',role:'jungle'})[2].state,'current');
 });
+test('2.37.1 perk index: a perk definition edited in the same engine is read live, never from an obsolete copy',()=>{
+ const b=fixture();b.perks.augment={display_name:'Augment',description:'Exact definition'};const e=Meta.create(b);
+ assert.equal(e.buildReview('hero','jungle').active,true);
+ b.perks.augment.description='Changed definition';const r=e.buildReview('hero','jungle');
+ assert.equal(r.active,false);assert.deepEqual(r.changed,['Loadout Augment']);
+});
 test('an absent rank-local definition can use separate mechanics evidence but a conflict cannot',()=>{
  let b=fixture();assert.equal(Meta.create(b).buildReview('hero','jungle').active,true);
  b.perks.augment={display_name:'Augment',description:'Changed definition'};const r=Meta.create(b).buildReview('hero','jungle');

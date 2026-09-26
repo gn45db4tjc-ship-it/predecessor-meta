@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.37.0
+# Predecessor Meta - 2.37.1
 
-The phone app is decluttered: one compact bar at the top, a Meta list that starts at the first hero, a hero page whose Build tab shows the six items and loadout once on the first screen with "Use in Match" in the header, and a More menu with only the phone's own entries. Match shows a one-line summary of its swaps as you tap enemies. The website and the desktop keep every detail, and every piece of provenance stays one tap away. See [RELEASE-2.37.0.md](RELEASE-2.37.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The phone app is faster. On return visits, a rank's data files open straight from the phone when their bytes still match the checksum in their names, instead of being downloaded again (the core file is 924 KB); a new publication is noticed exactly as before. Reviewed-build lookups no longer re-read every loadout definition, and Pred.gg icons load at 128px on high-density screens. Nothing shown or labelled changes. See [RELEASE-2.37.1.md](RELEASE-2.37.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.37.0
+
+The phone app is decluttered: one compact bar at the top, a Meta list that starts at the first hero, a hero page whose Build tab shows the six items and loadout once on the first screen with "Use in Match" in the header, and a More menu with only the phone's own entries. Match shows a one-line summary of its swaps as you tap enemies. The website and the desktop keep every detail, and every piece of provenance stays one tap away. See [RELEASE-2.37.0.md](RELEASE-2.37.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.36.1
 
