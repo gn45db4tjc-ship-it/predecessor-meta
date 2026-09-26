@@ -1,0 +1,115 @@
+{
+ "data": {
+  "heroes": [
+   {
+    "id": "8",
+    "slug": "grux",
+    "data": {
+     "id": "11695",
+     "displayName": "Grux",
+     "roles": [
+      "OFFLANE",
+      "JUNGLE"
+     ]
+    },
+    "currentBalanceStatistic": {
+     "result": {
+      "matchesPlayed": 420,
+      "matchesWon": 207,
+      "matchesBanned": 72
+     },
+     "filter": {
+      "gameModes": [
+       "RANKED"
+      ],
+      "ranks": [
+       "29",
+       "30",
+       "31",
+       "32"
+      ],
+      "roles": [
+       "JUNGLE"
+      ],
+      "versions": [
+       "167",
+       "168"
+      ]
+     }
+    }
+   },
+   {
+    "id": "7",
+    "slug": "gideon",
+    "data": {
+     "id": "11693",
+     "displayName": "Gideon",
+     "roles": [
+      "MIDLANE"
+     ]
+    },
+    "currentBalanceStatistic": {
+     "result": {
+      "matchesPlayed": 0,
+      "matchesWon": 0,
+      "matchesBanned": 35
+     },
+     "filter": {
+      "gameModes": [
+       "RANKED"
+      ],
+      "ranks": [
+       "29",
+       "30",
+       "31",
+       "32"
+      ],
+      "roles": [
+       "JUNGLE"
+      ],
+      "versions": [
+       "167",
+       "168"
+      ]
+     }
+    }
+   },
+   {
+    "id": "56",
+    "slug": "valmont",
+    "data": {
+     "id": "11700",
+     "displayName": "Valmont",
+     "roles": [
+      "MIDLANE"
+     ]
+    },
+    "currentBalanceStatistic": {
+     "result": {
+      "matchesPlayed": 4,
+      "matchesWon": 2,
+      "matchesBanned": 2596
+     },
+     "filter": {
+      "gameModes": [
+       "RANKED"
+      ],
+      "ranks": [
+       "29",
+       "30",
+       "31",
+       "32"
+      ],
+      "roles": [
+       "JUNGLE"
+      ],
+      "versions": [
+       "167",
+       "168"
+      ]
+     }
+    }
+   }
+  ]
+ }
+}
