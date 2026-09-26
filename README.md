@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.35.0
+# Predecessor Meta - 2.35.1
 
-Each build's skill order is a chart: hero levels 1–18 run left to right, one row per ability, and the ticked box at each level is the ability to rank up, with the order's reviewed, observed or calculated label kept. See [RELEASE-2.35.0.md](RELEASE-2.35.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+On phones, the skill order chart shows each ability's icon and key with a legend under the chart, so 8 to 12 of the 18 levels fit without swiping (5 to 9 before). See [RELEASE-2.35.1.md](RELEASE-2.35.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.35.0
+
+Each build's skill order is a chart: hero levels 1–18 run left to right, one row per ability, and the ticked box at each level is the ability to rank up, with the order's reviewed, observed or calculated label kept. See [RELEASE-2.35.0.md](RELEASE-2.35.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.34.6
 
