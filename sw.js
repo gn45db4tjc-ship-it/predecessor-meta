@@ -7,7 +7,7 @@
 //   or malformed response can never replace a verified bracket.
 // Both names keep the 'predecessor-meta-' prefix on purpose: if the website is rolled back to 2.24 or earlier,
 // that release's worker deletes them on activation and starts saving afresh, instead of serving a frozen copy.
-const SHELL_CACHE = 'predecessor-meta-shell-v2-35-1';
+const SHELL_CACHE = 'predecessor-meta-shell-v2-36-0';
 const DATA_CACHE = 'predecessor-meta-data-v1';
 const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shell and data together in one cache
 const ROOT = new URL('./', self.location.href);

@@ -2,7 +2,7 @@
 // Uses the selected bundle only; never changes observations or extends an authored review's scope.
 if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   const rankOriginal = {chrome, metaView, metaTierButton, metaDecisionHTML, rolePriorityHTML,
-    metaReviewMethod, buildsPageView, heroView, plannerView, draftView, liveView, guidanceView, libraryView, changesView, dataView};
+    metaReviewMethod, buildsPageView, heroView, guidanceView, libraryView, changesView, dataView};
   isMaterialError = e => e?.severity === 'error' && !/^Pred\.gg(?: |$)/.test(e.source || '');   // optional Pred.gg is not a required source
   function selectedRankLabel() { return B?.scoped_statistics?.bracket_label || B?.bracket?.label || 'Rank unavailable'; }
   function matchingRankReview() {
@@ -58,9 +58,6 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   };
   buildsPageView = function() { return rankEvidenceNote() + rankOriginal.buildsPageView(); };
   heroView = function() { return rankEvidenceNote() + rankOriginal.heroView(); };
-  plannerView = function() { return rankEvidenceNote() + rankOriginal.plannerView(); };
-  draftView = function() { return rankEvidenceNote() + rankOriginal.draftView(); };
-  liveView = function() { return rankEvidenceNote() + rankOriginal.liveView(); };
   guidanceView = function() { return rankEvidenceNote() + rankOriginal.guidanceView(); };
   libraryView = function() { return rankEvidenceNote() + rankOriginal.libraryView(); };
   changesView = function() { return rankEvidenceNote() + rankOriginal.changesView(); };

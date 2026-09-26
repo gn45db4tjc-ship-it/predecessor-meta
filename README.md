@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.35.1
+# Predecessor Meta - 2.36.0
 
-On phones, the skill order chart shows each ability's icon and key with a legend under the chart, so 8 to 12 of the 18 levels fit without swiping (5 to 9 before). See [RELEASE-2.35.1.md](RELEASE-2.35.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Match replaces Compose, Draft and Live: pick your hero, tap the enemies you see, and read the enemy team type and the adapted build. Every build page lists calculated changes by enemy team type (tanky, healing, magic-heavy, physical-heavy, burst, shields), and the skill order is the level chart alone. See [RELEASE-2.36.0.md](RELEASE-2.36.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.35.1
+
+On phones, the skill order chart shows each ability's icon and key with a legend under the chart, so 8 to 12 of the 18 levels fit without swiping (5 to 9 before). See [RELEASE-2.35.1.md](RELEASE-2.35.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.35.0
 

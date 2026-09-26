@@ -40,15 +40,17 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13022/';let preview;
     await page.screenshot({path:`qa/product-build-${width}-${theme}.png`,fullPage:true});
     await page.evaluate(()=>{companionPrefs.homeQuery='';changeRoute('meta');});await page.screenshot({path:`qa/product-meta-${width}-${theme}.png`,fullPage:true});
    }
-   await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';save();changeRoute('draft');});
-   await page.locator('[data-quick-refresh]').click();assert((await page.locator('[data-quick-preview]').count())<=3);
-   const candidate=page.locator('[data-quick-preview]').first();await candidate.focus();await page.keyboard.press('Enter');
-   assert.equal(await page.evaluate(()=>document.activeElement===document.querySelector('.quick-setup>h2')),true,'setup receives keyboard focus');
-   assert.equal(await page.locator('[data-quick-preview][aria-pressed="true"]').count(),1);
-   const visible=await page.locator('.quick-setup>h2').boundingBox();assert(visible.y>=0&&visible.y<844,'focused heading on screen');
-   assert(await page.locator('.quick-setup>h2').evaluate(n=>{const b=n.getBoundingClientRect(),hit=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2);return hit===n||n.contains(hit);}), 'focused setup heading is not covered by sticky lineup');
-   await page.keyboard.press('Tab');assert(await page.evaluate(()=>!!document.activeElement.closest('.quick-setup')),'next Tab stays in setup');
-   await page.screenshot({path:`qa/product-draft-${width}-${theme}.png`,fullPage:true});
+   // Match (2.36.0): pick your hero, then enemies, by keyboard; focus stays on the control just used.
+   await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';save();changeRoute('match');});
+   await page.locator('.match-hero[data-match-pick="khaimera"]').focus();await page.keyboard.press('Enter');
+   assert.equal(await page.evaluate(()=>S.me),'khaimera','Enter on a hero chooses who you play');
+   assert.equal(await page.evaluate(()=>document.activeElement?.id),'match-search','focus moves to the enemy search');
+   const enemy=page.locator('.match-hero[data-match-pick="steel"]');await enemy.focus();await page.keyboard.press('Enter');
+   assert.equal(await page.locator('.match-chip').count(),1);assert.equal(await enemy.getAttribute('aria-pressed'),'true');
+   assert.equal(await page.evaluate(()=>document.activeElement?.dataset?.matchPick),'steel','focus stays on the enemy just added');
+   const box=await page.locator('.match-hero[data-match-pick="steel"]').boundingBox();assert(box.y>=0&&box.y<844,'focused enemy button on screen');
+   assert(await page.locator('.match-hero[data-match-pick="steel"]').evaluate(n=>{const b=n.getBoundingClientRect(),hit=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2);return hit===n||n.contains(hit);}),'focused enemy button is not covered by the phone navigation');
+   await page.screenshot({path:`qa/product-match-${width}-${theme}.png`,fullPage:true});
    await page.addScriptTag({path:process.env.AXE_PATH||require.resolve('axe-core/axe.min.js')});
    assert.deepEqual(await page.evaluate(async()=>(await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))),[]);
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

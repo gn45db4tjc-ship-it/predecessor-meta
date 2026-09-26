@@ -1051,8 +1051,39 @@
         note:(variant!==null?'Calculated adaptation of a selected source playstyle with matching reviewed kit preconditions. ':'Adapted from a dated reviewed plan. ')+'Selected-bracket evidence can only support compatible flexible choices. No samples are pooled and no adapted-build win rate is estimated.'};
     }
     function liveBuild(me,allies=[],enemies=[],context={}){return adaptBuild(me,allies,enemies,context);}
+    // Build-page alternates by enemy team type. Each type forces one existing item need on the
+    // reviewed plan with no enemies entered, so the same item rules and adaptation review apply;
+    // `fits` keeps a need to the builds its own rule targets (burst answers for squishy builds,
+    // anti-basic-attack items for frontliners). Calculated item rules, never a win prediction.
+    const TEAM_TYPES=[
+      {id:'tanky',label:'Tanky or high-health team',need:'tank_buster'},
+      {id:'healing',label:'Healing or lifesteal team',need:'anti_heal'},
+      {id:'magical',label:'Magic-heavy damage',need:'magical_armor'},
+      {id:'physical',label:'Physical-heavy damage',need:'physical_armor'},
+      {id:'burst',label:'Burst damage',need:'burst_insurance',fits:p=>!p.tanky},
+      {id:'magic_burst',label:'Magic burst casters',need:'spell_shield',fits:p=>!p.tanky},
+      {id:'shields',label:'Shield-heavy team',need:'anti_shield'},
+      {id:'basic_attacks',label:'Basic-attack carries',need:'anti_autos',fits:p=>p.tanky}];
+    function teamAlternates(me,context={}){
+      const rows=[];
+      for(const t of TEAM_TYPES){
+        const base={id:t.id,label:t.label,need:t.need};let r;
+        try{r=adaptBuild(me,[],[],{variant:context.variant??null,priority:t.need,state:'even',primaryThreat:null});}
+        catch(e){return {available:false,reason:e.message,rows:[]};}
+        if(!r.available)return {available:false,reason:r.unavailableReason,rows:[]};
+        if(t.fits&&!t.fits(r.profile))continue;
+        const need=r.needs.find(n=>n.id===t.need);
+        if(r.swaps.length){rows.push({...base,status:'swap',swaps:r.swaps.map(s=>{const slot=r.slots.find(x=>NK(x.name)===NK(s.to));const it=item(s.to),stat=t.need==='physical_armor'?'Physical armor':t.need==='magical_armor'?'Magical armor':null;const clause=it&&ITEM_NEEDS.find(q=>q.id===t.need)?.show?.(it);return {from:s.from,to:s.to,position:s.position,evidence:stat&&it?'+'+statNum(it,stat)+' '+stat.toLowerCase()+'.':clause||slot?.candidate?.evidence||''};})});continue;}
+        // The engine counts only core items as coverage; a qualifying finish item is kept and may be brought earlier.
+        const inBuild=[...new Set([...(need?.coveredBy||[]),...(need?.candidates||[]).filter(c=>c.trigger?.eligible!==false&&r.baseline.some(n=>NK(n)===NK(c.name))).map(c=>c.name)])];
+        if(inBuild.length){const moved=inBuild.map(n=>({name:n,from:r.baseline.findIndex(x=>NK(x)===NK(n))+1,to:r.slots.findIndex(x=>NK(x.name)===NK(n))+1})).find(m=>m.to>0&&m.to<m.from);
+          rows.push({...base,status:'covered',coveredBy:inBuild,earlier:moved?{item:moved.name,position:moved.to}:null});continue;}
+        rows.push({...base,status:'none'});
+      }
+      return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
+    }
     // ==== end BUILDS ====
-    return {heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

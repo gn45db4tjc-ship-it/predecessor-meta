@@ -4,7 +4,7 @@ Read this before substantive work. GitHub is the source of truth; inspect the cu
 
 ## Product and workflows
 
-Predecessor Meta is a local-first planning reference and phone companion. Phone: Meta → hero → build/alternatives/counterplay/partners/kit → Adapt to my match. Plan retains Compose, Draft and Live with shared picks, roles and bans. Quick Draft offers at most three stable suggestions and a pre-match loadout. Desktop retains the full reference and source inspection. Both themes, six brackets, exports and saved selections must survive changes.
+Predecessor Meta is a local-first planning reference and phone companion. Phone: Meta → hero → build/alternatives/counterplay/partners/kit → Adapt to my match. Every build page lists calculated alternates by enemy team type (engine `teamAlternates`). Since 2.36.0 one Match screen replaces Compose, Draft and Live: pick your hero, tap the enemies, and read the calculated team type and adapted build; old Plan links open Match. Reviewed team compositions stay on the Reviewed guide. Desktop retains the full reference and source inspection. Both themes, six brackets, exports and saved selections must survive changes.
 
 ## Architecture
 
