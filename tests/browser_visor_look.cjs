@@ -139,6 +139,7 @@ let app;
   const light=await tokens(['--bg','--surface','--brand']);
   check(light['--bg']==='#f0f3fb'&&light['--surface']==='#ffffff'&&light['--brand']==='#2854d7','light theme: its own tokens');
   check((await page.locator('#visor-note').innerText()).includes('dark theme only'),'light theme: setting says dark only');
+  await page.waitForTimeout(400);   // let the 0.12 s colour transitions finish before the picture
   await shot('ice-light-theme-1440');
   await page.locator('#theme-toggle').click();
   await brandIs(ice.tokens['--brand']);
