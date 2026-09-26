@@ -57,8 +57,9 @@ function trimRemovedScreens(code,suite){
    const started=Date.now();await page.goto(url,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:45000});
    const run={viewport,readyMs:Date.now()-started,checks:[],errors};const check=(value,label)=>{assert(value,label);run.checks.push(label);};
-   // At 700px and below the app renders its phone presentation: the sidebar actions (install, share, export) move under More.
-   const phone=viewport.width<=700,openMore=async()=>{if(phone)await page.locator('#menu-toggle').click();};
+   // At 700px and below the app renders its phone presentation: the sidebar actions move under More, which is the bottom bar's
+   // third destination (2.37.0 removed the duplicate More button from the top bar).
+   const phone=viewport.width<=700,openMore=async()=>{if(phone)await page.locator('#mobile-navigation [data-destination="more"]').click();};
    check(await page.evaluate(()=>APP_CONFIG.mode==='static'),'static mode');
    if(phone){await openMore();check(await page.locator('#companion-install').isVisible(),'install and offline help under More on the phone');}
    else check(await page.locator('#install-app').isVisible(),'install app control');
@@ -118,7 +119,8 @@ function trimRemovedScreens(code,suite){
    check(await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'refresh preserves original observations and date');
    await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy);
    check(await page.evaluate(()=>S.locks.length===2&&S.locks[0].role==='jungle'),'draft restored after reload');
-   await openMore();await page.locator('#share-plan:visible').click();const planLink=await page.locator('#plan-link').inputValue();
+   // Sharing a draft plan is a desktop tool since 2.37.0; the phone More no longer offers it.
+   if(!phone){await page.locator('#share-plan:visible').click();const planLink=await page.locator('#plan-link').inputValue();
    check(new URL(planLink).pathname===new URL(url).pathname,'shared plan preserves repository URL prefix');
    const packet=await page.evaluate(()=>MetaEngine.decodePlan(new URL(document.querySelector('#plan-link').value).hash));
    check(!Object.hasOwn(packet,'liveContexts'),'shared plan excludes inventory');await page.locator('#close-detail').click();
@@ -132,7 +134,8 @@ function trimRemovedScreens(code,suite){
    check(/<main id="main" tabindex="-1"><\/main>/.test(fs.readFileSync(exported,'utf8')),'export does not serialize visitor draft into page markup');
    const snapshot=await context.newPage();await snapshot.goto('file:///'+exported.replace(/\\/g,'/'));
    check(await snapshot.evaluate(()=>APP_CONFIG.mode==='export'&&!!B),'standalone export opens');
-   check(await snapshot.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'export retains exact observations');await snapshot.close();
+   check(await snapshot.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'export retains exact observations');await snapshot.close();}
+   else{await openMore();check(await page.locator('#share-plan:visible, #export:visible, #more-export:visible').count()===0,'the phone More leaves sharing and export to the desktop');}
    await page.route('**/manifest.json',route=>route.abort());await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
    check(await page.evaluate(()=>!!B&&latestStatus.errors[0].source==='Shared website'),'offline check keeps loaded data and names failure');
    await page.unroute('**/manifest.json');

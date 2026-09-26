@@ -386,7 +386,8 @@ const probes = {
   },
   /* Third review round (2.25.0). */
   async G1(browser) {
-    const {context, page} = await session(browser, phone);
+    // 2.37.0: the review packet is a desktop tool; the phone More menu no longer offers it.
+    const {context, page} = await session(browser, desktop);
     await page.evaluate(() => changeRoute('more'));
     const waiting = page.waitForEvent('download');
     await page.locator('#download-review-packet').click();
@@ -1705,18 +1706,18 @@ const probes = {
     await context.close();
   },
   async U2(browser) {
-    // "Adapt to my match" stays on screen above the phone navigation while the hero page scrolls.
+    // 2.37.0: the hero header carries "Use in Match", on screen above the phone navigation when the page opens (no sticky dock).
     const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
     await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); openHero('steel', 'jungle'); }); await page.waitForFunction(() => !!document.querySelector('#main .simple-sections'), null, {timeout: 60000});
     const at = async y => page.evaluate(async y => { scrollTo(0, y); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
       const b = document.querySelector('#main [data-start-live]'), r = b?.getBoundingClientRect(), nav = document.querySelector('#mobile-navigation')?.getBoundingClientRect().top ?? innerHeight;
       return {top: Math.round(r?.top ?? -1), bottom: Math.round(r?.bottom ?? -1), nav: Math.round(nav), visible: !!r && r.top >= 0 && r.bottom <= nav + 1}; }, y);
     const seen = {top: await at(0), middle: await at(Math.round(await page.evaluate(() => document.documentElement.scrollHeight / 2)))};
-    verdict('U2', !seen.top.visible || !seen.middle.visible, seen);
+    verdict('U2', !seen.top.visible, seen);
     await context.close();
   },
   async U3(browser) {
-    // Away from Meta, the status summary shares the rank row instead of adding a full-width banner; Meta keeps the full banner.
+    // 2.37.0: on every phone screen, Meta included, the status summary shares the rank row instead of adding a full-width banner.
     const {context, page} = await session(browser, {...phone, viewport: {width: 375, height: 812}});
     const seen = await page.evaluate(() => {
       B.errors = [...(B.errors || []), {source: 'Probe source', severity: 'error', detail: 'A required source could not be refreshed for this probe.'}];
@@ -1727,7 +1728,7 @@ const probes = {
       Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('match'); const live = measure();
       return {meta, hero, live};
     });
-    verdict('U3', !seen.meta.detail || !seen.hero.sameRow || !seen.live.sameRow, seen);
+    verdict('U3', !seen.meta.sameRow || !seen.hero.sameRow || !seen.live.sameRow, seen);
     await context.close();
   },
   async U4(browser) {
@@ -1763,13 +1764,14 @@ const probes = {
     await context.close();
   },
   async U7(browser) {
-    // Meta rows are an even height, and the row cue is an in-app chevron (with "Build ready" for an active reviewed build), not an external-link arrow.
+    // Meta rows are an even height with an in-app cue, not an external-link arrow. 2.37.0: an active reviewed build is the norm, so
+    // "Build ready" is gone; only a hero without one is flagged.
     const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
     const seen = await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
       const rows = [...document.querySelectorAll('#mobile-all-list .mobile-hero-card')], heights = rows.map(r => Math.round(r.getBoundingClientRect().height));
       const steel = rows.find(r => r.querySelector('[data-hero="steel"]'));
       return {rows: rows.length, min: Math.min(...heights), max: Math.max(...heights), arrow: rows.filter(r => r.innerText.includes('↗')).length, steel: steel?.innerText.replace(/\s+/g, ' ') || ''}; });
-    verdict('U7', seen.max - seen.min > 16 || seen.arrow > 0 || !/Build ready/.test(seen.steel), seen);
+    verdict('U7', seen.max - seen.min > 16 || seen.arrow > 0 || /Build ready/.test(seen.steel), seen);
     await context.close();
   }
 };
@@ -2014,13 +2016,16 @@ probes.DS3 = async browser => {
 };
 
 probes.DS4 = async browser => {
-  /* One chip pattern: evidence tags, status pills and the Build ready chip share the chip base and its geometry. */
+  /* One chip pattern: evidence tags, status pills and the phone build flag share the chip base and its geometry.
+     2.37.0 replaced "Build ready" on almost every row with a flag on the few heroes without an active reviewed build. */
   const read = el => el ? (s => ({chip: el.classList.contains('chip'), radius: s.borderTopLeftRadius, pad: s.paddingTop + ' ' + s.paddingLeft, size: s.fontSize, weight: s.fontWeight}))(getComputedStyle(el)) : null;
   const {context, page} = await historicalBuildSession(browser, {...phone, viewport: {width: 375, height: 812}});
   const phoneSeen = await page.evaluate(read => { read = new Function('return ' + read)();
     companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
     const host = document.createElement('div'); host.innerHTML = badge('Reviewed', 'reviewed'); document.querySelector('#main').append(host);
-    const out = {tag: read(host.firstElementChild), ready: read(document.querySelector('#mobile-all-list .ready-chip'))}; host.remove(); return out; }, read.toString());
+    const unreviewed = Object.keys(E.heroes).flatMap(slug => E.roles(slug).map(role => ({slug, role}))).find(p => !E.buildReview(p.slug, p.role)?.active);
+    if (unreviewed) host.insertAdjacentHTML('beforeend', heroTile(unreviewed));
+    const out = {tag: read(host.firstElementChild), flag: read(host.querySelector('.no-build-chip'))}; host.remove(); return out; }, read.toString());
   await context.close();
   const d = await session(browser, desktop);
   const pill = await d.page.evaluate(read => { read = new Function('return ' + read)(); return read(document.querySelector('#patch-strip .status-pill')); }, read.toString());
@@ -3185,9 +3190,10 @@ probes.LB1 = async browser => {
  verdict('LB1',bad(seen.items)||bad(seen.perks)||!/No entries match/.test(empty),{...seen,search:empty.slice(-80)});
 };
 probes.LB3 = async browser => {
- const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('more'));
+ // 2.37.0: Export snapshot is a desktop tool (the sidebar); the phone More no longer offers it.
+ const {context,page}=await session(browser,desktop);await page.evaluate(()=>changeRoute('more'));
  const ids=await page.evaluate(()=>document.querySelectorAll('[id="export"]').length);
- let downloaded=false;try{const [d]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.locator('#main button:has-text("Export snapshot")').click()]);downloaded=!!d.suggestedFilename();}catch{}
+ let downloaded=false;try{const [d]=await Promise.all([page.waitForEvent('download',{timeout:120000}),page.locator('#export').click()]);downloaded=!!d.suggestedFilename();}catch{}
  await context.close();verdict('LB3',ids>1||!downloaded,{ids,downloaded});
 };
 probes.LB4 = async browser => {
@@ -3209,6 +3215,83 @@ probes.LB4 = async browser => {
  const narrow=await session(browser,{viewport:{width:320,height:640},isMobile:true,hasTouch:true});
  seen.narrowOverflow=await narrow.page.evaluate(()=>{companionPrefs.large=true;document.documentElement.classList.add('large-text');S.libraryKind='perks';changeRoute('library');return document.documentElement.scrollWidth>321;});
  await narrow.context.close();verdict('LB4',Math.abs(seen.kindTop-seen.queryTop)>8||seen.firstRowBottom>seen.screenBottom||seen.overflow||seen.narrowOverflow,seen);
+};
+/* 2.37.0 phone declutter: the default (quick) phone view, not "Full details". Each probe
+   switches the page to the quick view first; the runner opens every context in Full details. */
+async function quickPhone(browser, viewport = {width: 390, height: 844}) {
+  const s = await session(browser, {...phone, viewport});
+  await s.page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('meta'); });
+  return s;
+}
+const pageTop = sel => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().top + scrollY) : null; };
+probes.PD1 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const first = await page.evaluate(pageTop, '#main .mobile-hero-card');
+  await context.close(); verdict('PD1', first === null || first > 280, {first_hero_row_y: first});
+};
+probes.PD2 = async browser => {
+  const {context, page} = await quickPhone(browser), seen = {};
+  for (const r of ['meta', 'hero', 'match', 'more']) {
+    await page.evaluate(r => r === 'hero' ? openHero('gideon', 'midlane') : changeRoute(r), r);
+    seen[r] = await page.evaluate(() => ({main: Math.round(document.querySelector('#main').getBoundingClientRect().top + scrollY), topMore: !!document.querySelector('#menu-toggle')?.offsetParent}));
+  }
+  await context.close(); verdict('PD2', Object.values(seen).some(s => s.main > 72 || s.topMore), seen);
+};
+probes.PD3 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const seen = await page.evaluate(() => {
+    openHero('gideon', 'midlane');
+    const plan = chosenPlan({slug: 'gideon', role: 'midlane'}), main = document.querySelector('#main');
+    const counts = plan.items.map(n => [...main.querySelectorAll('.item-button')].filter(b => (b.querySelector('.item-name')?.textContent || b.getAttribute('aria-label') || b.textContent).trim().startsWith(n)).length);
+    return {height: document.documentElement.scrollHeight, items: plan.items, counts};
+  });
+  await context.close(); verdict('PD3', seen.height > 2000 || seen.counts.some(c => c !== 1), seen);
+};
+probes.PD4 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const y = await page.evaluate(() => { S.me = 'gideon'; S.locks = [{slug: 'gideon', role: 'midlane'}]; S.enemies = []; S.bans = []; S.matchPicking = 'enemy'; save(); changeRoute('match');
+    const e = document.querySelector('.match-pick .match-hero'); return e ? Math.round(e.getBoundingClientRect().top + scrollY) : null; });
+  await context.close(); verdict('PD4', y === null || y > 700, {first_enemy_button_y: y});
+};
+probes.PD5 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const seen = await page.evaluate(() => { changeRoute('more');
+    const labels = [...document.querySelectorAll('#main button, #main a')].filter(b => b.offsetParent).map(b => b.textContent.replace(/\s+/g, ' ').trim());
+    const ids = [...document.querySelectorAll('[id]')].map(e => e.id), dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
+    const removed = ['Quick draft', 'New match', 'Share draft plan', 'Open draft plan', 'Export snapshot', 'Download strategy review packet'].filter(t => labels.some(l => l.startsWith(t)));
+    return {labels, removed, dupes};
+  });
+  await context.close(); verdict('PD5', seen.removed.length > 0 || seen.dupes.length > 0, seen);
+};
+probes.PD6 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const seen = await page.evaluate(() => {
+    const slug = Object.keys(E.heroes).find(s => patchNotes('hero', s)), role = slug && E.roles(slug)[0];
+    if (!slug) return {slug: null, open: []};
+    openHero(slug, role); S.heroTab = 'kit'; render();
+    return {slug, open: [...document.querySelectorAll('#main details')].filter(d => d.open).map(d => d.querySelector('summary')?.textContent.trim().slice(0, 60))}; });
+  assert.ok(seen.slug, 'probe setup: no hero has official change notes in this publication');
+  await context.close(); verdict('PD6', seen.open.length > 0, seen);
+};
+probes.PD7 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const seen = await page.evaluate(() => { openHero('gideon', 'midlane'); scrollTo(0, 600);
+    const fixed = [...document.querySelectorAll('body *')].filter(e => e.offsetParent !== null || getComputedStyle(e).position === 'fixed').filter(e => ['fixed', 'sticky'].includes(getComputedStyle(e).position) && e.getBoundingClientRect().top > innerHeight / 2 && !e.closest('#mobile-navigation') && !e.closest('.skill-chart-scroll'));
+    return {bottom_overlays: fixed.map(e => (e.id || e.className || e.tagName).toString().slice(0, 40))};
+  });
+  await context.close(); verdict('PD7', seen.bottom_overlays.length > 0, seen);
+};
+probes.PD8 = async browser => {
+  const {context, page} = await quickPhone(browser);
+  const seen = await page.evaluate(() => {
+    const review = E.metaReview, build = E.buildReview;
+    E.metaReview = (s, r) => { const x = review(s, r); return x && {...x, active: false, tier: null}; };
+    E.buildReview = (s, r) => { const x = build(s, r); return x && {...x, active: true}; };
+    try { render(); } finally { E.metaReview = review; E.buildReview = build; }
+    const cards = [...document.querySelectorAll('#main .mobile-hero-card')];
+    return {cards: cards.length, placeholder_tiers: cards.filter(c => /(^|\s)—(\s|$)/.test(c.querySelector('.tier, [class*="tier"]')?.textContent || '')).length,
+      build_ready_chips: cards.filter(c => /Build ready/.test(c.textContent)).length}; });
+  await context.close(); verdict('PD8', seen.placeholder_tiers > 0 || seen.build_ready_chips > 0, seen);
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));

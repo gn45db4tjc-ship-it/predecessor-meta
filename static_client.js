@@ -43,7 +43,8 @@ if (APP_CONFIG.mode === 'static') {
     return false;
   };
   function appUpdateHTML() {
-    return '<section class="panel" aria-label="App updates"><h2>App updates</h2><p>Running v' + esc(APP_CONFIG.tool_version) + '</p><p data-app-state></p><div class="actions"><button data-app-check>Check app update</button><button class="primary hide" data-app-apply>Update app</button></div><p class="muted">Updates keep your saved picks and builds. Game data updates separately.</p></section>';
+    // 2.37.0: one compact row. Updates keep saved picks and builds; game data updates separately (button title).
+    return '<section class="panel app-update-row" aria-label="App updates"><p><strong>Running v' + esc(APP_CONFIG.tool_version) + '</strong> <span data-app-state></span></p><div class="actions"><button data-app-check title="Updates keep your saved picks and builds. Game data updates separately.">Check app update</button><button class="primary hide" data-app-apply>Update app</button></div></section>';
   }
   const oldMore = moreView;
   moreView = function() { return oldMore() + appUpdateHTML(); };

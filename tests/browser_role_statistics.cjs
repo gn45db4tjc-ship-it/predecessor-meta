@@ -26,7 +26,8 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:12973/';let preview;
   }
   await page.evaluate(()=>openHero('khaimera','jungle'));await page.waitForTimeout(100);
   assert.match(await page.locator('#main').innerText(),/previous dataset/i);
-  const at=await page.evaluate(()=>date(B.heroes.khaimera.roles.jungle.fetched_at||B.sources.statz_hero_pages.fetched_at));
+  // 2.37.0: the phone hero line gives the day, not the time of day.
+  const at=await page.evaluate(()=>dayDate(B.heroes.khaimera.roles.jungle.fetched_at||B.sources.statz_hero_pages.fetched_at));
   if(width<700)assert((await page.locator('#main > .simple-source').first().innerText()).includes(at));
   await page.addScriptTag({path:process.env.AXE_PATH||require.resolve('axe-core/axe.min.js')});
   const violations=await page.evaluate(async()=>(await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))})));assert.deepEqual(violations,[],`${width} ${theme}`);

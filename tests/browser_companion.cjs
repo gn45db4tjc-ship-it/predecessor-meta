@@ -8,7 +8,7 @@ const check=(v,label)=>{assert.ok(v,label);report.checks.push(label);};
  const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));const start=Date.now();await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy);report.readyMs=Date.now()-start;
  check(!(await page.locator('#main').innerText()).includes('Opponent'),'mobile Meta home has no opponent step');
  check(await page.locator('.mobile-card-list').count()>0,'mobile Meta home shows focused cards');
- await page.locator('#menu-toggle').click();check(await page.locator('#large-text').isVisible(),'More is reachable from the header');await page.locator('#mobile-navigation [data-route="meta"]').click();await page.screenshot({path:'qa/mobile-meta-390.png',fullPage:true});
+ await page.locator('#mobile-navigation [data-destination="more"]').click();check(await page.locator('#large-text').isVisible(),'More is reachable from the bottom bar');await page.locator('#mobile-navigation [data-route="meta"]').click();await page.screenshot({path:'qa/mobile-meta-390.png',fullPage:true});
  await page.locator('#mobile-hero-search').fill('Steel');await page.locator('[data-hero="steel"]').first().click();
  check(await page.evaluate(()=>S.heroTab==='builds'),'hero opens on Build');check(await page.locator('#main .build-path').count()>0,'mobile hero leads with the reviewed build');
  await page.locator('#favorite-hero').click();check(await page.locator('#favorite-hero').getAttribute('aria-pressed')==='true','favorite is stored');
