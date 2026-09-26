@@ -20,6 +20,7 @@ Normal use is via "Predecessor Meta Tool.bat". Command line options:
 File layout (all next to this script):
   ui.html / ui.js          interface template and behavior, inlined at render time
   engine.js               independent recommendation engine, inlined at render time
+  visor_look.js           Visor colours for the local app only (section 12b), inlined into its own pages
   reviewed_guidance.json   dated advice and reviewed official field corrections
   settings.json           bracket and request settings (legacy fields preserved)
   data/bundle_*.json      one bundle per patch + bracket (the cache)
@@ -68,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.36.0"
+VERSION = "2.36.1"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -3235,12 +3236,17 @@ def render_html(bundle, config=None):
     app_config=config or {'mode':'export','tool_version':VERSION}
     pwa_head=('''<link rel="manifest" href="app.webmanifest">\n<link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">\n<link rel="apple-touch-icon" href="assets/app-icon-192.png">'''
               if app_config.get('mode')=='static' else '')
+    # Visor colours read a local file, so only the loopback app's own pages carry them; every other mode gets nothing.
+    # Replaced last: the look's values then cannot collide with a later placeholder, and the template's own
+    # __LOCAL_HEAD__ in <head> precedes any bundle text.
+    local_head=visor_look_head() if app_config.get('mode')=='local' else ''
     return (UI_TEMPLATE.read_text(encoding='utf-8').replace('__TOOL_VERSION__',VERSION,1).replace('__PWA_HEAD__',pwa_head,1)
             .replace('__BUNDLE_JSON__',json_script(bundle),1)
             .replace('__APP_CONFIG__',json_script(app_config),1)
             .replace('__UI_JS__',(TOOL_DIR/'ui.js').read_text(encoding='utf-8').replace('// START CLIENT','\n'.join((TOOL_DIR/name).read_text(encoding='utf-8') for name in ('mobile.js','companion_state.js','recommendation_view.js','skill_guide.js','companion_simple.js'))+'\n// START CLIENT',1),1)
             .replace('__MOBILE_CSS__',(TOOL_DIR/'mobile.css').read_text(encoding='utf-8')+'\n'+(TOOL_DIR/'companion_simple.css').read_text(encoding='utf-8'),1)
-            .replace('__ENGINE_JS__',(TOOL_DIR/'engine.js').read_text(encoding='utf-8'),1))
+            .replace('__ENGINE_JS__',(TOOL_DIR/'engine.js').read_text(encoding='utf-8'),1)
+            .replace('__LOCAL_HEAD__',local_head,1))
 
 
 def render(bundle, out_path=None):
@@ -3332,6 +3338,263 @@ def read_cached(bracket=None):
                     return b
             except Exception as e: log('Cache unavailable: '+str(e))
     return None
+
+
+# ============================================================================
+# 12b. VISOR COLOURS (local Windows app only; hosted pages never read files)
+# ============================================================================
+# The Visor desktop HUD writes %LOCALAPPDATA%\VisorHost\look.json whenever its
+# theme changes (schema 1: style, palette, glass, calm and five #RRGGBB colours).
+# The loopback app validates that file strictly and derives only the dark
+# theme's brand and surface tokens from its accent and tint. Surfaces take the
+# tint's hue but keep the app's own luminance ladder, so every text, evidence,
+# status, gold and tier colour keeps at least the contrast it was reviewed at.
+# Brand colours are lifted in lightness until they pass WCAG AA on every derived
+# surface. A missing, stale or malformed file means the normal look, silently.
+# render_html inlines visor_look.js for mode 'local' only: the static site,
+# exports and the shared server never include it or read the file.
+
+VISOR_LOOK_ENV = 'PREDECESSOR_META_VISOR_LOOK_FILE'   # test-only: read this file instead of the Visor's own
+VISOR_LOOK_MAX_BYTES = 16384
+VISOR_LOOK_FUTURE_SECONDS = 600   # an 'updated' time further ahead than this cannot be trusted
+VISOR_STYLES = ('orbit', 'nebula', 'cockpit')
+VISOR_GLASS = ('ghost', 'clear', 'light', 'medium', 'solid')
+VISOR_COLOURS = ('accent', 'text', 'muted', 'warn', 'tint')
+VISOR_HEX = re.compile(r'#[0-9A-Fa-f]{6}')
+VISOR_PALETTE = re.compile(r'[A-Za-z0-9][A-Za-z0-9_-]{0,39}')
+VISOR_UPDATED = re.compile(r'([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(?:\.[0-9]{1,9})?(?:Z|\+00:00)')
+# The dark :root values in ui.html that a look may replace; tests/test_static_visor_look.py keeps them in step.
+VISOR_DARK_DEFAULTS = {
+    '--bg': '#090e1c', '--rail': '#0d1426', '--surface': '#131e34', '--surface-2': '#1b2944', '--surface-3': '#243653',
+    '--inset': '#0f192d', '--line': '#2c3d59', '--line-strong': '#435a7d', '--control-line': '#8196bb',
+    '--control-hover': '#8a9cc0', '--brand': '#a9c5ff', '--brand-hover': '#c5d8ff', '--brand-ink': '#0b1c43',
+    '--brand-text': '#aac7ff', '--brand-tint': '#20375d', '--brand-line': '#719fea',
+    '--hero-wash': 'linear-gradient(120deg,#213c6d 0%,#142340 55%,#131e34 100%)'}
+VISOR_BACKGROUNDS = ('--bg', '--rail', '--surface', '--surface-2', '--surface-3', '--inset')
+VISOR_LINES = ('--line', '--line-strong', '--control-line', '--control-hover')
+VISOR_BRAND = ('--brand', '--brand-hover', '--brand-ink', '--brand-text', '--brand-tint', '--brand-line', '--hero-wash')
+VISOR_TOKENS = VISOR_BACKGROUNDS + VISOR_LINES + VISOR_BRAND
+VISOR_WASH = re.compile(r'linear-gradient\(120deg,(#[0-9a-f]{6}) 0%,(#[0-9a-f]{6}) 55%,(#[0-9a-f]{6}) 100%\)')
+VISOR_TEXT_AA, VISOR_GRAPHIC_AA = 4.5, 3.0
+_visor_cache = {}   # file path -> ((path, mtime_ns, size), (look, updated time, tokens) or None when invalid)
+
+
+def _srgb_to_linear(channel):
+    c = channel / 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _linear_to_srgb(v):
+    v = min(1.0, max(0.0, v))
+    return 12.92 * v if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055
+
+
+def _linear_rgb(value):
+    return [_srgb_to_linear(int(value[i:i + 2], 16)) for i in (1, 3, 5)]
+
+
+def relative_luminance(value):
+    """WCAG 2 relative luminance of a #rrggbb colour."""
+    r, g, b = _linear_rgb(value)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def contrast_ratio(a, b):
+    """WCAG 2 contrast ratio of two #rrggbb colours, from 1 to 21."""
+    high, low = sorted((relative_luminance(a), relative_luminance(b)), reverse=True)
+    return (high + 0.05) / (low + 0.05)
+
+
+def oklch(value):
+    """OKLCH lightness (0-1), chroma and hue in degrees of a #rrggbb colour."""
+    r, g, b = _linear_rgb(value)
+    l = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
+    m = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
+    s = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
+    lightness = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s
+    a_axis = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s
+    b_axis = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+    return lightness, math.hypot(a_axis, b_axis), math.degrees(math.atan2(b_axis, a_axis)) % 360
+
+
+def _oklch_to_linear(lightness, chroma, hue):
+    a_axis, b_axis = chroma * math.cos(math.radians(hue)), chroma * math.sin(math.radians(hue))
+    l = (lightness + 0.3963377774 * a_axis + 0.2158037573 * b_axis) ** 3
+    m = (lightness - 0.1055613458 * a_axis - 0.0638541728 * b_axis) ** 3
+    s = (lightness - 0.0894841775 * a_axis - 1.2914855480 * b_axis) ** 3
+    return (4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+            -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+            -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s)
+
+
+def oklch_hex(lightness, chroma, hue):
+    """#rrggbb of an OKLCH colour; chroma outside sRGB is reduced at the same lightness and hue."""
+    lightness = min(1.0, max(0.0, lightness))
+    inside = lambda rgb: all(-1e-7 <= v <= 1 + 1e-7 for v in rgb)
+    rgb = _oklch_to_linear(lightness, chroma, hue)
+    if not inside(rgb):
+        low, high, rgb = 0.0, chroma, _oklch_to_linear(lightness, 0.0, hue)
+        for _ in range(30):
+            middle = (low + high) / 2
+            candidate = _oklch_to_linear(lightness, middle, hue)
+            if inside(candidate): low, rgb = middle, candidate
+            else: high = middle
+    return '#' + ''.join('%02x' % round(_linear_to_srgb(v) * 255) for v in rgb)
+
+
+def _visor_at_luminance(target, chroma, hue, below):
+    """The colour of this hue (chroma up to the given one) whose luminance is closest to target without going
+    above it (below=True, surfaces) or under it (lines). WCAG contrast depends only on luminance, so a surface
+    that keeps its luminance keeps every pairing's contrast."""
+    low, high = 0.0, 1.0
+    for _ in range(32):
+        middle = (low + high) / 2
+        if relative_luminance(oklch_hex(middle, chroma, hue)) <= target: low = middle
+        else: high = middle
+    return oklch_hex(low if below else high, chroma, hue)
+
+
+def derive_visor_tokens(look):
+    """The dark theme's brand and surface tokens for a validated look. Nothing else is ever derived."""
+    _, tint_chroma, tint_hue = oklch(look['tint'])
+    # The tint gives surfaces their hue; they are never much more colourful than the app's own navy.
+    colourfulness = min(1.25, tint_chroma / oklch(VISOR_DARK_DEFAULTS['--bg'])[1])
+    tokens = {}
+    for name in VISOR_BACKGROUNDS + VISOR_LINES:
+        default = VISOR_DARK_DEFAULTS[name]
+        tokens[name] = _visor_at_luminance(relative_luminance(default), oklch(default)[1] * colourfulness, tint_hue,
+                                           below=name in VISOR_BACKGROUNDS)
+    accent_lightness, accent_chroma, accent_hue = oklch(look['accent'])
+
+    def brand_ground(default):   # brand-tinted background or ink: the accent's hue at the default's luminance or darker
+        return _visor_at_luminance(relative_luminance(default), min(oklch(default)[1], accent_chroma), accent_hue, below=True)
+
+    tokens['--brand-tint'] = brand_ground(VISOR_DARK_DEFAULTS['--brand-tint'])
+    wash = [brand_ground(stop) for stop in VISOR_WASH.fullmatch(VISOR_DARK_DEFAULTS['--hero-wash']).groups()[:2]]
+    tokens['--hero-wash'] = 'linear-gradient(120deg,%s 0%%,%s 55%%,%s 100%%)' % (wash[0], wash[1], tokens['--surface'])
+    tokens['--brand-ink'] = ink = brand_ground(VISOR_DARK_DEFAULTS['--brand-ink'])
+    grounds = [tokens[name] for name in VISOR_BACKGROUNDS] + [tokens['--brand-tint']] + wash
+
+    def lifted(start, passes):   # the least lightness at or above start that passes; lighter only helps on dark grounds
+        lightness = start
+        while lightness < 1.0:
+            value = oklch_hex(lightness, accent_chroma, accent_hue)
+            if passes(value): return value
+            lightness += 0.005
+        return '#ffffff'
+
+    on_grounds = lambda value, ratio: all(contrast_ratio(value, ground) >= ratio for ground in grounds)
+    fill = lambda value: on_grounds(value, VISOR_GRAPHIC_AA) and contrast_ratio(value, ink) >= VISOR_TEXT_AA
+    tokens['--brand'] = brand = lifted(accent_lightness, fill)
+    brand_lightness = oklch(brand)[0]
+    hover = oklch_hex(brand_lightness + 0.06, accent_chroma, accent_hue)
+    if brand_lightness + 0.06 > 0.97 or hover == brand:   # already near white: hover darkens instead, still passing
+        hover = lifted(max(0.0, brand_lightness - 0.06), fill)
+    tokens['--brand-hover'] = hover
+    tokens['--brand-text'] = lifted(accent_lightness, lambda value: on_grounds(value, VISOR_TEXT_AA))
+    tokens['--brand-line'] = lifted(max(0.0, brand_lightness - 0.12), lambda value: on_grounds(value, VISOR_GRAPHIC_AA))
+    return {name: tokens[name] for name in VISOR_TOKENS}
+
+
+def validate_visor_look(raw):
+    """(look, updated time) for a schema-1 look, or ValueError. Only known fields with checked values come out:
+    enums from fixed lists, colours as lower-case #rrggbb, a bounded palette id. Unknown fields are dropped."""
+    if not isinstance(raw, dict): raise ValueError('The look must be a JSON object')
+    if type(raw.get('schema')) is not int or raw['schema'] != 1: raise ValueError('Unsupported look schema')
+    updated = raw.get('updated')
+    match = VISOR_UPDATED.fullmatch(updated) if isinstance(updated, str) else None
+    if not match: raise ValueError('updated must be an ISO-8601 UTC time')
+    stamp = dt.datetime.strptime(match.group(1), '%Y-%m-%dT%H:%M:%S').replace(tzinfo=dt.timezone.utc)
+    if raw.get('style') not in VISOR_STYLES: raise ValueError('Unknown style')
+    if raw.get('glass') not in VISOR_GLASS: raise ValueError('Unknown glass')
+    if type(raw.get('calm')) is not bool: raise ValueError('calm must be true or false')
+    if not isinstance(raw.get('palette'), str) or not VISOR_PALETTE.fullmatch(raw['palette']): raise ValueError('Invalid palette id')
+    for field in VISOR_COLOURS:
+        if not isinstance(raw.get(field), str) or not VISOR_HEX.fullmatch(raw[field]): raise ValueError(field + ' must be #RRGGBB')
+    look = {'schema': 1, 'updated': updated, 'style': raw['style'], 'palette': raw['palette'], 'glass': raw['glass'], 'calm': raw['calm']}
+    look.update((field, raw[field].lower()) for field in VISOR_COLOURS)
+    return look, stamp
+
+
+def _visor_open_shared(path):
+    """The look file opened for reading. On Windows the handle also shares delete access, so a ReplaceFile writer
+    (.NET File.Replace) is never refused while the app reads; a plain open would refuse it. A MoveFileEx rename
+    over the file fails while any handle is open, so such a writer retries; this read lasts microseconds."""
+    if os.name != 'nt': return path.open('rb')
+    import ctypes, msvcrt
+    from ctypes import wintypes
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.CreateFileW.restype = wintypes.HANDLE
+    kernel32.CreateFileW.argtypes = (wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE)
+    kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+    # GENERIC_READ; share read, write and delete; OPEN_EXISTING; FILE_ATTRIBUTE_NORMAL
+    raw = kernel32.CreateFileW(str(path), 0x80000000, 0x7, None, 3, 0x80, None)
+    if raw is None or raw == wintypes.HANDLE(-1).value: raise ctypes.WinError(ctypes.get_last_error())
+    try: return os.fdopen(msvcrt.open_osfhandle(raw, os.O_RDONLY), 'rb')
+    except BaseException:
+        kernel32.CloseHandle(raw); raise
+
+
+def _visor_read_bytes(path, limit):
+    with _visor_open_shared(path) as handle: return handle.read(limit)
+
+
+def visor_look_path():
+    override = os.environ.get(VISOR_LOOK_ENV)
+    if override: return Path(override)
+    base = os.environ.get('LOCALAPPDATA')
+    return Path(base) / 'VisorHost' / 'look.json' if base else None
+
+
+def read_visor_look(path=None, now=None):
+    """What /api/look serves: {'available': True, 'look': {...}, 'tokens': {...}} or {'available': False, 'reason':
+    'missing' | 'unreadable' | 'invalid' | 'stale'}. Never raises: the local page and endpoint depend on it, and
+    every failure simply means the app's normal look."""
+    try: return _read_visor_look(path, now)
+    except Exception: return {'available': False, 'reason': 'unreadable'}
+
+
+def _read_visor_look(path, now):
+    path = Path(path) if path is not None else visor_look_path()
+    if path is None: return {'available': False, 'reason': 'missing'}
+    key = str(path)
+    try:
+        info = path.stat()
+        stamp = (key, info.st_mtime_ns, info.st_size)
+        cached = _visor_cache.get(key)
+        if cached and cached[0] == stamp: result = cached[1]
+        else:
+            result = None
+            try:
+                if info.st_size > VISOR_LOOK_MAX_BYTES: raise ValueError('The look file is too large')
+                data = _visor_read_bytes(path, VISOR_LOOK_MAX_BYTES + 1)
+                if len(data) > VISOR_LOOK_MAX_BYTES: raise ValueError('The look file is too large')
+                look, updated = validate_visor_look(json.loads(data.decode('utf-8-sig')))
+                result = (look, updated, derive_visor_tokens(look))
+            except (ValueError, TypeError, RecursionError):
+                pass
+            _visor_cache[key] = (stamp, result)
+    except (FileNotFoundError, NotADirectoryError):
+        _visor_cache.pop(key, None)
+        return {'available': False, 'reason': 'missing'}
+    except OSError:
+        # An atomic replacement can briefly deny access: keep the last good look of this file rather than flicker.
+        cached = _visor_cache.get(key)
+        result = cached[1] if cached else None
+        if result is None: return {'available': False, 'reason': 'unreadable'}
+    if result is None: return {'available': False, 'reason': 'invalid'}
+    look, updated, tokens = result
+    if (updated - (now or now_utc())).total_seconds() > VISOR_LOOK_FUTURE_SECONDS:
+        return {'available': False, 'reason': 'stale'}
+    return {'available': True, 'look': {name: look[name] for name in ('style', 'palette', 'glass', 'calm', 'updated')},
+            'tokens': dict(tokens)}
+
+
+def visor_look_head():
+    """The local app's inline Visor script with the current look, so the first paint already uses it."""
+    try: script = (TOOL_DIR / 'visor_look.js').read_text(encoding='utf-8')
+    except OSError: return ''   # without the script the app simply keeps its normal look
+    return '<script>' + script + '\nVisorLook.start(' + json_script(read_visor_look()) + ');</script>\n'
 
 
 # ============================================================================
@@ -3580,6 +3843,7 @@ def make_handler(app):
             if path=='/api/status':
                 app.last_ping=time.monotonic()
                 return self.send(200,app.status_snapshot())
+            if path=='/api/look': return self.send(200,read_visor_look())   # validated Visor tokens; never the raw file
             if path=='/api/bundle': return self.send(200,app.bundle)
             if path=='/api/comparison':
                 requested=urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get('bracket',[''])[0]
