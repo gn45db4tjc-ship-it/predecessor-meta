@@ -261,3 +261,48 @@ _Usage:_ Only for reviewed or source tiers; never for calculated scores.
 | DS5 | One focus ring; `--focus` and `--indicator` at 3:1 or better |
 | DS6 | No parallel palettes, aliases or extra rem steps |
 | `tests/test_static_design_system.py` | Every token and shared component here exists, and every token that exists is here |
+
+## Following the Visor (Windows app only)
+
+The Windows app can take its colours from Will's Visor desktop HUD. The hosted site never can: it cannot read local files, and it never carries this code.
+
+**Source.** The Visor replaces `%LOCALAPPDATA%\VisorHost\look.json` whenever its theme changes: `{"schema":1,"updated":"<ISO-8601 UTC>","style":"orbit|nebula|cockpit","palette":"<id>","glass":"ghost|clear|light|medium|solid","calm":true|false,"accent":"#RRGGBB","text":"#RRGGBB","muted":"#RRGGBB","warn":"#RRGGBB","tint":"#RRGGBB"}`.
+
+**Validation.** Section 12b of `predecessor_meta.py` accepts only the following:
+- schema 1 (an integer)
+- the listed enums
+- a boolean `calm`
+- `#RRGGBB` colours
+- a palette id of 1-40 letters, digits, `-` or `_`
+- a UTC `updated` time
+
+Unknown fields are dropped, never passed on. Any of these fall back silently to the normal look:
+- the file is missing, unreadable, larger than 16 KB, or malformed
+- the file is stale: its `updated` time is more than 10 minutes in the future
+
+An unchanged old theme is not stale, because the Visor writes the file only when its theme changes.
+
+**Delivery.** `render_html` inlines `visor_look.js` and the current look only when the mode is `local`: pages served by the app itself on 127.0.0.1. Static, export and shared pages get nothing, and they are byte-identical whatever the file says. The page re-reads `GET /api/look` in these cases:
+- on load
+- on window focus
+- when the page becomes visible
+- every 30 seconds while it is visible
+
+The look is applied as one `<style id="visor-look">` rule, `:root:not([data-theme=light]){…}`, which is edited in place only when the look changes, so it never flickers. The light theme is untouched: the Visor's colours apply to the dark theme only.
+
+**Setting.** "Follow the Visor's colours" sits under the theme switch on desktop widths. It is on by default whenever a valid look exists, and it is stored like the theme choice, in localStorage (`predecessor-visor-colours` = `off` to stop). The phone shell (700px and narrower) hides it with the theme switch, but the saved choice still applies.
+
+**Mapping.** Only these tokens are derived:
+
+| Visor field | App tokens | Rule |
+|---|---|---|
+| `tint` | `--bg`, `--rail`, `--surface`, `--surface-2`, `--surface-3`, `--inset` | Tint hue, at the dark default's luminance or darker. Never more than 1.25× as colourful as the app's own navy |
+| `tint` | `--line`, `--line-strong`, `--control-line`, `--control-hover` | Tint hue, at the default's luminance or lighter |
+| `accent` | `--brand-tint`, `--hero-wash`, `--brand-ink` | Accent hue, at the default's luminance or darker |
+| `accent` | `--brand`, `--brand-hover`, `--brand-text`, `--brand-line` | The accent, lightened only as far as WCAG AA needs on every derived surface. `--brand-text` reaches 4.5:1. `--brand`, `--brand-hover` and `--brand-line` reach 3:1, and `--brand-ink` on the brand fills reaches 4.5:1 |
+
+WCAG contrast depends only on luminance. Surfaces keep their luminance or go darker, and lines keep theirs or go lighter. As a result, every text, evidence (observed, calculated, reviewed, official), warning, error, staleness, gold, tier, focus and selection colour keeps at least its reviewed contrast. Those tokens are never derived. They also keep their markers, so their meaning cannot change.
+
+The Visor's `text`, `muted` and `warn` colours are validated but not used. `tests/test_static_visor_look.py` pins the mapping, the defaults above, and AA across ten palettes, including near-white, near-black, amber, red and violet accents. It also checks that the hosted page is unaffected. `tests/visor_look.test.cjs` covers the client allow-list.
+
+**Testing.** `tests/browser_visor_look.cjs` runs only on Windows and is not a CI step. It starts the app in its no-fetch developer mode on a copy of the seed. It points the app at sample files through the test-only `PREDECESSOR_META_VISOR_LOOK_FILE` override, never at the Visor's real file.
