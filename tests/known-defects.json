@@ -1,7 +1,16 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite. Ids under 'retired' belong to removed features; their probes were deleted and the runner skips them.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [],
+  "open": [
+    "PD1",
+    "PD2",
+    "PD3",
+    "PD4",
+    "PD5",
+    "PD6",
+    "PD7",
+    "PD8"
+  ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -165,7 +174,15 @@
     "LB1": "Items & loadouts shows \"Showing 0 of 0 entries\" and \"No entries match this search\" when the Pred.gg catalogue is empty although the bundle holds item and perk definitions, and does not say Pred.gg is unavailable (ui.js libraryView)",
     "LB2": "Compose with no eligible role-statistics source says \"Change a constraint to continue\" although only allowing fills without role samples can produce a result (ui.js plannerView)",
     "LB3": "On phones the More screen and the hidden top bar both render a button with id=\"export\" (duplicate id), or the More screen's Export snapshot no longer downloads (mobile.js moreView)",
-    "LB4": "On an iPhone 13 screen (390x664) Items & loadouts stacks Show and Find on separate rows or its first entry is not wholly on the first screen, or the page scrolls sideways (also at 320px with large text) (ui.js libraryView, mobile.css)"
+    "LB4": "On an iPhone 13 screen (390x664) Items & loadouts stacks Show and Find on separate rows or its first entry is not wholly on the first screen, or the page scrolls sideways (also at 320px with large text) (ui.js libraryView, mobile.css)",
+    "PD1": "2.37.0 PHONE: the first Meta hero row starts within 280 px (not below a stack of chrome, headings and status panels)",
+    "PD2": "2.37.0 PHONE: one compact bar above content on Meta, hero, Match and More (#main within 72 px); no top More button repeating the bottom nav",
+    "PD3": "2.37.0 PHONE: the Gideon Build tab fits in 2000 px and each of the six items is rendered once, not three times",
+    "PD4": "2.37.0 PHONE: after choosing your hero, Match shows the enemy grid within 700 px, not below the team-type panel",
+    "PD5": "2.37.0 PHONE: More holds player items only (no Quick draft, New match, draft-plan sharing, export or review packet) and the page has no duplicate ids",
+    "PD6": "2.37.0 PHONE: the Kit tab opens with every disclosure closed, including the official changes",
+    "PD7": "2.37.0 PHONE: nothing but the bottom navigation stays pinned over the lower half of a hero page",
+    "PD8": "2.37.0 PHONE: Meta rows carry no placeholder tier and no near-universal \"Build ready\" chip"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
