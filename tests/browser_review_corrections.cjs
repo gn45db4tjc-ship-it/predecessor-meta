@@ -15,27 +15,27 @@ async function check(name,fn){try{await fn();report.passed.push(name);}catch(e){
   const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block',reducedMotion:'reduce'});
   await context.route('**/*',r=>new URL(r.request().url()).origin===new URL(base).origin?r.continue():r.abort());
   const page=await context.newPage();await page.goto(base);await page.waitForFunction(()=>typeof B!=='undefined'&&B&&!latestStatus.busy);
-  await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];changeRoute('draft');});
-  await page.locator('[data-quick-refresh]').click();await page.locator('[data-quick-preview]').first().focus();await page.keyboard.press('Enter');
-  await check('keyboard setup focus survives a data redraw',async()=>{
-   assert(await page.locator('.quick-setup>h2').evaluate(n=>n===document.activeElement));
+  await page.evaluate(()=>{S.locks=[{slug:'khaimera',role:'jungle'}];S.me='khaimera';S.enemies=[];S.bans=[];S.matchPicking='enemy';save();changeRoute('match');});
+  await page.locator('.match-hero[data-match-pick="steel"]').focus();await page.keyboard.press('Enter');
+  await check('keyboard Match focus survives a data redraw',async()=>{
+   const focused=()=>page.evaluate(()=>document.activeElement?.dataset?.matchPick||null);
+   assert.equal(await focused(),'steel');
    await page.evaluate(()=>requestRedraw(true));
-   assert(await page.locator('.quick-setup>h2').evaluate(n=>n===document.activeElement),'setup focus fell away after redraw');
-   assert(await page.locator('.quick-setup>h2').evaluate(n=>n.matches(':focus-visible')));
-   await page.keyboard.press('Tab');assert(await page.evaluate(()=>!!document.activeElement.closest('.quick-setup')));
+   assert.equal(await focused(),'steel','Match focus fell away after redraw');
+   assert(await page.locator('.match-hero[data-match-pick="steel"]').evaluate(n=>n.matches(':focus-visible')));
   });
   await check('redraw preserves another focused control without stealing focus',async()=>{
-   await page.locator('#candidate-role').focus();await page.evaluate(()=>requestRedraw(true));
-   assert.equal(await page.evaluate(()=>document.activeElement.id),'candidate-role');
+   await page.locator('#match-search').focus();await page.evaluate(()=>requestRedraw(true));
+   assert.equal(await page.evaluate(()=>document.activeElement.id),'match-search');
   });
-  await check('changing setup identity does not restore the previous heading focus',async()=>{
-   await page.locator('.quick-setup>h2').focus();
-   await page.evaluate(()=>{quickDraft.preview=quickDraft.rows.find(r=>r.p.slug!==quickDraft.preview).p.slug;requestRedraw(true);});
-   assert(!(await page.locator('.quick-setup>h2').evaluate(n=>n===document.activeElement)));
+  await check('removing an enemy hands focus to that hero in the grid',async()=>{
+   await page.locator('.match-chip[data-match-pick="steel"]').focus();await page.keyboard.press('Enter');
+   assert.equal(await page.locator('.match-chip').count(),0);
+   assert.equal(await page.evaluate(()=>document.activeElement?.classList.contains('match-hero')&&document.activeElement.dataset.matchPick),'steel');
   });
   await check('pointer selection does not draw a keyboard focus box',async()=>{
-   await page.locator('[data-quick-preview]').first().click();
-   assert.equal(await page.locator('.quick-setup>h2').evaluate(n=>getComputedStyle(n).outlineStyle),'none');
+   await page.locator('.match-hero[data-match-pick="gideon"]').click();
+   assert.equal(await page.locator('.match-hero[data-match-pick="gideon"]').evaluate(n=>n.matches(':focus-visible')),false);
   });
   await check('favorite count uses singular and plural accurately',async()=>{
    const text=await page.evaluate(()=>[0,1,2].map(n=>savedHeroShortcuts([{slug:'khaimera',role:'jungle'},{slug:'steel',role:'support'}].slice(0,n),[{slug:'gideon',role:'midlane'}])));

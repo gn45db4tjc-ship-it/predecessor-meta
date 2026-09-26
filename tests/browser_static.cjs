@@ -8,6 +8,16 @@ const root=path.resolve(__dirname,'..'),reportDir=path.join(root,'qa'),url=proce
 const previous=process.env.BASELINE_TESTS||path.join(__dirname,'legacy');
 let previewServer,outageServer;
 const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();outageServer.closeAllConnections();}};
+// 2.36.0 removed Compose, Draft and Live. The frozen legacy suites used Live only to clear the lineup before their
+// hero and guidance checks, so that reset is done directly; each suite stops, with a recorded skip, where it would
+// enter a removed screen. Every assertion before that point still runs unchanged.
+function trimRemovedScreens(code,suite){
+ code=code.split(`click('[data-route="live"]');click('#clear-locks');click('#clear-enemies');click('[data-route="draft"]');while(document.querySelector('[data-unban]'))document.querySelector('[data-unban]').click();`).join('S.locks=[];S.enemies=[];S.bans=[];save();render();');
+ const at=['[data-route="live"]','[data-route="planner"]','[data-route="draft"]'].map(s=>code.indexOf(`click('${s}')`)).filter(i=>i>=0).sort((a,b)=>a-b)[0];
+ if(at===undefined)return code;
+ const list=/const results=/.test(code)?'results':'checks',skipped=/skipped=\[\]/.test(code)?'...skipped,':'';
+ return code.slice(0,at)+`return {passed:${list}.length,checks:${list},skipped:[${skipped}'stops where it would enter the Draft, Live or Compose screen removed in 2.36.0'],viewport:[innerWidth,innerHeight]};\n})()`;
+}
 (async()=>{
  if(process.env.START_PREVIEW==='1'){
   previewServer=spawn(process.env.PYTHON_EXE||'python',['-B','-m','http.server',new URL(url).port||'12926','--bind','127.0.0.1','--directory',process.env.PREVIEW_DIR||path.join(root,'qa','site')],{windowsHide:true,stdio:'ignore'});
@@ -58,7 +68,7 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    check(await page.locator('#refresh').textContent()==='Reload latest data','refresh wording');
    check(await page.locator('#quit').isHidden(),'no owner quit');
    const baseline=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}));
-   for(const route of ['meta','builds','planner','draft','live','library','guidance','changes','data']){
+   for(const route of ['meta','builds','match','library','guidance','changes','data']){
     await goToScreen(page,route);
     check(await page.locator('#main h1').count()===1,'route '+route);
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no overflow '+route);
@@ -86,21 +96,23 @@ const stopOutageServer=()=>{if(outageServer?.listening){outageServer.close();out
    if(previous&&phone){
     // The legacy suites drive desktop controls (role tabs, the sortable table, lineup slots). At 700px and below the app
     // renders its phone presentation instead, which tests/browser_companion.cjs covers. Record the skip; do not count it.
-    run.skipped=['seven legacy desktop-control suites: the phone presentation is covered by tests/browser_companion.cjs'];
+    run.skipped=['six legacy desktop-control suites: the phone presentation is covered by tests/browser_companion.cjs'];
    }else if(previous){
-    for(const suite of ['meta','strategy','live','augment','correction','sequences','synthesis']){
+    // 2.36.0 removed the Live screen that browser_live_acceptance.js drives; the skip is recorded, not counted.
+    (run.skipped||=[]).push('live: the Live screen was removed in 2.36.0; Match is covered by tests/browser_companion_simple.cjs');
+    for(const suite of ['meta','strategy','augment','correction','sequences','synthesis']){
      // Adapt storage mode and the retired flat navigation, retaining all content assertions.
      const code=fs.readFileSync(path.join(previous,'browser_'+suite+'_acceptance.js'),'utf8').replace("if(APP_CONFIG.mode==='shared')", "if(APP_CONFIG.mode==='shared'||APP_CONFIG.mode==='static')")
       .replace('const click=s=>{',`const click=s=>{if((${legacyScreenClick.toString()})(s))return;`)
       .replace("[...document.querySelectorAll('#navigation [data-route]')].map(e=>e.dataset.route)",JSON.stringify(['meta','builds','planner','draft','live','library','guidance','changes','data']));
-     const result=await page.evaluate(code);
+     const result=await page.evaluate(trimRemovedScreens(code,suite));
      // A suite whose premise does not hold for this publication (for example a review dated for an earlier
      // patch) returns a named skip. Run this file on both the committed seed and a current publication.
      if(result.skipped?.length)(run.skipped||=[]).push(...result.skipped.map(s=>suite+': '+s));
      run.checks.push('existing '+suite+': '+(result.passed??result.checks)+' assertions');
     }
    }
-   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.enemies=[];S.bans=[];save();S.route='planner';render();});
+   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.enemies=[];S.bans=[];save();S.route='match';render();});
    await page.locator('#refresh').click();await page.waitForFunction(()=>!latestStatus.busy);
    check(await page.evaluate(()=>S.locks.length===2&&S.locks[0].slug==='steel'),'refresh preserves picks');
    check(await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'refresh preserves original observations and date');

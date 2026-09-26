@@ -58,7 +58,7 @@ let preview=null;
    const pageBg=await page.evaluate(()=>getComputedStyle(document.body).backgroundColor);
    check(ratio(toHex(border),toHex(pageBg))>=3,'select border ≥3:1 against the page background');
    // Gold economy: at most one filled primary action per main view.
-   for(const r of ['meta','builds','planner','draft','live','library','guidance','changes','data']){
+   for(const r of ['meta','builds','match','library','guidance','changes','data']){
     await route(r);
     check(await page.evaluate(()=>[...document.querySelectorAll('#main .primary')].filter(b=>b.offsetParent).length<=1),'at most one primary action on '+r);
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no horizontal overflow on '+r);
@@ -86,13 +86,11 @@ let preview=null;
    check(await page.evaluate(()=>S.locks.length===1&&S.locks[0].slug==='steel'),'hero finder keeps locked picks');
    await page.locator('#hero-jump').focus();await page.keyboard.press('Tab');
    check(await page.evaluate(()=>document.activeElement&&document.activeElement!==document.body&&document.activeElement.id!=='hero-jump'),'finder does not trap focus');
-   // Planner and Live game: pickers and the "you are playing" control appear inside the first screen.
-   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.size=5;S.me='steel';save();});
-   await route('planner');
-   check(await page.evaluate(()=>document.querySelector('.slots').getBoundingClientRect().top+scrollY<=innerHeight),'planner slots inside the first viewport');
-   await page.evaluate(()=>{S.enemies=[{slug:'khaimera',role:'jungle'}];save();});await route('live');
-   check(await page.evaluate(()=>{const s=document.querySelector('#me-hero');return s&&getComputedStyle(s).borderTopColor!==getComputedStyle(document.querySelector('.slot select')).borderTopColor;}),'"you are playing" control is visually distinct from roster selects');
-   check(await page.evaluate(()=>document.querySelector('#me-hero').getBoundingClientRect().top+scrollY<=innerHeight+200),'"you are playing" near the picks');
+   // Match (2.36.0): your hero and the enemy team appear inside the first screen, before the adapted build.
+   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];S.me='steel';S.enemies=[{slug:'khaimera',role:'jungle'}];S.bans=[];save();});
+   await route('match');
+   check(await page.evaluate(()=>document.querySelector('.match-me')?.getBoundingClientRect().top+scrollY<=innerHeight),'Match: your hero inside the first viewport');
+   check(await page.evaluate(()=>document.querySelector('.match-enemies')?.getBoundingClientRect().top+scrollY<=innerHeight+200),'Match: the enemy team near your hero');
    // Sources: a computed verdict leads; the full source table and drill-downs remain.
    await route('data');
    check(await page.locator('.verdict>div').count()===4,'sources page leads with a four-part computed verdict');
@@ -131,15 +129,15 @@ let preview=null;
    await route('meta');
    check(await page.evaluate(()=>document.querySelector('#main').getBoundingClientRect().top+scrollY<=430),'phone chrome above main is at most 430px');
    check(await page.evaluate(()=>document.querySelector('#main .hero-cell').getBoundingClientRect().top+scrollY<=900),'phone: first hero row within about one screen');
-   check(await page.evaluate(()=>['meta','plan','more'].every(r=>{const b=document.querySelector('#mobile-navigation [data-destination="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the three destinations are visible without a menu tap');
-   // 2.33 phone shell (mobile.css): a More control in the top bar, a Meta/Plan/More bottom bar, no route row or finder.
+   check(await page.evaluate(()=>['meta','match','more'].every(r=>{const b=document.querySelector('#mobile-navigation [data-destination="'+r+'"]').getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.top>=0;})),'phone: the three destinations are visible without a menu tap');
+   // 2.33 phone shell (mobile.css): a More control in the top bar, a Meta/Match/More bottom bar (Plan before 2.36.0), no route row or finder.
    check(await page.evaluate(()=>{const m=document.querySelector('#menu-toggle'),b=m.getBoundingClientRect();return m.offsetParent!==null&&b.height>=44&&b.right<=innerWidth+1;}),'phone: the More control stays inside the viewport at touch size');
    check(await page.evaluate(()=>document.querySelector('#navigation').offsetParent===null),'phone: the desktop route row is hidden; destinations live in the bottom bar');
    check(await page.evaluate(()=>[...document.querySelectorAll('.nav, .topbar .tools button, #status-toggle, #theme-toggle')].filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=36)),'phone: every shell control at least 36px tall');
    check(await page.evaluate(()=>{const r=document.querySelector('#bracket').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&r.width>=110&&document.querySelector('.topbar .finder').offsetParent===null;}),'phone: rank selector inside the viewport; the finder moves out of the top bar');
    check(await page.evaluate(()=>!!(document.querySelector('#bracket').getAttribute('aria-label')&&document.querySelector('#hero-jump').getAttribute('aria-label'))),'phone: hidden label text is replaced by accessible names');
    check(await page.evaluate(materialNotice),'phone: named source failure stays visible');
-   for(const r of ['meta','builds','planner','draft','live','library','guidance','changes','data']){
+   for(const r of ['meta','builds','match','library','guidance','changes','data']){
     await route(r);
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'phone: no horizontal overflow on '+r);
     check(await page.evaluate(()=>[...document.querySelectorAll('#main small, #main .footer, #main .note')].every(e=>parseFloat(getComputedStyle(e).fontSize)>=12)),'phone: no supporting text under 12px on '+r);
@@ -147,13 +145,9 @@ let preview=null;
    await route('meta');await openSteel(page);
    check(await page.evaluate(()=>{const s=document.querySelector('.hero-header .mobile-hero-status');return !!s&&s.offsetParent!==null&&s.getBoundingClientRect().right<=innerWidth+1;}),'phone: hero review status sits in the header');
    check(await page.evaluate(()=>document.querySelector('nav.hero-jump[aria-label="Sections of this hero"]').getBoundingClientRect().top+scrollY<=900),'phone: section jump row within about one screen');
-   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.size=5;S.me='steel';save();});await route('planner');
-   // With no eligible statistics source, sampled fills are withheld; tick the real control that allows kit-only fills.
-   if(await page.evaluate(()=>E.evidenceState().statistics.state==='unavailable')){await page.locator('summary',{hasText:'Search options'}).first().click();await page.locator('#include-unsampled').check();}
-   await page.locator('#generate').click();await page.waitForFunction(()=>compositions?.alternatives?.length>0,{},{timeout:60000});
-   check(await page.evaluate(()=>[...document.querySelectorAll('.comp-card .metric-row strong')].slice(0,8).every(s=>s.getBoundingClientRect().height<=30)),'phone: headline figures stay on one line');
-   await page.evaluate(()=>{S.enemies=[{slug:'khaimera',role:'jungle'}];save();});await route('live');
-   check(await page.evaluate(()=>[...document.querySelectorAll('.section-title button')].every(x=>x.getBoundingClientRect().height<=48)),'phone: section actions stay on one line');
+   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];S.me='steel';S.enemies=[{slug:'khaimera',role:'jungle'}];S.bans=[];save();});await route('match');
+   check(await page.evaluate(()=>[...document.querySelectorAll('.match-chip, .match-hero, .match-actions button')].filter(b=>b.offsetParent).every(b=>b.getBoundingClientRect().height>=44)),'phone: Match hero and enemy controls are at least 44px tall');
+   check(await page.evaluate(()=>[...document.querySelectorAll('.match-build .item-button')].every(b=>b.getBoundingClientRect().width>=80)),'phone: adapted-build item names keep a readable width');
    await route('data');
    check(await page.evaluate(()=>[...document.querySelectorAll('.source-table th')].every(th=>th.getBoundingClientRect().height<=40)),'phone: source table headers never split mid-word');
    check(errors.length===0,'phone: no page JavaScript errors');
@@ -197,15 +191,15 @@ let preview=null;
     const c=await page.evaluate(k=>{const t=document.querySelector('.tag.'+k);if(!t)return null;let el=t;while(el&&getComputedStyle(el).backgroundColor==='rgba(0, 0, 0, 0)')el=el.parentElement;return [getComputedStyle(t).color,el?getComputedStyle(el).backgroundColor:null];},cls);
     if(c&&c[1]&&!c[1].startsWith('rgba('))check(ratio(toHex(c[0]),toHex(c[1]))>=4.5,'light: '+cls+' chip text ≥4.5:1 on its surface');
    }
-   for(const r of ['meta','builds','planner','draft','live','library','guidance','changes','data']){
+   for(const r of ['meta','builds','match','library','guidance','changes','data']){
     await route(r);
     check(await page.evaluate(()=>[...document.querySelectorAll('#main .primary')].filter(b=>b.offsetParent).length<=1),'light: at most one primary action on '+r);
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'light: no horizontal overflow on '+r);
    }
-   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];S.enemies=[{slug:'khaimera',role:'jungle'}];S.size=5;save();});await route('live');
-   // Enemy picks are labelled selects inside .slot (the .slot.enemy class is gone); measure the label on its slot.
-   const enemy=await page.evaluate(()=>{const l=document.querySelector('[data-slot="enemies"]').closest('label');return [getComputedStyle(l).color,getComputedStyle(l.closest('.slot')).backgroundColor];});
-   check(ratio(toHex(enemy[0]),toHex(enemy[1]))>=4.5,'light: enemy slot labels ≥4.5:1');
+   await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];S.me='steel';S.enemies=[{slug:'khaimera',role:'jungle'}];S.bans=[];save();});await route('match');
+   // Match (2.36.0) shows each enemy as a removable chip; measure its name against the chip.
+   const enemy=await page.evaluate(()=>{const c=document.querySelector('.match-chip');return [getComputedStyle(c).color,getComputedStyle(c).backgroundColor];});
+   check(ratio(toHex(enemy[0]),toHex(enemy[1]))>=4.5,'light: enemy chip names ≥4.5:1');
    await page.locator('#theme-toggle').click();
    check(await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme')&&localStorage.getItem('predecessor-theme')==='dark'),'toggle returns to dark and remembers it');
    check(errors.length===0,'light: no page JavaScript errors');

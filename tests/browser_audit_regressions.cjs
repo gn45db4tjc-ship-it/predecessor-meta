@@ -17,7 +17,7 @@ const root = path.resolve(__dirname, '..');
 const port = Number(process.env.PREVIEW_PORT || 12940);
 const url = process.env.PREVIEW_URL || 'http://127.0.0.1:' + port + '/';
 const ledger = JSON.parse(fs.readFileSync(path.join(__dirname, 'known-defects.json'), 'utf8'));
-const open = new Set(ledger.open), results = [];
+const open = new Set(ledger.open), retired = new Set(Object.keys(ledger.retired || {})), results = [];
 const only = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
 
 function verdict(id, reproduced, detail) {
@@ -123,80 +123,6 @@ async function evidenceItems(context) {
 }
 
 const probes = {
-  async A1(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page); await generate(page);
-    const target = await page.evaluate(() => compositions.alternatives[0].picks.find(p => p.slug !== 'steel').slug);
-    await page.evaluate(() => changeRoute('draft'));
-    await page.selectOption('#ban-hero', target);
-    assert.ok(await page.evaluate(slug => S.bans.includes(slug), target), 'probe setup: the ban control did not record the ban');
-    await page.evaluate(() => changeRoute('planner'));
-    if (await page.locator('[data-use-comp="0"]').count()) await page.locator('[data-use-comp="0"]').click();
-    const bad = await bannedLocks(page);
-    verdict('A1', bad.length > 0, {banned: target, locked_while_banned: bad});
-    await context.close();
-  },
-  async A2(browser) {
-    const {context, page} = await session(browser, phone);
-    await reset(page, 2); await generate(page);
-    const target = await page.evaluate(() => compositions.alternatives[0].picks.find(p => p.slug !== 'steel').slug);
-    await reset(page, 2, {bans: [target]});
-    await page.evaluate(() => changeRoute('draft'));
-    await page.locator('[data-unban="' + target + '"]').first().click();
-    assert.deepEqual(await page.evaluate(() => S.bans), [], 'probe setup: unban did not clear the ban');
-    await generate(page);
-    const index = await page.evaluate(slug => compositions.alternatives.findIndex(c => c.picks.some(p => p.slug === slug)), target);
-    assert.ok(index >= 0, 'probe setup: the unbanned hero did not return to the alternatives');
-    assert.ok(await page.locator('#undo-action').count(), 'probe setup: the Undo control expired before it could be used');
-    await page.locator('#undo-action').click();
-    assert.ok(await page.evaluate(slug => S.bans.includes(slug), target), 'probe setup: Undo did not restore the ban');
-    await page.evaluate(() => changeRoute('planner'));
-    const button = page.locator('[data-use-comp="' + index + '"]');
-    if (await button.count()) await button.click();
-    const bad = await bannedLocks(page);
-    verdict('A2', bad.length > 0, {restored_ban: target, locked_while_banned: bad});
-    await context.close();
-  },
-  async A3(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 3, {enemies: [{slug: 'gideon', role: 'midlane'}]}); await generate(page);
-    await page.evaluate(() => changeRoute('draft'));
-    await page.locator('#clear-enemies').click();
-    await page.evaluate(() => changeRoute('planner'));
-    const stale = await offered(page);
-    verdict('A3', stale > 0, {alternatives_still_offered: stale});
-    await context.close();
-  },
-  async A4(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 3, {bans: ['khaimera']}); await generate(page);
-    await page.evaluate(() => changeRoute('draft'));
-    await page.locator('[data-unban="khaimera"]').first().click();
-    await page.evaluate(() => changeRoute('planner'));
-    const stale = await offered(page);
-    verdict('A4', stale > 0, {alternatives_still_offered: stale});
-    await context.close();
-  },
-  async A5(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page); await generate(page);
-    const expected = await page.evaluate(() => compositions.alternatives[1].picks.map(p => p.role + ':' + p.slug).sort());
-    await page.locator('[data-use-comp="1"]').click();
-    const locks = await page.evaluate(() => S.locks.map(p => p.role + ':' + p.slug).sort());
-    const unique = await page.evaluate(() => new Set(S.locks.map(p => p.slug)).size === S.locks.length && new Set(S.locks.map(p => p.role)).size === S.locks.length);
-    verdict('A5', JSON.stringify(locks) !== JSON.stringify(expected) || !unique, {applied: locks, expected, unique});
-    await context.close();
-  },
-  async A6(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page); await generate(page);
-    const target = await page.locator('[data-substitute]').first().getAttribute('data-substitute');
-    await page.locator('[data-substitute="' + target + '"]').first().click();
-    await page.waitForFunction(() => !!compositions?.substitution, null, {timeout: 180000});
-    const state = await page.evaluate(() => ({current: compositionsCurrent(), alternatives: compositions.alternatives.length, role: compositions.substitution.role, locks: S.locks.length, size: S.size}));
-    verdict('A6', !(state.current && state.locks === state.size - 1), state);
-    await context.close();
-  },
   async A7(browser) {
     const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
     await page.addInitScript(() => localStorage.setItem('predecessor-planner-v2', JSON.stringify({evidencePolicy: 230, size: 3, bans: ['muriel'], enemies: [{slug: 'gideon', role: 'midlane'}],
@@ -207,27 +133,6 @@ const probes = {
     let usable = true; try { await page.evaluate(() => E.validPicks(S.locks, {size: S.size, bans: S.bans, enemies: S.enemies})); } catch { usable = false; }
     const healed = usable && JSON.stringify(state.locks) === JSON.stringify(['steel', 'kwang']) && state.bans.includes('muriel') && state.enemies.includes('gideon') && /Muriel/.test(state.toast);
     verdict('A7', !healed, {...state, planner_usable: usable});
-    await context.close();
-  },
-  async A8(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 3, {bans: ['khaimera']}); await generate(page);
-    await page.evaluate(() => changeRoute('draft'));
-    await page.locator('[data-unban="khaimera"]').first().click();
-    await page.evaluate(() => changeRoute('planner'));
-    const text = await page.locator('#compositions').innerText();
-    verdict('A8', !/changed after these alternatives were generated/i.test(text), {panel: text.slice(0, 160)});
-    await context.close();
-  },
-  async A10(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page); await generate(page);
-    await failTheNextCheck(page, 'd');
-    await page.locator('#refresh').click();
-    await page.waitForFunction(() => !latestStatus.busy && !!latestStatus.errors?.length, null, {timeout: 120000});
-    await page.evaluate(() => changeRoute('planner'));
-    const seen = await page.evaluate(() => ({kept: !!compositions, text: document.querySelector('#compositions')?.innerText || ''}));
-    verdict('A10', seen.kept || !/changed after these alternatives were generated/i.test(seen.text), {kept: seen.kept, panel: seen.text.slice(0, 140)});
     await context.close();
   },
   async A11(browser) {
@@ -249,37 +154,6 @@ const probes = {
     });
     assert.ok(seen.offered && enemy.offered, 'probe setup: no Sparrow pair card was offered');
     verdict('A11', seen.locks.includes('sparrow') || !seen.bans.includes('sparrow') || !seen.disabled || enemy.locks.includes('sparrow') || !enemy.enemies.includes('sparrow') || !enemy.disabled, {banned: seen, enemy_picked: enemy});
-    await context.close();
-  },
-  async A12(browser) {
-    const {context, page} = await session(browser, desktop);
-    const seen = await page.evaluate(() => {
-      B = {...B, guidance: {...B.guidance, strategic_review: undefined}}; E = MetaEngine.create(B);
-      const index = B.guidance.compositions.findIndex(c => c.picks.length >= 2), target = B.guidance.compositions[index].picks[1].slug;
-      Object.assign(S, {locks: [], enemies: [], bans: [target]}); save(); changeRoute('guidance');
-      const button = document.querySelector('[data-guided-comp="' + index + '"]'), disabled = !button || button.disabled;
-      if (button) { button.disabled = false; button.click(); }
-      return {target, disabled, locks: S.locks.map(p => p.slug), bans: [...S.bans]};
-    });
-    const enemy = await page.evaluate(target => {
-      const index = B.guidance.compositions.findIndex(c => c.picks.some(p => p.slug === target)), pick = B.guidance.compositions[index].picks.find(p => p.slug === target);
-      Object.assign(S, {locks: [], bans: [], enemies: [{slug: target, role: pick.role}]}); save(); changeRoute('guidance');
-      const button = document.querySelector('[data-guided-comp="' + index + '"]'), disabled = !button || button.disabled;
-      if (button) { button.disabled = false; button.click(); }
-      return {disabled, locks: S.locks.map(p => p.slug), enemies: S.enemies.map(p => p.slug)};
-    }, seen.target);
-    verdict('A12', seen.locks.includes(seen.target) || !seen.bans.includes(seen.target) || !seen.disabled || enemy.locks.includes(seen.target) || !enemy.enemies.includes(seen.target) || !enemy.disabled, {banned: seen, enemy_picked: enemy});
-    await context.close();
-  },
-  async A9(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page); await generate(page);
-    await page.locator('[data-size="2"]').click();
-    const afterSize = await offered(page);
-    await reset(page); await generate(page);
-    await page.evaluate(() => { S.enemies = [{slug: 'gideon', role: 'midlane'}]; save(); render(); });
-    const afterEnemy = await offered(page);
-    verdict('A9', afterSize > 0 || afterEnemy > 0, {offered_after_size_change: afterSize, offered_after_enemy_change: afterEnemy});
     await context.close();
   },
   async B1(browser) {
@@ -319,7 +193,7 @@ const probes = {
   async C1(browser) {
     const d = await session(browser, desktop);
     const desk = await d.page.evaluate(() => ({saved: E.performancePolicy().saved, strip: document.querySelector('#patch-strip').innerText, fetched: E.performancePolicy().fetched_at}));
-    await d.page.evaluate(() => changeRoute('draft'));
+    await d.page.evaluate(() => changeRoute('match'));
     const banner = await d.page.locator('#main details.note summary').first().innerText();
     await d.context.close();
     const m = await session(browser, phone);
@@ -392,17 +266,6 @@ const probes = {
     await context.close();
   },
   /* Second review round. */
-  async A13(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page); await generate(page);
-    // Stage 4 keeps search controls in a disclosure; exercise the same real change through it.
-    const searchOptions=page.locator('[data-keep="plan-search-options"]');
-    if(await searchOptions.count()&&!await searchOptions.evaluate(d=>d.open))await searchOptions.locator('summary').click();
-    await page.selectOption('#comp-sort', await page.evaluate(() => [...document.querySelectorAll('#comp-sort option')].map(o => o.value).find(v => v !== S.sortComp)));
-    const text = await page.locator('#compositions').innerText();
-    verdict('A13', !/^Your search options changed after these alternatives were generated/m.test(text) || /picks, bans, enemies or data/.test(text), {panel: text.slice(0, 120)});
-    await context.close();
-  },
   async C6(browser) {
     const {context, page} = await clockSession(browser, phone);
     await page.evaluate(() => changeRoute('meta'));
@@ -499,51 +362,7 @@ const probes = {
     verdict('C13', /check failed/i.test(seen.badge) || !/new official content/i.test(seen.badge), {badge: seen.badge.replace(/\s+/g, ' ')});
     await context.close();
   },
-  async E1(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 5);
-    await page.evaluate(() => { changeRoute('planner'); window.__gap = 0; let last = performance.now(); const tick = () => { const now = performance.now(); window.__gap = Math.max(window.__gap, now - last); last = now; requestAnimationFrame(tick); }; requestAnimationFrame(tick); });
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    const gap = await page.evaluate(() => Math.round(window.__gap));
-    verdict('E1', gap > 500, {longest_main_thread_stall_ms: gap, threshold_ms: 500});
-    await context.close();
-  },
   /* E guards: the worker must return exactly what the engine returns, and the page must still work without one. */
-  async E2(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 5); await generate(page);
-    const seen = await page.evaluate(() => {
-      const direct = E.generate(S.locks, {size: S.size, bans: S.bans, enemies: S.enemies, metric: S.sortComp, preferredRole: 'jungle', requiredRole: effectiveRequiredRole(), includeUnsampled: S.includeUnsampled});
-      const {inputs, ...fromWorker} = compositions;
-      return {usedWorker: !!search.worker && !search.unavailable, same: JSON.stringify(fromWorker) === JSON.stringify(direct), alternatives: direct.alternatives.length};
-    });
-    assert.ok(seen.usedWorker, 'probe setup: the search did not run in a worker on the published site');
-    verdict('E2', !seen.same, seen);
-    await context.close();
-  },
-  async E3(browser) {
-    const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
-    await page.addInitScript(() => { window.Worker = class { constructor() { setTimeout(() => this.onerror?.({preventDefault() {}}), 0); } postMessage() {} terminate() {} }; });   // a blocked worker reports an error event
-    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
-    await reset(page, 3); await generate(page);
-    const seen = await page.evaluate(() => ({alternatives: compositions?.alternatives?.length || 0, fellBack: search.unavailable === true, current: compositionsCurrent()}));
-    verdict('E3', !(seen.alternatives > 0 && seen.fellBack && seen.current), seen);
-    await context.close();
-  },
-  async E4(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 5);
-    await page.evaluate(() => changeRoute('planner'));
-    await page.locator('#generate').click();
-    // While the worker is searching, the draft changes: the finished result no longer answers the question on screen.
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});   // the search has started with the old inputs
-    const banned = await page.evaluate(() => { const slug = Object.keys(B.heroes).find(s => s !== 'steel'); S.bans = [slug]; save(); return slug; });
-    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    const seen = await page.evaluate(() => ({kept: !!compositions, notice: compositionsNotice, shown: /was discarded/.test(document.querySelector('#main').innerText)}));
-    verdict('E4', !(seen.kept === false && seen.shown), {banned, ...seen, notice: seen.notice.slice(0, 80)});
-    await context.close();
-  },
   /* E#1/F#1 from the review: with a slow offline save, a second update check used to leave the new bundle on screen
      with the previous engine. The page is given a slow Cache API and two checks overlap. */
   async E5(browser) {
@@ -566,22 +385,6 @@ const probes = {
     await context.close();
   },
   /* Third review round (2.25.0). */
-  async E6(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 5);
-    await page.evaluate(() => changeRoute('planner'));
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-    // While the worker searches, the user opens the patch changes and types a filter.
-    await page.evaluate(() => changeRoute('changes'));
-    await page.locator('#patch-search').click();
-    await page.keyboard.type('stee');
-    await page.waitForFunction(() => !search.pending, null, {timeout: 180000});
-    await page.keyboard.type('l');
-    const seen = await page.evaluate(() => ({focused: document.activeElement?.id, value: document.querySelector('#patch-search')?.value, generated: !!compositions}));
-    verdict('E6', !(seen.focused === 'patch-search' && seen.value === 'steel' && seen.generated), seen);
-    await context.close();
-  },
   async G1(browser) {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => changeRoute('more'));
@@ -687,75 +490,6 @@ const probes = {
     verdict('M3', missing.length > 0 || tall.length > 0, {missing, tall, meta: seen.meta});
     await context.close();
   },
-  async M4(browser) {
-    const {context, page} = await session(browser, phone);
-    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
-    const seen = await page.evaluate(() => {
-      const main = document.querySelector('#main'), clone = main.cloneNode(true);
-      clone.querySelectorAll('details:not([open])').forEach(d => [...d.children].forEach(c => { if (c.tagName !== 'SUMMARY') c.remove(); }));
-      const text = clone.textContent.replace(/\s+/g, ' '), all = main.textContent.replace(/\s+/g, ' ');
-      // Any per-source date wording counts: the old "Statistics: <date>" and the new "Statistics fetched <date>".
-      const dated = /(Mechanics|Statistics)(: | fetched )/;
-      return {visible_source_dates: dated.test(text), dates_behind_a_tap: dated.test(all) && !dated.test(text), sample: (text.match(/.{0,40}(Mechanics|Statistics)(: | fetched ).{0,40}/) || [''])[0]};
-    });
-    verdict('M4', seen.visible_source_dates || !seen.dates_behind_a_tap, seen);
-    await context.close();
-  },
-  async M5(browser) {
-    const {context, page} = await session(browser, phone);
-    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
-    await page.locator('[data-live-lookup]').first().click();
-    const opened = await page.evaluate(() => ({route: S.route, dialog: !!document.querySelector('#detail')?.open, choices: document.querySelectorAll('#detail [data-pick-live]:not([disabled])').length}));
-    let after = null, undone = null;
-    if (opened.route === 'live' && opened.dialog && opened.choices) {
-      const target = await page.evaluate(() => [...document.querySelectorAll('#detail [data-pick-live]:not([disabled])')].map(b => b.dataset.pickLive).find(v => !v.startsWith('steel|')));
-      await page.locator(`#detail [data-pick-live="${target}"]`).click();
-      const confirm = page.locator('#detail [data-confirm-live]');
-      if (await confirm.count()) {
-        await confirm.click();
-        after = await page.evaluate(() => ({route: S.route, me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role), undo: !!document.querySelector('#undo-banner') && !document.querySelector('#undo-banner').hidden, dialog: !!document.querySelector('#detail')?.open}));
-        after.target = target;
-        if (after.undo) { await page.locator('#undo-action').click(); undone = await page.evaluate(() => ({me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)})); }
-      }
-    }
-    const ok = !!(opened.route === 'live' && opened.dialog && after && after.route === 'live' && !after.dialog && after.me === after.target.split('|')[0] && after.locks.includes(after.target) && !after.locks.includes('steel|jungle') && undone?.me === 'steel' && undone.locks.includes('steel|jungle'));
-    verdict('M5', !ok, {opened, after, undone});
-    await context.close();
-  },
-  async M6(browser) {
-    const {context, page} = await session(browser, phone);
-    const occupant = await page.evaluate(() => { const o = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle')); Object.assign(S, {locks: [{slug: o, role: 'jungle'}], enemies: [], bans: [], me: null}); save(); openHero('steel', 'jungle'); return o; });
-    const button = page.locator('[data-start-live]').first();
-    const enabled = await button.isEnabled();
-    let after = null, undone = null;
-    if (enabled) {
-      await button.click();
-      const confirm = page.locator('#detail [data-confirm-live]');
-      if (await confirm.count()) {
-        const warned = await page.evaluate(o => document.querySelector('#detail').innerText.includes(name(o)), occupant);
-        await confirm.click();
-        after = await page.evaluate(() => ({route: S.route, me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)}));
-        after.warned = warned;
-        if (await page.locator('#undo-banner:not([hidden]) #undo-action').count()) { await page.locator('#undo-action').click(); undone = await page.evaluate(() => ({me: S.me, locks: S.locks.map(p => p.slug + '|' + p.role)})); }
-      }
-    }
-    const ok = !!(enabled && after?.warned && after.route === 'live' && after.me === 'steel' && after.locks.includes('steel|jungle') && !after.locks.includes(occupant + '|jungle') && undone?.locks.includes(occupant + '|jungle') && !undone.locks.includes('steel|jungle'));
-    verdict('M6', !ok, {occupant, enabled, after, undone});
-    await context.close();
-  },
-  async M7(browser) {
-    const {context, page} = await session(browser, phone);
-    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: []}); save(); changeRoute('draft'); });
-    const seen = await page.evaluate(() => {
-      const main = document.querySelector('#main');
-      const lineups = [...main.querySelectorAll('details[data-lineup]')].map(d => ({side: d.dataset.lineup, summary: d.querySelector('summary').innerText.trim(), nested: d.querySelectorAll('details').length, slots: d.querySelectorAll('select[data-slot]').length}));
-      return {lineups, nested_lineup_disclosures: [...main.querySelectorAll('summary')].filter(s => /Edit lineup|other roles/i.test(s.innerText)).length};
-    });
-    const allies = seen.lineups.find(l => l.side === 'allies'), enemies = seen.lineups.find(l => l.side === 'enemies');
-    const ok = !!(seen.lineups.length === 2 && /Allies · 1 of 5 selected/i.test(allies?.summary || '') && /Enemies · 0 of 5 selected/i.test(enemies?.summary || '') && !allies.nested && !enemies.nested && allies.slots === 5 && enemies.slots === 5 && !seen.nested_lineup_disclosures);
-    verdict('M7', !ok, seen);
-    await context.close();
-  },
   async M8(browser) {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => { S.role = 'jungle'; S.query = ''; changeRoute('builds'); });
@@ -766,31 +500,13 @@ const probes = {
     verdict('M8', !(before && after), {before, after});
     await context.close();
   },
-  async M9(browser) {
-    const {context, page} = await session(browser, phone);
-    await reset(page, 5);
-    await page.evaluate(() => changeRoute('planner'));
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-    const cancel = page.locator('#cancel-generate');
-    const available = !!(await cancel.count()) && await cancel.isVisible();
-    let after = null;
-    if (available) {
-      await cancel.click();
-      await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 10000}).catch(() => {});
-      after = await page.evaluate(() => ({pending: !!search.pending, generate_enabled: !document.querySelector('#generate')?.disabled, label: document.querySelector('#generate')?.textContent, compositions: !!compositions, notice: (document.querySelector('#main').innerText.match(/[^.\n]*cancel[^.\n]*/i) || [null])[0]}));
-    }
-    const ok = !!(available && after && !after.pending && after.generate_enabled && !after.compositions && after.notice);
-    verdict('M9', !ok, {available, after});
-    await context.close();
-  },
   async M10(browser) {
     // A section opened on one screen must not open the matching section on another screen or another hero.
     const {context, page} = await session(browser, phone);
-    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size: 3}); save(); changeRoute('draft'); });
-    const draftOpened = await page.evaluate(() => { const d = document.querySelector('#main details[data-lineup="allies"]'); if (d) d.open = true; return !!d?.open; });
-    await page.evaluate(() => changeRoute('planner'));
-    const planner = await page.evaluate(() => document.querySelector('#main details[data-lineup="allies"]')?.open ?? null);
+    await page.evaluate(() => openHero('steel', 'jungle'));
+    const draftOpened = await page.evaluate(() => { const d = document.querySelector('#main details[data-keep="skill-reason"]'); if (d) d.open = true; return !!d?.open; });
+    await page.evaluate(() => { const other = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle')); openHero(other, 'jungle'); });
+    const planner = await page.evaluate(() => document.querySelector('#main details[data-keep="skill-reason"]')?.open ?? null);
     const desktopPage = await context.newPage();
     await desktopPage.setViewportSize({width: 1440, height: 900});
     await desktopPage.goto(url); await desktopPage.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
@@ -803,7 +519,7 @@ const probes = {
     });
     // Reference: the same hero opened fresh, with nothing opened before.
     const fresh = await desktopPage.evaluate(o => { changeRoute('meta'); openHero(o, 'jungle'); return [...document.querySelectorAll('#main details')].filter(d => d.open).length; }, hero.other);
-    verdict('M10', !draftOpened || planner !== false || hero.open !== fresh, {draft_opened: draftOpened, planner_allies_open: planner, other_hero_open_sections: hero.open, fresh_open_sections: fresh, total: hero.total});
+    verdict('M10', !draftOpened || planner !== false || hero.open !== fresh, {first_hero_reason_opened: draftOpened, second_hero_reason_open: planner, other_hero_open_sections: hero.open, fresh_open_sections: fresh, total: hero.total});
     await context.close();
   },
   async M11(browser) {
@@ -817,27 +533,6 @@ const probes = {
     verdict('M11', !(seen.route === 'data' && seen.in_main && !seen.dialog), seen);
     await context.close();
   },
-  async M12(browser) {
-    // On Compositions the allied lineup counts against the combination size, as the heading does.
-    const {context, page} = await session(browser, phone);
-    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], size: 2}); save(); changeRoute('planner'); });
-    const summary = await page.evaluate(() => document.querySelector('#main details[data-lineup="allies"] > summary')?.innerText.trim() || '');
-    verdict('M12', !/1 of 2 selected/.test(summary), {summary});
-    await context.close();
-  },
-  async M13(browser) {
-    // Cancel is offered only while a background search can actually be cancelled (never for the main-thread fallback).
-    const {context, page} = await session(browser, phone);
-    await reset(page, 3);
-    await page.evaluate(() => { stopSearchWorker(true); changeRoute('planner');
-      window.__cancelShown = false; const watch = () => { const c = document.querySelector('#cancel-generate'); if (c && !c.hidden) window.__cancelShown = true; };
-      new MutationObserver(watch).observe(document.querySelector('#main'), {subtree: true, attributes: true, childList: true}); });
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    const seen = await page.evaluate(() => ({fallback: search.unavailable, cancel_shown: window.__cancelShown, alternatives: compositions?.alternatives?.length || 0}));
-    verdict('M13', seen.cancel_shown, seen);
-    await context.close();
-  },
   /* 2.26.1: findings from the live verification of 2.26.0. */
   async P1(browser) {
     // Two sources that fail with the same text are two limitations, not one.
@@ -849,46 +544,6 @@ const probes = {
       return {a: items.some(i => i.source === 'Probe source A'), b: items.some(i => i.source === 'Probe source B'), line: document.querySelector('#mobile-limits strong')?.innerText || ''};
     });
     verdict('P1', !(seen.a && seen.b), seen);
-    await context.close();
-  },
-  async P2(browser) {
-    // Cancelling a new search while earlier alternatives are shown says so in the panel and keeps them; the note
-    // disappears while a new search runs and once the alternatives are used.
-    const {context, page} = await session(browser, phone);
-    await reset(page, 5);
-    await generate(page);
-    const cancelSearchNow = async () => {
-      await page.locator('#generate').click();
-      await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-      if (await page.locator('#cancel-generate').isVisible()) await page.locator('#cancel-generate').click();
-      await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 20000}).catch(() => {});
-    };
-    const panel = () => page.evaluate(() => document.querySelector('#compositions')?.innerText || '');
-    await cancelSearchNow();
-    const kept = await page.evaluate(() => compositions?.alternatives?.length || 0), said = /Search cancelled/i.test(await panel());
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-    const duringNewSearch = /Search cancelled/i.test(await panel());
-    await page.waitForFunction(() => !search.pending && !!compositions && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    await cancelSearchNow();
-    await page.locator('[data-use-comp]').first().click();
-    const afterUse = /previous search/i.test(await panel());
-    const seen = {kept, said, duringNewSearch, afterUse};
-    verdict('P2', !(kept > 0 && said && !duringNewSearch && !afterUse), seen);
-    await context.close();
-  },
-  async P3(browser) {
-    // The Live hero picker marks a sample under 100 games, as the Meta list does.
-    const {context, page} = await session(browser, phone);
-    const seen = await page.evaluate(() => {
-      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live');
-      const slug = Object.keys(E.heroes).sort().find(s => s !== 'steel' && E.roles(s).includes('jungle'));
-      const original = E.performance;
-      E.performance = p => { const r = original(p); return p.slug === slug && p.role === 'jungle' && r ? {...r, played: 42} : r; };
-      try { showLivePicker('jungle', true); const row = document.querySelector(`#detail [data-pick-live="${slug}|jungle"]`); return {slug, text: (row?.innerText || '').replace(/\s+/g, ' ')}; }
-      finally { E.performance = original; document.querySelector('#detail').close(); }
-    });
-    verdict('P3', !/small sample/i.test(seen.text), seen);
     await context.close();
   },
   async P4(browser) {
@@ -984,14 +639,12 @@ const probes = {
     await context.close();
   },
   async P9(browser) {
-    // At 320 px with large text the rank select shows its whole label, the Situation item picker is full width, and a
+    // At 320 px with large text the rank select shows its whole label, Match's hero search is full width, and a
     // hero tile with a long reason text keeps a readable name column.
     const {context, page} = await session(browser, {...phone, viewport: {width: 320, height: 700}});
-    await page.evaluate(() => { companionPrefs.large = true; companionChrome(); Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); });
+    await page.evaluate(() => { companionPrefs.large = true; companionChrome(); Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('match'); });
     const rank = await page.evaluate(() => { const s = document.querySelector('#bracket'); return {width: Math.round(s.getBoundingClientRect().width), text: s.options[s.selectedIndex]?.text || ''}; });
-    await page.locator('[data-edit-situation]').first().click();
-    const dialog = await page.evaluate(() => ({select: Math.round(document.querySelector('#detail #live-owned-add')?.getBoundingClientRect().width || 0), body: Math.round(document.querySelector('#detail-body')?.getBoundingClientRect().width || 0)}));
-    await page.keyboard.press('Escape');
+    const dialog = await page.evaluate(() => ({select: Math.round(document.querySelector('#match-search')?.getBoundingClientRect().width || 0), body: Math.round(document.querySelector('#main')?.getBoundingClientRect().width || 0)}));
     const tile = await page.evaluate(() => {
       const saved = B; B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'failed'}, patch: '1.15'}; E = MetaEngine.create(B);
       try { S.role = 'jungle'; changeRoute('builds'); changeRoute('meta');
@@ -1038,42 +691,14 @@ const probes = {
       || /not saved on this device/i.test(saved.text) || !/saved on this device/i.test(saved.text) || /reload/i.test(saved.text);
     verdict('P11', bad, {unsaved, saved});
   },
-  async P12(browser) {
-    // A second Enter on Generate never cancels the search it started; after Cancel focus returns to Generate and the
-    // toast agrees with the panel; a search started by a click leaves focus alone when it finishes.
-    const {context, page} = await session(browser, phone);
-    await reset(page, 5);
-    await page.evaluate(() => changeRoute('planner'));
-    await page.locator('#generate').focus();
-    await page.keyboard.press('Enter');
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(150);
-    const secondEnter = await page.evaluate(() => ({pending: !!search.pending, cancelled: /cancel/i.test(document.querySelector('#toast')?.textContent || '') || /cancel/i.test(document.querySelector('#compositions')?.innerText || '')}));
-    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!search.pending && !document.querySelector('#cancel-generate')?.hidden, null, {timeout: 30000});
-    await page.locator('#cancel-generate').click();
-    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 20000}).catch(() => {});
-    await page.waitForTimeout(150);
-    const after = await page.evaluate(() => ({focused: document.activeElement?.id || document.activeElement?.tagName, toast: document.querySelector('#toast')?.textContent || ''}));
-    await page.evaluate(() => document.activeElement?.blur());
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    await page.waitForTimeout(150);
-    const clicked = await page.evaluate(() => document.activeElement?.id || document.activeElement?.tagName);
-    verdict('P12', secondEnter.cancelled || after.focused !== 'generate' || /unchanged/i.test(after.toast) || clicked === 'generate', {secondEnter, after, clicked});
-    await context.close();
-  },
   async P13(browser) {
-    // A redraw keeps keyboard focus on the control the user was on (lineup selects have no id), and never moves it to
+    // A redraw keeps keyboard focus on the control the user was on (Match's hero search), and never moves it to
     // another copy of the same hero elsewhere on the page.
     const {context, page} = await session(browser, phone);
-    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: []}); save(); changeRoute('planner'); document.querySelector('#main details[data-lineup]')?.setAttribute('open', ''); });
-    await page.locator('select[data-slot="allies"][data-slot-role="midlane"]').focus();
+    await page.evaluate(() => { Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('match'); });
+    await page.locator('#match-search').focus();
     await page.evaluate(() => requestRedraw(true));
-    const slot = await page.evaluate(() => ({slot: document.activeElement?.dataset?.slot || null, role: document.activeElement?.dataset?.slotRole || null}));
+    const slot = await page.evaluate(() => ({id: document.activeElement?.id || null}));
     const hero = await page.evaluate(() => {
       S.role = 'jungle'; companionPrefs.homeQuery = ''; companionPrefs.favorites=['steel|jungle']; changeRoute('meta');
       const inTop = document.querySelector('#mobile-favorites [data-hero]');
@@ -1090,7 +715,7 @@ const probes = {
       try { requestRedraw(true); const a = document.activeElement; return {hero, focused: a?.dataset?.hero || a?.tagName, inList: !!a?.closest('#mobile-all-list')}; }
       finally { E.performance = original; }
     });
-    verdict('P13', !(slot.slot === 'allies' && slot.role === 'midlane') || !hero.hero || !hero.inList || hero.inTopFive || !(moved.focused === moved.hero && moved.inList), {slot, hero, moved});
+    verdict('P13', slot.id !== 'match-search' || !hero.hero || !hero.inList || hero.inTopFive || !(moved.focused === moved.hero && moved.inList), {slot, hero, moved});
     await context.close();
   },
   async P15(browser) {
@@ -1104,19 +729,6 @@ const probes = {
     });
     assert.equal(seen.policy, 'Verification required', 'probe setup: a saved-patch guidance status pauses statistics');
     verdict('P15', !/paused/i.test(seen.chip) || !/live check pending/i.test(seen.chip) || !/paused/i.test(seen.failedChip) || !/failed/i.test(seen.failedChip) || /pending/i.test(seen.failedChip), seen);
-    await context.close();
-  },
-  async P14(browser) {
-    // When only the search options change while a search runs, the discarded result names the options, not the picks.
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 5);
-    await page.evaluate(() => changeRoute('planner'));
-    await page.locator('#generate').click();
-    await page.waitForFunction(() => !!search.pending, null, {timeout: 30000});
-    await page.evaluate(() => { const s = document.querySelector('#comp-sort'); s.value = [...s.options].find(o => o.value !== s.value).value; s.dispatchEvent(new Event('change', {bubbles: true})); });
-    await page.waitForFunction(() => !search.pending && !document.querySelector('#generate')?.disabled, null, {timeout: 180000});
-    const notice = await page.evaluate(() => (document.querySelector('#compositions')?.innerText || '').split('\n')[0]);
-    verdict('P14', !/search options/i.test(notice) || /picks/i.test(notice), {notice});
     await context.close();
   },
   // ---- Audit item 11: the page starts from a compact core and fetches display-only evidence when a view needs it.
@@ -1836,17 +1448,16 @@ const probes = {
       await context.addInitScript(large => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, large, fullDetails:true})); }, large);
       await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
       const problems = [];
-      // 'meta' is the phone Meta page (its own role strip) and 'live-picker' is the hero picker dialog; both use
-      // .role-choices.compact, which 2.28.0 left scrolling sideways (found on the live site after that release).
-      for (const route of ['hero', 'builds', 'planner', 'meta', 'live-picker']) {
+      // 'meta' is the phone Meta page with its own role strip (.role-choices.compact), which 2.28.0 left scrolling
+      // sideways (found on the live site after that release). The Live hero picker was removed in 2.36.0.
+      for (const route of ['hero', 'builds', 'meta']) {
         const found = await page.evaluate(route => {
           if (route === 'hero') openHero('steel', 'jungle');
-          else if (route === 'live-picker') { changeRoute('live'); showLivePicker(E.roles(Object.keys(B.heroes)[0])[0], true); }
           else changeRoute(route);
-          const out = [], scope = route === 'live-picker' ? document.querySelector('#detail') : document.querySelector('#main');
+          const out = [], scope = document.querySelector('#main');
           const lists = [...scope.querySelectorAll('[role=tablist]'), ...(scope.querySelector('[role=tablist]') ? [] : scope.querySelectorAll('.tabs, .role-choices.compact'))];
           if (!lists.length) out.push('no tab strip found');
-          if ((route === 'meta' || route === 'live-picker') && !scope.querySelector('.role-choices.compact')) out.push('role strip not found');
+          if (route === 'meta' && !scope.querySelector('.role-choices.compact')) out.push('role strip not found');
           for (const list of lists) {
             const name = list.getAttribute('aria-label') || list.className;
             if (list.scrollHeight > list.clientHeight) out.push(name + ': vertical ' + list.scrollHeight + '>' + list.clientHeight);
@@ -1855,7 +1466,6 @@ const probes = {
             for (const tab of tabs) { const r = tab.getBoundingClientRect(); if (r.height < 44 || r.right > innerWidth + 1 || r.left < -1) out.push(name + ': tab "' + tab.textContent.trim() + '" ' + Math.round(r.left) + '-' + Math.round(r.right) + ' h' + Math.round(r.height)); }
           }
           if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page overflows ' + document.documentElement.scrollWidth + '>' + innerWidth);
-          if (route === 'live-picker') { document.querySelector('#detail')?.close(); changeRoute('meta'); }
           return out;
         }, route);
         problems.push(...found.map(f => route + ' ' + f));
@@ -2114,7 +1724,7 @@ const probes = {
         return {limitsTop: Math.round(l.top), limitsBottom: Math.round(l.bottom), rankTop: Math.round(r.top), sameRow: l.bottom > r.top && l.top < r.bottom, detail: !!document.querySelector('#mobile-limits span:not([aria-hidden])')?.getClientRects().length}; };
       companionPrefs.fullDetails = false; saveCompanionPrefs(); changeRoute('meta'); const meta = measure();
       openHero('steel', 'jungle'); const hero = measure();
-      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('live'); const live = measure();
+      Object.assign(S, {locks: [{slug: 'steel', role: 'jungle'}], enemies: [], bans: [], me: 'steel'}); save(); changeRoute('match'); const live = measure();
       return {meta, hero, live};
     });
     verdict('U3', !seen.meta.detail || !seen.hero.sameRow || !seen.live.sameRow, seen);
@@ -2741,26 +2351,27 @@ probes.X3 = async browser => {
 };
 
 probes.X4 = async browser => {
-  /* GUARD: a substitution says what it replaced and why, a need the engine could not
-     answer is named, and the whole six is never offered as one observed loadout. */
+  /* GUARD (Match, 2.36.0): a substitution says what it replaced and why, a need the engine could not
+     answer is named, and the adapted six is labelled calculated with its no-win-rate note. */
   const {context, page} = await historicalBuildSession(browser, desktop);
   const seen = await page.evaluate(() => {
     // An enemy is what makes the engine substitute at all, so the guard needs one.
     S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}]; S.role = 'jungle';
     S.enemies = [{slug: 'countess', role: 'midlane'}];
-    changeRoute('live');
-    document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+    changeRoute('match');
     const text = document.querySelector('#main').innerText.replace(/\s+/g, ' ');
-    const engine = adviceFor({slug: 'steel', role: 'jungle'});
+    const choice = buildSelection({slug: 'steel', role: 'jungle'});
+    const engine = E.adaptBuild({slug: 'steel', role: 'jungle'}, [], S.enemies, {state: 'even', primaryThreat: null, variant: choice.index});
     return {
-      swaps: engine.swaps.map(s => ({...s, shown: text.includes(s.from) && text.includes(s.to)})),
-      unmet: engine.unmet.map(id => ({id, shown: text.toLowerCase().includes(String(id).replace(/_/g, ' ').toLowerCase())})),
-      caution_shown: !!engine.plan.caution && text.includes(engine.plan.caution.slice(0, 40)),
-      caution: (engine.plan.caution || '').slice(0, 80)
+      route: S.route,
+      swaps: engine.swaps.map(s => ({...s, shown: text.includes('Replaces ' + s.from) && text.includes(s.to)})),
+      unmet: engine.unmet.map(id => { const label = engine.needs.find(n => n.id === id)?.label || id; return {id, shown: text.includes(label)}; }),
+      calculated: /Calculated changes|Starting build kept/.test(text),
+      note_shown: !!engine.note && text.includes(engine.note.slice(0, 40))
     };
   });
   await context.close();
-  verdict('X4', seen.swaps.some(s => !s.shown) || seen.unmet.some(u => !u.shown) || !seen.caution_shown, seen);
+  verdict('X4', seen.route !== 'match' || !seen.swaps.length || seen.swaps.some(s => !s.shown) || seen.unmet.some(u => !u.shown) || !seen.calculated || !seen.note_shown, seen);
 };
 
 /* ---------------------------------------------------------------------------
@@ -2934,41 +2545,6 @@ probes.Y2 = async browser => {
   await context.close();
   verdict('Y2', !seen.pairs || !seen.shows_interval || !seen.shows_beats_both
     || !seen.interval_tied_to_win_rate || !seen.interval_not_called_the_lift || !seen.says_point_estimate, seen);
-};
-
-probes.Y4 = async browser => {
-  /* The sticky "Next purchase" summary must not sit on top of the build path it summarises.
-     Content that scrolls under permanent chrome is content the reader cannot have. */
-  const seen = {};
-  for (const [w, h, mob] of [[390, 844, true], [1440, 900, false]]) {
-    const {context, page} = await historicalBuildSession(browser, {viewport: {width: w, height: h}, isMobile: mob, hasTouch: mob});
-    await page.evaluate(() => {
-      S.me = 'steel'; S.locks = [{slug: 'steel', role: 'jungle'}];
-      S.enemies = [{slug: 'countess', role: 'midlane'}]; S.role = 'jungle';
-      changeRoute('live');
-    });
-    await page.waitForTimeout(300);
-    seen[w + 'x' + h] = await page.evaluate(async () => {
-      const next = document.querySelector('.coach-next'), path = document.querySelector('.coach-path');
-      if (!next || !path) return {missing: true};
-      const sticky = ['sticky', 'fixed'].includes(getComputedStyle(next).position);
-      const hidden = [];
-      for (const li of path.children) {
-        // 'start' is what the browser does for an anchor, a fragment link and a focused
-        // control. Centring an element hides the defect, because the summary sits at the top.
-        li.scrollIntoView({block: 'start'});
-        await new Promise(r => setTimeout(r, 40));
-        if (!['sticky', 'fixed'].includes(getComputedStyle(next).position)) continue;
-        const n = next.getBoundingClientRect(), r = li.getBoundingClientRect();
-        const overlap = Math.min(n.bottom, r.bottom) - Math.max(n.top, r.top);
-        const across = Math.min(n.right, r.right) - Math.max(n.left, r.left) > 2;
-        if (overlap > 4 && across) hidden.push({item: li.innerText.replace(/\s+/g, ' ').slice(0, 26), overlap: Math.round(overlap)});
-      }
-      return {sticky, hidden: hidden.length, examples: hidden.slice(0, 3)};
-    });
-    await context.close();
-  }
-  verdict('Y4', Object.values(seen).some(v => v.missing || v.hidden > 0), seen);
 };
 
 probes.Y5 = async browser => {
@@ -3486,20 +3062,21 @@ probes.N1 = async browser => {
   const seen=[];
   for(const viewport of [desktop,phone]){
     const {context,page}=await session(browser,viewport);
-    for(const [route,destination] of [['meta','meta'],['builds','reference'],['planner','plan'],['draft','plan'],['live','plan'],['library','reference'],['guidance','reference'],['changes','reference'],['data','sources'],['more','sources'],['hero','meta']]){
+    for(const [route,destination] of [['meta','meta'],['builds','reference'],['match','match'],['library','reference'],['guidance','reference'],['changes','reference'],['data','sources'],['more','sources'],['hero','meta']]){
       await page.evaluate(route=>{if(route==='hero')openHero('steel','jungle');else changeRoute(route);},route);
       seen.push(await page.evaluate(({route,destination})=>{
         const nav=document.querySelector(innerWidth<=700?'#mobile-navigation':'#navigation');
-        return {route,phone:innerWidth<=700,destination:innerWidth<=700?(['planner','draft','live'].includes(route)?'plan':['meta','hero','builds'].includes(route)?'meta':'more'):destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
+        return {route,phone:innerWidth<=700,destination:innerWidth<=700?(route==='match'?'match':['meta','hero','builds'].includes(route)?'meta':'more'):destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
       },{route,destination}));
     }
     await context.close();
   }
-  verdict('N1',seen.some(s=>s.labels.join('|')!==(s.phone?'Meta|Plan|More':'Meta|Plan|Reference|Sources')||s.current.length!==1||s.current[0]!==s.destination||s.headings!==1||s.overflow),seen);
+  verdict('N1',seen.some(s=>s.labels.join('|')!==(s.phone?'Meta|Match|More':'Meta|Match|Reference|Sources')||s.current.length!==1||s.current[0]!==s.destination||s.headings!==1||s.overflow),seen);
 };
 probes.N2 = async browser => {
+  // Links saved before 2.36.0 (Compose, Draft, Live and their Plan stages) open Match.
   const {context,page}=await session(browser,phone),seen=[];
-  for(const [hash,route] of [['view=meta','meta'],['view=builds','builds'],['view=planner','planner'],['view=draft','draft'],['view=live','live'],['view=library','library'],['view=guidance','guidance'],['view=changes','changes'],['view=data','data'],['view=plan&stage=draft&bracket=gold','draft'],['view=reference&section=items&bracket=gold','library'],['view=sources&bracket=gold','data']]){
+  for(const [hash,route] of [['view=meta','meta'],['view=builds','builds'],['view=match','match'],['view=planner','match'],['view=draft','match'],['view=live','match'],['view=library','library'],['view=guidance','guidance'],['view=changes','changes'],['view=data','data'],['view=plan&stage=draft&bracket=gold','match'],['view=reference&section=items&bracket=gold','library'],['view=sources&bracket=gold','data']]){
     await page.goto(url+'#'+hash);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
     seen.push({hash,wanted:route,actual:await page.evaluate(()=>S.route)});
   }
@@ -3518,17 +3095,17 @@ probes.N3 = async browser => {
   await context.close();verdict('N3',back.route!=='meta'||back.role!==before.role||Math.abs(back.y-before.y)>3||back.picks!==before.picks||forward.route!=='hero'||forward.hero!=='countess',{before,back,forward});
 };
 probes.N4 = async browser => {
+  // Match keeps your hero and the enemy team across Back, Forward and reload.
   const {context,page}=await session(browser,phone);
-  await reset(page);await page.evaluate(()=>{S.enemies=[{slug:'gideon',role:'midlane'}];S.bans=['muriel'];save();changeRoute('planner');});
-  const picks=await page.evaluate(()=>JSON.stringify([S.locks,S.enemies,S.bans]));
-  const controls=await page.locator('[data-plan-stage]').count();
-  if(controls!==3){await context.close();verdict('N4',true,{controls});return;}
-  await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
+  await reset(page);await page.evaluate(()=>{S.me='steel';S.locks=[{slug:'steel',role:'jungle'}];S.enemies=[{slug:'gideon',role:'midlane'}];S.bans=[];save();changeRoute('match');});
+  const picks=await page.evaluate(()=>JSON.stringify([S.me,S.locks,S.enemies]));
+  await page.locator('#mobile-navigation [data-destination="meta"]').click();
   await page.goBack();await page.waitForTimeout(250);const back=await page.evaluate(()=>S.route);
   await page.goForward();await page.waitForTimeout(250);const forward=await page.evaluate(()=>S.route);
+  await page.goBack();await page.waitForTimeout(250);
   await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
-  const after=await page.evaluate(()=>({route:S.route,picks:JSON.stringify([S.locks,S.enemies,S.bans])}));
-  await context.close();verdict('N4',back!=='draft'||forward!=='live'||after.route!=='live'||after.picks!==picks,{back,forward,after});
+  const after=await page.evaluate(()=>({route:S.route,picks:JSON.stringify([S.me,S.locks,S.enemies]),enemies:document.querySelectorAll('.match-chip').length}));
+  await context.close();verdict('N4',back!=='match'||forward!=='meta'||after.route!=='match'||after.picks!==picks||after.enemies!==1,{back,forward,after});
 };
 probes.N6 = async browser => {
   const {context,page}=await session(browser,desktop);
@@ -3543,64 +3120,16 @@ probes.N6 = async browser => {
       return {loaded:B.bracket.segment,selected:S.bracket,route:S.route,requested};
     }finally{local=priorLocal;requestLinkedBracket=priorRequest;S.bracket=priorBand;}
   });
-  await context.close();verdict('N6',seen.loaded!=='gold'||seen.selected!=='gold'||seen.route!=='draft'||seen.requested!==null,seen);
+  await context.close();verdict('N6',seen.loaded!=='gold'||seen.selected!=='gold'||seen.route!=='match'||seen.requested!==null,seen);
 };
 probes.N5 = async browser => {
   const seen=[];
-  for(const [hash,route,role] of [['view=meta&role=support&bracket=gold','meta','support'],['view=plan&stage=live&bracket=gold','live'],['view=reference&section=playbook&bracket=gold','builds'],['view=reference&section=guidance&bracket=gold','guidance'],['view=reference&section=changes&bracket=gold','changes'],['view=sources&bracket=gold','data']]){
+  for(const [hash,route,role] of [['view=meta&role=support&bracket=gold','meta','support'],['view=plan&stage=live&bracket=gold','match'],['view=reference&section=playbook&bracket=gold','builds'],['view=reference&section=guidance&bracket=gold','guidance'],['view=reference&section=changes&bracket=gold','changes'],['view=sources&bracket=gold','data']]){
     const context=await browser.newContext({serviceWorkers:'block',...phone}),page=await context.newPage();
     await page.goto(url+'#'+hash);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
     seen.push({hash,route,role,actual:await page.evaluate(()=>({route:S.route,role:S.role,band:B.bracket.segment}))});await context.close();
   }
   verdict('N5',seen.some(s=>s.actual.route!==s.route||(s.role&&s.actual.role!==s.role)||s.actual.band!=='gold'),seen);
-};
-
-probes.PL1 = async browser => {
- const {context,page}=await session(browser,phone),seen=[];
- await reset(page,3,{me:'steel',enemies:[{slug:'gideon',role:'midlane'}],bans:['muriel']});
- for(const route of ['planner','draft','live']){
-  await page.evaluate(route=>changeRoute(route),route);
-  seen.push(await page.evaluate(()=>{const e=document.querySelector('.plan-roster');return {route:S.route,count:document.querySelectorAll('.plan-roster').length,text:e?.textContent,edit:!!e?.querySelector('[data-edit-roster]'),width:e?.getBoundingClientRect().width,overflow:document.documentElement.scrollWidth>innerWidth+1};}));
- }
- await context.close();verdict('PL1',seen.some(s=>s.count!==1||!s.edit||!/Steel/.test(s.text)||!/Gideon/.test(s.text)||!/Muriel/.test(s.text)||s.overflow),seen);
-};
-probes.PL2 = async browser => {
- const {context,page}=await session(browser,phone);
- await reset(page,3,{me:'steel'});await page.evaluate(()=>changeRoute('planner'));
- if(!await page.locator('[data-edit-roster]').count()){await context.close();verdict('PL2',true,{missingEditor:true});return;}
- await page.locator('[data-edit-roster]').click();
- await page.locator('#detail [data-plan-side="allies"][data-plan-role="midlane"]').selectOption('gideon');
- const focus=await page.evaluate(()=>document.activeElement?.dataset.planRole);
- await page.locator('#detail [data-plan-ban]').selectOption('muriel');
- await page.keyboard.press('Escape');
- await page.waitForFunction(()=>!document.querySelector('#detail').open&&document.activeElement?.hasAttribute('data-edit-roster'),null,{timeout:3000});
- const returned=await page.evaluate(()=>document.activeElement?.hasAttribute('data-edit-roster'));
- await page.locator('[data-plan-stage="draft"]').click();await page.locator('[data-plan-stage="live"]').click();
- await page.reload();await page.waitForFunction(()=>!!B&&!latestStatus.busy);
- const after=await page.evaluate(()=>({route:S.route,locks:S.locks,bans:S.bans,me:S.me}));
- await context.close();verdict('PL2',focus!=='midlane'||!returned||after.route!=='live'||after.me!=='steel'||!after.bans.includes('muriel')||!after.locks.some(p=>p.slug==='gideon'&&p.role==='midlane'),{focus,returned,after});
-};
-probes.PL3 = async browser => {
- const {context,page}=await session(browser,phone);
- const seen=await page.evaluate(()=>{
-  Object.assign(S,{locks:[{slug:'steel',role:'jungle'}],enemies:[],bans:[],me:'steel'});save();changeRoute('planner');
-  const before=JSON.stringify(S.locks),replacement=Object.keys(E.heroes).find(s=>s!=='steel'&&E.roles(s).includes('jungle'));
-  setPick('allies','jungle',replacement);const protectedMe=JSON.stringify(S.locks)===before;
-  S.locks=[{slug:'steel',role:'jungle'}];const bad=Object.keys(E.heroes).find(s=>!E.roles(s).includes('carry'));
-  setPick('allies','carry',bad);const unsupported=JSON.stringify(S.locks)===before;
-  S.locks=[{slug:'steel',role:'jungle'}];setPick('enemies','midlane','steel');
-  return {protectedMe,unsupported,duplicate:S.enemies.length===0};
- });
- await context.close();verdict('PL3',!seen.protectedMe||!seen.unsupported||!seen.duplicate,seen);
-};
-probes.PL4 = async browser => {
- const {context,page}=await session(browser,phone);
- const seen=await page.evaluate(()=>{
-  changeRoute('planner');rosterExpanded=true;const d=document.querySelector('[data-roster-picks]');d.open=true;
-  // A native toggle updates open before its asynchronous toggle event updates the remembered flag.
-  d.open=false;changeRoute('draft');return {open:document.querySelector('[data-roster-picks]').open,remembered:rosterExpanded};
- });
- await context.close();verdict('PL4',seen.open||seen.remembered,seen);
 };
 
 probes.RS1 = async browser => {
@@ -3654,14 +3183,6 @@ probes.LB1 = async browser => {
  await context.close();
  const bad=x=>x.rows<1||x.rows>40||x.count!=='Showing '+Math.min(40,x.total)+' of '+x.total+' entries'||x.noMatch||!x.named||/^Reference · Pred\.gg \+/.test(x.kicker||'');
  verdict('LB1',bad(seen.items)||bad(seen.perks)||!/No entries match/.test(empty),{...seen,search:empty.slice(-80)});
-};
-probes.LB2 = async browser => {
- const {context,page}=await session(browser,desktop);
- await page.evaluate(()=>{B.scoped_statistics.status='failed';B.sources.pred_scoped.status='failed';B.sources.statz_tierlist.status='failed';E=MetaEngine.create(B);Object.assign(S,{locks:[],enemies:[],bans:[],size:3,compRole:'auto',includeUnsampled:false});compositions=null;save();});
- await generate(page);
- const seen=await page.evaluate(()=>({source:E.performancePolicy().source,alternatives:compositions.alternatives.length,text:document.querySelector('#compositions .empty')?.textContent||''}));
- await context.close();
- verdict('LB2',seen.source!==null||seen.alternatives!==0||!seen.text.includes('Allow fills without role samples')||/Change a constraint/.test(seen.text),seen);
 };
 probes.LB3 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('more'));
@@ -3719,6 +3240,7 @@ probes.ML2 = async browser => {
   try {
     for (const [id, probe] of Object.entries(probes)) {
       if (only && !only.has(id)) continue;
+      if (retired.has(id)) continue;
       try { await probe(browser); }
       catch (error) { results.push({id, title: ledger.defects[id], ok: false, error: String(error.message || error).split('\n')[0]}); }
     }

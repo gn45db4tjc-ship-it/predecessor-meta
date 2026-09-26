@@ -32,11 +32,11 @@ const base=process.env.PREVIEW_URL||'http://127.0.0.1:13008/';let preview;
     // opening before asserting keyboard focus returns on Escape.
     await page.locator('.simple-purchases>li>.item-button').first().focus();await page.keyboard.press('Enter');assert(await page.locator('#detail').evaluate(n=>n.open));await page.keyboard.press('Escape');
     await page.waitForFunction(()=>!document.querySelector('#detail').open&&document.activeElement===document.querySelector('.simple-purchases>li>.item-button'));
-    await page.locator('[data-start-live]').click();assert.equal(await page.evaluate(()=>S.route),'live');
-    await page.locator('#main [data-edit-situation]').click();assert(await page.locator('#detail').evaluate(n=>n.open));await page.keyboard.press('Escape');
+    await page.locator('[data-start-live]').click();assert.equal(await page.evaluate(()=>S.route),'match');
+    await page.locator('.match-hero').first().focus();await page.keyboard.press('Enter');assert.equal(await page.locator('.match-chip').count(),1,'Enter on a Match hero adds that enemy');
    }
    await page.addScriptTag({path:process.env.AXE_PATH||require.resolve('axe-core/axe.min.js')});
-   for(const route of ['meta','hero','draft','more','data']){
+   for(const route of ['meta','hero','match','more','data']){
     await page.evaluate(r=>r==='hero'?openHero('khaimera','jungle'):changeRoute(r),route);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${theme} ${viewport.width} ${route}: horizontal overflow`);
     const violations=await page.evaluate(async()=>(await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})));
