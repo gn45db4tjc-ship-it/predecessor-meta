@@ -361,3 +361,16 @@
 .match-build{grid-template-columns:minmax(0,1fr)}
 .match-build li{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:var(--s2);row-gap:var(--s1)}
 .match-build li>small{grid-column:1/-1;width:auto}
+/* 2.37.0 phone declutter: one compact bar (rank, refresh, limitations chip) and the bottom navigation carry the
+   whole chrome; the brand row and its More button repeated the bottom navigation. */
+@media(max-width:700px){
+ .app>.sidebar{display:none}
+ .meta-list-controls--quick{grid-template-columns:minmax(0,1fr) minmax(0,9.5em);align-items:end;margin:var(--s2) 0}
+ .meta-list-controls--quick label{gap:0}
+ .no-build-chip{font-size:var(--tr-xs)}
+}
+@media(max-width:700px){
+ .app-update-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s2) var(--s3)}
+ .app-update-row>p{margin:0;font-size:var(--tr-sm)}
+ .more-preferences{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s4)}.more-preferences h2{flex-basis:100%;margin:0}
+}
