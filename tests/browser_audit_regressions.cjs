@@ -3370,6 +3370,55 @@ probes.PS4 = async browser => {
   await context.close();
   verdict('PS4', files.includes('shared') || !seen.dialog, {files, ...seen});
 };
+/* 2.40.0: the Plan screen (Compose, Draft, Live) was replaced by Match in 2.36.0. What still pointed at it. */
+probes.PT1 = async browser => {
+  // Desktop buttons that wrote a lineup into the old Plan and opened Match, which ignores it.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const found = {};
+    openHero('gideon', 'midlane'); S.heroTab = 'pairings'; render();
+    found.planPair = document.querySelectorAll('#main [data-plan-pair]').length;
+    found.lockResponse = [...document.querySelectorAll('#main button')].filter(b => /Lock this response/.test(b.textContent)).length;
+    changeRoute('guidance');
+    found.exploreInPlanner = document.querySelectorAll('#main [data-guided-comp]').length;
+    return found;
+  });
+  await context.close(); verdict('PT1', seen.planPair + seen.lockResponse + seen.exploreInPlanner > 0, seen);
+};
+probes.PT2 = async browser => {
+  // A shared #plan= link, once accepted, opens Match with its hero and enemies.
+  const {context, page} = await session(browser, desktop);
+  const hash = await page.evaluate(() => MetaEngine.encodePlan({locks: [{slug: 'gideon', role: 'midlane'}], enemies: [{slug: 'steel', role: 'jungle'}], bans: [], size: 5}, B.official?.live?.version || null));
+  await page.goto(url + hash); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+  await page.waitForSelector('#use-shared-plan', {timeout: 30000});
+  await page.locator('#use-shared-plan').click(); await page.waitForTimeout(300);
+  const seen = await page.evaluate(() => ({route: S.route, me: S.me, enemies: S.enemies.map(e => e.slug), chips: document.querySelectorAll('.match-chip').length}));
+  await context.close(); verdict('PT2', seen.me !== 'gideon' || seen.route !== 'match' || !seen.enemies.includes('steel'), seen);
+};
+probes.PT3 = async browser => {
+  // The home-screen app's shortcuts name distinct screens.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(async () => { const m = await (await fetch('app.webmanifest')).json(); return (m.shortcuts || []).map(s => ({name: s.name, url: s.url})); });
+  const routes = seen.map(s => (s.url.match(/view=([a-z]+)/) || [])[1]).map(v => ['planner', 'draft', 'live', 'match', 'plan'].includes(v) ? 'match' : v);
+  await context.close(); verdict('PT3', new Set(routes).size !== routes.length, {shortcuts: seen});
+};
+probes.PT4 = async browser => {
+  // The phone's Full details hero page does not compute the Build Coach it never shows.
+  const {context, page} = await session(browser, phone);
+  const seen = await page.evaluate(() => {
+    companionPrefs.fullDetails = true; saveCompanionPrefs();
+    let calls = 0; const original = E.adaptBuild; E.adaptBuild = function (...args) { calls++; return original.apply(this, args); };
+    try { openHero('gideon', 'midlane'); } finally { E.adaptBuild = original; }
+    return {adaptBuildCalls: calls, coachShown: !!document.querySelector('#main .coach')};
+  });
+  await context.close(); verdict('PT4', seen.adaptBuildCalls > 0 || seen.coachShown, seen);
+};
+probes.PT5 = async browser => {
+  // The page no longer carries the removed Plan screens' code.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => ['rosterEditorHTML', 'planRosterHTML', 'livePickerHTML', 'situationHTML', 'liveMobileDetails', 'generateCompositions', 'slotRows', 'banHero', 'liveContext'].filter(n => typeof window[n] === 'function'));
+  await context.close(); verdict('PT5', seen.length > 0, {still_defined: seen});
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
