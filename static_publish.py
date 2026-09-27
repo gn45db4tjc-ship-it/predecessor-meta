@@ -520,8 +520,7 @@ def render_site(folder, out, state):
                     (out / part_path).write_bytes(raw)
                     return {'url': part_path, 'sha256': part_digest, 'bytes': len(raw)}
                 entry['projection'] = {'version': projection.VERSION, 'core': publish_part('core', parts['core']),
-                                       'guide': publish_part('guide', parts['guide']),
-                                       'shared': publish_part('shared', parts['shared']),
+                                       **{name: publish_part(name, parts[name]) for name in projection.PARTS},
                                        'heroes': {slug: publish_part('hero-' + slug, raw) for slug, raw in sorted(parts['heroes'].items())}}
             except Exception as error:
                 entry.pop('projection', None)

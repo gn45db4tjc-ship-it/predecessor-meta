@@ -115,7 +115,10 @@ const recordAnnouncements = () => {
     for (const region of changed) { const text = region.textContent.replace(/\s+/g, ' ').trim(); if (text) window.auditAnnounced.push({text, id: region.id, inDialog: !!region.closest('dialog[open]')}); }
   }).observe(document.documentElement, {subtree: true, childList: true, characterData: true});
 };
-/* Items whose original Pred.gg definition lives in the shared evidence file (their dialog fills in when it arrives). */
+/* The shared evidence files: since 2.39.0 an item dialog reads the catalog, Changes and Sources the history, and the rest of
+   the source audit stays in shared. Probes that hold or fail "the shared evidence" hold or fail all three. */
+const SHARED_FILES = /\/bundles\/gold-(?:shared|catalog|history)-[a-f0-9]{64}\.json$/;
+/* Items whose original Pred.gg definition lives in the shared evidence (their dialog fills in when it arrives). */
 async function evidenceItems(context) {
   const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
   const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
@@ -743,7 +746,7 @@ const probes = {
     await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
     const fullBytes = (await (await context.request.get(url + entry.url)).body()).length, name = u => u.split('/').pop();
     const seen = {requested: requested.map(r => r.replace(/-[a-f0-9]{64}\.json$/, '')), core_bytes: entry.projection.core.bytes, full_bytes: fullBytes};
-    verdict('I1', !requested.includes(name(entry.projection.core.url)) || requested.includes(name(entry.url)) || requested.some(r => /-(?:hero-[a-z0-9-]+|shared)-[a-f0-9]{64}\.json$/.test(r)) || entry.projection.core.bytes > fullBytes * 0.45, seen);
+    verdict('I1', !requested.includes(name(entry.projection.core.url)) || requested.includes(name(entry.url)) || requested.some(r => /-(?:hero-[a-z0-9-]+|shared|catalog|history)-[a-f0-9]{64}\.json$/.test(r)) || entry.projection.core.bytes > fullBytes * 0.45, seen);
     await context.close();
   },
   async I2(browser) {
@@ -860,13 +863,13 @@ const probes = {
     const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
     const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
     assert.ok(item, 'probe setup: an item with an original Pred.gg definition');
-    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.route(SHARED_FILES, route => route.abort());
     await page.evaluate(() => changeRoute('data'));
     await page.waitForFunction(() => !document.querySelector('#main .annex-loading') && /could not be loaded/.test(document.querySelector('#main').innerText), null, {timeout: 30000}).catch(() => {});
     const failed = await page.evaluate(() => ({named: /could not be loaded/.test(document.querySelector('#main').innerText), summaryShown: !B.definition_review || /Official description review/.test(document.querySelector('#main').innerText)}));
-    await page.unroute('**/bundles/gold-shared-*.json');
+    await page.unroute(SHARED_FILES);
     let release; const held = new Promise(resolve => { release = resolve; });
-    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    await page.route(SHARED_FILES, async route => { await held; await route.continue(); });
     await page.locator('#refresh').click();
     await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 60000});
     await page.evaluate(key => showCatalog('items', key), item);
@@ -901,11 +904,11 @@ const probes = {
     const entry = (await (await context.request.get(url + 'manifest.json')).json()).cohorts.gold;
     const full = JSON.parse(await (await context.request.get(url + entry.url)).text());
     const item = Object.keys(full.items || {}).find(k => full.items[k]?.pred_raw);
-    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.route(SHARED_FILES, route => route.abort());
     await page.evaluate(key => showCatalog('items', key), item);
     await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
     const failed = await page.evaluate(() => !!document.querySelector('#detail-body .annex-failed'));
-    await page.unroute('**/bundles/gold-shared-*.json');
+    await page.unroute(SHARED_FILES);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
     const seen = {failedShown: failed, filled: await page.evaluate(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText) && document.querySelector('#detail').open)};
@@ -936,7 +939,7 @@ const probes = {
     // The "new publication": the same data published without evidence files, so the page loads the full bundle.
     // It arrives a moment after the failure is shown, as a real check does.
     await page.route('**/manifest.json', async route => { const response = await route.fetch(), m = await response.json(); delete m.cohorts.gold.projection; await new Promise(r => setTimeout(r, 1000)); await route.fulfill({response, json: m}); });
-    await page.route('**/bundles/gold-shared-*.json', route => route.fulfill({status: 404, body: 'Not found'}));
+    await page.route(SHARED_FILES, route => route.fulfill({status: 404, body: 'Not found'}));
     await page.evaluate(key => showCatalog('items', key), item);
     await page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
     const seen = await page.evaluate(() => ({filled: /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), failedShown: !!document.querySelector('#detail-body .annex-failed'), open: document.querySelector('#detail').open}));
@@ -1522,7 +1525,7 @@ const probes = {
     const onPage = {...early, failed: await page.evaluate(() => document.querySelectorAll('#main .annex-failed').length), announced: await announced(0)};
     // A catalog dialog waits for the shared evidence file, which fails.
     await page.unroute('**/bundles/gold-hero-*.json');
-    await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+    await page.route(SHARED_FILES, route => route.abort());
     const opened = await count();
     const dialogEarly = await page.evaluate(key => { showCatalog('items', key); return {waiting: !!document.querySelector('#detail-body .annex-loading'), live: auditLivePlaceholders()}; }, item);
     await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
@@ -1531,9 +1534,9 @@ const probes = {
     await page.addScriptTag({path: process.env.AXE_PATH || require.resolve('axe-core/axe.min.js')});
     const axeViolations = await page.evaluate(async () => (await axe.run(document.querySelector('#detail'), {runOnly: {type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa']}})).violations.flatMap(v => v.nodes.map(n => v.id + ' ' + n.target.join(' '))).slice(0, 5));
     // A retry (the connection returning) brings it after a noticeable wait.
-    await page.unroute('**/bundles/gold-shared-*.json');
+    await page.unroute(SHARED_FILES);
     let release; const held = new Promise(resolve => { release = resolve; });
-    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    await page.route(SHARED_FILES, async route => { await held; await route.continue(); });
     const retried = await count();
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
     await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-loading'), null, {timeout: 30000}).catch(() => {});
@@ -1557,21 +1560,21 @@ const probes = {
     const filled = page => page.waitForFunction(() => /Inspect original Pred\.gg definition/.test(document.querySelector('#detail-body').innerText), null, {timeout: 30000}).catch(() => {});
     // Show a catalog dialog whose shared evidence failed, with a control outside the evidence section, and Tab into it.
     const failedDialog = async (page, items) => {
-      await page.route('**/bundles/gold-shared-*.json', route => route.abort());
+      await page.route(SHARED_FILES, route => route.abort());
       await page.evaluate(key => showCatalog('items', key), items[0]);
       await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-failed'), null, {timeout: 30000}).catch(() => {});
       const key = await page.evaluate(items => items.find(key => { showCatalog('items', key); return [...document.querySelectorAll('#detail-body a[href], #detail-body summary, #detail-body button')].some(el => !el.closest('[data-annex]')); }) || null, items);
       assert.ok(key, 'probe setup: a catalog dialog with a control outside its evidence section');
       await page.locator('#close-detail').focus();
       await page.keyboard.press('Tab');
-      await page.unroute('**/bundles/gold-shared-*.json');
+      await page.unroute(SHARED_FILES);
     };
     const {context, page} = await session(browser, desktop);
     const items = await evidenceItems(context);
     await failedDialog(page, items);
     const start = await focused(page);
     let release; const held = new Promise(resolve => { release = resolve; });
-    await page.route('**/bundles/gold-shared-*.json', async route => { await held; await route.continue(); });
+    await page.route(SHARED_FILES, async route => { await held; await route.continue(); });
     await page.evaluate(() => window.dispatchEvent(new Event('online')));   // the retry rebuilds the dialog at once, waiting again
     await page.waitForFunction(() => !!document.querySelector('#detail-body .annex-loading'), null, {timeout: 30000}).catch(() => {});
     const waiting = await focused(page);
@@ -3354,6 +3357,18 @@ probes.PS3 = async browser => {
   const after = await page.evaluate(() => ({route: S.route, hero: S.hero, rendered: !!document.querySelector('#main .simple-build, #main .hero-header'), gate: !!document.querySelector('#main [data-annex="guide"]')}));
   await context.close();
   verdict('PS3', !waiting.loading || !after.rendered || after.gate || after.hero !== 'gideon' || errors.length > 0, {waiting, after, errors: errors.slice(0, 3)});
+};
+/* 2.39.0 speed: tapping an item downloads only the item catalogue, not the whole shared source audit. */
+probes.PS4 = async browser => {
+  const {context, page} = await quickPhoneContext(browser, null), files = [];
+  await page.evaluate(() => { openHero('gideon', 'midlane'); });
+  await page.waitForSelector('#main .simple-purchases .item-button', {timeout: 60000});
+  page.on('request', r => { const m = r.url().match(/\/bundles\/[a-z]+-([a-z]+(?:-[a-z0-9-]+)?)-[a-f0-9]{64}\.json$/); if (m) files.push(m[1]); });
+  await page.locator('#main .simple-purchases .item-button').first().click();
+  await page.waitForFunction(() => document.querySelector('#detail')?.open && !document.querySelector('#detail-body .annex-loading'), null, {timeout: 60000});
+  const seen = await page.evaluate(() => ({dialog: document.querySelector('#detail-title')?.textContent || '', audit: !!document.querySelector('#detail-body details')}));
+  await context.close();
+  verdict('PS4', files.includes('shared') || !seen.dialog, {files, ...seen});
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));

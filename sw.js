@@ -7,14 +7,14 @@
 //   or malformed response can never replace a verified bracket.
 // Both names keep the 'predecessor-meta-' prefix on purpose: if the website is rolled back to 2.24 or earlier,
 // that release's worker deletes them on activation and starts saving afresh, instead of serving a frozen copy.
-const SHELL_CACHE = 'predecessor-meta-shell-v2-38-0';
+const SHELL_CACHE = 'predecessor-meta-shell-v2-39-0';
 const DATA_CACHE = 'predecessor-meta-data-v1';
 const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shell and data together in one cache
 const ROOT = new URL('./', self.location.href);
 const SHELL = ['./', 'app.webmanifest', 'assets/app-icon-192.png', 'assets/app-icon-512.png'];
 const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-([a-f0-9]{64})\.json$/;
 // A rank's compact core and its evidence annexes (2.27.0). Like bundles they are data: stored by the page only.
-const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-(core|guide|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
+const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-(core|guide|catalog|history|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
 const CORE = /\/bundles\/(bronze|silver|gold|platinum|diamond|paragon)-core-([a-f0-9]{64})\.json$/;
 
 self.addEventListener('install', event => {

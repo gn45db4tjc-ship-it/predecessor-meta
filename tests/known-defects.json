@@ -176,7 +176,8 @@
     "PD8": "2.37.0 PHONE: Meta rows carry no placeholder tier and no near-universal \"Build ready\" chip",
     "PS1": "2.38.0 SPEED: the phone's first screen (Meta) downloads more than a fifth of the full rank data before it shows",
     "PS2": "2.38.0: the phone's Meta screen differs (or errors) while the guide is missing, or a hero page computes without the guide instead of saying so",
-    "PS3": "2.38.0: a hero opened before the guide arrives shows no loading state, or does not render its page once the guide arrives"
+    "PS3": "2.38.0: a hero opened before the guide arrives shows no loading state, or does not render its page once the guide arrives",
+    "PS4": "2.39.0 SPEED: tapping an item downloads the whole shared source-audit file instead of the item catalogue"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
