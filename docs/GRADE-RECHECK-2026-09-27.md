@@ -5,7 +5,7 @@ Rechecked 2026-09-27 by Claude (Opus 5.5) at the owner's request, answering the 
 ## Scope
 
 - **Rechecked (21):** the 8 grades the 2.34 review flagged (Kwang jungle, Rampage jungle, Legion carry, Grim.exe carry, Countess offlane, Riktor support, Neon midlane, Greystone offlane); Gideon midlane, Kira carry and Zinx support, added on 25 Sep; the grades near the withhold line on 25 Sep (Grux offlane, Aurora jungle, Narbash support, Renna midlane, Drongo carry); and every grade the engine was withholding for "Statistics moved since review" (Dekker support, Howitzer midlane, Murdock carry, Sevarog offlane, Shinbi offlane, plus Kwang, Neon, Kira, Grux and Narbash above).
-- **Proposed, not applied (1):** Baron Valmont midlane (see below).
+- **New (1):** Baron Valmont midlane, his first grade (see below).
 - **Not re-reviewed:** the other 63 grades, hero notes other than the five role notes and the summary note, counters, adaptations, compositions and plans.
 
 ## Evidence
@@ -53,11 +53,11 @@ Unchanged from 2.34: a grade moves one step with a kit or patch reason and evide
 
 Every rechecked entry now cites the whole-line sample it was rechecked against, so the engine's 3-point trigger compares against that sample, and the entry carries `rechecked_at` (and `previous_tier` when the grade moved).
 
-## Valmont midlane: proposed B, not applied
+## Valmont midlane: new B
 
-Proposed: **B**. Whole line 50.4% over 1354 Gold+ midlane games [47.7, 53.0]; Bronze+ 53.3% over 3593 (nested). Arterial Grip grounds and slows a bound target (the only Ground source in the 1.17 kits, which stops dashes such as Torn Space) and Exsanguinate returns health. He has no dash, the bind breaks when he is crowd-controlled, and Exsanguinate's mana cost rises every second. The reviewed plan avoids the attack-speed text that the official launch notes and the current source still dispute.
+First grade: **B**. Whole line 50.4% over 1354 Gold+ midlane games [47.7, 53.0]; Bronze+ 53.3% over 3593 (nested). Arterial Grip grounds and slows a bound target (the only Ground source in the 1.17 kits, which stops dashes such as Torn Space) and Exsanguinate returns health. He has no dash, the bind breaks when he is crowd-controlled, and Exsanguinate's mana cost rises every second. The reviewed plan avoids the attack-speed text that the official launch notes and the current source still dispute.
 
-Not applied because `validate_guidance_packet` requires a tier's plan to be in `reviewed_guidance.json`, and his midlane plan is in the `patch-1.17.json` supplement. Applying it means bringing that plan into the packet or widening the rule. That is a separate decision, outside a grade recheck. The text and figures are in the ledger, ready to apply.
+At first this was proposed without being applied: `validate_guidance_packet` required a tier's plan to be in `reviewed_guidance.json`, and his reviewed midlane plan is in the dated `patch-1.17.json` supplement. The owner approved applying it on 27 Sep. The validator now also accepts a plan from the supplement for the same patch. Moving the plan itself into the packet was not done, because that would need a six-rank maintenance record that was never collected.
 
 ## Pools and notes
 
@@ -70,7 +70,7 @@ Not applied because `validate_guidance_packet` requires a tier's plan to be in `
 
 - `engine.js` `metaReview`: a rechecked entry reports `reviewed_at` = its recheck date and `review_reviewed_at` = the full review's date.
 - `ui.js` tier detail: "Reviewed 24 Sep · grade rechecked 27 Sep (was S)".
-- `predecessor_meta.py` `validate_guidance_packet`: allows `rechecked_at` (zoned, after the review and after its reference sample) and `previous_tier` (a different grade, only with a recheck).
+- `predecessor_meta.py` `validate_guidance_packet`: a tier's plan may come from the same-patch `patch-1.17.json` supplement; allows `rechecked_at` (zoned, after the review and after its reference sample) and `previous_tier` (a different grade, only with a recheck).
 - Tests: `tests/grade_recheck.test.cjs` (engine dates, and the packet and ledger agreeing) and `tests/test_static_grade_recheck.py` (validator). Both failed before the change. The pre-change validator rejects the new packet ("Unknown meta review entry fields"), so **the packet and the code must ship together**: an installed app or collector on older code must be updated before it receives this packet.
 
 ## Limitations

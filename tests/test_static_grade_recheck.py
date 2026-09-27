@@ -40,6 +40,20 @@ class GradeRecheckValidationTests(unittest.TestCase):
     def test_recheck_cannot_predate_its_sample(self):
         self.rejects(self.moved, lambda e: e['evidence'].update(fetched_at='2026-09-28T12:00:00-05:00'), 'recheck')
 
+    def test_new_hero_tier_may_use_the_supplement_plan(self):
+        # Valmont's reviewed midlane plan lives in patch-1.17.json, not in the packet's builds.
+        self.assertFalse(any(b['slug'] == 'valmont' for b in self.packet['guidance']['builds']))
+        self.assertTrue(any(e['slug'] == 'valmont' and e['role'] == 'midlane' for e in self.entries))
+        m.validate_guidance_packet(self.packet, None)
+        self.entries.append({**copy.deepcopy(next(e for e in self.entries if e['slug'] == 'valmont')), 'role': 'offlane'})
+        with self.assertRaisesRegex(ValueError, 'Unknown or duplicate'):
+            m.validate_guidance_packet(self.packet, None)
+
+    def test_supplement_tier_is_inert_where_the_supplement_hero_is_absent(self):
+        # Before 1.17 is verified, patch_support adds no Valmont; his tier must not invalidate the packet.
+        heroes = {e['slug']: {'abilities': [{'key': k} for k in ('LMB', 'RMB', 'Q', 'E', 'R', 'Passive')]} for e in self.entries if e['slug'] != 'valmont'}
+        m.validate_guidance_packet(self.packet, {'heroes': heroes})
+
     def test_recheck_must_be_a_date(self):
         self.rejects(self.moved, lambda e: e.update(rechecked_at=20260927), 'recheck')
 

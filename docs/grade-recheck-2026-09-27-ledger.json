@@ -4,7 +4,7 @@
  "reviewed_at": "2026-09-27T15:04:17-05:00",
  "reviewer": "Claude (Opus 5.5) editorial grade recheck",
  "requested_by": "owner, 27 Sep 2026 (scheduled recheck reminder, answered yes)",
- "scope": "21 grades flagged by the 2.34 review, added on 25 Sep, or withheld by the engine for \"Statistics moved since review\", plus a proposed (not applied) first grade for Baron Valmont midlane. The other 63 grades, hero notes other than the five role notes and the summary note, counters, adaptations, compositions and plans were not re-reviewed.",
+ "scope": "21 grades flagged by the 2.34 review, added on 25 Sep, or withheld by the engine for \"Statistics moved since review\", plus a first grade for Baron Valmont midlane (applied after the owner approved on 27 Sep). The other 63 grades, hero notes other than the five role notes and the summary note, counters, adaptations, compositions and plans were not re-reviewed.",
  "sources": {
   "manifest": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/manifest.json",
   "manifest_published_at": "2026-09-27T17:32:33+00:00",
@@ -22,7 +22,7 @@
    "1.17.1"
   ]
  },
- "standard": "re-examined the 21 grades the review flagged or the engine withheld against about five days of the whole 1.17 line (1.17 plus Hotfix 1.17.1). It kept the review's standard (a kit or patch reason with evidence pointing the same way; a high rate alone never raises a grade), and added one rule: a grade may drop one step without a kit reason when the whole-line 95% interval excludes the previous-patch review rate with at least 500 games and the games since the review point the same way. Rechecked entries show their own date and cite the rechecked sample.",
+ "standard": "re-examined the 21 grades the review flagged or the engine withheld, and gave Baron Valmont midlane his first grade, against about five days of the whole 1.17 line (1.17 plus Hotfix 1.17.1). It kept the review's standard (a kit or patch reason with evidence pointing the same way; a high rate alone never raises a grade), and added one rule: a grade may drop one step without a kit reason when the whole-line 95% interval excludes the previous-patch review rate with at least 500 games and the games since the review point the same way. Rechecked entries show their own date and cite the rechecked sample.",
  "entries": [
   {
    "slug": "kira",
@@ -299,7 +299,7 @@
   {
    "slug": "valmont",
    "role": "midlane",
-   "verdict": "proposed",
+   "verdict": "new",
    "old_tier": null,
    "tier": "B",
    "why": "Arterial Grip grounds and slows a bound target so Rupture and Bloodbound can land, and Exsanguinate's bats return health, far more when they hit heroes. The grounding bind also stops dashes such as Torn Space.",
@@ -311,7 +311,7 @@
     "R"
    ],
    "reason": "New entry. 2.34 left him ungraded (44.1% over 354 Gold+ games after 1.5 days, heavily banned). Hotfix 1.17.1 fixed Sanguine Banquet's incorrect mana regeneration (direction not stated) and his passive description; the 24 Sep hotfix review found no reviewed Valmont advice depending on either. The whole 1.17 line is 50.4% over 1354 Gold+ midlane games [47.7, 53.0]; Bronze+ 53.3% over 3593 is nested. His job is a grounding, slowing bind that sets up spell follow-up and survives through Exsanguinate, with no escape. B (situational or practiced) fits a near-even new hero; the reviewed 2.32 plan is spell-focused and avoids the attack-speed text (Bloodbound, Arterial Grip) that the official launch notes and the current source still dispute. Not A: near-even results, no dash, and the midlane S and A options cover control and ranged pressure with fewer conditions. Not C: a large near-even sample and a distinct job (the only Ground source in the 1.17 kits).",
-   "limitation": "First grade on five days of a new hero's data; ban pressure and learning can still move it. The disputed attack-speed values are not used in the text. Not applied: the packet validator requires a reviewed plan in reviewed_guidance.json, and his midlane plan is in the patch-1.17.json supplement. Applying it needs that plan brought into the packet (or the rule widened), which is outside a grade recheck.",
+   "limitation": "First grade on five days of a new hero's data; ban pressure and learning can still move it. The disputed attack-speed values are not used in the text. Applied after the owner approved on 27 Sep; the validator now also accepts a plan from the dated 1.17 supplement (patch-1.17.json), where his reviewed midlane plan lives.",
    "evidence": {
     "winRate": 50.369276218611525,
     "wonGames": 682,
