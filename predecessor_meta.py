@@ -2673,6 +2673,7 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
         apply_pred_game_data(staged)
         bundle.clear();bundle.update(staged);out=bundle['pred_game_data']
         out['status']='partial' if out['errors'] else 'ok'
+        reword_omeda_join(bundle,set(out['heroes']))
     except Exception as e:error('game data',e)
     out['records']=copy.deepcopy(pages.records);out['seconds']=round(time.perf_counter()-t,2)
     out['coverage']={'hero_kits':len(out['heroes']),'expected_heroes':len(bundle['heroes']),'item_definitions':len(out['items']),'perks':len(out['perks']),
@@ -2682,6 +2683,20 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
     out['coverage']['catalog_items']=len(out['items'])
     bundle.setdefault('errors',[]).extend(out['errors']);bundle.setdefault('sources',{})['pred_game_data']={'status':out['status'],'url':PRED_BASE,'secs':out['seconds'],'fetched_at':max((r['fetched_at'] for r in out['records']),default=None)}
     return out
+
+
+OMEDA_GAP = re.compile(r'statz heroes with no omeda match \(no kit data\): (.+)')
+
+
+def reword_omeda_join(bundle,pred_kits):
+    """The Statz/Omeda join runs before Pred.gg; a hero Omeda lacks but Pred.gg kitted is not 'no kit data'."""
+    for e in bundle.get('errors',[]):
+        m=OMEDA_GAP.fullmatch(str(e.get('detail',''))) if e.get('source')=='join statz<->omeda' else None
+        if not m:continue
+        names=m.group(1).split(', ');covered=[n for n in names if n in pred_kits];left=[n for n in names if n not in pred_kits]
+        if not covered:continue
+        e['detail']='; '.join(filter(None,['statz heroes with no omeda match (no kit data): '+', '.join(left) if left else '',
+            'not on Omeda yet; kit from Pred.gg: '+', '.join(covered)]))
 
 
 def apply_pred_game_data(bundle):
