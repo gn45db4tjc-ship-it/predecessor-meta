@@ -2389,21 +2389,30 @@ def apply_mechanics_resolutions(bundle,packet,current):
 # 11B. PRED.GG GAME DATA (public embedded JSON; isolated from rendering)
 # ============================================================================
 
-def pred_source_fetch(environ=None):
-    """Pred.gg's authorized API when an application token is configured (PRED_API_TOKEN), else None: the public pages.
+def pred_api_configured(environ=None):
+    """An application token (PRED_API_TOKEN) or application credentials (PRED_API_CLIENT_ID and PRED_API_CLIENT_SECRET)."""
+    env=environ if environ is not None else os.environ;value=lambda k:env.get(k,'').strip()
+    return bool(value('PRED_API_TOKEN')) or bool(value('PRED_API_CLIENT_ID') and value('PRED_API_CLIENT_SECRET'))
 
-    pred_api answers the same URLs in the same page form, so PredPages and every parser check run unchanged. Any API
-    failure (refused token, API error, HTTP error or an unreachable API) moves the rest of the run to the public pages;
-    it never reaches PredPages as an access denial, so the page reader is not paused by an API problem. The token is
-    sent only to Pred.gg's API and never logged."""
-    token=(environ if environ is not None else os.environ).get('PRED_API_TOKEN','').strip()
-    if not token:return None
+
+def pred_source_fetch(environ=None):
+    """Pred.gg's authorized API when the application is configured (pred_api_configured), else None: the public pages.
+
+    pred_api answers the same URLs in the same page form, so PredPages and every parser check run unchanged. One access
+    token serves the run (given, or exchanged from the credentials on first use). Any API failure (refused credentials
+    or token, API error, HTTP error or an unreachable API) moves the rest of the run to the public pages; it never
+    reaches PredPages as an access denial, so the page reader is not paused by an API problem. Credentials and tokens
+    are sent only to Pred.gg and never logged."""
+    env=environ if environ is not None else os.environ
+    if not pred_api_configured(env):return None
     try:import pred_api
     except ImportError:return None
-    failed=[]
+    failed=[];token=[]
     def fetch(url):
         if not failed:
-            try:return pred_api.page_fetch(url,token=token)
+            try:
+                if not token:token.append(pred_api.token_for_run(env))
+                return pred_api.page_fetch(url,token=token[0])
             except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
                 failed.append(type(e).__name__)
         return http_get(url)

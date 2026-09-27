@@ -11,8 +11,9 @@ What is known (checked against https://pred.gg/gql without a key):
   - The statistics query below is well formed (a misspelt field is rejected by name), and every statistic field is
     refused with "Forbidden": statistics need an authorized application.
   - Applications are OAuth-style (clientId, clientSecret, confidential, scopes); Mutation.authorize(clientId, scope,
-    consent) returns a token. How a confidential server client obtains and sends its token is NOT confirmed. The
-    bearer header used here is an assumption to replace with Pred.gg's instructions.
+    consent) returns a token. Pred.gg's own client sends "Authorization: Bearer <access token>" to /gql and gets
+    tokens from /api/oauth2/token (checked 27 Sep 2026); those tokens expire, so token_for_run() exchanges
+    application credentials each run. Whether Pred.gg allows the client-credentials grant is NOT confirmed yet.
 
 Design: page_fetch() answers the exact URLs the collector already requests (PRED_BASE + '/heroes' and
 pred_stats_url(cohort, role)) with the API's result wrapped as the page's embedded response, so pred_payloads,
@@ -21,11 +22,13 @@ counts). Wiring later is one argument: attach_scoped_statistics(bundle, fetch=pr
 
 Live re-check (nine small requests, no key):  python -B pred_api.py --validate
 """
+import base64
 import json
 import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -34,6 +37,10 @@ API_URL = 'https://pred.gg/gql'
 PRED_BASE = 'https://pred.gg'
 USER_AGENT = 'PredecessorMetaTool (free non-commercial planning site; https://github.com/gn45db4tjc-ship-it/predecessor-meta)'
 TOKEN_ENV = 'PRED_API_TOKEN'
+# OAuth 2 token endpoint used by pred.gg's own sign-in (authorization_code with PKCE, refresh_token); read from its
+# public client on 27 Sep 2026. Its access tokens expire, so a daily job exchanges application credentials per run.
+TOKEN_URL = PRED_BASE + '/api/oauth2/token'
+CLIENT_ENV = ('PRED_API_CLIENT_ID', 'PRED_API_CLIENT_SECRET')
 
 # Mirrors the fields of the catalog response embedded in https://pred.gg/heroes.
 CATALOG_QUERY = """query PredMetaCatalog {
@@ -76,17 +83,57 @@ def token_from_environment(environ=None):
     return value or None
 
 
-def _post(body, headers, timeout=60):
-    request = urllib.request.Request(API_URL, data=body, headers=headers, method='POST')
+def _post(body, headers, timeout=60, url=API_URL):
+    request = urllib.request.Request(url, data=body, headers=headers, method='POST')
     with urllib.request.urlopen(request, timeout=timeout) as response:
         return response.status, response.read()
+
+
+def client_credentials_token(client_id, client_secret, *, post=None):
+    """Exchange application credentials for an access token (OAuth 2 client-credentials grant). The secret is sent only
+    to Pred.gg's token endpoint and never appears in an error.
+
+    ASSUMPTION until Pred.gg confirms: that a confidential application may use this grant, and HTTP Basic client
+    authentication (RFC 6749 section 2.3.1, which token endpoints must support)."""
+    basic = base64.b64encode((urllib.parse.quote(client_id, safe='') + ':' + urllib.parse.quote(client_secret, safe='')).encode()).decode()
+    headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'User-Agent': USER_AGENT,
+               'Authorization': 'Basic ' + basic}
+    body = urllib.parse.urlencode({'grant_type': 'client_credentials'}).encode()
+    try:
+        status, raw = (post or (lambda b, h: _post(b, h, url=TOKEN_URL)))(body, headers)
+    except urllib.error.HTTPError as error:
+        status, raw = error.code, error.read() or b'{}'
+    try:
+        payload = json.loads(raw)
+    except ValueError:
+        payload = {}
+    if status != 200:
+        reason = str(payload.get('error') or 'HTTP ' + str(status))[:80] if isinstance(payload, dict) else 'HTTP ' + str(status)
+        raise PredApiUnauthorized('Pred.gg refused the application credentials (' + reason + ')')
+    token = payload.get('access_token') if isinstance(payload, dict) else None
+    if not isinstance(token, str) or not token.strip() or str(payload.get('token_type', 'bearer')).lower() != 'bearer':
+        raise PredApiError('Pred.gg token response has no bearer access token')
+    return token.strip()
+
+
+def token_for_run(environ=None, *, post=None):
+    """One access token for a collection run: PRED_API_TOKEN as given, else an exchange of PRED_API_CLIENT_ID and
+    PRED_API_CLIENT_SECRET. None when neither is configured."""
+    environ = environ if environ is not None else os.environ
+    direct = token_from_environment(environ)
+    if direct:
+        return direct
+    client_id, client_secret = (environ.get(k, '').strip() for k in CLIENT_ENV)
+    if client_id and client_secret:
+        return client_credentials_token(client_id, client_secret, post=post)
+    return None
 
 
 def graphql(query, variables=None, *, token=None, post=None):
     """Run one query. Returns its data; any error fails loudly, and "Forbidden" is reported as unauthorized."""
     headers = {'Content-Type': 'application/json', 'User-Agent': USER_AGENT}
     if token:
-        headers['Authorization'] = 'Bearer ' + token  # ASSUMPTION: replace with Pred.gg's documented scheme.
+        headers['Authorization'] = 'Bearer ' + token  # The scheme pred.gg's own client sends to /gql (checked 27 Sep 2026).
     status, raw = (post or _post)(json.dumps({'query': query, 'variables': variables or {}}).encode('utf-8'), headers)
     if status != 200:
         raise PredApiError('Pred.gg API returned HTTP ' + str(status))
