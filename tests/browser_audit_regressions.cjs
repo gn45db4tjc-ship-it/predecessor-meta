@@ -3398,6 +3398,82 @@ probes.PT5 = async browser => {
   const seen = await page.evaluate(() => ['rosterEditorHTML', 'planRosterHTML', 'livePickerHTML', 'situationHTML', 'liveMobileDetails', 'generateCompositions', 'slotRows', 'banHero', 'liveContext'].filter(n => typeof window[n] === 'function'));
   await context.close(); verdict('PT5', seen.length > 0, {still_defined: seen});
 };
+/* 2.41.0 desktop pass (review of live 2.40.0 at 1440 and 1920). */
+probes.DQ1 = async browser => {
+  // The desktop hero page leads with the old Live Build Coach (fed by Match's enemies) and has no Use in Match.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { openHero('gideon', 'midlane'); return {coach: document.querySelectorAll('#main .coach').length, useInMatch: document.querySelectorAll('#main [data-start-live]').length}; });
+  await context.close(); verdict('DQ1', seen.coach > 0 || seen.useInMatch === 0, seen);
+};
+probes.DQ2 = async browser => {
+  // Wording of the removed Plan screens on the desktop page and in the share dialog.
+  const {context, page} = await session(browser, desktop);
+  const stale = /Share plan|Open plan|Meta & Planning|META & PLANNING|draft stays|saved draft|Planning role|Live game|live-game inventory|picks and bans|No enemy locks|No allied locks/i;
+  const texts = await page.evaluate(() => { const out = {}; changeRoute('meta'); out.meta = document.body.innerText; openHero('gideon', 'midlane'); out.hero = document.body.innerText; document.querySelector('#share-plan')?.click(); out.share = document.querySelector('#detail')?.innerText || ''; document.querySelector('#detail')?.close(); out.title = document.title; return out; });
+  const found = Object.fromEntries(Object.entries(texts).map(([k, v]) => [k, (v.match(new RegExp(stale.source, 'gi')) || []).slice(0, 4)]).filter(([, v]) => v.length));
+  await context.close(); verdict('DQ2', Object.keys(found).length > 0, found);
+};
+probes.DQ3 = async browser => {
+  // Desktop layout bugs: loadout labels in capitals spilling out of their cells, a fold chevron over its text, a clipped side rail at 1920.
+  const {context, page} = await session(browser, {viewport: {width: 1920, height: 1080}});
+  const seen = await page.evaluate(() => {
+    changeRoute('builds');
+    const smalls = [...document.querySelectorAll('#main .loadout-strip small.muted')];
+    const caps = smalls.filter(el => getComputedStyle(el).textTransform === 'uppercase').length;
+    const spill = [...document.querySelectorAll('#main .loadout-strip > div')].filter(el => el.scrollWidth > el.clientWidth + 1).length;
+    changeRoute('guidance');
+    const fold = document.querySelector('#main .reference-fold > summary'), pad = fold ? parseFloat(getComputedStyle(fold).paddingLeft) : null;
+    changeRoute('meta');
+    const select = document.querySelector('#performance-source'); const box = select?.closest('details'); if (box) box.open = true;
+    const right = select ? Math.round(Math.max(select.getBoundingClientRect().right, box?.getBoundingClientRect().right || 0)) : null;
+    return {caps, spill, foldPaddingLeft: pad, railRight: right, width: innerWidth};
+  });
+  await context.close(); verdict('DQ3', seen.caps > 0 || seen.spill > 0 || (seen.foldPaddingLeft !== null && seen.foldPaddingLeft < 20) || (seen.railRight !== null && seen.railRight > seen.width), seen);
+};
+probes.DQ4 = async browser => {
+  // The desktop status names sources by internal keys and lists one twice.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    document.querySelector('#status-toggle')?.click();
+    const text = [...document.querySelectorAll('.topbar, #status, #status-panel, .status-panel, #patch-strip')].map(el => el.innerText).join('\n');
+    const raw = (text.match(/[a-z]+<->[a-z]+|\b[a-z0-9]+(?:-[a-z0-9.]+){3,}\b/g) || []).slice(0, 5);
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean), dupes = lines.filter((l, i) => l.length > 20 && lines.indexOf(l) !== i);
+    return {raw, dupes: dupes.slice(0, 3)};
+  });
+  await context.close(); verdict('DQ4', seen.raw.length > 0 || seen.dupes.length > 0, seen);
+};
+probes.DQ5 = async browser => {
+  // A hero link that cannot be opened says why on the desktop instead of silently showing Meta.
+  const context = await browser.newContext({serviceWorkers: 'block', ...desktop}), page = await context.newPage();
+  await page.goto(url + '#hero=nobody&role=jungle&bracket=gold&tab=builds');
+  await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000}); await page.waitForTimeout(500);
+  const seen = await page.evaluate(() => ({route: S.route, message: [...document.querySelectorAll('.toast, #toast, [role="status"], [role="alert"], #main .note')].map(el => el.innerText).filter(t => /unavailable|choose a hero/i.test(t)).slice(0, 2)}));
+  await context.close(); verdict('DQ5', seen.message.length === 0, seen);
+};
+probes.DQ6 = async browser => {
+  // Closing an item dialog on the desktop hero page returns focus to the item; Back closes an open dialog.
+  const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => openHero('gideon', 'midlane'));
+  const key = await page.evaluate(() => document.querySelector('#main .item-button')?.dataset.key || null);
+  await page.locator('#main .item-button').first().click(); await page.waitForTimeout(300);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  const focus = await page.evaluate(() => ({tag: document.activeElement?.tagName, id: document.activeElement?.id || '', key: document.activeElement?.dataset?.key || null}));
+  await page.locator('#main .item-button').first().click(); await page.waitForTimeout(300);
+  await page.goBack(); await page.waitForTimeout(500);
+  const afterBack = await page.evaluate(() => ({open: !!document.querySelector('#detail')?.open, route: S.route}));
+  await context.close(); verdict('DQ6', focus.key !== key || afterBack.open, {key, focus, afterBack});
+};
+probes.DQ7 = async browser => {
+  // Desktop Match shows the adapted build beside the picker, not 1,500 px below it; the picker closes at 5/5.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    S.me = 'gideon'; S.locks = [{slug: 'gideon', role: 'midlane'}]; S.enemies = [{slug: 'steel', role: 'jungle'}, {slug: 'narbash', role: 'support'}, {slug: 'sparrow', role: 'carry'}, {slug: 'grux', role: 'offlane'}, {slug: 'gadget', role: 'midlane'}].filter(e => E.heroes[e.slug]);
+    S.matchPicking = 'enemy'; save(); changeRoute('match');
+    const result = document.querySelector('#main .match-result'), grid = document.querySelector('#main details.match-pick');
+    return {enemies: S.enemies.length, resultTop: result ? Math.round(result.getBoundingClientRect().top + scrollY) : null, gridOpen: !!grid?.open};
+  });
+  await context.close(); verdict('DQ7', seen.resultTop === null || seen.resultTop > 700 || (seen.enemies === 5 && seen.gridOpen), seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}

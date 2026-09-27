@@ -1,7 +1,15 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite. Ids under 'retired' belong to removed features; their probes were deleted and the runner skips them.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [],
+  "open": [
+    "DQ1",
+    "DQ2",
+    "DQ3",
+    "DQ4",
+    "DQ5",
+    "DQ6",
+    "DQ7"
+  ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -182,7 +190,14 @@
     "PT2": "2.40.0: accepting a shared plan link opens Match without its hero or enemies",
     "PT3": "2.40.0: two home-screen shortcuts (Compositions, Live game) lead to the same Match screen",
     "PT4": "2.40.0: the phone's Full details hero page computes the Build Coach it then throws away",
-    "PT5": "2.40.0: the page still carries the removed Plan screens' code (lineup editor, Live picker, Compose search)"
+    "PT5": "2.40.0: the page still carries the removed Plan screens' code (lineup editor, Live picker, Compose search)",
+    "DQ1": "2.41.0 DESKTOP: the hero page leads with the old Live Build Coach (fed by Match's enemies) and has no Use in Match",
+    "DQ2": "2.41.0 DESKTOP: the page and share dialog still use the removed Plan screens' wording (Share plan, Open plan, Meta & Planning, saved draft, Live game)",
+    "DQ3": "2.41.0 DESKTOP: loadout labels in capitals spill out of their cells, a fold chevron overlaps its text, or the Meta side rail is clipped at 1920",
+    "DQ4": "2.41.0 DESKTOP: the status names sources by internal keys or lists one twice",
+    "DQ5": "2.41.0 DESKTOP: a hero link that cannot be opened silently shows Meta with no explanation",
+    "DQ6": "2.41.0 DESKTOP: closing an item dialog on the hero page loses focus, or Back leaves the dialog open over another page",
+    "DQ7": "2.41.0 DESKTOP: Match shows the adapted build far below the hero picker, which stays open at 5/5"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
