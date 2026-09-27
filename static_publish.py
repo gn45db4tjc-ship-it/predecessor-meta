@@ -485,8 +485,12 @@ def render_site(folder, out, state):
     manifest['local_collector'] = state.get('local_collector')
     manifest['collection_host'] = 'cloud' if not CONFIG.get('cloud_collection_paused_reason') else 'windows'
     manifest['source_pauses'] = {'pred': CONFIG['pred_collection_paused_reason']} if CONFIG.get('pred_collection_paused_reason') else {}
-    manifest['optional_sources'] = {'pred': {'mode': 'public_pages_only',
-        'note': 'Pred.gg is optional. Use validated data embedded in public pages when available; no API or account is required. Access denials stop further requests. Other sources continue, and retained Pred.gg data keeps its original date.'}} if CONFIG.get('pred_optional') else {}
+    # With an application token the collector reads Pred.gg's authorized API first (base.pred_source_fetch).
+    api = bool(os.environ.get('PRED_API_TOKEN', '').strip())
+    manifest['optional_sources'] = {'pred': {'mode': 'authorized_api_then_public_pages' if api else 'public_pages_only',
+        'note': ('Pred.gg is optional. Use validated data from Pred.gg\'s API with an authorized application, or from its public pages if the API is unavailable. '
+                 if api else 'Pred.gg is optional. Use validated data embedded in public pages when available; no API or account is required. ')
+                + 'Access denials stop further requests. Other sources continue, and retained Pred.gg data keeps its original date.'}} if CONFIG.get('pred_optional') else {}
     manifest['collection_paused_reason'] = None if state.get('local_collector') else CONFIG.get('cloud_collection_paused_reason')
     for bracket in CONFIG['brackets']:
         bundle = load_publication(folder, bracket)
