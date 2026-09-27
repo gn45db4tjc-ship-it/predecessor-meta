@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.38.0
+# Predecessor Meta - 2.39.0
 
-The phone opens on a third of the data. A rank's first download is now 0.36 MB compressed instead of 1.10 MB (Gold+): the Meta list draws from it at once, and the rest of the hero and build data (the guide) follows straight away. Hero pages, Match and desktop screens wait for the guide and say so; nothing is worked out without it, and what is shown does not change. See [RELEASE-2.38.0.md](RELEASE-2.38.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Tapping an item or loadout downloads a fifth as much: only the item catalogue (128 KB compressed on Gold+) instead of the whole 637 KB source-audit file. Changes, Sources and reviewed definitions fetch their own history file when opened. Nothing shown or labelled changes. See [RELEASE-2.39.0.md](RELEASE-2.39.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.38.0
+
+The phone opens on a third of the data. A rank's first download is now 0.36 MB compressed instead of 1.10 MB (Gold+): the Meta list draws from it at once, and the rest of the hero and build data (the guide) follows straight away. Hero pages, Match and desktop screens wait for the guide and say so; nothing is worked out without it, and what is shown does not change. See [RELEASE-2.38.0.md](RELEASE-2.38.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.37.1
 
