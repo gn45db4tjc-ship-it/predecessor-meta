@@ -101,5 +101,40 @@ class DailyCloudTests(unittest.TestCase):
         self.assertEqual(got['attempts']['gold']['status'],'ok')
         self.assertEqual(p.load_success(cloud,'gold')['generated_at'],NOW.isoformat())
 
+    # 2.37.2: the cloud's own Pred.gg attempt always fails (public pages refuse its TLS stack), so its 17:23 daily run
+    # replaced the Windows collector's Pred.gg data with a "retained" copy and hid every tier until the Windows daily
+    # collection arrived (about 1h40m each day). While the Windows collector is connected and recent, the cloud's
+    # daily run waits for it for a grace period, then collects as before. Only the daily reason waits.
+    def waiting_state(self,now,checked_hours_ago=1):
+        return {'last_full_attempt_at':(now-dt.timedelta(hours=23)).isoformat(),
+                'last_attempted_signature':p.live_signature(official()),
+                'local_collector':{'checked_at':(now-dt.timedelta(hours=checked_hours_ago)).isoformat(),'status':'connected','results':{}}}
+
+    def test_cloud_daily_run_waits_for_a_connected_windows_collector(self):
+        boundary=p.daily_boundary(NOW)+dt.timedelta(days=1)
+        with patch.dict('os.environ',{'GITHUB_ACTIONS':'true'}):
+            for after in (dt.timedelta(minutes=10),dt.timedelta(hours=3)):
+                now=boundary+after
+                self.assertIsNone(p.collection_reason(self.waiting_state(now),official(),now),after)
+            late=boundary+dt.timedelta(hours=6)
+            self.assertEqual(p.collection_reason(self.waiting_state(late),official(),late),'Daily update')
+
+    def test_cloud_daily_run_does_not_wait_for_a_silent_collector_or_on_windows(self):
+        now=p.daily_boundary(NOW)+dt.timedelta(days=1,minutes=10)
+        with patch.dict('os.environ',{'GITHUB_ACTIONS':'true'}):
+            self.assertEqual(p.collection_reason(self.waiting_state(now,checked_hours_ago=5),official(),now),'Daily update')
+            gone=self.waiting_state(now);gone['local_collector']['status']='disconnected'
+            self.assertEqual(p.collection_reason(gone,official(),now),'Daily update')
+            self.assertEqual(p.collection_reason(self.waiting_state(now),official(),now,manual=True),'Manual update')
+        with patch.dict('os.environ',{'GITHUB_ACTIONS':''}):
+            # The Windows collector runs the same code and must still collect at the boundary.
+            self.assertEqual(p.collection_reason(self.waiting_state(now),official(),now),'Daily update')
+
+    def test_a_changed_patch_article_is_collected_while_the_daily_run_waits(self):
+        now=p.daily_boundary(NOW)+dt.timedelta(days=1,minutes=10)
+        state=self.waiting_state(now);state['last_attempted_signature']='an older article'
+        with patch.dict('os.environ',{'GITHUB_ACTIONS':'true'}):
+            self.assertEqual(p.collection_reason(state,official(),now),'Live patch or hotfix article changed')
+
 
 if __name__=='__main__':unittest.main()
