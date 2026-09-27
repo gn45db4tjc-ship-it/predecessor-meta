@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.40.0
+# Predecessor Meta - 2.40.1
 
-The last pieces of the old Plan screen are gone. Three desktop buttons that wrote lineups Match never reads are removed, shared plan links open Match with their hero and enemies, the home-screen app has one Match shortcut, and the phone's Full details hero page skips work it threw away. Unreachable code and styles of the removed screens are deleted, so the page is 164 KB compressed instead of 175 KB. See [RELEASE-2.40.0.md](RELEASE-2.40.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Five Gold+ grades moved in a recheck of the 1.17 review against five days of data: Kira carry to A; Legion, Gideon and Greystone from S to A; Murdock back to C. Valmont gets his first grade, midlane B. Sixteen others were retained and show again where they were withheld, and each rechecked tier shows both its review and recheck dates. See [RELEASE-2.40.1.md](RELEASE-2.40.1.md).
 
 ## Previous release
+
+### 2.40.0
+
+The last pieces of the old Plan screen are gone. Three desktop buttons that wrote lineups Match never reads are removed, shared plan links open Match with their hero and enemies, the home-screen app has one Match shortcut, and the phone's Full details hero page skips work it threw away. Unreachable code and styles of the removed screens are deleted, so the page is 164 KB compressed instead of 175 KB. See [RELEASE-2.40.0.md](RELEASE-2.40.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.39.0
 
