@@ -2389,8 +2389,30 @@ def apply_mechanics_resolutions(bundle,packet,current):
 # 11B. PRED.GG GAME DATA (public embedded JSON; isolated from rendering)
 # ============================================================================
 
+def pred_source_fetch(environ=None):
+    """Pred.gg's authorized API when an application token is configured (PRED_API_TOKEN), else None: the public pages.
+
+    pred_api answers the same URLs in the same page form, so PredPages and every parser check run unchanged. Any API
+    failure (refused token, API error, HTTP error or an unreachable API) moves the rest of the run to the public pages;
+    it never reaches PredPages as an access denial, so the page reader is not paused by an API problem. The token is
+    sent only to Pred.gg's API and never logged."""
+    token=(environ if environ is not None else os.environ).get('PRED_API_TOKEN','').strip()
+    if not token:return None
+    try:import pred_api
+    except ImportError:return None
+    failed=[]
+    def fetch(url):
+        if not failed:
+            try:return pred_api.page_fetch(url,token=token)
+            except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
+                failed.append(type(e).__name__)
+        return http_get(url)
+    fetch.api_failed=failed
+    return fetch
+
+
 class PredPages:
-    """Optional public pages only; no API, credentials or access-control retries."""
+    """Optional public pages, or Pred.gg's authorized API in the same form (pred_source_fetch); no access-control retries."""
     def __init__(self, force=False, cache_dir=None, fetch=None, paused_reason=None):
         self.force=force; self.root=Path(cache_dir or DATA_DIR/'pred_pages'); self.fetch=fetch or http_get
         self.paused_reason=paused_reason
@@ -3209,7 +3231,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     if not fixture_dir:
         progress('Checking current-patch community build alternatives…')
         attach_community_builds(bundle)
-        pred_pages=PredPages(force=settings.get("force_history_refresh",False),
+        pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=pred_source_fetch(),
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         attach_pred_game_data(bundle,progress,pages=pred_pages)

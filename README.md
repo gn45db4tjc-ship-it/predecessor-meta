@@ -168,7 +168,7 @@ The September 14 strategy review covers all 93 setups, with 12 changed, 74 retai
 
 ## Previous release: 2.21.6
 
-Pred.gg is now an optional public-page source. No API access or account is needed. When its pages expose structured data, the collector validates the patch, ranks, roles and numbers before using them. When unavailable, other sources continue and retained records keep their dates. HTTP 401/403/429 or an embedded denial stops further Pred.gg requests and persists that stop across launches; Refresh Data cannot bypass it. A page without embedded data can be checked on the next daily collection.
+Pred.gg is now an optional source. By default the collector reads its public pages; no API access or account is needed. If Pred.gg grants this tool an application and its token is set as PRED_API_TOKEN (a repository secret for the daily cloud run), the collector reads the same data from Pred.gg's API instead (pred_api.py), and any API failure moves that run back to the public pages. When the data is available, the collector validates the patch, ranks, roles and numbers before using them. When unavailable, other sources continue and retained records keep their dates. HTTP 401/403/429 or an embedded denial stops further Pred.gg requests and persists that stop across launches; Refresh Data cannot bypass it. A page without embedded data can be checked on the next daily collection.
 
 Data updates remain daily in the cloud, with official patch checks every three hours. Strategy reviews run weekly with priority for live patch/hotfix changes through the separately configured Codex review task; that task requires an available computer/Codex session. Source data refreshes do not automatically rewrite authored advice. See RELEASE-2.21.6.md.
 
