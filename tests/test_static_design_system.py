@@ -29,7 +29,7 @@ class DesignSystemDocumentationTests(unittest.TestCase):
         self.assertEqual(stale, [], 'Documented tokens that no longer exist: ' + ', '.join(stale))
 
     def test_shared_components_are_documented(self):
-        for component in ('chip', 'tab-strip', 'item-button', 'primary', 'quiet', 'text-button', 'panel', 'note', 'tier', 'build-strip'):
+        for component in ('chip', 'tab-strip', 'item-button', 'primary', 'quiet', 'text-button', 'panel', 'note', 'tier'):   # .build-strip retired in 2.40.0 (the 2.37.0 build card replaced it)
             self.assertIn('`.' + component + '`', self.doc, component)
             self.assertRegex(self.css, r'\.' + re.escape(component) + r'\b', component + ' is documented but has no style')
 

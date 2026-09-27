@@ -10,7 +10,9 @@ class CompanionRendering(unittest.TestCase):
                 self.assertIn('function coachHTML',html)
                 self.assertIn('function guidedHome',html)
                 self.assertIn('function adaptBuild',html)
-                self.assertIn('#coach-dock',html)
+                # 2.40.0: the Live screen's coach dock, picker and lineup editor are gone (Match replaced them in 2.36.0).
+                for removed in ('#coach-dock','function livePickerHTML','function rosterEditorHTML','function generateCompositions'):
+                    self.assertNotIn(removed,html)
                 self.assertNotIn('__MOBILE_CSS__',html)
                 self.assertIn('viewport-fit=cover',html)
 
@@ -21,6 +23,6 @@ class CompanionRendering(unittest.TestCase):
     def test_pwa_shortcuts_are_in_scope(self):
         import json
         data=json.loads((Path(app.__file__).parent/'app.webmanifest').read_text(encoding='utf8'))
-        self.assertEqual([r['url'] for r in data['shortcuts']],['./#view=meta','./#view=builds','./#view=planner','./#view=live'])
+        self.assertEqual([r['url'] for r in data['shortcuts']],['./#view=meta','./#view=builds','./#view=match'])
 
 if __name__=='__main__':unittest.main()
