@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.39.0
+# Predecessor Meta - 2.40.0
 
-Tapping an item or loadout downloads a fifth as much: only the item catalogue (128 KB compressed on Gold+) instead of the whole 637 KB source-audit file. Changes, Sources and reviewed definitions fetch their own history file when opened. Nothing shown or labelled changes. See [RELEASE-2.39.0.md](RELEASE-2.39.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The last pieces of the old Plan screen are gone. Three desktop buttons that wrote lineups Match never reads are removed, shared plan links open Match with their hero and enemies, the home-screen app has one Match shortcut, and the phone's Full details hero page skips work it threw away. Unreachable code and styles of the removed screens are deleted, so the page is 164 KB compressed instead of 175 KB. See [RELEASE-2.40.0.md](RELEASE-2.40.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.39.0
+
+Tapping an item or loadout downloads a fifth as much: only the item catalogue (128 KB compressed on Gold+) instead of the whole 637 KB source-audit file. Changes, Sources and reviewed definitions fetch their own history file when opened. Nothing shown or labelled changes. See [RELEASE-2.39.0.md](RELEASE-2.39.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.38.0
 

@@ -177,10 +177,16 @@
     "PS1": "2.38.0 SPEED: the phone's first screen (Meta) downloads more than a fifth of the full rank data before it shows",
     "PS2": "2.38.0: the phone's Meta screen differs (or errors) while the guide is missing, or a hero page computes without the guide instead of saying so",
     "PS3": "2.38.0: a hero opened before the guide arrives shows no loading state, or does not render its page once the guide arrives",
-    "PS4": "2.39.0 SPEED: tapping an item downloads the whole shared source-audit file instead of the item catalogue"
+    "PS4": "2.39.0 SPEED: tapping an item downloads the whole shared source-audit file instead of the item catalogue",
+    "PT1": "2.40.0: desktop pages offer 'Plan this pair', 'Lock this response' or 'Explore in planner', which write a lineup into the removed Plan screen that Match ignores",
+    "PT2": "2.40.0: accepting a shared plan link opens Match without its hero or enemies",
+    "PT3": "2.40.0: two home-screen shortcuts (Compositions, Live game) lead to the same Match screen",
+    "PT4": "2.40.0: the phone's Full details hero page computes the Build Coach it then throws away",
+    "PT5": "2.40.0: the page still carries the removed Plan screens' code (lineup editor, Live picker, Compose search)"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
+    "A11": "2.40.0: 'Plan this pair' was removed with the other buttons that wrote lineups into the removed Plan screen (PT1).",
     "A10": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
     "A12": "2.36.0: Applying a reviewed composition to locked picks was removed; reviewed compositions stay read-only on the Reviewed guide.",
     "A13": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

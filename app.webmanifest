@@ -37,12 +37,8 @@
       "url": "./#view=builds"
     },
     {
-      "name": "Compositions",
-      "url": "./#view=planner"
-    },
-    {
-      "name": "Live game",
-      "url": "./#view=live"
+      "name": "Match",
+      "url": "./#view=match"
     }
   ]
 }

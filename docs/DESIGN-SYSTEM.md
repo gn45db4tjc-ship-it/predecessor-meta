@@ -211,16 +211,9 @@ _Usage:_ One `.primary` per view. The docked "Adapt to my match" is that view's 
 
 An item, crest or perk: icon plus name, opens the catalogue dialog. `data-catalog` and `data-key` identify the entry.
 
-- Full: icon and name (purchase order, loadout).
-- Icon-only inside `.build-strip`: the name stays in the accessible label.
+- Full: icon and name (purchase order, loadout). Since 2.37.0 the phone build card shows every item with its name; there is no icon-only strip.
 
 _Usage:_ Never draw an item icon without this button; the dialog is how sources are inspected.
-
-### `.build-strip`
-
-The six-item starting build at a glance, under the phone hero header, with the plan's evidence chip.
-
-_Usage:_ Only for the active plan of the current hero and role.
 
 ### `.panel`
 

@@ -208,14 +208,8 @@ function companionChrome(){
  // 2.37.0: on phones the limitations summary is always a compact chip in the rank row (the dialog keeps the detail).
  const compactContext=companionMedia.matches,tools=document.querySelector('.topbar .tools');document.body.classList.toggle('compact-context',compactContext);
  if(compactContext&&tools&&limits.parentElement!==tools)tools.append(limits);else if(!compactContext&&limits.previousElementSibling!==status)status.after(limits);
- let dock=$('#coach-dock');if(!dock){dock=document.createElement('aside');dock.id='coach-dock';document.body.append(dock);}
- if(nav&&dock.nextElementSibling!==nav)document.body.insertBefore(dock,nav);
- const p=S.route==='live'?S.locks.find(x=>x.slug===S.me):null;
- dock.hidden=!companionMedia.matches||!B||!p;
- if(!dock.hidden){try{const a=adviceFor(p);dock.innerHTML=`<span>${a.available?`Next: <strong>${esc(a.nextPurchase?.name||'Build complete')}</strong>`:'Recommendation unavailable'}</span><button data-edit-situation="${esc(p.slug+'|'+p.role)}">Situation</button>`;}catch{dock.hidden=true;}}
 
 }
-function disabledHero(slug,side,role){const own=side==='allies'?S.locks:S.enemies,other=side==='allies'?S.enemies:S.locks;return S.bans.includes(slug)?'Banned':own.some(p=>p.slug===slug&&p.role!==role)||other.some(p=>p.slug===slug)?'Already picked':side==='allies'&&!E.roles(slug).includes(role)?'Role unavailable':'';}
 function displayedRoleText(perf){return savedTag(perf.fetched_at,perf.retained)+pct(perf.wr)+' · '+games(perf.played)+' · '+esc(perf.source)+' '+esc(perf.patch||'')+' · '+esc(date(perf.fetched_at))+(perf.inspection_only?' · Previous dataset; not current-patch evidence':'');}
 // 2.37.0: a row shows a tier only when one applies, and flags only the few heroes without a reviewed build.
 function heroTile(p,{favorite=false,flagBuild=true}={}){const perf=E.displayPerformance(p),review=E.metaReview(p.slug,p.role),plan=E.buildReview(p.slug,p.role),ready=!flagBuild||!!plan?.active,tierValue=perf&&!perf.inspection_only?(S.bracket==='gold'&&review?review.tier:perf.tier):null;return `<article class="mobile-hero-card"><div class="meta-hero-identity">${heroButton(p.slug,p.role).replace('</button>',(ready?'':`<span class="chip tag warning no-build-chip">${plan?'Build needs review':'No reviewed build'}</span>`)+'</button>')}</div><div class="mobile-stat">${perf?`${tierValue?tier(tierValue):''} <strong>${pct(perf.wr)}</strong><small>${games(perf.played)}${perf.played<100?' · small sample':''}${perf.inspection_only?' · previous dataset':''}</small>`:`<small>${esc(noStatsText(p.role,p.slug))}</small>`}</div>${favorite?`<button class="favorite-button" data-favorite="${p.slug}|${p.role}" aria-label="Remove ${esc(name(p.slug))} from favorites">★</button>`:''}</article>`;}
@@ -271,16 +265,9 @@ function guidedHome(){
 function mobileHero(){
  const p={slug:S.hero,role:S.heroRole};if(!E.heroes[p.slug])return guidedHome();if(!['builds','pairings','counters','kit'].includes(S.heroTab))S.heroTab='builds';
  const why=pickBlock(p.slug,p.role),mine=S.me===p.slug&&S.locks.some(x=>x.slug===p.slug&&x.role===p.role),blocked=mine?'':why,perf=E.displayPerformance(p),fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
- const full=heroView(),node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));node.querySelector('.coach')?.remove();/* the phone keeps its Build Coach on the Live route, and Build is now always present */const body=node.innerHTML;
+ withoutCoach=true;let full;try{full=heroView();}finally{withoutCoach=false;}/* 2.40.0: the Build Coach is never shown here, so it is not computed */const node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));const body=node.innerHTML;
  return `<button class="text-button" data-route="meta">← Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head">${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</span></p></div><div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${fav?'★ Favorited':'☆ Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Live':'Use in Live'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
 }
-function liveMobileDetails(){
- const me=S.locks.find(p=>p.slug===S.me)||null;
- if(!me)return mobileStatusHTML()+head('Live game','Choose who you play','Add your hero first; the rest of the lineup is optional.')+`<button class="primary" data-live-lookup="true">Choose my hero</button>${S.locks.length?`<label>Or use a locked ally<select id="me-hero">${options(S.locks.map(p=>[p.slug,name(p.slug)+' · '+labels[p.role]]),'','Choose ally')}</select></label>`:''}`;
- const ctx=contextFor(me),owned=Array.isArray(ctx.owned)?ctx.owned:[],all=Object.values(B.items||{}).filter(i=>i.completed_item&&i.available_current_patch!==false&&!owned.includes(i.name)).sort((a,b)=>a.name.localeCompare(b.name));
- return mobileStatusHTML()+head('Live game',name(me.slug)+' · '+labels[me.role],'Your next completed item and the reason to buy it.')+`<div class="live-actions"><button data-new-match="true">New match</button><button data-live-lookup="true">Change my hero</button></div>${coachHTML(me,{compact:true})}<section class="panel"><h2>Completed items you own</h2><label>Add owned item<select id="live-owned-add" ${owned.length>=6?'disabled aria-describedby="inventory-limit"':''}>${options(all.map(i=>[i.name,i.name]),'','Choose an item')}</select></label>${owned.length>=6?'<p id="inventory-limit">All six slots are filled. Remove an incorrect entry to add another.</p>':''}<div class="flex">${owned.map((n,i)=>`<button data-owned-remove="${i}" aria-label="Remove ${esc(n)}">${esc(n)} ×</button>`).join('')||'<p>No completed items entered.</p>'}</div><button id="live-context-clear">Clear inventory & game state</button></section><h2>Lane opponent</h2>${fullSlotRows('enemies',me.role)}<details><summary>Add allies · ${Math.max(0,S.locks.length-1)} selected</summary><div class="detail-content">${fullSlotRows('allies',null,me.role)}</div></details><details><summary>Add enemies · ${S.enemies.filter(e=>e.role!==me.role).length} other roles</summary><div class="detail-content">${fullSlotRows('enemies',null,me.role)}</div></details>`;
-}
-function situationHTML(p){const node=document.createElement('div');node.innerHTML=liveMobileDetails();const controls=node.querySelector('.coach-controls')?.outerHTML||'';const coach=node.querySelector('.coach');const parts=[];let next=coach?.nextElementSibling;while(next){parts.push(next.outerHTML);next=next.nextElementSibling;}return controls+parts.join('');}
 function mobileBuilds(){const rows=Object.keys(E.heroes).filter(slug=>E.roles(slug).includes(S.role)&&name(slug).toLowerCase().includes(S.query.toLowerCase())).sort((a,b)=>name(a).localeCompare(name(b)));return head('Builds · '+esc(B.bracket?.label||''),'Reviewed starting plans','Choose a role, then open one compact plan. Source variants remain on the hero page.')+metaToolbarHTML()+maintenanceHTML()+`<div class="mobile-build-list">${rows.map(slug=>{const plan=E.plannedBuild(slug,S.role),perf=E.displayPerformance({slug,role:S.role});return `<details class="panel mobile-build-row" data-keep="build-${slug}"><summary>${art(slug,'tiny')}<span><strong>${esc(name(slug))}</strong><small>${perf?displayedRoleText(perf):'Role sample unavailable'}</small></span><span>${plan.kind==='reviewed'?badge('Reviewed','reviewed'):badge('Provisional','warning')}</span></summary><div class="detail-content">${plannedBuildHTML(plan,true)}<button data-hero-builds="${slug}" data-role="${S.role}">Open full build</button></div></details>`;}).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;}
 // 2.37.0: More holds reference screens, sources and preferences. Draft sharing, export and the review packet are
 // desktop tools (the desktop top bar keeps Share, Open and Export); the phone list stays short and tappable.
@@ -304,11 +291,6 @@ function limitsDialogHTML(){const items=limitationItems(),player=items.filter(pl
  return `<p>Each source keeps its own date. Nothing is estimated when a source is missing.</p>${player.length?`<ul class="limits-list">${player.map(row).join('')}</ul>`:'<p>Nothing affects what you see right now.</p>'}${audit.length?`<details class="limits-audit"><summary>Source details · ${audit.length}</summary><ul class="limits-list">${audit.map(row).join('')}</ul></details>`:''}<button data-limits-sources="true">Open Sources &amp; accuracy</button>`;}
 // Why a hero cannot be your Live hero in this role ('' when it can). An ally holding the role can be replaced.
 function pickBlock(slug,role){if(!E.heroes[slug]||!E.roles(slug).includes(role))return 'Role unavailable';if(S.bans.includes(slug))return 'Banned';if(S.enemies.some(p=>p.slug===slug))return 'Picked by the enemy team';const ally=S.locks.find(p=>p.slug===slug);if(slug===S.me&&ally?.role===role)return 'Your current hero';if(ally&&ally.role!==role&&slug!==S.me)return 'On your team as '+labels[ally.role];return '';}
-function liveSwap(slug,role){const me=S.locks.find(p=>p.slug===S.me)||null;return {me,occupant:S.locks.find(p=>p.role===role&&p.slug!==slug&&p.slug!==me?.slug)||null};}
-function livePickerHTML(role){const me=S.locks.find(p=>p.slug===S.me)||null;return `<p>${me?'Replacing '+esc(name(me.slug))+' · '+esc(labels[me.role])+'. ':''}${S.route==='live'?'You stay in Live; your':'Your'} draft is not opened.</p><div class="role-choices compact tab-strip tab-strip--segmented" role="tablist" aria-label="Role">${roleOrder.map(r=>`<button role="tab" data-picker-role="${r}" aria-selected="${r===role}">${labels[r]}</button>`).join('')}</div><div class="picker-list">${roleHeroes(role).all.map(r=>{const why=pickBlock(r.slug,role),id='pick-why-'+r.slug;return `<button class="picker-hero" data-pick-live="${esc(r.slug+'|'+role)}" ${why?`disabled aria-describedby="${id}"`:''}>${art(r.slug,'tiny')}<span><strong>${esc(name(r.slug))}</strong><small ${why?`id="${id}"`:''}>${why?esc(why):r.perf?pct(r.perf.wr)+' · '+games(r.perf.played)+(r.perf.played<100?' · small sample':''):esc(noStatsText(role,r.slug))}</small></span></button>`;}).join('')}</div>${me?`<button data-close-detail="true">Keep ${esc(name(me.slug))}</button>`:''}`;}
-function showLivePicker(role,open=false){const title=S.locks.some(p=>p.slug===S.me)?'Change your Live hero':'Choose your hero';if(open||!$('#detail').open)detail(title,livePickerHTML(role));else{$('#detail-title').textContent=title;$('#detail-body').innerHTML=livePickerHTML(role);}$('#detail-body [role=tab][aria-selected="true"]')?.focus();}
-function liveConfirmHTML(slug,role){const {me,occupant}=liveSwap(slug,role);return `<div class="swap"><div><small>Now</small><strong>${me?esc(name(me.slug)):'No hero'}</strong><small>${me?esc(labels[me.role]):'Live'}</small></div><span aria-hidden="true">→</span><div><small>New</small><strong>${esc(name(slug))}</strong><small>${esc(labels[role])}</small></div></div>${occupant?note(`<strong>${esc(labels[role])} is already taken on your team.</strong> ${esc(name(occupant.slug))} holds ${esc(labels[role])}. Confirming puts ${esc(name(slug))} in that slot and removes ${esc(name(occupant.slug))} from your lineup. You can undo this.`,true):''}${me&&me.slug!==slug?`<p>${esc(name(me.slug))} leaves your lineup. Items you entered stay with ${esc(name(me.slug))}; your match situation carries over.</p>`:''}<div class="live-actions"><button class="primary" data-confirm-live="${esc(slug+'|'+role)}">Use ${esc(name(slug))}</button><button data-picker-role="${esc(role)}">Choose another</button></div>`;}
-function useInLive(slug,role){const why=pickBlock(slug,role);if(why)throw Error(why+'. Choose another hero.');const {me,occupant}=liveSwap(slug,role),before=undoSnapshot(),carried=me?contextFor(me).state:null,key=slug+'|'+role;S.locks=S.locks.filter(p=>p.slug!==me?.slug&&p.role!==role&&p.slug!==slug).concat({slug,role});S.me=slug;S.liveVariant=null;if(carried&&!S.liveContexts[key])S.liveContexts[key]={owned:[],state:carried,priority:''};saveMatchSession();S.route='live';return {before,replaced:!!(me||occupant),label:name(slug)+' is now your Live hero'+(me&&me.slug!==slug?' (was '+name(me.slug)+')':'')+(occupant?'; '+name(occupant.slug)+' left '+labels[role]:'')+'.'};}
 function renderCompanion(){
  if(!B){if(companionMedia.matches){$('#main').innerHTML=latestStatus.errors?.length?`<h1>Data unavailable</h1><p>${esc(latestStatus.errors[0].detail)}</p><button id="retry-companion">Retry update</button><p>Choose another rank above to inspect available data.</p>`:`<h1>Loading hero data</h1><p role="status">Your selections are safe. Opening ${esc(S.bracket)}…</p><div class="loading-skeleton" aria-hidden="true"></div>`;return true;}return false;}
  if(S.route==='more'){$('#main').innerHTML=moreView();return true;}
@@ -320,32 +302,6 @@ function renderCompanion(){
  return false;
 }
 // Guard the same role controls on both layouts; invalid options explain the conflict.
-function fullSlotRows(side,onlyRole=null,exceptRole=null){const picks=side==='allies'?S.locks:S.enemies;return `<div class="slots">${roleOrder.filter(r=>(!onlyRole||r===onlyRole)&&r!==exceptRole).map(r=>{const current=picks.find(p=>p.role===r);return `<div class="slot"><label>${labels[r]}<select data-slot="${side}" data-slot-role="${r}" aria-describedby="${side}-${r}-help"><option value="">Open slot</option>${Object.keys(E.heroes).sort((a,b)=>name(a).localeCompare(name(b))).map(s=>{const reason=disabledHero(s,side,r);return `<option value="${s}" ${current?.slug===s?'selected':''} ${reason?'disabled':''}>${esc(name(s))}${reason?' — '+esc(reason):''}</option>`;}).join('')}</select></label><small id="${side}-${r}-help">Picked, banned or unsupported-role choices are disabled.</small>${current?`<div class="slot-art">${art(current.slug,'tiny')}${esc(name(current.slug))}</div>`:''}</div>`;}).join('')}</div>`;}
-slotRows=function(side){const picks=side==='allies'?S.locks:S.enemies;return `<details class="lineup" data-lineup="${side}" data-keep="lineup-${side}"><summary>${side==='allies'?'Allies':'Enemies'} · ${picks.length} of ${side==='allies'&&S.route==='planner'?S.size:5} selected</summary>${fullSlotRows(side)}</details>`;};
-let rosterExpanded=false,planOptionsExpanded=false;
-function capturePlanDisclosures(){const roster=$('[data-roster-picks]'),options=$('[data-keep="plan-search-options"]');if(roster)rosterExpanded=roster.open;if(options)planOptionsExpanded=options.open;}
-function planRosterHTML(){
- const me=S.locks.find(p=>p.slug===S.me);
- return `<aside class="plan-roster" aria-label="Shared lineup"><div class="roster-top"><div><strong>Your lineup</strong><small>${S.locks.length} allies · ${S.enemies.length} enemies · ${S.bans.length} bans${me?' · You: '+esc(name(me.slug)):''}</small></div><button data-edit-roster="true">Edit lineup</button></div><details data-roster-picks ${rosterExpanded?'open':''}><summary>View picks & bans</summary><div class="roster-teams">${[['Allies',S.locks],['Enemies',S.enemies]].map(([label,picks])=>`<div><strong>${label}</strong>${roleOrder.map(role=>{const p=picks.find(p=>p.role===role);return `<p><span>${labels[role]}</span> ${p?esc(name(p.slug)):'Open'}</p>`;}).join('')}</div>`).join('')}</div><p>Bans: ${S.bans.map(s=>esc(name(s))).join(', ')||'None'}</p><small>Shared across all three stages. Only your hero is required for Live.</small></details></aside>`;
-}
-function rosterEditorHTML(){
- const taken=new Set([...S.locks,...S.enemies].map(p=>p.slug));
- return `<p>Changes apply immediately to Compose, Draft and Live. Each pick keeps its role.</p>${['allies','enemies'].map(side=>`<section><h2>${side==='allies'?'Allies':'Enemies'}</h2><div class="roster-editor-grid">${roleOrder.map(role=>{const p=(side==='allies'?S.locks:S.enemies).find(p=>p.role===role),protectedMe=side==='allies'&&p?.slug===S.me;return `<label>${labels[role]}<select data-plan-side="${side}" data-plan-role="${role}" ${protectedMe?'disabled':''}>${options([['','Open slot'],...Object.keys(E.heroes).filter(slug=>slug===p?.slug||!disabledHero(slug,side,role)).sort((a,b)=>name(a).localeCompare(name(b))).map(slug=>[slug,name(slug)])],p?.slug||'')}</select>${protectedMe?'<small>Your Live hero. Change them from Live.</small>':''}</label>`;}).join('')}</div></section>`).join('')}<section><h2>Bans</h2><label>Ban a hero<select data-plan-ban>${options(Object.keys(E.heroes).filter(s=>!taken.has(s)&&!S.bans.includes(s)).sort((a,b)=>name(a).localeCompare(name(b))).map(s=>[s,name(s)]),'','Choose hero')}</select></label><div class="selection-chips">${S.bans.map(s=>`<button data-plan-unban="${s}">Remove ban: ${esc(name(s))}</button>`).join('')}</div></section><button data-close-detail="true">Done</button>`;
-}
-function refreshRosterEditor(selector){if($('#detail').open){$('#detail-body').innerHTML=rosterEditorHTML();$('#detail-body').querySelector(selector||'[data-plan-ban]')?.focus();}}
-document.addEventListener('toggle',event=>{if(event.target.matches?.('[data-roster-picks]'))rosterExpanded=event.target.open;if(event.target.matches?.('[data-keep="plan-search-options"]'))planOptionsExpanded=event.target.open;},true);
-document.addEventListener('click',event=>{
- const button=event.target.closest('[data-edit-roster],[data-plan-unban]');if(!button)return;
- event.preventDefault();event.stopImmediatePropagation();
- if(button.hasAttribute('data-edit-roster')){detail('Edit shared lineup',rosterEditorHTML());dialogReturn=button;return;}
- const before=undoSnapshot();S.bans=S.bans.filter(s=>s!==button.dataset.planUnban);save();render();refreshRosterEditor();showUndo(before,'Ban removed.');
-},true);
-document.addEventListener('change',event=>{
- const el=event.target;if(!el.matches('[data-plan-side],[data-plan-ban]'))return;
- event.stopImmediatePropagation();const before=undoSnapshot();
- try{if(el.dataset.planSide){const selector=`[data-plan-side="${el.dataset.planSide}"][data-plan-role="${el.dataset.planRole}"]`;if(setPick(el.dataset.planSide,el.dataset.planRole,el.value))showUndo(before,'Lineup updated.');refreshRosterEditor(selector);}else if(el.value){banHero(el.value);refreshRosterEditor();showUndo(before,'Hero banned.');}}
- catch(e){toast(e.message);refreshRosterEditor();}
-},true);
 const originalChangeRoute=changeRoute,originalOpenHero=openHero;
 const originalDetail=detail;let dialogReturn=null,dialogSituation=null;
 detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
@@ -420,18 +376,6 @@ function applyCompanionLink(){
 function afterDestinationRender(){
  const main=$('#main');if(!main||!B)return;
  const sections=destinationSections();if(sections)main.insertAdjacentHTML('afterbegin',sections);
- if(destinationFor(S.route)==='plan'){
-  const nav=main.querySelector('.destination-sections');
-  if(nav)nav.insertAdjacentHTML('afterend',planRosterHTML());else main.insertAdjacentHTML('afterbegin',planRosterHTML());
-  if(S.route==='live'&&!main.querySelector('[data-live-lookup]'))main.querySelector('.page-head')?.insertAdjacentHTML('afterend',`<button data-live-lookup="true">${S.locks.some(p=>p.slug===S.me)?'Change my hero':'Choose my hero'}</button>`);
-  // The action follows the size choices; full slot editors and methodology remain available below it.
-  if(S.route==='planner'){
-   const generate=main.querySelector('#generate')?.closest('.toolbar'),size=main.querySelector('[data-size]')?.closest('.toolbar');
-   if(generate&&size)size.after(generate);
-   const optionsGroup=main.querySelector('#comp-role')?.closest('.toolbar-group');
-   if(optionsGroup&&generate){const disclosure=document.createElement('details');disclosure.dataset.keep='plan-search-options';disclosure.open=planOptionsExpanded;disclosure.innerHTML='<summary>Search options · roles, ordering & samples</summary><div class="detail-content toolbar"></div>';disclosure.lastElementChild.append(optionsGroup);generate.after(disclosure);}
-  }
- }
  if(navigationRankChange&&B.bracket?.segment===navigationRankChange){S.bracket=navigationRankChange;navigationRankChange=null;recordNavigation(true);}
  if(navigationRestore){
    const restore=navigationRestore;
@@ -445,36 +389,22 @@ function afterDestinationRender(){
    }
  }else if(!navigationTransition&&!historyApplying&&!linkedBracketPending&&linkApplied===location.hash&&!history.state?.companion&&!location.hash.startsWith('#plan='))recordNavigation(true);
 }
-function undoSnapshot(){return copyValue({locks:S.locks,enemies:S.enemies,bans:S.bans,me:S.me,liveVariant:S.liveVariant,contexts:S.liveContexts});}
-function showUndo(before,label){clearTimeout(undoTimer);undoAction=before;let el=$('#undo-banner');if(!el){el=document.createElement('div');el.id='undo-banner';el.setAttribute('role','status');document.body.append(el);el.addEventListener('focusin',()=>clearTimeout(undoTimer));el.addEventListener('mouseenter',()=>clearTimeout(undoTimer));el.addEventListener('mouseleave',expireUndo);el.addEventListener('focusout',expireUndo);}el.hidden=false;el.innerHTML=`<span>${esc(label)}</span><button id="undo-action">Undo</button>`;expireUndo();}
-function expireUndo(){clearTimeout(undoTimer);undoTimer=setTimeout(()=>{if($('#undo-banner')?.contains(document.activeElement))return;undoAction=null;if($('#undo-banner'))$('#undo-banner').hidden=true;},8000);}
 function installHelp(){companionPrefs.installSeen=true;saveCompanionPrefs();document.querySelector('.install-hint')?.remove();detail('Install on your phone','<p><strong>iPhone / iPad:</strong> open this website in Safari, tap Share, then Add to Home Screen.</p><p><strong>Android:</strong> open in Chrome, use its menu and choose Install app or Add to Home screen.</p><p>Open a rank online once to save it on this device. Offline views retain their original dates. Images may be unavailable offline.</p>');}
 async function shareHero(){const url=new URL(APP_CONFIG.mode==='local'||location.protocol==='file:'?'https://gn45db4tjc-ship-it.github.io/predecessor-meta/':location.href);url.search='';url.hash='hero='+encodeURIComponent(S.hero)+'&role='+S.heroRole+'&bracket='+S.bracket+'&tab='+S.heroTab;try{if(navigator.share){await navigator.share({title:name(S.hero)+' build',url:url.href});return;}}catch(e){if(e.name==='AbortError')return;}try{await navigator.clipboard.writeText(url.href);toast('Hero link copied.');}catch{detail('Share hero',`<label>Copy this link<input readonly value="${esc(url.href)}"></label><p>Contains only hero, role, bracket and section.</p>`);}}
 document.addEventListener('click',async event=>{
  const el=event.target.closest('button');if(!el)return;const d=el.dataset;
- if(d.ownedRemove!==undefined||['live-context-clear','clear-locks','clear-enemies'].includes(el.id)||d.unban){const before=undoSnapshot();setTimeout(()=>showUndo(before,'Selection cleared.'),0);}
  const handled=d.mobileRole||d.favorite||d.liveLookup||d.startLive||d.newMatch||d.editSituation||d.pickerRole||d.pickLive||d.confirmLive||d.closeDetail||d.limitsSources||['mobile-all-heroes','mobile-limits','menu-toggle','undo-action','companion-install','companion-theme','share-hero','favorite-hero','download-review-packet','live-context-clear','retry-companion'].includes(el.id);
  if(!handled)return;event.preventDefault();event.stopImmediatePropagation();
  try{
  if(el.id==='menu-toggle'){changeRoute('more');return;}
  if(el.id==='retry-companion'){$('#refresh').click();return;}
  if(el.id==='download-review-packet'){downloadReviewPacket();return;}
- if(d.editSituation){const [slug,role]=d.editSituation.split('|');detail('Your game situation',situationHTML({slug,role}));return;}
- if(el.id==='mobile-all-heroes'){metaShowAll=!metaShowAll;render();$('#mobile-all-heroes')?.focus();return;}
  if(el.id==='mobile-limits'){detail('Source limitations',limitsDialogHTML());return;}
  if(d.limitsSources){dialogReturn=null;dialogSituation=null;$('#detail').close();changeRoute('data');$('#main').focus({preventScroll:true});return;}
- if(d.closeDetail){$('#detail').close();return;}
- if(d.liveLookup){const me=S.locks.find(p=>p.slug===S.me);showLivePicker(me?.role||(roleOrder.includes(S.role)?S.role:'jungle'),true);return;}
- if(d.pickerRole){showLivePicker(d.pickerRole);return;}
- if(d.pickLive){const [slug,role]=d.pickLive.split('|');$('#detail-title').textContent=S.locks.some(p=>p.slug===S.me)?'Replace your Live hero?':'Use in Live?';$('#detail-body').innerHTML=liveConfirmHTML(slug,role);$('#detail-body [data-confirm-live]')?.focus();return;}
- if(d.confirmLive){const [slug,role]=d.confirmLive.split('|'),result=useInLive(slug,role);if($('#detail').open)$('#detail').close();save();render();recordNavigation();$('#main').focus({preventScroll:true});if(result.replaced)showUndo(result.before,result.label);else toast(result.label);return;}
- if(el.id==='live-context-clear'){S.liveContexts[liveContextKey()]={owned:[],state:'even',priority:''};}
  else if(d.mobileRole){S.role=d.mobileRole;companionPrefs.homeQuery='';metaShowAll=false;saveCompanionPrefs();}
  else if(d.favorite){companionPrefs.favorites=companionPrefs.favorites.filter(v=>v!==d.favorite);saveCompanionPrefs();}
  else if(el.id==='favorite-hero'){const key=S.hero+'|'+S.heroRole;companionPrefs.favorites=companionPrefs.favorites.includes(key)?companionPrefs.favorites.filter(v=>v!==key):[key,...companionPrefs.favorites].slice(0,20);saveCompanionPrefs();}
  else if(d.startLive){matchSetMe(S.hero);S.locks=[{slug:S.hero,role:E.roles(S.hero).includes(S.heroRole)?S.heroRole:E.roles(S.hero)[0]}];save();S.route='match';}
- else if(d.newMatch){const before=undoSnapshot();S.liveContexts={};S.liveVariant=null;showUndo(before,'New match: inventory and live judgments reset. Planning picks kept.');}
- else if(el.id==='undo-action'&&undoAction){const before=undoAction;S.locks=before.locks;S.enemies=before.enemies;S.bans=before.bans;S.me=before.me;S.liveVariant=before.liveVariant;S.liveContexts=before.contexts;undoAction=null;clearTimeout(undoTimer);$('#undo-banner').hidden=true;}
  else if(el.id==='companion-install'){installHelp();return;}
  else if(el.id==='companion-theme'){$('#theme-toggle').click();}
  else if(el.id==='share-hero'){await shareHero();return;}
@@ -484,8 +414,6 @@ document.addEventListener('click',async event=>{
 document.addEventListener('change',event=>{
  const el=event.target,d=el.dataset;
  if(el.id==='bracket'&&linkedBracketPending!==el.value){saveNavigationPosition();navigationRestore=null;navigationRankChange=el.value;linkApplied=location.hash;}
- if(d.slot&&el.value){const why=disabledHero(el.value,d.slot,d.slotRole);if(why){event.stopImmediatePropagation();toast(why+'. Clear the existing selection first.');render();return;}}
- if(d.slot&&!el.value){const before=undoSnapshot();setTimeout(()=>showUndo(before,'Pick removed.'),0);}
  if(d.coachField){event.stopImmediatePropagation();const [slug,role]=d.coachKey.split('|'),p={slug,role};if(!E.heroes[slug]||!E.roles(slug).includes(role))return;const val=d.coachField==='primaryThreat'?(el.value||null):el.value;S.liveContexts[d.coachKey]={...contextFor(p),[d.coachField]:val};const modal=$('#detail').open;save();render();if(!modal)document.querySelector(`[data-coach-key="${d.coachKey}"][data-coach-field="${d.coachField}"]`)?.focus();}
  else if(el.id==='mobile-meta-order'){companionPrefs.metaOrder=el.value;saveCompanionPrefs();render();$('#mobile-meta-order')?.focus();}
  else if(el.id==='mobile-hero-role'){S.heroRole=el.value;render();recordNavigation(true);$('#mobile-hero-role')?.focus();}
@@ -511,7 +439,4 @@ window.addEventListener('popstate',event=>{
 window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#plan=')&&location.hash!==linkApplied){render();}});
 window.addEventListener('offline',()=>redrawForEvidence());window.addEventListener('online',()=>redrawForEvidence());
 companionMedia.addEventListener('change',()=>render());
-function refreshSituation(event){if(!$('#detail')?.open||$('#detail-title').textContent!=='Your game situation')return;if(!event.target.closest('#detail-body'))return;const id=event.target.id,key=event.target.dataset.coachField;setTimeout(()=>{const me=S.locks.find(p=>p.slug===S.me);if(!me)return;$('#detail-body').innerHTML=situationHTML(me);(id?$('#detail-body #'+id):key?$('#detail-body [data-coach-field="'+key+'"]'):null)?.focus();},0);}
-document.addEventListener('change',refreshSituation,true);
-document.addEventListener('click',event=>{if(event.target.closest('[data-owned-remove],#live-context-clear'))refreshSituation(event);},true);
 setTimeout(()=>{if(companionMedia.matches&&!companionPrefs.installSeen&&APP_CONFIG.mode==='static'&&!matchMedia('(display-mode:standalone)').matches){let el=document.createElement('aside');el.className='install-hint';el.innerHTML='<span>Add this companion to your home screen.</span><button id="companion-install">How to install</button><button aria-label="Dismiss installation hint">Dismiss</button>';el.lastElementChild.onclick=()=>{companionPrefs.installSeen=true;saveCompanionPrefs();el.remove();};$('#main').after(el);}},1200);
