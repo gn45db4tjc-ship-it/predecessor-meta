@@ -138,27 +138,6 @@ const probes = {
     verdict('A7', !healed, {...state, planner_usable: usable});
     await context.close();
   },
-  async A11(browser) {
-    const {context, page} = await session(browser, desktop);
-    await reset(page, 3, {locks: [], bans: ['sparrow']});
-    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'pairings'; render(); });
-    const seen = await page.evaluate(() => {
-      const button = [...document.querySelectorAll('[data-plan-pair]')].find(b => b.dataset.planPair.split('|')[1] === 'sparrow');
-      const disabled = !button || button.disabled;
-      if (button) { button.disabled = false; button.click(); }   // even a forced click must not lock a banned hero
-      return {offered: !!button, disabled, locks: S.locks.map(p => p.slug), bans: [...S.bans]};
-    });
-    const enemy = await page.evaluate(() => {
-      Object.assign(S, {locks: [], bans: [], enemies: [{slug: 'sparrow', role: 'carry'}]}); save(); openHero('steel', 'jungle'); S.heroTab = 'pairings'; render();
-      const button = [...document.querySelectorAll('[data-plan-pair]')].find(b => b.dataset.planPair.split('|')[1] === 'sparrow');
-      const disabled = !button || button.disabled;
-      if (button) { button.disabled = false; button.click(); }
-      return {offered: !!button, disabled, locks: S.locks.map(p => p.slug), enemies: S.enemies.map(p => p.slug)};
-    });
-    assert.ok(seen.offered && enemy.offered, 'probe setup: no Sparrow pair card was offered');
-    verdict('A11', seen.locks.includes('sparrow') || !seen.bans.includes('sparrow') || !seen.disabled || enemy.locks.includes('sparrow') || !enemy.enemies.includes('sparrow') || !enemy.disabled, {banned: seen, enemy_picked: enemy});
-    await context.close();
-  },
   async B1(browser) {
     const {context, page} = await session(browser, desktop);
     await page.evaluate(() => changeRoute('meta'));

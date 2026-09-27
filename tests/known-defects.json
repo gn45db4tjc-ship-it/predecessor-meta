@@ -186,6 +186,7 @@
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
+    "A11": "2.40.0: 'Plan this pair' was removed with the other buttons that wrote lineups into the removed Plan screen (PT1).",
     "A10": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
     "A12": "2.36.0: Applying a reviewed composition to locked picks was removed; reviewed compositions stay read-only on the Reviewed guide.",
     "A13": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
