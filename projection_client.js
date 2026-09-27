@@ -40,7 +40,7 @@
     }
     return target;
   }
-  const api = {decode, merge, version: 1};
+  const api = {decode, merge, version: 2};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MetaProjection = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

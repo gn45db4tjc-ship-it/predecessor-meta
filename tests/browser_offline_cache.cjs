@@ -83,7 +83,9 @@ async function check(name, run) {
       assert.ok(await page.evaluate(async name => (await caches.keys()).includes(name) && (await (await caches.open(name)).keys()).length >= 2, DATA_CACHE), 'the check completed before the offline copy was saved');
       const caches = await storage(page), data = caches[DATA_CACHE], shell = Object.keys(caches).find(n => n.startsWith('predecessor-meta-shell-'));
       assert.ok(shell, 'no release shell cache');
-      assert.deepEqual(data.filter(n => n.startsWith('bundles/')), [rankFile(published.cohorts.gold)]);
+      // 2.38.0: the rank's core and its guide (fetched right after the first screen) are both verified and saved by the page.
+      const gold = published.cohorts.gold, expected = [rankFile(gold), ...(gold.projection?.guide ? [gold.projection.guide.url] : [])].sort();
+      assert.deepEqual(data.filter(n => n.startsWith('bundles/')).sort(), expected);
       assert.ok(data.some(n => n.endsWith('manifest.json')));
       assert.ok(!caches[shell].some(n => n.startsWith('bundles/') || n.endsWith('manifest.json')), 'the worker stored data in the shell cache');
       return {shell, saved: data.length};

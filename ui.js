@@ -68,7 +68,9 @@ function options(list,value,blank){return (blank?`<option value="">${esc(blank)}
 let annexState=(kind,key)=>(APP_CONFIG.missing_parts||[]).includes(kind==='shared'?'shared':'hero:'+key)?'failed':'loaded',annexProblem=()=>APP_CONFIG.missing_parts?'it was not included when this snapshot was saved':'',requestAnnex=()=>Promise.resolve('loaded');
 const annexRetry=()=>APP_CONFIG.mode==='static'?' Reload latest data to try again.':'';
 // Placeholders carry data-annex (which evidence file they wait for), so an open dialog is refreshed only when it changes.
-const annexId=(kind,key)=>kind==='shared'?'shared':'hero:'+key;
+const annexId=(kind,key)=>kind==='shared'||kind==='guide'?kind:'hero:'+key;
+// Replaced by static_client.js on the website (2.38.0): screens other than the phone's first screen wait for the guide.
+let guideGate=()=>'';
 function annexNote(state,problem,id=''){return state==='failed'?`<div class="annex-failed" data-annex="${esc(id)}">${note('This evidence could not be loaded'+(problem?' ('+esc(problem)+')':'')+'.'+annexRetry()+' Nothing is estimated in its place.',true)}</div>`:`<div class="note annex-loading" data-annex="${esc(id)}">Loading the detailed evidence for this section…</div>`;}
 // Display-only evidence inside a larger view (static site): the rest renders at once and only this part waits.
 function annexHTML(kind,key,render){const state=annexState(kind,key),problem=annexProblem(kind,key),id=esc(annexId(kind,key));return state==='loaded'?render():state==='failed'?`<p class="muted annex-failed" data-annex="${id}">Source evidence could not be loaded${problem?' ('+esc(problem)+')':''}.${annexRetry()}</p>`:`<p class="muted annex-loading" data-annex="${id}">Loading source evidence…</p>`;}
@@ -161,7 +163,7 @@ function chrome(){
  $('#progress').textContent=(latestStatus.busy&&B?.bracket&&B.bracket.segment!==latestStatus.bracket?'Showing '+B.bracket.label+' while '+latestStatus.bracket+' refreshes. ':'')+(latestStatus.message||((local||shared)?'Opening saved data; awaiting live refresh status.':'Exported '+date(B?.generated_at)+'. This file does not update itself.'));
  $('#progress').className='progress'+(latestStatus.busy?' busy':'')+(latestStatus.errors?.some(e=>isMaterialError(e))?' failed':'');
 }
-function render(){if(['planner','draft','live'].includes(S.route))S.route='match';repairDraft();dropStaleCompositions();chrome();if(renderCompanion())return;if(B&&S.route==='library'){$('#main').innerHTML=libraryView();return;}if(!B){$('#main').innerHTML=`<div class="page-head"><div><div class="eyebrow">Predecessor planning</div><h1>Loading ${esc(S.bracket||'')} data</h1><p>The shell is ready. Statistics and patch verification load in the background.</p></div></div>${empty('Waiting for the first data bundle. Source errors will appear here if the refresh cannot finish.')}`;return;}
+function render(){if(['planner','draft','live'].includes(S.route))S.route='match';repairDraft();dropStaleCompositions();chrome();const waiting=B?guideGate():'';if(waiting){$('#main').innerHTML=waiting;return;}if(renderCompanion())return;if(B&&S.route==='library'){$('#main').innerHTML=libraryView();return;}if(!B){$('#main').innerHTML=`<div class="page-head"><div><div class="eyebrow">Predecessor planning</div><h1>Loading ${esc(S.bracket||'')} data</h1><p>The shell is ready. Statistics and patch verification load in the background.</p></div></div>${empty('Waiting for the first data bundle. Source errors will appear here if the refresh cannot finish.')}`;return;}
  const pages={meta:metaView,hero:heroView,builds:buildsPageView,match:matchView,guidance:guidanceView,changes:changesView,data:dataView};
  try{$('#main').innerHTML=(['hero','builds','match'].includes(S.route)?recommendationEvidenceHTML():'')+(pages[S.route]||metaView)()+freshnessAreasHTML();}catch(e){$('#main').innerHTML=note('This view could not render: '+esc(e.message)+'. The data has not been changed.',true);console.error(e);}
 }

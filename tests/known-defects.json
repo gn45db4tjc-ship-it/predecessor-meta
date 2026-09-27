@@ -173,7 +173,10 @@
     "PD5": "2.37.0 PHONE: More holds player items only (no Quick draft, New match, draft-plan sharing, export or review packet) and the page has no duplicate ids",
     "PD6": "2.37.0 PHONE: the Kit tab opens with every disclosure closed, including the official changes",
     "PD7": "2.37.0 PHONE: nothing but the bottom navigation stays pinned over the lower half of a hero page",
-    "PD8": "2.37.0 PHONE: Meta rows carry no placeholder tier and no near-universal \"Build ready\" chip"
+    "PD8": "2.37.0 PHONE: Meta rows carry no placeholder tier and no near-universal \"Build ready\" chip",
+    "PS1": "2.38.0 SPEED: the phone's first screen (Meta) downloads more than a fifth of the full rank data before it shows",
+    "PS2": "2.38.0: the phone's Meta screen differs (or errors) while the guide is missing, or a hero page computes without the guide instead of saying so",
+    "PS3": "2.38.0: a hero opened before the guide arrives shows no loading state, or does not render its page once the guide arrives"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

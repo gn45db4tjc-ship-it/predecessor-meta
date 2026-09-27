@@ -1,5 +1,6 @@
 'use strict';
-/* Audit item 11: the website's compact core must give the engine exactly what the full bundle gives it.
+/* Audit item 11 and 2.38.0: the core must give the phone's first screen exactly what the full bundle gives it, and the
+   core plus the guide must give every engine method exactly that. Other screens wait for the guide (guideGate).
    The parts are produced by projection.py (the publisher) from the committed seed, then decoded and merged by
    projection_client.js (the page). */
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), zlib = require('node:zlib');
@@ -18,14 +19,14 @@ function parts(status) {
       '        t = ((d.get("counters") or {}).get("tables") or {}).get("counters")',
       '        if isinstance(t, dict) and n % 2: t["cohort_verified"] = False'] : []),
     'p = P.build(b)',
-    'sys.stdout.buffer.write(json.dumps({"full": P.dumps(b).decode(), "core": p["core"].decode(), "shared": p["shared"].decode(), "heroes": {k: v.decode() for k, v in p["heroes"].items()}, "fields": {"hero": P.HERO_FIELDS, "ability": P.ABILITY_FIELDS, "role": P.ROLE_FIELDS}}).encode())',
+    'sys.stdout.buffer.write(json.dumps({"full": P.dumps(b).decode(), "core": p["core"].decode(), "guide": p["guide"].decode(), "shared": p["shared"].decode(), "heroes": {k: v.decode() for k, v in p["heroes"].items()}, "fields": {"hero": P.HERO_FIELDS, "ability": P.ABILITY_FIELDS, "role": P.ROLE_FIELDS}}).encode())',
   ].join('\n');
   const run = spawnSync(python, ['-B', '-c', code], {cwd: root, maxBuffer: 1 << 30});
   if (run.error) throw Error('Python could not be started (' + python + '; set PYTHON_EXE): ' + run.error.message);
   if (run.status) throw Error('projection.py failed: ' + run.stderr);
   const out = JSON.parse(run.stdout.toString('utf8'));
   displayFields = out.fields;
-  return {full: JSON.parse(out.full), core: Projection.decode(JSON.parse(out.core)), shared: Projection.decode(JSON.parse(out.shared)),
+  return {full: JSON.parse(out.full), core: Projection.decode(JSON.parse(out.core)), guide: Projection.decode(JSON.parse(out.guide)), shared: Projection.decode(JSON.parse(out.shared)),
           heroes: Object.fromEntries(Object.entries(out.heroes).map(([k, v]) => [k, Projection.decode(JSON.parse(v))]))};
 }
 
@@ -116,17 +117,46 @@ function outputs(bundle) {
   return out;
 }
 
+// What the phone's first screen asks the engine: the Meta list for every role, the rank bar and the limitations chip.
+function firstScreen(bundle) {
+  const E = Meta.create(bundle), out = {}, now = Date.parse('2026-09-19T12:00:00Z');
+  const call = (name, fn) => { try { out[name] = JSON.stringify(fn()); } catch (e) { out[name] = 'error: ' + e.message; } };
+  call('evidenceState', () => E.evidenceState({now}));
+  call('performancePolicy', () => E.performancePolicy({now}));
+  call('displayPerformancePolicy', () => E.displayPerformancePolicy({now}));
+  call('strategyReviewDue', () => E.strategyReviewDue({now}));
+  call('statzGap', () => E.statzGap());
+  for (const source of Object.keys(bundle.sources || {})) call('sourceCurrency ' + source, () => E.sourceCurrency(bundle.sources[source], now));
+  for (const slug of Object.keys(E.heroes).sort()) for (const role of E.roles(slug)) {
+    const p = {slug, role}, k = slug + '|' + role;
+    call('performance ' + k, () => E.performance(p));
+    call('displayPerformance ' + k, () => E.displayPerformance(p, {now}));
+    call('metaReview ' + k, () => E.metaReview(slug, role));
+    call('buildReview ' + k, () => { const r = E.buildReview(slug, role); return r && {active: r.active, status: r.status, missing: r.missing, changed: r.changed, invalid: r.invalid}; });
+  }
+  for (const role of Meta.ROLES) call('metaReviewSummary ' + role, () => E.metaReviewSummary(role));
+  return out;
+}
+
 for (const status of ['ok', 'retained', 'partial', 'ok+unverified']) {
-  test(`projection (Pred.gg cohort ${status}): core plus annexes reproduce the full bundle exactly in the page`, {skip}, () => {
-    const {full, core, shared, heroes} = get(status);
-    const merged = structuredClone(core);
-    Projection.merge(merged, shared);
-    for (const overlay of Object.values(heroes)) Projection.merge(merged, overlay);
-    assert.equal(JSON.stringify(merged), JSON.stringify(full));
+  test(`projection (Pred.gg cohort ${status}): core, guide and annexes reproduce the full bundle exactly in the page, in any order`, {skip}, () => {
+    const {full, core, guide, shared, heroes} = get(status);
+    for (const overlays of [[guide, shared, ...Object.values(heroes)], [...Object.values(heroes), shared, guide]]) {
+      const merged = structuredClone(core);
+      for (const overlay of overlays) Projection.merge(merged, structuredClone(overlay));
+      assert.equal(JSON.stringify(merged), JSON.stringify(full));
+    }
   });
-  test(`projection (Pred.gg cohort ${status}): every engine result from the core equals the full bundle's`, {skip}, () => {
+  test(`projection (Pred.gg cohort ${status}): the phone's first screen gets the same engine answers from the core alone`, {skip}, () => {
     const {full, core} = get(status);
-    const expected = outputs(full), actual = outputs(core);
+    const expected = firstScreen(full), actual = firstScreen(core);
+    const differ = Object.keys(expected).filter(k => expected[k] !== actual[k]);
+    assert.deepEqual(differ.slice(0, 10), [], differ.length + ' first-screen answers differ between the core and the full bundle');
+    assert.ok(Object.keys(expected).length > 100, 'probe setup: the seed has heroes and roles');
+  });
+  test(`projection (Pred.gg cohort ${status}): every engine result from the core plus the guide equals the full bundle's`, {skip}, () => {
+    const {full, core, guide} = get(status);
+    const expected = outputs(full), actual = outputs(Projection.merge(structuredClone(core), structuredClone(guide)));
     assert.deepEqual(Object.keys(actual), Object.keys(expected));
     const differ = Object.keys(expected).filter(k => expected[k] !== actual[k]);
     const byMethod = differ.reduce((out, k) => { const m = k.split(' ')[0]; out[m] = (out[m] || 0) + 1; return out; }, {});

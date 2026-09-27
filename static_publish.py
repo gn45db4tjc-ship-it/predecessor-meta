@@ -508,8 +508,8 @@ def render_site(folder, out, state):
             target = out / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(raw)
-            # Website delivery projection (audit item 11): a compact core and evidence annexes, verified to
-            # reproduce this exact bundle. The full bundle above stays published for compatibility and export.
+            # Website delivery projection (audit item 11; the guide since 2.38.0): a compact core, the guide and
+            # evidence annexes, verified to reproduce this exact bundle. The full bundle above stays published for compatibility and export.
             # The projection is an optimisation: if it cannot be built, this rank is published with its full
             # bundle only (the page loads that), never withheld.
             try:
@@ -520,6 +520,7 @@ def render_site(folder, out, state):
                     (out / part_path).write_bytes(raw)
                     return {'url': part_path, 'sha256': part_digest, 'bytes': len(raw)}
                 entry['projection'] = {'version': projection.VERSION, 'core': publish_part('core', parts['core']),
+                                       'guide': publish_part('guide', parts['guide']),
                                        'shared': publish_part('shared', parts['shared']),
                                        'heroes': {slug: publish_part('hero-' + slug, raw) for slug, raw in sorted(parts['heroes'].items())}}
             except Exception as error:

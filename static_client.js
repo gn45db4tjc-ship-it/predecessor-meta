@@ -125,7 +125,7 @@ if (APP_CONFIG.mode === 'static') {
   document.addEventListener('visibilitychange', resumeAppCheck);
 
   function siteURL(path) {
-    if (!/^(manifest\.json|bundles\/[a-z]+-(?:(?:core|shared|hero-[a-z0-9-]+)-)?[a-f0-9]{64}\.json)$/.test(path || '')) throw Error('Invalid publication path');
+    if (!/^(manifest\.json|bundles\/[a-z]+-(?:(?:core|guide|shared|hero-[a-z0-9-]+)-)?[a-f0-9]{64}\.json)$/.test(path || '')) throw Error('Invalid publication path');
     return new URL(path, baseURL).href;
   }
   function cohort() { return site.manifest?.cohorts?.[S.bracket]; }
@@ -226,8 +226,8 @@ if (APP_CONFIG.mode === 'static') {
         if (entry.projection) {
           const p = entry.projection, part = (kind, value) => { if (!/^[a-f0-9]{64}$/.test(value?.sha256 || '') || value.url !== 'bundles/' + key + '-' + kind + '-' + value.sha256 + '.json') throw Error('Invalid evidence identity'); siteURL(value.url); };
           try {
-            if (p.version !== 1 || !p.heroes || typeof p.heroes !== 'object') throw Error('Unsupported publication format');
-            part('core', p.core); part('shared', p.shared);
+            if (![1, 2].includes(p.version) || !p.heroes || typeof p.heroes !== 'object') throw Error('Unsupported publication format');
+            part('core', p.core); if (p.version === 2) part('guide', p.guide); part('shared', p.shared);
             for (const [slug, value] of Object.entries(p.heroes)) { if (!/^[a-z0-9-]+$/.test(slug)) throw Error('Invalid evidence identity'); part('hero-' + slug, value); }
           } catch (error) { console.warn('The ' + key + ' evidence files are not used (' + error.message + '); the full bundle is loaded instead.'); delete entry.projection; }
         }
@@ -259,7 +259,7 @@ if (APP_CONFIG.mode === 'static') {
   // release's worker deletes this cache (and this release's shell) instead of serving a frozen copy from it.
   const DATA_CACHE = 'predecessor-meta-data-v1';
   const savedBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-(?:core-)?[a-f0-9]{64}\.json$/) || [])[1];
-  const evidenceBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-(?:shared|hero-[a-z0-9-]+)-[a-f0-9]{64}\.json$/) || [])[1];
+  const evidenceBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-(?:shared|guide|hero-[a-z0-9-]+)-[a-f0-9]{64}\.json$/) || [])[1];
   const savedURL = value => siteURL(value?.projection?.core?.url || value.url);
   const fullBracket = url => (new URL(url).pathname.match(/\/bundles\/([a-z]+)-[a-f0-9]{64}\.json$/) || [])[1];
   // {saved, worker} when the offline store can be read, null when it cannot (then nothing is claimed either way).
@@ -321,7 +321,7 @@ if (APP_CONFIG.mode === 'static') {
     await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
     for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL) await data.delete(url);
     // Evidence saved for an older publication of this rank is removed with it.
-    const current = new Set([entry.projection?.shared, ...Object.values(entry.projection?.heroes || {})].filter(Boolean).map(p => siteURL(p.url)));
+    const current = new Set([entry.projection?.guide, entry.projection?.shared, ...Object.values(entry.projection?.heroes || {})].filter(Boolean).map(p => siteURL(p.url)));
     for (const url of saved) if (evidenceBracket(url) === bracket && !current.has(url)) await data.delete(url);
     return true;
   }
@@ -330,7 +330,7 @@ if (APP_CONFIG.mode === 'static') {
   // an engine result (tests/projection.test.cjs), so the page only redraws to show the evidence.
   site.annex = {full: false, loaded: new Set(), failed: new Map(), pending: new Map()};
   function annexReset(full) { site.annex = {full, loaded: new Set(), failed: new Map(), pending: new Map()}; }
-  function annexPart(kind, key) { const p = site.loadedEntry?.projection; return !p || site.annex.full ? null : kind === 'shared' ? p.shared : p.heroes?.[key] || null; }
+  function annexPart(kind, key) { const p = site.loadedEntry?.projection; return !p || site.annex.full ? null : kind === 'shared' ? p.shared : kind === 'guide' ? p.guide || null : p.heroes?.[key] || null; }
   async function verifiedJSON(part, signal, mismatch = 'Published evidence checksum did not match') {
     const response = await getJSON(siteURL(part.url), signal), bytes = await response.arrayBuffer();
     if (!globalThis.crypto?.subtle) throw Error('This shared site requires HTTPS to verify its data');
@@ -339,7 +339,7 @@ if (APP_CONFIG.mode === 'static') {
     return {bytes, value: MetaProjection.decode(JSON.parse(new TextDecoder().decode(bytes)))};
   }
   function loadAnnex(kind, key) {
-    const part = annexPart(kind, key), id = kind === 'shared' ? 'shared' : 'hero:' + key;
+    const part = annexPart(kind, key), id = annexId(kind, key);
     if (!part || site.annex.loaded.has(id)) return Promise.resolve('loaded');
     if (site.annex.pending.has(id)) return site.annex.pending.get(id);
     const raw = site.originalBundle, annex = site.annex, controller = new AbortController(), timer = setTimeout(() => controller.abort(), 45000);
@@ -349,8 +349,10 @@ if (APP_CONFIG.mode === 'static') {
       MetaProjection.merge(raw, value);
       annex.loaded.add(id); annex.failed.delete(id);
       B = displayedBundle(raw, site.loadedEntry); E = MetaEngine.create(B);
-      saveEvidence(part.url, bytes);
-      redrawForAnnex(id);
+      // The guide redraws at once and is saved before this resolves: the first check waits for it, so 'up to date'
+      // means every screen can open and the guide is available offline. Evidence files share one batched redraw.
+      if (id === 'guide') { requestRedraw(true); refreshDialog(new Set([id])); await saveEvidence(part.url, bytes); }
+      else { saveEvidence(part.url, bytes); redrawForAnnex(id); }
       return 'loaded';
     })().catch(error => {
       if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }
@@ -410,19 +412,29 @@ if (APP_CONFIG.mode === 'static') {
   }
   // 'loaded' (or nothing was moved out for this view), 'loading' or 'failed'; asking starts the download.
   annexState = function (kind, key) {
-    const part = annexPart(kind, key), id = kind === 'shared' ? 'shared' : 'hero:' + key;
+    const part = annexPart(kind, key), id = annexId(kind, key);
     if (!part || site.annex.loaded.has(id)) return 'loaded';
     if (site.annex.failed.has(id)) return 'failed';
     loadAnnex(kind, key);
     return 'loading';
   };
-  annexProblem = function (kind, key) { return site.annex.failed.get(kind === 'shared' ? 'shared' : 'hero:' + key) || ''; };
+  annexProblem = function (kind, key) { return site.annex.failed.get(annexId(kind, key)) || ''; };
   // The state of one evidence file by its id, for announcements; unlike annexState it never starts a download.
   annexPhase = function (id) {
-    const part = id === 'shared' ? annexPart('shared') : annexPart('hero', id.slice(5));
+    const part = id === 'shared' || id === 'guide' ? annexPart(id) : annexPart('hero', id.slice(5));
     return !part || site.annex.loaded.has(id) ? 'loaded' : site.annex.failed.has(id) ? 'failed' : 'loading';
   };
   requestAnnex = function (kind, key) { return loadAnnex(kind, key); };
+  // 2.38.0: a version 2 core holds what the phone's first screen reads (Meta and More). Every other screen waits for
+  // the guide, which is fetched as soon as the first screen is drawn (projection.py). Local and exported pages have
+  // no projection, so nothing waits there.
+  guideGate = function () {
+    if (!annexPart('guide') || site.annex.loaded.has('guide')) return '';
+    if (['meta', 'more'].includes(S.route) && (S.route === 'more' || companionMedia.matches)) return '';
+    const state = annexState('guide');
+    return state === 'failed' ? `<div class="annex-failed" data-annex="guide">${note('Hero and build data could not be loaded (' + esc(annexProblem('guide')) + ').' + annexRetry() + ' The Meta list still works.', true)}</div>`
+      : '<div class="note annex-loading" data-annex="guide" role="status">Loading hero and build data…</div>';
+  };
   // Views that read display-only evidence are guarded in ui.js (annexGuard, annexHTML); dialogs refresh through detail().
   async function saveEvidence(url, bytes) {
     try { if (globalThis.caches && !connectionLost) await (await caches.open(DATA_CACHE)).put(siteURL(url), new Response(bytes, {headers: {'Content-Type': 'application/json'}})); }
@@ -489,7 +501,10 @@ if (APP_CONFIG.mode === 'static') {
       site.lastCheck = Date.now(); if (dataChanged) { requestRedraw(true); refreshDialog(new Set(['*'])); dialogRefreshed = true; checkSharedPlan(); } else if (retried.length) { requestRedraw(true); refreshDialog(new Set(retried)); dialogRefreshed = true; } else redrawForEvidence();
       // The new data is already shown; the check itself completes once the offline copy is saved (or after ten
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
-      await Promise.race([commitPublication(manifest, requested, entry, verified), new Promise(resolve => setTimeout(resolve, 10000))]);
+      // The guide follows the first screen at once; the check stays busy until it arrives, so 'up to date' also means
+      // every screen can open (capped by the same ten seconds).
+      const guide = annexPart('guide') ? loadAnnex('guide') : null;
+      await Promise.race([Promise.all([commitPublication(manifest, requested, entry, verified), guide]), new Promise(resolve => setTimeout(resolve, 10000))]);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       latestStatus.busy = false;
       if (site.offlineProblem) latestStatus.message += ' ' + site.offlineProblem;
@@ -518,7 +533,7 @@ if (APP_CONFIG.mode === 'static') {
       catch {
         // Offline, or the full bundle is gone: assemble the core with every evidence file that can still be
         // verified (saved ones are served offline), and say in the snapshot how many are missing.
-        const raw = site.originalBundle, copy = structuredClone(raw), parts = [['shared', entry.projection.shared], ...Object.entries(entry.projection.heroes || {}).map(([slug, part]) => ['hero:' + slug, part])];
+        const raw = site.originalBundle, copy = structuredClone(raw), parts = [...(entry.projection.guide ? [['guide', entry.projection.guide]] : []), ['shared', entry.projection.shared], ...Object.entries(entry.projection.heroes || {}).map(([slug, part]) => ['hero:' + slug, part])];
         const assembly = new AbortController(), limit = setTimeout(() => assembly.abort(), 60000);
         try {
           for (const [id, part] of parts) {
@@ -526,6 +541,7 @@ if (APP_CONFIG.mode === 'static') {
           }
         } finally { clearTimeout(limit); }
         if (site.originalBundle !== raw) throw Error('Another publication was loaded while exporting. Export again.');
+        if (missing.includes('guide')) throw Error('Hero and build data is not saved on this device yet. Export again when you are online.');
         full = displayedBundle(copy, entry);
         if (missing.length) toast('The snapshot was saved without ' + missing.length + ' detailed evidence files; it says so when opened.');
       }
