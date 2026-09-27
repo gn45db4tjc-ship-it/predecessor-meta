@@ -3355,6 +3355,18 @@ probes.PS3 = async browser => {
   await context.close();
   verdict('PS3', !waiting.loading || !after.rendered || after.gate || after.hero !== 'gideon' || errors.length > 0, {waiting, after, errors: errors.slice(0, 3)});
 };
+/* 2.39.0 speed: tapping an item downloads only the item catalogue, not the whole shared source audit. */
+probes.PS4 = async browser => {
+  const {context, page} = await quickPhoneContext(browser, null), files = [];
+  await page.evaluate(() => { openHero('gideon', 'midlane'); });
+  await page.waitForSelector('#main .simple-purchases .item-button', {timeout: 60000});
+  page.on('request', r => { const m = r.url().match(/\/bundles\/[a-z]+-([a-z]+(?:-[a-z0-9-]+)?)-[a-f0-9]{64}\.json$/); if (m) files.push(m[1]); });
+  await page.locator('#main .simple-purchases .item-button').first().click();
+  await page.waitForFunction(() => document.querySelector('#detail')?.open && !document.querySelector('#detail-body .annex-loading'), null, {timeout: 60000});
+  const seen = await page.evaluate(() => ({dialog: document.querySelector('#detail-title')?.textContent || '', audit: !!document.querySelector('#detail-body details')}));
+  await context.close();
+  verdict('PS4', files.includes('shared') || !seen.dialog, {files, ...seen});
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
