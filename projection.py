@@ -10,7 +10,10 @@ publisher refuses to publish otherwise.
   and every other screen waits for it (``guideGate`` in ui.js and static_client.js), so no engine answer outside
   the first screen is ever computed without it. tests/projection.test.cjs holds both claims: the first-screen
   answers are equal on the core alone, and every answer is equal on core + guide.
-- Evidence annexes hold display-only evidence (per hero, and shared), or fields no page code reads.
+- Evidence annexes hold display-only evidence, or fields no page code reads: one file per hero, and (version 3,
+  2.39.0) three shared files split by the view that reads them. ``catalog`` is what an item or loadout dialog reads,
+  ``history`` is what Changes, Sources and the reviewed-definition dialog read, and ``shared`` is the rest of the
+  source audit.
 Fields that are not listed here, including fields added later, stay in the core.
 
 Encoding: an array of three or more objects with identical keys in the same order is written as
@@ -21,7 +24,7 @@ in the core, so each overlay only adds leaves and the parts can be merged in any
 """
 import copy, json, re
 
-VERSION = 2
+VERSION = 3
 TIER3 = ('firstTier3', 'secondTier3', 'thirdTier3', 'fourthTier3', 'fifthTier3', 'sixthTier3')
 # Per hero, display-only (kit tab, hero Builds and Counters tabs) or read by no page code at all.
 HERO_FIELDS = ('statz_abilities', '_teammates_raw', 'tag_evidence', 'lane_previews', 'previous_abilities', 'pred_attributes')
@@ -29,10 +32,16 @@ ABILITY_FIELDS = ('pred_raw', 'pred_source', 'game_description', 'menu_descripti
 ROLE_FIELDS = ('matchups',)   # on each hero's per-role statistics; read by no page code
 # Shared, display-only (Sources, library and audit views) or read by no page code at all.
 SHARED_PATHS = (('pred_game_data', 'assets'), ('pred_game_data', 'items_catalog'), ('pred_game_data', 'eternals_catalog'),
-                ('pred_game_data', 'heroes'), ('pred_game_data', 'field_protections'), ('pred_game_data', 'records'),
-                ('official', 'definition_history'), ('official', 'publisher_news'),
-                ('image_index',), ('omeda_items',), ('unverified_changes',), ('scoped_changes',))
+                ('pred_game_data', 'heroes'), ('pred_game_data', 'records'),
+                ('image_index',), ('omeda_items',), ('unverified_changes',))
+# Version 3 (2.39.0): what an item or loadout dialog reads (ui.js predCatalogAudit), so a tap downloads only this.
+CATALOG_PATHS = (('pred_game_data', 'field_protections'),)
 CATALOG_FIELDS = ('pred_raw', 'previous_source')   # on each item and perk
+# Version 3: what Changes, Sources and the reviewed-definition dialog read (publisherNewsHTML, scopedHistoryHTML,
+# reviewedDefinitionHTML, definitionReviewAuditHTML).
+HISTORY_PATHS = (('official', 'definition_history'), ('official', 'publisher_news'), ('scoped_changes',))
+# The overlays after the core, in the order the page usually needs them.
+PARTS = ('guide', 'catalog', 'history', 'shared')
 # The guide (2.38.0): read by the engine for hero pages, Match, the reviewed guide and desktop views, never by the phone's
 # first screen. See the module docstring.
 GUIDE_PATHS = (('pairs',), ('corrections',), ('official_changes',), ('patch_support',), ('mechanics_resolutions',),
@@ -111,7 +120,7 @@ def _item(overlay, key, index):
 
 
 def split(bundle):
-    """Return (core, heroes, shared, guide): the core bundle and its overlays (per hero slug, shared, and the guide)."""
+    """Return (core, heroes, parts): the core bundle, the per-hero overlays and the named overlays in PARTS."""
     _check_reserved(bundle)
     core = copy.deepcopy(bundle)
     orders = {}
@@ -122,7 +131,8 @@ def split(bundle):
         overlay.setdefault('$order', list(orders.get(id(source), source.keys())))
         overlay[key] = source.pop(key)
 
-    heroes, shared, guide = {}, {}, {}
+    heroes, parts = {}, {name: {} for name in PARTS}
+    guide, shared, catalog = parts['guide'], parts['shared'], parts['catalog']
     hero_overlay = lambda slug: heroes.setdefault(slug, {})
     for slug, hero in (core.get('heroes') or {}).items():
         if not isinstance(hero, dict):
@@ -191,7 +201,7 @@ def split(bundle):
                             move(section, skey, _node(guide, 'pred_game_data', 'role_data', slug, role, key))
                 else:
                     move(data, key, _node(guide, 'pred_game_data', 'role_data', slug, role))
-    for paths, overlay in ((SHARED_PATHS, shared), (GUIDE_PATHS, guide)):
+    for paths, overlay in ((SHARED_PATHS, shared), (CATALOG_PATHS, catalog), (HISTORY_PATHS, parts['history']), (GUIDE_PATHS, guide)):
         for path in paths:
             node, over = core, overlay
             for key in path[:-1]:
@@ -204,7 +214,7 @@ def split(bundle):
     for section in ('items', 'perks'):
         for key, entry in (core.get(section) or {}).items():
             if isinstance(entry, dict) and any(f in entry for f in CATALOG_FIELDS):
-                part = _node(shared, section, key)
+                part = _node(catalog, section, key)
                 for field in CATALOG_FIELDS:
                     if field in entry: move(entry, field, part)
     # Official article text blocks: no page code reads them (the fingerprints the engine checks stay).
@@ -227,7 +237,7 @@ def split(bundle):
                 for key in PATCH_REVIEW_GUIDE_FIELDS:
                     if key in review:
                         move(review, key, _node(_item(_node(guide, 'guidance'), 'builds', index), 'patch_review'))
-    return core, heroes, shared, guide
+    return core, heroes, parts
 
 
 def _merge(target, overlay):
@@ -262,14 +272,14 @@ def dumps(value):
 
 
 def build(bundle):
-    """Split, encode and verify. Returns {'core': bytes, 'guide': bytes, 'shared': bytes, 'heroes': {slug: bytes}}."""
-    core, heroes, shared, guide = split(bundle)
+    """Split, encode and verify. Returns {'core': bytes, <each name in PARTS>: bytes, 'heroes': {slug: bytes}}."""
+    core, heroes, named = split(bundle)
     bad = sorted(slug for slug in heroes if not SLUG.fullmatch(str(slug)))
     if bad:
         raise ValueError('Hero keys cannot name evidence files: ' + ', '.join(map(repr, bad[:5])))
-    parts = {'core': dumps(encode(core)), 'guide': dumps(encode(guide)), 'shared': dumps(encode(shared)),
+    parts = {'core': dumps(encode(core)), **{name: dumps(encode(named[name])) for name in PARTS},
              'heroes': {slug: dumps(encode(v)) for slug, v in heroes.items()}}
-    overlays = [decode(json.loads(parts['guide'])), decode(json.loads(parts['shared']))] + [decode(json.loads(raw)) for raw in parts['heroes'].values()]
+    overlays = [decode(json.loads(parts[name])) for name in PARTS] + [decode(json.loads(raw)) for raw in parts['heroes'].values()]
     expected = dumps(bundle)
     # The page merges parts in the order it receives them, so the rebuild must hold in either direction.
     for ordered in (overlays, overlays[::-1]):

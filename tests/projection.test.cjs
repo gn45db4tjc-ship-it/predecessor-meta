@@ -19,14 +19,15 @@ function parts(status) {
       '        t = ((d.get("counters") or {}).get("tables") or {}).get("counters")',
       '        if isinstance(t, dict) and n % 2: t["cohort_verified"] = False'] : []),
     'p = P.build(b)',
-    'sys.stdout.buffer.write(json.dumps({"full": P.dumps(b).decode(), "core": p["core"].decode(), "guide": p["guide"].decode(), "shared": p["shared"].decode(), "heroes": {k: v.decode() for k, v in p["heroes"].items()}, "fields": {"hero": P.HERO_FIELDS, "ability": P.ABILITY_FIELDS, "role": P.ROLE_FIELDS}}).encode())',
+    'sys.stdout.buffer.write(json.dumps({"full": P.dumps(b).decode(), "core": p["core"].decode(), "named": {n: p[n].decode() for n in P.PARTS}, "heroes": {k: v.decode() for k, v in p["heroes"].items()}, "fields": {"hero": P.HERO_FIELDS, "ability": P.ABILITY_FIELDS, "role": P.ROLE_FIELDS}}).encode())',
   ].join('\n');
   const run = spawnSync(python, ['-B', '-c', code], {cwd: root, maxBuffer: 1 << 30});
   if (run.error) throw Error('Python could not be started (' + python + '; set PYTHON_EXE): ' + run.error.message);
   if (run.status) throw Error('projection.py failed: ' + run.stderr);
   const out = JSON.parse(run.stdout.toString('utf8'));
   displayFields = out.fields;
-  return {full: JSON.parse(out.full), core: Projection.decode(JSON.parse(out.core)), guide: Projection.decode(JSON.parse(out.guide)), shared: Projection.decode(JSON.parse(out.shared)),
+  const named = Object.fromEntries(Object.entries(out.named).map(([k, v]) => [k, Projection.decode(JSON.parse(v))]));
+  return {full: JSON.parse(out.full), core: Projection.decode(JSON.parse(out.core)), guide: named.guide, named,
           heroes: Object.fromEntries(Object.entries(out.heroes).map(([k, v]) => [k, Projection.decode(JSON.parse(v))]))};
 }
 
@@ -140,8 +141,8 @@ function firstScreen(bundle) {
 
 for (const status of ['ok', 'retained', 'partial', 'ok+unverified']) {
   test(`projection (Pred.gg cohort ${status}): core, guide and annexes reproduce the full bundle exactly in the page, in any order`, {skip}, () => {
-    const {full, core, guide, shared, heroes} = get(status);
-    for (const overlays of [[guide, shared, ...Object.values(heroes)], [...Object.values(heroes), shared, guide]]) {
+    const {full, core, named, heroes} = get(status), parts = Object.values(named);
+    for (const overlays of [[...parts, ...Object.values(heroes)], [...Object.values(heroes), ...parts.reverse()]]) {
       const merged = structuredClone(core);
       for (const overlay of overlays) Projection.merge(merged, structuredClone(overlay));
       assert.equal(JSON.stringify(merged), JSON.stringify(full));
