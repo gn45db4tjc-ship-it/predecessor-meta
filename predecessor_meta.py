@@ -4129,7 +4129,12 @@ def validate_guidance_packet(packet,bundle):
             e=row.get('evidence',{});n=_games(e.get('matches'));w=_games(e.get('wonGames'));rate=e.get('winRate')
             if n<100 or w>n or type(rate) not in (int,float) or not math.isfinite(rate) or abs(rate-100*w/n)>0.05:raise ValueError('Meta review needs a valid observed reference sample of at least 100 games')
             if not str(e.get('url','')).startswith('https://pred.gg/') or not e.get('fetched_at'):raise ValueError('Meta review reference sample requires its source and fetch date')
-            if set(row)-{'slug','role','tier','why','watch','ability_keys','evidence'}:raise ValueError('Unknown meta review entry fields')
+            if set(row)-{'slug','role','tier','why','watch','ability_keys','evidence','rechecked_at','previous_tier'}:raise ValueError('Unknown meta review entry fields')
+            if 'previous_tier' in row and ('rechecked_at' not in row or row['previous_tier'] not in ('S','A','B','C') or row['previous_tier']==row['tier']):raise ValueError('A previous grade needs a recheck and a different grade')
+            if 'rechecked_at' in row:
+                try:recheck,reviewed,fetched=(dt.datetime.fromisoformat(str(v).replace('Z','+00:00')) for v in (row['rechecked_at'],meta['reviewed_at'],e['fetched_at']))
+                except (TypeError,ValueError):recheck=None
+                if not recheck or not isinstance(row['rechecked_at'],str) or any(x.tzinfo is None for x in (recheck,reviewed,fetched)) or recheck<=reviewed or fetched>recheck:raise ValueError('A recheck needs a zoned date after the review and after its reference sample')
     official_prefix=OFFICIAL_ORIGIN+'/en-US/news/patch-notes/'
     def official_url(value):
         if not isinstance(value,str) or not value.startswith(official_prefix): return False
