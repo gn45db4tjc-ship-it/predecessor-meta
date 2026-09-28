@@ -195,6 +195,7 @@ function matchSummaryHTML(me,enemies){
  const adds=final.filter(n=>!base.has(key(n))),drops=a.baseline.filter(n=>!kept.has(key(n)));
  return `<p class="match-summary">${adds.length?`<strong>${adds.length===1?'1 change':adds.length+' changes'}:</strong> add ${adds.map(esc).join(', ')} <span>· drop ${drops.map(esc).join(', ')}</span>`:'<strong>Keep the starting build</strong> for these enemies.'}</p>`;
 }
+// 2.41.0: a kept build carries its own category (a source playstyle is an observed choice, not a reviewed build).
 function matchResultHTML(me,enemies){
  const selection=buildSelection(me);
  if(selection.status==='invalid')return `<section class="panel match-result"><h2>Choose your playstyle again</h2>${note(esc(selection.reason),true)}<button data-reset-playstyle="${esc(me.slug+'|'+me.role)}">Use the starting plan</button></section>`;
@@ -209,7 +210,7 @@ function matchResultHTML(me,enemies){
   return `<li class="${swap?'is-changed':''}"><span class="simple-position">${i+1}</span>${itemButton(s.name)}${swap?`<small>Replaces ${esc(swap.from)}${s.candidate?.trigger?.condition?' · '+esc(s.candidate.trigger.condition):''}</small>`:moved?'<small>Bought earlier for this match</small>':''}</li>`;}).join('');
  const reasons=a.swaps.map(s=>`<li><strong>${esc(s.to)}</strong>: ${esc(s.reason)}</li>`).join('');
  const unmet=(a.unmet||[]).map(id=>a.needs.find(n=>n.id===id)?.label||id);
- return typesHTML+`<section class="panel match-result"><div class="skill-guide-head"><h2>Build for this match</h2>${badge(a.swaps.length?'Calculated changes':'Starting build kept',a.swaps.length?'calculated':'reviewed')}</div>
+ return typesHTML+`<section class="panel match-result"><div class="skill-guide-head"><h2>Build for this match</h2>${a.swaps.length?badge('Calculated changes','calculated'):(k=>badge('Starting build kept · '+k.text,k.type))(buildCategory(a.plan))}</div>
  <ol class="simple-purchases match-build">${rows}</ol>
  ${reasons?`<ul class="match-reasons">${reasons}</ul>`:'<p class="simple-source">No change is needed for these enemies under the item rules; keep the starting build.</p>'}
  ${unmet.length?`<p class="simple-source">Not changed automatically: ${esc(unmet.join(', '))}.</p>`:''}
