@@ -3451,6 +3451,39 @@ probes.DQ7 = async browser => {
   });
   await context.close(); verdict('DQ7', seen.resultTop === null || seen.resultTop > 700 || (seen.enemies === 5 && seen.gridOpen), seen);
 };
+probes.DQ8 = async browser => {
+  // Match labels the build it adapted by that build's own category. With the desktop Build Coach gone (DQ1), Match is
+  // the only screen that shows the adapted build: a kept source playstyle is an observed choice, not a reviewed build.
+  const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => changeRoute('builds'));
+  await page.waitForFunction(() => Object.values(B.heroes).some(h => Object.values(h.roles || {}).some(r => (r.builds || []).length)), null, {timeout: 60000}).catch(() => {});
+  const seen = await page.evaluate(() => {
+    const enemies = Object.keys(E.heroes);
+    for (const [slug, h] of Object.entries(B.heroes)) for (const [role, r] of Object.entries(h.roles || {})) {
+      if (!E.buildReview(slug, role)?.active) continue;
+      const me = {slug, role}, key = slug + '|' + role;
+      S.me = slug; S.locks = [{slug, role}]; S.matchPicking = 'enemy';
+      for (let index = 0; index < (r.builds || []).length; index++) {
+        try { companionPrefs.selectedBuilds[key] = CompanionState.reference(B, E, slug, role, index); } catch { continue; }
+        for (const enemy of enemies) {
+          if (enemy === slug) continue;
+          S.enemies = [{slug: enemy, role: E.roles(enemy)[0]}];
+          const a = matchAdapted(me, S.enemies);
+          if (a.error || !a.available) break;
+          if (a.swaps.length || !a.plan?.manual) continue;
+          changeRoute('match');
+          const tag = document.querySelector('#main .match-result .skill-guide-head .tag');
+          const out = {found: true, hero: key, index, enemy, badge: tag?.textContent.trim() || null, cls: tag?.className || null};
+          delete companionPrefs.selectedBuilds[key];
+          return out;
+        }
+      }
+      delete companionPrefs.selectedBuilds[key];
+    }
+    return {found: false};
+  });
+  await context.close(); verdict('DQ8', seen.found && !/\bobserved\b/.test(seen.cls || ''), seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
