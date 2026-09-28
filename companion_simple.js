@@ -191,7 +191,9 @@ function matchAdapted(me,enemies){
 function matchSummaryHTML(me,enemies){
  if(!enemies.length||buildSelection(me).status==='invalid')return '';
  const a=matchAdapted(me,enemies);if(a.error||!a.available)return '';
- return `<p class="match-summary">${a.swaps.length?`<strong>${a.swaps.length===1?'1 swap':a.swaps.length+' swaps'}:</strong> ${a.swaps.map(s=>`${esc(s.to)} <span>for ${esc(s.from)}</span>`).join(' · ')}`:'<strong>Keep the starting build</strong> for these enemies.'}</p>`;
+ const key=n=>String(n).toLowerCase(),base=new Set(a.baseline.map(key)),final=a.slots.map(s=>s.name),kept=new Set(final.map(key));
+ const adds=final.filter(n=>!base.has(key(n))),drops=a.baseline.filter(n=>!kept.has(key(n)));
+ return `<p class="match-summary">${adds.length?`<strong>${adds.length===1?'1 change':adds.length+' changes'}:</strong> add ${adds.map(esc).join(', ')} <span>· drop ${drops.map(esc).join(', ')}</span>`:'<strong>Keep the starting build</strong> for these enemies.'}</p>`;
 }
 function matchResultHTML(me,enemies){
  const selection=buildSelection(me);
@@ -216,10 +218,10 @@ function matchResultHTML(me,enemies){
 }
 function matchView(){
  const me=matchMe(),enemies=matchEnemies(),picking=!me||S.matchPicking==='me'?'me':'enemy';
- const intro=head('Match',me?name(me.slug)+' · '+labels[me.role]:'Your match',me?'Tap the enemy heroes you can see. The build below updates as you go.':'Choose who you play, then tap the enemy heroes you can see.');
+ const intro=head('Match',me?name(me.slug)+' · '+labels[me.role]:'Your match',me?'Pick the enemy heroes you can see. The adapted build updates as you go.':'Choose who you play, then pick the enemy heroes you can see.');
  const meHTML=me?`<section class="panel match-me"><div class="match-me-row">${art(me.slug,'')}<div><strong>${esc(name(me.slug))}</strong><label>Role<select id="match-role">${options(E.roles(me.slug).map(r=>[r,labels[r]]),me.role)}</select></label></div></div><div class="match-actions"><button type="button" data-match-change="me">${picking==='me'?'Keep '+esc(name(me.slug)):'Change hero'}</button><button type="button" data-match-new="true">New match</button></div></section>`:'';
  const enemyHTML=me?`<section class="panel match-enemies"><div class="skill-guide-head"><h2>Enemy team · ${enemies.length}/5</h2></div>${enemies.length?`<ul class="match-chips">${enemies.map(e=>`<li><button type="button" class="match-chip" data-match-pick="${esc(e.slug)}" data-match-mode="enemy" aria-label="Remove ${esc(name(e.slug))}">${art(e.slug,'tiny')}<span>${esc(name(e.slug))}</span><span aria-hidden="true">×</span></button></li>`).join('')}</ul>${matchSummaryHTML(me,enemies)}`:'<p class="simple-source">None yet.</p>'}</section>`:'';
- return intro+meHTML+(picking==='me'?`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:enemyHTML+`<details class="panel match-pick" data-keep="match-enemy-grid" ${enemies.length<5?'open':''}><summary>Add enemy heroes</summary>${matchGridHTML('enemy')}</details>`+matchResultHTML(me,enemies));
+ return intro+(picking==='me'?meHTML+`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:`<div class="match-layout"><div class="match-column">${meHTML}${enemyHTML}<details class="panel match-pick" data-keep="match-enemy-grid${enemies.length<5?'':'-full'}" ${enemies.length<5?'open':''}><summary>${enemies.length<5?'Add enemy heroes':'Change enemy heroes'}</summary>${matchGridHTML('enemy')}</details></div><div class="match-column match-column--result">${matchResultHTML(me,enemies)}</div></div>`);
 }
 document.addEventListener('click',event=>{
  const el=event.target.closest('[data-match-pick],[data-match-change],[data-match-new]');if(!el)return;

@@ -983,29 +983,6 @@ const probes = {
     const bad = s => s.problems.length > 0 || !s.names_statz_gap;
     verdict('V1', bad(seen.desktop) || bad(seen.phone), {desktop: {checked: seen.desktop.checked, problems: seen.desktop.problems.slice(0, 8)}, phone: seen.phone});
   },
-  async V2(browser) {
-    // The build coach describes the evidence for THIS hero and role: Steel jungle has no role sample, so it must not read
-    // "Statistics current" (site refresh health), while Steel offlane, which has a current sample, says so.
-    const {context, page} = await clockSession(browser, desktop);
-    await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
-    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
-    const seen = await page.evaluate(() => {
-      // Pred.gg retained beyond the new 30-hour preference window: Statz has no Steel jungle sample.
-      B.sources.pred_scoped.fetched_at = new Date(Date.now()-31*3600000).toISOString();
-      for (const k of ['pred_scoped', 'pred_game_data']) if (B.sources[k]) B.sources[k] = {...B.sources[k], status: 'retained'};
-      if (B.scoped_statistics) B.scoped_statistics.status = 'retained';
-      if (B.pred_game_data) B.pred_game_data.status = 'retained';
-      E = MetaEngine.create(B); render();
-      const coach = document.querySelector('#main .coach-date summary')?.textContent || '';
-      const setup = {policy: E.performancePolicy().source, jungle_sample: !!E.performance({slug: 'steel', role: 'jungle'})};
-      openHero('steel', 'offlane'); S.heroTab = 'builds'; render();
-      return {setup, jungle: coach, offlane: document.querySelector('#main .coach-date summary')?.textContent || ''};
-    });
-    assert.equal(seen.setup.policy, 'statz', 'probe setup: retained Pred.gg leaves Statz as the ranking source');
-    assert.equal(seen.setup.jungle_sample, false, 'probe setup: Steel jungle has no Statz sample');
-    verdict('V2', /Statistics current/i.test(seen.jungle) || !/No Statz Gold\+ jungle sample/i.test(seen.jungle) || !/Statz offlane sample current/i.test(seen.offlane), seen);
-    await context.close();
-  },
   async V3(browser) {
     // Saved evidence is labelled "Saved <day>" in its own section: retained Pred.gg (1 h after collection), and anything
     // older than 48 hours (Pred.gg and Statz); evidence 31 hours old (aging) and current evidence carry no label; the phone

@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Predecessor Meta & Planning",
+  "name": "Predecessor Meta",
   "short_name": "Pred Meta",
-  "description": "Current-patch Predecessor tier lists, reviewed builds, pairings, compositions, counters, draft planning, and live-game advice.",
+  "description": "Current-patch Predecessor tier lists, reviewed builds, counters, partners and builds adapted to the enemy team.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

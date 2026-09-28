@@ -807,7 +807,7 @@
         for(const r of rows.tables?.[key]||[]){
           if(!r?.name||!Number.isSafeInteger(r.played)||r.played<0||!Number.isSafeInteger(r.won)||r.won<0||r.won>r.played||(r.played===0?r.wr!==null:!finite(r.wr)||r.wr<0||r.wr>100||Math.abs(r.wr-100*r.won/r.played)>.1)) {issues.push('Pred.gg '+key+' / '+(r?.name||'unnamed item')+': invalid wins, games or rate; excluded.');continue;}
           if(!r.played)continue;
-          const ob={...r,slot:key,label:'Pred.gg '+rows.patch+' '+rows.bracket+' Ranked '+role+' '+key,source:'Pred.gg',supports_current_fit:true,url:rows.url,fetched_at:rows.fetched_at};
+          const ob={...r,slot:key,label:'Pred.gg '+rows.patch+' '+rows.bracket+' Ranked '+role+' · item '+(['firstTier3','secondTier3','thirdTier3','fourthTier3','fifthTier3','sixthTier3'].indexOf(key)+1),source:'Pred.gg',supports_current_fit:true,url:rows.url,fetched_at:rows.fetched_at};
           (pool[NK(r.name)]??={name:r.name,observations:[]}).observations.push(ob);
         }
       }
