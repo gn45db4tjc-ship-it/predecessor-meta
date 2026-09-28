@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.41.0
+# Predecessor Meta - 2.41.1
 
-The desktop pass. The hero page has "Use in Match" in its header instead of the old Build Coach, and on a wide screen Match shows the picker and the adapted build side by side. "Share plan" is now "Share match", the old Plan wording is gone, and layout and wording bugs found at 1440 and 1920 px are fixed. Match labels a kept source playstyle as an observed choice, and status notices name official fields in words. See [RELEASE-2.41.0.md](RELEASE-2.41.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+In the Windows app's phone layout, Quit keeps its own width instead of stretching beside Refresh, so the rank select gets the space. The reported unreadable rank select (57 px on 2.36.1) was already fixed by 2.37.0 and is now guarded by a test. The local-mode test suite no longer waits for a phone Export that has been desktop-only since 2.37.0. See [RELEASE-2.41.1.md](RELEASE-2.41.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.41.0
+
+The desktop pass. The hero page has "Use in Match" in its header instead of the old Build Coach, and on a wide screen Match shows the picker and the adapted build side by side. "Share plan" is now "Share match", the old Plan wording is gone, and layout and wording bugs found at 1440 and 1920 px are fixed. Match labels a kept source playstyle as an observed choice, and status notices name official fields in words. See [RELEASE-2.41.0.md](RELEASE-2.41.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.40.0
 

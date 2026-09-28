@@ -329,6 +329,7 @@
  .compact-context .topbar .tools #refresh{flex:0 0 44px;width:44px;padding:0;font-size:0}
  .compact-context .topbar .tools #refresh::before{content:"\21bb";font-size:var(--tr-lg);line-height:1}
  .compact-context #mobile-limits{flex:0 0 auto;width:auto;min-height:44px;padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--radius-md);gap:var(--s1);background:var(--surface-2)}
+ .compact-context .topbar .tools #quit{flex:0 0 auto;padding:0 var(--s3)}
  .compact-context #mobile-limits.material{border-color:var(--amber)}
  .compact-context #mobile-limits .limits-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
  .compact-context #mobile-limits .limits-sep{display:none}
