@@ -205,7 +205,7 @@ Buttons. `.primary` is the single main action on a screen (gold fill, `--indicat
 
 - States: hover (`.primary` mixes the fill toward `--text`), focus (the one `--focus` ring), disabled (native `disabled`, never a class alone).
 
-_Usage:_ One `.primary` per view. The docked "Adapt to my match" is that view's primary.
+_Usage:_ One `.primary` per view. On a hero page (phone since 2.37.0, desktop since 2.41.0) it is "Use in Match" in the header.
 
 ### `.item-button`
 

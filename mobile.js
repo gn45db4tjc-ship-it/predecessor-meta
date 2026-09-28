@@ -15,14 +15,6 @@ function coachEnemies(p){return S.enemies.filter(e=>e.slug!==p.slug);}
 function adviceFor(p){const enemies=coachEnemies(p),ctx={...contextFor(p)};if(ctx.primaryThreat&&!enemies.some(e=>e.slug===ctx.primaryThreat))delete ctx.primaryThreat;return E.adaptBuild(p,S.locks.filter(a=>a.slug!==p.slug).concat(p),enemies,ctx);}
 // The coach describes the evidence for this hero and role (its role sample) and the mechanics it reads; site refresh
 // health is on the status line and Sources & accuracy.
-function freshnessHTML(p){
- const perf=p?E.performance(p):null,mech=B?.sources?.pred_game_data||B?.sources?.omeda_heroes,words={current:'current',aging:'aging',stale:'saved',retained:'retained',unavailable:'unavailable'};
- const sample=perf?(perf.retained?'retained':E.sourceCurrency({status:'ok',fetched_at:perf.fetched_at}).state):null,mechanics=mech?.status==='retained'?'retained':E.sourceCurrency(mech).state;
- const offline=!navigator.onLine||connectionLost,role=(labels[p?.role]||p?.role||'role').toLowerCase();
- const sampleText=perf?perf.source+' '+role+' sample '+(words[sample]||sample):p?roleSampleText(p.slug,p.role):'Role sample unavailable';
- const summary=(offline?'Offline · saved data · ':'')+sampleText+' · Mechanics '+(words[mechanics]||mechanics);
- return `<details class="coach-date ${offline||!perf||sample!=='current'||mechanics!=='current'?'warning':''}" data-keep="coach-evidence"><summary>${esc(summary)}</summary><div class="detail-content"><p>${esc(B?.bracket?.label||'Bracket unavailable')}${p?' · '+esc(name(p.slug))+' · '+esc(labels[p.role]||p.role):''}</p><p>${perf?'Role sample: '+esc(perf.source)+' · '+games(perf.played)+' · fetched '+esc(date(perf.fetched_at))+(perf.retained?' · retained from an earlier collection':''):esc(sampleText)+'. No role win rate is shown or estimated for this plan.'}</p><p>Mechanics fetched ${esc(date(mech?.fetched_at))}${mech?.status==='retained'?' · retained from an earlier collection':''}</p><p class="muted">Site-wide update health is on Sources &amp; accuracy; each section below shows its own date.</p></div></details>`;
-}
 /* The categories engine.js actually produces for a build part. A part is never reduced
    to "observed or substituted": a reviewed core, a calculated starting selection, a
    source playstyle the reader chose, an item merely brought forward and an item actually
@@ -74,11 +66,6 @@ function supportingSample(m,displayPosition,now,subject){
  return '<small class="muted">Supporting: '+line+'.'+mismatch+'</small>';
 }
 /* Said once for the whole build, so a per-part sentence is not repeated six times. */
-function sampleFootnote(slots){
- var n=(slots||[]).filter(function(s){return s.measured&&!s.measured.supports_current_fit;}).length;
- if(!n)return '';
- return '<p class="muted coach-note">'+n+' of these positions carry an observation that is inspection only. Each states its own reason; the category beside each part is what the recommendation rests on.</p>';
-}
 /* ---- loadout evidence -------------------------------------------------------------
    A sample is shown beside a part only when it is a sample OF THAT PART. The item pool is
    not consulted here: it holds item purchase observations, and an augment, an Eternal and a
@@ -142,7 +129,7 @@ function loadoutEvidence(plan,stats,fetchedAt){
 }
 function loadoutSampleHTML(ev,label){
  var s=ev&&ev.parts?ev.parts[label]:null;
- if(!ev||!ev.variant)return '<small class="muted">No source variant matches the recommended augment and Eternal, so there is no observation for this part.</small>';
+ if(!ev||!ev.variant)return '<small class="muted">No matching source variant.</small>';
  if(!s)return '<small class="muted">No observation for this choice in that variant.</small>';
  if(s.none)return '<small class="muted">'+esc(s.none)+'</small>';
  return '<small class="muted">Win rate '+pct(s.wr)+' over '+games(s.played)+' · '+esc(s.scope)+' · collected '+esc(dayDate(ev.fetched_at))+'</small>';
@@ -187,14 +174,6 @@ function crestEvolutionHTML(ev,planCrest){
   return '<div><small>Evolves into</small>'+itemButton(crestName(u),'items')+badge('Observed choice','observed')+
    crestRowSample(u,ev,'a final upgrade of '+base)+'</div>';
  }).join('');
-}
-function coachHTML(p,{compact=false}={}){
- let a;try{a=adviceFor(p);}catch(e){return `<section class="panel coach"><h2>Recommendation unavailable</h2><p>${esc(e.message)}</p><button data-route="data">Inspect sources</button></section>`;}
- const enemies=coachEnemies(p),key=p.slug+'|'+p.role,attr=`data-coach-key="${esc(key)}"`;
- const controls=`<div class="coach-controls"><label>My hero is<select ${attr} data-coach-field="state">${options([['ahead','Ahead'],['even','Even'],['behind','Behind']],a.state)}</select></label><label>Primary threat<select ${attr} data-coach-field="primaryThreat">${options(enemies.map(e=>[e.slug,name(e.slug)+' · '+labels[e.role]]),a.primaryThreat||'','No primary threat')}</select></label><label>Urgent need<select ${attr} data-coach-field="priority">${options(E.itemNeeds.filter(n=>!n.manual).map(n=>[n.id,n.label]),a.priority,'Normal timing')}</select></label></div>`;
- const info=`<p class="muted">Judge your hero’s farm and power curve. Enemy equipment is unknown until you choose a need.</p>`;
- const next=a.available?(a.nextPurchase?`<h2>Next: ${esc(a.nextPurchase.name)}</h2>${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,a.nextPurchase))}${supportingSample(a.nextPurchase.measured,a.slots.indexOf(a.nextPurchase)+1||null)}`:'<h2>Six completed items owned</h2><p>No purchase or sale suggested.</p>'):`<h2>${E.buildReview(p.slug,p.role)?.active?'Match-specific advice pending':'Recommendation unavailable'}</h2><p>${esc(a.unavailableReason)}</p>`;
- return `<section class="panel coach" aria-label="Build Coach"><div class="coach-next">${next}</div>${controls}${compact?'':info}${freshnessHTML(p)}${a.available?`<p class="coach-reason">${esc(a.explanations[0])}</p><ol class="build-path coach-path">${a.slots.map((s,i)=>`<li><span class="item-position">${i+1} · ${esc(s.label)}</span>${itemButton(s.name)}${(function(c){return badge(c.text,c.type);})(buildCategory(a.plan,s))}${supportingSample(s.measured,i+1)}</li>`).join('')}</ol>${sampleFootnote(a.slots)}`:'<button data-route="data">Inspect sources & accuracy</button>'}<details><summary>Advanced details · why this path</summary><div class="detail-content">${info}<p>Reviewed for ${esc(a.evidence.reviewed.patch||'unverified')} · ${esc(date(a.evidence.reviewed.date))}. Editorial reference remains Gold+; observations use ${esc(B.bracket?.label)}.</p>${a.explanations.slice(1).map(t=>`<p>${esc(t)}</p>`).join('')}${a.changes.map(c=>`<p><strong>Position ${c.position}: ${esc(c.item)}</strong><br>${esc(c.reason)}</p>`).join('')}${a.timing.map(t=>`<p>${esc(t)}</p>`).join('')}${a.contingency?`<p>Alternative for ${esc(a.contingency.need)}: ${itemButton(a.contingency.name)}<br>${esc(a.contingency.reason)}</p>`:''}<p>Reviewed baseline: ${esc(a.baseline.join(' → ')||'Unavailable')}</p>${a.itemEvidence.issues.map(t=>note(esc(t),true)).join('')}${Object.values(a.itemEvidence.pool).filter(r=>a.slots.some(s=>normalizeName(s.name)===normalizeName(r.name))).map(r=>`<p>${esc(r.name)} · ${pct(r.wr)} · ${games(r.played)}<br>${esc(r.label||r.source)} · ${esc(date(r.fetched_at))} · ${r.supports_current_fit?'Eligible bracket evidence':'Inspection only; no influence'}</p>`).join('')}<p>${esc(a.note)}</p></div></details></section>`;
 }
 function companionChrome(){
  if(companionMedia.matches){$('#menu-toggle').textContent='More';$('#menu-toggle').removeAttribute('aria-expanded');$('#menu-toggle').setAttribute('aria-controls','main');}
@@ -265,7 +244,7 @@ function guidedHome(){
 function mobileHero(){
  const p={slug:S.hero,role:S.heroRole};if(!E.heroes[p.slug])return guidedHome();if(!['builds','pairings','counters','kit'].includes(S.heroTab))S.heroTab='builds';
  const why=pickBlock(p.slug,p.role),mine=S.me===p.slug&&S.locks.some(x=>x.slug===p.slug&&x.role===p.role),blocked=mine?'':why,perf=E.displayPerformance(p),fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
- withoutCoach=true;let full;try{full=heroView();}finally{withoutCoach=false;}/* 2.40.0: the Build Coach is never shown here, so it is not computed */const node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));const body=node.innerHTML;
+ const full=heroView(),node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));const body=node.innerHTML;
  return `<button class="text-button" data-route="meta">← Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head">${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</span></p></div><div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${fav?'★ Favorited':'☆ Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Live':'Use in Live'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
 }
 function mobileBuilds(){const rows=Object.keys(E.heroes).filter(slug=>E.roles(slug).includes(S.role)&&name(slug).toLowerCase().includes(S.query.toLowerCase())).sort((a,b)=>name(a).localeCompare(name(b)));return head('Builds · '+esc(B.bracket?.label||''),'Reviewed starting plans','Choose a role, then open one compact plan. Source variants remain on the hero page.')+metaToolbarHTML()+maintenanceHTML()+`<div class="mobile-build-list">${rows.map(slug=>{const plan=E.plannedBuild(slug,S.role),perf=E.displayPerformance({slug,role:S.role});return `<details class="panel mobile-build-row" data-keep="build-${slug}"><summary>${art(slug,'tiny')}<span><strong>${esc(name(slug))}</strong><small>${perf?displayedRoleText(perf):'Role sample unavailable'}</small></span><span>${plan.kind==='reviewed'?badge('Reviewed','reviewed'):badge('Provisional','warning')}</span></summary><div class="detail-content">${plannedBuildHTML(plan,true)}<button data-hero-builds="${slug}" data-role="${S.role}">Open full build</button></div></details>`;}).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;}
@@ -287,7 +266,7 @@ function roleHeroes(role){const all=Object.keys(E.heroes).filter(slug=>E.roles(s
 function limitationItems(){let ev=null;try{ev=E.evidenceState();}catch{}const items=(ev?.limitations||[]).map(detail=>({source:'Evidence',detail,severity:ev.verification.state==='verified'?'warning':'error'})),key=i=>i.source+'|'+String(i.detail).slice(0,60),seen=new Set(items.map(key));for(const e of errors()){if(!seen.has(key(e))){seen.add(key(e));items.push(e);}}return items;}
 // 2.37.0: what changes what a player sees comes first; source-audit detail stays one tap away.
 function playerLimitation(i){return i.severity==='error'||/retained|community|current-patch statistics|verification|not refreshed|could not be refreshed/i.test(i.source+' '+i.detail);}
-function limitsDialogHTML(){const items=limitationItems(),player=items.filter(playerLimitation),audit=items.filter(i=>!playerLimitation(i)),row=i=>`<li><strong>${esc(i.source)}</strong> ${esc(i.detail)}</li>`;
+function limitsDialogHTML(){const items=limitationItems(),player=items.filter(playerLimitation),audit=items.filter(i=>!playerLimitation(i)),row=i=>`<li><strong>${esc(sourceLabel(i.source))}</strong> ${esc(humanKeys(i.detail))}</li>`;
  return `<p>Each source keeps its own date. Nothing is estimated when a source is missing.</p>${player.length?`<ul class="limits-list">${player.map(row).join('')}</ul>`:'<p>Nothing affects what you see right now.</p>'}${audit.length?`<details class="limits-audit"><summary>Source details · ${audit.length}</summary><ul class="limits-list">${audit.map(row).join('')}</ul></details>`:''}<button data-limits-sources="true">Open Sources &amp; accuracy</button>`;}
 // Why a hero cannot be your Live hero in this role ('' when it can). An ally holding the role can be replaced.
 function pickBlock(slug,role){if(!E.heroes[slug]||!E.roles(slug).includes(role))return 'Role unavailable';if(S.bans.includes(slug))return 'Banned';if(S.enemies.some(p=>p.slug===slug))return 'Picked by the enemy team';const ally=S.locks.find(p=>p.slug===slug);if(slug===S.me&&ally?.role===role)return 'Your current hero';if(ally&&ally.role!==role&&slug!==S.me)return 'On your team as '+labels[ally.role];return '';}
@@ -303,9 +282,11 @@ function renderCompanion(){
 }
 // Guard the same role controls on both layouts; invalid options explain the conflict.
 const originalChangeRoute=changeRoute,originalOpenHero=openHero;
-const originalDetail=detail;let dialogReturn=null,dialogSituation=null;
-detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
-$('#detail').addEventListener('close',()=>{if(dialogReturn?.isConnected)dialogReturn.focus();else if(dialogReturn?.hasAttribute('data-edit-roster'))document.querySelector('[data-edit-roster]')?.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
+const originalDetail=detail;let dialogReturn=null,dialogSituation=null,dialogReturnKey='';
+// The control that opened a dialog, by id or data attributes, so focus can return to its redrawn copy.
+function returnSelector(el){if(!el||el===document.body||el===document.documentElement)return '';if(el.id)return '#'+CSS.escape(el.id);const data=[...el.attributes].filter(a=>a.name.startsWith('data-')).map(a=>'['+a.name+'="'+CSS.escape(a.value)+'"]').join('');return data?el.tagName.toLowerCase()+data:'';}
+detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogReturnKey=returnSelector(dialogReturn);dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
+$('#detail').addEventListener('close',()=>{const again=!dialogReturn?.isConnected&&dialogReturnKey?document.querySelector('#main '+dialogReturnKey):null;if(dialogReturn?.isConnected)dialogReturn.focus();else if(again)again.focus();else if(dialogReturn?.hasAttribute('data-edit-roster'))document.querySelector('[data-edit-roster]')?.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
 let navigationTransition=false,navigationRestore=null,linkedBracketPending=null,navigationRankChange=null;
 try{history.scrollRestoration='manual';}catch{}
 function writeNavigation(method,state,url){try{history[method](state,'',url);return true;}catch(e){if(e?.name!=='SecurityError')throw e;return false;}}
@@ -337,7 +318,7 @@ changeRoute=function(route){
  recordNavigation();
 };
 openHero=function(slug,role){
- if(!E.heroes[slug]){companionError='That hero is unavailable. Choose another.';changeRoute('meta');return;}
+ if(!E.heroes[slug]){companionError='That hero is unavailable. Choose another.';changeRoute('meta');if(!companionMedia.matches)toast(companionError);return;}
  saveNavigationPosition();originalOpenHero(slug,role);
  companionPrefs.recent=[{slug,role:S.heroRole},...companionPrefs.recent.filter(p=>p.slug!==slug||p.role!==S.heroRole)].slice(0,5);saveCompanionPrefs();
 };
@@ -371,7 +352,7 @@ function applyCompanionLink(){
    if(bracket&&bracket!==S.bracket){requestLinkedBracket(bracket);return;}
    S.route=r;if(role)S.role=role;
  }
- }catch(e){companionError=e.message;S.route='meta';}
+ }catch(e){companionError=e.message;S.route='meta';if(!companionMedia.matches)setTimeout(()=>toast(e.message),0);}
 }
 function afterDestinationRender(){
  const main=$('#main');if(!main||!B)return;
@@ -414,8 +395,7 @@ document.addEventListener('click',async event=>{
 document.addEventListener('change',event=>{
  const el=event.target,d=el.dataset;
  if(el.id==='bracket'&&linkedBracketPending!==el.value){saveNavigationPosition();navigationRestore=null;navigationRankChange=el.value;linkApplied=location.hash;}
- if(d.coachField){event.stopImmediatePropagation();const [slug,role]=d.coachKey.split('|'),p={slug,role};if(!E.heroes[slug]||!E.roles(slug).includes(role))return;const val=d.coachField==='primaryThreat'?(el.value||null):el.value;S.liveContexts[d.coachKey]={...contextFor(p),[d.coachField]:val};const modal=$('#detail').open;save();render();if(!modal)document.querySelector(`[data-coach-key="${d.coachKey}"][data-coach-field="${d.coachField}"]`)?.focus();}
- else if(el.id==='mobile-meta-order'){companionPrefs.metaOrder=el.value;saveCompanionPrefs();render();$('#mobile-meta-order')?.focus();}
+ if(el.id==='mobile-meta-order'){companionPrefs.metaOrder=el.value;saveCompanionPrefs();render();$('#mobile-meta-order')?.focus();}
  else if(el.id==='mobile-hero-role'){S.heroRole=el.value;render();recordNavigation(true);$('#mobile-hero-role')?.focus();}
  else if(el.id==='large-text'){companionPrefs.large=el.checked;saveCompanionPrefs();companionChrome();}
  else if(el.id==='hero-role')setTimeout(()=>recordNavigation(true),0);
@@ -423,6 +403,7 @@ document.addEventListener('change',event=>{
 document.addEventListener('input',event=>{if(event.target.id==='mobile-hero-search'){const pos=event.target.selectionStart;companionPrefs.homeQuery=event.target.value;saveCompanionPrefs();render();const input=$('#mobile-hero-search');input?.focus();input?.setSelectionRange(pos,pos);}});
 document.addEventListener('click',event=>{if(event.target.closest('[data-meta-role]'))recordNavigation(true);if(event.target.closest('[data-hero-tab]')){recordNavigation(true);if(companionMedia.matches){const d=$('#main > details');if(d)d.open=true;}}});
 window.addEventListener('popstate',event=>{
+ if($('#detail')?.open){dialogReturn=null;dialogReturnKey='';$('#detail').close();}/* 2.41.0: Back never leaves a dialog over another page */
  historyApplying=true;navigationRestore=event.state?.companion?event.state:null;
  try{
   if(navigationRestore){const n=navigationRestore.companion;

@@ -7,11 +7,11 @@ class CompanionRendering(unittest.TestCase):
         for mode in ('local','export','static'):
             with self.subTest(mode=mode):
                 html=app.render_html(None,{'mode':mode,'tool_version':app.VERSION})
-                self.assertIn('function coachHTML',html)
                 self.assertIn('function guidedHome',html)
                 self.assertIn('function adaptBuild',html)
                 # 2.40.0: the Live screen's coach dock, picker and lineup editor are gone (Match replaced them in 2.36.0).
-                for removed in ('#coach-dock','function livePickerHTML','function rosterEditorHTML','function generateCompositions'):
+                # 2.41.0: and the Build Coach on the desktop hero page, which read Match's enemies.
+                for removed in ('#coach-dock','function livePickerHTML','function rosterEditorHTML','function generateCompositions','function coachHTML'):
                     self.assertNotIn(removed,html)
                 self.assertNotIn('__MOBILE_CSS__',html)
                 self.assertIn('viewport-fit=cover',html)

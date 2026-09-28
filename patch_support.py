@@ -106,7 +106,10 @@ def apply(bundle, packet, validate, clean, capabilities):
                              'status': 'Official patch additions checked' if active else 'Dated additions; live patch or article changed',
                              'coverage': copy.deepcopy(data['coverage']), 'conflicts': conflicts,
                              'limitations': data['limitations']}
+    # 2.41.0: one current row. A replay whose conflict list changed replaces the earlier row instead of adding a second.
+    source = 'Official 1.17 mechanics reconciliation'
+    if 'errors' in bundle: bundle['errors'] = [e for e in bundle['errors'] if e.get('source') != source]
     if conflicts:
-        row = {'source': 'Official 1.17 mechanics reconciliation', 'severity': 'warning',
-               'detail': 'Unmatched source fields: ' + ', '.join(conflicts) + '. Official notes remain visible; affected build preconditions prevent automatic endorsement.'}
-        if row not in bundle.setdefault('errors', []): bundle['errors'].append(row)
+        bundle.setdefault('errors', [])
+        bundle['errors'].append({'source': source, 'severity': 'warning',
+                                 'detail': 'Unmatched source fields: ' + ', '.join(conflicts) + '. Official notes remain visible; affected build preconditions prevent automatic endorsement.'})

@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.40.0"
+VERSION = "2.41.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1286,7 +1286,7 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
     pool_note = None
     if pool_ratio and pool_ratio > 1.1:
         pool_note = ("hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about %.1fx the "
-                     "games on the %s tier list; statz does not state what the extra games are" % (pool_ratio, tier.get("bracket_label") or bracket))
+                     "games on the %s tier list; statz does not state what the extra games are." % (pool_ratio, tier.get("bracket_label") or bracket))
         warnings.append({"source": "statz.gg hero pages", "detail": pool_note})
 
     # ---- errors and warnings ----

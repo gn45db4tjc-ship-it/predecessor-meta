@@ -33,6 +33,13 @@ class OfficialPatchSupportTests(unittest.TestCase):
         self.b['items']['transference']={'total_price':1234};self.apply(self.b,d)
         self.assertEqual(self.b['items']['transference']['total_price'],1234);self.assertTrue(self.b['patch_support']['conflicts'])
         self.b['official']['articles'][0]['fingerprint']='changed';self.apply(self.b,d);self.assertFalse(self.b['patch_support']['active'])
+    def test_replay_keeps_one_current_reconciliation_notice(self):
+        # 2.41.0: live Gold+ carried two rows (three fields, then two) because a changed replay added a second row.
+        p.prepare(self.b);rules=[r for r in self.d['corrections'] if r['path'][0]=='items'][:2];other={'source':'statz','severity':'warning','detail':'kept'}
+        self.b['errors']=[copy.deepcopy(other)];rows=lambda:[e for e in self.b['errors'] if e['source']=='Official 1.17 mechanics reconciliation']
+        self.apply(self.b,{**self.d,'corrections':rules});self.assertEqual(len(rows()),1);self.assertTrue(all(r['id'] in rows()[0]['detail'] for r in rules))
+        self.apply(self.b,{**self.d,'corrections':rules[:1]});self.assertEqual(len(rows()),1);self.assertNotIn(rules[1]['id'],rows()[0]['detail'])
+        self.apply(self.b,{**self.d,'corrections':[]});self.assertEqual(rows(),[]);self.assertEqual(self.b['errors'],[other])
     def test_correction_cannot_touch_observed_rates_or_source_dates(self):
         p.prepare(self.b)
         for path in (['heroes','valmont','roles','midlane','winRate'],['sources','statz','fetched_at']):
