@@ -24,6 +24,14 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
     await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>B&&!latestStatus.busy);
     // 2.33 phone shell: the theme switch lives on More and the Meta list search replaces the top-bar finder.
     const phone=viewport.width<700,themeControl=phone?'#companion-theme':'#theme-toggle';
+    // 2.41.1: the phone top bar keeps the rank readable (it was 57px with no text on 2.36.1, reported from the Windows
+    // app) and Quit, which only the Windows app has, compact beside Refresh at every phone width up to 700px.
+    if(phone){
+     const bar=async()=>page.evaluate(()=>{const sel=document.querySelector('#bracket'),q=document.querySelector('#quit');return {rank:Math.round(sel.getBoundingClientRect().width),fits:sel.scrollWidth<=sel.clientWidth,quit:q&&q.offsetParent?Math.round(q.getBoundingClientRect().width):null};});
+     const narrow=await bar();check(narrow.rank>=96&&narrow.fits,'phone rank select readable ('+narrow.rank+'px)');
+     await page.setViewportSize({width:700,height:viewport.height});const wide=await bar();await page.setViewportSize(viewport);
+     check(wide.quit===null||wide.quit<=120,'phone Quit stays compact at 700px ('+wide.quit+'px)');
+    }
     if(phone)await goToScreen(page,'more');
     check(await page.locator(themeControl).isVisible(),'theme toggle visible');
     const original=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tiers:B.tier_list}));
@@ -62,10 +70,11 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
      check((await page.locator('#patch-strip').textContent()).includes('Last verified patch'),'failed check labels the older verification');
      check(await page.evaluate(()=>E.plannedBuild('dekker','support').kind!=='reviewed'),'unverified current patch does not activate advice');
     }
-    if(phone)await goToScreen(page,'more');   // phones export from More
-    const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#export:visible').click()]);
-    const snapshot=path.join(qa,`snapshot-${process.env.BROWSER_ENGINE||'edge'}-${mode}-${viewport.width}.html`);
-    await download.saveAs(snapshot);
+    // 2.37.0 made export desktop-only, so the phone step waited for a download that cannot start. The phone now checks
+    // that More has no export and opens the desktop snapshot of the same mode at phone width.
+    const snapshotFor=width=>path.join(qa,`snapshot-${process.env.BROWSER_ENGINE||'edge'}-${mode}-${width}.html`);let snapshot;
+    if(phone){await goToScreen(page,'more');check(await page.locator('#export:visible').count()===0,'phone More has no export');snapshot=snapshotFor(1920);}
+    else{const [download]=await Promise.all([page.waitForEvent('download'),page.locator('#export:visible').click()]);snapshot=snapshotFor(viewport.width);await download.saveAs(snapshot);}
     const exported=await context.newPage();await exported.goto('file:///'+snapshot.replace(/\\/g,'/'),{waitUntil:'domcontentloaded'});await exported.waitForFunction(()=>B);
     check(await exported.evaluate(()=>APP_CONFIG.mode==='export'),'standalone export opens');
     const exportTheme=await exported.evaluate(()=>document.documentElement.dataset.theme||'dark');

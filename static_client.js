@@ -30,7 +30,7 @@ if (APP_CONFIG.mode === 'static') {
     const apple = /iphone|ipad|ipod/i.test(navigator.userAgent);
     detail('Install this app', apple
       ? '<p>In Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</p><p>The app will open from its own icon and keep using the same daily cloud data.</p>'
-      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta & Planning</strong> or <strong>Apps → Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
+      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta</strong> or <strong>Apps → Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
   }
   window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); pendingInstallPrompt = event; syncInstallButton(); });
   window.addEventListener('appinstalled', () => { pendingInstallPrompt = null; syncInstallButton(); toast('App installed.'); });
@@ -43,8 +43,8 @@ if (APP_CONFIG.mode === 'static') {
     return false;
   };
   function appUpdateHTML() {
-    // 2.37.0: one compact row. Updates keep saved picks and builds; game data updates separately (button title).
-    return '<section class="panel app-update-row" aria-label="App updates"><p><strong>Running v' + esc(APP_CONFIG.tool_version) + '</strong> <span data-app-state></span></p><div class="actions"><button data-app-check title="Updates keep your saved picks and builds. Game data updates separately.">Check app update</button><button class="primary hide" data-app-apply>Update app</button></div></section>';
+    // 2.37.0: one compact row. Updates keep the saved match, favourites and playstyles; game data updates separately (button title).
+    return '<section class="panel app-update-row" aria-label="App updates"><p><strong>Running v' + esc(APP_CONFIG.tool_version) + '</strong> <span data-app-state></span></p><div class="actions"><button data-app-check title="Updates keep your saved match, favourites and playstyles. Game data updates separately.">Check app update</button><button class="primary hide" data-app-apply>Update app</button></div></section>';
   }
   const oldMore = moreView;
   moreView = function() { return oldMore() + appUpdateHTML(); };
@@ -71,7 +71,7 @@ if (APP_CONFIG.mode === 'static') {
     const version = releaseVersion(manifest?.app?.version);
     if (!version) return false;
     appUpdate.checked = Date.now(); appUpdate.latest = newerRelease(version) ? version : null;
-    appUpdate.message = appUpdate.latest ? 'App v' + version + ' is available. Update when ready; your saved picks and builds stay.' : version === APP_CONFIG.tool_version ? 'You are running the latest app · v' + APP_CONFIG.tool_version + '.' : 'Running v' + APP_CONFIG.tool_version + ' · the site currently publishes v' + version + '.';
+    appUpdate.message = appUpdate.latest ? 'App v' + version + ' is available. Update when ready; your saved match, favourites and playstyles stay.' : version === APP_CONFIG.tool_version ? 'You are running the latest app · v' + APP_CONFIG.tool_version + '.' : 'Running v' + APP_CONFIG.tool_version + ' · the site currently publishes v' + version + '.';
     renderAppUpdate(); return true;
   }
   const workerRegistration = 'serviceWorker' in navigator
@@ -184,7 +184,7 @@ if (APP_CONFIG.mode === 'static') {
   chrome = function() {
     originalChrome();
     renderAppUpdate();
-    $('#connection').textContent = 'SHARED WEBSITE · YOUR DRAFT STAYS IN THIS BROWSER';
+    $('#connection').textContent = 'SHARED WEBSITE · YOUR MATCH STAYS IN THIS BROWSER';
     $('#refresh').textContent = latestStatus.busy ? 'Checking…' : 'Reload latest data';
     $('#refresh').disabled = !!latestStatus.busy;
     $('#bracket').disabled = false;
@@ -196,7 +196,7 @@ if (APP_CONFIG.mode === 'static') {
     $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every three hours; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every three hours.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every three hours; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
     if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
-    if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your draft is saved in this browser.';
+    if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your match and favourites are saved in this browser.';
     $('#progress').textContent = latestStatus.message || 'Loading the latest published data…';
     $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>isMaterialError(e)));
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'No successful publication is available for this bracket yet. Choose another bracket.');

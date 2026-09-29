@@ -106,12 +106,12 @@
 
 
 
-#detail [data-plan-ban]{width:100%;min-height:44px}
+
 
 .reference-jumps{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s4)}
 .reference-jumps button,.reference-fold>summary,.source-table summary,#library-more{min-height:44px}
 .reference-fold{border:1px solid var(--line);border-radius:var(--radius-md);margin:var(--s3) 0;background:var(--surface)}
-.reference-fold>summary{padding:var(--s3);align-content:center}.reference-fold>.detail-content{padding:var(--s3)}
+.reference-fold>summary{padding:var(--s3) var(--s3) var(--s3) var(--s6);align-content:center}.reference-fold>.detail-content{padding:var(--s3)}
 .source-scope{display:block;min-width:140px;max-width:38rem;white-space:normal}
 .source-table details{margin:0}.source-table summary{align-content:center}
 .meta-list-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr));gap:var(--s2);margin-bottom:var(--s4)}

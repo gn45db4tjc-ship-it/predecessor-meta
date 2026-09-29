@@ -1,8 +1,16 @@
-# Predecessor Meta - 2.40.1
+# Predecessor Meta - 2.41.2
 
-Five Gold+ grades moved in a recheck of the 1.17 review against five days of data: Kira carry to A; Legion, Gideon and Greystone from S to A; Murdock back to C. Valmont gets his first grade, midlane B. Sixteen others were retained and show again where they were withheld, and each rechecked tier shows both its review and recheck dates. See [RELEASE-2.40.1.md](RELEASE-2.40.1.md).
+Five Gold+ grades moved in a recheck of the 1.17 review against five days of data: Kira carry to A; Legion, Gideon and Greystone from S to A; Murdock back to C. Valmont gets his first grade, midlane B. Sixteen others were retained and show again where they were withheld, and each rechecked tier shows both its review and recheck dates. See [RELEASE-2.41.2.md](RELEASE-2.41.2.md).
 
 ## Previous release
+
+### 2.41.1
+
+In the Windows app's phone layout, Quit keeps its own width instead of stretching beside Refresh, so the rank select gets the space. The reported unreadable rank select (57 px on 2.36.1) was already fixed by 2.37.0 and is now guarded by a test. The local-mode test suite no longer waits for a phone Export that has been desktop-only since 2.37.0. See [RELEASE-2.41.1.md](RELEASE-2.41.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+
+### 2.41.0
+
+The desktop pass. The hero page has "Use in Match" in its header instead of the old Build Coach, and on a wide screen Match shows the picker and the adapted build side by side. "Share plan" is now "Share match", the old Plan wording is gone, and layout and wording bugs found at 1440 and 1920 px are fixed. Match labels a kept source playstyle as an observed choice, and status notices name official fields in words. See [RELEASE-2.41.0.md](RELEASE-2.41.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.40.0
 
@@ -218,7 +226,7 @@ The selected hosting approach remains $0. The 2.21.1 repair updates collection, 
 ## Current availability and update limits
 
 - Open a normal website link on your PC, Mac or iPhone. Neither your Windows PC nor the spare iMac needs to remain on.
-- The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your draft stays in that browser; Share plan deliberately transfers it.
+- The site loads the latest published bundle. Planning, builds, counters and combinations run in your browser. Your match stays in that browser; Share match deliberately transfers it.
 - GitHub collects available sources once per daily update cycle (17:23 UTC boundary), or after live patch/hotfix content changes. While the Windows collector is connected and has checked in within 4 hours, GitHub's daily collection waits up to 5 hours after the boundary for it (2.37.2): GitHub cannot read Pred.gg's pages, so collecting first only marked the Windows collector's Pred.gg sample as retained and hid the tiers until the Windows data arrived. A changed patch article is still collected at once. Your PC and Codex can be off. Pred.gg is optional and limited to public game pages; missing optional data does not stop the other sources.
 - The Windows updater is manual recovery only (from 2.25.0). It runs when you open **Update Predecessor Website** on the Desktop; nothing starts at sign-in. Before 2.25.0 it started at sign-in and checked every three hours. Neither collector requires an AI account or API key for the currently enabled sources.
 - GitHub checks official patch notes every three hours, imports newer validated public files from `data-updates`, and deploys the site. Old Windows receipts cannot reset a newer cloud collection clock. An access denial stops later Pred.gg requests, while the cloud continues other sources.

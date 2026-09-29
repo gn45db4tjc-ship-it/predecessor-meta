@@ -1,4 +1,6 @@
-# 2.40.1 — Recheck of 21 flagged 1.17 grades, and Valmont's first grade
+# 2.41.2 — Recheck of 21 flagged 1.17 grades, and Valmont's first grade
+
+_Prepared as 2.40.1 on 27 Sep. 2.41.0 and 2.41.1 shipped first, so it ships as 2.41.2 on top of them; the review itself is unchanged._
 
 A narrow recheck of the 24 Sep 1.17 strategy review, done at the owner's request on 27 Sep, against about five days of the whole 1.17 line (1.17 plus Hotfix 1.17.1). The full report is [docs/GRADE-RECHECK-2026-09-27.md](docs/GRADE-RECHECK-2026-09-27.md), and every figure is in `docs/grade-recheck-2026-09-27-ledger.json`.
 
