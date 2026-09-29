@@ -32,6 +32,9 @@ The packet and the code must ship together. Older code rejects this packet ("Unk
 - The new tests failed before the change.
 - Python static tests: 334 pass, 1 skipped. Node tests: 343 pass.
 - A preview staged from the live Gold+ bundle, with the rechecked meta review, rendered the tier detail with both dates and no page errors.
-- The 11 browser suites run in CI on the pull request.
+- The 11 browser suites pass locally on the 2.41.2 tree (main 2.41.1 merged in) and run in CI on the pull request.
+- **On real data (28 Sep):** today's live Gold+ bundle was put through a collection's enrichment step with this release. The six changes come out as reviewed: Kira carry A, Legion carry A, Gideon midlane A, Greystone offlane A, Murdock carry C, Valmont midlane B. All six are active.
+  - Active grades: 79 of 86, from 68 of 85.
+  - Still withheld as "Statistics moved since review": 7, from 17.
 
 No physical-device or screen-reader acceptance is claimed.
