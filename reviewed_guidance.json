@@ -28,14 +28,14 @@
       ],
       "midlane": [
         "lt-belica",
-        "gideon",
         "the-fey",
+        "gideon",
         "argus"
       ],
       "offlane": [
+        "grux",
         "greystone",
         "akeron",
-        "grux",
         "shinbi"
       ],
       "support": [
@@ -52,14 +52,14 @@
       ]
     },
     "notes": [
-      "Jungle: Zarus (containment for a mid or support to convert) and Aurora (layered magical control) are the S starting points on 1.17. Serath moved to A: 1.17 trimmed her on-hit and Heresy burn scaling and the Wind-Rider attack speed her plan uses, so she is the second-wave diver rather than the first pick. Khaimera (A) has the steadiest large early 1.17 jungle sample for sustained pressure. Steel is the direct tank catch, with a very small early jungle sample and Heavy Metal attacks that no longer break spell shields. Rampage stays A as a durable long-range boulder catch, but his early 1.17 dip is flagged for the next review.",
-      "Mid: Lt. Belica (compact catch), Gideon and The Fey (prepared area control) stay S. 1.17 trimmed Gideon's damage, and a Ground effect such as Valmont's tether now stops Torn Space, so protect his entry and channel rather than relying on raw damage. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont is new on 1.17 and has no reviewed tier yet; his early Gold+ midlane sample (354 games, heavily banned) is too new to grade.",
-      "Carry: Drongo, Sparrow, Eden and Legion stay S. Drongo supplies silence and physical shred, Sparrow needs protected attack time, Eden rewards practiced heat and stance management, and Legion's Scorched Earth plan adds area pressure, though his early 1.17 result is the weakest of the four and should be rechecked. Revenant is the A burst alternative; Murdock rose to B on 1.17 damage buffs, and GRIM.exe's early drop has no kit reason yet.",
-      "Support: choose Steel for a direct opening, Mourn for catch plus sustain, Muriel for amplification and protection when initiation already exists, or Narbash for a grouped fight. Muriel keeps S after broad 1.17 trims, including a weaker and costlier Reversal, so position her carefully. Phase stays A after health and Hyperflux trims. Riktor remains a B hook-execution option, and his early 1.17 result makes him the support grade most likely to fall.",
-      "Offlane: Greystone remains the pressure default, but 1.17 lowered his base health and armor growth, and Stone Forged Soul is a 2.5s stasis heal, not an extra life. Akeron supplies sustain and frontline on a health build; Grux punishes reachable melee fights, though a Ground effect now interrupts Stampede; Shinbi supplies magical skirmishing. Scarlett and Iggy & Scorch are strong alternatives, Iggy only when another role supplies frontline. Countess's early offlane result fell despite the Feast fix. Terra and Serath offlane stay C and do not inherit another role's grade.",
+      "Jungle: Zarus (containment for a mid or support to convert) and Aurora (layered magical control) are the S starting points on 1.17. Serath moved to A: 1.17 trimmed her on-hit and Heresy burn scaling and the Wind-Rider attack speed her plan uses, so she is the second-wave diver rather than the first pick. Khaimera (A) has the steadiest large early 1.17 jungle sample for sustained pressure. Steel is the direct tank catch, with a very small early jungle sample and Heavy Metal attacks that no longer break spell shields. Rampage stays A as a durable long-range boulder catch; most of his early 1.17 dip did not persist (27 Sep recheck).",
+      "Mid: Lt. Belica (compact catch) and The Fey (prepared area control) stay S. Gideon moved to A on the 27 Sep recheck: 1.17 trimmed his damage, Hotfix 1.17.1 removed a Black Hole bug that favored him, and his results fell below his previous patch. A Ground effect such as Valmont's bind now stops Torn Space, so protect his entry and channel. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont's first grade is B (27 Sep recheck): a grounding bind with sustain and no dash, near even over 1,354 Gold+ midlane games.",
+      "Carry: Drongo, Sparrow and Eden stay S. Drongo supplies silence and physical shred, Sparrow needs protected attack time, and Eden rewards practiced heat and stance management. Legion moved to A on the 27 Sep recheck: his 1.17 results stayed near even, below the other S carries and his previous patch; his Scorched Earth plan still adds area pressure. Revenant and Kira are the A alternatives; Kira rose to A once her results since the review followed her Mercy and Dusk buffs. Murdock returned to C: his 1.17 buffs did not lift his results. GRIM.exe's early drop has recovered toward his previous level.",
+      "Support: choose Steel for a direct opening, Mourn for catch plus sustain, Muriel for amplification and protection when initiation already exists, or Narbash for a grouped fight. Muriel keeps S after broad 1.17 trims, including a weaker and costlier Reversal, so position her carefully. Phase stays A after health and Hyperflux trims. Riktor remains a B hook-execution option; his 1.17 results settled near his previous patch. Dekker's B is flagged: his 1.17 support results are the lowest of the supports (27 Sep recheck).",
+      "Offlane: Greystone moved to A on the 27 Sep recheck: 1.17 lowered his base health and armor growth and his results fell to near even, so he is a strong lane-pressure option rather than the default. Stone Forged Soul is a 2.5s stasis heal, not an extra life. Grux now leads the working pool: he punishes reachable melee fights, though a Ground effect interrupts Stampede. Akeron supplies sustain and frontline on a health build; Shinbi supplies magical skirmishing. Scarlett and Iggy & Scorch are strong alternatives, Iggy only when another role supplies frontline. Countess's offlane results recovered after the Feast fix. Terra and Serath offlane stay C and do not inherit another role's grade.",
       "Pred.gg 1.17 matchup rows cover about 1.5 days and pool all roles, and the counter, anti-counter and lane-counter views are one table, not separate evidence. They describe observed games with the named hero present, not proof of a lane or ability interaction. Use the reviewed counterplay to decide which response you can execute.",
       "Community builds are alternative hypotheses. The 2.32 build review compared their item sequences with 1.17 item effects and your role plan; popularity or a high conditional build rate cannot establish that a purchase caused the wins.",
-      "Patch 1.17 strategy review (23-24 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B."
+      "Patch 1.17 strategy review (23-24 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B. A grade recheck on 27 September 2026, after Hotfix 1.17.1 and about five days of 1.17 data, re-examined 21 flagged or withheld grades and graded Valmont: Kira carry B to A; Legion carry, Gideon midlane and Greystone offlane S to A; Murdock carry back to C. The other 16 were retained with rebased reference samples. Valmont midlane received his first grade, B."
     ],
     "compositions": [
       {
@@ -42222,7 +42222,7 @@
         "B": "Situational or practiced pick; check what the team needs.",
         "C": "Lower default priority in this review; favor comfort or a favorable matchup."
       },
-      "method": "Authored judgments from 1.17 kits, official 1.17 changes, current plans and role economy, weighed against Pred.gg Gold+ role results. A grade moved only with a kit or patch reason and evidence pointing the same way. The 1.17 Gold+ sample was about 1.5 days old (roughly 1,000 games per role; Bronze+ contains the same games), so where a role had fewer than 100 current Gold+ games the listed sample is the 1.16.4 review sample. Grades are not calculated win probabilities, source-provided tiers, or proven optimal picks. A 3 percentage-point change from the listed sample with at least 500 current games flags the grade for review; that trigger is not a significance test. Refreshing data does not rewrite this review.",
+      "method": "Authored judgments from 1.17 kits, official 1.17 changes, current plans and role economy, weighed against Pred.gg Gold+ role results. A grade moved only with a kit or patch reason and evidence pointing the same way. The 1.17 Gold+ sample was about 1.5 days old (roughly 1,000 games per role; Bronze+ contains the same games), so where a role had fewer than 100 current Gold+ games the listed sample is the 1.16.4 review sample. Grades are not calculated win probabilities, source-provided tiers, or proven optimal picks. A 3 percentage-point change from the listed sample with at least 500 current games flags the grade for review; that trigger is not a significance test. Refreshing data does not rewrite this review. A grade recheck on 27 September 2026 re-examined the 21 grades the review flagged or the engine withheld, and gave Baron Valmont midlane his first grade, against about five days of the whole 1.17 line (1.17 plus Hotfix 1.17.1). It kept the review's standard (a kit or patch reason with evidence pointing the same way; a high rate alone never raises a grade), and added one rule: a grade may drop one step without a kit reason when the whole-line 95% interval excludes the previous-patch review rate with at least 500 games and the games since the review point the same way. Rechecked entries show their own date and cite the rechecked sample.",
       "entries": [
         {
           "slug": "adele",
@@ -42353,12 +42353,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 56.05095541401274,
-            "wonGames": 176,
-            "matches": 314,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-23T21:27:49-05:00"
-          }
+            "winRate": 54.25867507886435,
+            "wonGames": 516,
+            "matches": 951,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-09-26T13:47:11-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "aurora",
@@ -42483,7 +42484,7 @@
           "role": "offlane",
           "tier": "A",
           "why": "Shadow Slip and Blade Siphon support short trades; Feast converts a target after two ability hits apply Haemorrhage.",
-          "watch": "Early 1.17 offlane results sit below her 1.16.4 reference despite the Feast damage fix, so recheck as the sample grows. Mark a safe Shadow Slip return point and apply Haemorrhage before Feast.",
+          "watch": "The Feast fix restored her conversion and her 1.17 offlane results recovered above even. Mark a safe Shadow Slip return point and apply Haemorrhage before Feast.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42491,12 +42492,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 45.65217391304348,
-            "wonGames": 63,
-            "matches": 138,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 52.038369304556355,
+            "wonGames": 217,
+            "matches": 417,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-09-26T13:47:15-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "countess",
@@ -42563,19 +42565,20 @@
           "role": "support",
           "tier": "B",
           "why": "Control and projectile accuracy can still buy valuable attack time, but the dated Gold+ sample does not support default A priority. Choose for the needed fence and peel tools rather than treating kit fit as demonstrated pair success.",
-          "watch": "This grade values control despite slightly negative role results. Missed skill shots and poor fence timing reduce the benefit substantially.",
+          "watch": "This grade values control despite below-even role results on both patches. Missed skill shots and poor fence timing reduce the benefit substantially.",
           "ability_keys": [
             "RMB",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 48.97119341563786,
-            "wonGames": 238,
-            "matches": 486,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
-            "fetched_at": "2026-09-23T21:27:56-05:00"
-          }
+            "winRate": 45.91029023746702,
+            "wonGames": 696,
+            "matches": 1516,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+            "fetched_at": "2026-09-26T13:47:25-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "drongo",
@@ -42589,12 +42592,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 53.91705069124424,
-            "wonGames": 351,
-            "matches": 651,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-09-23T21:27:54-05:00"
-          }
+            "winRate": 52.2372528616025,
+            "wonGames": 1004,
+            "matches": 1922,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+            "fetched_at": "2026-09-26T13:47:21-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "eden",
@@ -42696,21 +42700,23 @@
         {
           "slug": "gideon",
           "role": "midlane",
-          "tier": "S",
+          "tier": "A",
           "why": "Cosmic Rift supports lane pressure while Torn Space preserves positioning; Black Hole offers a clear conversion for jungle or support control.",
-          "watch": "1.17 trimmed Void Breach, Black Hole, Event Horizon and his mana scaling, so the grade rests on coordinated Black Hole conversion rather than raw damage. A Ground effect now stops Torn Space, and interrupts land once the Truesilver shield breaks.",
+          "watch": "1.17 trimmed Void Breach, Black Hole, Event Horizon and his mana scaling, and Hotfix 1.17.1 removed a Black Hole bug that favored him, so he is an A conversion pick for a coordinated team. A Ground effect now stops Torn Space, and interrupts land once the Truesilver shield breaks.",
           "ability_keys": [
             "Q",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 51.596638655462186,
-            "wonGames": 307,
-            "matches": 595,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-09-23T21:27:53-05:00"
-          }
+            "winRate": 49.396204715353655,
+            "wonGames": 859,
+            "matches": 1739,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-09-26T13:47:18-05:00"
+          },
+          "previous_tier": "S",
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "greystone",
@@ -42734,40 +42740,43 @@
         {
           "slug": "greystone",
           "role": "offlane",
-          "tier": "S",
+          "tier": "A",
           "why": "Make Way and Sacred Oath create sustained lane pressure; Stone Forged Soul can extend the time he occupies frontline space.",
-          "watch": "1.17 lowered his base health and armor growth, so buy real defense on time. Personal survival is not allied peel; the draft still needs a reliable catch.",
+          "watch": "1.17 lowered his base health and armor growth, and his 1.17 offlane results sit near even, so he is a strong lane-pressure option rather than the default. Buy real defense on time; personal survival is not allied peel, and the draft still needs a reliable catch.",
           "ability_keys": [
             "Q",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 51.729559748427675,
-            "wonGames": 329,
-            "matches": 636,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 50.26539278131635,
+            "wonGames": 947,
+            "matches": 1884,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-09-26T13:47:15-05:00"
+          },
+          "previous_tier": "S",
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "grim-exe",
           "role": "carry",
           "tier": "B",
           "why": "Assault Mode and Pulsefire provide a magical basic-attack threat; Energy Shield can preserve a firing window against an important spell.",
-          "watch": "His results were below the leading carries on 1.16.4 and are lower still in the early 1.17 sample; treat him as a practiced pick. Buy penetration for the magical damage he actually deals, and do not count the shield as a general escape.",
+          "watch": "His 1.16.4 and 1.17 carry results sit below the leading carries; treat him as a practiced pick. Buy penetration for the magical damage he actually deals, and do not count the shield as a general escape.",
           "ability_keys": [
             "RMB",
             "E",
             "Passive"
           ],
           "evidence": {
-            "winRate": 40.15748031496063,
-            "wonGames": 51,
-            "matches": 127,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-09-23T21:27:54-05:00"
-          }
+            "winRate": 47.135416666666664,
+            "wonGames": 181,
+            "matches": 384,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+            "fetched_at": "2026-09-26T13:47:21-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "grux",
@@ -42802,12 +42811,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 48.722986247544206,
-            "wonGames": 248,
-            "matches": 509,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 51.77353342428376,
+            "wonGames": 759,
+            "matches": 1466,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-09-26T13:47:15-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "howitzer",
@@ -42821,12 +42831,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 56.1576354679803,
-            "wonGames": 114,
-            "matches": 203,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-09-23T21:27:53-05:00"
-          }
+            "winRate": 51.58069883527454,
+            "wonGames": 310,
+            "matches": 601,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-09-26T13:47:18-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "iggy-scorch",
@@ -42947,9 +42958,9 @@
         {
           "slug": "kira",
           "role": "carry",
-          "tier": "B",
+          "tier": "A",
           "why": "Mercy and repeated attacks build Vengeance before Dusk; Shadow Glide offers a way to preserve space or follow a confirmed catch.",
-          "watch": "1.17 raised Mercy damage and Dusk now refunds mana on a kill, but that has not yet lifted her early results. Purge is an exposed commitment that still needs control or peel.",
+          "watch": "1.17 raised Mercy damage and Dusk now refunds mana on a kill, and her results since the review have risen with them. Purge is an exposed commitment that still needs control or peel, and the refund needs a kill.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42957,31 +42968,34 @@
             "R"
           ],
           "evidence": {
-            "winRate": 45.14563106796116,
-            "wonGames": 186,
-            "matches": 412,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-09-23T21:27:54-05:00"
-          }
+            "winRate": 50.947867298578196,
+            "wonGames": 645,
+            "matches": 1266,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+            "fetched_at": "2026-09-26T13:47:21-05:00"
+          },
+          "previous_tier": "B",
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "kwang",
           "role": "jungle",
           "tier": "B",
           "why": "Judgement of the Heavens can tether a target for sword-centered follow-up; Light of the Heavens and Fury of the Heavens support repeated trades.",
-          "watch": "Both dated role samples were below even and the early 1.17 jungle result is lower, so treat him as a practiced sword-placement option. The Grounded sword-pickup fix is a reliability change, not a reason to promote him.",
+          "watch": "His 1.16.4 samples and his 1.17 jungle results sit below even, so treat him as a practiced sword-placement option. The Grounded sword-pickup fix is a reliability change, not a reason to promote him.",
           "ability_keys": [
             "RMB",
             "Q",
             "R"
           ],
           "evidence": {
-            "winRate": 42.56410256410256,
-            "wonGames": 83,
-            "matches": 195,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-23T21:27:49-05:00"
-          }
+            "winRate": 47.40608228980322,
+            "wonGames": 265,
+            "matches": 559,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-09-26T13:47:11-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "kwang",
@@ -43005,9 +43019,9 @@
         {
           "slug": "legion",
           "role": "carry",
-          "tier": "S",
+          "tier": "A",
           "why": "Saturation Charge and Orbital Sanction offer area pressure alongside ranged attacks; the Scorched Earth plan adds napalm zones where mines, Frag Order and the beam land.",
-          "watch": "The ability-oriented plan converts an allied catch, and bonus attack speed becomes haste, not firing speed. 1.17 widened the rifle projectile, but his early 1.17 carry result sits below the review sample, so recheck this priority as data grows.",
+          "watch": "1.17 widened the rifle projectile, but his 1.17 carry results stayed near even, below the S carries. The ability-oriented plan converts an allied catch, and bonus attack speed becomes haste, not firing speed.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -43015,12 +43029,14 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 48.582230623818525,
-            "wonGames": 257,
-            "matches": 529,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-09-23T21:27:54-05:00"
-          }
+            "winRate": 49.78434996919285,
+            "wonGames": 808,
+            "matches": 1623,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+            "fetched_at": "2026-09-26T13:47:21-05:00"
+          },
+          "previous_tier": "S",
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "lt-belica",
@@ -43122,21 +43138,23 @@
         {
           "slug": "murdock",
           "role": "carry",
-          "tier": "B",
+          "tier": "C",
           "why": "Static Trap and Buckshot can buy firing space, while Long Arm of the Law converts a distant catch without abandoning the lane.",
-          "watch": "1.17 raised Shots Fired, Buckshot and Long Arm of the Law damage, which supports a practiced or matchup pick but not a default damage priority. Save Buckshot and traps for the diver.",
+          "watch": "1.17 raised Shots Fired, Buckshot and Long Arm of the Law damage, but his 1.17 carry results fell below his previous patch, so he is a comfort or matchup pick. Save Buckshot and traps for the diver.",
           "ability_keys": [
             "RMB",
             "Q",
             "R"
           ],
           "evidence": {
-            "winRate": 47.874306839186694,
-            "wonGames": 259,
-            "matches": 541,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-09-23T21:27:54-05:00"
-          }
+            "winRate": 44.39518682710576,
+            "wonGames": 701,
+            "matches": 1579,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+            "fetched_at": "2026-09-26T13:47:21-05:00"
+          },
+          "previous_tier": "B",
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "muriel",
@@ -43170,19 +43188,20 @@
             "R"
           ],
           "evidence": {
-            "winRate": 55.10948905109489,
-            "wonGames": 151,
-            "matches": 274,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
-            "fetched_at": "2026-09-23T21:27:56-05:00"
-          }
+            "winRate": 52.06124852767962,
+            "wonGames": 442,
+            "matches": 849,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+            "fetched_at": "2026-09-26T13:47:25-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "neon",
           "role": "midlane",
           "tier": "B",
           "why": "L.I.N.X and Final Thread offer a deliberate spell sequence, with Data Burst supporting the next empowered tool.",
-          "watch": "A practiced pick: correct sequencing and a saved Erase Vector are needed, and true and magical damage use different penetration. The early 1.17 rise has no kit change behind it.",
+          "watch": "A practiced pick: correct sequencing and a saved Erase Vector are needed, and true and magical damage use different penetration. Her early 1.17 rise faded toward even and has no kit change behind it.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -43190,12 +43209,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 55.60538116591928,
-            "wonGames": 124,
-            "matches": 223,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-09-23T21:27:53-05:00"
-          }
+            "winRate": 51.71467764060357,
+            "wonGames": 377,
+            "matches": 729,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-09-26T13:47:18-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "phase",
@@ -43222,7 +43242,7 @@
           "role": "jungle",
           "tier": "A",
           "why": "Boulder Throw creates an accessible catch and King of the Jungle supports the jungle route; Behemoth can extend frontline pressure.",
-          "watch": "The plan's Rock & Awe rewards long boulder throws, so land the catch from range before committing Pounce. Early 1.17 results dipped without a kit change; health does not guarantee uninterrupted target access.",
+          "watch": "The plan's Rock & Awe rewards long boulder throws, so land the catch from range before committing Pounce. His 1.17 results sit just under even without a kit change; health does not guarantee uninterrupted target access.",
           "ability_keys": [
             "Q",
             "RMB",
@@ -43230,12 +43250,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 46.835443037974684,
-            "wonGames": 111,
-            "matches": 237,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-23T21:27:49-05:00"
-          }
+            "winRate": 49.55070603337612,
+            "wonGames": 386,
+            "matches": 779,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-09-26T13:47:11-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "renna",
@@ -43249,12 +43270,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 47.65432098765432,
-            "wonGames": 193,
-            "matches": 405,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-09-23T21:27:53-05:00"
-          }
+            "winRate": 48.971518987341774,
+            "wonGames": 619,
+            "matches": 1264,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-09-26T13:47:18-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "revenant",
@@ -43306,12 +43328,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 46.23824451410658,
-            "wonGames": 295,
-            "matches": 638,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
-            "fetched_at": "2026-09-23T21:27:56-05:00"
-          }
+            "winRate": 48.41836734693877,
+            "wonGames": 949,
+            "matches": 1960,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+            "fetched_at": "2026-09-26T13:47:25-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "riktor",
@@ -43443,12 +43466,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 50.54945054945055,
-            "wonGames": 92,
-            "matches": 182,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 47.27272727272727,
+            "wonGames": 260,
+            "matches": 550,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-09-26T13:47:15-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "shinbi",
@@ -43483,12 +43507,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 54.65465465465466,
-            "wonGames": 182,
-            "matches": 333,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 50.92213114754098,
+            "wonGames": 497,
+            "matches": 976,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-09-26T13:47:15-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         },
         {
           "slug": "skylar",
@@ -43702,6 +43727,27 @@
           }
         },
         {
+          "slug": "valmont",
+          "role": "midlane",
+          "tier": "B",
+          "why": "Arterial Grip grounds and slows a bound target so Rupture and Bloodbound can land, and Exsanguinate's bats return health, far more when they hit heroes. The grounding bind also stops dashes such as Torn Space.",
+          "watch": "No dash: crowd control on Valmont, broken line of sight or distance breaks the bind, and Exsanguinate costs more mana each second it stays on, so toggle it off between fights. His Gold+ midlane results sit near even, so treat him as a practiced pick.",
+          "ability_keys": [
+            "RMB",
+            "Q",
+            "E",
+            "R"
+          ],
+          "evidence": {
+            "winRate": 50.369276218611525,
+            "wonGames": 682,
+            "matches": 1354,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-09-26T13:47:18-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
+        },
+        {
           "slug": "wraith",
           "role": "carry",
           "tier": "B",
@@ -43860,19 +43906,20 @@
           "role": "support",
           "tier": "B",
           "why": "Infuse heals a damaged ally, Ricochet can create a catch, and Neural Regenesis protects a planned fight.",
-          "watch": "1.17 raised Infuse's missing-health healing and shortened early Neural Regenesis cooldowns, but her previous-patch support results were below the leading enchanters. Do not treat the offlane damage plan as the support plan.",
+          "watch": "1.17 raised Infuse's missing-health healing and shortened early Neural Regenesis cooldowns, but her 1.17 support results sit just under even, below the leading enchanters. Do not treat the offlane damage plan as the support plan.",
           "ability_keys": [
             "RMB",
             "Q",
             "R"
           ],
           "evidence": {
-            "winRate": 51.48148148148148,
-            "wonGames": 139,
-            "matches": 270,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
-            "fetched_at": "2026-09-23T21:27:56-05:00"
-          }
+            "winRate": 48.97435897435897,
+            "wonGames": 382,
+            "matches": 780,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+            "fetched_at": "2026-09-26T13:47:25-05:00"
+          },
+          "rechecked_at": "2026-09-27T15:04:17-05:00"
         }
       ]
     },
@@ -66094,7 +66141,7 @@
       "reason": "The source differs from the 1.16 release description in the third-rank base damage and the flat empowered-hit damage. The explicit 1.16.1 target-health change is corrected, but the other discrepancies remain unverified."
     }
   ],
-  "revision": "2026-09-07-review-9-complete-coverage + meta-260 + builds-290 + strategy-2100 + jungle-2110 + damage-2120 + correction-properties-2160 + pair-sequences-2170 + strategy-synthesis-2180 + role-coverage-2215; September 14 strategy maintenance + build-patch-review-20260922 + strategy-117-2340",
+  "revision": "2026-09-07-review-9-complete-coverage + meta-260 + builds-290 + strategy-2100 + jungle-2110 + damage-2120 + correction-properties-2160 + pair-sequences-2170 + strategy-synthesis-2180 + role-coverage-2215; September 14 strategy maintenance + build-patch-review-20260922 + strategy-117-2340 + grade-recheck-20260927",
   "reviewed_definitions": [
     {
       "key": "frost-snap",

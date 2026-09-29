@@ -431,7 +431,8 @@
       const current=performance({slug,role},{source:'pred'}),sampleOK=!!current&&bundle.scoped_statistics?.status==='ok'&&!current.retained&&current.played>=100,active=patchOK&&cohortOK&&sampleOK;
       const moved=active&&current?.played>=500&&finite(row.evidence?.winRate)&&Math.abs(current.wr-row.evidence.winRate)>=3;
       return {...row,active:active&&!moved,tier:active&&!moved?row.tier:null,reviewed_tier:row.tier,current,
-        patch:review.patch,bracket:review.bracket_label,reviewed_at:review.reviewed_at,
+        // A rechecked entry carries its own date; the full review's date stays available.
+        patch:review.patch,bracket:review.bracket_label,reviewed_at:row.rechecked_at||review.reviewed_at,review_reviewed_at:review.reviewed_at,
         status:!patchOK?'Patch or guidance needs review':!cohortOK?'Review covers a different cohort':current?.retained?'Retained sample; refresh required to reassess this tier':!sampleOK?'Current role evidence unavailable or below 100 games':moved?'Statistics moved since review':'Dated editorial judgment',
         evidenceMoved:moved,limitedSample:!!current&&current.played<500,
         definition:review.tier_definitions?.[row.tier],method:review.method};

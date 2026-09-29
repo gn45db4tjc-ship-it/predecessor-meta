@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.41.1"
+VERSION = "2.41.2"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -4119,17 +4119,27 @@ def validate_guidance_packet(packet,bundle):
         if not isinstance(meta,dict) or meta.get('patch')!=packet['patch'] or meta.get('bracket') not in ('bronze','silver','gold','platinum','diamond','paragon') or not meta.get('bracket_label') or meta.get('mode')!='RANKED':raise ValueError('Meta review requires an exact patch and ranked bracket')
         if not meta.get('reviewed_at') or not meta.get('author') or not meta.get('method') or set(meta.get('tier_definitions',{}))!={'S','A','B','C'}:raise ValueError('Meta review requires its author, date, method and grade definitions')
         entries=meta.get('entries');seen=set();plans={(x.get('slug'),x.get('role')) for x in packet['guidance'].get('builds',[])}
+        # A new hero's reviewed plan can live in the dated patch supplement for the same patch (Valmont, 1.17).
+        supplement=patch_support.load() if patch_support.PATH.exists() else {}
+        packet_plans=set(plans)
+        if supplement.get('patch')==packet.get('patch'):plans|={(x.get('slug'),x.get('role')) for x in supplement.get('plans',[])}
         if not isinstance(entries,list) or not entries:raise ValueError('Meta review has no entries')
         for row in entries:
             identity=(row.get('slug'),row.get('role'))
             if identity in seen or identity not in plans or row.get('tier') not in ('S','A','B','C'):raise ValueError('Unknown or duplicate meta review hero/role/grade')
             seen.add(identity)
             if any(not isinstance(row.get(k),str) or not row[k].strip() for k in ('why','watch')) or not isinstance(row.get('ability_keys'),list) or not row['ability_keys']:raise ValueError('Meta review requires reasoning, conditions and named ability evidence')
-            if bundle and (identity[0] not in bundle.get('heroes',{}) or any(k not in [a['key'] for a in bundle['heroes'][identity[0]]['abilities']] for k in row['ability_keys'])):raise ValueError('Meta review ability evidence does not match hero')
+            # patch_support adds a supplement hero only on its verified patch; elsewhere its tier stays inert, not invalid.
+            if bundle and not (identity not in packet_plans and identity[0] not in bundle.get('heroes',{})) and (identity[0] not in bundle.get('heroes',{}) or any(k not in [a['key'] for a in bundle['heroes'][identity[0]]['abilities']] for k in row['ability_keys'])):raise ValueError('Meta review ability evidence does not match hero')
             e=row.get('evidence',{});n=_games(e.get('matches'));w=_games(e.get('wonGames'));rate=e.get('winRate')
             if n<100 or w>n or type(rate) not in (int,float) or not math.isfinite(rate) or abs(rate-100*w/n)>0.05:raise ValueError('Meta review needs a valid observed reference sample of at least 100 games')
             if not str(e.get('url','')).startswith('https://pred.gg/') or not e.get('fetched_at'):raise ValueError('Meta review reference sample requires its source and fetch date')
-            if set(row)-{'slug','role','tier','why','watch','ability_keys','evidence'}:raise ValueError('Unknown meta review entry fields')
+            if set(row)-{'slug','role','tier','why','watch','ability_keys','evidence','rechecked_at','previous_tier'}:raise ValueError('Unknown meta review entry fields')
+            if 'previous_tier' in row and ('rechecked_at' not in row or row['previous_tier'] not in ('S','A','B','C') or row['previous_tier']==row['tier']):raise ValueError('A previous grade needs a recheck and a different grade')
+            if 'rechecked_at' in row:
+                try:recheck,reviewed,fetched=(dt.datetime.fromisoformat(str(v).replace('Z','+00:00')) for v in (row['rechecked_at'],meta['reviewed_at'],e['fetched_at']))
+                except (TypeError,ValueError):recheck=None
+                if not recheck or not isinstance(row['rechecked_at'],str) or any(x.tzinfo is None for x in (recheck,reviewed,fetched)) or recheck<=reviewed or fetched>recheck:raise ValueError('A recheck needs a zoned date after the review and after its reference sample')
     official_prefix=OFFICIAL_ORIGIN+'/en-US/news/patch-notes/'
     def official_url(value):
         if not isinstance(value,str) or not value.startswith(official_prefix): return False

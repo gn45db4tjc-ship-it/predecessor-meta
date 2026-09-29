@@ -1,0 +1,1244 @@
+{
+ "schema": 1,
+ "title": "27 Sep 2026 grade recheck of the 2.34 1.17 strategy review",
+ "reviewed_at": "2026-09-27T15:04:17-05:00",
+ "reviewer": "Claude (Opus 5.5) editorial grade recheck",
+ "requested_by": "owner, 27 Sep 2026 (scheduled recheck reminder, answered yes)",
+ "scope": "21 grades flagged by the 2.34 review, added on 25 Sep, or withheld by the engine for \"Statistics moved since review\", plus a first grade for Baron Valmont midlane (applied after the owner approved on 27 Sep). The other 63 grades, hero notes other than the five role notes and the summary note, counters, adaptations, compositions and plans were not re-reviewed.",
+ "sources": {
+  "manifest": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/manifest.json",
+  "manifest_published_at": "2026-09-27T17:32:33+00:00",
+  "tool_version": "2.38.0",
+  "gold_bundle": "bundles/gold-c64f27bd475fc4dab8504cae7287e2abb2d5a67b776fc36cad40642641dc184a.json",
+  "gold_sha256": "c64f27bd475fc4dab8504cae7287e2abb2d5a67b776fc36cad40642641dc184a",
+  "bronze_bundle": "bundles/bronze-10a0205622520e1fe13bbc181ee2d3932dde1409270d6f908ef3cee31cc33abe.json",
+  "bronze_sha256": "10a0205622520e1fe13bbc181ee2d3932dde1409270d6f908ef3cee31cc33abe",
+  "pred_versions": [
+   "167",
+   "168"
+  ],
+  "official_live": "1.17",
+  "hotfixes": [
+   "1.17.1"
+  ]
+ },
+ "standard": "re-examined the 21 grades the review flagged or the engine withheld, and gave Baron Valmont midlane his first grade, against about five days of the whole 1.17 line (1.17 plus Hotfix 1.17.1). It kept the review's standard (a kit or patch reason with evidence pointing the same way; a high rate alone never raises a grade), and added one rule: a grade may drop one step without a kit reason when the whole-line 95% interval excludes the previous-patch review rate with at least 500 games and the games since the review point the same way. Rechecked entries show their own date and cite the rechecked sample.",
+ "entries": [
+  {
+   "slug": "kira",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "A",
+   "why": "Mercy and repeated attacks build Vengeance before Dusk; Shadow Glide offers a way to preserve space or follow a confirmed catch.",
+   "watch": "1.17 raised Mercy damage and Dusk now refunds mana on a kill, and her results since the review have risen with them. Purge is an exposed commitment that still needs control or peel, and the refund needs a kill.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "B to A. Kit reason: 1.17 raised Mercy base damage from 20/25/30/35/40 to 25/30/35/40/45 and physical power growth from 3.5 to 3.7 (base 54 to 53), and Dusk refunds 35% of its mana when it kills. At review the early evidence pointed the other way (45.1% over 412, 95% 40.4-50.0). It now agrees: the whole 1.17 line (1.17 plus Hotfix 1.17.1) is 50.9% over 1266 [48.2, 53.7], above the 1.16.4 review sample (48.6% over 5474), and the 854 games since the review ran 53.7% (two-proportion z about 2.9 against the review sample). The interval still includes 48.6%, so, as with Murdock's 2.34 raise, the move rests on the buffs with evidence consistent in direction. One step: A (strong alternative with a clear role) fits a follow-up carry; she stays below the S carries. Bronze+ 50.6% over 2431 is nested, not independent.",
+   "limitation": "The rise is concentrated in the days after the review; early-patch learning on a buffed hero is a plausible part of it. Her other roles are too small to use.",
+   "evidence": {
+    "winRate": 50.947867298578196,
+    "wonGames": 645,
+    "matches": 1266,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 50.95,
+     "matches": 1266,
+     "wonGames": 645,
+     "interval95": [
+      48.2,
+      53.69
+     ],
+     "fetched_at": "2026-09-26T13:47:21-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "bronze_nested": {
+     "winRate": 50.64,
+     "matches": 2431
+    },
+    "at_review": {
+     "winRate": 45.15,
+     "matches": 412,
+     "wonGames": 186,
+     "fetched_at": "2026-09-23T21:27:54-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "since_review": {
+     "winRate": 53.75,
+     "matches": 854,
+     "wonGames": 459,
+     "z_vs_review_sample": 2.87,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "legion",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "A",
+   "why": "Saturation Charge and Orbital Sanction offer area pressure alongside ranged attacks; the Scorched Earth plan adds napalm zones where mines, Frag Order and the beam land.",
+   "watch": "1.17 widened the rifle projectile, but his 1.17 carry results stayed near even, below the S carries. The ability-oriented plan converts an allied catch, and bonus attack speed becomes haste, not firing speed.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "R",
+    "Passive"
+   ],
+   "reason": "S to A. The 2.34 review named him the S carry most worth rechecking (48.6% over 529, 95% 44.4-52.8, against the 1.16.4 review sample 52.6% over 6656). The whole 1.17 line is 49.8% over 1623 [47.4, 52.2], an interval that now excludes the 1.16.4 rate, and the 1094 games since the review ran 50.4%, the same direction. His only 1.17 change, a 10% larger rifle hitbox, helps consistency but adds no damage, so nothing in the patch argues for keeping S. He is the lowest S carry (Drongo 52.2%, Eden 52.3%, Sparrow 51.4%) and below the A Revenant (54.1%). One step: his area-pressure job and the Scorched Earth plan are intact. Bronze+ 51.3% over 4235 is nested and higher.",
+   "limitation": "No kit change points down; the move rests on a larger sample confirming the early drop (the recheck's rule for a downward move without a kit reason). Bronze+ is higher. The hitbox effect on hit rate is unmeasured.",
+   "evidence": {
+    "winRate": 49.78434996919285,
+    "wonGames": 808,
+    "matches": 1623,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 49.78,
+     "matches": 1623,
+     "wonGames": 808,
+     "interval95": [
+      47.36,
+      52.21
+     ],
+     "fetched_at": "2026-09-26T13:47:21-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "bronze_nested": {
+     "winRate": 51.33,
+     "matches": 4235
+    },
+    "at_review": {
+     "winRate": 48.58,
+     "matches": 529,
+     "wonGames": 257,
+     "fetched_at": "2026-09-23T21:27:54-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "since_review": {
+     "winRate": 50.37,
+     "matches": 1094,
+     "wonGames": 551,
+     "z_vs_review_sample": 0.67,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "gideon",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "A",
+   "why": "Cosmic Rift supports lane pressure while Torn Space preserves positioning; Black Hole offers a clear conversion for jungle or support control.",
+   "watch": "1.17 trimmed Void Breach, Black Hole, Event Horizon and his mana scaling, and Hotfix 1.17.1 removed a Black Hole bug that favored him, so he is an A conversion pick for a coordinated team. A Ground effect now stops Torn Space, and interrupts land once the Truesilver shield breaks.",
+   "ability_keys": [
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "S to A. Kit reason: the 1.17 cuts (Cosmic Power 1% bonus max mana per 15 to per 20 magical power; Void Breach 100-260 to 90-250 and its cooldown scaling per 80 to per 100 max mana; Black Hole 520/780/1040 to 500/760/1020; Event Horizon 5% to 4%) plus Hotfix 1.17.1, which stopped Black Hole pulling enemies when its cast was interrupted, a bug that favored him. At review the evidence did not agree (51.6% over 595 against the 1.16.4 rate of 51.2% over 9581). It now does: the whole 1.17 line is 49.4% over 1739 [47.1, 51.7], and the 1144 games since the review ran 48.3%. Pred.gg lists the hotfix build from 24 Sep 10:00 UTC, about 7.5 hours after the review sample was collected, so nearly all of those games are after the fix. The interval still includes 51.2%, so the move rests on the kit and hotfix with evidence consistent in direction, the standard that moved Morigesh and Murdock in 2.34. Bronze+ 48.8% over 4121 is nested and agrees.",
+   "limitation": "The Pred.gg sample pools versions 167 and 168; the before/after-hotfix split is inferred from collection times, not queried per version. His Black Hole composition role is unchanged.",
+   "evidence": {
+    "winRate": 49.396204715353655,
+    "wonGames": 859,
+    "matches": 1739,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 49.4,
+     "matches": 1739,
+     "wonGames": 859,
+     "interval95": [
+      47.05,
+      51.74
+     ],
+     "fetched_at": "2026-09-26T13:47:18-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "bronze_nested": {
+     "winRate": 48.8,
+     "matches": 4121
+    },
+    "at_review": {
+     "winRate": 51.6,
+     "matches": 595,
+     "wonGames": 307,
+     "fetched_at": "2026-09-23T21:27:53-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "since_review": {
+     "winRate": 48.25,
+     "matches": 1144,
+     "wonGames": 552,
+     "z_vs_review_sample": -1.32,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "greystone",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "A",
+   "why": "Make Way and Sacred Oath create sustained lane pressure; Stone Forged Soul can extend the time he occupies frontline space.",
+   "watch": "1.17 lowered his base health and armor growth, and his 1.17 offlane results sit near even, so he is a strong lane-pressure option rather than the default. Buy real defense on time; personal survival is not allied peel, and the draft still needs a reliable catch.",
+   "ability_keys": [
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "S to A. Kit reason: official 1.17 base health 690 to 680 and armor growth 5.4 to 4.8. The evidence now points the same way: the whole 1.17 line is 50.3% over 1884 [48.0, 52.5], which excludes the 1.16.4 review rate (53.3% over 8824), and the 1248 games since the review ran 49.5%. At review the interval (47.9-55.6 over 636) still included 53.3%, so the nerf alone did not move him. A kit reason with evidence pointing the same way is the review's main standard (it moved Serath S to A). Bronze+ 52.3% over 4665 is nested and higher.",
+   "limitation": "Close call. The 2.34 limitation named 'a larger 1.17 sample below 50%' as the trigger; he is just above it (50.3%), and Bronze+ is higher. The move rests on the main standard, not on that trigger. The lane-pressure job is unchanged.",
+   "evidence": {
+    "winRate": 50.26539278131635,
+    "wonGames": 947,
+    "matches": 1884,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 50.27,
+     "matches": 1884,
+     "wonGames": 947,
+     "interval95": [
+      48.01,
+      52.52
+     ],
+     "fetched_at": "2026-09-26T13:47:15-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "bronze_nested": {
+     "winRate": 52.35,
+     "matches": 4665
+    },
+    "at_review": {
+     "winRate": 51.73,
+     "matches": 636,
+     "wonGames": 329,
+     "fetched_at": "2026-09-23T21:27:51-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "since_review": {
+     "winRate": 49.52,
+     "matches": 1248,
+     "wonGames": 618,
+     "z_vs_review_sample": -0.91,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "murdock",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "C",
+   "why": "Static Trap and Buckshot can buy firing space, while Long Arm of the Law converts a distant catch without abandoning the lane.",
+   "watch": "1.17 raised Shots Fired, Buckshot and Long Arm of the Law damage, but his 1.17 carry results fell below his previous patch, so he is a comfort or matchup pick. Save Buckshot and traps for the diver.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "R"
+   ],
+   "reason": "B back to C. The 2.34 raise rested on the three 1.17 buffs plus early results consistent in direction (47.9% over 541 against 46.2% over 5224 on 1.16.4). The second part has reversed: the whole 1.17 line is 44.4% over 1579 [42.0, 46.9], below his 1.16.4 rate, and the 1038 games since the review ran 42.6% (z about -2.0 against the review sample). A raise whose evidence no longer points the same way does not meet the standard, so the grade returns to the pre-review C. He is now the lowest carry (Skylar 45.5%, TwinBlast 48.8%). The interval still includes the 1.16.4 rate, so this reverses the raise; it is not a further drop. Bronze+ 47.0% over 3280 is nested and higher.",
+   "limitation": "The buffs are real and nothing in 1.17 explains the fall. It may reflect who picked him up after the buffs, which the data cannot separate.",
+   "evidence": {
+    "winRate": 44.39518682710576,
+    "wonGames": 701,
+    "matches": 1579,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 44.4,
+     "matches": 1579,
+     "wonGames": 701,
+     "interval95": [
+      41.96,
+      46.86
+     ],
+     "fetched_at": "2026-09-26T13:47:21-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "bronze_nested": {
+     "winRate": 47.04,
+     "matches": 3280
+    },
+    "at_review": {
+     "winRate": 47.87,
+     "matches": 541,
+     "wonGames": 259,
+     "fetched_at": "2026-09-23T21:27:54-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "since_review": {
+     "winRate": 42.58,
+     "matches": 1038,
+     "wonGames": 442,
+     "z_vs_review_sample": -2.01,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "valmont",
+   "role": "midlane",
+   "verdict": "new",
+   "old_tier": null,
+   "tier": "B",
+   "why": "Arterial Grip grounds and slows a bound target so Rupture and Bloodbound can land, and Exsanguinate's bats return health, far more when they hit heroes. The grounding bind also stops dashes such as Torn Space.",
+   "watch": "No dash: crowd control on Valmont, broken line of sight or distance breaks the bind, and Exsanguinate costs more mana each second it stays on, so toggle it off between fights. His Gold+ midlane results sit near even, so treat him as a practiced pick.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "New entry. 2.34 left him ungraded (44.1% over 354 Gold+ games after 1.5 days, heavily banned). Hotfix 1.17.1 fixed Sanguine Banquet's incorrect mana regeneration (direction not stated) and his passive description; the 24 Sep hotfix review found no reviewed Valmont advice depending on either. The whole 1.17 line is 50.4% over 1354 Gold+ midlane games [47.7, 53.0]; Bronze+ 53.3% over 3593 is nested. His job is a grounding, slowing bind that sets up spell follow-up and survives through Exsanguinate, with no escape. B (situational or practiced) fits a near-even new hero; the reviewed 2.32 plan is spell-focused and avoids the attack-speed text (Bloodbound, Arterial Grip) that the official launch notes and the current source still dispute. Not A: near-even results, no dash, and the midlane S and A options cover control and ranged pressure with fewer conditions. Not C: a large near-even sample and a distinct job (the only Ground source in the 1.17 kits).",
+   "limitation": "First grade on five days of a new hero's data; ban pressure and learning can still move it. The disputed attack-speed values are not used in the text. Applied after the owner approved on 27 Sep; the validator now also accepts a plan from the dated 1.17 supplement (patch-1.17.json), where his reviewed midlane plan lives.",
+   "evidence": {
+    "winRate": 50.369276218611525,
+    "wonGames": 682,
+    "matches": 1354,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 50.37,
+     "matches": 1354,
+     "wonGames": 682,
+     "interval95": [
+      47.71,
+      53.03
+     ],
+     "fetched_at": "2026-09-26T13:47:18-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "bronze_nested": {
+     "winRate": 53.3,
+     "matches": 3593
+    }
+   }
+  },
+  {
+   "slug": "kwang",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Judgement of the Heavens can tether a target for sword-centered follow-up; Light of the Heavens and Fury of the Heavens support repeated trades.",
+   "watch": "His 1.16.4 samples and his 1.17 jungle results sit below even, so treat him as a practiced sword-placement option. The Grounded sword-pickup fix is a reliability change, not a reason to promote him.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "R"
+   ],
+   "reason": "B retained. The 2.34 trigger for C was a larger Gold+ sample whose interval excludes the 1.16.4 review rate (48.9% over 2006). The whole 1.17 line is 47.4% over 559 [43.3, 51.6], which includes it, and the 364 games since the review ran 50.0%, so the early drop (42.6% over 195) has partly recovered. No kit reason points either way beyond the sword-pickup fix. Bronze+ 48.2% over 1036 is nested. Watch updated: it said the early 1.17 jungle result was lower still.",
+   "limitation": "Still below even; if the whole-line interval comes to exclude 48.9%, C remains the candidate.",
+   "evidence": {
+    "winRate": 47.40608228980322,
+    "wonGames": 265,
+    "matches": 559,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-26T13:47:11-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 47.41,
+     "matches": 559,
+     "wonGames": 265,
+     "interval95": [
+      43.3,
+      51.55
+     ],
+     "fetched_at": "2026-09-26T13:47:11-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "bronze_nested": {
+     "winRate": 48.17,
+     "matches": 1036
+    },
+    "at_review": {
+     "winRate": 42.56,
+     "matches": 195,
+     "wonGames": 83,
+     "fetched_at": "2026-09-23T21:27:49-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "since_review": {
+     "winRate": 50.0,
+     "matches": 364,
+     "wonGames": 182,
+     "z_vs_review_sample": 1.68,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "rampage",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "why": "Boulder Throw creates an accessible catch and King of the Jungle supports the jungle route; Behemoth can extend frontline pressure.",
+   "watch": "The plan's Rock & Awe rewards long boulder throws, so land the catch from range before committing Pounce. His 1.17 results sit just under even without a kit change; health does not guarantee uninterrupted target access.",
+   "ability_keys": [
+    "Q",
+    "RMB",
+    "R",
+    "Passive"
+   ],
+   "reason": "A retained. No 1.17 change to Rampage, his plan items or his Krix loadout. The whole 1.17 line is 49.6% over 779 [46.1, 53.1], which includes the 1.16.4 rate (51.5% over 4006), and the 542 games since the review ran 50.7%, so most of the early dip (46.8% over 237) did not persist. Bronze+ 49.3% over 1482 is nested.",
+   "limitation": "A at 49.6% is the lower edge of the jungle A group (Khaimera 53.0%, Yin 52.6%, Boris 51.5%).",
+   "evidence": {
+    "winRate": 49.55070603337612,
+    "wonGames": 386,
+    "matches": 779,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-26T13:47:11-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 49.55,
+     "matches": 779,
+     "wonGames": 386,
+     "interval95": [
+      46.05,
+      53.06
+     ],
+     "fetched_at": "2026-09-26T13:47:11-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "bronze_nested": {
+     "winRate": 49.26,
+     "matches": 1482
+    },
+    "at_review": {
+     "winRate": 46.84,
+     "matches": 237,
+     "wonGames": 111,
+     "fetched_at": "2026-09-23T21:27:49-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "since_review": {
+     "winRate": 50.74,
+     "matches": 542,
+     "wonGames": 275,
+     "z_vs_review_sample": 1.0,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "grim-exe",
+   "role": "carry",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Assault Mode and Pulsefire provide a magical basic-attack threat; Energy Shield can preserve a firing window against an important spell.",
+   "watch": "His 1.16.4 and 1.17 carry results sit below the leading carries; treat him as a practiced pick. Buy penetration for the magical damage he actually deals, and do not count the shield as a general escape.",
+   "ability_keys": [
+    "RMB",
+    "E",
+    "Passive"
+   ],
+   "reason": "B retained. The 2.34 trigger for C was a larger sample whose interval stays below the 1.16.4 rate (47.9% over 2142). The whole 1.17 line is 47.1% over 384 [42.2, 52.1], which includes it, and the 257 games since the review ran 50.6%; the early 40.2% over 127 was the low point. No 1.17 change to his kit. Bronze+ 47.7% over 1053 is nested. Watch updated: it said the early sample was lower still.",
+   "limitation": "384 games, still under the 500 the 3-point trigger needs.",
+   "evidence": {
+    "winRate": 47.135416666666664,
+    "wonGames": 181,
+    "matches": 384,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 47.14,
+     "matches": 384,
+     "wonGames": 181,
+     "interval95": [
+      42.2,
+      52.13
+     ],
+     "fetched_at": "2026-09-26T13:47:21-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "bronze_nested": {
+     "winRate": 47.67,
+     "matches": 1053
+    },
+    "at_review": {
+     "winRate": 40.16,
+     "matches": 127,
+     "wonGames": 51,
+     "fetched_at": "2026-09-23T21:27:54-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "since_review": {
+     "winRate": 50.58,
+     "matches": 257,
+     "wonGames": 130,
+     "z_vs_review_sample": 1.93,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "countess",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "why": "Shadow Slip and Blade Siphon support short trades; Feast converts a target after two ability hits apply Haemorrhage.",
+   "watch": "The Feast fix restored her conversion and her 1.17 offlane results recovered above even. Mark a safe Shadow Slip return point and apply Haemorrhage before Feast.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "R",
+    "Passive"
+   ],
+   "reason": "A retained. At review the kit reason (base attack speed 110 to 115; the Feast bug fix to 135/200/265) and the early results (45.7% over 138) pointed in opposite directions. The whole 1.17 line is 52.0% over 417 [47.3, 56.8], which includes the 1.16.4 rate (50.5% over 1447), and the 279 games since the review ran 55.2%, so they now agree. A stays: the offlane A group spans 49.9-54.8%, and S would rest on a small sample. Bronze+ 48.6% over 911 is nested and lower. Watch updated: it said her early results sat below her 1.16.4 reference.",
+   "limitation": "417 games.",
+   "evidence": {
+    "winRate": 52.038369304556355,
+    "wonGames": 217,
+    "matches": 417,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 52.04,
+     "matches": 417,
+     "wonGames": 217,
+     "interval95": [
+      47.25,
+      56.79
+     ],
+     "fetched_at": "2026-09-26T13:47:15-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "bronze_nested": {
+     "winRate": 48.63,
+     "matches": 911
+    },
+    "at_review": {
+     "winRate": 45.65,
+     "matches": 138,
+     "wonGames": 63,
+     "fetched_at": "2026-09-23T21:27:51-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "since_review": {
+     "winRate": 55.2,
+     "matches": 279,
+     "wonGames": 154,
+     "z_vs_review_sample": 1.84,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "riktor",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Riplash into Shock Therapy or Skewer creates a dangerous pick when allies are in range to follow.",
+   "watch": "The grade depends on landing Riplash. Keep an exit and a second peel tool after a miss, and stay near allies who can convert the pull.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "R"
+   ],
+   "reason": "B retained. No 1.17 change to Riktor. The whole 1.17 line is 48.4% over 1960 [46.2, 50.6], which includes the 1.16.4 rate (48.6% over 8327), and the 1322 games since the review ran 49.5%, so the fall the 2.34 review warned about did not develop. Bronze+ 49.3% over 3847 is nested.",
+   "limitation": "Below even; C only with a kit reason or a whole-line interval below 48.6%.",
+   "evidence": {
+    "winRate": 48.41836734693877,
+    "wonGames": 949,
+    "matches": 1960,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 48.42,
+     "matches": 1960,
+     "wonGames": 949,
+     "interval95": [
+      46.21,
+      50.63
+     ],
+     "fetched_at": "2026-09-26T13:47:25-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "bronze_nested": {
+     "winRate": 49.34,
+     "matches": 3847
+    },
+    "at_review": {
+     "winRate": 46.24,
+     "matches": 638,
+     "wonGames": 295,
+     "fetched_at": "2026-09-23T21:27:56-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "since_review": {
+     "winRate": 49.47,
+     "matches": 1322,
+     "wonGames": 654,
+     "z_vs_review_sample": 1.34,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "neon",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "L.I.N.X and Final Thread offer a deliberate spell sequence, with Data Burst supporting the next empowered tool.",
+   "watch": "A practiced pick: correct sequencing and a saved Erase Vector are needed, and true and magical damage use different penetration. Her early 1.17 rise faded toward even and has no kit change behind it.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "B retained. 2.34 set the condition for A: the rate holding once the sample was several times larger, with an explanation. It did not hold: 55.6% over 223 at review, 51.7% over 729 [48.1, 55.3] on the whole 1.17 line, and 50.0% over the 506 games since the review. The interval still sits just above the 1.16.4 rate (47.7% over 2854), but there is still no 1.17 change to Neon, RAM, Vesh or her core items, and a higher rate alone is not a reason to raise. Bronze+ 49.0% over 1388 is nested. The engine had withheld her for 'Statistics moved since review'; the reference sample is rebased.",
+   "limitation": "Head-to-head rows remain too small to explain her rate.",
+   "evidence": {
+    "winRate": 51.71467764060357,
+    "wonGames": 377,
+    "matches": 729,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 51.71,
+     "matches": 729,
+     "wonGames": 377,
+     "interval95": [
+      48.09,
+      55.32
+     ],
+     "fetched_at": "2026-09-26T13:47:18-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "bronze_nested": {
+     "winRate": 48.99,
+     "matches": 1388
+    },
+    "at_review": {
+     "winRate": 55.61,
+     "matches": 223,
+     "wonGames": 124,
+     "fetched_at": "2026-09-23T21:27:53-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "since_review": {
+     "winRate": 50.0,
+     "matches": 506,
+     "wonGames": 253,
+     "z_vs_review_sample": -1.4,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "zinx",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Infuse heals a damaged ally, Ricochet can create a catch, and Neural Regenesis protects a planned fight.",
+   "watch": "1.17 raised Infuse's missing-health healing and shortened early Neural Regenesis cooldowns, but her 1.17 support results sit just under even, below the leading enchanters. Do not treat the offlane damage plan as the support plan.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "R"
+   ],
+   "reason": "B retained. The 2.34 condition for A (the early 1.17 rise persisting) was not met: 51.5% over 270 at review, 49.0% over 780 [45.5, 52.5] on the whole 1.17 line, and 47.6% over the 510 games since the review. The Infuse and Neural Regenesis buffs stand, but the evidence no longer points up. Bronze+ 47.3% over 2336 is nested. She was withheld on 25 Sep (47.8% over 567) and was back inside 3 points by 26 Sep; the reference sample is rebased.",
+   "limitation": "The interval still includes her 1.16.4 rate (46.6% over 3484), so neither a raise nor a drop is supported.",
+   "evidence": {
+    "winRate": 48.97435897435897,
+    "wonGames": 382,
+    "matches": 780,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 48.97,
+     "matches": 780,
+     "wonGames": 382,
+     "interval95": [
+      45.48,
+      52.48
+     ],
+     "fetched_at": "2026-09-26T13:47:25-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "bronze_nested": {
+     "winRate": 47.26,
+     "matches": 2336
+    },
+    "at_review": {
+     "winRate": 51.48,
+     "matches": 270,
+     "wonGames": 139,
+     "fetched_at": "2026-09-23T21:27:56-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "since_review": {
+     "winRate": 47.65,
+     "matches": 510,
+     "wonGames": 243,
+     "z_vs_review_sample": -1.02,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "grux",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "why": "Smash 'n Grab creates a reachable target and Double Pain rewards continued contact; Warlord's Challenge helps punish a committed melee fight.",
+   "watch": "Offlane is the preferred role. A Ground effect now interrupts Stampede, and long-trade strength does not guarantee access to a ranged target; anti-heal and disengage can stop the plan.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "A retained. The whole 1.17 line is 51.8% over 1466 [49.2, 54.3], which includes the 1.16.4 rate (50.5% over 5571), and the 957 games since the review ran 53.4%. The 2.34 edge condition (A in doubt if 1.17 held below 50%) did not occur. His only 1.17 change, the Stampede Ground interrupt, cuts against him, so a higher rate alone does not justify S. Bronze+ 50.5% over 3166 is nested. The engine had withheld him for 'Statistics moved since review'; the reference sample is rebased.",
+   "limitation": "The rise has no kit reason behind it.",
+   "evidence": {
+    "winRate": 51.77353342428376,
+    "wonGames": 759,
+    "matches": 1466,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 51.77,
+     "matches": 1466,
+     "wonGames": 759,
+     "interval95": [
+      49.21,
+      54.32
+     ],
+     "fetched_at": "2026-09-26T13:47:15-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "bronze_nested": {
+     "winRate": 50.54,
+     "matches": 3166
+    },
+    "at_review": {
+     "winRate": 48.72,
+     "matches": 509,
+     "wonGames": 248,
+     "fetched_at": "2026-09-23T21:27:51-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "since_review": {
+     "winRate": 53.4,
+     "matches": 957,
+     "wonGames": 511,
+     "z_vs_review_sample": 1.7,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "aurora",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "why": "Glacial Charge, its Glacial Thorns root crystals and Hoarfrost give repeatable access, control and escape; Cryoseism can punish enemies gathering around an objective.",
+   "watch": "Jungle is the priority on current role evidence. Do not transfer that grade to offlane or support, and keep an exit after the first control cycle.",
+   "ability_keys": [
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "S retained. Only 1.17 change: Shatter's on-hit magical scaling 30% to 25%, minor for her control-first plan. The whole 1.17 line is 54.3% over 951 [51.1, 57.4] against 54.1% on 1.16.4; the 637 games since the review ran 53.4%. She was near the 3-point withhold line on 25 Sep; the reference sample is rebased. Bronze+ 54.6% over 2143 is nested.",
+   "limitation": "None beyond the usual: Bronze+ is not independent of Gold+.",
+   "evidence": {
+    "winRate": 54.25867507886435,
+    "wonGames": 516,
+    "matches": 951,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-26T13:47:11-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 54.26,
+     "matches": 951,
+     "wonGames": 516,
+     "interval95": [
+      51.08,
+      57.4
+     ],
+     "fetched_at": "2026-09-26T13:47:11-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "bronze_nested": {
+     "winRate": 54.6,
+     "matches": 2143
+    },
+    "at_review": {
+     "winRate": 56.05,
+     "matches": 314,
+     "wonGames": 176,
+     "fetched_at": "2026-09-23T21:27:49-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "since_review": {
+     "winRate": 53.38,
+     "matches": 637,
+     "wonGames": 340,
+     "z_vs_review_sample": -0.78,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "narbash",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "why": "Song Of My People and March! reward a team that moves together; Thunk supplies a catch before Crash Bang Boom! layers pressure.",
+   "watch": "Grouped sustain, March movement and a direct Thunk catch make him a priority for a team that actually stays in range. Hold the ultimate until interruption can be covered.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "S retained. No official 1.17 change. The whole 1.17 line is 52.1% over 849 [48.7, 55.4], which includes the 1.16.4 rate (52.6% over 3617); the early 55.1% over 274 fell back, and the 575 games since the review ran 50.6%. The grouped-fight job and a steady previous-patch sample support S. Bronze+ 50.8% over 1907 is nested. The engine had withheld him for 'Statistics moved since review'; the reference sample is rebased.",
+   "limitation": "Games since the review are near even; the Crash Bang Boom! per-hit text change is still not in the official notes.",
+   "evidence": {
+    "winRate": 52.06124852767962,
+    "wonGames": 442,
+    "matches": 849,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 52.06,
+     "matches": 849,
+     "wonGames": 442,
+     "interval95": [
+      48.7,
+      55.4
+     ],
+     "fetched_at": "2026-09-26T13:47:25-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "bronze_nested": {
+     "winRate": 50.76,
+     "matches": 1907
+    },
+    "at_review": {
+     "winRate": 55.11,
+     "matches": 274,
+     "wonGames": 151,
+     "fetched_at": "2026-09-23T21:27:56-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "since_review": {
+     "winRate": 50.61,
+     "matches": 575,
+     "wonGames": 291,
+     "z_vs_review_sample": -1.23,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "renna",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Soulfire and Stupor support wave pressure and catch conversion; Abyssal Rift gives a prepared team a sustained follow-up window.",
+   "watch": "The current sample does not support an automatic top-tier claim. Protect farming and the channel, and avoid collecting Essence through an exposed route.",
+   "ability_keys": [
+    "RMB",
+    "E",
+    "R"
+   ],
+   "reason": "B retained. No 1.17 change. The whole 1.17 line is 49.0% over 1264 [46.2, 51.7], which includes the 1.16.4 rate (50.1% over 6204); the 859 games since the review ran 49.6%. Bronze+ 48.4% over 3085 is nested. Near the withhold line on 25 Sep; the reference sample is rebased.",
+   "limitation": "None new.",
+   "evidence": {
+    "winRate": 48.971518987341774,
+    "wonGames": 619,
+    "matches": 1264,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 48.97,
+     "matches": 1264,
+     "wonGames": 619,
+     "interval95": [
+      46.22,
+      51.73
+     ],
+     "fetched_at": "2026-09-26T13:47:18-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "bronze_nested": {
+     "winRate": 48.43,
+     "matches": 3085
+    },
+    "at_review": {
+     "winRate": 47.65,
+     "matches": 405,
+     "wonGames": 193,
+     "fetched_at": "2026-09-23T21:27:53-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "since_review": {
+     "winRate": 49.59,
+     "matches": 859,
+     "wonGames": 426,
+     "z_vs_review_sample": 0.64,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "drongo",
+   "role": "carry",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "why": "Gag Grenade can deny a response while Rad Rounds supplies a damage window; Shrapnel Cannon adds armor shred and escape utility.",
+   "watch": "Keep a target in attack range. The airborne blast can displace enemies away from allies, and utility does not remove the need for a carry damage curve.",
+   "ability_keys": [
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "S retained. No 1.17 change. The whole 1.17 line is 52.2% over 1922 [50.0, 54.5], which includes the 1.16.4 rate (50.7% over 9600); the 1271 games since the review ran 51.4%. Still the steadiest large carry sample. Bronze+ 51.6% over 4002 is nested. Near the withhold line on 25 Sep; the reference sample is rebased.",
+   "limitation": "None new.",
+   "evidence": {
+    "winRate": 52.2372528616025,
+    "wonGames": 1004,
+    "matches": 1922,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 52.24,
+     "matches": 1922,
+     "wonGames": 1004,
+     "interval95": [
+      50.0,
+      54.46
+     ],
+     "fetched_at": "2026-09-26T13:47:21-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "bronze_nested": {
+     "winRate": 51.62,
+     "matches": 4002
+    },
+    "at_review": {
+     "winRate": 53.92,
+     "matches": 651,
+     "wonGames": 351,
+     "fetched_at": "2026-09-23T21:27:54-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "since_review": {
+     "winRate": 51.38,
+     "matches": 1271,
+     "wonGames": 653,
+     "z_vs_review_sample": -1.06,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "dekker",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Control and projectile accuracy can still buy valuable attack time, but the dated Gold+ sample does not support default A priority. Choose for the needed fence and peel tools rather than treating kit fit as demonstrated pair success.",
+   "watch": "This grade values control despite below-even role results on both patches. Missed skill shots and poor fence timing reduce the benefit substantially.",
+   "ability_keys": [
+    "RMB",
+    "E",
+    "R"
+   ],
+   "reason": "B retained, flagged. No 1.17 change to Dekker. The whole 1.17 line is 45.9% over 1516 [43.4, 48.4]; the interval includes the 1.16.4 rate (47.7% over 6252) by 0.7 points, and the 1030 games since the review ran 44.5%. The evidence points down, but with no kit reason and an interval that does not exclude the previous rate, the recheck's rule for a drop is not met. Bronze+ 47.9% over 3698 is nested. The engine had withheld him for 'Statistics moved since review'; the reference sample is rebased. Watch updated: 'slightly negative' understated his results.",
+   "limitation": "The lowest support result on 1.17. If the whole-line interval falls below 47.7%, C is justified without a kit reason, by the rule applied to Legion.",
+   "evidence": {
+    "winRate": 45.91029023746702,
+    "wonGames": 696,
+    "matches": 1516,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 45.91,
+     "matches": 1516,
+     "wonGames": 696,
+     "interval95": [
+      43.42,
+      48.43
+     ],
+     "fetched_at": "2026-09-26T13:47:25-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "bronze_nested": {
+     "winRate": 47.94,
+     "matches": 3698
+    },
+    "at_review": {
+     "winRate": 48.97,
+     "matches": 486,
+     "wonGames": 238,
+     "fetched_at": "2026-09-23T21:27:56-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT"
+    },
+    "since_review": {
+     "winRate": 44.47,
+     "matches": 1030,
+     "wonGames": 458,
+     "z_vs_review_sample": -1.64,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "howitzer",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "why": "R2000 Missile supports ranged pressure and Land Mine can protect an angle; Make It Rain follows a held target with an aimed barrage.",
+   "watch": "Track the target throughout the ultimate. Movement during the barrage is not immunity, and a poorly aimed mine can spoil allied follow-up.",
+   "ability_keys": [
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "A retained. No 1.17 change. The whole 1.17 line is 51.6% over 601 [47.6, 55.6], which includes the 1.16.4 rate (51.2% over 2816); the early 56.2% over 203 faded, and the 398 games since the review ran 49.2%. Bronze+ 47.8% over 1218 is nested. The engine had withheld him for 'Statistics moved since review'; the reference sample is rebased.",
+   "limitation": "601 games.",
+   "evidence": {
+    "winRate": 51.58069883527454,
+    "wonGames": 310,
+    "matches": 601,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 51.58,
+     "matches": 601,
+     "wonGames": 310,
+     "interval95": [
+      47.59,
+      55.55
+     ],
+     "fetched_at": "2026-09-26T13:47:18-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "bronze_nested": {
+     "winRate": 47.78,
+     "matches": 1218
+    },
+    "at_review": {
+     "winRate": 56.16,
+     "matches": 203,
+     "wonGames": 114,
+     "fetched_at": "2026-09-23T21:27:53-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "since_review": {
+     "winRate": 49.25,
+     "matches": 398,
+     "wonGames": 196,
+     "z_vs_review_sample": -1.6,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "sevarog",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "why": "Siphon and Reaper of Souls support a scaling frontline; Subjugate can hold a target for allies as durability develops.",
+   "watch": "Protect the early stacking route; Souls need ability kills. Colossal Blow must not eject the target from allied damage.",
+   "ability_keys": [
+    "Q",
+    "E",
+    "R",
+    "Passive"
+   ],
+   "reason": "B retained. No 1.17 change. The whole 1.17 line is 47.3% over 550 [43.1, 51.5], which includes the 1.16.4 rate (48.1% over 2362); the 368 games since the review ran 45.7%. Bronze+ 47.8% over 1086 is nested. The engine had withheld him for 'Statistics moved since review'; the reference sample is rebased.",
+   "limitation": "Below even with no kit reason; C only if the whole-line interval comes to exclude 48.1%.",
+   "evidence": {
+    "winRate": 47.27272727272727,
+    "wonGames": 260,
+    "matches": 550,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 47.27,
+     "matches": 550,
+     "wonGames": 260,
+     "interval95": [
+      43.13,
+      51.45
+     ],
+     "fetched_at": "2026-09-26T13:47:15-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "bronze_nested": {
+     "winRate": 47.79,
+     "matches": 1086
+    },
+    "at_review": {
+     "winRate": 50.55,
+     "matches": 182,
+     "wonGames": 92,
+     "fetched_at": "2026-09-23T21:27:51-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "since_review": {
+     "winRate": 45.65,
+     "matches": 368,
+     "wonGames": 168,
+     "z_vs_review_sample": -1.08,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  },
+  {
+   "slug": "shinbi",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "why": "Line Tempo and Circle Rhythm support repeated trades before All-Kill! converts accumulated pressure; Rushing Beat helps choose the exit.",
+   "watch": "Offlane is the more established option. She is a damage threat rather than the default damage sponge, and the jungle sample is relatively small.",
+   "ability_keys": [
+    "RMB",
+    "Q",
+    "E",
+    "R"
+   ],
+   "reason": "A retained. No 1.17 change. The whole 1.17 line is 50.9% over 976 [47.8, 54.1], which includes the 1.16.4 rate (50.1% over 3744); the early 54.7% over 333 faded, and the 643 games since the review ran 49.0%. Bronze+ 51.1% over 1963 is nested. The engine had withheld her for 'Statistics moved since review'; the reference sample is rebased.",
+   "limitation": "None new.",
+   "evidence": {
+    "winRate": 50.92213114754098,
+    "wonGames": 497,
+    "matches": 976,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 50.92,
+     "matches": 976,
+     "wonGames": 497,
+     "interval95": [
+      47.79,
+      54.05
+     ],
+     "fetched_at": "2026-09-26T13:47:15-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "bronze_nested": {
+     "winRate": 51.1,
+     "matches": 1963
+    },
+    "at_review": {
+     "winRate": 54.65,
+     "matches": 333,
+     "wonGames": 182,
+     "fetched_at": "2026-09-23T21:27:51-05:00",
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "since_review": {
+     "winRate": 48.99,
+     "matches": 643,
+     "wonGames": 315,
+     "z_vs_review_sample": -1.68,
+     "note": "Difference between the whole-line sample and the review sample; assumes the review sample is contained in the whole line."
+    }
+   }
+  }
+ ],
+ "pools": {
+  "midlane": {
+   "from": [
+    "lt-belica",
+    "gideon",
+    "the-fey",
+    "argus"
+   ],
+   "to": [
+    "lt-belica",
+    "the-fey",
+    "gideon",
+    "argus"
+   ],
+   "reason": "Gideon moved S to A; the two S mids lead."
+  },
+  "offlane": {
+   "from": [
+    "greystone",
+    "akeron",
+    "grux",
+    "shinbi"
+   ],
+   "to": [
+    "grux",
+    "greystone",
+    "akeron",
+    "shinbi"
+   ],
+   "reason": "Greystone moved S to A, and no pool leads with a hero the review moved down. Grux (A, 51.8% over 1466, the largest above-even sample among the pool heroes) leads as the fight-starting melee frontline; Greystone stays second for lane pressure."
+  }
+ }
+}

@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.41.1
+# Predecessor Meta - 2.41.2
 
-In the Windows app's phone layout, Quit keeps its own width instead of stretching beside Refresh, so the rank select gets the space. The reported unreadable rank select (57 px on 2.36.1) was already fixed by 2.37.0 and is now guarded by a test. The local-mode test suite no longer waits for a phone Export that has been desktop-only since 2.37.0. See [RELEASE-2.41.1.md](RELEASE-2.41.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Five Gold+ grades moved in a recheck of the 1.17 review against five days of data: Kira carry to A; Legion, Gideon and Greystone from S to A; Murdock back to C. Valmont gets his first grade, midlane B. Sixteen others were retained and show again where they were withheld, and each rechecked tier shows both its review and recheck dates. See [RELEASE-2.41.2.md](RELEASE-2.41.2.md).
 
 ## Previous release
+
+### 2.41.1
+
+In the Windows app's phone layout, Quit keeps its own width instead of stretching beside Refresh, so the rank select gets the space. The reported unreadable rank select (57 px on 2.36.1) was already fixed by 2.37.0 and is now guarded by a test. The local-mode test suite no longer waits for a phone Export that has been desktop-only since 2.37.0. See [RELEASE-2.41.1.md](RELEASE-2.41.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.41.0
 
