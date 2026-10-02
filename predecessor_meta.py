@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.44.0"
+VERSION = "2.45.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"

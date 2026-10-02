@@ -222,6 +222,7 @@
  .mobile-hero-card .hero-cell .name{font-weight:750;line-height:1.2;letter-spacing:-.3px}
  .mobile-stat strong{font-family:var(--sans);font-size:var(--tr-lg);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
  .mobile-hero-card .mobile-stat{max-width:120px}
+ .hero-context .calculated-tier,.hero-context [data-meta-decision]{display:inline-flex;align-items:center;gap:var(--s1-5);min-height:44px;padding:0 var(--s1);border-color:transparent;vertical-align:middle}
  .mobile-hero-head{padding:var(--s3);grid-template-columns:52px minmax(0,1fr);gap:var(--s3);margin:var(--s2) 0;background:var(--hero-wash)}
  .mobile-hero-head .portrait{width:52px;height:64px;border-radius:var(--radius-md)}
  .mobile-hero-head h1{font-size:var(--tr-xl);font-weight:800;letter-spacing:-.5px;margin:0 0 var(--s1)}
@@ -318,6 +319,7 @@
  .ready-chip{grid-column:2;justify-self:start;align-self:start}
  .mobile-hero-card .mobile-stat{max-width:none;justify-items:end;text-align:right}
  .mobile-hero-card .mobile-stat small{line-height:1.35}
+ .mobile-stat .tier-kind{display:block}   /* 2.45.0: "Calculated" heads the sample line of a calculated tier */
  .large-text .mobile-hero-card{grid-template-columns:minmax(0,1fr);min-height:0}
  .large-text .mobile-hero-card .mobile-stat{justify-items:start;text-align:left}
  /* Rec 2: required failures amber, optional-source limitations neutral; compact chip away from Meta. */

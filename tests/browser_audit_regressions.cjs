@@ -246,7 +246,7 @@ const probes = {
     const {context, page} = await session(browser, phone);
     await page.evaluate(() => { B = {...B, scoped_statistics: {...B.scoped_statistics, status: 'retained'}}; E = MetaEngine.create(B); S.bracket = 'gold'; changeRoute('builds'); changeRoute('meta'); });
     const text = await page.locator('#main').innerText();
-    verdict('C4', !(/Editorial tiers are paused for this role/i.test(text) && /ordered by role performance/i.test(text)), {excerpt: (text.match(/Editorial tiers[^\n]*/) || [''])[0].slice(0, 170)});
+    verdict('C4', !(/Editorial tiers are paused for this role/i.test(text) && /ordered by (calculated tier, then )?role performance/i.test(text)), {excerpt: (text.match(/Editorial tiers[^\n]*/) || [''])[0].slice(0, 170)});
     await context.close();
   },
   /* Second review round. */
@@ -1450,7 +1450,7 @@ const probes = {
         const original = E.metaReview;
         E.metaReview = (s, r) => ({...(original(s, r) || {tier: 'A', reviewed_tier: 'A'}), active: false, status: 'Retained sample; refresh required to reassess this tier'});
         render();
-        const head = document.querySelector('.mobile-hero-head'), button = head?.querySelector('[data-meta-decision]'), row = button?.parentElement;
+        const head = document.querySelector('.mobile-hero-head'), button = head?.querySelector('[data-meta-decision],[data-calculated-tier]'), row = button?.parentElement;   // 2.45.0: a withheld grade shows its calculated fallback
         if (!head || !button) return {missing: true};
         const split = [];
         for (const node of [...button.querySelectorAll('*'), button].flatMap(el => [...el.childNodes].filter(n => n.nodeType === 3))) {
@@ -3396,16 +3396,16 @@ probes.FR1 = async browser => {
 };
 /* Freshness Phase 3 (2.45.0): every rank shows an engine-calculated tier, labeled Calculated (docs/CALCULATED-TIERS.md).
    The seed preview holds Gold+ only; CT1 relabels it as Silver+ in the page, the way a Silver+ publication arrives. */
-const asSilver = () => { B = {...B, bracket: {...B.bracket, segment: 'silver', label: 'Silver+'}, scoped_statistics: {...B.scoped_statistics, bracket_label: 'Silver+'}}; E = MetaEngine.create(B); S.bracket = 'silver'; S.role = 'jungle'; };
+const asSilver = () => { B = {...B, bracket: {...B.bracket, segment: 'silver', label: 'Silver+'}, scoped_statistics: {...B.scoped_statistics, bracket_label: 'Silver+'}}; E = MetaEngine.create(B); S.role = 'jungle'; };   // S.bracket stays: the seed publishes no Silver+ file to switch to
 probes.CT1 = async browser => {
   // Before: a rank without a reviewed tier review showed no tier at all ("No reviewed tier for Silver+").
   const seen = {};
   {
     const {context, page} = await session(browser, desktop);
     Object.assign(seen, await page.evaluate(`(${asSilver})(); S.sort = 'tier'; changeRoute('builds'); changeRoute('meta');
-      ({desktopHeader: [...document.querySelectorAll('.meta-table th')].map(t => t.innerText.trim()), desktopCells: document.querySelectorAll('.meta-table [data-calculated-tier]').length})`));
-    const button = page.locator('.meta-table [data-calculated-tier]').first();
-    if (await button.count()) { await button.click(); seen.dialog = (await page.locator('#detail-body').innerText()).replace(/\s+/g, ' ').slice(0, 400); }
+      document.querySelector('.meta-table [data-calculated-tier]')?.click();   // in the same task: a later guide merge redraws the real bundle
+      ({desktopHeader: [...document.querySelectorAll('.meta-table th')].map(t => t.innerText.trim()), desktopCells: document.querySelectorAll('.meta-table [data-calculated-tier]').length,
+        dialog: document.querySelector('#detail').open ? document.querySelector('#detail-body').innerText.slice(0, 400) : ''})`));
     await context.close();
   }
   {
@@ -3414,7 +3414,7 @@ probes.CT1 = async browser => {
       ({phoneRows: [...document.querySelectorAll('#mobile-all-list .mobile-hero-card')].filter(c => c.querySelector('.tier') && /Calculated/.test(c.innerText)).length})`));
     await context.close();
   }
-  const shown = seen.desktopHeader?.some(h => /Calculated tier/.test(h)) && seen.desktopCells > 0 && /Calculated tier [SABCD] · Silver\+/.test(seen.dialog || '') && /games/.test(seen.dialog || '') && seen.phoneRows > 0;
+  const shown = seen.desktopHeader?.some(h => /Calculated tier/i.test(h)) && seen.desktopCells > 0 && /Calculated tier [SABCD] · Silver\+/.test(seen.dialog || '') && /games/.test(seen.dialog || '') && seen.phoneRows > 0;
   verdict('CT1', !shown, seen);
 };
 probes.CT2 = async browser => {
