@@ -3394,6 +3394,48 @@ probes.FR1 = async browser => {
   await context.close();
   verdict('FR1', onReturn === 0 || openTab === 0, {onReturn, openTab});
 };
+/* Freshness Phase 3 (2.45.0): every rank shows an engine-calculated tier, labeled Calculated (docs/CALCULATED-TIERS.md).
+   The seed preview holds Gold+ only; CT1 relabels it as Silver+ in the page, the way a Silver+ publication arrives. */
+const asSilver = () => { B = {...B, bracket: {...B.bracket, segment: 'silver', label: 'Silver+'}, scoped_statistics: {...B.scoped_statistics, bracket_label: 'Silver+'}}; E = MetaEngine.create(B); S.bracket = 'silver'; S.role = 'jungle'; };
+probes.CT1 = async browser => {
+  // Before: a rank without a reviewed tier review showed no tier at all ("No reviewed tier for Silver+").
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktop);
+    Object.assign(seen, await page.evaluate(`(${asSilver})(); S.sort = 'tier'; changeRoute('builds'); changeRoute('meta');
+      ({desktopHeader: [...document.querySelectorAll('.meta-table th')].map(t => t.innerText.trim()), desktopCells: document.querySelectorAll('.meta-table [data-calculated-tier]').length})`));
+    const button = page.locator('.meta-table [data-calculated-tier]').first();
+    if (await button.count()) { await button.click(); seen.dialog = (await page.locator('#detail-body').innerText()).replace(/\s+/g, ' ').slice(0, 400); }
+    await context.close();
+  }
+  {
+    const {context, page} = await session(browser, phone);
+    Object.assign(seen, await page.evaluate(`(${asSilver})(); companionPrefs.homeQuery = ''; changeRoute('builds'); changeRoute('meta');
+      ({phoneRows: [...document.querySelectorAll('#mobile-all-list .mobile-hero-card')].filter(c => c.querySelector('.tier') && /Calculated/.test(c.innerText)).length})`));
+    await context.close();
+  }
+  const shown = seen.desktopHeader?.some(h => /Calculated tier/.test(h)) && seen.desktopCells > 0 && /Calculated tier [SABCD] · Silver\+/.test(seen.dialog || '') && /games/.test(seen.dialog || '') && seen.phoneRows > 0;
+  verdict('CT1', !shown, seen);
+};
+probes.CT2 = async browser => {
+  // Before: on Gold+ a withheld reviewed grade left its row with "Tier review pending" and no tier.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => {
+    const entry = B.guidance.meta_review.entries.find(r => r.role === 'jungle' && E.metaReview(r.slug, r.role)?.active && E.performance({slug: r.slug, role: r.role}, {source: 'pred'})?.played >= 500);
+    if (!entry) return {setup: false};
+    // The observed role rate moves 4 points from the reviewed sample: the grade is withheld until it is rechecked.
+    const move = list => list.map(r => r.slug === entry.slug && r.role === entry.role ? {...r, winRate: entry.evidence.winRate + 4, wonGames: Math.round(r.matches * (entry.evidence.winRate + 4) / 100)} : r);
+    const c = B.scoped_statistics, roles = {...c.roles, jungle: {...c.roles.jungle, rows: move(c.roles.jungle.rows)}};
+    B = {...B, scoped_statistics: {...c, rows: move(c.rows), roles}}; E = MetaEngine.create(B);
+    S.role = 'jungle'; S.sort = 'tier'; changeRoute('builds'); changeRoute('meta');
+    const cell = document.querySelector('.meta-table [data-hero="' + entry.slug + '"]')?.closest('tr')?.children[1];
+    return {setup: !E.metaReview(entry.slug, 'jungle').active && !!E.calculatedTier(entry.slug, 'jungle').tier, slug: entry.slug,
+      cell: (cell?.innerText || '').replace(/\s+/g, ' '), calculated: !!cell?.querySelector('[data-calculated-tier] .tier')};
+  });
+  await context.close();
+  assert.ok(seen.setup, 'probe setup: a withheld Gold+ grade with a calculated tier');
+  verdict('CT2', !(seen.calculated && /Calculated/.test(seen.cell) && /recheck queued/.test(seen.cell)), seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
