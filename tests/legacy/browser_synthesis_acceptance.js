@@ -36,7 +36,7 @@
  click('[data-route="live"]');click('#clear-locks');click('#clear-enemies');
  select('[data-slot="allies"][data-slot-role="jungle"]','serath');select('#me-hero','serath');
  if(E.buildReview('serath','jungle')?.active)assert(document.querySelector('#main').textContent.includes(E.plannedBuild('serath','jungle').eternal),'Live uses the reviewed Serath Eternal');
- else assert(document.querySelector('#main').innerText.includes('The reviewed build is needs review'),'Live withholds the unreviewed Serath plan');
+ else assert(document.querySelector('#main').innerText.includes('The reviewed build needs review'),'Live withholds the unreviewed Serath plan');
  select('[data-slot="enemies"][data-slot-role="midlane"]','gideon');
  const enemy=[...document.querySelectorAll('#main summary')].find(s=>s.textContent==='Reviewed enemy counterplay');enemy.click();
  const gideon=E.heroStrategy('gideon'),box=enemy.parentElement,dated=[...box.querySelectorAll('summary')].find(s=>s.textContent.startsWith('Previous tactical guidance fallback'));

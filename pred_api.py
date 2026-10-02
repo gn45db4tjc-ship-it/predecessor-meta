@@ -1,4 +1,6 @@
-"""Pred.gg GraphQL API client, prepared ahead of API access (26 Sep 2026). NOT wired into collection yet.
+"""Pred.gg GraphQL API client, prepared ahead of API access (26 Sep 2026). Wired into collection through
+predecessor_meta.pred_source_fetch, which falls back to public pages on any API error; inert until PRED_API_* secrets
+are set (none are, as of 2 Oct 2026).
 
 Why: the website's Pred.gg sample currently comes only from the Windows collector, which reads Pred.gg's public pages.
 The cloud collector cannot, so the reviewed tiers depend on Will's PC being on. Will has asked Pred.gg (Omeda City

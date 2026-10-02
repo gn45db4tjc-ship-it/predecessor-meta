@@ -8,6 +8,15 @@
   const mean = xs => { const a = xs.filter(finite); return a.length ? a.reduce((s,x)=>s+x,0)/a.length : null; };
   const key = (a,b) => [a,b].sort().join('|');
   const cap = (h,c) => (h?.capabilities || []).includes(c);
+  // 2.42.0: an inactive reviewed build is explained in a sentence, never "The reviewed build is <status>."
+  function reviewReason(status) {
+    const s = String(status || ''), unresolved = s.match(/^review unresolved: (.+)$/);
+    if (unresolved) return 'The reviewed build has an unresolved review: ' + unresolved[1].replace(/\.+$/, '') + '.';
+    return ({'needs review': 'The reviewed build needs review for the current patch.',
+      'supporting mechanics changed; needs review': 'The reviewed build needs review: its supporting mechanics changed.',
+      'item metadata unavailable': 'The reviewed build cannot be checked: its item details are unavailable.',
+      'incompatible blessing tree': 'The reviewed build uses blessings from an incompatible tree.'})[s] || 'The reviewed build is not active (' + s + ').';
+  }
   function create(bundle) {
     const heroes = bundle?.heroes || {}, fitCache = new Map(), plannedKitCache=new Map(), heroIds=new Map(Object.entries(bundle?.heroes||{}).map(([slug,h])=>[h,slug]));
     const pairMap = Array.isArray(bundle?.pairs) ? Object.fromEntries(bundle.pairs.map(p=>[key(p.a,p.b),p])) : bundle?.pairs || {};
@@ -1043,7 +1052,7 @@
       const expectedCore=baseline.filter(n=>(variant!==null?L.plan.core:review?.core)?.includes(n)&&!L.owned.some(o=>NK(o)===NK(n)));
       const lostCore=expectedCore.some(n=>!L.slots.some(s=>NK(s.name)===NK(n)));
       const available=!unavailable&&!lostCore;
-      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?'The reviewed build is '+review.status+'.':adaptationPending?(adaptation.reason||'The starting build is patch-reviewed. Automatic match adaptations still need a current-patch kit and item review; inspect the reviewed alternatives on the build page.'):loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
+      const reason=!review?'No reviewed build exists for this hero and role.':!review.active?reviewReason(review.status):adaptationPending?(adaptation.reason||'The starting build is patch-reviewed. Automatic match adaptations still need a current-patch kit and item review; inspect the reviewed alternatives on the build page.'):loadoutMismatch?'Your selected augment or Eternal differs from the reviewed setup. The original selection is retained; automatic adaptation needs a mechanics review for this loadout.':lostCore?'Your entered inventory leaves insufficient slots for the reviewed core. Inspect your purchases; no sale is suggested.':unavailable?'The reviewed six-item path contains unavailable or conflicting items.':null;
       const threatData=threat?heroProfile(threat):null;
       const explanations=[variant!==null?'Calculated adaptation of your selected source playstyle; its core is preserved. No win rate is claimed for this assembled path.':state==='ahead'?'Ahead: keep offensive timing unless your selected urgent need requires a flexible answer.':state==='behind'?'Behind: prioritize a compatible survival or utility answer within the flexible slots; preserve the core.':'Even: retain the reviewed core and answer compatible enemy-kit needs.'];
       if(threatData)explanations.push('Primary threat: '+threatData.name+'. '+(threatData.evidence[0]?threatData.evidence[0].ability+': '+(threatData.evidence[0].reason||threatData.evidence[0].tag):'No supported kit mechanism is available; no damage type is assumed.'));
@@ -1113,5 +1122,5 @@
     if(typeof hash!=='string'||hash.length>4000||!/^#plan=[A-Za-z0-9_-]+$/.test(hash))throw Error('Invalid shared plan link');
     try{return validatePlan(JSON.parse(atob(hash.slice(6).replaceAll('-','+').replaceAll('_','/'))));}catch{throw Error('The shared plan is invalid or uses an unsupported format');}
   }
-  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan};
+  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason};
 });
