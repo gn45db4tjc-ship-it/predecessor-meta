@@ -45,6 +45,11 @@ class TokenGate(unittest.TestCase):
 
 class ApiFirst(unittest.TestCase):
     def setUp(self):
+        # 2.43.1: the API needs Pred.gg's recorded approval as well as credentials; grant it here, and keep any
+        # remembered denial in a temporary folder.
+        approve = patch.object(m, 'pred_api_approved', return_value=True); approve.start(); self.addCleanup(approve.stop)
+        denials = tempfile.TemporaryDirectory(); self.addCleanup(denials.cleanup)
+        data_dir = patch.object(m, 'DATA_DIR', Path(denials.name)); data_dir.start(); self.addCleanup(data_dir.stop)
         self.pages_get = patch.object(m, 'http_get', Mock(return_value=(api_page()[0], 200, 0.1)))
         self.http_get = self.pages_get.start(); self.addCleanup(self.pages_get.stop)
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
@@ -102,6 +107,11 @@ class ApiFirst(unittest.TestCase):
 
 class PublishedSourceNote(unittest.TestCase):
     def setUp(self):
+        # 2.43.1: the API needs Pred.gg's recorded approval as well as credentials; grant it here, and keep any
+        # remembered denial in a temporary folder.
+        approve = patch.object(m, 'pred_api_approved', return_value=True); approve.start(); self.addCleanup(approve.stop)
+        denials = tempfile.TemporaryDirectory(); self.addCleanup(denials.cleanup)
+        data_dir = patch.object(m, 'DATA_DIR', Path(denials.name)); data_dir.start(); self.addCleanup(data_dir.stop)
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
 
@@ -114,6 +124,11 @@ class PublishedSourceNote(unittest.TestCase):
              patch.object(p.base, 'now_utc', return_value=NOW), \
              patch.object(p.base, 'collect_bundle', side_effect=collect):
             return p.run(self.root, self.root / 'site')['optional_sources']['pred']
+
+    def test_without_pred_gg_approval_the_site_says_public_pages_only(self):
+        with patch.object(m, 'pred_api_approved', return_value=False):
+            gated = self.run_cloud({'PRED_API_TOKEN': TOKEN})
+        self.assertEqual(gated['mode'], 'public_pages_only')
 
     def test_the_site_states_which_pred_source_the_collector_used(self):
         with_token = self.run_cloud({'PRED_API_TOKEN': TOKEN})

@@ -89,6 +89,11 @@ class Configuration(unittest.TestCase):
 
 class CollectionWithCredentials(unittest.TestCase):
     def setUp(self):
+        # 2.43.1: the API needs Pred.gg's recorded approval as well as credentials; grant it here, and keep any
+        # remembered denial in a temporary folder.
+        approve = patch.object(m, 'pred_api_approved', return_value=True); approve.start(); self.addCleanup(approve.stop)
+        denials = tempfile.TemporaryDirectory(); self.addCleanup(denials.cleanup)
+        data_dir = patch.object(m, 'DATA_DIR', Path(denials.name)); data_dir.start(); self.addCleanup(data_dir.stop)
         self.pages = patch.object(m, 'http_get', Mock(return_value=('<html></html>', 200, 0.1)))
         self.http_get = self.pages.start(); self.addCleanup(self.pages.stop)
 
@@ -114,7 +119,13 @@ class CollectionWithCredentials(unittest.TestCase):
 
 
 class PublishedSettings(unittest.TestCase):
-    def test_credentials_alone_publish_the_api_note(self):
+    def setUp(self):
+        # 2.43.1: the API needs Pred.gg's recorded approval as well as credentials; grant it here, and keep any
+        # remembered denial in a temporary folder.
+        approve = patch.object(m, 'pred_api_approved', return_value=True); approve.start(); self.addCleanup(approve.stop)
+        denials = tempfile.TemporaryDirectory(); self.addCleanup(denials.cleanup)
+        data_dir = patch.object(m, 'DATA_DIR', Path(denials.name)); data_dir.start(); self.addCleanup(data_dir.stop)
+    def test_credentials_with_approval_publish_the_api_note(self):
         root = Path(tempfile.mkdtemp(prefix='predcreds-'))
         def collect(settings, progress):
             b = partial(); b['bracket']['segment'] = settings['bracket']

@@ -140,14 +140,34 @@ def graphql(query, variables=None, *, token=None, post=None):
     if status != 200:
         raise PredApiError('Pred.gg API returned HTTP ' + str(status))
     payload = json.loads(raw)
+    # HTTP 200 is not success: GraphQL reports refusals in the body. Any "Forbidden" is a denial, even beside other
+    # errors (Rocket, 2 Oct 2026: hero.generalStatistic null with "Forbidden" under HTTP 200). Stop on denied fields.
     errors = payload.get('errors') or []
     if errors:
-        if all(e.get('message') == 'Forbidden' for e in errors):
+        if any('forbidden' in str(e.get('message', '')).lower() for e in errors):
             raise PredApiUnauthorized('Pred.gg API: statistics need an authorized application (' + str(len(errors)) + ' fields refused)')
         raise PredApiError('Pred.gg API: ' + str(errors[0].get('message')))
     if not isinstance(payload.get('data'), dict):
         raise PredApiError('Pred.gg API: response has no data')
+    denied = sorted(_null_statistics(payload['data']))
+    if denied:
+        # A statistics field returned null without an error is withheld, never an empty sample.
+        raise PredApiUnauthorized('Pred.gg API: statistics withheld (' + ', '.join(denied[:3]) + ' returned null)')
     return payload['data']
+
+
+def _null_statistics(value, path=''):
+    """Paths of statistics fields (generalStatistic and its aliases) that came back null."""
+    if isinstance(value, dict):
+        for k, v in value.items():
+            here = path + '.' + k if path else k
+            if v is None and 'statistic' in k.lower():
+                yield here
+            else:
+                yield from _null_statistics(v, here)
+    elif isinstance(value, list):
+        for i, v in enumerate(value):
+            yield from _null_statistics(v, path + '[%d]' % i)
 
 
 def stats_variables(url):
