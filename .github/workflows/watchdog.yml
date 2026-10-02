@@ -1,0 +1,82 @@
+name: Hourly freshness watchdog
+
+# Freshness Phase 5 (2.46.0). Reads the live manifest and review index; it changes no data and never collects.
+# For each missed freshness target it keeps one issue up to date and closes it when the problem clears. It asks
+# publish.yml for a refresh only where the publisher's own rules allow it (no pause, block, exhausted retry, imminent
+# scheduled attempt or wait for the Windows collector; one request per 6 hours, two a day). Each miss is recorded
+# in automation-state (watchdog.json). Decision logic and its tests: watchdog.py, tests/test_static_watchdog.py.
+on:
+  schedule:
+    # Hourly, between publication runs (publish.yml runs at :23).
+    - cron: '41 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: freshness-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write   # automation-state/watchdog.json only
+      issues: write     # one issue per persistent problem
+      actions: write    # a refresh request to publish.yml, only when the rules allow it
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - name: Read the watchdog's saved state
+        run: |
+          echo '{}' > watchdog-state.json
+          if git ls-remote --exit-code --heads origin automation-state >/dev/null 2>&1; then
+            git fetch --depth=1 origin automation-state
+            git show FETCH_HEAD:watchdog.json > watchdog-state.json 2>/dev/null || echo '{}' > watchdog-state.json
+          fi
+      - name: Check the live site against the freshness targets
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -B watchdog.py --state watchdog-state.json --out watchdog-next.json --sync-issues
+      - name: Ask publish.yml for a refresh (only when the rules allow it)
+        if: steps.check.outputs.dispatch == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run publish.yml --ref main -f refresh=true
+      - name: Record target misses in automation-state
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          # watchdog.json is written only by this workflow (one run at a time); publish.yml writes its own file on the
+          # same branch, so a rejected push is retried on top of the branch's new head.
+          for attempt in 1 2 3; do
+            rm -rf /tmp/watchdog-state
+            git worktree prune
+            if git ls-remote --exit-code --heads origin automation-state >/dev/null 2>&1; then
+              git fetch --depth=1 origin automation-state
+              git worktree add --detach /tmp/watchdog-state FETCH_HEAD
+            else
+              git worktree add --detach /tmp/watchdog-state HEAD
+              git -C /tmp/watchdog-state checkout --orphan automation-state
+              git -C /tmp/watchdog-state rm -rf .
+            fi
+            cp watchdog-next.json /tmp/watchdog-state/watchdog.json
+            git -C /tmp/watchdog-state add watchdog.json
+            if git -C /tmp/watchdog-state diff --cached --quiet; then exit 0; fi
+            git -C /tmp/watchdog-state commit -m 'Record freshness watchdog state'
+            if git -C /tmp/watchdog-state push origin HEAD:automation-state; then exit 0; fi
+            sleep 10
+          done
+          echo '::warning::Watchdog state could not be recorded; the next hourly check records it.'

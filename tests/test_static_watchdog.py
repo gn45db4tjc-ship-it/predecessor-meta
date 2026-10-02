@@ -92,13 +92,18 @@ class Checks(unittest.TestCase):
         self.assertTrue(problems['rank-missing']['refresh'])
 
     def test_overdue_review_queue(self):
-        index = {'packets': [{'id': 'old', 'review_due': True, 'generated_at': iso(30)},
-                             {'id': 'new', 'review_due': True, 'generated_at': iso(3)},
-                             {'id': 'done', 'review_due': False, 'generated_at': iso(90)}]}
+        # The queue's current state is its newest packet; older packets are history, superseded by later ones.
+        index = {'packets': [{'id': 'current', 'review_due': True, 'generated_at': iso(30)},
+                             {'id': 'older', 'review_due': True, 'generated_at': iso(90)}]}
         problems = watchdog.check(manifest(), index, NOW)
         self.assertEqual(ids(problems), ['queue-overdue'])
-        self.assertIn('old', ' '.join(problems[0]['details']))
-        self.assertNotIn('new', ' '.join(problems[0]['details']))
+        self.assertIn('current', ' '.join(problems[0]['details']))
+        self.assertNotIn('older', ' '.join(problems[0]['details']))
+        superseded = {'packets': [{'id': 'later', 'review_due': False, 'generated_at': iso(10)},
+                                  {'id': 'history', 'review_due': True, 'generated_at': iso(400)}]}
+        self.assertEqual(watchdog.check(manifest(), superseded, NOW), [])
+        recent = {'packets': [{'id': 'recent', 'review_due': True, 'generated_at': iso(3)}]}
+        self.assertEqual(watchdog.check(manifest(), recent, NOW), [])
 
     def test_unreadable_manifest(self):
         self.assertEqual(ids(watchdog.check(None, None, NOW)), ['site-unreachable'])
@@ -234,6 +239,25 @@ class Issues(unittest.TestCase):
         watchdog.sync_issues([], {'open': {}}, decision, api, NOW)
         self.assertEqual(api.calls[-1][:2], ('close', 8))
         self.assertEqual(api.issues[7]['state'], 'open')                      # never touches other issues
+
+
+
+class WorkflowContract(unittest.TestCase):
+    def test_hourly_read_only_scoped_and_pinned(self):
+        from pathlib import Path
+        text = (Path(__file__).resolve().parents[1] / '.github' / 'workflows' / 'watchdog.yml').read_text(encoding='utf-8')
+        self.assertIn("cron: '41 * * * *'", text)
+        self.assertIn('permissions:\n  contents: read', text)                 # nothing by default
+        for line in ('contents: write', 'issues: write', 'actions: write'):
+            self.assertIn(line, text)
+        for use in [l.split('uses:')[1].strip() for l in text.splitlines() if 'uses:' in l]:
+            self.assertRegex(use, r'@[0-9a-f]{40}', use)                   # actions pinned to a commit
+        self.assertNotIn('data-updates', text)                               # never touches the collector's branch
+        self.assertNotIn('static_publish', text)                             # never collects or publishes itself
+        self.assertIn('gh workflow run publish.yml --ref main -f refresh=true', text)
+        self.assertIn("if: steps.check.outputs.dispatch == 'true'", text)
+        self.assertIn('cp watchdog-next.json /tmp/watchdog-state/watchdog.json', text)
+        self.assertEqual(text.count('git -C /tmp/watchdog-state add '), 1)    # only watchdog.json is recorded
 
 
 if __name__ == '__main__':
