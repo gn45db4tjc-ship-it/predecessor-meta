@@ -76,7 +76,18 @@ let preview=null;
    // A plan that needs review for the live patch shows no build card, only its reason.
    if(await page.evaluate(()=>E.plannedBuild('steel','jungle').items.length)){
     check(await page.locator('#main .build-path').first().locator('li').count()===6,'six item positions on the recommended build');
-    check(await page.locator('#main .loadout-strip').first().locator('>div:not(.loadout-absent)').count()===5,'augment, Eternal, both blessings and crest visible without opening details');
+    // Crest paths and alternative upgrades add context blocks beside the five required fields.
+    // Check each named field exactly once, with its choice visible outside a disclosure.
+    const loadout=await page.locator('#main .loadout-strip').first().evaluate(strip=>{
+     const labels=['Augment','Eternal','Blessing 1','Blessing 2','Crest'];
+     return labels.every(label=>{
+      const rows=[...strip.children].filter(row=>row.querySelector(':scope > small')?.textContent===label);
+      if(rows.length!==1||rows[0].classList.contains('loadout-absent'))return false;
+      const row=rows[0],choice=row.querySelector(':scope > .item-button');
+      return row.checkVisibility()&&!!choice&&choice.checkVisibility();
+     });
+    });
+    check(loadout,'augment, Eternal, both blessings and crest visible without opening details');
     check(await page.evaluate(()=>[...document.querySelectorAll('#main summary')].some(s=>s.textContent.startsWith('Full setup, execution and sources'))),'full setup details preserved');
    }else check((await page.locator('#hero-sec-builds').innerText()).includes('Build recommendation unavailable'),'unreviewed build states why it is unavailable');
    // Global hero finder: typing a name opens that hero's partners with picks intact.
