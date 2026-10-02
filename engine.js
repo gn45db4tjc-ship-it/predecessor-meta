@@ -430,6 +430,40 @@
       if(selected!=='statz')return null;
       const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.playedGames)&&r.playedGames>0?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch,fetched_at:r.fetched_at||bundle.sources?.statz_hero_pages?.fetched_at,broad_dataset:true,retained:bundle.sources?.statz_hero_pages?.status==='retained'}:null;
     }
+    // 2.45.0 (freshness Phase 3): a tier for every hero and role in every rank, calculated from that rank's own current
+    // sample (docs/CALCULATED-TIERS.md). Always 'Calculated', never reviewed, and never written into meta_review.
+    // Each hero is compared with its role's games-weighted win rate through the sample's 95% interval, so a thin
+    // sample cannot reach an extreme tier (S and D also need 500 games, the threshold the engine uses for moved grades);
+    // under 100 games there is no tier. Ranks are never pooled.
+    const CALCULATED_MIN_GAMES=100,CALCULATED_EXTREME_GAMES=500,CALCULATED_MARGIN=2,calculatedCache=new Map();
+    function wilson95(wr,played){const n=played,p=wr/100,z=1.96,d=1+z*z/n,c=(p+z*z/(2*n))/d,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return [Math.max(0,(c-h)*100),Math.min(100,(c+h)*100)];}
+    function roleBaseline(role,source){
+      const key='baseline|'+role+'|'+source;if(calculatedCache.has(key))return calculatedCache.get(key);
+      let won=0,games=0;
+      for(const slug of Object.keys(heroes)){const r=performance({slug,role},{source});if(r&&r.played>=CALCULATED_MIN_GAMES){won+=r.wr*r.played;games+=r.played;}}
+      const value=games?{wr:won/games,games}:null;calculatedCache.set(key,value);return value;
+    }
+    function calculatedTier(slug,role){
+      const policy=performancePolicy(),key=slug+'|'+role+'|'+policy.source+'|'+policy.saved;
+      if(calculatedCache.has(key))return calculatedCache.get(key);
+      const base={kind:'calculated',label:'Calculated tier',rank:bundle?.scoped_statistics?.bracket_label||bundle?.bracket?.label||null,tier:null,method:'docs/CALCULATED-TIERS.md'};
+      let result;
+      if(!bundle||!policy.source)result={...base,status:policy.label,note:policy.note};
+      else{
+        const row=performance({slug,role},{source:policy.source}),baseline=roleBaseline(role,policy.source);
+        if(!row)result={...base,status:'No sample for this role in this rank'};
+        else if(row.played<CALCULATED_MIN_GAMES)result={...base,status:'Below 100 games',played:row.played,wr:row.wr,source:row.source,patch:row.patch,fetched_at:row.fetched_at};
+        else if(!baseline)result={...base,status:'No role baseline',played:row.played};
+        else{
+          const own=Array.isArray(row.interval95)&&row.interval95.length===2&&row.interval95.every(finite)?row.interval95:wilson95(row.wr,row.played);
+          const [lo,hi]=own,b=baseline.wr,big=row.played>=CALCULATED_EXTREME_GAMES,tier=big&&lo>=b+CALCULATED_MARGIN?'S':lo>b?'A':big&&hi<=b-CALCULATED_MARGIN?'D':hi<b?'C':'B';
+          result={...base,tier,status:'Calculated',played:row.played,wr:row.wr,interval95:[Math.round(lo*100)/100,Math.round(hi*100)/100],
+            baseline:Math.round(b*100)/100,baseline_games:baseline.games,source:row.source,patch:row.patch,fetched_at:row.fetched_at,
+            saved:!!policy.saved,qualifier:policy.saved?'saved, not a current ranking':policy.source==='statz'?'broader dataset, not current-patch':null};
+        }
+      }
+      calculatedCache.set(key,result);return result;
+    }
     function metaReview(slug,role) {
       const review=bundle.guidance?.meta_review,row=review?.entries?.find(r=>r.slug===slug&&r.role===role);
       if(!row)return null;
@@ -1097,7 +1131,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
