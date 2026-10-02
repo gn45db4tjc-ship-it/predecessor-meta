@@ -74,3 +74,24 @@ test('calculated tiers never touch the reviewed grades', () => {
   assert.equal(E.calculatedTier('strong', 'jungle').tier, 'S');     // the reviewed C for Gold+ is a different claim
   assert.notEqual(E.calculatedTier('strong', 'jungle').label, 'Reviewed');
 });
+
+test('a retained Pred.gg sample is never ranked as current', () => {
+  // Retained Pred.gg with current Statz: the tier comes from Statz and says it is the broader dataset.
+  const withStatz = bundle(rows, {source: 'statz'});
+  withStatz.scoped_statistics = {...bundle(rows).scoped_statistics, status: 'retained'};
+  withStatz.sources.pred_scoped.status = 'retained';
+  const t = M.create(withStatz).calculatedTier('strong', 'jungle');
+  assert.equal(t.source, 'Statz'); assert.equal(t.qualifier, 'broader dataset, not current-patch');
+  // Retained Pred.gg and no other source: no tier at all.
+  const alone = bundle(rows);
+  alone.scoped_statistics.status = 'retained'; alone.sources.pred_scoped.status = 'retained';
+  alone.sources.statz_tierlist.status = alone.sources.statz_hero_pages.status = 'failed';
+  assert.equal(M.create(alone).calculatedTier('strong', 'jungle').tier, null);
+});
+
+test('all six ranks calculate from their own sample and name their own rank', () => {
+  for (const [bracket, label] of [['bronze', 'Bronze+'], ['silver', 'Silver+'], ['gold', 'Gold+'], ['platinum', 'Platinum+'], ['diamond', 'Diamond+'], ['paragon', 'Paragon+']]) {
+    const t = M.create(bundle(rows, {bracket, label})).calculatedTier('strong', 'jungle');
+    assert.equal(t.rank, label); assert.equal(t.tier, 'S'); assert.equal(t.played, 4000);
+  }
+});

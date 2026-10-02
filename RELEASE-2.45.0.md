@@ -56,12 +56,14 @@ Part of the freshness overhaul ([docs/FRESHNESS-STATUS.md](docs/FRESHNESS-STATUS
   - Guard V12 (the phone hero's tier row spans the full width and never breaks inside a word) now measures whichever tier button the row holds: with a withheld grade it is the calculated fallback. It failed on the first full run only because it looked for the reviewed button.
   - The calculated tier button shares the reviewed tier button's styles (`ui.html`), except that its label stays visible in a narrow table.
   - The legacy meta acceptance (`tests/legacy/browser_meta_acceptance.js`, run by `browser_static.cjs`) still requires every Gold+ reviewed entry exactly once with its reasoning. For a withheld grade it now opens the calculated fallback, checks its label, and opens the reviewed reasoning from that detail. On the live publication it had failed because 13 withheld grades no longer render as the reviewed button.
-- **Unit tests (6):**
+- **Unit tests (8):**
   - the S/A/B/C/D rule;
   - a thin sample capped below S;
   - no tier under 100 games;
   - no pooling across ranks;
   - Statz and saved qualifiers;
+  - a retained Pred.gg sample never ranked as current (Statz labeled broader, or no tier);
+  - all six ranks named and calculated from their own sample;
   - an unverified patch or missing statistics giving no tier;
   - reviewed grades never modified.
 - **Suites:** Python static tests, Node tests, the 11 CI browser suites, and the static and design suites on a preview built from all six live bundles.
