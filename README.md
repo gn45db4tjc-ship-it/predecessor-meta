@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.43.1
+# Predecessor Meta - 2.44.0
 
-The Pred.gg API path now treats any GraphQL "Forbidden" or null statistic as a denial (not just a non-200 status), remembers a denial for those credentials, and stays off until Pred.gg's approval is recorded in free_hosting.json. Nothing on the site changes; no API credentials are set. See [RELEASE-2.43.1.md](RELEASE-2.43.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Freshness Phase 2b: a merged review shows on the site within minutes (each rank records which reviewed packet it carries, and the next publication re-applies a changed packet without waiting for a collection; source dates never change), and the official patch notes are checked every hour. See [RELEASE-2.44.0.md](RELEASE-2.44.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.43.1
+
+The Pred.gg API path now treats any GraphQL "Forbidden" or null statistic as a denial (not just a non-200 status), remembers a denial for those credentials, and stays off until Pred.gg's approval is recorded in free_hosting.json. Nothing on the site changes; no API credentials are set. See [RELEASE-2.43.1.md](RELEASE-2.43.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.43.0
 
