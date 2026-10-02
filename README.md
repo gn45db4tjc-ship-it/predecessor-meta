@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.41.3
+# Predecessor Meta - 2.42.0
 
-Phase 0 of the freshness overhaul: a measured baseline of how current the site is (docs/FRESHNESS-BASELINE.md), and the owner's 2 Oct decisions on calculated per-rank tiers, automatic rechecks with auto-merge, and merging code for this objective (STRATEGY-REVIEW-POLICY.md). Nothing on the site or in the Windows app changes. See [RELEASE-2.41.3.md](RELEASE-2.41.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Freshness Phase 1: community builds come back (Omeda labels them with the hotfix version v1.17.1, which we now accept when the official article dates that hotfix as live), and Match explains an inactive reviewed build in plain English. Every stale-type item from the 2 Oct baseline is classified in docs/FRESHNESS-STATUS.md, with the recheck queue for Phase 4. See [RELEASE-2.42.0.md](RELEASE-2.42.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.41.3
+
+Phase 0 of the freshness overhaul: a measured baseline of how current the site is (docs/FRESHNESS-BASELINE.md), and the owner's 2 Oct decisions on calculated per-rank tiers, automatic rechecks with auto-merge, and merging code for this objective (STRATEGY-REVIEW-POLICY.md). Nothing on the site or in the Windows app changes. See [RELEASE-2.41.3.md](RELEASE-2.41.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.41.2
 
