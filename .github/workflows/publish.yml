@@ -3,9 +3,9 @@ name: Daily data and patch-aware publication
 on:
   workflow_call:
   schedule:
-    # UTC. Full daily collection at 17:23; other runs only check official patch content.
-    - cron: '23 17 * * *'
-    - cron: '23 2,5,8,11,14,20,23 * * *'
+    # UTC, every hour (2.44.0): each run checks official patch content and publishes; the full daily collection
+    # follows the 17:23 boundary, retries and patch catch-up by the clock (static_publish.collection_reason).
+    - cron: '23 * * * *'
   workflow_dispatch:
     inputs:
       refresh:

@@ -152,6 +152,8 @@ if (APP_CONFIG.mode === 'static') {
     const check = latestVerifiedPatch();
     return check?.status === 'verified' && entry?.source_signature && check.signature !== entry.source_signature;
   }
+  // 2.44.0: the official patch notes are checked every hour; the wording follows the published schedule.
+  function patchEvery() { const h = Number(site.manifest?.schedule?.patch_check_hours) || 1; return h === 1 ? 'hour' : h + ' hours'; }
   function nextDaily() {
     const [hour, minute] = (site.manifest?.schedule?.daily_utc || '17:23').split(':').map(Number);
     const next = new Date(); next.setUTCHours(hour, minute, 0, 0);
@@ -179,7 +181,7 @@ if (APP_CONFIG.mode === 'static') {
   const originalMaterial = materialAlerts;
   materialAlerts = function() { return publishedMaterial() + originalMaterial(); };
   dataView = function() {
-    return oldDataView() + appUpdateHTML() + '<details id="source-update-method" class="reference-fold" data-keep="source-update-method"><summary>How updates work & optional sources</summary><div class="detail-content">' + note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every three hours. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + '</div></details>';
+    return oldDataView() + appUpdateHTML() + '<details id="source-update-method" class="reference-fold" data-keep="source-update-method"><summary>How updates work & optional sources</summary><div class="detail-content">' + note((site.manifest?.collection_paused_reason ? 'Statistical updates are paused; the reason is displayed above. ' : 'Shared website: available sources update daily in the cloud, independently of your PC, with an extra collection after a live patch change. ') + 'Official patch checks run every ' + patchEvery() + '. Check updates loads the latest publication. It does not start a scrape. Calculated rankings and suggestions use that evidence; authored recommendations need a separate reviewed update. Your picks stay in this browser.') + (site.manifest?.optional_sources?.pred ? note(esc(site.manifest.optional_sources.pred.note)) : '') + '</div></details>';
   };
   chrome = function() {
     originalChrome();
@@ -193,7 +195,7 @@ if (APP_CONFIG.mode === 'static') {
     const verified = latestVerifiedPatch();
     if (verified?.version) $('#patch-strip .patch-cell').innerHTML = `<div><small>${site.manifest?.patch_check?.status === 'verified' ? 'Game patch' : 'Last verified patch'}</small><strong>v${esc(verified.version)}</strong></div>${link(verified.url,'Official notes ↗')}`;
     stableHTML('#bracket', options(allowed.map(b => [b, (site.manifest?.cohorts?.[b]?.label || b[0].toUpperCase()+b.slice(1)+'+') + (site.manifest && site.manifest.cohorts[b]?.status !== 'available' ? ' · unavailable' : '')]), S.bracket));
-    $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every three hours; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every three hours.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every three hours; schedules can be delayed.';
+    $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every ' + patchEvery() + '; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every ' + patchEvery() + '.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every ' + patchEvery() + '; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
     if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
     if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your match and favourites are saved in this browser.';

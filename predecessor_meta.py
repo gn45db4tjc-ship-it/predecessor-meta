@@ -84,6 +84,18 @@ GUIDANCE_PACKET_OVERRIDE = None
 
 def guidance_packet_path():
     return Path(GUIDANCE_PACKET_OVERRIDE) if GUIDANCE_PACKET_OVERRIDE else TOOL_DIR / 'reviewed_guidance.json'
+
+
+def guidance_fingerprint():
+    """Names the reviewed packet and its same-patch supplement a bundle was enriched with (2.44.0). Publication
+    re-applies the review when it differs, so a merged review reaches the site at the next publication."""
+    digest = hashlib.sha256()
+    for path in (guidance_packet_path(), patch_support.PATH):
+        try:
+            digest.update(Path(path).read_bytes())
+        except OSError:
+            digest.update(b'missing:' + str(path).encode('utf8'))
+    return digest.hexdigest()[:16]
 LATEST_BUNDLE = DATA_DIR / "latest_bundle.json"
 OFFLINE_BUNDLE = DATA_DIR / "offline_bundle.json"
 
@@ -1975,6 +1987,7 @@ def enrich_bundle(bundle, official=None):
             fn = bundle.get('image_index', {}).get(kind, {}).get(norm_key(name))
             value['image_url'] = (STATZ_BASE + '/images/predecessor/' + directory + '/' + urllib.parse.quote(fn)) if fn else (omeda_icons.get(norm_key(name)) if kind=='items' else None)
     patch_support.apply(bundle, packet, validate_guidance_packet, clean_text, derive_capabilities)
+    bundle['guidance_fingerprint']=guidance_fingerprint()
     return bundle
 
 
@@ -2921,7 +2934,12 @@ def source_records_before_review(bundle):
         rule=rule.get('prior_source_check',rule)
         if 'original' not in rule:continue  # An unavailable field has nothing to restore.
         parent=b
-        for key in rule['path'][:-1]:parent=parent[key]
+        try:
+            for key in rule['path'][:-1]:parent=parent[key]
+        except (KeyError,IndexError,TypeError):
+            # 2.44.0: the record was added by the review itself (an official fallback perk such as Peal, removed above
+            # because it has no source record), so there is no source field to restore; enrichment re-adds and re-checks it.
+            continue
         parent[rule['path'][-1]]=copy.deepcopy(rule['original'])
     return b
 
@@ -3362,6 +3380,16 @@ def review_saved_sources(bundle):
     packet_path=guidance_packet_path()
     packet=json.loads(packet_path.read_text(encoding='utf8')) if packet_path.exists() else {}
     build_pass=packet.get('guidance',{}).get('build_patch_review')
+    # 2.44.0: a changed reviewed packet is re-applied in full (grades, builds, notes) at publication, so a merged
+    # review is visible at the next publication instead of the next collection. Source dates are unchanged.
+    pred = bundle.get('pred_game_data')
+    full_possible = isinstance(pred,dict) and bool(pred.get('heroes')) and bundle_is_publishable(bundle)
+    if full_possible and (bundle.get('tool_version')!=VERSION or bundle.get('guidance_fingerprint')!=guidance_fingerprint()):
+        try:
+            return full_review_replay(bundle)
+        except (ValueError,KeyError,TypeError,AttributeError) as error:
+            # A replay that cannot validate never blocks publication; the bundle keeps the review it was collected with.
+            log('Review replay skipped for '+str((bundle.get('bracket') or {}).get('segment'))+': '+str(error)[:200])
     if build_pass and bundle.get('official',{}).get('live',{}).get('version')==build_pass['patch'] and bundle_is_publishable(bundle) and (bundle.get('guidance',{}).get('build_patch_review')!=build_pass or bundle.get('guidance',{}).get('builds')!=packet['guidance']['builds']):
         # Editorial-only replay also works when optional Pred.gg is absent. No raw
         # source reconstruction, fresh-fetch claim or observation update is needed.
@@ -3377,13 +3405,20 @@ def review_saved_sources(bundle):
         b['saved_build_review']={'reviewed_at':build_pass['reviewed_at'],'patch':build_pass['patch'],
             'applied_at':iso(now_utc()),'note':'Build-only editorial update. Statistical dates, patch labels and all other strategy review dates are unchanged.'}
         return b
-    pred = bundle.get('pred_game_data')
-    if bundle.get('tool_version')==VERSION or not isinstance(pred,dict) or not pred.get('heroes') or not bundle_is_publishable(bundle):
-        return bundle
+    return bundle
+
+
+# Notices that enrich_bundle itself creates; a replay drops the previous ones so they are re-created, never duplicated (2.44.0).
+ENRICHMENT_NOTICE_SOURCES={'Official correction review','Official definition review','Statz build definitions'}
+
+
+def full_review_replay(bundle):
     b=source_records_before_review(bundle)
+    b['errors']=[e for e in b.get('errors',[]) if e.get('source') not in ENRICHMENT_NOTICE_SOURCES]
     enrich_bundle(b,b['official'])
     apply_pred_game_data(b)
     b['tool_version']=VERSION
+    b['guidance_fingerprint']=guidance_fingerprint()
     b['saved_source_review']={'from_version':bundle.get('tool_version'),'review_version':VERSION,
         'applied_at':iso(now_utc()),'data_generated_at':bundle['generated_at'],
         'note':'Current local review applied to retained source records. No source was fetched or reverified by this step.'}

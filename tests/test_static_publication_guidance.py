@@ -49,5 +49,33 @@ class PublicationGuidance(unittest.TestCase):
             self.assertNotEqual(p.base.guidance_fingerprint(), first)
 
 
+    def test_repeated_replays_never_duplicate_enrichment_notices(self):
+        # Each full replay re-created three enrichment notices without removing the previous ones (7 -> 10 -> 13 on the
+        # live Paragon+ bundle on 2 Oct). A replay now drops them before re-enriching.
+        def enrich_with_notice(out, official):
+            out['guidance'] = {'builds': []}
+            out.setdefault('errors', []).append({'source': 'Statz build definitions', 'severity': 'warning', 'detail': 'missing descriptions'})
+        b = collected(guidance_fingerprint='an-older-packet')
+        with patch.object(p.base, 'enrich_bundle', side_effect=enrich_with_notice), patch.object(p.base, 'apply_pred_game_data'):
+            once = p.base.full_review_replay(b)
+            twice = p.base.full_review_replay(once)
+        count = lambda x: sum(e.get('source') == 'Statz build definitions' for e in x['errors'])
+        self.assertEqual((count(once), count(twice)), (1, 1))
+        self.assertEqual([e for e in twice['errors'] if e.get('source') != 'Statz build definitions'],
+                         [e for e in b['errors'] if e.get('source') != 'Statz build definitions'])
+
+    def test_unwinding_skips_a_correction_on_a_record_the_review_added(self):
+        # Live Gold+ on 2 Oct: the official 1.17 fallback perk Peal has no source record (previous_source None), so the
+        # unwind removed it and then failed restoring its correction ("KeyError: 'peal'"), and the replay was skipped.
+        b = collected()
+        b['perks'] = {'peal': {'name': 'Peal', 'description': 'official text', 'previous_source': None}}
+        b['corrections'] = [{'id': 'patch-1.17-perks-peal-description', 'path': ['perks', 'peal', 'description'], 'original': 'source text'}]
+        unwound = p.base.source_records_before_review(b)
+        self.assertNotIn('peal', unwound['perks'])
+
+    def test_the_fingerprint_survives_publication_so_the_replay_runs_once(self):
+        from shared_server import public_bundle
+        self.assertEqual(public_bundle({'guidance_fingerprint': 'abc', 'settings': {'private': 1}}), {'guidance_fingerprint': 'abc'})
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "daily_utc": "17:23",
-  "patch_check_hours": 3,
+  "patch_check_hours": 1,
   "patch_catchup_hours": 6,
   "patch_window_hours": 48,
   "required_retry_hours": 3,
