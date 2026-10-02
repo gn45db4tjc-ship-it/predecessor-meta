@@ -567,7 +567,7 @@ def render_site(folder, out, state):
     manifest['collection_host'] = 'cloud' if not CONFIG.get('cloud_collection_paused_reason') else 'windows'
     manifest['source_pauses'] = {'pred': CONFIG['pred_collection_paused_reason']} if CONFIG.get('pred_collection_paused_reason') else {}
     # With an application token or credentials the collector reads Pred.gg's authorized API first (base.pred_source_fetch).
-    api = base.pred_api_configured()
+    api = base.pred_api_configured() and base.pred_api_approved()
     manifest['optional_sources'] = {'pred': {'mode': 'authorized_api_then_public_pages' if api else 'public_pages_only',
         'note': ('Pred.gg is optional. Use validated data from Pred.gg\'s API with an authorized application, or from its public pages if the API is unavailable. '
                  if api else 'Pred.gg is optional. Use validated data embedded in public pages when available; no API or account is required. ')

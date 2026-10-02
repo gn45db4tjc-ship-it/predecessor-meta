@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.43.0"
+VERSION = "2.43.1"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -2423,6 +2423,20 @@ def pred_api_configured(environ=None):
     return bool(value('PRED_API_TOKEN')) or bool(value('PRED_API_CLIENT_ID') and value('PRED_API_CLIENT_SECRET'))
 
 
+def pred_api_approved():
+    """Pred.gg's approval of the API application, its quotas and publishing its statistics, recorded as
+    pred_api_approved in free_hosting.json by a reviewed commit. Credentials alone never enable the API: as of 2 Oct 2026
+    the OAuth grant, quotas and permission to publish are unconfirmed, and anonymous statistics are refused."""
+    try:return json.loads((TOOL_DIR/'free_hosting.json').read_text(encoding='utf8')).get('pred_api_approved') is True
+    except (OSError,ValueError,AttributeError):return False
+
+
+def pred_api_fingerprint(environ):
+    """A short hash naming which credentials a denial applies to; the credentials themselves are never stored."""
+    value=lambda k:environ.get(k,'').strip()
+    return hashlib.sha256(('pred-api:'+(value('PRED_API_TOKEN') or value('PRED_API_CLIENT_ID'))).encode('utf8')).hexdigest()[:16]
+
+
 def pred_source_fetch(environ=None):
     """Pred.gg's authorized API when the application is configured (pred_api_configured), else None: the public pages.
 
@@ -2432,7 +2446,12 @@ def pred_source_fetch(environ=None):
     reaches PredPages as an access denial, so the page reader is not paused by an API problem. Credentials and tokens
     are sent only to Pred.gg and never logged."""
     env=environ if environ is not None else os.environ
-    if not pred_api_configured(env):return None
+    if not pred_api_configured(env) or not pred_api_approved():return None
+    # A refusal is remembered for these credentials, so later runs do not ask again until the credentials change.
+    fingerprint=pred_api_fingerprint(env);stop=DATA_DIR/'pred-api-denied.json'
+    try:
+        if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:return None
+    except (OSError,ValueError,AttributeError):pass
     try:import pred_api
     except ImportError:return None
     failed=[];token=[]
@@ -2441,6 +2460,10 @@ def pred_source_fetch(environ=None):
             try:
                 if not token:token.append(pred_api.token_for_run(env))
                 return pred_api.page_fetch(url,token=token[0])
+            except pred_api.PredApiUnauthorized as e:
+                failed.append(type(e).__name__)
+                try:atomic_write(stop,json.dumps({'at':iso(now_utc()),'fingerprint':fingerprint,'reason':str(e)[:200]}))
+                except OSError:pass
             except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
                 failed.append(type(e).__name__)
         return http_get(url)
