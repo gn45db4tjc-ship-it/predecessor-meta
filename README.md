@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.45.0
+# Predecessor Meta - 2.46.0
 
-Freshness Phase 3: every rank shows a calculated tier for each hero and role, from that rank's own sample and labeled Calculated, never Reviewed (each hero against its role's average through the sample's 95% interval; S and D need 500 games; no tier under 100 games). Gold+ keeps its reviewed grades and shows the calculated tier, labeled recheck queued, while a grade is withheld. See [RELEASE-2.45.0.md](RELEASE-2.45.0.md) and [docs/CALCULATED-TIERS.md](docs/CALCULATED-TIERS.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Freshness Phase 5: an hourly watchdog checks the live site against the freshness targets (statistics and Pred.gg age, failed or missing ranks, the patch check, publication, a Windows collector quiet for 6 hours, an overdue review queue). It keeps one GitHub issue per problem, requests a refresh only where the publication rules allow, and records every miss in automation-state. Stale labels on the website now say why the data is old and when the next attempt is. See [RELEASE-2.46.0.md](RELEASE-2.46.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.45.0
+
+Freshness Phase 3: every rank shows a calculated tier for each hero and role, from that rank's own sample and labeled Calculated, never Reviewed (each hero against its role's average through the sample's 95% interval; S and D need 500 games; no tier under 100 games). Gold+ keeps its reviewed grades and shows the calculated tier, labeled recheck queued, while a grade is withheld. See [RELEASE-2.45.0.md](RELEASE-2.45.0.md) and [docs/CALCULATED-TIERS.md](docs/CALCULATED-TIERS.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.44.0
 
