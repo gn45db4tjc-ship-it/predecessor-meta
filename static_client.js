@@ -160,13 +160,29 @@ if (APP_CONFIG.mode === 'static') {
     if (next <= new Date()) next.setUTCDate(next.getUTCDate() + 1);
     return next.toLocaleString();
   }
+  // 2.46.0 (freshness Phase 5): why this rank's data is old and when the next attempt is, from the published manifest.
+  // A cause is named only when the manifest records one; otherwise the label says when the last collection finished.
+  staleWhyNext = function () {
+    const m = site.manifest; if (!m) return null;
+    const entry = site.loadedEntry || cohort(), attempt = entry?.last_attempt || {}, retry = m.required_retry || {}, collector = m.local_collector || {};
+    const at = value => { const t = Date.parse(value); return Number.isFinite(t) ? new Date(t).toLocaleString() : 'an unknown time'; };
+    const why = m.collection_paused_reason ? 'Collection is paused: ' + m.collection_paused_reason
+      : attempt.status && attempt.status !== 'ok' ? 'The last collection attempt for this rank ' + (attempt.status === 'failed' ? 'failed' : 'was ' + attempt.status) + ' (' + at(attempt.at) + ')' + (attempt.errors?.length ? ': ' + attempt.errors[0] : '')
+      : retry.blocked ? 'A required source blocked the last collection'
+      : collector.checked_at && Date.now() - Date.parse(collector.checked_at) > 6 * 3600000 ? 'The Windows collector has not checked in since ' + at(collector.checked_at) + '; only it can read Pred.gg'
+      : 'No collection has finished since ' + at(entry?.generated_at || m.last_full_attempt_at);
+    const nextAt = retry.pending && retry.next_at ? retry.next_at : m.next_expected_attempt_at, due = Date.parse(nextAt);
+    const next = !Number.isFinite(due) ? 'Next attempt: not scheduled; the hourly check continues.'
+      : due < Date.now() ? 'Next attempt was due ' + at(nextAt) + ' and has not finished yet.' : 'Next attempt: ' + at(nextAt) + ' (your time).';
+    return {why: String(why).replace(/\.?$/, '.'), next, check: 'The official patch notes are checked every ' + patchEvery() + '.'};
+  };
   // Material (always visible) and detail (Status details) notices of the website; see materialAlerts/alerts in ui.js.
   function publishedMaterial() {
     const entry = site.loadedEntry || cohort(), check = latestVerifiedPatch();
     let result = '';
     if (site.manifest?.collection_paused_reason) result += note(esc(site.manifest.collection_paused_reason), true);
     if (site.manifest?.collection_host !== 'cloud' && site.manifest?.local_collector?.checked_at && Date.now()-Date.parse(site.manifest.local_collector.checked_at)>30*3600000) result += note('The Windows updater has not checked in for over 30 hours. Showing the last successful data. Updates resume when the PC is on, signed in and connected.', true);
-    if (B && Date.now() - Date.parse(B.generated_at) > 30 * 3600000) result += note('This bundle is more than 30 hours old. The scheduled update may have failed or been delayed. Its source dates have not changed.', true);
+    if (B && Date.now() - Date.parse(B.generated_at) > 30 * 3600000) { const x = staleWhyNext(); result += note('This bundle is more than 30 hours old. ' + esc(x ? x.why + ' ' + x.next : 'The scheduled update may have failed or been delayed.') + ' Its source dates have not changed.', true); }
     if (publicationChanged(entry)) result += note('Official patch content changed after this bundle was collected. Showing the previous dated statistics; written guidance needs review. ' + link(check.url, 'Latest official notes'), true);
     return result;
   }

@@ -63,3 +63,30 @@ In order. Grades first, as the brief asks.
   - Gold+ shows its calculated fallback, labeled "recheck queued", while a reviewed grade is withheld.
 - **Probes:** CT1 (no rank showed a tier) and CT2 (a withheld Gold+ grade left its row blank), both fixed.
 - **Sanity comparison:** 73 active Gold+ reviewed grades; 31 identical, 65 within one step, 8 two steps apart. No threshold or grade was changed on its basis ([CALCULATED-TIERS.md](CALCULATED-TIERS.md)).
+
+## Phase 5 (2.46.0): stale is a defect
+
+- **Hourly watchdog** (`.github/workflows/watchdog.yml` at :41, logic in `watchdog.py`). It reads the live manifest and review index and changes no data. It reports a problem when:
+  - a rank's core statistics, or its Pred.gg cohort, are over 24 hours old;
+  - a rank's last attempt failed, or a rank is missing;
+  - the patch check failed;
+  - the site has not been republished for 3 hours;
+  - the Windows collector has been quiet for 6 hours (it checks in every 3; `local_collector.checked_at`);
+  - the current review packet has been due for over 24 hours.
+- **Issues:** a problem seen in two consecutive checks gets one issue (label `freshness-watchdog`) with the diagnosis and the next attempt. The issue is updated while the problem lasts and closed when it clears. Other issues are never touched.
+- **Refreshes:** the watchdog asks publish.yml for a refresh (`refresh=true`) only for problems a cloud collection can fix, and only where the publisher's rules allow:
+  - no pause, block or exhausted retry;
+  - no pending retry;
+  - no scheduled attempt within the hour;
+  - not waiting for the Windows collector's daily run;
+  - at most once per 6 hours and twice a day.
+  A stale Pred.gg cohort or a quiet collector is reported, never "refreshed" from GitHub, which Pred.gg blocks.
+- **Record:** each miss is written to automation-state `watchdog.json` when it starts and when it clears (with its duration), together with the refresh requests of the last 7 days.
+- **On the site:** the 30-hour notice, the phone Stale/Aging/Saved status and the saved-statistics notice now say why the data is old and when the next attempt is, from the published manifest. The reason is one of:
+  - collection paused;
+  - this rank's failed attempt;
+  - a blocked retry;
+  - a quiet Windows collector;
+  - otherwise, when the last collection finished.
+  The phone Paused status says when the patch notes are next checked. The desktop patch strip keeps its short label, with the explanation as its tooltip; the notice below it says it in full.
+- **Tests:** `tests/test_static_watchdog.py` (21: decisions, refresh rules, state, issue sync, workflow contract); audit probe FR2.
