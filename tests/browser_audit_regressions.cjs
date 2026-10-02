@@ -3436,6 +3436,25 @@ probes.CT2 = async browser => {
   assert.ok(seen.setup, 'probe setup: a withheld Gold+ grade with a calculated tier');
   verdict('CT2', !(seen.calculated && /Calculated/.test(seen.cell) && /recheck queued/.test(seen.cell)), seen);
 };
+/* Freshness Phase 5 (2.46.0): a stale-type label says why the data is old and when the next attempt is.
+   The seed publication was collected on 8 Sep, so its 30-hour notice and its saved/stale status always show. */
+const STALE_WHY = /paused|last collection attempt|blocked|Windows collector|no collection has finished since/i;
+probes.FR2 = async browser => {
+  // Before: "The scheduled update may have failed or been delayed" with no cause and no next attempt.
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktop);
+    seen.banner = await page.evaluate(() => [...document.querySelectorAll('.note')].map(n => n.innerText).find(t => /more than 30 hours old/.test(t)) || '');
+    await context.close();
+  }
+  {
+    const {context, page} = await session(browser, phone);
+    seen.status = await page.evaluate(() => { const box = document.createElement('div'); box.innerHTML = mobileStatusHTML(); return box.innerText; });
+    await context.close();
+  }
+  const says = t => STALE_WHY.test(t) && /Next attempt/i.test(t);
+  verdict('FR2', !(seen.banner && says(seen.banner) && /Stale|Saved|Aging/.test(seen.status) && says(seen.status)), seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
