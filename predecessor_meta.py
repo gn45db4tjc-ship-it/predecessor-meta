@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.41.3"
+VERSION = "2.42.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1833,13 +1833,16 @@ def parse_community_builds(rows,bundle,patch,url,fetched_at):
     heroes={h.get('omeda',{}).get('id'):slug for slug,h in bundle.get('heroes',{}).items() if h.get('omeda')}
     items={str(k):v for k,v in bundle.get('omeda_items',{}).items()}
     builds=[];issues=[]
+    # 2.42.0: Omeda labels builds with the hotfix version (v1.17.1). A hotfix the verified official article dates as live
+    # belongs to the live patch line; announced or other versions still do not count.
+    current={patch,*live_hotfix_versions(bundle.get('official'))}
     for row in rows:
         try:
             if not isinstance(row,dict):raise ValueError('Invalid build record')
             version=str(row.get('game_version',{}).get('name','')).lstrip('vV')
-            if version!=patch:continue
+            if version not in current:continue
             slug=heroes.get(row.get('hero_id'));role=omeda_role_normalize(row.get('role'))
-            if not slug or not role:raise ValueError('Unjoined hero or role for build '+str(row.get('id')))
+            if not slug or not role:raise ValueError('Skipped community build '+str(row.get('id'))+': its hero or role is not on the joined hero list yet')
             names=[]
             for pos in range(1,7):
                 item=items.get(str(row.get('item%d_id'%pos)))
