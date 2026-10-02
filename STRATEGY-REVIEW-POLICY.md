@@ -44,8 +44,8 @@ review is resumed; its older scheduling description does not override this decis
 
 ## What is actually scheduled
 
-The GitHub workflow collects public data daily, checks official changes every three
-hours, and prepares `review/index.json` plus checksum-addressed review packets.
+The GitHub workflow collects public data daily, checks official changes every hour
+(every three hours before 2.44.0), and prepares `review/index.json` plus checksum-addressed review packets.
 `review_queue.cjs` does not perform an AI review. Creating a packet must never
 advance a strategy review date or relabel guidance as current.
 

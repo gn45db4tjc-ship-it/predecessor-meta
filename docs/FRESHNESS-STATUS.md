@@ -6,10 +6,10 @@ The running record of the freshness overhaul (owner's brief of 2 Oct 2026; decis
 
 | Event | Target | Baseline (2 Oct, 2.41.2) | Now |
 |---|---|---|---|
-| Live patch or hotfix posted → collection starts | ≤ 1 h | up to 3 h | unchanged (Phase 2) |
+| Live patch or hotfix posted → collection starts | ≤ 1 h | up to 3 h | **Met (2.44.0):** the official notes are checked every hour, and a changed live article starts a collection in that run. |
 | Upstream statistics change → published for that rank | ≤ 3 h | up to ~25 h (Pred.gg, PC once a day) | unchanged (Phase 2) |
 | Any rank's core statistics age, sources healthy | never over 24 h | peaks 24.7 h; unlimited when the PC is off | unchanged (Phase 2) |
-| Review PR merged → visible on the site | ≤ 30 min | code 3.6 min; grades and builds 12–24 h | unchanged (Phase 2) |
+| Review PR merged → visible on the site | ≤ 30 min | code 3.6 min; grades and builds 12–24 h | **Met (2.44.0):** the merge's own publish run re-applies a changed reviewed packet to every rank (about 4 min), without waiting for a collection. |
 | Grade withheld or plan inactive → recheck queued | same run | never | queue listed below; automatic in Phase 4 |
 | New publication → visible on a phone or desktop | ≤ 1 min | 15 min returning, 30 min open tab | **Met (2.43.0):** a freshly opened app checks at once; a returning app checks when its last check is over 15 s old; an open, visible tab checks every 5 min. Probe FR1 (clocked browser): 1 check on return, 1 in the open tab (was 0 and 0). |
 
