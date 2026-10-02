@@ -56,10 +56,12 @@ async function clockSession(browser, options, offsetMs = 3600000) {
 /* Trigger an update check the way a phone does: the tab becomes visible again after more than 15 minutes.
    (The 'online' event is NOT used: the phone code redraws on it, which would hide a missing redraw.) */
 async function checkLikeAReturningTab(page, forward = '00:16:00') {
-  // Listen first: a long jump also fires the site's own 30-minute check, and either trigger is realistic.
+  // The tab is hidden while the user is away, as a real one is: a headless page always reports 'visible', and since
+  // 2.43.0 a visible tab checks every 5 minutes, which would not happen during a real absence. It then returns.
+  await page.evaluate(() => Object.defineProperty(document, 'visibilityState', {configurable: true, get: () => 'hidden'}));
   const checked = page.waitForResponse(response => response.url().includes('manifest.json'), {timeout: 60000});
   await page.clock.fastForward(forward);
-  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', {configurable: true, get: () => 'visible'}); document.dispatchEvent(new Event('visibilitychange')); });
   await checked;
   await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 120000});
 }
@@ -3374,6 +3376,23 @@ probes.DQ8 = async browser => {
     return {found: false};
   });
   await context.close(); verdict('DQ8', seen.found && !/\bobserved\b/.test(seen.cls || ''), seen);
+};
+/* Freshness overhaul (2.43.0): a new publication reaches an open or returning app within a minute. */
+probes.FR1 = async browser => {
+  // Before: a returning app checked only when its last check was over 15 minutes old, and an open tab every 30 minutes.
+  const {context, page} = await clockSession(browser, phone);
+  let manifests = 0;
+  page.on('request', r => { if (/\/manifest\.json(\?|$)/.test(r.url())) manifests++; });
+  await page.waitForTimeout(1500);
+  await page.clock.fastForward(120000);   // the user comes back two minutes later
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await page.waitForTimeout(1500);
+  const onReturn = manifests;
+  await page.clock.fastForward(6 * 60000);   // the tab then stays open and visible for six minutes
+  await page.waitForTimeout(1500);
+  const openTab = manifests - onReturn;
+  await context.close();
+  verdict('FR1', onReturn === 0 || openTab === 0, {onReturn, openTab});
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));

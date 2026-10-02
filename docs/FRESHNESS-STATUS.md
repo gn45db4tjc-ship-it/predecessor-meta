@@ -11,7 +11,7 @@ The running record of the freshness overhaul (owner's brief of 2 Oct 2026; decis
 | Any rank's core statistics age, sources healthy | never over 24 h | peaks 24.7 h; unlimited when the PC is off | unchanged (Phase 2) |
 | Review PR merged → visible on the site | ≤ 30 min | code 3.6 min; grades and builds 12–24 h | unchanged (Phase 2) |
 | Grade withheld or plan inactive → recheck queued | same run | never | queue listed below; automatic in Phase 4 |
-| New publication → visible on a phone or desktop | ≤ 1 min | 15 min returning, 30 min open tab | unchanged (Phase 2) |
+| New publication → visible on a phone or desktop | ≤ 1 min | 15 min returning, 30 min open tab | **Met (2.43.0):** a freshly opened app checks at once; a returning app checks when its last check is over 15 s old; an open, visible tab checks every 5 min. Probe FR1 (clocked browser): 1 check on return, 1 in the open tab (was 0 and 0). |
 
 ## Phase 1: what was stale on 2 Oct, and why
 
@@ -29,7 +29,7 @@ Every stale-type item from the baseline, classified. "Fixed" means fixed at the 
 | "Guidance · Gold+ only" (no tier) on five ranks | Missing feature | Grades exist only for the Gold+ cohort. | Phase 3 (calculated per-rank tiers) |
 | Ages up to 24.7 h; Pred.gg "retained" when the PC is off | Collection cadence; PC dependency | One full collection a day, from the PC only. | Phase 2 |
 | Open tab up to 30 min, returning app up to 15 min behind | Client cache | Publication-check intervals in static_client.js:601-604. | Phase 2 |
-| A lost Actions cache shows the 8 Sep seed | Durable state | The cache-miss restore uses only the committed Gold+ seed. | Phase 2 |
+| A lost Actions cache shows the 8 Sep seed | Durable state | The cache-miss restore uses only the committed Gold+ seed and the Windows feed. | **Fixed (2.43.0):** a run with no state restores the live publication first, each bundle sha256-checked against the live manifest and stored with its dates unchanged; the schedule state is restored too. Tested against the real live site: all six ranks restored. |
 | Seven experimental roles unresolved (Akeron support, Ikra support, The Fey carry, Wraith support, Maco midlane, Scarlett midlane, Wukong offlane) | By design | Experimental roles with thin or no samples are kept out of automatic suggestions. | No change; reviewed when evidence exists |
 | pred_api.py said "NOT wired into collection yet" | Documentation | It is wired (`pred_source_fetch`) and inert without secrets. | Fixed |
 

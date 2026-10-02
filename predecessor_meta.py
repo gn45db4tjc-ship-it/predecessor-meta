@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.42.0"
+VERSION = "2.43.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -93,6 +93,9 @@ USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) PredecessorMetaTool/%s 
               "(personal planning tool; Python urllib)" % VERSION)
 STATZ_BASE = "https://statz.gg"
 OMEDA_BASE = "https://omeda.city"
+# 2.43.0: the public website, read for its app version so the Windows app can say when it is behind (a notice only).
+PUBLIC_SITE = "https://gn45db4tjc-ship-it.github.io/predecessor-meta/"
+WEBSITE_CHECK_SECONDS = 6 * 3600
 BRACKETS = ["bronze", "silver", "gold", "platinum", "diamond", "paragon"]
 
 # Internal role vocabulary. Jungle first because that is the user's main role.
@@ -1480,6 +1483,28 @@ class OfficialReader(HTMLParser):
             self.active = None; self.parts = []
     def handle_data(self, data):
         if self.active and not self.skip: self.parts.append(data)
+
+
+def version_tuple(value):
+    parts = str(value).split('.')
+    if not 1 <= len(parts) <= 4 or not all(p.isdigit() for p in parts):
+        raise ValueError('Invalid app version ' + repr(value))
+    return tuple(int(p) for p in parts)
+
+
+def website_release(fetch=None, current=None, now=None):
+    """The website's app version, compared with this app (2.43.0). Installs are manual and an older collector rejects
+    a newer guidance packet, so the app says when it is behind. A notice only: nothing is downloaded or installed."""
+    current = current or VERSION
+    stamp = iso(now or now_utc())
+    try:
+        raw, _, _ = (fetch or http_get)(PUBLIC_SITE + 'manifest.json', timeout=15, retries=0)
+        version = json.loads(raw)['app']['version']
+        newer = version_tuple(version) > version_tuple(current)
+        return {'version': version, 'current': current, 'newer': newer, 'checked_at': stamp, 'url': PUBLIC_SITE}
+    except Exception as exc:
+        return {'version': None, 'current': current, 'newer': False, 'checked_at': stamp, 'url': PUBLIC_SITE,
+                'error': (type(exc).__name__ + ': ' + str(exc))[:200]}
 
 
 def patch_tuple(s):
@@ -3742,9 +3767,26 @@ class AppState:
             self.bundle['cache']={'used':True,'reason':'Previous refresh did not finish successfully'}
             if str(self.bundle.get('guidance',{}).get('status','')).startswith('reviewed'):
                 self.bundle['guidance']['status']='reviewed for saved patch; live verification failed'
-    def status_snapshot(self):
+    def website_release_state(self):
+        """Cached website version (2.43.0); refreshed in the background at most every six hours, so a status poll never
+        waits on the network. --no-fetch never contacts the website."""
+        if self.no_fetch:
+            return None
         with self.lock:
-            return dict(self.status,tool_version=VERSION,instance_id=self.instance_id,freshness=freshness_state(self.bundle,self.last_attempt_at,self.status['busy'],self.no_fetch,retry_blocked=self.retry_blocked))
+            state = getattr(self, 'website', None)
+            due = state is None or time.time() - getattr(self, 'website_at', 0) >= WEBSITE_CHECK_SECONDS
+            if due and not getattr(self, 'website_running', False):
+                self.website_running = True
+                threading.Thread(target=self.check_website, daemon=True).start()
+            return copy.deepcopy(state)
+    def check_website(self):
+        result = website_release()
+        with self.lock:
+            self.website, self.website_at, self.website_running = result, time.time(), False
+    def status_snapshot(self):
+        website=self.website_release_state()
+        with self.lock:
+            return dict(self.status,website_release=website,tool_version=VERSION,instance_id=self.instance_id,freshness=freshness_state(self.bundle,self.last_attempt_at,self.status['busy'],self.no_fetch,retry_blocked=self.retry_blocked))
     def save_planner(self,value):
         # Multiple app windows may submit changes. Keep the disk replacement and
         # in-memory snapshot in one critical section; failure preserves both.

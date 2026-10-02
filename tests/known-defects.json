@@ -190,7 +190,8 @@
     "DQ5": "2.41.0 DESKTOP: a hero link that cannot be opened silently shows Meta with no explanation",
     "DQ6": "2.41.0 DESKTOP: closing an item dialog on the hero page loses focus, or Back leaves the dialog open over another page",
     "DQ7": "2.41.0 DESKTOP: Match shows the adapted build far below the hero picker, which stays open at 5/5",
-    "DQ8": "2.41.0: Match labels a kept source playstyle as a reviewed build (\"Starting build kept\" in the reviewed class)"
+    "DQ8": "2.41.0: Match labels a kept source playstyle as a reviewed build (\"Starting build kept\" in the reviewed class)",
+    "FR1": "2.43.0 FRESHNESS: an app that returns to the foreground checks for a new publication only after 15 minutes, and an open tab every 30 minutes"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

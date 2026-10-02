@@ -598,10 +598,16 @@ if (APP_CONFIG.mode === 'static') {
       } catch (error) { if (site.comparisonChoice === choice) toast(error.message); } finally { clearTimeout(timer); }
     }
   }, true);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now()-site.lastCheck > 900000) checkPublication(); });
-  window.addEventListener('focus', () => { if (Date.now()-site.lastCheck > 900000 && !site.controller) checkPublication(); });
+  // 2.43.0 freshness: a new publication reaches an app that opens or returns within a minute. Returning (visible, focus,
+  // back-forward cache) checks when the last check is over 15 s old; an open, visible tab checks every 5 min. The
+  // manifest is small and fetched no-store; the page redraws only when the data changed.
+  const RETURN_CHECK_MS = 15000, OPEN_TAB_CHECK_MS = 300000;
+  const returnCheck = () => { if (navigator.onLine && Date.now()-site.lastCheck > RETURN_CHECK_MS && !site.controller) checkPublication(); };
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') returnCheck(); });
+  window.addEventListener('pageshow', event => { if (event.persisted) returnCheck(); });
+  window.addEventListener('focus', returnCheck);
   window.addEventListener('online', () => checkPublication(true));
-  setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine && !site.controller) checkPublication(); }, 1800000);
+  setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine && !site.controller) checkPublication(); }, OPEN_TAB_CHECK_MS);
   // Evidence ages even when no check succeeds (for example offline): re-evaluate it every five minutes.
   setInterval(() => { if (B && document.visibilityState === 'visible' && !site.controller) redrawForEvidence(); }, 300000);
   // Defer until the existing UI startup has created its shell.
