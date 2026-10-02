@@ -362,6 +362,87 @@ def import_public_seed(path, folder):
     return True
 
 
+LIVE_SITE = 'https://gn45db4tjc-ship-it.github.io/predecessor-meta/'
+
+
+def _live_get(url, attempts=3):
+    """The exact published bytes (base.http_get decodes text, which would break the sha256 check)."""
+    import urllib.error
+    import urllib.request
+    last = None
+    for attempt in range(attempts):
+        try:
+            request = urllib.request.Request(url, headers={'User-Agent': base.USER_AGENT, 'Cache-Control': 'no-cache'})
+            with urllib.request.urlopen(request, timeout=60) as response:
+                return response.read()
+        except urllib.error.HTTPError as error:
+            last = error
+            if error.code < 500:
+                raise
+        except Exception as error:
+            last = error
+        if attempt + 1 < attempts:
+            time.sleep(2)
+    raise last
+
+
+def restore_from_live(folder, site_url=LIVE_SITE, fetch=None):
+    """Restore a lost Actions cache from the live publication before anything older (2.43.0).
+
+    Runs only when the state is missing. Each bundle must match the live manifest's sha256 and date; it is stored exactly
+    as published, so no source date, status or sample changes. The schedule state is taken from the live manifest, so
+    the run continues as if the cache had survived (no surprise full collection). Anything unreachable or failing its
+    checksum is skipped, and the older paths (the Windows feed, then the committed seed) remain in charge."""
+    folder = Path(folder)
+    report = {'restored': [], 'rejected': {}, 'error': None}
+    if (folder / 'publication.json').exists():
+        return report
+    fetch = fetch or _live_get
+    try:
+        manifest = json.loads(fetch(site_url + 'manifest.json'))
+        cohorts = manifest['cohorts']
+        if not isinstance(cohorts, dict):
+            raise ValueError('cohorts missing')
+    except Exception as error:
+        report['error'] = 'Live manifest unavailable: ' + str(error)[:200]
+        base.log('Cache restore from the live site skipped. ' + report['error'])
+        return report
+    restored = {}
+    for bracket in CONFIG['brackets']:
+        entry = cohorts.get(bracket) or {}
+        if entry.get('status') != 'available' or not entry.get('url') or not entry.get('sha256'):
+            continue
+        try:
+            raw = fetch(site_url + entry['url'])
+            if hashlib.sha256(raw).hexdigest() != entry['sha256']:
+                raise ValueError('sha256 differs from the live manifest')
+            bundle = json.loads(raw)
+            if bundle.get('generated_at') != entry.get('generated_at'):
+                raise ValueError('generated_at differs from the live manifest')
+            retain_publication(bundle, folder)
+            restored[bracket] = entry
+        except Exception as error:
+            report['rejected'][bracket] = str(error)[:200]
+            base.log('Cache restore rejected the live ' + bracket + ' bundle: ' + report['rejected'][bracket])
+    if not restored:
+        return report
+    state = {'schema': 1, 'attempts': {k: copy.deepcopy(e['last_attempt']) for k, e in restored.items() if isinstance(e.get('last_attempt'), dict)}}
+    for key in ('last_full_attempt_at', 'patch_check', 'last_verified_patch_check', 'local_collector', 'required_retry'):
+        if manifest.get(key) is not None:
+            state[key] = copy.deepcopy(manifest[key])
+    signatures = {e.get('source_signature') for e in restored.values()}
+    if len(signatures) == 1 and None not in signatures:
+        state['last_attempted_signature'] = state['last_completed_signature'] = signatures.pop()
+    if os.environ.get('COLLECTION_RELEASE'):
+        state['collection_release'] = os.environ['COLLECTION_RELEASE']
+    state['restored_from_live'] = {'at': base.iso(base.now_utc()), 'site': site_url, 'published_at': manifest.get('published_at'),
+                                   'brackets': sorted(restored)}
+    write_json(folder / 'publication.json', state)
+    report['restored'] = sorted(restored)
+    base.log('Restored ' + ', '.join(report['restored']) + ' from the live publication of ' + str(manifest.get('published_at')) + ' (dates unchanged).')
+    return report
+
+
 def output_flag(name, value):
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf8') as stream:
@@ -741,7 +822,11 @@ def main():
     parser.add_argument('--check-only', action='store_true', help='Developer/maintenance check of official notes without statistical collection')
     parser.add_argument('--preview-seed', type=Path, action='append', default=[])
     parser.add_argument('--import-public-seed', type=Path, action='append', default=[])
+    parser.add_argument('--restore-live', metavar='SITE_URL', help='Only when the state is missing: restore it from the live publication, then exit')
     args = parser.parse_args()
+    if args.restore_live:
+        print(json.dumps(restore_from_live(args.state_dir, args.restore_live.rstrip('/') + '/')))
+        return 0
     if args.diagnose_pred:
         if args.manual or args.check_only or args.preview_seed:
             parser.error('--diagnose-pred cannot be combined with collection or preview flags')

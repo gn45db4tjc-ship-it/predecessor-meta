@@ -86,6 +86,10 @@ jobs:
           PRED_API_CLIENT_SECRET: ${{ secrets.PRED_API_CLIENT_SECRET }}
           COLLECTION_RELEASE: '2.31.1'
         run: |
+          # 2.43.0: when the cache was lost (no state), restore the live publication first, sha256-checked against the
+          # live manifest and with its dates unchanged, so an eviction never puts an older date on the site. A no-op
+          # when the state exists; never fails the run.
+          python -B static_publish.py --restore-live https://gn45db4tjc-ship-it.github.io/predecessor-meta/ || true
           if [ -f collected-data/collector.json ]; then
             python -B import_local_feed.py collected-data
           fi

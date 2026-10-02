@@ -34,6 +34,15 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
     }
     if(phone)await goToScreen(page,'more');
     check(await page.locator(themeControl).isVisible(),'theme toggle visible');
+    // 2.43.0: the Windows app says when the website runs a newer version, and says nothing when it does not.
+    if(mode==='local'&&!phone){
+     const release=()=>page.evaluate(()=>document.querySelector('#app-release')?.innerText||'');
+     check(!/newer version/i.test(await release()),'no update notice while the website is not newer');
+     await page.route('**/api/status',async route=>{const response=await route.fetch(),json=await response.json();await route.fulfill({response,json:{...json,website_release:{version:'9.9.9',current:json.tool_version,newer:true}}});});
+     await page.waitForFunction(()=>/newer version is on the website: 9\.9\.9/.test(document.querySelector('#app-release')?.innerText||''),null,{timeout:20000});
+     check(/manual step; nothing installs automatically/.test(await release()),'Windows app notices a newer website version');
+     await page.unroute('**/api/status');
+    }
     const original=await page.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tiers:B.tier_list}));
     await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'},{slug:'gideon',role:'midlane'}];S.enemies=[{slug:'khaimera',role:'jungle'}];S.me='steel';S.size=5;save();});
     if(mode==='local')await page.waitForFunction(()=>!plannerSaveRunning);

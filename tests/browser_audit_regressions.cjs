@@ -56,10 +56,12 @@ async function clockSession(browser, options, offsetMs = 3600000) {
 /* Trigger an update check the way a phone does: the tab becomes visible again after more than 15 minutes.
    (The 'online' event is NOT used: the phone code redraws on it, which would hide a missing redraw.) */
 async function checkLikeAReturningTab(page, forward = '00:16:00') {
-  // Listen first: a long jump also fires the site's own 30-minute check, and either trigger is realistic.
+  // The tab is hidden while the user is away, as a real one is: a headless page always reports 'visible', and since
+  // 2.43.0 a visible tab checks every 5 minutes, which would not happen during a real absence. It then returns.
+  await page.evaluate(() => Object.defineProperty(document, 'visibilityState', {configurable: true, get: () => 'hidden'}));
   const checked = page.waitForResponse(response => response.url().includes('manifest.json'), {timeout: 60000});
   await page.clock.fastForward(forward);
-  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', {configurable: true, get: () => 'visible'}); document.dispatchEvent(new Event('visibilitychange')); });
   await checked;
   await page.waitForFunction(() => !latestStatus.busy, null, {timeout: 120000});
 }
