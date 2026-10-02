@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.42.0
+# Predecessor Meta - 2.43.0
 
-Freshness Phase 1: community builds come back (Omeda labels them with the hotfix version v1.17.1, which we now accept when the official article dates that hotfix as live), and Match explains an inactive reviewed build in plain English. Every stale-type item from the 2 Oct baseline is classified in docs/FRESHNESS-STATUS.md, with the recheck queue for Phase 4. See [RELEASE-2.42.0.md](RELEASE-2.42.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Freshness Phase 2a: an app that opens or comes back checks for new data at once (every 5 minutes in an open tab), a lost GitHub cache restores the live publication instead of older data, and the Windows app says when the website runs a newer version (a notice only). See [RELEASE-2.43.0.md](RELEASE-2.43.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.42.0
+
+Freshness Phase 1: community builds come back (Omeda labels them with the hotfix version v1.17.1, which we now accept when the official article dates that hotfix as live), and Match explains an inactive reviewed build in plain English. Every stale-type item from the 2 Oct baseline is classified in docs/FRESHNESS-STATUS.md, with the recheck queue for Phase 4. See [RELEASE-2.42.0.md](RELEASE-2.42.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.41.3
 
