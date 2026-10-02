@@ -8,14 +8,19 @@
  const click=s=>{const e=document.querySelector(s);if(!e)throw Error('Missing control '+s);e.click();};
  const close=()=>{if(document.querySelector('#detail').open)click('#close-detail');};
  close();click('[data-route="meta"]');
- let total=0;
+ // Only reviewed hero/role entries present in this publication's cohort have a table row.
+ const reviewKey=r=>r.slug+'|'+r.role;
+ const cohortKeys=new Set((B.scoped_statistics?.rows||[]).map(reviewKey));
+ const expected=new Set(B.guidance.meta_review.entries.map(reviewKey).filter(key=>cohortKeys.has(key)));
+ const rendered=[];
  for(const role of ['jungle','offlane','midlane','carry','support']){
   click('[data-meta-role="'+role+'"]');
-  const rows=[...document.querySelectorAll('[data-meta-decision]')];total+=rows.length;
+  const rows=[...document.querySelectorAll('[data-meta-decision]')];rendered.push(...rows.map(e=>e.dataset.metaDecision));
   assert(rows.length>0,'Reviewed '+role+' table');
   for(const e of rows){e.click();assert(document.querySelector('#detail-body').innerText.includes('Observed evidence stays separate'),'Tier details '+e.dataset.metaDecision);close();}
  }
- assert(total===85,'85 distinct role reviews rendered');
+ assert(new Set(rendered).size===rendered.length,'Rendered role reviews are distinct');
+ assert(rendered.length===expected.size&&rendered.every(key=>expected.has(key)),expected.size+' reviewed hero/role entries in the cohort rendered exactly once');
  click('[data-meta-role="jungle"]');click('[data-meta-decision="steel|jungle"]');
  assert(document.querySelector('#detail-body').innerText.includes(B.guidance.meta_review.entries.find(r=>r.slug==='steel'&&r.role==='jungle').evidence.matches.toLocaleString()+' games'),'Dated Steel reference sample');
  click('#detail [data-hero="steel"]');assert(!document.querySelector('#detail').open,'Tier to hero closes modal');
