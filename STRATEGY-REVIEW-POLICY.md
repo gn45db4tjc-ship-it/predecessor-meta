@@ -1,6 +1,36 @@
 # Scheduled reasoning reviews
 
-## Current scheduling decision (September 21, 2026)
+## Current scheduling decision (2 October 2026)
+
+The owner's decisions of 2 October 2026, in the owner's words. They supersede the
+21 September decision below and are part of the freshness overhaul
+(docs/FRESHNESS-BASELINE.md):
+
+- **Calculated per-rank tiers.** "Each rank gets a tier for every hero and role,
+  calculated by the engine from that rank's own current sample and labeled
+  'Calculated'. It is never labeled 'Reviewed'. Gold+ reviewed grades remain the
+  editorial reference."
+- **Automatic rechecks with auto-merge.** "Reviews of builds and grades are queued
+  automatically and run by a scheduled agent. A review PR merges itself when it passes
+  the gate in Phase 4. This replaces the 21 Sep decision that ran a one-time trial
+  with no recurring review."
+- **Merging code for this objective.** "Code may merge to main when every check
+  passes, which deploys to production, provided the live site verifies afterward and
+  you revert at once if it doesn't. This authorization covers this objective only."
+
+Unchanged: installing on Windows still needs the owner's separate approval. No paid
+APIs; the budget is free GitHub Pages and standard Actions runners. Pred.gg access
+stops are never bypassed.
+
+The Phase 4 auto-merge gate (all must hold): the PR touches guidance and review files
+only; validators, Python and Node tests and the browser suites pass on a preview built
+from live data; every changed entry has a complete ledger record; no grade moves more
+than one step; nothing unresolved supports a newly endorsed choice. The PR is held for
+the owner (DECISION NEEDED) for a hero's first grade, a policy exception, a validator
+change, or a pass that would change more than 10 grades. Auto-merge stays off until the
+nightly live check has passed on main for two consecutive runs.
+
+## Previous scheduling decision (September 21, 2026), superseded on 2 October 2026
 
 The owner replaced the three-hour AI checks and automatic weekly full-roster work
 with a one-time trial on September 22 at 14:00 America/Chicago, after independently

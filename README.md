@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.41.2
+# Predecessor Meta - 2.41.3
 
-Five Gold+ grades moved in a recheck of the 1.17 review against five days of data: Kira carry to A; Legion, Gideon and Greystone from S to A; Murdock back to C. Valmont gets his first grade, midlane B. Sixteen others were retained and show again where they were withheld, and each rechecked tier shows both its review and recheck dates. See [RELEASE-2.41.2.md](RELEASE-2.41.2.md).
+Phase 0 of the freshness overhaul: a measured baseline of how current the site is (docs/FRESHNESS-BASELINE.md), and the owner's 2 Oct decisions on calculated per-rank tiers, automatic rechecks with auto-merge, and merging code for this objective (STRATEGY-REVIEW-POLICY.md). Nothing on the site or in the Windows app changes. See [RELEASE-2.41.3.md](RELEASE-2.41.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.41.2
+
+Five Gold+ grades moved in a recheck of the 1.17 review against five days of data: Kira carry to A; Legion, Gideon and Greystone from S to A; Murdock back to C. Valmont gets his first grade, midlane B. Sixteen others were retained and show again where they were withheld, and each rechecked tier shows both its review and recheck dates. See [RELEASE-2.41.2.md](RELEASE-2.41.2.md).
 
 ### 2.41.1
 

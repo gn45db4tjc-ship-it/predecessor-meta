@@ -1,0 +1,1784 @@
+{
+ "schema": 1,
+ "measured_at": "2026-10-02",
+ "live_release": "2.41.2",
+ "live_published_at": "2026-10-02T04:01:09+00:00",
+ "main_commit": "1177cf2",
+ "manifest": {
+  "schedule": {
+   "daily_utc": "17:23",
+   "patch_check_hours": 3
+  },
+  "last_full_attempt_at": "2026-10-01T16:56:49-05:00",
+  "next_expected_attempt_at": "2026-10-02T17:23:00+00:00",
+  "collection_host": "cloud",
+  "local_collector": {
+   "checked_at": "2026-10-01T22:57:21-05:00",
+   "status": "connected",
+   "results": {
+    "gold": "retained newer or identical bundle",
+    "bronze": "retained newer or identical bundle",
+    "silver": "retained newer or identical bundle",
+    "platinum": "retained newer or identical bundle",
+    "diamond": "retained newer or identical bundle",
+    "paragon": "retained newer or identical bundle"
+   }
+  },
+  "optional_sources": {
+   "pred": {
+    "mode": "public_pages_only",
+    "note": "Pred.gg is optional. Use validated data embedded in public pages when available; no API or account is required. Access denials stop further requests. Other sources continue, and retained Pred.gg data keeps its original date."
+   }
+  },
+  "required_retry": {
+   "pending": false,
+   "blocked": false,
+   "attempts": 0,
+   "limit": 2,
+   "next_at": null,
+   "reason": null
+  },
+  "source_pauses": {},
+  "health": {
+   "core_statistics": {
+    "state": "Current",
+    "age_hours": 6.07,
+    "updated_at": "2026-10-01T16:57:05-05:00",
+    "source": "Statz hero pages",
+    "status": "available",
+    "retained": false
+   },
+   "mechanics": {
+    "status": "ok",
+    "updated_at": "2026-10-01T16:56:49-05:00"
+   },
+   "guidance": {
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "next_review_at": null
+   },
+   "optional_pred": {
+    "status": "ok",
+    "updated_at": "2026-10-01T16:57:23-05:00"
+   },
+   "live_patch": {
+    "status": "verified",
+    "version": "1.17",
+    "checked_at": "2026-10-02T04:01:09+00:00"
+   },
+   "last_attempt_at": "2026-10-01T16:56:49-05:00",
+   "next_expected_attempt_at": "2026-10-02T17:23:00+00:00"
+  }
+ },
+ "ranks": {
+  "bronze": {
+   "label": "Bronze+",
+   "assembled_at": "2026-10-01T17:03:58-05:00",
+   "age_hours_at_publication": 6,
+   "collector_host": "windows",
+   "collector_tool_version": "2.41.2",
+   "last_attempt": {
+    "status": "ok",
+    "at": "2026-10-01T17:03:58-05:00",
+    "seconds": 225.21,
+    "errors": []
+   },
+   "collection_status": "complete",
+   "sources": {
+    "community_builds": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:00:30-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_heroes": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:00:13-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_items": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:00:13-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_game_data": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:03:55-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_scoped": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:01:03-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_hero_pages": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:00:29-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_tierlist": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:00:13-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "steam_publisher_announcements": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:44-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    }
+   },
+   "notices": [
+    {
+     "source": "join statz<->omeda",
+     "severity": "warning",
+     "detail": "not on Omeda yet; kit from Pred.gg: valmont"
+    },
+    {
+     "source": "statz.gg hero pages",
+     "severity": "warning",
+     "detail": "hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about 1.7x the games on the Bronze+ tier list; statz does not state what the extra games are."
+    },
+    {
+     "source": "Official correction review",
+     "severity": "warning",
+     "detail": "Correction could not be verified for Cold Hearted, Fracture, Knell, Neurotoxin, Patina, Risen, Shred Spree, Terror. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the or"
+    },
+    {
+     "source": "Official definition review",
+     "severity": "warning",
+     "detail": "Partly verified descriptions: Frost Snap, Harmonic Currents, Mending. Conflicting fields remain explicitly unverified; inspect the blessing details."
+    },
+    {
+     "source": "Statz build definitions",
+     "severity": "warning",
+     "detail": "Missing or incompatible Statz descriptions: Bio-Mechanical Fusion, Broken Wings, Cold Hearted, Cull the Weak, Diamond Tip, Diffusion, Dominance, Early Bloom, Flawless, Fragrance, Icy Touch, Neurotoxin, Risen, Rite, Taste"
+    },
+    {
+     "source": "Omeda community builds",
+     "severity": "warning",
+     "detail": "No usable builds labelled for the verified current patch; community alternatives are unavailable."
+    },
+    {
+     "source": "Official 1.17 mechanics reconciliation",
+     "severity": "warning",
+     "detail": "Unmatched source fields: patch-1.17-perks-rallying-roar-description, patch-1.17-perks-peal-description. Official notes remain visible; affected build preconditions prevent automatic endorsement."
+    }
+   ],
+   "pred_mode": "public_pages_only",
+   "grades": {
+    "total": 86,
+    "active": 0,
+    "withheld": {
+     "Review covers a different cohort": {
+      "count": 86,
+      "entries": [
+       "adele offlane C",
+       "adele support B",
+       "akeron jungle A",
+       "akeron offlane A",
+       "argus midlane A",
+       "argus support C",
+       "aurora jungle S",
+       "aurora offlane B",
+       "aurora support B",
+       "bayle jungle C",
+       "bayle offlane C",
+       "boris jungle A",
+       "countess jungle B",
+       "countess offlane A",
+       "countess midlane C",
+       "crunch jungle B",
+       "crunch offlane B",
+       "dekker support B",
+       "drongo carry S",
+       "eden carry S",
+       "feng-mao jungle C",
+       "feng-mao offlane C",
+       "gadget midlane A",
+       "gadget support B",
+       "gideon midlane A",
+       "greystone jungle B",
+       "greystone offlane A",
+       "grim-exe carry B",
+       "grux jungle B",
+       "grux offlane A",
+       "howitzer midlane A",
+       "iggy-scorch offlane A",
+       "iggy-scorch midlane B",
+       "ikra midlane C",
+       "kallari jungle C",
+       "khaimera jungle A",
+       "khaimera offlane C",
+       "kira carry A",
+       "kwang jungle B",
+       "kwang offlane B",
+       "legion carry A",
+       "lt-belica midlane S",
+       "lt-belica support A",
+       "maco support C",
+       "morigesh midlane B",
+       "mourn support S",
+       "murdock carry C",
+       "muriel support S",
+       "narbash support S",
+       "neon midlane B",
+       "phase support A",
+       "rampage jungle A",
+       "renna midlane B",
+       "revenant carry A",
+       "riktor jungle C",
+       "riktor support B",
+       "riktor offlane C",
+       "scarlett jungle C",
+       "scarlett offlane A",
+       "serath jungle A",
+       "serath offlane C",
+       "sevarog jungle B",
+       "sevarog offlane B",
+       "shinbi jungle B",
+       "shinbi offlane A",
+       "skylar carry B",
+       "sparrow carry S",
+       "steel offlane B",
+       "steel support S",
+       "steel jungle A",
+       "terra jungle C",
+       "terra offlane C",
+       "the-fey midlane S",
+       "the-fey support A",
+       "twinblast carry B",
+       "wraith midlane C",
+       "valmont midlane B",
+       "wraith carry B",
+       "wukong jungle A",
+       "yin jungle A",
+       "yin offlane A",
+       "yurei jungle B",
+       "zarus jungle S",
+       "zarus offlane B",
+       "zinx offlane A",
+       "zinx support B"
+      ]
+     }
+    }
+   },
+   "builds": {
+    "total": 97,
+    "active": 89,
+    "inactive": {
+     "supporting mechanics changed; needs review": {
+      "count": 1,
+      "entries": [
+       "legion carry"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions.": {
+      "count": 4,
+      "entries": [
+       "akeron support",
+       "ikra support",
+       "the-fey carry",
+       "wraith support"
+      ]
+     },
+     "review unresolved: Experimental role with no usable sample; kept out of automatic suggestions.": {
+      "count": 2,
+      "entries": [
+       "maco midlane",
+       "scarlett midlane"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.": {
+      "count": 1,
+      "entries": [
+       "wukong offlane"
+      ]
+     }
+    }
+   },
+   "guidance": {
+    "patch": "1.17",
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "meta_review_bracket": "gold",
+    "meta_review_patch": "1.17",
+    "meta_review_reviewed_at": "2026-09-24T01:56:00-05:00",
+    "build_review": {
+     "patch": "1.17",
+     "reviewed_at": "2026-09-23T20:38:00+00:00",
+     "summary": {
+      "changed": 48,
+      "checked and retained": 42,
+      "unresolved": 7
+     }
+    },
+    "saved_build_review": null
+   },
+   "labels_seen": {
+    "desktop": {},
+    "phone": {}
+   },
+   "status_lines_desktop": [
+    "GAME PATCH v1.17 Official notes ↗ RECOMMENDATION STATISTICS Pred.gg 1.17 EXACT PATCH · BRONZE+ GUIDANCE · GOLD+ ONLY v1.17 reviewed for current patch",
+    "Published Bronze+ · assembled 10/1/2026, 5:03:58 PM. Source limitations · 7 notices — Statz and Omeda hero matching · Status details",
+    "Bundle assembled 10/1/2026, 5:03:58 PM · Statz fetched 10/1/2026, 5:00:13 PM · Pred.gg fetched 10/1/2026, 5:01:03 PM · Pred.gg 1.17 · Ranked · Bronze+; Statz comparisons remain separate. Daily cloud update target: 10/2/2026, 12:23:00 PM (your time). Your PC can be off. Patch checks every three hours"
+   ]
+  },
+  "silver": {
+   "label": "Silver+",
+   "assembled_at": "2026-10-01T17:07:19-05:00",
+   "age_hours_at_publication": 5.9,
+   "collector_host": "windows",
+   "collector_tool_version": "2.41.2",
+   "last_attempt": {
+    "status": "ok",
+    "at": "2026-10-01T17:07:19-05:00",
+    "seconds": 199.02,
+    "errors": []
+   },
+   "collection_status": "complete",
+   "sources": {
+    "community_builds": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:04:16-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_heroes": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:04:00-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_items": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:04:00-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_game_data": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:16-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_scoped": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:04:31-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_hero_pages": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:04:15-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_tierlist": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:04:00-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "steam_publisher_announcements": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:44-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    }
+   },
+   "notices": [
+    {
+     "source": "join statz<->omeda",
+     "severity": "warning",
+     "detail": "not on Omeda yet; kit from Pred.gg: valmont"
+    },
+    {
+     "source": "synergy",
+     "severity": "warning",
+     "detail": "34 teammate entries involve heroes that have no statz hero page in this bracket (GRIM.exe, Kallari, Wukong), so no baseline exists and those pairs are not ranked."
+    },
+    {
+     "source": "statz.gg hero pages",
+     "severity": "warning",
+     "detail": "hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about 1.6x the games on the Silver+ tier list; statz does not state what the extra games are."
+    },
+    {
+     "source": "Official correction review",
+     "severity": "warning",
+     "detail": "Correction could not be verified for Patina, Terror. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no replacement was guessed."
+    },
+    {
+     "source": "Official definition review",
+     "severity": "warning",
+     "detail": "Partly verified descriptions: Frost Snap, Harmonic Currents, Mending. Conflicting fields remain explicitly unverified; inspect the blessing details."
+    },
+    {
+     "source": "Statz build definitions",
+     "severity": "warning",
+     "detail": "Missing or incompatible Statz descriptions: Bioluminescence, Bone Collector, Convection, Diffusion, Frequency, From the Abyss, Hellfire Strikes, Inescapable, Jealousy, Lil Sucker, Mana Siphon, Patina, Peal, Resonant Repa"
+    },
+    {
+     "source": "Omeda community builds",
+     "severity": "warning",
+     "detail": "No usable builds labelled for the verified current patch; community alternatives are unavailable."
+    },
+    {
+     "source": "Official 1.17 mechanics reconciliation",
+     "severity": "warning",
+     "detail": "Unmatched source fields: patch-1.17-perks-rallying-roar-description, patch-1.17-perks-peal-description. Official notes remain visible; affected build preconditions prevent automatic endorsement."
+    }
+   ],
+   "pred_mode": "public_pages_only",
+   "grades": {
+    "total": 86,
+    "active": 0,
+    "withheld": {
+     "Review covers a different cohort": {
+      "count": 86,
+      "entries": [
+       "adele offlane C",
+       "adele support B",
+       "akeron jungle A",
+       "akeron offlane A",
+       "argus midlane A",
+       "argus support C",
+       "aurora jungle S",
+       "aurora offlane B",
+       "aurora support B",
+       "bayle jungle C",
+       "bayle offlane C",
+       "boris jungle A",
+       "countess jungle B",
+       "countess offlane A",
+       "countess midlane C",
+       "crunch jungle B",
+       "crunch offlane B",
+       "dekker support B",
+       "drongo carry S",
+       "eden carry S",
+       "feng-mao jungle C",
+       "feng-mao offlane C",
+       "gadget midlane A",
+       "gadget support B",
+       "gideon midlane A",
+       "greystone jungle B",
+       "greystone offlane A",
+       "grim-exe carry B",
+       "grux jungle B",
+       "grux offlane A",
+       "howitzer midlane A",
+       "iggy-scorch offlane A",
+       "iggy-scorch midlane B",
+       "ikra midlane C",
+       "kallari jungle C",
+       "khaimera jungle A",
+       "khaimera offlane C",
+       "kira carry A",
+       "kwang jungle B",
+       "kwang offlane B",
+       "legion carry A",
+       "lt-belica midlane S",
+       "lt-belica support A",
+       "maco support C",
+       "morigesh midlane B",
+       "mourn support S",
+       "murdock carry C",
+       "muriel support S",
+       "narbash support S",
+       "neon midlane B",
+       "phase support A",
+       "rampage jungle A",
+       "renna midlane B",
+       "revenant carry A",
+       "riktor jungle C",
+       "riktor support B",
+       "riktor offlane C",
+       "scarlett jungle C",
+       "scarlett offlane A",
+       "serath jungle A",
+       "serath offlane C",
+       "sevarog jungle B",
+       "sevarog offlane B",
+       "shinbi jungle B",
+       "shinbi offlane A",
+       "skylar carry B",
+       "sparrow carry S",
+       "steel offlane B",
+       "steel support S",
+       "steel jungle A",
+       "terra jungle C",
+       "terra offlane C",
+       "the-fey midlane S",
+       "the-fey support A",
+       "twinblast carry B",
+       "wraith midlane C",
+       "valmont midlane B",
+       "wraith carry B",
+       "wukong jungle A",
+       "yin jungle A",
+       "yin offlane A",
+       "yurei jungle B",
+       "zarus jungle S",
+       "zarus offlane B",
+       "zinx offlane A",
+       "zinx support B"
+      ]
+     }
+    }
+   },
+   "builds": {
+    "total": 97,
+    "active": 89,
+    "inactive": {
+     "supporting mechanics changed; needs review": {
+      "count": 1,
+      "entries": [
+       "legion carry"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions.": {
+      "count": 4,
+      "entries": [
+       "akeron support",
+       "ikra support",
+       "the-fey carry",
+       "wraith support"
+      ]
+     },
+     "review unresolved: Experimental role with no usable sample; kept out of automatic suggestions.": {
+      "count": 2,
+      "entries": [
+       "maco midlane",
+       "scarlett midlane"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.": {
+      "count": 1,
+      "entries": [
+       "wukong offlane"
+      ]
+     }
+    }
+   },
+   "guidance": {
+    "patch": "1.17",
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "meta_review_bracket": "gold",
+    "meta_review_patch": "1.17",
+    "meta_review_reviewed_at": "2026-09-24T01:56:00-05:00",
+    "build_review": {
+     "patch": "1.17",
+     "reviewed_at": "2026-09-23T20:38:00+00:00",
+     "summary": {
+      "changed": 48,
+      "checked and retained": 42,
+      "unresolved": 7
+     }
+    },
+    "saved_build_review": null
+   },
+   "labels_seen": {
+    "desktop": {},
+    "phone": {}
+   },
+   "status_lines_desktop": [
+    "GAME PATCH v1.17 Official notes ↗ RECOMMENDATION STATISTICS Pred.gg 1.17 EXACT PATCH · SILVER+ GUIDANCE · GOLD+ ONLY v1.17 reviewed for current patch",
+    "Published Silver+ · assembled 10/1/2026, 5:07:19 PM. Source limitations · 8 notices — Statz and Omeda hero matching · Status details",
+    "Bundle assembled 10/1/2026, 5:07:19 PM · Statz fetched 10/1/2026, 5:04:00 PM · Pred.gg fetched 10/1/2026, 5:04:31 PM · Pred.gg 1.17 · Ranked · Silver+; Statz comparisons remain separate. Daily cloud update target: 10/2/2026, 12:23:00 PM (your time). Your PC can be off. Patch checks every three hours"
+   ]
+  },
+  "gold": {
+   "label": "Gold+",
+   "assembled_at": "2026-10-01T17:00:11-05:00",
+   "age_hours_at_publication": 6,
+   "collector_host": "windows",
+   "collector_tool_version": "2.41.2",
+   "last_attempt": {
+    "status": "ok",
+    "at": "2026-10-01T17:00:11-05:00",
+    "seconds": 201.98,
+    "errors": []
+   },
+   "collection_status": "complete",
+   "sources": {
+    "community_builds": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:57:05-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_heroes": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:49-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_items": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:49-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_game_data": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:00:09-05:00",
+     "age_h": 6,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_scoped": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:57:23-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_hero_pages": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:57:05-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_tierlist": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:49-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "steam_publisher_announcements": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:44-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    }
+   },
+   "notices": [
+    {
+     "source": "join statz<->omeda",
+     "severity": "warning",
+     "detail": "not on Omeda yet; kit from Pred.gg: valmont"
+    },
+    {
+     "source": "synergy",
+     "severity": "warning",
+     "detail": "40 teammate entries involve heroes that have no statz hero page in this bracket (GRIM.exe, Wukong), so no baseline exists and those pairs are not ranked."
+    },
+    {
+     "source": "statz.gg hero pages",
+     "severity": "warning",
+     "detail": "hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about 1.6x the games on the Gold+ tier list; statz does not state what the extra games are."
+    },
+    {
+     "source": "Official correction review",
+     "severity": "warning",
+     "detail": "Correction could not be verified for Risen. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no replacement was guessed."
+    },
+    {
+     "source": "Official definition review",
+     "severity": "warning",
+     "detail": "Partly verified descriptions: Frost Snap, Harmonic Currents, Mending. Conflicting fields remain explicitly unverified; inspect the blessing details."
+    },
+    {
+     "source": "Statz build definitions",
+     "severity": "warning",
+     "detail": "Missing or incompatible Statz descriptions: Convection, Cursed Corrupted, Frequency, Harmonic Currents, Inescapable, Leech, Lil Sucker, Mana Siphon, Peal, Risen, Rite, Tri-Core, Voracity. 0 reviewed descriptions, 1 partl"
+    },
+    {
+     "source": "Omeda community builds",
+     "severity": "warning",
+     "detail": "No usable builds labelled for the verified current patch; community alternatives are unavailable."
+    },
+    {
+     "source": "Official 1.17 mechanics reconciliation",
+     "severity": "warning",
+     "detail": "Unmatched source fields: patch-1.17-perks-rallying-roar-description, patch-1.17-perks-peal-description. Official notes remain visible; affected build preconditions prevent automatic endorsement."
+    }
+   ],
+   "pred_mode": "public_pages_only",
+   "grades": {
+    "total": 86,
+    "active": 73,
+    "withheld": {
+     "Statistics moved since review": {
+      "count": 13,
+      "entries": [
+       "adele offlane C",
+       "akeron offlane A",
+       "aurora support B",
+       "iggy-scorch offlane A",
+       "iggy-scorch midlane B",
+       "kallari jungle C",
+       "maco support C",
+       "sevarog jungle B",
+       "shinbi jungle B",
+       "terra offlane C",
+       "wraith carry B",
+       "wukong jungle A",
+       "yurei jungle B"
+      ]
+     }
+    }
+   },
+   "builds": {
+    "total": 97,
+    "active": 89,
+    "inactive": {
+     "supporting mechanics changed; needs review": {
+      "count": 1,
+      "entries": [
+       "legion carry"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions.": {
+      "count": 4,
+      "entries": [
+       "akeron support",
+       "ikra support",
+       "the-fey carry",
+       "wraith support"
+      ]
+     },
+     "review unresolved: Experimental role with no usable sample; kept out of automatic suggestions.": {
+      "count": 2,
+      "entries": [
+       "maco midlane",
+       "scarlett midlane"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.": {
+      "count": 1,
+      "entries": [
+       "wukong offlane"
+      ]
+     }
+    }
+   },
+   "guidance": {
+    "patch": "1.17",
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "meta_review_bracket": "gold",
+    "meta_review_patch": "1.17",
+    "meta_review_reviewed_at": "2026-09-24T01:56:00-05:00",
+    "build_review": {
+     "patch": "1.17",
+     "reviewed_at": "2026-09-23T20:38:00+00:00",
+     "summary": {
+      "changed": 48,
+      "checked and retained": 42,
+      "unresolved": 7
+     }
+    },
+    "saved_build_review": null
+   },
+   "labels_seen": {
+    "desktop": {
+     "Tier review pending": 5,
+     "Statistics moved since review": 5
+    },
+    "phone": {}
+   },
+   "status_lines_desktop": [
+    "GAME PATCH v1.17 Official notes ↗ RECOMMENDATION STATISTICS Pred.gg 1.17 EXACT PATCH · GOLD+ BUILDS · V1.17 89/97 ready Match adaptation reviewed Strategy current",
+    "Published Gold+ · assembled 10/1/2026, 5:00:11 PM. Source limitations · 8 notices — Statz and Omeda hero matching · Status details",
+    "Bundle assembled 10/1/2026, 5:00:11 PM · Statz fetched 10/1/2026, 4:56:49 PM · Pred.gg fetched 10/1/2026, 4:57:23 PM · Pred.gg 1.17 · Ranked · Gold+; Statz comparisons remain separate. Daily cloud update target: 10/2/2026, 12:23:00 PM (your time). Your PC can be off. Patch checks every three hours; "
+   ]
+  },
+  "platinum": {
+   "label": "Platinum+",
+   "assembled_at": "2026-10-01T17:10:47-05:00",
+   "age_hours_at_publication": 5.8,
+   "collector_host": "windows",
+   "collector_tool_version": "2.41.2",
+   "last_attempt": {
+    "status": "ok",
+    "at": "2026-10-01T17:10:47-05:00",
+    "seconds": 206.98,
+    "errors": []
+   },
+   "collection_status": "complete",
+   "sources": {
+    "community_builds": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:36-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_heroes": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:20-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_items": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:20-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_game_data": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:10:45-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_scoped": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:52-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_hero_pages": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:36-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_tierlist": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:07:20-05:00",
+     "age_h": 5.9,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "steam_publisher_announcements": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:44-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    }
+   },
+   "notices": [
+    {
+     "source": "join statz<->omeda",
+     "severity": "warning",
+     "detail": "not on Omeda yet; kit from Pred.gg: valmont"
+    },
+    {
+     "source": "synergy",
+     "severity": "warning",
+     "detail": "45 teammate entries involve heroes that have no statz hero page in this bracket (GRIM.exe, Yurei), so no baseline exists and those pairs are not ranked."
+    },
+    {
+     "source": "statz.gg hero pages",
+     "severity": "warning",
+     "detail": "hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about 1.6x the games on the Platinum+ tier list; statz does not state what the extra games are."
+    },
+    {
+     "source": "Official correction review",
+     "severity": "warning",
+     "detail": "Correction could not be verified for Shatterbloom, Terror, Vital Essence. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no repla"
+    },
+    {
+     "source": "Official definition review",
+     "severity": "warning",
+     "detail": "Partly verified descriptions: Frost Snap, Harmonic Currents, Mending. Conflicting fields remain explicitly unverified; inspect the blessing details."
+    },
+    {
+     "source": "Statz build definitions",
+     "severity": "warning",
+     "detail": "Missing or incompatible Statz descriptions: Bioluminescence, Broken Wings, Convection, Eviscerate, Frequency, Furor, Lil Sucker, Rite, Roses, Terror, The Maw, Voracity. 0 reviewed descriptions, 0 partly verified descript"
+    },
+    {
+     "source": "Omeda community builds",
+     "severity": "warning",
+     "detail": "No usable builds labelled for the verified current patch; community alternatives are unavailable."
+    },
+    {
+     "source": "Official 1.17 mechanics reconciliation",
+     "severity": "warning",
+     "detail": "Unmatched source fields: patch-1.16.4-perks-vital-essence-description, patch-1.17-perks-rallying-roar-description, patch-1.17-perks-peal-description. Official notes remain visible; affected build preconditions prevent au"
+    }
+   ],
+   "pred_mode": "public_pages_only",
+   "grades": {
+    "total": 86,
+    "active": 0,
+    "withheld": {
+     "Review covers a different cohort": {
+      "count": 86,
+      "entries": [
+       "adele offlane C",
+       "adele support B",
+       "akeron jungle A",
+       "akeron offlane A",
+       "argus midlane A",
+       "argus support C",
+       "aurora jungle S",
+       "aurora offlane B",
+       "aurora support B",
+       "bayle jungle C",
+       "bayle offlane C",
+       "boris jungle A",
+       "countess jungle B",
+       "countess offlane A",
+       "countess midlane C",
+       "crunch jungle B",
+       "crunch offlane B",
+       "dekker support B",
+       "drongo carry S",
+       "eden carry S",
+       "feng-mao jungle C",
+       "feng-mao offlane C",
+       "gadget midlane A",
+       "gadget support B",
+       "gideon midlane A",
+       "greystone jungle B",
+       "greystone offlane A",
+       "grim-exe carry B",
+       "grux jungle B",
+       "grux offlane A",
+       "howitzer midlane A",
+       "iggy-scorch offlane A",
+       "iggy-scorch midlane B",
+       "ikra midlane C",
+       "kallari jungle C",
+       "khaimera jungle A",
+       "khaimera offlane C",
+       "kira carry A",
+       "kwang jungle B",
+       "kwang offlane B",
+       "legion carry A",
+       "lt-belica midlane S",
+       "lt-belica support A",
+       "maco support C",
+       "morigesh midlane B",
+       "mourn support S",
+       "murdock carry C",
+       "muriel support S",
+       "narbash support S",
+       "neon midlane B",
+       "phase support A",
+       "rampage jungle A",
+       "renna midlane B",
+       "revenant carry A",
+       "riktor jungle C",
+       "riktor support B",
+       "riktor offlane C",
+       "scarlett jungle C",
+       "scarlett offlane A",
+       "serath jungle A",
+       "serath offlane C",
+       "sevarog jungle B",
+       "sevarog offlane B",
+       "shinbi jungle B",
+       "shinbi offlane A",
+       "skylar carry B",
+       "sparrow carry S",
+       "steel offlane B",
+       "steel support S",
+       "steel jungle A",
+       "terra jungle C",
+       "terra offlane C",
+       "the-fey midlane S",
+       "the-fey support A",
+       "twinblast carry B",
+       "wraith midlane C",
+       "valmont midlane B",
+       "wraith carry B",
+       "wukong jungle A",
+       "yin jungle A",
+       "yin offlane A",
+       "yurei jungle B",
+       "zarus jungle S",
+       "zarus offlane B",
+       "zinx offlane A",
+       "zinx support B"
+      ]
+     }
+    }
+   },
+   "builds": {
+    "total": 97,
+    "active": 89,
+    "inactive": {
+     "supporting mechanics changed; needs review": {
+      "count": 1,
+      "entries": [
+       "legion carry"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions.": {
+      "count": 4,
+      "entries": [
+       "akeron support",
+       "ikra support",
+       "the-fey carry",
+       "wraith support"
+      ]
+     },
+     "review unresolved: Experimental role with no usable sample; kept out of automatic suggestions.": {
+      "count": 2,
+      "entries": [
+       "maco midlane",
+       "scarlett midlane"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.": {
+      "count": 1,
+      "entries": [
+       "wukong offlane"
+      ]
+     }
+    }
+   },
+   "guidance": {
+    "patch": "1.17",
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "meta_review_bracket": "gold",
+    "meta_review_patch": "1.17",
+    "meta_review_reviewed_at": "2026-09-24T01:56:00-05:00",
+    "build_review": {
+     "patch": "1.17",
+     "reviewed_at": "2026-09-23T20:38:00+00:00",
+     "summary": {
+      "changed": 48,
+      "checked and retained": 42,
+      "unresolved": 7
+     }
+    },
+    "saved_build_review": null
+   },
+   "labels_seen": {
+    "desktop": {},
+    "phone": {}
+   },
+   "status_lines_desktop": [
+    "GAME PATCH v1.17 Official notes ↗ RECOMMENDATION STATISTICS Pred.gg 1.17 EXACT PATCH · PLATINUM+ GUIDANCE · GOLD+ ONLY v1.17 reviewed for current patch",
+    "Published Platinum+ · assembled 10/1/2026, 5:10:47 PM. Source limitations · 8 notices — Statz and Omeda hero matching · Status details",
+    "Bundle assembled 10/1/2026, 5:10:47 PM · Statz fetched 10/1/2026, 5:07:20 PM · Pred.gg fetched 10/1/2026, 5:07:52 PM · Pred.gg 1.17 · Ranked · Platinum+; Statz comparisons remain separate. Daily cloud update target: 10/2/2026, 12:23:00 PM (your time). Your PC can be off. Patch checks every three hou"
+   ]
+  },
+  "diamond": {
+   "label": "Diamond+",
+   "assembled_at": "2026-10-01T17:14:08-05:00",
+   "age_hours_at_publication": 5.8,
+   "collector_host": "windows",
+   "collector_tool_version": "2.41.2",
+   "last_attempt": {
+    "status": "ok",
+    "at": "2026-10-01T17:14:08-05:00",
+    "seconds": 199.45,
+    "errors": []
+   },
+   "collection_status": "complete",
+   "sources": {
+    "community_builds": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:11:05-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_heroes": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:10:49-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_items": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:10:49-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_game_data": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:06-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_scoped": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:11:20-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_hero_pages": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:11:04-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_tierlist": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:10:49-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "steam_publisher_announcements": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:44-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    }
+   },
+   "notices": [
+    {
+     "source": "join statz<->omeda",
+     "severity": "warning",
+     "detail": "not on Omeda yet; kit from Pred.gg: valmont"
+    },
+    {
+     "source": "synergy",
+     "severity": "warning",
+     "detail": "41 teammate entries involve heroes that have no statz hero page in this bracket (Iggy & Scorch, Kallari), so no baseline exists and those pairs are not ranked."
+    },
+    {
+     "source": "statz.gg hero pages",
+     "severity": "warning",
+     "detail": "hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about 1.5x the games on the Diamond+ tier list; statz does not state what the extra games are."
+    },
+    {
+     "source": "Official correction review",
+     "severity": "warning",
+     "detail": "Correction could not be verified for Risen, Vital Essence. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no replacement was gues"
+    },
+    {
+     "source": "Official definition review",
+     "severity": "warning",
+     "detail": "Partly verified descriptions: Frost Snap, Harmonic Currents, Mending. Conflicting fields remain explicitly unverified; inspect the blessing details."
+    },
+    {
+     "source": "Statz build definitions",
+     "severity": "warning",
+     "detail": "Missing or incompatible Statz descriptions: Bioluminescence, Broken Wings, Dampening, Diffusion, Frost Snap, Illumination, Taste of Iron, Voracity. 0 reviewed descriptions, 1 partly verified descriptions, and 7 unavailab"
+    },
+    {
+     "source": "Omeda community builds",
+     "severity": "warning",
+     "detail": "No usable builds labelled for the verified current patch; community alternatives are unavailable."
+    },
+    {
+     "source": "Official 1.17 mechanics reconciliation",
+     "severity": "warning",
+     "detail": "Unmatched source fields: patch-1.16.4-perks-vital-essence-description, patch-1.17-perks-rallying-roar-description, patch-1.17-perks-peal-description. Official notes remain visible; affected build preconditions prevent au"
+    }
+   ],
+   "pred_mode": "public_pages_only",
+   "grades": {
+    "total": 86,
+    "active": 0,
+    "withheld": {
+     "Review covers a different cohort": {
+      "count": 86,
+      "entries": [
+       "adele offlane C",
+       "adele support B",
+       "akeron jungle A",
+       "akeron offlane A",
+       "argus midlane A",
+       "argus support C",
+       "aurora jungle S",
+       "aurora offlane B",
+       "aurora support B",
+       "bayle jungle C",
+       "bayle offlane C",
+       "boris jungle A",
+       "countess jungle B",
+       "countess offlane A",
+       "countess midlane C",
+       "crunch jungle B",
+       "crunch offlane B",
+       "dekker support B",
+       "drongo carry S",
+       "eden carry S",
+       "feng-mao jungle C",
+       "feng-mao offlane C",
+       "gadget midlane A",
+       "gadget support B",
+       "gideon midlane A",
+       "greystone jungle B",
+       "greystone offlane A",
+       "grim-exe carry B",
+       "grux jungle B",
+       "grux offlane A",
+       "howitzer midlane A",
+       "iggy-scorch offlane A",
+       "iggy-scorch midlane B",
+       "ikra midlane C",
+       "kallari jungle C",
+       "khaimera jungle A",
+       "khaimera offlane C",
+       "kira carry A",
+       "kwang jungle B",
+       "kwang offlane B",
+       "legion carry A",
+       "lt-belica midlane S",
+       "lt-belica support A",
+       "maco support C",
+       "morigesh midlane B",
+       "mourn support S",
+       "murdock carry C",
+       "muriel support S",
+       "narbash support S",
+       "neon midlane B",
+       "phase support A",
+       "rampage jungle A",
+       "renna midlane B",
+       "revenant carry A",
+       "riktor jungle C",
+       "riktor support B",
+       "riktor offlane C",
+       "scarlett jungle C",
+       "scarlett offlane A",
+       "serath jungle A",
+       "serath offlane C",
+       "sevarog jungle B",
+       "sevarog offlane B",
+       "shinbi jungle B",
+       "shinbi offlane A",
+       "skylar carry B",
+       "sparrow carry S",
+       "steel offlane B",
+       "steel support S",
+       "steel jungle A",
+       "terra jungle C",
+       "terra offlane C",
+       "the-fey midlane S",
+       "the-fey support A",
+       "twinblast carry B",
+       "wraith midlane C",
+       "valmont midlane B",
+       "wraith carry B",
+       "wukong jungle A",
+       "yin jungle A",
+       "yin offlane A",
+       "yurei jungle B",
+       "zarus jungle S",
+       "zarus offlane B",
+       "zinx offlane A",
+       "zinx support B"
+      ]
+     }
+    }
+   },
+   "builds": {
+    "total": 97,
+    "active": 89,
+    "inactive": {
+     "supporting mechanics changed; needs review": {
+      "count": 1,
+      "entries": [
+       "legion carry"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions.": {
+      "count": 4,
+      "entries": [
+       "akeron support",
+       "ikra support",
+       "the-fey carry",
+       "wraith support"
+      ]
+     },
+     "review unresolved: Experimental role with no usable sample; kept out of automatic suggestions.": {
+      "count": 2,
+      "entries": [
+       "maco midlane",
+       "scarlett midlane"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.": {
+      "count": 1,
+      "entries": [
+       "wukong offlane"
+      ]
+     }
+    }
+   },
+   "guidance": {
+    "patch": "1.17",
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "meta_review_bracket": "gold",
+    "meta_review_patch": "1.17",
+    "meta_review_reviewed_at": "2026-09-24T01:56:00-05:00",
+    "build_review": {
+     "patch": "1.17",
+     "reviewed_at": "2026-09-23T20:38:00+00:00",
+     "summary": {
+      "changed": 48,
+      "checked and retained": 42,
+      "unresolved": 7
+     }
+    },
+    "saved_build_review": null
+   },
+   "labels_seen": {
+    "desktop": {},
+    "phone": {}
+   },
+   "status_lines_desktop": [
+    "GAME PATCH v1.17 Official notes ↗ RECOMMENDATION STATISTICS Pred.gg 1.17 EXACT PATCH · DIAMOND+ GUIDANCE · GOLD+ ONLY v1.17 reviewed for current patch",
+    "Published Diamond+ · assembled 10/1/2026, 5:14:08 PM. Source limitations · 8 notices — Statz and Omeda hero matching · Status details",
+    "Bundle assembled 10/1/2026, 5:14:08 PM · Statz fetched 10/1/2026, 5:10:49 PM · Pred.gg fetched 10/1/2026, 5:11:20 PM · Pred.gg 1.17 · Ranked · Diamond+; Statz comparisons remain separate. Daily cloud update target: 10/2/2026, 12:23:00 PM (your time). Your PC can be off. Patch checks every three hour"
+   ]
+  },
+  "paragon": {
+   "label": "Paragon+",
+   "assembled_at": "2026-10-01T17:17:43-05:00",
+   "age_hours_at_publication": 5.7,
+   "collector_host": "windows",
+   "collector_tool_version": "2.41.2",
+   "last_attempt": {
+    "status": "ok",
+    "at": "2026-10-01T17:17:44-05:00",
+    "seconds": 214.17,
+    "errors": []
+   },
+   "collection_status": "complete",
+   "sources": {
+    "community_builds": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:28-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_heroes": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:09-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "omeda_items": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:09-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_game_data": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:17:41-05:00",
+     "age_h": 5.7,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "pred_scoped": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:45-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_hero_pages": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:28-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "statz_tierlist": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T17:14:10-05:00",
+     "age_h": 5.8,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    },
+    "steam_publisher_announcements": {
+     "status": "ok",
+     "fetched_at": "2026-10-01T16:56:44-05:00",
+     "age_h": 6.1,
+     "retained": false,
+     "label": null,
+     "patch": null,
+     "games": null
+    }
+   },
+   "notices": [
+    {
+     "source": "join statz<->omeda",
+     "severity": "warning",
+     "detail": "not on Omeda yet; kit from Pred.gg: valmont"
+    },
+    {
+     "source": "statz.gg hero pages",
+     "severity": "warning",
+     "detail": "hero-wide figures (hero-wide win rate, pairs, hero-wide matchups, ban rate) come from a pool about 1.3x the games on the Paragon+ tier list; statz does not state what the extra games are."
+    },
+    {
+     "source": "Official correction review",
+     "severity": "warning",
+     "detail": "Correction could not be verified for Risen. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no replacement was guessed."
+    },
+    {
+     "source": "Official definition review",
+     "severity": "warning",
+     "detail": "Partly verified descriptions: Frost Snap, Harmonic Currents, Mending. Conflicting fields remain explicitly unverified; inspect the blessing details."
+    },
+    {
+     "source": "Statz build definitions",
+     "severity": "warning",
+     "detail": "Missing or incompatible Statz descriptions: Cursed Corrupted, Mechadrive, Voracity. 0 reviewed descriptions, 0 partly verified descriptions, and 3 unavailable. Build samples remain unchanged. Inspect Sources & accuracy o"
+    },
+    {
+     "source": "Omeda community builds",
+     "severity": "warning",
+     "detail": "No usable builds labelled for the verified current patch; community alternatives are unavailable."
+    },
+    {
+     "source": "Official 1.17 mechanics reconciliation",
+     "severity": "warning",
+     "detail": "Unmatched source fields: patch-1.17-perks-rallying-roar-description, patch-1.17-perks-peal-description. Official notes remain visible; affected build preconditions prevent automatic endorsement."
+    }
+   ],
+   "pred_mode": "public_pages_only",
+   "grades": {
+    "total": 86,
+    "active": 0,
+    "withheld": {
+     "Review covers a different cohort": {
+      "count": 86,
+      "entries": [
+       "adele offlane C",
+       "adele support B",
+       "akeron jungle A",
+       "akeron offlane A",
+       "argus midlane A",
+       "argus support C",
+       "aurora jungle S",
+       "aurora offlane B",
+       "aurora support B",
+       "bayle jungle C",
+       "bayle offlane C",
+       "boris jungle A",
+       "countess jungle B",
+       "countess offlane A",
+       "countess midlane C",
+       "crunch jungle B",
+       "crunch offlane B",
+       "dekker support B",
+       "drongo carry S",
+       "eden carry S",
+       "feng-mao jungle C",
+       "feng-mao offlane C",
+       "gadget midlane A",
+       "gadget support B",
+       "gideon midlane A",
+       "greystone jungle B",
+       "greystone offlane A",
+       "grim-exe carry B",
+       "grux jungle B",
+       "grux offlane A",
+       "howitzer midlane A",
+       "iggy-scorch offlane A",
+       "iggy-scorch midlane B",
+       "ikra midlane C",
+       "kallari jungle C",
+       "khaimera jungle A",
+       "khaimera offlane C",
+       "kira carry A",
+       "kwang jungle B",
+       "kwang offlane B",
+       "legion carry A",
+       "lt-belica midlane S",
+       "lt-belica support A",
+       "maco support C",
+       "morigesh midlane B",
+       "mourn support S",
+       "murdock carry C",
+       "muriel support S",
+       "narbash support S",
+       "neon midlane B",
+       "phase support A",
+       "rampage jungle A",
+       "renna midlane B",
+       "revenant carry A",
+       "riktor jungle C",
+       "riktor support B",
+       "riktor offlane C",
+       "scarlett jungle C",
+       "scarlett offlane A",
+       "serath jungle A",
+       "serath offlane C",
+       "sevarog jungle B",
+       "sevarog offlane B",
+       "shinbi jungle B",
+       "shinbi offlane A",
+       "skylar carry B",
+       "sparrow carry S",
+       "steel offlane B",
+       "steel support S",
+       "steel jungle A",
+       "terra jungle C",
+       "terra offlane C",
+       "the-fey midlane S",
+       "the-fey support A",
+       "twinblast carry B",
+       "wraith midlane C",
+       "valmont midlane B",
+       "wraith carry B",
+       "wukong jungle A",
+       "yin jungle A",
+       "yin offlane A",
+       "yurei jungle B",
+       "zarus jungle S",
+       "zarus offlane B",
+       "zinx offlane A",
+       "zinx support B"
+      ]
+     }
+    }
+   },
+   "builds": {
+    "total": 97,
+    "active": 89,
+    "inactive": {
+     "supporting mechanics changed; needs review": {
+      "count": 1,
+      "entries": [
+       "legion carry"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions.": {
+      "count": 4,
+      "entries": [
+       "akeron support",
+       "ikra support",
+       "the-fey carry",
+       "wraith support"
+      ]
+     },
+     "review unresolved: Experimental role with no usable sample; kept out of automatic suggestions.": {
+      "count": 2,
+      "entries": [
+       "maco midlane",
+       "scarlett midlane"
+      ]
+     },
+     "review unresolved: Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities.": {
+      "count": 1,
+      "entries": [
+       "wukong offlane"
+      ]
+     }
+    }
+   },
+   "guidance": {
+    "patch": "1.17",
+    "status": "reviewed for current patch",
+    "reviewed_at": "2026-09-24T01:56:00-05:00",
+    "meta_review_bracket": "gold",
+    "meta_review_patch": "1.17",
+    "meta_review_reviewed_at": "2026-09-24T01:56:00-05:00",
+    "build_review": {
+     "patch": "1.17",
+     "reviewed_at": "2026-09-23T20:38:00+00:00",
+     "summary": {
+      "changed": 48,
+      "checked and retained": 42,
+      "unresolved": 7
+     }
+    },
+    "saved_build_review": null
+   },
+   "labels_seen": {
+    "desktop": {},
+    "phone": {}
+   },
+   "status_lines_desktop": [
+    "GAME PATCH v1.17 Official notes ↗ RECOMMENDATION STATISTICS Pred.gg 1.17 EXACT PATCH · PARAGON+ GUIDANCE · GOLD+ ONLY v1.17 reviewed for current patch",
+    "Published Paragon+ · assembled 10/1/2026, 5:17:43 PM. Source limitations · 7 notices — Statz and Omeda hero matching · Status details",
+    "Bundle assembled 10/1/2026, 5:17:43 PM · Statz fetched 10/1/2026, 5:14:10 PM · Pred.gg fetched 10/1/2026, 5:14:45 PM · Pred.gg 1.17 · Ranked · Paragon+; Statz comparisons remain separate. Daily cloud update target: 10/2/2026, 12:23:00 PM (your time). Your PC can be off. Patch checks every three hour"
+   ]
+  }
+ },
+ "publish_runs_since_2026_09_26": {
+  "workflow_dispatch": {
+   "runs": 44,
+   "median_minutes": 3.4,
+   "max_minutes": 7.6
+  },
+  "schedule": {
+   "runs": 41,
+   "median_minutes": 3.4,
+   "max_minutes": 4.4
+  },
+  "push": {
+   "runs": 15,
+   "median_minutes": 3.3,
+   "max_minutes": 4.0
+  }
+ },
+ "collection_seconds_per_rank": {
+  "bronze": {
+   "total": 225.21,
+   "pred_game_data": 172.94,
+   "pred_scoped": 33.22,
+   "statz_hero_pages": 16.62
+  },
+  "silver": {
+   "total": 199.02,
+   "pred_game_data": 165.4,
+   "pred_scoped": 15.75,
+   "statz_hero_pages": 15.21
+  },
+  "gold": {
+   "total": 201.98,
+   "pred_game_data": 166.83,
+   "pred_scoped": 16.78,
+   "statz_hero_pages": 15.37
+  },
+  "platinum": {
+   "total": 206.98,
+   "pred_game_data": 174.12,
+   "pred_scoped": 15.71,
+   "statz_hero_pages": 15.01
+  },
+  "diamond": {
+   "total": 199.45,
+   "pred_game_data": 166.73,
+   "pred_scoped": 15.23,
+   "statz_hero_pages": 15.16
+  },
+  "paragon": {
+   "total": 214.17,
+   "pred_game_data": 177.14,
+   "pred_scoped": 16.4,
+   "statz_hero_pages": 18.18
+  }
+ }
+}
