@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.43.0
+# Predecessor Meta - 2.43.1
 
-Freshness Phase 2a: an app that opens or comes back checks for new data at once (every 5 minutes in an open tab), a lost GitHub cache restores the live publication instead of older data, and the Windows app says when the website runs a newer version (a notice only). See [RELEASE-2.43.0.md](RELEASE-2.43.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+The Pred.gg API path now treats any GraphQL "Forbidden" or null statistic as a denial (not just a non-200 status), remembers a denial for those credentials, and stays off until Pred.gg's approval is recorded in free_hosting.json. Nothing on the site changes; no API credentials are set. See [RELEASE-2.43.1.md](RELEASE-2.43.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.43.0
+
+Freshness Phase 2a: an app that opens or comes back checks for new data at once (every 5 minutes in an open tab), a lost GitHub cache restores the live publication instead of older data, and the Windows app says when the website runs a newer version (a notice only). See [RELEASE-2.43.0.md](RELEASE-2.43.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.42.0
 
