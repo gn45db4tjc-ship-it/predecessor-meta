@@ -3375,6 +3375,23 @@ probes.DQ8 = async browser => {
   });
   await context.close(); verdict('DQ8', seen.found && !/\bobserved\b/.test(seen.cls || ''), seen);
 };
+/* Freshness overhaul (2.43.0): a new publication reaches an open or returning app within a minute. */
+probes.FR1 = async browser => {
+  // Before: a returning app checked only when its last check was over 15 minutes old, and an open tab every 30 minutes.
+  const {context, page} = await clockSession(browser, phone);
+  let manifests = 0;
+  page.on('request', r => { if (/\/manifest\.json(\?|$)/.test(r.url())) manifests++; });
+  await page.waitForTimeout(1500);
+  await page.clock.fastForward(120000);   // the user comes back two minutes later
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await page.waitForTimeout(1500);
+  const onReturn = manifests;
+  await page.clock.fastForward(6 * 60000);   // the tab then stays open and visible for six minutes
+  await page.waitForTimeout(1500);
+  const openTab = manifests - onReturn;
+  await context.close();
+  verdict('FR1', onReturn === 0 || openTab === 0, {onReturn, openTab});
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
