@@ -24,8 +24,11 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   rolePriorityHTML = function() { return matchingRankReview() ? rankOriginal.rolePriorityHTML() : ''; };
   metaTierButton = function(slug, role) {
     if (matchingRankReview()) return rankOriginal.metaTierButton(slug, role);
-    const review = E.metaReview(slug, role);
-    return review ? `<button class="quiet" data-meta-decision="${esc(slug+'|'+role)}">${esc(review.bracket)} reference<small>No reviewed tier for ${esc(selectedRankLabel())}</small></button>` : '<small>No authored tier review</small>';
+    // 2.45.0: this rank's own calculated tier; the Gold+ reference stays one tap away in its detail.
+    const calc = calculatedTierButton(slug, role);
+    if (calc) return calc;
+    const review = E.metaReview(slug, role), why = calculatedTier(slug, role)?.status || 'No calculated tier';
+    return review ? `<button class="quiet" data-meta-decision="${esc(slug+'|'+role)}">${esc(review.bracket)} reference<small>${esc(why)}</small></button>` : `<small>${esc(why)}</small>`;
   };
   metaDecisionHTML = function(slug, role) {
     return (matchingRankReview() ? '' : rankEvidenceNote()) + rankOriginal.metaDecisionHTML(slug, role);
@@ -36,22 +39,22 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
         B.official?.status !== 'verified' || B.scoped_statistics.patch !== B.official?.live?.version) return rankOriginal.metaView();
     const c = B.scoped_statistics, label = selectedRankLabel();
     const rows = (c.rows || []).filter(r => r.role === S.role && name(r.slug).toLowerCase().includes(S.query.toLowerCase()));
-    // No authored tier exists for this cohort: sort its own observations, never missing tier values.
-    if (!['hero','matches','winRate'].includes(S.sort)) { S.sort = 'winRate'; S.direction = -1; }
-    const field = S.sort, direction = S.direction;
+    // No authored tier covers this cohort. Since 2.45.0 its tiers are calculated from its own sample; a row without one sorts last.
+    if (!['hero','tier','matches','winRate'].includes(S.sort)) { S.sort = 'tier'; S.direction = 1; }
+    const field = S.sort, direction = S.direction, value = r => field === 'hero' ? name(r.slug) : field === 'tier' ? TIER_ORDER[calculatedTier(r.slug, r.role)?.tier] ?? null : r[field];
     rows.sort((a,b) => {
-      const x = field === 'hero' ? name(a.slug) : a[field], y = field === 'hero' ? name(b.slug) : b[field];
+      const x = value(a), y = value(b);
       if (x == null && y == null) return name(a.slug).localeCompare(name(b.slug));
       if (x == null) return 1; if (y == null) return -1;
-      return (typeof x === 'string' ? x.localeCompare(y) : x-y) * direction || name(a.slug).localeCompare(name(b.slug));
+      return (typeof x === 'string' ? x.localeCompare(y) : x-y) * direction || (field === 'tier' ? b.winRate - a.winRate : 0) || name(a.slug).localeCompare(name(b.slug));
     });
     const review = B.guidance?.meta_review;
     const counts = `<span>${esc(c.patch)} · Ranked · ${esc(label)} · ${rows.length} ${labels[S.role].toLowerCase()} entries</span><label><input id="full-metrics" type="checkbox" ${S.full?'checked':''}> Show wins & uncertainty</label>`;
     const table = 
-      metaTableHTML(rows, {tier:false, field, direction, emptyText: c.roles?.[S.role]?.error || 'No rows match this role and search.'}) +
-      `<p class="source-line"><span>${link(c.roles?.[S.role]?.url, 'Pred.gg · '+label+' source')} · fetched ${esc(date(c.roles?.[S.role]?.fetched_at))}</span><span>Win-rate order is an observed comparison, not a reviewed tier</span></p>`;
+      metaTableHTML(rows, {tier:true, tierLabel:'Calculated tier', rankTable:true, field, direction, emptyText: c.roles?.[S.role]?.error || 'No rows match this role and search.'}) +
+      `<p class="source-line"><span>${link(c.roles?.[S.role]?.url, 'Pred.gg · '+label+' source')} · fetched ${esc(date(c.roles?.[S.role]?.fetched_at))}</span><span>Calculated tiers use ${esc(label)} games only; they are not reviewed judgments</span></p>`;
     const aside = `<aside class="meta-aside">${review ? `<details class="rank-reference"><summary>Separate authored reference · ${esc(review.bracket_label)} tiers and working pool</summary><div class="detail-content"><p>The written tier review was made for ${esc(review.bracket_label)}. It has not been re-reviewed for ${esc(label)}; the table uses ${esc(label)} statistics. Kit and build reasoning remains available on hero pages.</p>${rankOriginal.rolePriorityHTML()}${rankOriginal.metaReviewMethod()}</div></details>` : ''}<details><summary>Statistics source</summary><div class="detail-content"><p class="muted">Pred.gg supplies the exact current-patch cohort for ${esc(label)}. The Statz view shows its broader dataset with tier grades; the two are never pooled.</p>${statisticsSelectorHTML()}</div></details><p class="footer">Samples under 100 games are exploratory. ${esc(c.scope_note || '')}</p></aside>`;
-    return head('Meta · '+label, label+' meta', 'These are '+esc(label)+' role samples. Sort win rates or games, then open a hero for partners, builds and counters.') +
+    return head('Meta · '+label, label+' meta', esc(label)+' tiers are calculated from its own role samples. Sort by tier, win rate or games, then open a hero for partners, builds and counters.') +
       metaToolbarHTML(counts) +
       (c.status !== 'ok' ? note('Current-patch source '+esc(c.status || 'not collected')+'. Available rows retain their own sample; no other rank is substituted.',true) : '') +
       `<div class="meta-layout"><div>${table}</div>${aside}</div>`;

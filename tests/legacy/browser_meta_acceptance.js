@@ -15,9 +15,11 @@
  const rendered=[];
  for(const role of ['jungle','offlane','midlane','carry','support']){
   click('[data-meta-role="'+role+'"]');
-  const rows=[...document.querySelectorAll('[data-meta-decision]')];rendered.push(...rows.map(e=>e.dataset.metaDecision));
+  // 2.45.0: a withheld grade shows its calculated fallback in the table; its reviewed reasoning is one tap further, inside
+  // that detail. Only table rows count (a closed dialog keeps its content).
+  const rows=[...document.querySelectorAll('#main [data-meta-decision],#main [data-calculated-tier]')].filter(e=>e.dataset.metaDecision||expected.has(e.dataset.calculatedTier)),key=e=>e.dataset.metaDecision||e.dataset.calculatedTier;rendered.push(...rows.map(key));
   assert(rows.length>0,'Reviewed '+role+' table');
-  for(const e of rows){e.click();assert(document.querySelector('#detail-body').innerText.includes('Observed evidence stays separate'),'Tier details '+e.dataset.metaDecision);close();}
+  for(const e of rows){e.click();if(e.dataset.calculatedTier){assert(/recheck queued|reviewed grade withheld/.test(e.innerText),'Withheld grade labelled '+key(e));click('#detail-body [data-meta-decision]');}assert(document.querySelector('#detail-body').innerText.includes('Observed evidence stays separate'),'Tier details '+key(e));close();}
  }
  assert(new Set(rendered).size===rendered.length,'Rendered role reviews are distinct');
  assert(rendered.length===expected.size&&rendered.every(key=>expected.has(key)),expected.size+' reviewed hero/role entries in the cohort rendered exactly once');

@@ -26,7 +26,7 @@ Every stale-type item from the baseline, classified. "Fixed" means fixed at the 
 | "Official correction review: Correction could not be verified for Risen" | Review backlog | The source field is missing or differs from the reviewed precondition. | Queued below (mechanics) |
 | "Official definition review: Partly verified descriptions: Frost Snap, Harmonic Currents, Mending" | Review backlog | Conflicting definition fields remain unverified. | Queued below (mechanics) |
 | "Official 1.17 mechanics reconciliation: unmatched fields" (Rallying Roar, Peal) | Review backlog | Two perk descriptions don't match the official notes. | Queued below (mechanics) |
-| "Guidance · Gold+ only" (no tier) on five ranks | Missing feature | Grades exist only for the Gold+ cohort. | Phase 3 (calculated per-rank tiers) |
+| "Guidance · Gold+ only" (no tier) on five ranks | Missing feature | Grades exist only for the Gold+ cohort. | **Fixed (2.45.0):** every rank shows a calculated tier from its own sample, labeled Calculated ([CALCULATED-TIERS.md](CALCULATED-TIERS.md)). On the 2 Oct live data: Bronze+ 96, Silver+ 95, Gold+ 95, Platinum+ 89, Diamond+ 65, Paragon+ 6 hero roles with a tier. |
 | Ages up to 24.7 h; Pred.gg "retained" when the PC is off | Collection cadence; PC dependency | One full collection a day, from the PC only. | Phase 2 |
 | Open tab up to 30 min, returning app up to 15 min behind | Client cache | Publication-check intervals in static_client.js:601-604. | Phase 2 |
 | A lost Actions cache shows the 8 Sep seed | Durable state | The cache-miss restore uses only the committed Gold+ seed and the Windows feed. | **Fixed (2.43.0):** a run with no state restores the live publication first, each bundle sha256-checked against the live manifest and stored with its dates unchanged; the schedule state is restored too. Tested against the real live site: all six ranks restored. |
@@ -41,7 +41,7 @@ Every stale-type item from the baseline, classified. "Fixed" means fixed at the 
 - **Statz lacks or mismatches descriptions for 13 loadout perks** ("Statz build definitions").
 - **Statz updates every few days** (twice in 7 days), so collecting it more often adds nothing.
 - **Pred.gg can't be read from GitHub.** Until API access is granted, Pred.gg comes only from the PC.
-- **Thin samples:** Paragon+ has 938 Statz games and Diamond+ 7,341. Per-rank tiers will be sparse there.
+- **Thin samples:** Paragon+ has 938 Statz games and Diamond+ 7,341. Calculated tiers are sparse there: on the 2 Oct data, Paragon+ has 6 hero roles with a tier and Diamond+ 65.
 
 ## Recheck queue (Phase 4 starts here)
 
@@ -50,3 +50,16 @@ In order. Grades first, as the brief asks.
 1. **Gold+ grades withheld for moved statistics (13):** Adele offlane C, Akeron offlane A, Aurora support B, Iggy & Scorch offlane A, Iggy & Scorch midlane B, Kallari jungle C, Maco support C, Sevarog jungle B, Shinbi jungle B, Terra offlane C, Wraith carry B, Wukong jungle A, Yurei jungle B.
 2. **Build plan:** Legion carry (supporting mechanics changed).
 3. **Mechanics:** the Risen correction; the Frost Snap, Harmonic Currents and Mending definitions; the Rallying Roar and Peal perk descriptions.
+4. **Grades two steps from their calculated tier (2.45.0 comparison, 2 Oct data):** Drongo carry S (calculated B), Eden carry S (B), Kwang offlane B (D), Serath jungle A (C), Sparrow carry S (B), Steel support S (B), The Fey midlane S (B), Zarus jungle S (B). A recheck candidate only: reviewed grades also weigh kit and execution, and no grade moves on this basis alone.
+
+## Phase 3 (2.45.0): calculated per-rank tiers
+
+- **Engine:** `calculatedTier(slug, role)` compares each hero with its role's games-weighted win rate in the same rank, through the sample's 95% interval. S and D also need 500 games; under 100 games there is no tier. Labeled Calculated, never written into `meta_review`. Unit tests: `tests/calculated_tiers.test.cjs`.
+- **Views:**
+  - desktop "Calculated tier" column on every rank other than Gold+;
+  - a detail with rank, games, interval, date, baseline and method;
+  - phone Meta rows and the Tier order;
+  - the hero header on desktop and phone;
+  - Gold+ shows its calculated fallback, labeled "recheck queued", while a reviewed grade is withheld.
+- **Probes:** CT1 (no rank showed a tier) and CT2 (a withheld Gold+ grade left its row blank), both fixed.
+- **Sanity comparison:** 73 active Gold+ reviewed grades; 31 identical, 65 within one step, 8 two steps apart. No threshold or grade was changed on its basis ([CALCULATED-TIERS.md](CALCULATED-TIERS.md)).
