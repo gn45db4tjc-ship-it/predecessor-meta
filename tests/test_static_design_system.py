@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def stylesheets():
     html = (ROOT / 'ui.html').read_text(encoding='utf-8')
     inline = '\n'.join(re.findall(r'<style[^>]*>(.*?)</style>', html, re.S))
-    return inline + '\n' + (ROOT / 'mobile.css').read_text(encoding='utf-8') + '\n' + (ROOT / 'companion_simple.css').read_text(encoding='utf-8')
+    return inline + '\n' + (ROOT / 'mobile.css').read_text(encoding='utf-8') + '\n' + (ROOT / 'companion_simple.css').read_text(encoding='utf-8') + '\n' + (ROOT / 'broadcast.css').read_text(encoding='utf-8')
 
 
 class DesignSystemDocumentationTests(unittest.TestCase):

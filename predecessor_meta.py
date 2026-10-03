@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.48.1"
+VERSION = "2.49.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -3358,7 +3358,7 @@ def json_script(value):
 
 def render_html(bundle, config=None):
     app_config=config or {'mode':'export','tool_version':VERSION}
-    pwa_head=('''<link rel="manifest" href="app.webmanifest">\n<link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">\n<link rel="apple-touch-icon" href="assets/app-icon-192.png">'''
+    pwa_head=('''<link rel="manifest" href="app.webmanifest">\n<link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">\n<link rel="apple-touch-icon" href="assets/app-icon-192.png">\n<link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="assets/fonts/saira-condensed-800.woff2" as="font" type="font/woff2" crossorigin>'''
               if app_config.get('mode')=='static' else '')
     # Visor colours read a local file, so only the loopback app's own pages carry them; every other mode gets nothing.
     # Replaced last: the look's values then cannot collide with a later placeholder, and the template's own
@@ -3369,6 +3369,7 @@ def render_html(bundle, config=None):
             .replace('__APP_CONFIG__',json_script(app_config),1)
             .replace('__UI_JS__',(TOOL_DIR/'ui.js').read_text(encoding='utf-8').replace('// START CLIENT','\n'.join((TOOL_DIR/name).read_text(encoding='utf-8') for name in ('mobile.js','companion_state.js','recommendation_view.js','skill_guide.js','companion_simple.js'))+'\n// START CLIENT',1),1)
             .replace('__MOBILE_CSS__',(TOOL_DIR/'mobile.css').read_text(encoding='utf-8')+'\n'+(TOOL_DIR/'companion_simple.css').read_text(encoding='utf-8'),1)
+            .replace('__BROADCAST_CSS__',(TOOL_DIR/'broadcast.css').read_text(encoding='utf-8'),1)   # the look (2.49.0), last so it wins
             .replace('__ENGINE_JS__',(TOOL_DIR/'engine.js').read_text(encoding='utf-8'),1)
             .replace('__LOCAL_HEAD__',local_head,1))
 
@@ -3509,11 +3510,11 @@ VISOR_PALETTE = re.compile(r'[A-Za-z0-9][A-Za-z0-9_-]{0,39}')
 VISOR_UPDATED = re.compile(r'([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(?:\.[0-9]{1,9})?(?:Z|\+00:00)')
 # The dark :root values in ui.html that a look may replace; tests/test_static_visor_look.py keeps them in step.
 VISOR_DARK_DEFAULTS = {
-    '--bg': '#090e1c', '--rail': '#0d1426', '--surface': '#131e34', '--surface-2': '#1b2944', '--surface-3': '#243653',
-    '--inset': '#0f192d', '--line': '#2c3d59', '--line-strong': '#435a7d', '--control-line': '#8196bb',
-    '--control-hover': '#8a9cc0', '--brand': '#a9c5ff', '--brand-hover': '#c5d8ff', '--brand-ink': '#0b1c43',
-    '--brand-text': '#aac7ff', '--brand-tint': '#20375d', '--brand-line': '#719fea',
-    '--hero-wash': 'linear-gradient(120deg,#213c6d 0%,#142340 55%,#131e34 100%)'}
+    '--bg': '#07080d', '--rail': '#0b0d14', '--surface': '#11141e', '--surface-2': '#171b28', '--surface-3': '#202637',
+    '--inset': '#0c0f17', '--line': '#282f42', '--line-strong': '#3d4660', '--control-line': '#6b7896',
+    '--control-hover': '#8591ad', '--brand': '#35d6ff', '--brand-hover': '#86e8ff', '--brand-ink': '#00161f',
+    '--brand-text': '#62e0ff', '--brand-tint': '#0b2733', '--brand-line': '#1fa9d1',
+    '--hero-wash': 'linear-gradient(120deg,#0f2a3d 0%,#0e1422 55%,#11141e 100%)'}
 VISOR_BACKGROUNDS = ('--bg', '--rail', '--surface', '--surface-2', '--surface-3', '--inset')
 VISOR_LINES = ('--line', '--line-strong', '--control-line', '--control-hover')
 VISOR_BRAND = ('--brand', '--brand-hover', '--brand-ink', '--brand-text', '--brand-tint', '--brand-line', '--hero-wash')
@@ -3978,6 +3979,17 @@ class AppState:
 
 
 APP_ID='predecessor-meta-2'
+# Self-hosted interface fonts (2.49.0, OFL): the page asks for assets/fonts/<name>. Only these files are served,
+# from the program folder; the static site publishes the same files (static_publish.py) and sw.js keeps them offline.
+UI_FONTS=('barlow-400.woff2','barlow-600.woff2','barlow-700.woff2','saira-condensed-700.woff2','saira-condensed-800.woff2')
+
+
+def ui_font(path):
+    """The bytes of an allowlisted interface font for a /assets/fonts/<name> request path, or None."""
+    prefix='/assets/fonts/'
+    if not path.startswith(prefix) or path[len(prefix):] not in UI_FONTS: return None
+    try: return (TOOL_DIR/'assets'/'fonts'/path[len(prefix):]).read_bytes()
+    except OSError: return None
 
 
 def make_handler(app):
@@ -3985,11 +3997,11 @@ def make_handler(app):
         def log_message(self,fmt,*args): pass
         def valid_host(self): return self.headers.get('Host') == '127.0.0.1:%d'%self.server.server_port
         def send(self,code,value,kind='application/json; charset=utf-8',extra=None):
-            body=(json.dumps(value,ensure_ascii=False) if kind.startswith('application/json') else value).encode('utf-8')
+            body=value if isinstance(value,bytes) else (json.dumps(value,ensure_ascii=False) if kind.startswith('application/json') else value).encode('utf-8')
             self.send_response(code); self.send_header('Content-Type',kind); self.send_header('Content-Length',str(len(body)))
             self.send_header('Cache-Control','no-store'); self.send_header('X-Content-Type-Options','nosniff')
             self.send_header('Referrer-Policy','no-referrer')
-            self.send_header('Content-Security-Policy',"default-src 'none'; script-src 'unsafe-inline'; worker-src blob:; style-src 'unsafe-inline'; img-src https: data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
+            self.send_header('Content-Security-Policy',"default-src 'none'; script-src 'unsafe-inline'; worker-src blob:; style-src 'unsafe-inline'; img-src https: data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
             for key,val in (extra or {}).items(): self.send_header(key,val)
             self.end_headers()
             try: self.wfile.write(body)
@@ -4014,6 +4026,8 @@ def make_handler(app):
             if path=='/export':
                 if not app.bundle: return self.send(409,{'error':'No bundle yet'})
                 return self.send(200,render_html(app.bundle),'text/html; charset=utf-8',{'Content-Disposition':'attachment; filename="Predecessor Meta.html"'})
+            font=ui_font(path)
+            if font is not None: return self.send(200,font,'font/woff2')
             return self.send(404,{'error':'Not found'})
         def do_POST(self):
             origin='http://127.0.0.1:%d'%self.server.server_port

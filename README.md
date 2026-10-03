@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.48.1
+# Predecessor Meta - 2.49.0
 
-Mechanics notices are correct again after a review is published: the publication replay applies the 1.17 corrections after the Pred.gg loadout rows are added, as a fresh collection does, so Peal, Hellfire Strikes and Terminal Treatment no longer read "source field missing", and the official correction notice names only the reviewed corrections still unresolved (Psychosis no longer stays listed after it was verified). Nothing else on the site changes. See [RELEASE-2.48.1.md](RELEASE-2.48.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.49.0 gives the website and the Windows app a new look, the owner's "Broadcast" choice of 3 October 2026: condensed capital headings over Barlow text, both self-hosted (no Google requests, kept offline); an electric cyan action colour and brighter tiers; slanted plates; a dark hero plate with the portrait as art and a ghost name; rank numerals, tier-tinted rows and a win-rate gauge on the Meta list; bigger build icons; and calm 150 ms motion. Evidence, figures and labels are unchanged. See RELEASE-2.49.0.md.
 
 ## Previous release
+
+### 2.48.1
+
+Mechanics notices are correct again after a review is published: the publication replay applies the 1.17 corrections after the Pred.gg loadout rows are added, as a fresh collection does, so Peal, Hellfire Strikes and Terminal Treatment no longer read "source field missing", and the official correction notice names only the reviewed corrections still unresolved (Psychosis no longer stays listed after it was verified). Nothing else on the site changes. See [RELEASE-2.48.1.md](RELEASE-2.48.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.48.0
 
