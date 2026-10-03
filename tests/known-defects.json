@@ -196,7 +196,9 @@
     "CT2": "On Gold+, a withheld reviewed grade leaves its row without a tier instead of the calculated fallback labeled recheck queued (freshness Phase 3)",
     "FR2": "2.46.0 FRESHNESS: a stale-type label (the 30-hour notice, the phone Stale/Saved status) does not say why the data is old or when the next attempt is",
     "DH1": "2.48.0 DESKTOP: the hero page is about 9,200-11,800 px tall with every section open, and its six build items are below the first screen",
-    "DH2": "GUARD 2.48.0: the phone hero page (quick and full-details) never gains the desktop section folds"
+    "DH2": "GUARD 2.48.0: the phone hero page (quick and full-details) never gains the desktop section folds",
+    "BC1": "2.49.0 LOOK: the pages use system fonts, the hero header is an outlined card with a small portrait (no plate art, no ghost name), and Meta rows carry no rank numeral and no win-rate gauge",
+    "BC2": "GUARD 2.49.0: a slanted (clip-path) control or row drops its clip while focused, so the 3px focus ring is never cut off"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

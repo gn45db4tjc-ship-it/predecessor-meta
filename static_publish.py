@@ -664,6 +664,10 @@ def render_site(folder, out, state):
     icons = out / 'assets'; icons.mkdir(exist_ok=True)
     for name in ('app-icon-192.png', 'app-icon-512.png'):
         (icons / name).write_bytes((ROOT / 'assets' / name).read_bytes())
+    # Self-hosted interface fonts (2.49.0) and their OFL licences; sw.js keeps the fonts for offline use.
+    fonts = icons / 'fonts'; fonts.mkdir(exist_ok=True)
+    for name in base.UI_FONTS + ('OFL-Barlow.txt', 'OFL-SairaCondensed.txt'):
+        (fonts / name).write_bytes((ROOT / 'assets' / 'fonts' / name).read_bytes())
     write_json(out / 'manifest.json', manifest)
     return manifest
 

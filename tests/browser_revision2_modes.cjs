@@ -58,7 +58,7 @@ const routes=['meta','builds','planner','draft','live','library','guidance','cha
      await page.screenshot({path:path.join(qa,`${process.env.BROWSER_ENGINE||'edge'}-${mode}-${viewport.width}-${theme}.png`)});
      if(phone){await page.locator('#mobile-hero-search').fill('Steel');await page.locator('#main [data-hero="steel"]:visible').first().click();}
      else{await page.locator('#hero-jump').fill('Steel');await page.locator('#hero-jump').press('Tab');}
-     check(await page.locator('#main h1').innerText()==='Steel','finder opens Steel');
+     check((await page.locator('#main h1').textContent()).trim()==='Steel','finder opens Steel');   // textContent: the name, whatever capitals the look draws (2.49.0)
      // The phone's quick hero view shows the build itself (.simple-purchases) without a Build jump button.
      if(await page.locator('[data-hero-tab="builds"]').count()){await page.locator('[data-hero-tab="builds"]').focus();await page.keyboard.press('Enter');}
      check(await page.locator('.build-path, .simple-purchases').count()>0,theme+' build visible');

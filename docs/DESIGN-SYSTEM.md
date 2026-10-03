@@ -18,19 +18,19 @@ Page layers from back to front, lines and the three text strengths.
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
-| `--bg` | `#090e1c` | `#f0f3fb` | Page background |
-| `--rail` | `#0d1426` | `#e5ebf8` | Sidebar, top bar and phone header |
-| `--surface` | `#131e34` | `#ffffff` | Panels and cards |
-| `--surface-2` | `#1b2944` | `#f4f6fc` | Raised or hovered surface |
-| `--surface-3` | `#243653` | `#e6ecf8` | Selected or emphasised surface; default chip fill |
-| `--inset` | `#0f192d` | `#f7f9ff` | Wells inside cards (loadout slots, tab tracks, build strip) |
-| `--line` | `#2c3d59` | `#d3dcec` | Hairline borders and dividers |
-| `--line-strong` | `#435a7d` | `#a9b9d3` | Borders that must stay visible (inputs, focusable edges) |
-| `--control-line` | `#8196bb` | `#617aa0` | Control borders (selects, secondary buttons) |
-| `--control-hover` | `#8a9cc0` | `#49638c` | Control hover fill |
-| `--text` | `#f0f4ff` | `#17233d` | Primary text |
-| `--text-2` | `#c4d0e8` | `#354765` | Secondary text and labels |
-| `--muted` | `#a0b1ce` | `#536687` | Tertiary text: dates, sources, captions |
+| `--bg` | `#07080d` | `#edf0f5` | Page background |
+| `--rail` | `#0b0d14` | `#ffffff` | Sidebar, top bar and phone header |
+| `--surface` | `#11141e` | `#ffffff` | Panels and cards |
+| `--surface-2` | `#171b28` | `#f2f4f8` | Raised or hovered surface |
+| `--surface-3` | `#202637` | `#e4e8f0` | Selected or emphasised surface; default chip fill |
+| `--inset` | `#0c0f17` | `#f6f8fb` | Wells inside cards (loadout slots, tab tracks, build strip) |
+| `--line` | `#282f42` | `#dde2eb` | Hairline borders and dividers |
+| `--line-strong` | `#3d4660` | `#b6bfd0` | Borders that must stay visible (inputs, focusable edges) |
+| `--control-line` | `#6b7896` | `#7a859b` | Control borders (selects, secondary buttons) |
+| `--control-hover` | `#8591ad` | `#5d6982` | Control hover fill |
+| `--text` | `#f5f7fc` | `#0a0e17` | Primary text |
+| `--text-2` | `#c5cbdb` | `#2c3445` | Secondary text and labels |
+| `--muted` | `#9099b0` | `#566176` | Tertiary text: dates, sources, captions |
 | `--on-strong` | `#fff` | `#17233d` | Text on strong fills |
 | `--icon-plate` | `var(--surface-3)` | `#2b3f48` | Background plate behind item and hero icons |
 | `--backdrop` | `#060a13cc` | `rgba(20,35,42,.55)` | Dialog backdrop |
@@ -41,22 +41,22 @@ Blue is the interactive colour (selection, primary links). Gold is the product a
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
-| `--brand` | `#a9c5ff` | `#2854d7` | Selected tab fill, primary interactive colour |
-| `--brand-hover` | `#c5d8ff` | `#1d41ae` | Brand hover |
-| `--brand-ink` | `#0b1c43` | `#fff` | Text on brand fills |
-| `--brand-text` | `#aac7ff` | `#2449b5` | Brand-coloured text and links |
-| `--brand-tint` | `#20375d` | `#e5edff` | Brand-tinted background (current skill level, soft selection) |
-| `--brand-line` | `#719fea` | `#456eca` | Brand-tinted border |
-| `--hero-wash` | `linear-gradient(120deg,#213c6d 0%,#142340 55%,#131e34 100%)` | `linear-gradient(120deg,#d7e5ff 0%,#edf3ff 55%,#fff 100%)` | Hero header gradient wash |
+| `--brand` | `#35d6ff` | `#0071ab` | Selected tab fill, primary interactive colour |
+| `--brand-hover` | `#86e8ff` | `#005a89` | Brand hover |
+| `--brand-ink` | `#00161f` | `#fff` | Text on brand fills |
+| `--brand-text` | `#62e0ff` | `#00679c` | Brand-coloured text and links |
+| `--brand-tint` | `#0b2733` | `#ddf2fb` | Brand-tinted background (current skill level, soft selection) |
+| `--brand-line` | `#1fa9d1` | `#2a8fc3` | Brand-tinted border |
+| `--hero-wash` | `linear-gradient(120deg,#0f2a3d 0%,#0e1422 55%,#11141e 100%)` | `linear-gradient(120deg,#d6f0fb 0%,#f2f5f9 55%,#fff 100%)` | Hero header gradient wash |
 | `--accent-fill` | `#1f2a2a` | `#faf3e2` | Accent fill for secondary emphasis |
 | `--accent-line` | `#b8975a` | `#9a7a2c` | Accent border |
-| `--gold` | `#d8b25c` | `#cfa84f` | Primary button fill and gold accents |
+| `--gold` | `#ffc44d` | `#f2b632` | Primary button fill and gold accents |
 | `--gold-ink` | `#14110a` | `#14110a` | Text on gold fills |
-| `--gold-text` | `#e6c777` | `#7a5a10` | Gold text (reviewed marker, current values) |
-| `--gold-tint` | `#2a2614` | `#f6ecd2` | Gold-tinted background (reviewed chip) |
-| `--indicator` | `#d8b25c` | `#7a5a10` | Selection borders, outlines and underlines. At least 3:1 on every surface in both themes |
-| `--focus` | `#d8b25c` | `#2f55b8` | The focus ring colour. At least 3:1 on every surface in both themes |
-| `--glow` | `rgba(216,178,92,.07)` | `rgba(154,122,44,.10)` | Soft highlight glow |
+| `--gold-text` | `#ffd27a` | `#7a5300` | Gold text (reviewed marker, current values) |
+| `--gold-tint` | `#2a220e` | `#fbefd0` | Gold-tinted background (reviewed chip) |
+| `--indicator` | `#35d6ff` | `#0071ab` | Selection borders, outlines and underlines. At least 3:1 on every surface in both themes |
+| `--focus` | `#35d6ff` | `#0071ab` | The focus ring colour. At least 3:1 on every surface in both themes |
+| `--glow` | `rgba(255,196,77,.07)` | `rgba(154,122,44,.10)` | Soft highlight glow |
 
 ### Status and evidence
 
@@ -80,8 +80,8 @@ Each class of evidence keeps its own colour and marker (probe W3). Status colour
 | `--observed-line` | `rgba(116,224,193,.34)` | `rgba(23,115,90,.38)` | Observed metric cell border |
 | `--calculated-tint` | `rgba(195,166,255,.10)` | `rgba(104,66,168,.07)` | Calculated metric cell fill |
 | `--calculated-line` | `rgba(195,166,255,.34)` | `rgba(104,66,168,.35)` | Calculated metric cell border |
-| `--reviewed-tint` | `rgba(216,178,92,.12)` | `rgba(154,122,44,.12)` | Reviewed metric cell fill; current skill step |
-| `--reviewed-line` | `rgba(216,178,92,.36)` | `rgba(154,122,44,.42)` | Reviewed metric cell border |
+| `--reviewed-tint` | `rgba(255,196,77,.12)` | `rgba(154,122,44,.12)` | Reviewed metric cell fill; current skill step |
+| `--reviewed-line` | `rgba(255,196,77,.36)` | `rgba(154,122,44,.42)` | Reviewed metric cell border |
 | `--enemy-line` | `#6a4552` | `#d9a9b4` | Enemy pick border |
 | `--enemy-tint` | `#1b1520` | `#fbeef1` | Enemy pick fill |
 | `--enemy-text` | `#d9a2b0` | `#8a2e42` | Enemy pick text |
@@ -92,14 +92,14 @@ Fill and ink pairs for tiers A to D. S and S+ use the `--gold` fill with `--gold
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
-| `--tier-a-fill` | `#70cbb0` | `#8fd9c1` | Tier A fill |
-| `--tier-a-ink` | `#0b2520` | same | Tier A text |
-| `--tier-b-fill` | `#a6bbdd` | `#c3d1ea` | Tier B fill |
-| `--tier-b-ink` | `#152338` | same | Tier B text |
-| `--tier-c-fill` | `#f7ae86` | `#f7c3a6` | Tier C fill |
-| `--tier-c-ink` | `#382112` | same | Tier C text |
-| `--tier-d-fill` | `#ff8091` | `#ffa3af` | Tier D fill |
-| `--tier-d-ink` | `#351019` | same | Tier D text |
+| `--tier-a-fill` | `#23e3a0` | `#1fd497` | Tier A fill |
+| `--tier-a-ink` | `#03251a` | same | Tier A text |
+| `--tier-b-fill` | `#4fa3ff` | `#5aa9ff` | Tier B fill |
+| `--tier-b-ink` | `#04162e` | same | Tier B text |
+| `--tier-c-fill` | `#ff9a4d` | `#ff9f57` | Tier C fill |
+| `--tier-c-ink` | `#2e1300` | same | Tier C text |
+| `--tier-d-fill` | `#ff4f6d` | `#ff6680` | Tier D fill |
+| `--tier-d-ink` | `#2b0410` | same | Tier D text |
 
 ### Elevation
 
@@ -107,7 +107,7 @@ Shadows by role; nothing else casts a shadow.
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
-| `--card-shadow` | `0 8px 24px #02061330` | `0 8px 24px #263e7110` | Cards |
+| `--card-shadow` | `0 8px 24px #00000040` | `0 8px 24px #0a0e1710` | Cards |
 | `--shadow-lg` | `0 10px 30px rgba(0,0,0,.45)` | `0 10px 30px rgba(20,35,42,.20)` | Floating panels |
 | `--shadow-dialog` | `0 30px 100px #0009` | `0 30px 100px rgba(20,35,42,.35)` | Dialogs |
 | `--shadow-toast` | `0 10px 40px #0008` | `0 10px 40px rgba(20,35,42,.25)` | Toasts and the undo banner |
@@ -119,7 +119,8 @@ Two scales. `--t-*` is fixed in pixels for the desktop reference. `--tr-*` is in
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
-| `--sans` | `system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif` | same | All text |
+| `--sans` | `"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif` | same | All text |
+| `--display` | `"Saira Condensed","Arial Narrow",sans-serif` | same | Headings, tabs, navigation, figures and tier letters (condensed capitals) |
 | `--mono` | `ui-monospace,"Cascadia Mono","Consolas",monospace` | same | Official text and tabular source figures |
 | `--t-3xs` | `10px` | same | Micro labels |
 | `--t-2xs` | `11px` | same | Dense table captions |
@@ -133,12 +134,18 @@ Two scales. `--t-*` is fixed in pixels for the desktop reference. `--tr-*` is in
 | `--t-3xl` | `26px` | same | Page titles |
 | `--t-4xl` | `32px` | same | Large figures |
 | `--t-5xl` | `44px` | same | Hero figures |
+| `--t-6xl` | `64px` | same | Hero-plate win rate (desktop) |
+| `--t-7xl` | `96px` | same | Hero-plate name (desktop) |
+| `--t-ghost` | `240px` | same | The ghost name behind the desktop hero plate |
 | `--tr-xs` | `.75rem` | same | Phone chips and captions |
 | `--tr-sm` | `.875rem` | same | Phone secondary text and controls |
 | `--tr-base` | `1rem` | same | Phone body text |
 | `--tr-lg` | `1.125rem` | same | Phone emphasis and card titles |
 | `--tr-xl` | `1.5rem` | same | Phone page titles |
 | `--tr-2xl` | `1.75rem` | same | Phone hero name |
+| `--display-sm` | `1.25rem` | same | Hero names on the phone Meta list |
+| `--display-lg` | `2.75rem` | same | Hero-plate name (phone) |
+| `--display-ghost` | `7.5rem` | same | The ghost name behind the phone hero plate |
 
 ### Spacing
 
@@ -157,14 +164,45 @@ Every padding, margin and gap below 40px uses these (probe DS1). Hairlines (0, 1
 
 ### Radius
 
-Four steps (probe DS2). Circles use 50%.
+Four steps (probe DS2). Circles use 50%. Since 2.49.0 corners are nearly square; slants come from `clip-path` with `--cut` and `--cut-lg`, not from radius.
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
-| `--radius-sm` | `6px` | same | Small controls, icons, focus corners |
-| `--radius-md` | `10px` | same | Buttons, inputs, tabs, loadout slots |
-| `--radius-lg` | `14px` | same | Cards, panels, strips |
-| `--radius-pill` | `999px` | same | Chips and pill buttons |
+| `--radius-sm` | `2px` | same | Chips, small controls, icons |
+| `--radius-md` | `3px` | same | Buttons, inputs, tabs, loadout slots |
+| `--radius-lg` | `4px` | same | Cards, panels, strips |
+| `--radius-pill` | `999px` | same | Round controls (switches, counters) |
+
+### Broadcast (2.49.0)
+
+The hero plate stays dark in both themes, so its tokens are defined once on `:root`. The light theme redefines only the ground tokens marked below.
+
+| Token | Dark (default) | Light | Role |
+|---|---|---|---|
+| `--cut` | `10px` | same | Slant of tabs, nav plates and small tiles |
+| `--cut-lg` | `14px` | same | Slant of the main action, Meta rows and build tiles |
+| `--plate` | `#0a0d15` | same | The hero plate behind the portrait art |
+| `--on-plate` | `#f5f7fc` | same | Text on the plate |
+| `--on-plate-2` | `#bfe9f7` | same | Labels on the plate |
+| `--plate-fade` | `rgba(7,8,13,.94)` | same | The plate's shade over the art (left edge) |
+| `--plate-fade-2` | `rgba(7,8,13,.78)` | same | The plate's shade (middle and bottom) |
+| `--plate-clear` | `rgba(7,8,13,0)` | same | Where the shade ends |
+| `--plate-glass` | `rgba(255,255,255,.1)` | same | Controls on the plate |
+| `--plate-stat` | `rgba(7,8,13,.62)` | same | Stat plates and buttons over the art |
+| `--ghost-ink` | `rgba(255,255,255,.07)` | same | Outline of the ghost name |
+| `--hatch` | `rgba(255,255,255,.022)` | `rgba(10,14,23,.03)` | The diagonal hatch on the page ground |
+| `--brand-glow` | `rgba(53,214,255,.11)` | `rgba(0,113,171,.09)` | Corner glow on the ground; glow behind build icons |
+| `--brand-sheen` | `#a6f2ff` | `#33a3d6` | The light slashes across the main action; brand text on the plate |
+| `--icon-glow` | `rgba(53,214,255,.28)` | `rgba(0,113,171,.3)` | Hairline around build icons |
+| `--tier-sheen` | `rgba(255,255,255,.28)` | same | Top sheen on tier plates |
+
+Set on components rather than `:root`:
+
+| Token | Set on | Role |
+|---|---|---|
+| `--tc` | Meta rows (`.mobile-hero-card`, `.meta-table tbody tr`) | The row's tier colour (from its `.tier-*` badge through `:has()`), tinting the row from the left |
+| `--wr-d` | The same rows, from `wrVars()` in `ui.js` | The shown win rate's distance from 50%, scaled to -1…1 (full at six points). Draws the gauge; `data-trend` picks green or red |
+| `--hero-art` | `.hero-header`, from `artVars()` in `ui.js` | The portrait as plate art (Pred.gg's 256 px size when available). Without a plain https URL the plate has no art and degrades to the dark plate and the name |
 
 ### Layout
 
@@ -181,7 +219,7 @@ Page geometry.
 
 ### `.chip`
 
-The one pill-shaped component: padding `--s0-5` `--s2`, `--radius-pill`, `--t-xs`, weight 600. Variants add colour only.
+The one label component: padding `--s0-5` `--s2`, `--radius-sm` since 2.49.0, `--t-xs`, weight 700, capitals. Variants add colour only.
 
 - `.chip.tag.observed` / `.calculated` / `.reviewed` / `.official`: evidence. Always rendered with `badge(text, type)`, which adds the marker (●, ◇, ✦, ▢).
 - `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence.
@@ -194,16 +232,16 @@ _Usage:_ Do use a chip for a short state or provenance label. Don't use one as a
 
 A content-switching tab list: `role=tablist` with an `aria-label`, `role=tab` buttons, one `aria-selected=true`, arrow/Home/End keys via the shared handler in `ui.js`.
 
-- `.tab-strip--segmented` (phone): hero sections, Meta role picker, Live hero picker. Selected tab: `--brand` fill, `--brand-ink` text. Wraps, never scrolls; at least 44px tall.
+- `.tab-strip--segmented` (phone): hero sections, Meta role picker, Live hero picker. Since 2.49.0 the selected tab has `--brand-text` text on a slanted `--brand-tint` plate over a 3px `--brand` underline. Wraps, never scrolls; at least 44px tall.
 - `.tab-strip--underline` (desktop): role and combination-size tabs. Selected tab: `--indicator` underline.
 
 _Usage:_ Navigation that moves the page or route (hero jump links, destination sections, reference jumps) is not a tab strip: it uses `aria-current`. Keep labels short enough that five tabs fit one row at 375px.
 
 ### `.primary` / `.quiet` / `.text-button`
 
-Buttons. `.primary` is the single main action on a screen (gold fill, `--indicator` border, pill). `.quiet` is a secondary action. `.text-button` is an inline or back link that behaves as a button.
+Buttons. `.primary` is the single main action on a screen: since 2.49.0 a slanted `--brand` plate with two `--brand-sheen` slashes and `--brand-ink` capitals (before that a gold pill). `.quiet` is a secondary action. `.text-button` is an inline or back link that behaves as a button.
 
-- States: hover (`.primary` mixes the fill toward `--text`), focus (the one `--focus` ring), disabled (native `disabled`, never a class alone).
+- States: hover (`.primary` turns `--brand-hover`), focus (the one `--focus` ring; the slant is dropped while focused), disabled (native `disabled`, never a class alone).
 
 _Usage:_ One `.primary` per view. On a hero page (phone since 2.37.0, desktop since 2.41.0) it is "Use in Match" in the header.
 
@@ -217,7 +255,7 @@ _Usage:_ Never draw an item icon without this button; the dialog is how sources 
 
 ### `.panel`
 
-A card: `--surface`, `--line` border, `--radius-lg`, padding `--s3` (phone) or `--s4`.
+A card: `--surface` on the hatched ground, no visible border since 2.49.0, `--radius-lg`, padding `--s3` (phone) or `--s4`.
 
 _Usage:_ Don't nest panels more than one deep.
 
@@ -231,9 +269,21 @@ _Usage:_ Say what is missing and why; never leave an empty area without a note.
 
 ### `.tier`
 
-A tier badge from `tier(t)`, coloured by the tier token pairs.
+A tier badge from `tier(t)`, coloured by the tier token pairs: a slanted plate with a `--tier-sheen` top, letter in `--display`.
 
 _Usage:_ Only for reviewed or source tiers; never for calculated scores.
+
+## The Broadcast look (2.49.0)
+
+`broadcast.css` is the last stylesheet on every page (`__BROADCAST_CSS__` in `ui.html`). It holds the look; the files before it hold layout. Owner's choice of 3 Oct 2026: direction A ("Broadcast", an esports-overlay look), more stylized.
+
+- **Type.** Barlow (`--sans`) for text, and Saira Condensed (`--display`) in capitals for headings, tabs, navigation, figures and tier letters. Both are OFL fonts, self-hosted in `assets/fonts/` with their licences: only the latin subset, weights 400/600/700 and 700/800. The website publishes them and `sw.js` keeps them for offline use. The Windows app and the shared server serve only the allow-listed files (`UI_FONTS`, `ui_font()`) under `font-src 'self'`. An exported page falls back to system fonts. No page requests Google Fonts (`browser_visual_polish`).
+- **Slants.** Tier badges, the main action, selected tabs and navigation, Meta rows, build tiles and stat plates are parallelograms or cut corners (`clip-path`, `--cut`, `--cut-lg`). A clip also cuts off the focus ring, so anything clipped that holds or is a control drops its clip on `:focus-visible` or `:focus-within`.
+- **Hero plate.** `.hero-header` is a dark plate in both themes. The portrait (`--hero-art`) fills the right and fades out to the left. The hero's name is drawn behind as a ghost outline (`::after`, `content: attr(data-name) / ""`, so screen readers do not hear it twice). The name is slanted, and the plate redefines `--text`, `--text-2`, `--muted` and `--brand-text` for its contents. On the phone the plate is a lower third: the framed portrait is hidden, the actions sit top right, and the name and role sit low.
+- **Meta list.** Each row is tinted from the left by its tier (`--tc`). The phone role list and the desktop table number their rows (`counter(meta-rank)`, alt text empty), with the first three filled. Each row has a win-rate gauge under the figure: a centre tick at 50%, green or red to the side, full at ±6 points. The figure stays the claim; the gauge only makes the list scannable.
+- **Build.** Tiles with a cut corner, a glow behind each icon (52 px on the phone, 56 px on the desktop) and outlined slanted numbers. Desktop loadout slots stack their label, item, evidence chip and provenance in one column, so the provenance no longer wraps around the chip.
+- **Ground.** A faint diagonal hatch and a brand glow in the top-left corner (`--hatch`, `--brand-glow`). Panels lose their outline; fills and the hatch separate them.
+- **Motion.** 150 ms for state changes, a lift on build tiles and a nudge on Meta rows, all inside `prefers-reduced-motion: no-preference`.
 
 ## Focus and selection
 

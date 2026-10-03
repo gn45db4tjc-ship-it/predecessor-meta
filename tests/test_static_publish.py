@@ -232,6 +232,9 @@ class PublicationTests(unittest.TestCase):
         self.assertIn("networkFirst(request",(self.out/'sw.js').read_text(encoding='utf8'))
         self.assertTrue((self.out/'assets'/'app-icon-192.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
         self.assertTrue((self.out/'assets'/'app-icon-512.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
+        for name in s.base.UI_FONTS:   # the self-hosted interface fonts (2.49.0) and their licences
+            self.assertTrue((self.out/'assets'/'fonts'/name).read_bytes().startswith(b'wOF2'),name)
+        self.assertTrue((self.out/'assets'/'fonts'/'OFL-Barlow.txt').is_file())
 
     def test_no_success_does_not_publish_blank_site(self):
         manifest=s.render_site(self.state,self.out,{})

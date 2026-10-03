@@ -95,7 +95,7 @@ let preview=null;
    // Global hero finder: typing a name opens that hero's partners with picks intact.
    await page.evaluate(()=>{S.locks=[{slug:'steel',role:'jungle'}];save();});
    await page.locator('#hero-jump').fill('Gideon');await page.locator('#hero-jump').dispatchEvent('change');
-   check(await page.locator('#main h1').innerText()==='Gideon','hero finder opens the typed hero');
+   check((await page.locator('#main h1').textContent()).trim()==='Gideon','hero finder opens the typed hero');   // textContent: the name, whatever capitals the look draws (2.49.0)
    check(await page.evaluate(()=>S.locks.length===1&&S.locks[0].slug==='steel'),'hero finder keeps locked picks');
    await page.locator('#hero-jump').focus();await page.keyboard.press('Tab');
    check(await page.evaluate(()=>document.activeElement&&document.activeElement!==document.body&&document.activeElement.id!=='hero-jump'),'finder does not trap focus');

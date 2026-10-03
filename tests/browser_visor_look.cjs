@@ -13,7 +13,7 @@ const root=path.resolve(__dirname,'..'),qa=path.join(root,'qa');
 const port=Number(process.env.LOCAL_PORT||12994),base=`http://127.0.0.1:${port}/`;
 const work=fs.mkdtempSync(path.join(os.tmpdir(),'pm-visor-')),data=path.join(work,'data'),lookFile=path.join(work,'look.json');
 const axePath=process.env.AXE_PATH||require.resolve('axe-core/axe.min.js',{paths:[path.dirname(require.resolve(process.env.PLAYWRIGHT_PATH||'playwright')),root]});
-const DEFAULT_DARK={'--bg':'#090e1c','--surface':'#131e34','--brand':'#a9c5ff','--brand-text':'#aac7ff'};
+const DEFAULT_DARK={'--bg':'#07080d','--surface':'#11141e','--brand':'#35d6ff','--brand-text':'#62e0ff'};
 const SEMANTIC=['--text','--text-2','--muted','--green','--blue','--red','--amber','--gold','--gold-text','--official','--enemy-text','--indicator','--focus','--tier-a-fill','--observed-tint','--calculated-tint','--reviewed-tint','--official-tint','--amber-tint-2'];
 const SAMPLES={
  amber:{style:'orbit',palette:'ember',glass:'medium',calm:false,accent:'#F0A020',text:'#F4F1EA',muted:'#B8B0A0',warn:'#FF6A3D',tint:'#1A1206'},
@@ -137,7 +137,7 @@ let app;
   // 6. Light theme stays untouched; the Visor applies to the dark theme only.
   await page.locator('#theme-toggle').click();
   const light=await tokens(['--bg','--surface','--brand']);
-  check(light['--bg']==='#f0f3fb'&&light['--surface']==='#ffffff'&&light['--brand']==='#2854d7','light theme: its own tokens');
+  check(light['--bg']==='#edf0f5'&&light['--surface']==='#ffffff'&&light['--brand']==='#0071ab','light theme: its own tokens');   // 2.49.0 light values
   check((await page.locator('#visor-note').innerText()).includes('dark theme only'),'light theme: setting says dark only');
   await page.waitForTimeout(400);   // let the 0.12 s colour transitions finish before the picture
   await shot('ice-light-theme-1440');

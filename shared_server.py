@@ -155,7 +155,7 @@ def make_handler(manager,origin):
             if compress:self.send_header('Content-Encoding','gzip')
             if etag:self.send_header('ETag','"'+etag+'"')
             self.send_header('X-Content-Type-Options','nosniff');self.send_header('Referrer-Policy','no-referrer')
-            self.send_header('Content-Security-Policy',"default-src 'none'; script-src 'unsafe-inline'; worker-src blob:; style-src 'unsafe-inline'; img-src https: data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
+            self.send_header('Content-Security-Policy',"default-src 'none'; script-src 'unsafe-inline'; worker-src blob:; style-src 'unsafe-inline'; img-src https: data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
             self.end_headers()
             try:self.wfile.write(raw)
             except (OSError,TimeoutError):pass
@@ -181,6 +181,8 @@ def make_handler(manager,origin):
                     b=manager.bundle(self.bracket())
                     if not b:return self.send(409,{'error':'No source bundle is available yet'})
                     return self.send(200,base.render_html(b),'text/html; charset=utf-8')
+                font=base.ui_font(path)
+                if font is not None:return self.send(200,font,'font/woff2')
                 return self.send(404,{'error':'Not found'})
             except (ValueError,OSError) as exc:return self.send(400,{'error':str(exc)})
         def do_POST(self):
