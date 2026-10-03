@@ -10,7 +10,7 @@ The running record of the freshness overhaul (owner's brief of 2 Oct 2026; decis
 | Upstream statistics change → published for that rank | ≤ 3 h | up to ~25 h (Pred.gg, PC once a day) | unchanged (Phase 2) |
 | Any rank's core statistics age, sources healthy | never over 24 h | peaks 24.7 h; unlimited when the PC is off | unchanged (Phase 2) |
 | Review PR merged → visible on the site | ≤ 30 min | code 3.6 min; grades and builds 12–24 h | **Met (2.44.0):** the merge's own publish run re-applies a changed reviewed packet to every rank (about 4 min), without waiting for a collection. |
-| Grade withheld or plan inactive → recheck queued | same run | never | queue listed below; automatic in Phase 4 |
+| Grade withheld or plan inactive → recheck queued | same run | never | **Met (2.47.0):** each publication run derives the recheck queue from the published bundle (`review/index.json` `rechecks`); the scheduled reviewer works from it every 3 hours. |
 | New publication → visible on a phone or desktop | ≤ 1 min | 15 min returning, 30 min open tab | **Met (2.43.0):** a freshly opened app checks at once; a returning app checks when its last check is over 15 s old; an open, visible tab checks every 5 min. Probe FR1 (clocked browser): 1 check on return, 1 in the open tab (was 0 and 0). |
 
 ## Phase 1: what was stale on 2 Oct, and why
@@ -43,7 +43,7 @@ Every stale-type item from the baseline, classified. "Fixed" means fixed at the 
 - **Pred.gg can't be read from GitHub.** Until API access is granted, Pred.gg comes only from the PC.
 - **Thin samples:** Paragon+ has 938 Statz games and Diamond+ 7,341. Calculated tiers are sparse there: on the 2 Oct data, Paragon+ has 6 hero roles with a tier and Diamond+ 65.
 
-## Recheck queue (Phase 4 starts here)
+## Recheck queue (as of 2 Oct; since 2.47.0 the live queue is `review/index.json` `rechecks`)
 
 In order. Grades first, as the brief asks.
 
@@ -90,3 +90,32 @@ In order. Grades first, as the brief asks.
   - otherwise, when the last collection finished.
   The phone Paused status says when the patch notes are next checked. The desktop patch strip keeps its short label, with the explanation as its tooltip; the notice below it says it in full.
 - **Tests:** `tests/test_static_watchdog.py` (21: decisions, refresh rules, state, issue sync, workflow contract); audit probe FR2.
+
+## Phase 4 (2.47.0): automatic rechecks with an auto-merge gate
+
+- **Queue:** `engine.recheckQueue` derives the reviewer's queue from the Gold+ reference bundle, grades first:
+  - grades withheld because statistics moved;
+  - plans whose supporting mechanics changed;
+  - official mechanics notices;
+  - heroes with no reviewed grade or plan;
+  - a live patch the guidance was not reviewed for.
+
+  `review_queue.cjs` publishes it in `review/index.json` (`rechecks`) with each item's first-queued date, so a missed run stays due. It adds the weekly backstop after Sunday's collection, which clears only when `guidance.recheck_log` records a weekly pass. Experimental roles kept unresolved by design are not queued. On the 2 Oct data it would list 13 withheld grades, Legion carry and three mechanics notices.
+- **Runner:** the Claude Code scheduled task `predecessor-meta-rechecks`, every 3 hours (`docs/RECHECK-RUNNER.md`). It exits at once when the queue is empty, handles one pass at a time, and opens a review PR labeled `automated-review`.
+- **Gate:** `.github/workflows/review-gate.yml` and `review_gate.py`.
+  1. It checks first, executing nothing from the PR, that only review files changed.
+  2. It runs the tests, validates the packet against every live rank and runs the live-data browser suites.
+  3. It requires green CI.
+  4. It decides:
+     - merge when every changed entry has a complete ledger record, no grade moves more than one step, nothing unresolved supports a newly endorsed choice and the pass is logged;
+     - hold (`DECISION NEEDED`) for a first grade, a removal, a policy exception, a validator or policy change, or more than 10 grade changes;
+     - wait unless `free_hosting.json` `review_auto_merge` is true on main and the last two nightly live checks passed;
+     - otherwise fail.
+  5. After a merge it publishes and verifies that every rank carries the merged packet (and the changed Gold+ grades) within 30 minutes, and reverts the merge if not.
+- **Prerequisite:** the nightly live check passed on main twice in a row on 2 Oct (15:48Z and 21:04Z, both manual dispatches; the 18:47Z schedule was skipped by GitHub). `review_auto_merge` is on, and the gate re-checks the last two nightly runs at every decision.
+- **Watchdog:** a recheck queued for over 24 hours is reported as `queue-overdue`.
+- **Tests:**
+  - `tests/recheck_queue.test.cjs` (5);
+  - `tests/test_static_recheck_log.py` (3);
+  - `tests/test_static_review_gate.py` (13, including the workflow contract);
+  - the watchdog's overdue-rechecks case.

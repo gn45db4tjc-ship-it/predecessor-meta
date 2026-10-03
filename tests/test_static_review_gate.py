@@ -173,5 +173,29 @@ class LiveVerification(unittest.TestCase):
         self.assertIn('adele/offlane', ' '.join(gate.verified({'gold': {'fingerprint': 'abc', 'tiers': {'adele/offlane': 'C'}}}, 'abc', {'adele/offlane': 'B'})))
 
 
+
+class WorkflowContract(unittest.TestCase):
+    def test_scope_first_then_checks_then_a_scoped_decision(self):
+        text = (ROOT / '.github' / 'workflows' / 'review-gate.yml').read_text(encoding='utf-8')
+        jobs = text.split('\njobs:\n', 1)[1]
+        scope, rest = jobs.split('\n  checks:\n', 1)
+        checks, decide = rest.split('\n  decide:\n', 1)
+        self.assertIn('pull_request_target:', text)                     # the base branch's definition decides
+        self.assertIn("contains(github.event.pull_request.labels.*.name, 'automated-review')", scope)
+        self.assertIn('github.event.pull_request.user.login == github.repository_owner', scope)
+        self.assertIn('ref: ${{ github.event.pull_request.base.sha }}', scope)
+        self.assertNotIn('ref: ${{ github.event.pull_request.head.sha }}', scope)   # no PR code is checked out before scope
+        self.assertIn('needs: scope', checks); self.assertIn('needs: checks', decide)
+        self.assertNotIn('write', scope + checks)                          # read-only until the decision
+        self.assertIn('validate-live', checks); self.assertIn('browser_static.cjs', checks); self.assertIn('browser_design.cjs', checks)
+        self.assertIn('select(.name == "verify")', decide)                # CI must be green
+        self.assertIn('--match-head-commit "$HEAD"', decide)
+        self.assertIn('gh workflow run publish.yml --ref main', decide)
+        self.assertIn('verify-live --merge "$merge"', decide)
+        self.assertIn('git revert -m 1 --no-edit "$merge"', decide)
+        for use in [l.split('uses:')[1].strip() for l in text.splitlines() if 'uses:' in l]:
+            self.assertRegex(use, r'@[0-9a-f]{40}', use)
+
+
 if __name__ == '__main__':
     unittest.main()

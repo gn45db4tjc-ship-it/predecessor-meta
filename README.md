@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.46.0
+# Predecessor Meta - 2.47.0
 
-Freshness Phase 5: an hourly watchdog checks the live site against the freshness targets (statistics and Pred.gg age, failed or missing ranks, the patch check, publication, a Windows collector quiet for 6 hours, an overdue review queue). It keeps one GitHub issue per problem, requests a refresh only where the publication rules allow, and records every miss in automation-state. Stale labels on the website now say why the data is old and when the next attempt is. See [RELEASE-2.46.0.md](RELEASE-2.46.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Freshness Phase 4: the site keeps a recheck queue (withheld grades, plans whose mechanics changed, mechanics notices, new heroes, patch changes, a weekly backstop), a scheduled reviewer works through it every 3 hours, and a gate merges a review PR only when it touches review files alone, passes the tests and live-data suites, and records every change in a ledger with one-step moves; it holds first grades, policy or validator changes and passes over 10 grades for the owner, and reverts a merge the live site does not verify within 30 minutes. See [RELEASE-2.47.0.md](RELEASE-2.47.0.md) and [docs/RECHECK-RUNNER.md](docs/RECHECK-RUNNER.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.46.0
+
+Freshness Phase 5: an hourly watchdog checks the live site against the freshness targets (statistics and Pred.gg age, failed or missing ranks, the patch check, publication, a Windows collector quiet for 6 hours, an overdue review queue). It keeps one GitHub issue per problem, requests a refresh only where the publication rules allow, and records every miss in automation-state. Stale labels on the website now say why the data is old and when the next attempt is. See [RELEASE-2.46.0.md](RELEASE-2.46.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.45.0
 

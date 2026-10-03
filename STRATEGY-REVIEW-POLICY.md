@@ -49,7 +49,7 @@ The GitHub workflow collects public data daily, checks official changes every ho
 `review_queue.cjs` does not perform an AI review. Creating a packet must never
 advance a strategy review date or relabel guidance as current.
 
-A separate Codex heartbeat checks the existing queue every three hours. Full
+Since 2.47.0 (freshness Phase 4) the index also lists the recheck queue (`rechecks`): grades withheld because statistics moved, plans whose supporting mechanics changed, official mechanics notices, new heroes, a live patch the guidance was not reviewed for, and the weekly backstop after Sunday's collection. Each item keeps the date it was first queued, so a missed run stays due. A Claude Code scheduled task on the owner's machine (`predecessor-meta-rechecks`, every three hours; `docs/RECHECK-RUNNER.md`) is the single accountable reviewer: it exits at once when the queue is empty, otherwise rechecks the items, records a ledger and opens a review PR labeled `automated-review`. The review gate (`.github/workflows/review-gate.yml`, `review_gate.py`) applies the auto-merge gate above, and verifies the live site after a merge (reverting it if verification fails). The earlier description of a separate Codex heartbeat is superseded: Full
 analysis is due weekly after Sunday's daily collection, or sooner for a newly live
 patch, changed hotfix content, new hero, or supporting mechanics conflict. A missed
 Sunday remains due at the next available run. Unchanged queue checks exit promptly.

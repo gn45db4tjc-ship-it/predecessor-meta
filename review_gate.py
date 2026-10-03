@@ -22,6 +22,7 @@ Commands (used by .github/workflows/review-gate.yml):
   decide  --base SHA --head SHA --out FILE      the merge, hold, wait or fail decision
   validate-live BUNDLE...                       the packet validates against each live rank bundle
   verify-live --merge SHA --changes FILE        the live site carries the merged packet (polls up to 30 minutes)
+  comment FILE                                  the PR comment for a decision
   update-manifest                               refresh SOURCE-MANIFEST.json hashes of changed review files
 """
 import argparse
@@ -225,6 +226,20 @@ def evaluate(base, head, files, ledgers, supplements=(None, None), manifests=(No
             'expected_tiers': {'%s/%s' % k: e.get('tier') for k, e in grades_h.items() if grades_b.get(k) != e}}
 
 
+def comment_text(result):
+    """The PR comment for a decision."""
+    head = {'merge': 'The review gate passed; merging, publishing and verifying the live site.',
+            'hold': '**DECISION NEEDED.** The review gate holds this PR for the owner.',
+            'wait': 'The review gate passed, but auto-merge is not on, so this PR waits for the owner.',
+            'fail': 'The review gate failed; this PR cannot merge as it is.'}[result['decision']]
+    lines = [head, '']
+    lines += ['- ' + f for f in result.get('failures') or []] + ['- ' + h for h in result.get('holds') or []]
+    if result.get('changed_grades'):
+        lines += ['', 'Changed grades: ' + ', '.join(result['changed_grades']) + '.']
+    lines += ['', 'Decided by `review_gate.py` (`.github/workflows/review-gate.yml`); the rules are in STRATEGY-REVIEW-POLICY.md.']
+    return '\n'.join(lines)
+
+
 # ---- git, GitHub and the live site ----
 
 def git(*args, binary=False):
@@ -293,7 +308,7 @@ def verified(ranks, expected_fp, expected_tiers):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    parser.add_argument('command', choices=['scope', 'decide', 'validate-live', 'verify-live', 'update-manifest'])
+    parser.add_argument('command', choices=['scope', 'decide', 'comment', 'validate-live', 'verify-live', 'update-manifest'])
     parser.add_argument('paths', nargs='*')
     parser.add_argument('--base'); parser.add_argument('--head'); parser.add_argument('--merge')
     parser.add_argument('--out', type=Path); parser.add_argument('--changes', type=Path)
@@ -324,6 +339,10 @@ def main(argv=None):
         if output:
             with open(output, 'a', encoding='utf-8') as stream:
                 stream.write('decision=%s\n' % result['decision'])
+        return 0
+
+    if args.command == 'comment':
+        print(comment_text(json.loads(Path(args.paths[0]).read_text(encoding='utf-8'))))
         return 0
 
     if args.command == 'validate-live':
