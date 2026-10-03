@@ -137,7 +137,7 @@ let app;
   // 6. Light theme stays untouched; the Visor applies to the dark theme only.
   await page.locator('#theme-toggle').click();
   const light=await tokens(['--bg','--surface','--brand']);
-  check(light['--bg']==='#f0f3fb'&&light['--surface']==='#ffffff'&&light['--brand']==='#2854d7','light theme: its own tokens');
+  check(light['--bg']==='#edf0f5'&&light['--surface']==='#ffffff'&&light['--brand']==='#0071ab','light theme: its own tokens');   // 2.49.0 light values
   check((await page.locator('#visor-note').innerText()).includes('dark theme only'),'light theme: setting says dark only');
   await page.waitForTimeout(400);   // let the 0.12 s colour transitions finish before the picture
   await shot('ice-light-theme-1440');

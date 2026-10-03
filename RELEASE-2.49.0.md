@@ -19,7 +19,7 @@ The owner chose this on 3 October 2026: direction A ("Broadcast", an esports-ove
   - Meta rows, build tiles and stat plates.
 - **Hero plate.** The hero header is now a dark plate in both themes.
   - The portrait fills the right as art and fades out to the left.
-  - The name is large and slanted, with a faint outline of it behind.
+  - The name is large and slanted, with a faint outline of it behind. It scales with the room it has: all 55 hero names fit at 1024, 1280 and 1440 px and on the phone. "Iggy & Scorch" wraps at its spaces.
   - On the phone it works like a broadcast lower third: the name and role sit low, and Favorite and Share sit top right.
 - **Meta list.**
   - Rows are numbered in the current order, with the first three filled.
@@ -67,6 +67,12 @@ The owner chose this on 3 October 2026: direction A ("Broadcast", an esports-ove
 - **Design-system probes.** W1–W4 and DS1–DS6 pass.
 - **Visor contrast tests.** These caught a hairline colour almost equal to the raised surface; the line tokens are lighter now.
 - **Suites.** Python static tests, Node tests, the 11 CI browser suites, and the static and design suites on a preview built from the six live bundles.
+- **Windows app.** `browser_visor_look` starts the real local app on a copy of the seed. It runs with four Visor looks, a missing look and the light theme. The fonts come through the app's own route, and the Visor accent colours the plates, gauges and numerals.
+- **Caught and fixed along the way.**
+  - CSS capitals change a page's visible text (`innerText`), which several tests read. Chips, stat lines, the hero's stat line, table buttons, More rows and dialog titles now keep their written case. Two tests read the hero `h1` by `textContent` instead.
+  - The phone's three-to-a-row build tiles gave a short item name a button under 80 px wide, so each item button now spans its tile.
+  - Long names ran under the stats at 1024–1280 px, so the name now scales with its box.
+  - The Visor suite's pinned light-theme values were updated to the new ones.
 - **Checked by eye.** Phone 390×844 and desktop 1440×900, both themes:
   - Meta, hero, Match, More and Sources;
   - Kit and Partners;
