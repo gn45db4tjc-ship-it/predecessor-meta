@@ -2,7 +2,7 @@
   "version": "2.48.0",
   "hosting_revision": 21,
   "design_revision": 6,
-  "baseline_commit": "cafae90b8188afc6ed1be3b553abb0d43acffd4d",
+  "baseline_commit": "1cb5e85131dbc2786fedfd42218705e29770d094",
   "verification_report": "RELEASE-2.48.0.md",
   "release_status": "Source artifact; installation and publication status require separate receipts",
   "release_branch": "release/2.48.0",
