@@ -19,9 +19,17 @@ The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current sc
      - waiting for the gate;
      - `DECISION NEEDED`: the owner decides;
      - `gate failed`: fix it in that PR's branch only if the failure is in this pass's own records, otherwise leave it for the owner.
+   - **The lock** (`C:\Users\Will\Desktop\Predecessor Meta\Work-Sessions\rechecks.lock`, a one-line JSON `{started_at, worktree}`):
+     - If it exists and is under 3 hours old, another run is working: stop and say so.
+     - If it is older, that run ended without finishing (it was cut off, or it waited on a prompt): resume its worktree (step 3).
+     - Otherwise write the lock now. Delete it after the PR is opened, or when you stop for any other reason.
+   - **Unfinished passes** (since 2 Oct, when a run stopped before writing its records and the next run started over): `git worktree list` from the repository, looking for `Work-Sessions/rechecks-*` worktrees whose `review/recheck-*` branch has no PR (`gh pr list --head <branch> --state all`).
+     - If one has commits or changes, resume it: continue its pass from its last committed record. Use only items still in the queue, and today's live bundles for any item not yet recorded.
+     - If one is clean and its branch has no commits beyond `origin/main`, remove it (`git worktree remove <path>` and `git branch -D <branch>`).
 3. **Workspace.**
    - Repository: `C:\Users\Will\Desktop\Predecessor Meta\Hosting\Predecessor Meta Free Hosting`. Don't check out branches in the shared tree.
-   - Create a fresh worktree from `origin/main`: `Work-Sessions/rechecks-<YYYYMMDD-HHMM>`, branch `review/recheck-<YYYYMMDD-HHMM>`.
+   - Unless you are resuming an unfinished pass, create a fresh worktree from `origin/main`: `Work-Sessions/rechecks-<YYYYMMDD-HHMM>`, branch `review/recheck-<YYYYMMDD-HHMM>`.
+   - **Commit as you go:** commit the grade records once the grades are done, then after each further group (plans, mechanics). A run that is cut off then leaves its work for the next run to resume. Don't push until step 8.
    - Never touch `data-updates` or `automation-state`.
    - Never read `.local-publisher`.
    - Never force-push.
