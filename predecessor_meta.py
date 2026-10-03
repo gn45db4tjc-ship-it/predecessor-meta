@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.48.0"
+VERSION = "2.48.1"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1914,6 +1914,17 @@ def attach_community_builds(bundle):
 import patch_support
 
 
+def refresh_correction_notice(bundle, packet_ids):
+    """One current "Official correction review" notice naming the packet corrections still in conflict, or none.
+    Supplement receipts (patch-1.17.json) are reported by patch_support's own reconciliation notice (3 Oct 2026)."""
+    bundle['errors'] = [e for e in bundle.get('errors', []) if e.get('source') != 'Official correction review']
+    conflicts = [c for c in bundle.get('corrections', []) if c.get('id') in packet_ids and str(c.get('status', '')).startswith('conflict')]
+    if conflicts:
+        affected = sorted(set(str(c['path'][1]).replace('-', ' ').title() for c in conflicts))
+        bundle['errors'].append({'source':'Official correction review','severity':'warning',
+            'detail':'Correction could not be verified for '+', '.join(affected)+'. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no replacement was guessed.'})
+
+
 def enrich_bundle(bundle, official=None):
     bundle['official'] = official or {'status': 'unverified', 'error': 'Official patch has not been checked this session.'}
     patch_support.prepare(bundle)
@@ -1943,11 +1954,7 @@ def enrich_bundle(bundle, official=None):
     normalize_item_catalog(bundle)
     if current:
         for rule in packet.get('corrections', []): bundle['corrections'].append(apply_correction(bundle, rule))
-    conflicts = [c for c in bundle['corrections'] if c['status'].startswith('conflict')]
-    if conflicts:
-        affected = sorted(set(str(c['path'][1]).replace('-', ' ').title() for c in conflicts))
-        bundle.setdefault('errors', []).append({'source':'Official correction review','severity':'warning',
-            'detail':'Correction could not be verified for '+', '.join(affected)+'. The source field is missing or differs from the reviewed precondition. See Sources & accuracy for the original value and official change; no replacement was guessed.'})
+    refresh_correction_notice(bundle, {r['id'] for r in packet.get('corrections', [])})
     apply_mechanics_resolutions(bundle,packet,current)
     bundle['mechanics_boundaries']=copy.deepcopy(packet.get('mechanics_boundaries',[])) if current else []
     bundle['loadout_catalog']=copy.deepcopy(packet.get('loadout_catalog',{})) if current else {}
@@ -2914,9 +2921,11 @@ def apply_pred_source_corrections(bundle):
         if rule.get('unit')=='rating':
             entry.setdefault('verified_stat_units',{})['Tenacity']={'unit':'rating','source':rule['sources'][0]['url'],'patch':packet['patch']}
             entry.get('stat_notes',{}).pop('Tenacity',None)
-    for key,label in (('corrections','Official correction review'),('mechanics_resolutions','Mechanics reconciliation')):
-        if not any(c['status'].startswith('conflict') for c in bundle[key]):
-            bundle['errors']=[e for e in bundle['errors'] if e['source']!=label]
+    # 3 Oct 2026: the correction notice is rebuilt from the packet's own receipts, so a verified correction leaves it
+    # and a supplement conflict (reported by patch_support) no longer keeps it.
+    refresh_correction_notice(bundle,{r['id'] for r in packet['corrections']})
+    if not any(c['status'].startswith('conflict') for c in bundle['mechanics_resolutions']):
+        bundle['errors']=[e for e in bundle['errors'] if e['source']!='Mechanics reconciliation']
 
 
 def source_records_before_review(bundle):
@@ -3417,6 +3426,9 @@ def full_review_replay(bundle):
     b['errors']=[e for e in b.get('errors',[]) if e.get('source') not in ENRICHMENT_NOTICE_SOURCES]
     enrich_bundle(b,b['official'])
     apply_pred_game_data(b)
+    # As in a fresh collection, the same-patch supplement runs again after the Pred.gg pass, so its corrections see the
+    # loadout rows only Pred.gg supplies (3 Oct 2026: Peal and Hellfire Strikes read "source field missing" otherwise).
+    patch_support.apply(b, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     b['tool_version']=VERSION
     b['guidance_fingerprint']=guidance_fingerprint()
     b['saved_source_review']={'from_version':bundle.get('tool_version'),'review_version':VERSION,
