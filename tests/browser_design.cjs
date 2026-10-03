@@ -69,6 +69,8 @@ let preview=null;
    await route('meta');await openSteel(page);
    check(await page.evaluate(()=>{const h=document.querySelector('.hero-header').getBoundingClientRect(),t=document.querySelector('nav.hero-jump[aria-label="Sections of this hero"]').getBoundingClientRect();return t.top>h.bottom&&t.top-h.bottom<80;}),'section jump row sits directly under the hero header');
    check(await page.evaluate(()=>[...document.querySelectorAll('section[id^="hero-sec-"]')].map(s=>s.id).join()==='hero-sec-builds,hero-sec-pairings,hero-sec-counters,hero-sec-kit'),'Build section first, then partners, counters and kit');
+   // 2.48.0: on the desktop the partners sit in a fold; the section bar opens it, as a reader would.
+   await page.click('#main [data-hero-tab="pairings"]');
    check(await page.evaluate(()=>[...document.querySelectorAll('.partner')].slice(0,3).every(c=>c.querySelectorAll('.metric-row strong').length<=2)),'partner cards lead with at most two figures');
    check((await page.locator('.partner').first().innerText()).match(/kit interaction points|Calculated kit fit|kit fit/i)!==null,'partner cards keep the kit-fit evidence');
    check(ratio(toHex(await page.evaluate(()=>getComputedStyle(document.querySelector('.partner .tag')).color)),toHex(panelBg))>=4.5,'chip text ≥4.5:1 on partner cards');

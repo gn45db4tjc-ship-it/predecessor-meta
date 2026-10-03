@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.47.0
+# Predecessor Meta - 2.48.0
 
-Freshness Phase 4: the site keeps a recheck queue (withheld grades, plans whose mechanics changed, mechanics notices, new heroes, patch changes, a weekly backstop), a scheduled reviewer works through it every 3 hours, and a gate merges a review PR only when it touches review files alone, passes the tests and live-data suites, and records every change in a ledger with one-step moves; it holds first grades, policy or validator changes and passes over 10 grades for the owner, and reverts a merge the live site does not verify within 30 minutes. See [RELEASE-2.47.0.md](RELEASE-2.47.0.md) and [docs/RECHECK-RUNNER.md](docs/RECHECK-RUNNER.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+A shorter desktop hero page: the reviewed build now opens with all six items and the loadout, so the answer and Use in Match are in the first screen, and Partners, Counters, Kit, the team alternatives and the build sources are folded behind the page's disclosure with a one-line preview, one click away (a section jump or a shared link opens its fold). The page is about 72–74% shorter (Gideon midlane 11,461 → 3,063 px at 1440); nothing is removed, and the phone is unchanged. See [RELEASE-2.48.0.md](RELEASE-2.48.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.47.0
+
+Freshness Phase 4: the site keeps a recheck queue (withheld grades, plans whose mechanics changed, mechanics notices, new heroes, patch changes, a weekly backstop), a scheduled reviewer works through it every 3 hours, and a gate merges a review PR only when it touches review files alone, passes the tests and live-data suites, and records every change in a ledger with one-step moves; it holds first grades, policy or validator changes and passes over 10 grades for the owner, and reverts a merge the live site does not verify within 30 minutes. See [RELEASE-2.47.0.md](RELEASE-2.47.0.md) and [docs/RECHECK-RUNNER.md](docs/RECHECK-RUNNER.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.46.0
 

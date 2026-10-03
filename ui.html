@@ -233,6 +233,9 @@ summary{padding:var(--s2) var(--s3) var(--s2) var(--s6);cursor:pointer;font-size
 summary::-webkit-details-marker{display:none}
 summary:before{content:"";position:absolute;left:12px;top:calc(50% - 4px);width:6px;height:6px;border-right:2px solid var(--blue);border-bottom:2px solid var(--blue);transform:rotate(-45deg);transition:transform .15s}
 details[open]>summary:before{transform:rotate(45deg)}
+/* 2.48.0: the desktop hero page's section folds (ui.js heroFold): the existing disclosure, with a one-line preview. */
+details.hero-fold{margin:var(--s3) 0}details.hero-fold>summary{font-size:var(--t-md);color:var(--text);padding-top:var(--s3);padding-bottom:var(--s3)}
+details.hero-fold>summary small{display:block;margin-top:var(--s1);font-size:var(--t-sm);font-weight:500;color:var(--text-2)}details.hero-fold>.detail-content{padding:var(--s2) var(--s4) var(--s4)}
 summary:hover{color:var(--text);background:var(--surface-3)}
 details>.detail-content{padding:var(--s1) var(--s4) var(--s3)}
 details details{background:var(--surface)}

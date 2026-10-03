@@ -2772,6 +2772,8 @@ probes.S5 = async browser => {
       const rows = root ? [...root.querySelectorAll(rowSel)] : [];
       if (!box || !rows.length) { out[section] = {box: !!box, rows: rows.length}; continue; }
       const probe = rows[rows.length - 1].textContent.trim().split(/\s+/)[0].slice(0, 5);
+      // 2.48.0: on the desktop the evidence sits in a fold; a reader opens it before searching.
+      const fold = box.closest('details.hero-fold'); if (fold) fold.open = true;
       box.focus(); box.value = probe; box.dispatchEvent(new Event('input', {bubbles: true}));
       await new Promise(r => setTimeout(r, 60));
       const r2 = document.getElementById('hero-sec-' + section);
