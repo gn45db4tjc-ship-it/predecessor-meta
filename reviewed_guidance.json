@@ -58784,6 +58784,16 @@
         "scope": "Scheduled recheck of the 1 queued item (the official definition review notice for Frost Snap, Harmonic Currents and Mending) against the live bundles published 2026-10-03T07:28:08Z (tool 2.48.1; official 1.17 + Hotfix 1.17.1 and 1.16.4 notes fetched 2 Oct 13:19 CDT). Not a weekly or full review.",
         "ledger": "docs/rechecks/2026-10-03-0407-ledger.json",
         "result": "0 changed, 0 checked and retained, 1 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-03T10:15:00-05:00",
+        "items": [
+          "mechanics-conflict:official-definition-review"
+        ],
+        "scope": "Scheduled recheck of the 1 queued item (the official definition review notice for Frost Snap, Harmonic Currents and Mending) against the live bundles published 2026-10-03T13:04:31Z (tool 2.48.1; official 1.17 + Hotfix 1.17.1 and 1.16.4 notes fetched 2 Oct 13:19 CDT). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-03-1005-ledger.json",
+        "result": "0 changed, 0 checked and retained, 1 unresolved"
       }
     ]
   },
