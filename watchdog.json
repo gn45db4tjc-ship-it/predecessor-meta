@@ -1,12 +1,14 @@
 {
  "schema": 1,
- "checked_at": "2026-10-03T20:12:37+00:00",
+ "checked_at": "2026-10-03T23:19:41+00:00",
  "open": {
   "attempt-failed": {
    "first_seen": "2026-10-03T20:12:37+00:00"
   }
  },
- "dispatches": [],
+ "dispatches": [
+  "2026-10-03T23:19:41+00:00"
+ ],
  "misses": [
   {
    "id": "attempt-failed",
