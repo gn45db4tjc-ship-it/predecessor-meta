@@ -210,6 +210,13 @@ function pairCard(rec,hero,compact=false){
 }
 /* ---- the hero page as sections ---------------------------------------------------- */
 const HERO_SECTIONS=[['builds','Build'],['pairings','Partners'],['counters','Counters'],['kit','Kit']];
+// 2.48.0 (Phase 6): the desktop hero page leads with the answer and folds its secondary sections behind the disclosure
+// component. Each stays one click away (a section jump or a deep link opens it) and keeps its source line inside.
+// The phone (700 px and narrower), including its full-details page, never folds.
+function deskFold(){return typeof companionMedia==='undefined'||!companionMedia.matches;}
+function heroEvidenceStatusHTML(slug){const state=annexState('hero',slug),problem=annexProblem('hero',slug),id=esc(annexId('hero',slug));if(state==='loaded')return '';
+ return state==='failed'?`<div class="annex-failed" data-annex="${id}">${note('This hero\'s detailed evidence could not be loaded'+(problem?' ('+esc(problem)+')':'')+'.'+annexRetry()+' The sections below say what is missing; nothing is estimated in its place.',true)}</div>`:`<div class="note annex-loading" data-annex="${id}">Loading this hero's detailed evidence…</div>`;}
+function heroFold(key,label,preview,inner,open=false){return `<details class="panel hero-fold" data-keep="${esc(key)}"${open?' open':''}><summary><strong>${esc(label)}</strong>${preview?`<small>${esc(preview)}</small>`:''}</summary><div class="detail-content">${inner}</div></details>`;}
 /* S.heroTab is the section being read. A click, a shared link, or code that sets it brings
    that section into view; scrolling keeps it current. sectionSpy.tab is the last value the
    page itself chose, so a redraw that changes nothing never moves the reader. */
@@ -218,6 +225,7 @@ function sectionPad(){const root=getComputedStyle(document.documentElement),jr=$
  return (parseFloat(root.getPropertyValue('--page-top-h'))||0)+(jr&&getComputedStyle(jr).position==='sticky'?jr.offsetHeight:0)+8;}
 function syncSectionCurrent(){document.querySelectorAll('#main [data-hero-tab]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.heroTab===S.heroTab)));}
 function jumpToSection(t){const sec=document.getElementById('hero-sec-'+t);if(!sec)return;
+ const fold=sec.querySelector(':scope > details.hero-fold');if(fold&&!fold.open)fold.open=true;
  sectionSpy.tab=t;sectionSpy.hold=performance.now()+600;syncSectionCurrent();
  window.scrollTo({top:Math.max(0,sec.getBoundingClientRect().top+scrollY-sectionPad())});}
 function spySections(){if(S.route!=='hero'||performance.now()<sectionSpy.hold)return;
@@ -308,9 +316,9 @@ function heroView(){
  if(!perf)html+=note(esc(role?.error||'No data for this role.')+' Pair observations are hero-wide; the selected role does not create a role-specific pair sample.',true);
  html+=`<nav class="toolbar hero-jump" aria-label="Sections of this hero"><div class="tabs">${HERO_SECTIONS.map(([t,n])=>`<button type="button" data-hero-tab="${t}" aria-current="${S.heroTab===t}">${n}</button>`).join('')}</div></nav>`;
  /* Each section is exactly what its tab used to render, closed by its own source line. */
- let pairsHTML='';
+ let pairsHTML='',partnerPreview='';
  {
-  const ordered=S.pairMetric==='kit'?partners.combined:partners.observed;const leading=S.pairMetric==='kit'?RecommendationView.partnerShortlist(ordered,5):ordered.slice(0,5);const remainder=ordered.filter(r=>!leading.some(p=>p.slug===r.slug));
+  const ordered=S.pairMetric==='kit'?partners.combined:partners.observed;const leading=S.pairMetric==='kit'?RecommendationView.partnerShortlist(ordered,5):ordered.slice(0,5);const remainder=ordered.filter(r=>!leading.some(p=>p.slug===r.slug));partnerPreview=leading.slice(0,3).map(r=>name(r.slug)).join(', ');
   pairsHTML+=`<div class="hero-intro"><h2>What pairs well with ${esc(h.display_name)}?</h2><p>${S.pairMetric==='kit'?'Kit fit first; observed pair rates shown separately.':'Exploratory Statz comparison; kit fit shown separately.'} ${S.explore?'Samples below 100 games included.':'At least 100 games by default.'}</p></div>`+
   `<div class="grid three">${leading.map(r=>pairCard(r,S.hero,true)).join('')}</div>${!leading.length?empty('No observed pair clears this filter. Kit-based alternatives are available below; no pair rate is estimated.'):''}`+
   `<div class="toolbar"><div class="toolbar-group"><label>Partner role <select id="partner-role">${options(roleOrder.filter(r=>r!==S.heroRole).map(r=>[r,labels[r]]),S.partnerRole,'All other roles')}</select></label><label>Compare with <select id="pair-metric">${options([['kit','Kit fit · current mechanics'],['stronger','Statz · stronger baseline gap'],['mean','Statz · average baseline gap']],S.pairMetric)}</select></label><label><input id="explore" type="checkbox" ${S.explore?'checked':''}> Include samples below 100</label></div></div>`+
@@ -318,11 +326,26 @@ function heroView(){
   (remainder.length?`<details class="partner-tail" data-keep="partner-tail"><summary>More partners · ${remainder.length}</summary><div class="detail-content"><div class="grid three">${remainder.map(r=>pairCard(r,S.hero)).join('')}</div></div></details>`:'')+
   (S.pairMetric==='kit'?'':`<details class="partner-tail" data-keep="partner-alternatives"><summary>Kit-based alternatives · ${Math.min(9,partners.derived.length)}</summary><div class="detail-content">${badge('Calculated · no observed pair','calculated')}<p class="muted">These alternatives explain complementary abilities without assigning a win rate.</p><div class="grid three">${partners.derived.slice(0,9).map(r=>pairCard({...r,pair:null},S.hero)).join('')}</div></div></details>`);
  }
- const section=(t,label,inner)=>`<section class="hero-section" id="hero-sec-${t}" data-hero-section="${t}" aria-label="${label}">${inner}${heroSourceHTML(h,S.heroRole,t)}</section>`;
- html+=section('builds','Build',patchContextHTML(S.hero)+recommendedBuildHTML()+teamAlternatesHTML({slug:S.hero,role:S.heroRole})+skillPointsHTML(chosenPlan({slug:S.hero,role:S.heroRole}))+evidenceSearchHTML('builds','Search the build evidence')+predBuildsHTML(S.hero,S.heroRole)+buildsView(h,role));
- html+=section('pairings','Partners',patchContextHTML(S.hero,'partners')+pairsHTML);
- html+=section('counters','Counters',counterplayHTML(S.hero,S.heroRole)+evidenceSearchHTML('counters','Search the matchup tables')+supportedMatchupsHTML(S.hero,S.heroRole,h,role)+exploratoryMatchupsHTML(S.hero,S.heroRole,h,role));
- html+=section('kit','Kit',predKitHTML(h)+kitView(h));
+ const section=(t,label,inner,source=heroSourceHTML(h,S.heroRole,t))=>`<section class="hero-section" id="hero-sec-${t}" data-hero-section="${t}" aria-label="${label}">${inner}${source}</section>`;
+ const fold=deskFold(),pick={slug:S.hero,role:S.heroRole},alternates=teamAlternatesHTML(pick),source=t=>heroSourceHTML(h,S.heroRole,t);
+ const buildEvidence=evidenceSearchHTML('builds','Search the build evidence')+predBuildsHTML(S.hero,S.heroRole)+buildsView(h,role);
+ const pairsBody=patchContextHTML(S.hero,'partners')+pairsHTML;
+ const countersBody=counterplayHTML(S.hero,S.heroRole)+evidenceSearchHTML('counters','Search the matchup tables')+supportedMatchupsHTML(S.hero,S.heroRole,h,role)+exploratoryMatchupsHTML(S.hero,S.heroRole,h,role);
+ const kitBody=predKitHTML(h)+kitView(h);
+ if(fold){
+  html+=heroEvidenceStatusHTML(S.hero);
+  html+=section('builds','Build',recommendedBuildHTML()+skillPointsHTML(chosenPlan(pick))+patchContextHTML(S.hero)+
+   (alternates?heroFold('hero-alternatives','Adapt to the enemy team','Build alternatives by enemy team type',alternates):'')+
+   heroFold('hero-build-evidence','Build sources and evidence','Evidence search, Pred.gg and Statz variants and reviewed adaptations',buildEvidence,!!evidenceQuery.builds));
+  html+=section('pairings','Partners',heroFold('hero-pairings','Partners',partnerPreview?'Leading: '+partnerPreview:'Kit fit and observed pairs',pairsBody+source('pairings')),'');
+  html+=section('counters','Counters',heroFold('hero-counters','Counters','How to play as or against '+h.display_name+', reviewed responses and matchup tables',countersBody+source('counters'),!!evidenceQuery.counters),'');
+  html+=section('kit','Kit',heroFold('hero-kit','Kit','Abilities, augments and official patch evidence',kitBody+source('kit')),'');
+ }else{
+  html+=section('builds','Build',patchContextHTML(S.hero)+recommendedBuildHTML()+alternates+skillPointsHTML(chosenPlan(pick))+buildEvidence);
+  html+=section('pairings','Partners',pairsBody);
+  html+=section('counters','Counters',countersBody);
+  html+=section('kit','Kit',kitBody);
+ }
  return html+`<div class="footer">${esc(sentence(B.pairs_meta?.note))} ${esc(sentence(B.pool_note))} Kit explanations use rules and named ability evidence; they are not observed team-performance claims.</div>`;
 }
 function catalogKey(kind,value){if(B[kind]?.[value])return value;return Object.keys(B[kind]||{}).find(k=>normalizeName(B[kind][k].display_name||B[kind][k].name)===normalizeName(value));}
@@ -545,7 +568,7 @@ function planReviewHTML(plan){
  const r=plan.maintenance_review;if(!r)return '';
  return `<details><summary>${plan.patch_review?'Full strategy review':'Review result'} · ${esc(r.result)}</summary><div class="detail-content"><p>${badge(r.result,r.result==='unresolved'?'warning':'reviewed')} ${esc(date(r.reviewed_at))}</p><p>${esc(r.reason)}</p>${r.limitation?note(esc(r.limitation),true):''}<p class="muted">${esc(r.scope)}</p><details><summary>Six bracket references at review · observed, dated separately</summary><div class="detail-content"><p>${esc(r.rank_note)}</p><div class="table-scroll"><table class="table-small"><thead><tr><th>Bracket</th><th>Role WR</th><th>Games</th><th>Source date</th></tr></thead><tbody>${r.rank_samples.map(x=>`<tr><td>${esc(x.bracket)}+</td><td>${x.status==='unavailable'?'Unavailable':pct(x.winRate)}</td><td>${x.status==='unavailable'?'—':games(x.matches)+(x.matches<100?' · exploratory':'')}</td><td>${x.status==='unavailable'?'No sample':link(x.url,'Pred.gg')+' · '+esc(date(x.fetched_at))+' · '+esc(x.status)}</td></tr>`).join('')}</tbody></table></div></div></details></div></details>`;
 }
-function plannedBuildHTML(plan,compact=false){
+function plannedBuildHTML(plan,compact=false,lead=false){
  if(!plan.items.length)return `<div class="build-head"><h3>Build recommendation unavailable</h3>${badge('Unavailable','warning')}</div>${note(esc(plan.reason),true)}${previousBuildHTML(plan)}`;
  const reviewed=plan.kind==='reviewed';
  /* The plan carries its own hero and role. S.hero can still point at a previously
@@ -555,14 +578,18 @@ function plannedBuildHTML(plan,compact=false){
  const loadout=[['Augment',plan.augment,'perks'],['Eternal',plan.eternal,'perks'],['Blessing 1',plan.blessings?.[0],'perks'],['Blessing 2',plan.blessings?.[1],'perks'],['Crest',plan.crest,'items']];
  const firstSentence=String(plan.reason||'').split(/(?<=[.!?])\s+/)[0]||'';
  const reason=compact&&plan.reason&&plan.reason.length>firstSentence.length+20?`<p class="plan-reason">${esc(firstSentence)}</p><details><summary>Full reasoning</summary><div class="detail-content"><p>${esc(plan.reason)}</p></div></details>`:`<p class="plan-reason">${esc(plan.reason)}</p>`;
- return `<div class="build-head"><div><div class="eyebrow">${reviewed?'Reviewed plan':'Provisional plan'}</div><h3>${esc(plan.title)}</h3></div>${badge(reviewed?(plan.experimental_role?'Reviewed · experimental role':plan.role_confidence?'Reviewed · limited sample':'Reviewed · editorial judgment'):'Calculated starting point',reviewed&&!plan.experimental_role?'reviewed':'warning')}</div>${plan.role_note?note(esc(plan.role_note),!!plan.experimental_role):''}${reason}${plan.patch_review?`<div class="note"><strong>Patch review · ${esc(date(plan.patch_review.reviewed_at))}</strong><p>${esc(plan.patch_review.reason)}</p><p>Alternative: ${esc(plan.patch_review.alternative)}</p><p>${esc(plan.patch_review.limitation)}</p><p>Scope: build choices and skill priority. Level-by-level orders, rankings and team advice keep their own review status.</p></div>`:''}
+ return `<div class="build-head"><div><div class="eyebrow">${reviewed?'Reviewed plan':'Provisional plan'}</div><h3>${esc(plan.title)}</h3></div>${badge(reviewed?(plan.experimental_role?'Reviewed · experimental role':plan.role_confidence?'Reviewed · limited sample':'Reviewed · editorial judgment'):'Calculated starting point',reviewed&&!plan.experimental_role?'reviewed':'warning')}</div>${plan.role_note?note(esc(plan.role_note),!!plan.experimental_role):''}${lead?'':reason+patchReviewHTML(plan)}
  <ol class="build-path">${plan.items.map((n,i)=>`<li>${itemButton(n)}<small>${i<plan.core.length?'Core purchase':'Flexible final slot'}</small></li>`).join('')}</ol>
  <div class="loadout-strip">${loadout.map(([label,n,kind])=>loadoutPartHTML(label,n,kind,plan,planEvidence)).join('')}${crestEvolutionHTML(planEvidence,plan.crest)}</div>
+ ${lead?reason+patchReviewHTML(plan,true):''}
  ${plan.items.length<6?note('A complete six cannot be assembled from verified item metadata. Missing slots stay unavailable.',true):''}${planReviewHTML(plan)}
  ${plan.review_evidence?`<details><summary>Dated role evidence at review · ${esc(plan.review_evidence.bracket)}</summary><div class="detail-content"><p>${games(plan.review_evidence.playedGames)} · ${link(plan.review_evidence.url,'Statz '+plan.review_evidence.dataset)} · fetched ${esc(date(plan.review_evidence.fetched_at))}. ${esc(plan.review_evidence.note)}</p><p>Plan reviewed ${esc(date(plan.reviewed_at))}. This historical role sample is separate from the live figures above.</p></div></details>`:''}
  ${plan.item_notes?.length?`<details><summary>Why these six items · reviewed reasoning</summary><div class="detail-content"><p>${esc(plan.review_scope||'Dated strategy judgment; triggers and execution still matter.')}</p><div class="review-item-reasons">${plan.item_notes.map(n=>`<article>${itemButton(n.item)}<p>${esc(n.reason)}</p><div class="flex">${supportHTML((n.ability_keys||[]).map(key=>({hero:plan.slug,key,ability:E.heroes[plan.slug]?.abilities?.find(a=>a.key===key)?.display_name||key})))}</div></article>`).join('')}</div></div></details>`:''}
  <details><summary>Full setup, execution and sources</summary><div class="detail-content"><div class="grid two">${loadout.slice(0,4).map(([label,n,kind])=>`<div><small>${label}</small>${n?itemButton(n,kind):'<p>Unavailable</p>'}</div>`).join('')}</div><p>Crest: ${plan.crest?itemButton(plan.crest):'Unavailable'}</p><p>Skill priority: ${esc((plan.skill_priority||[]).map(v=>SKILL_KEYS[v]||v).join(' → '))}; rank the ultimate when available.</p><p>${esc(plan.rune_note||'Rune choices follow the selected source variant; compare their mechanics before committing.')}</p><p class="warning">${esc(plan.caution)}</p><p>${reviewed?'Reviewed '+esc(date(plan.reviewed_at))+' for v'+esc(plan.patch)+'. '+esc(plan.patch_review?'Build-only patch review; other guidance has separate dates':B.guidance?.status)+'.':plan.manual?'Source playstyle override; the reviewed plan remains available.':'No authored hero/role plan is active.'} No win rate is assigned to this recommendation.</p>${(plan.sources||[]).map(x=>link(x.url,x.title)).join(' · ')}</div></details>${sourceReconciliationHTML(plan)}${buildAdaptationsHTML(plan.slug,plan.role)}${previousBuildHTML(plan)}`;
 }
+// The build-only patch review. On the desktop hero page (2.48.0) it follows the build, one click away.
+function patchReviewHTML(plan,folded=false){if(!plan.patch_review)return '';const r=plan.patch_review,body=`<p>${esc(r.reason)}</p><p>Alternative: ${esc(r.alternative)}</p><p>${esc(r.limitation)}</p><p>Scope: build choices and skill priority. Level-by-level orders, rankings and team advice keep their own review status.</p>`;
+ return folded?`<details data-keep="plan-patch-review"><summary>Patch review · ${esc(date(r.reviewed_at))}</summary><div class="detail-content">${body}</div></details>`:`<div class="note"><strong>Patch review · ${esc(date(r.reviewed_at))}</strong>${body}</div>`;}
 function previousReviewedBuild(review){return review?.patch_review?.result==='unresolved'?(review.previous_review||review):review;}
 function sourceReconciliationHTML(plan){
  const review=plan.source_reconciliation;if(!review?.entries?.length)return '';
@@ -580,7 +607,7 @@ function communityAlternativesHTML(slug,role){
 }
 // 2.41.0: the Live Build Coach is gone here too (it read Match's enemies and contradicted the build below); Use in Match
 // in the hero header adapts the build to the enemies you see.
-function recommendedBuildHTML(){return `<div class="section-title"><h2>Recommended build</h2>${badge('Reviewed reasoning before rates','reviewed')}</div><article class="panel">${plannedBuildHTML(E.plannedBuild(S.hero,S.heroRole))}</article>${communityAlternativesHTML(S.hero,S.heroRole)}<details><summary>Statz standout · observed variant for comparison</summary><div class="detail-content">${(s=>s?buildSummaryHTML(s):empty(noStatzBuildText(E.heroes[S.hero],S.heroRole)))(E.buildSummary(S.hero,S.heroRole))}</div></details><div class="spacer"></div>`;}
+function recommendedBuildHTML(){return `<div class="section-title"><h2>Recommended build</h2>${badge('Reviewed reasoning before rates','reviewed')}</div><article class="panel">${plannedBuildHTML(E.plannedBuild(S.hero,S.heroRole),false,deskFold())}</article>${communityAlternativesHTML(S.hero,S.heroRole)}<details><summary>Statz standout · observed variant for comparison</summary><div class="detail-content">${(s=>s?buildSummaryHTML(s):empty(noStatzBuildText(E.heroes[S.hero],S.heroRole)))(E.buildSummary(S.hero,S.heroRole))}</div></details><div class="spacer"></div>`;}
 function buildsPageView(){
  const rows=Object.keys(E.heroes).filter(slug=>E.roles(slug).includes(S.role)&&name(slug).toLowerCase().includes(S.query.toLowerCase())).map(slug=>({slug,role:S.role,review:E.buildReview(slug,S.role),perf:E.performance({slug,role:S.role})}));
  rows.sort((a,b)=>Number(!!b.review?.active)-Number(!!a.review?.active)||name(a.slug).localeCompare(name(b.slug)));

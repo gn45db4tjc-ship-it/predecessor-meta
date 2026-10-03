@@ -194,7 +194,9 @@
     "FR1": "2.43.0 FRESHNESS: an app that returns to the foreground checks for a new publication only after 15 minutes, and an open tab every 30 minutes",
     "CT1": "A rank other than Gold+ shows no tier: no calculated tier column on desktop, no calculated tier in its detail, none on phone rows (freshness Phase 3)",
     "CT2": "On Gold+, a withheld reviewed grade leaves its row without a tier instead of the calculated fallback labeled recheck queued (freshness Phase 3)",
-    "FR2": "2.46.0 FRESHNESS: a stale-type label (the 30-hour notice, the phone Stale/Saved status) does not say why the data is old or when the next attempt is"
+    "FR2": "2.46.0 FRESHNESS: a stale-type label (the 30-hour notice, the phone Stale/Saved status) does not say why the data is old or when the next attempt is",
+    "DH1": "2.48.0 DESKTOP: the hero page is about 9,200-11,800 px tall with every section open, and its six build items are below the first screen",
+    "DH2": "GUARD 2.48.0: the phone hero page (quick and full-details) never gains the desktop section folds"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

@@ -2772,6 +2772,8 @@ probes.S5 = async browser => {
       const rows = root ? [...root.querySelectorAll(rowSel)] : [];
       if (!box || !rows.length) { out[section] = {box: !!box, rows: rows.length}; continue; }
       const probe = rows[rows.length - 1].textContent.trim().split(/\s+/)[0].slice(0, 5);
+      // 2.48.0: on the desktop the evidence sits in a fold; a reader opens it before searching.
+      const fold = box.closest('details.hero-fold'); if (fold) fold.open = true;
       box.focus(); box.value = probe; box.dispatchEvent(new Event('input', {bubbles: true}));
       await new Promise(r => setTimeout(r, 60));
       const r2 = document.getElementById('hero-sec-' + section);
@@ -3454,6 +3456,41 @@ probes.FR2 = async browser => {
   }
   const says = t => STALE_WHY.test(t) && /Next attempt/i.test(t);
   verdict('FR2', !(seen.banner && says(seen.banner) && /Stale|Saved|Aging/.test(seen.status) && says(seen.status)), seen);
+};
+/* 2.48.0 (freshness brief, Phase 6): a shorter desktop hero page. The answer (all six build items) and Use in Match are
+   in the first screen; partners, counters, kit, the team alternatives and the build sources are folded behind the
+   disclosure component, one click away; a section jump opens its fold. The phone (700 px and narrower) is unchanged. */
+const desktopHero = {viewport: {width: 1440, height: 900}};
+probes.DH1 = async browser => {
+  // Before: about 9,200-11,800 px tall, with the six items below the first screen and every section open.
+  const {context, page} = await session(browser, desktopHero);
+  const seen = await page.evaluate(async () => {
+    openHero('gideon', 'midlane');
+    await new Promise(r => setTimeout(r, 400));
+    const bottom = s => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().bottom + scrollY) : null; };
+    const folds = ['pairings', 'counters', 'kit'].map(t => !!document.querySelector('#hero-sec-' + t + ' > details.hero-fold:not([open])'));
+    const inner = ['hero-alternatives', 'hero-build-evidence'].map(k => !!document.querySelector('#hero-sec-builds details.hero-fold[data-keep="' + k + '"]:not([open])'));
+    const result = {height: document.documentElement.scrollHeight, use: bottom('#main .hero-use-match'), items: bottom('#hero-sec-builds .build-path'), screen: innerHeight, folds, inner};
+    document.querySelector('#main [data-hero-tab="counters"]')?.click();
+    result.jumpOpens = !!document.querySelector('#hero-sec-counters > details.hero-fold[open]');
+    return result;
+  });
+  await context.close();
+  const shortAndAnswered = seen.height <= 4000 && seen.use !== null && seen.use <= seen.screen && seen.items !== null && seen.items <= seen.screen
+    && seen.folds.every(Boolean) && seen.inner.every(Boolean) && seen.jumpOpens;
+  verdict('DH1', !shortAndAnswered, seen);
+};
+probes.DH2 = async browser => {
+  // GUARD: the phone hero page, quick and full-details, never gains the desktop folds.
+  const seen = {};
+  for (const full of [false, true]) {
+    const context = await browser.newContext({serviceWorkers: 'block', ...phone}), page = await context.newPage();
+    await context.addInitScript(full => { localStorage.setItem('predecessor-companion-v1', JSON.stringify({installSeen: true, fullDetails: full})); }, full);
+    await page.goto(url); await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    seen[full ? 'full' : 'quick'] = await page.evaluate(() => { openHero('gideon', 'midlane'); return document.querySelectorAll('#main details.hero-fold').length; });
+    await context.close();
+  }
+  verdict('DH2', seen.quick !== 0 || seen.full !== 0, seen);
 };
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
