@@ -1,5 +1,6 @@
 'use strict';
-// 27 Sep 2026 grade recheck: a rechecked tier carries its own date and, when the grade moved, the grade it replaced.
+// Grade rechecks (27 Sep 2026 and every scheduled pass since): a rechecked tier carries its own date and, when the
+// grade moved, the grade it replaced.
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('fs'), path = require('path');
 const Meta = require('../engine.js');
 const root = path.join(__dirname, '..');
@@ -30,23 +31,50 @@ test('an entry that was not rechecked keeps the review date', () => {
   assert.equal(r.previous_tier, undefined);
 });
 
-test('the reviewed packet and the recheck ledger agree', () => {
+// Every recheck ledger: the 27 Sep 2026 grade recheck and each scheduled pass since (docs/rechecks/*-ledger.json,
+// docs/RECHECK-RUNNER.md). A grade record's review date is its own reviewed_at, else its ledger's.
+function gradeRecords() {
+  const dir = path.join(root, 'docs/rechecks');
+  const files = ['docs/grade-recheck-2026-09-27-ledger.json',
+    ...(fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => /-ledger\.json$/.test(f)).sort().map(f => 'docs/rechecks/' + f) : [])];
+  return files.flatMap(file => {
+    const ledger = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+    return (ledger.entries || []).filter(row => (row.kind || 'grade') === 'grade')
+      .map(row => ({...row, file, reviewed_at: row.reviewed_at || ledger.reviewed_at}));
+  }).sort((a, b) => Date.parse(a.reviewed_at) - Date.parse(b.reviewed_at));
+}
+const zoned = value => /(Z|[+-]\d\d:\d\d)$/.test(String(value)) && Number.isFinite(Date.parse(value));
+
+test('the reviewed packet and every recheck ledger agree', () => {
   const packet = JSON.parse(fs.readFileSync(path.join(root, 'reviewed_guidance.json'), 'utf8'));
-  const ledger = JSON.parse(fs.readFileSync(path.join(root, 'docs/grade-recheck-2026-09-27-ledger.json'), 'utf8'));
-  const review = packet.guidance.meta_review, rechecked = review.entries.filter(e => e.rechecked_at);
-  const applied = ledger.entries.filter(row => row.verdict !== 'proposed');
-  assert.equal(rechecked.length, applied.length);
+  const review = packet.guidance.meta_review, key = x => x.slug + '/' + x.role;
+  const records = gradeRecords(), applied = records.filter(row => row.verdict !== 'proposed');
   // A proposed grade is a record for the owner, never a tier the app shows.
-  for (const row of ledger.entries.filter(r => r.verdict === 'proposed'))
-    assert.equal(review.entries.find(x => x.slug === row.slug && x.role === row.role), undefined);
+  for (const row of records.filter(r => r.verdict === 'proposed'))
+    assert.equal(review.entries.find(x => key(x) === key(row)), undefined, key(row) + ' is only proposed');
+  // Each rechecked entry has a ledger record, and each applied record has an entry.
+  assert.deepEqual(review.entries.filter(e => e.rechecked_at).map(key).sort(), [...new Set(applied.map(key))].sort());
   for (const row of applied) {
-    const e = review.entries.find(x => x.slug === row.slug && x.role === row.role);
-    assert.ok(e, row.slug + '/' + row.role);
-    assert.equal(e.rechecked_at, ledger.reviewed_at);
-    assert.equal(e.tier, row.tier);
-    assert.equal(e.previous_tier, row.verdict === 'changed' ? row.old_tier : undefined, row.slug + '/' + row.role + ' previous tier');
-    assert.deepEqual(e.evidence, row.evidence);
-    assert.ok(Date.parse(e.evidence.fetched_at) <= Date.parse(e.rechecked_at));
-    assert.ok(row.reason && row.limitation);
+    const label = key(row) + ' (' + row.file + ')';
+    assert.ok(row.reason && row.limitation, label + ' reason and limitation');
+    assert.ok(zoned(row.reviewed_at), label + ' zoned review date');
+    // A review cannot predate its samples: every dated source was collected by the record's own review date.
+    for (const s of row.evidence ? [row.evidence] : row.sources || [])
+      assert.ok(Date.parse(s.fetched_at) <= Date.parse(row.reviewed_at), label + ' source collected after its review');
+  }
+  // The latest record for each grade decides the entry; earlier records are history.
+  for (const k of new Set(applied.map(key))) {
+    const history = applied.filter(r => key(r) === k), row = history[history.length - 1], label = k + ' (' + row.file + ')';
+    const e = review.entries.find(x => key(x) === k);
+    assert.equal(e.rechecked_at, row.reviewed_at, label + ' recheck date');
+    assert.equal(e.tier, row.tier, label + ' tier');
+    // A move records the grade it replaced. A retained recheck may keep an earlier move that still stands, or none.
+    const earlier = history.slice(0, -1).reverse().find(r => r.verdict === 'changed' && r.tier === e.tier);
+    if (row.verdict === 'changed') assert.equal(e.previous_tier, row.old_tier, label + ' previous tier');
+    else assert.ok(e.previous_tier === undefined || e.previous_tier === earlier?.old_tier, label + ' previous tier');
+    // The entry cites the sample it was rechecked against: the record's evidence, or one of its dated sources.
+    if (row.evidence) assert.deepEqual(e.evidence, row.evidence, label + ' evidence');
+    else assert.ok((row.sources || []).some(s => s.url === e.evidence.url && s.fetched_at === e.evidence.fetched_at), label + ' evidence among its sources');
+    assert.ok(Date.parse(e.evidence.fetched_at) <= Date.parse(e.rechecked_at), label + ' sample collected after its recheck');
   }
 });
