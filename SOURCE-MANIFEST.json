@@ -145,7 +145,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "5346a74945d2481d402a0a7c18f8abc9729dce0e69ae2d3457578d0592adff7e",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "fdb4434830af0fda8c556fe1b92e35543a90c70dcad782b093e6712aa5bc253a",
+    "reviewed_guidance.json": "e5e8dfb24941f0be4367ad40bfdeb18613dd3faa349eec0d957d59627737d565",
     "shared_server.py": "ccbc8bc1333575f4a4d75d464d319fcaa4c5e1b2a516efaefa5fcba2b03fb3d7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "30bb52833330f5499ba48fab94ad275c5ab42a4afeed395a5f1e7b4e9c9635ea",
@@ -274,6 +274,8 @@
     "docs/rechecks/2026-10-03-0108-ledger.json": "161e2a1a168a19c205f6c3aa445506da670fe437d35d9d6eef8deebc5bb8b1bf",
     "docs/rechecks/2026-10-03-0108.md": "71700250a06a634ea7da42808f7079977a6819b7a8d4c9e702c0a66b4ef21500",
     "RELEASE-2.48.1.md": "84423d66ac22c8e01240350029348b5b1c6249bf5f9746b73f8ae22d5d3bc759",
-    "tests/test_static_correction_order.py": "6e00c6f47b3d1d6323077a8ae91f5219ff317354574fa0fe4fdf9f815c4e2e7a"
+    "tests/test_static_correction_order.py": "6e00c6f47b3d1d6323077a8ae91f5219ff317354574fa0fe4fdf9f815c4e2e7a",
+    "docs/rechecks/2026-10-03-0407-ledger.json": "dd64a197489057f1011e67c51f73009ee0a54837f64306d24afe41dffc8b526d",
+    "docs/rechecks/2026-10-03-0407.md": "e5809294687503ba032eb881f6ed1038416c22231bfacb065d8789c3d8dbae16"
   }
 }
