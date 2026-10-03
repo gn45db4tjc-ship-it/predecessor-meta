@@ -4122,6 +4122,18 @@ def validate_guidance_packet(packet,bundle):
         for ref in refs:
             history_time(ref.get('fetched_at'))
             if not str(ref.get('url','')).startswith('https://pred.gg/'):raise ValueError('Equivalent perk wording needs its observed source')
+    # 2.47.0 (freshness Phase 4): the scheduled reviewer logs each recheck pass. A weekly pass names its ISO week;
+    # the queue's weekly backstop (review_queue.cjs) clears only when one is logged. The ledger holds the reasons.
+    log=packet['guidance'].get('recheck_log',[])
+    if not isinstance(log,list):raise ValueError('The recheck log must be a list')
+    for row in log:
+        if not isinstance(row,dict) or set(row)-{'kind','week','reviewed_at','items','scope','ledger','result'}:raise ValueError('Unknown recheck log fields')
+        if row.get('kind') not in ('weekly','triggered'):raise ValueError('A recheck pass is weekly or triggered')
+        history_time(row.get('reviewed_at'))
+        if row['kind']=='weekly' and not re.fullmatch(r'\d{4}-W\d{2}',str(row.get('week',''))):raise ValueError('A weekly recheck pass names its ISO week')
+        if not isinstance(row.get('items'),list) or not row['items'] or any(not isinstance(i,str) or not i for i in row['items']):raise ValueError('A recheck pass lists the queue items it handled')
+        if not isinstance(row.get('scope'),str) or not row['scope'].strip():raise ValueError('A recheck pass states its scope')
+        if not re.fullmatch(r'docs/rechecks/[0-9A-Za-z._-]+\.json',str(row.get('ledger',''))):raise ValueError('A recheck pass cites its ledger under docs/rechecks/')
     if maintenance is not None:
         history_time(maintenance.get('reviewed_at'))
         # A one-time review may leave the next review unscheduled; a stated date must still be valid.
