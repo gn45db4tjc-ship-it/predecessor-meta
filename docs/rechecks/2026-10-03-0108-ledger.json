@@ -1,0 +1,950 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 3 Oct 2026 (17 queued items)",
+ "reviewed_at": "2026-10-03T01:20:00-05:00",
+ "reviewer": "Claude (Opus 5.5), scheduled recheck runner (predecessor-meta-rechecks)",
+ "scope": "Scheduled recheck of the 17 queued items (13 withheld Gold+ grades, 1 plan, 3 official mechanics notices) against the live Gold+ and Bronze+ bundles published 2026-10-03T03:32:16Z (Pred.gg 1.17 + Hotfix 1.17.1, collected 2 Oct). Not a weekly or full review.",
+ "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard (docs/STRATEGY-REVIEW-2.34.md, docs/GRADE-RECHECK-2026-09-27.md): one step at most; a move needs a kit or patch reason with evidence pointing the same way; a grade may drop one step without a kit reason when the whole-line 95% interval excludes the previous review rate with at least 500 games and the games since review agree; a high rate alone never raises a grade. Mechanics notices resolve only with official text.",
+ "evidence": {
+  "manifest_published_at": "2026-10-03T03:32:16+00:00",
+  "tool_version": "2.47.0",
+  "gold_collected_at": "2026-10-02T13:19:54-05:00",
+  "cohort": "Pred.gg 1.17 + Hotfix 1.17.1 (versions 167, 168)",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+ },
+ "summary": {
+  "changed": 4,
+  "checked and retained": 12,
+  "unresolved": 1
+ },
+ "entries": [
+  {
+   "kind": "grade",
+   "slug": "adele",
+   "role": "offlane",
+   "queue_id": "grade-moved:adele/offlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17 Adele change. The whole-line rate rose from her 1.16.4 review rate (44.3%), but the 95% interval still includes it and a higher rate alone never raises a grade. C retained; the watch no longer says the 1.17 sample is under 100 games. Gold+ whole 1.17 line 47.8% over 735 [44.2, 51.4]; Bronze+ 47.0% over 1898 (nested). Since the 2.34 review: 47.0% over 636.",
+   "limitation": "The rise has no kit or patch reason; the interval includes the old rate by 0.1 points.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 47.76,
+     "wonGames": 351,
+     "matches": 735,
+     "interval95": [
+      44.17,
+      51.37
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 47.05,
+     "wonGames": 893,
+     "matches": 1898,
+     "interval95": [
+      44.81,
+      49.3
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 44.27,
+     "matches": 1143,
+     "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-09-14T17:20:04-05:00"
+    },
+    "review_rate_1_16_4": 44.3,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 47.0,
+     "wonGames": 299,
+     "matches": 636
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:20:03-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:24:04-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "akeron",
+   "role": "jungle",
+   "queue_id": "grade-moved:akeron/jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "Kit reason: 1.17 cut magical-power scaling on Hellfire, Web Lash, Crushing Maw and Consume (the Crushing Maw bonus-health gain is small). The evidence now points the same way: the whole-line 95% interval excludes his 1.16.4 review rate (52.9%) with over 500 games, and the games since the 2.34 review ran lower still. A drops one step to B. He is the lowest A jungle by more than two points, below several B junglers. Gold+ whole 1.17 line 46.0% over 511 [41.7, 50.3]; Bronze+ 43.1% over 882 (nested). Since the 2.34 review: 45.6% over 454.",
+   "limitation": "511 games is just over the 500-game line; Bronze+ (nested) is lower still. \"Since review\" is the whole line minus the 2.34 early sample, assuming that sample is contained in it.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 45.99,
+     "wonGames": 235,
+     "matches": 511,
+     "interval95": [
+      41.71,
+      50.32
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 43.08,
+     "wonGames": 380,
+     "matches": 882,
+     "interval95": [
+      39.85,
+      46.37
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 52.91,
+     "matches": 807,
+     "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-09-14T17:20:00-05:00"
+    },
+    "review_rate_1_16_4": 52.9,
+    "interval_excludes_1_16_4": true,
+    "since_review": {
+     "winRate": 45.6,
+     "wonGames": 207,
+     "matches": 454
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:20:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:24:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "akeron",
+   "role": "offlane",
+   "queue_id": "grade-moved:akeron/offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "Kit reason: 1.17 cut magical scaling on Hellfire, Web Lash and Consume and on Crushing Maw (40% to 35%) while raising its bonus-health scaling (4% to 4.5%). The 2.34 review judged the swap neutral for a health build; the results now say it is a net loss: the whole-line 95% interval excludes his 1.16.4 review rate (52.3%), and the games since the 2.34 review ran lower. A drops one step to B. He is the lowest A offlaner, level with B Crunch. Offlane pool: Akeron moves to last, behind Shinbi (the pool order follows a moved grade); the offlane note says so. Gold+ whole 1.17 line 48.4% over 1427 [45.8, 51.0]; Bronze+ 48.6% over 2459 (nested). Since the 2.34 review: 47.8% over 1256.",
+   "limitation": "The magic-scaling cut and the health-scaling gain are not separately measured; the result is a net judgment. Bronze+ (nested) agrees.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 48.35,
+     "wonGames": 690,
+     "matches": 1427,
+     "interval95": [
+      45.77,
+      50.95
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 48.56,
+     "wonGames": 1194,
+     "matches": 2459,
+     "interval95": [
+      46.58,
+      50.53
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 52.63,
+     "matches": 171,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-09-23T21:27:51-05:00"
+    },
+    "review_rate_1_16_4": 52.3,
+    "interval_excludes_1_16_4": true,
+    "since_review": {
+     "winRate": 47.8,
+     "wonGames": 600,
+     "matches": 1256
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:20:03-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:24:04-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "aurora",
+   "role": "support",
+   "queue_id": "grade-moved:aurora/support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "The whole-line rate is well above her 1.16.4 review rate (48.0%) and the interval excludes it, but the only 1.17 Aurora change cut Shatter's on-hit magical scaling (30% to 25%), which points the other way. A high rate alone never raises a grade, so B is retained. The watch now states the rise and why it does not move the grade. Gold+ whole 1.17 line 54.6% over 734 [51.0, 58.2]; Bronze+ 54.6% over 1415 (nested). Since the 2.34 review: 55.1% over 661.",
+   "limitation": "The rise is consistent since the review, so a later pass may find a reason (for example item or blessing changes) that this recheck did not establish.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 54.63,
+     "wonGames": 401,
+     "matches": 734,
+     "interval95": [
+      51.02,
+      58.2
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 54.56,
+     "wonGames": 772,
+     "matches": 1415,
+     "interval95": [
+      51.96,
+      57.14
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 48.02,
+     "matches": 1085,
+     "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-09-14T17:20:16-05:00"
+    },
+    "review_rate_1_16_4": 48.0,
+    "interval_excludes_1_16_4": true,
+    "since_review": {
+     "winRate": 55.1,
+     "wonGames": 364,
+     "matches": 661
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-02T13:20:14-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-02T13:24:12-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "iggy-scorch",
+   "role": "midlane",
+   "queue_id": "grade-moved:iggy-scorch/midlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "The early 1.17 high rate (55.2% over 239) faded; the whole line includes the 1.16.4 review rate (50.5%). The only 1.17 item is the Inferno description correction. B retained; text unchanged. Gold+ whole 1.17 line 51.4% over 1861 [49.1, 53.6]; Bronze+ 51.3% over 5375 (nested). Since the 2.34 review: 50.8% over 1622.",
+   "limitation": "Bronze+ is nested, not independent.",
+   "text_changed": [],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 51.37,
+     "wonGames": 956,
+     "matches": 1861,
+     "interval95": [
+      49.1,
+      53.64
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 51.33,
+     "wonGames": 2759,
+     "matches": 5375,
+     "interval95": [
+      49.99,
+      52.67
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 55.23,
+     "matches": 239,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-09-23T21:27:53-05:00"
+    },
+    "review_rate_1_16_4": 50.5,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 50.8,
+     "wonGames": 824,
+     "matches": 1622
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-02T13:20:06-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-02T13:24:06-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "iggy-scorch",
+   "role": "offlane",
+   "queue_id": "grade-moved:iggy-scorch/offlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "The whole-line rate is the highest offlane result and the interval excludes the 1.16.4 review rate (51.8%), but there is no 1.17 balance change (Inferno's text is a description correction). A high rate alone never raises a grade, so A is retained; the watch's composition condition still holds. Gold+ whole 1.17 line 56.4% over 1157 [53.6, 59.3]; Bronze+ 55.9% over 3054 (nested). Since the 2.34 review: 57.0% over 1036.",
+   "limitation": "An S grade would need a kit or patch reason this recheck did not find.",
+   "text_changed": [],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 56.44,
+     "wonGames": 653,
+     "matches": 1157,
+     "interval95": [
+      53.57,
+      59.27
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 55.86,
+     "wonGames": 1706,
+     "matches": 3054,
+     "interval95": [
+      54.09,
+      57.61
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 51.24,
+     "matches": 121,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-09-23T21:27:51-05:00"
+    },
+    "review_rate_1_16_4": 51.8,
+    "interval_excludes_1_16_4": true,
+    "since_review": {
+     "winRate": 57.0,
+     "wonGames": 591,
+     "matches": 1036
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:20:03-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:24:04-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "kallari",
+   "role": "jungle",
+   "queue_id": "grade-moved:kallari/jungle",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17 Kallari change. The early 1.17 rise (52.1% over 169) faded; the whole line includes her 1.16.4 review rate (46.2%). C retained; the watch now says the rise faded. Gold+ whole 1.17 line 48.2% over 1331 [45.5, 50.9]; Bronze+ 46.0% over 2980 (nested). Since the 2.34 review: 47.6% over 1162.",
+   "limitation": "Whether the 2.32 item changes affect her results is unmeasured.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 48.16,
+     "wonGames": 641,
+     "matches": 1331,
+     "interval95": [
+      45.48,
+      50.85
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 46.04,
+     "wonGames": 1372,
+     "matches": 2980,
+     "interval95": [
+      44.26,
+      47.83
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 52.07,
+     "matches": 169,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-09-23T21:27:49-05:00"
+    },
+    "review_rate_1_16_4": 46.2,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 47.6,
+     "wonGames": 553,
+     "matches": 1162
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:20:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:24:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "maco",
+   "role": "support",
+   "queue_id": "grade-moved:maco/support",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17 Maco change. The early 1.17 high rate (53.9% over 141) fell back below his 1.16.4 review rate (47.5%), which the interval includes. C retained; text unchanged. Gold+ whole 1.17 line 46.9% over 1227 [44.1, 49.7]; Bronze+ 45.5% over 2596 (nested). Since the 2.34 review: 45.9% over 1086.",
+   "limitation": "Bronze+ is nested, not independent.",
+   "text_changed": [],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 46.86,
+     "wonGames": 575,
+     "matches": 1227,
+     "interval95": [
+      44.08,
+      49.66
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 45.49,
+     "wonGames": 1181,
+     "matches": 2596,
+     "interval95": [
+      43.59,
+      47.41
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 53.9,
+     "matches": 141,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-09-23T21:27:56-05:00"
+    },
+    "review_rate_1_16_4": 47.5,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 45.9,
+     "wonGames": 499,
+     "matches": 1086
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-02T13:20:14-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-02T13:24:12-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "sevarog",
+   "role": "jungle",
+   "queue_id": "grade-moved:sevarog/jungle",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17 Sevarog change. He is the lowest B jungler, but the whole-line 95% interval still includes his 1.16.4 review rate (47.7%) by about 0.4 points, so the drop rule is not met. B retained and flagged: the watch states the trigger. Gold+ whole 1.17 line 44.0% over 571 [39.9, 48.1]; Bronze+ 44.4% over 1198 (nested). Since the 2.34 review: 43.2% over 516.",
+   "limitation": "Close call: the upper bound is 48.06 against 47.7. The games since the review ran lower than the whole line.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 43.96,
+     "wonGames": 251,
+     "matches": 571,
+     "interval95": [
+      39.94,
+      48.06
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 44.41,
+     "wonGames": 532,
+     "matches": 1198,
+     "interval95": [
+      41.62,
+      47.23
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 47.68,
+     "matches": 818,
+     "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-09-14T17:20:00-05:00"
+    },
+    "review_rate_1_16_4": 47.7,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 43.2,
+     "wonGames": 223,
+     "matches": 516
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:20:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:24:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "terra",
+   "role": "offlane",
+   "queue_id": "grade-moved:terra/offlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17 Terra change. The early 1.17 low (41.1% over 112) recovered to near her 1.16.4 review rate (45.4%), which the interval includes. Still below even: C retained; text unchanged. Gold+ whole 1.17 line 46.4% over 908 [43.1, 49.6]; Bronze+ 46.1% over 2029 (nested). Since the 2.34 review: 47.1% over 796.",
+   "limitation": "Bronze+ is nested, not independent.",
+   "text_changed": [],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 46.37,
+     "wonGames": 421,
+     "matches": 908,
+     "interval95": [
+      43.14,
+      49.62
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 46.08,
+     "wonGames": 935,
+     "matches": 2029,
+     "interval95": [
+      43.92,
+      48.26
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 41.07,
+     "matches": 112,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-09-23T21:27:51-05:00"
+    },
+    "review_rate_1_16_4": 45.4,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 47.1,
+     "wonGames": 375,
+     "matches": 796
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:20:03-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-02T13:24:04-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "wraith",
+   "role": "carry",
+   "queue_id": "grade-moved:wraith/carry",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17 Wraith change. The early 1.17 high rate (54.8% over 126) fell back to exactly his 1.16.4 review rate (48.7%). B retained; text unchanged. Gold+ whole 1.17 line 48.7% over 1044 [45.6, 51.7]; Bronze+ 46.4% over 1951 (nested). Since the 2.34 review: 47.8% over 918.",
+   "limitation": "Bronze+ (nested) is lower.",
+   "text_changed": [],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 48.66,
+     "wonGames": 508,
+     "matches": 1044,
+     "interval95": [
+      45.64,
+      51.69
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 46.44,
+     "wonGames": 906,
+     "matches": 1951,
+     "interval95": [
+      44.23,
+      48.66
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 54.76,
+     "matches": 126,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-09-23T21:27:54-05:00"
+    },
+    "review_rate_1_16_4": 48.7,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 47.8,
+     "wonGames": 439,
+     "matches": 918
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-10-02T13:20:10-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-10-02T13:24:09-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "wukong",
+   "role": "jungle",
+   "queue_id": "grade-moved:wukong/jungle",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "The 2.34 limitation asked to revisit if a larger sample stayed below even; it did not: the whole line is above even and includes his 1.16.4 review rate (50.8%). The 1.17 changes (attack speed and cleave for some durability) read as a jungle gain. A retained; text unchanged. Gold+ whole 1.17 line 52.0% over 852 [48.6, 55.3]; Bronze+ 48.9% over 1642 (nested). Since the 2.34 review: 52.6% over 745.",
+   "limitation": "Bronze+ (nested) is below even.",
+   "text_changed": [],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 52.0,
+     "wonGames": 443,
+     "matches": 852,
+     "interval95": [
+      48.64,
+      55.33
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 48.9,
+     "wonGames": 803,
+     "matches": 1642,
+     "interval95": [
+      46.49,
+      51.32
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 47.66,
+     "matches": 107,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-09-23T21:27:49-05:00"
+    },
+    "review_rate_1_16_4": 50.8,
+    "interval_excludes_1_16_4": false,
+    "since_review": {
+     "winRate": 52.6,
+     "wonGames": 392,
+     "matches": 745
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:20:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:24:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "yurei",
+   "role": "jungle",
+   "queue_id": "grade-moved:yurei/jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "C",
+   "reason": "Kit reason: the 1.17 bug fix made Ground effects interrupt Soulstorm (and 1.17 added Valmont, whose Arterial Grip grounds). The evidence now points the same way: the whole-line 95% interval excludes her 1.16.4 review rate (50.5%) with over 500 games, and the games since the 2.34 review ran lower. B drops one step to C. The watch no longer calls her results near even. Gold+ whole 1.17 line 46.8% over 1378 [44.2, 49.5]; Bronze+ 46.5% over 2970 (nested). Since the 2.34 review: 46.0% over 1223.",
+   "limitation": "How much of the fall the Soulstorm fix explains is not measured. Bronze+ (nested) agrees.",
+   "text_changed": [
+    "watch"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "figures": {
+    "gold_whole_line": {
+     "winRate": 46.81,
+     "wonGames": 645,
+     "matches": 1378,
+     "interval95": [
+      44.18,
+      49.45
+     ]
+    },
+    "bronze_whole_line_nested": {
+     "winRate": 46.5,
+     "wonGames": 1381,
+     "matches": 2970,
+     "interval95": [
+      44.71,
+      48.3
+     ]
+    },
+    "previous_evidence": {
+     "winRate": 52.9,
+     "matches": 155,
+     "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-09-23T21:27:49-05:00"
+    },
+    "review_rate_1_16_4": 50.5,
+    "interval_excludes_1_16_4": true,
+    "since_review": {
+     "winRate": 46.0,
+     "wonGames": 563,
+     "matches": 1223
+    }
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:20:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-02T13:24:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "legion",
+   "role": "carry",
+   "queue_id": "plan-mechanics:legion/carry",
+   "verdict": "checked and retained",
+   "reason": "The flagged change is wording only. Pred.gg (version 168) now writes Rallying Roar's official 1.17 cooldown as \"(20s CD).\" instead of omitting it, so the plan's precondition, which states the same 20-second cooldown in the supplement's words, no longer matched letter for letter. The mechanic is unchanged from the 2.32 review (+10 Ultimate Haste; casting the ultimate grants +25% movement speed to allies within 1500 units for 4s; 20s cooldown), so the plan's reasoning holds and no part changes. The supplement now accepts the source's wording (see the corrections entries), so the precondition matches again. The caution's claim that the source tooltip omits the cooldown is out of date and is rewritten.",
+   "limitation": "The loadout comparison behind Scorched Earth is still the 1.16 Statz comparison from the 2.32 review; this recheck did not re-run it.",
+   "mechanics_checked": [
+    "Rallying Roar description (Pred.gg 168 against the official 1.17 change)"
+   ],
+   "text_changed": [
+    "caution"
+   ],
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=168",
+     "fetched_at": "2026-10-02T13:20:51-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "corrections",
+   "key": "patch-1.17-perks-rallying-roar-description",
+   "queue_id": "mechanics-conflict:official-1-17-mechanics-reconciliation",
+   "verdict": "changed",
+   "reason": "Official 1.17: \"Rallying Roar\" now has a 20s cooldown. Pred.gg (version 168, all six ranks) now carries it as \"Gain +10 Ultimate Haste. Casting your Ultimate grants you and Allies within 1500 Units +25% Movement Speed for 4s. (20s CD).\", which is the rule's \"before\" text plus the official cooldown. The correction failed only because the source had already been updated in its own words. That wording is added to accepted_before, so the official correction applies over it (the original stays in the receipt) and the reconciliation conflict clears.",
+   "limitation": "Settled by the official 1.17 notes and the source text alone; no in-game test.",
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=168",
+     "fetched_at": "2026-10-02T13:20:51-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "corrections",
+   "key": "patch-1.17-perks-peal-description",
+   "queue_id": "mechanics-conflict:official-1-17-mechanics-reconciliation",
+   "verdict": "changed",
+   "reason": "Official 1.17: \"Peal\" now has a 20s cooldown. Pred.gg (version 168, all six ranks) now carries it as \"Gain 15 Ultimate Ability Haste. Upon casting your Ultimate, Basic Attacks and Abilities apply the maximum amount of Rust stacks for 4s. (20s CD).\", which is the rule's \"before\" text plus the official cooldown. The correction failed only because the source had already been updated in its own words. That wording is added to accepted_before, so the official correction applies over it (the original stays in the receipt) and the reconciliation conflict clears.",
+   "limitation": "Settled by the official 1.17 notes and the source text alone; no in-game test.",
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=168",
+     "fetched_at": "2026-10-02T13:20:51-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "packet-corrections",
+   "key": "1.16.4-17",
+   "queue_id": "mechanics-conflict:official-correction-review",
+   "verdict": "checked and retained",
+   "reason": "Psychosis: the official 1.16.4 change (bonus damage 3.5% (+0.4% per level) to 3% (+0.3% per level)) matches the live Pred.gg (version 168) description exactly, and the correction receipt in all six live bundles reads \"source already updated\" through its Pred.gg source check. Nothing in the review files needs to change. The warning stays because the publisher adds it at the first correction pass (the Statz field was unavailable) and does not remove it after the Pred.gg check verifies the field; clearing it is a code change, raised for the owner as a DECISION NEEDED issue.",
+   "limitation": "The notice will keep re-queuing until the code drops a warning whose receipt was later verified.",
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-02T13:19:35-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=168",
+     "fetched_at": "2026-10-02T13:20:51-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "reviewed_definitions",
+   "key": "frost-snap",
+   "queue_id": "mechanics-conflict:official-definition-review",
+   "verdict": "unresolved",
+   "reason": "Frost Snap: The official 1.14 description names immobilized targets. The Statz catalog also names slowed targets. Whether a slow alone qualifies remains unverified; both sources agree on the 10% bonus against immobilized targets. No official notes up to 1.17 and Hotfix 1.17.1 settle this field, so the definition stays partly verified and the field stays explicitly unverified.",
+   "limitation": "Only official text may resolve it; the community catalogs disagree with the official notes and are not used.",
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "reviewed_definitions",
+   "key": "harmonic-currents",
+   "queue_id": "mechanics-conflict:official-definition-review",
+   "verdict": "unresolved",
+   "reason": "Harmonic Currents: The 1.16 release notes specify 2.5% of missing health and mana; the Statz catalog specifies 2%. The 1.16.4 notes explicitly change timing, but do not resolve the amount. No official notes up to 1.17 and Hotfix 1.17.1 settle this field, so the definition stays partly verified and the field stays explicitly unverified.",
+   "limitation": "Only official text may resolve it; the community catalogs disagree with the official notes and are not used.",
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "reviewed_definitions",
+   "key": "mending",
+   "queue_id": "mechanics-conflict:official-definition-review",
+   "verdict": "unresolved",
+   "reason": "Mending: The 1.14 release notes specify 3 seconds; the Statz catalog specifies 8 seconds. Later published changes update the healing percentages without resolving this duration discrepancy. No official notes up to 1.17 and Hotfix 1.17.1 settle this field, so the definition stays partly verified and the field stays explicitly unverified.",
+   "limitation": "Only official text may resolve it; the community catalogs disagree with the official notes and are not used.",
+   "reviewed_at": "2026-10-03T01:20:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-02T13:19:33-05:00"
+    }
+   ]
+  }
+ ]
+}

@@ -35,8 +35,8 @@
       "offlane": [
         "grux",
         "greystone",
-        "akeron",
-        "shinbi"
+        "shinbi",
+        "akeron"
       ],
       "support": [
         "mourn",
@@ -56,7 +56,7 @@
       "Mid: Lt. Belica (compact catch) and The Fey (prepared area control) stay S. Gideon moved to A on the 27 Sep recheck: 1.17 trimmed his damage, Hotfix 1.17.1 removed a Black Hole bug that favored him, and his results fell below his previous patch. A Ground effect such as Valmont's bind now stops Torn Space, so protect his entry and channel. Argus, Gadget and Howitzer are A alternatives; Morigesh rose to B on her Hive and Curse buffs. Valmont's first grade is B (27 Sep recheck): a grounding bind with sustain and no dash, near even over 1,354 Gold+ midlane games.",
       "Carry: Drongo, Sparrow and Eden stay S. Drongo supplies silence and physical shred, Sparrow needs protected attack time, and Eden rewards practiced heat and stance management. Legion moved to A on the 27 Sep recheck: his 1.17 results stayed near even, below the other S carries and his previous patch; his Scorched Earth plan still adds area pressure. Revenant and Kira are the A alternatives; Kira rose to A once her results since the review followed her Mercy and Dusk buffs. Murdock returned to C: his 1.17 buffs did not lift his results. GRIM.exe's early drop has recovered toward his previous level.",
       "Support: choose Steel for a direct opening, Mourn for catch plus sustain, Muriel for amplification and protection when initiation already exists, or Narbash for a grouped fight. Muriel keeps S after broad 1.17 trims, including a weaker and costlier Reversal, so position her carefully. Phase stays A after health and Hyperflux trims. Riktor remains a B hook-execution option; his 1.17 results settled near his previous patch. Dekker's B is flagged: his 1.17 support results are the lowest of the supports (27 Sep recheck).",
-      "Offlane: Greystone moved to A on the 27 Sep recheck: 1.17 lowered his base health and armor growth and his results fell to near even, so he is a strong lane-pressure option rather than the default. Stone Forged Soul is a 2.5s stasis heal, not an extra life. Grux now leads the working pool: he punishes reachable melee fights, though a Ground effect interrupts Stampede. Akeron supplies sustain and frontline on a health build; Shinbi supplies magical skirmishing. Scarlett and Iggy & Scorch are strong alternatives, Iggy only when another role supplies frontline. Countess's offlane results recovered after the Feast fix. Terra and Serath offlane stay C and do not inherit another role's grade.",
+      "Offlane: Greystone moved to A on the 27 Sep recheck: 1.17 lowered his base health and armor growth and his results fell to near even, so he is a strong lane-pressure option rather than the default. Stone Forged Soul is a 2.5s stasis heal, not an extra life. Grux now leads the working pool: he punishes reachable melee fights, though a Ground effect interrupts Stampede. Shinbi supplies magical skirmishing. Akeron, B since the 3 Oct recheck, still supplies sustain and frontline on a health build. Scarlett and Iggy & Scorch are strong alternatives, Iggy only when another role supplies frontline. Countess's offlane results recovered after the Feast fix. Terra and Serath offlane stay C and do not inherit another role's grade.",
       "Pred.gg 1.17 matchup rows cover about 1.5 days and pool all roles, and the counter, anti-counter and lane-counter views are one table, not separate evidence. They describe observed games with the named hero present, not proof of a lane or ability interaction. Use the reviewed counterplay to decide which response you can execute.",
       "Community builds are alternative hypotheses. The 2.32 build review compared their item sequences with 1.17 item effects and your role plan; popularity or a high conditional build rate cannot establish that a purchase caused the wins.",
       "Patch 1.17 strategy review (23-24 September 2026) is a one-time pass, not a recurring schedule. Tier grades, hero notes, counter picks, build adaptations, compositions and pools were re-checked against exact 1.17 ability text, the official 1.17 notes and the 2.32 plans. Grades moved only where a kit or patch reason and the evidence pointed the same way: Serath jungle S to A, Countess jungle C to B, Morigesh midlane C to B and Murdock carry C to B. A grade recheck on 27 September 2026, after Hotfix 1.17.1 and about five days of 1.17 data, re-examined 21 flagged or withheld grades and graded Valmont: Kira carry B to A; Legion carry, Gideon midlane and Greystone offlane S to A; Murdock carry back to C. The other 16 were retained with rebased reference samples. Valmont midlane received his first grade, B."
@@ -17678,7 +17678,7 @@
           "Secondary"
         ],
         "why": "The rifle scales with physical penetration and bonus attack speed converts to haste, so this is not a conventional firing-speed build. Scorched Earth leaves napalm zones where Frag Order and Saturation Charge mines explode and under Orbital Sanction, so place them where enemies must stand. Deploy the standard where allies can remain; the defensive finish protects sustained participation rather than promising a burst-only kill.",
-        "caution": "Cluster mines deal reduced consecutive damage to one target, and napalm zones last 3 seconds, so do not assume every tick lands. Flat penetration thresholds require actually purchased stats; an item's listed speed does not directly become faster rifle fire. Rallying Roar now has a 20-second cooldown; its unchanged source tooltip is not authoritative on that restriction.",
+        "caution": "Cluster mines deal reduced consecutive damage to one target, and napalm zones last 3 seconds, so do not assume every tick lands. Flat penetration thresholds require actually purchased stats; an item's listed speed does not directly become faster rifle fire. Rallying Roar has had a 20-second cooldown since 1.17 (official notes; the Pred.gg tooltip now shows it too).",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -42229,7 +42229,7 @@
           "role": "offlane",
           "tier": "C",
           "why": "Iron Rose lets her trade up close, and Imperial Lash or Queen's Garden opens the damage window; Crown of Thorns helps allies convert contact.",
-          "watch": "Her dated offlane reference was weak and the early 1.17 sample is under 100 games. Tyrant of Thorns removes Royal Flourish's mesmerize, so the offlane damage plan is not the support peel plan.",
+          "watch": "Her offlane results improved in 1.17 without a kit change and remain below even. Tyrant of Thorns removes Royal Flourish's mesmerize, so the offlane damage plan is not the support peel plan.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42238,12 +42238,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 44.269466316710414,
-            "wonGames": 506,
-            "matches": 1143,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-14T17:20:04-05:00"
-          }
+            "winRate": 47.755102040816325,
+            "wonGames": 351,
+            "matches": 735,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-10-02T13:20:03-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "adele",
@@ -42268,40 +42269,44 @@
         {
           "slug": "akeron",
           "role": "jungle",
-          "tier": "A",
+          "tier": "B",
           "why": "Crushing Maw sustains close trades and Web Lash creates access; Consume rewards a team that can keep targets nearby.",
-          "watch": "Jungle is his smaller-sample role, and 1.17 cut his magical scaling, so keep the durable health route. Interrupted Consume and repeated disengage still deny the plan.",
+          "watch": "B since the 3 Oct recheck: 1.17 cut his magical scaling and his jungle results fell below even. Keep the durable health route; interrupted Consume and repeated disengage still deny the plan.",
           "ability_keys": [
             "RMB",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 52.91201982651797,
-            "wonGames": 427,
-            "matches": 807,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-14T17:20:00-05:00"
-          }
+            "winRate": 45.98825831702544,
+            "wonGames": 235,
+            "matches": 511,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-02T13:20:00-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00",
+          "previous_tier": "A"
         },
         {
           "slug": "akeron",
           "role": "offlane",
-          "tier": "A",
+          "tier": "B",
           "why": "Crushing Maw sustains close trades and Web Lash creates access; Consume rewards a team that can keep targets nearby.",
-          "watch": "1.17 cut his magic scaling and raised Crushing Maw's health scaling, so keep the durable health build rather than a burst plan. Interrupted Consume and repeated disengage deny the plan.",
+          "watch": "B since the 3 Oct recheck: in results the 1.17 magic-scaling cut outweighed the Crushing Maw health-scaling gain. Keep the durable health build rather than a burst plan; interrupted Consume and repeated disengage deny it.",
           "ability_keys": [
             "RMB",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 52.63157894736842,
-            "wonGames": 90,
-            "matches": 171,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 48.35318850735809,
+            "wonGames": 690,
+            "matches": 1427,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-10-02T13:20:03-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00",
+          "previous_tier": "A"
         },
         {
           "slug": "argus",
@@ -42385,19 +42390,20 @@
           "role": "support",
           "tier": "B",
           "why": "Glacial Charge and Hoarfrost give repeatable access and escape; Cryoseism can punish enemies gathering around an objective.",
-          "watch": "Jungle is the priority on current role evidence. Do not transfer that grade to offlane or support, and keep an exit after the first control cycle.",
+          "watch": "Support results rose in 1.17 with no kit reason (the only change cut Shatter's on-hit scaling), so the grade stays B until a kit reason supports more. Do not transfer the jungle grade, and keep an exit after the first control cycle.",
           "ability_keys": [
             "Q",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 48.0184331797235,
-            "wonGames": 521,
-            "matches": 1085,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
-            "fetched_at": "2026-09-14T17:20:16-05:00"
-          }
+            "winRate": 54.63215258855586,
+            "wonGames": 401,
+            "matches": 734,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+            "fetched_at": "2026-10-02T13:20:14-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "bayle",
@@ -42850,12 +42856,13 @@
             "E"
           ],
           "evidence": {
-            "winRate": 51.239669421487605,
-            "wonGames": 62,
-            "matches": 121,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 56.4390665514261,
+            "wonGames": 653,
+            "matches": 1157,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-10-02T13:20:03-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "iggy-scorch",
@@ -42869,12 +42876,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 55.23012552301255,
-            "wonGames": 132,
-            "matches": 239,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-09-23T21:27:53-05:00"
-          }
+            "winRate": 51.37023105857066,
+            "wonGames": 956,
+            "matches": 1861,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-10-02T13:20:06-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "ikra",
@@ -42901,19 +42909,20 @@
           "role": "jungle",
           "tier": "C",
           "why": "Shadow Walk can create an unseen angle and Crippling Dagger helps maintain it before Guillotine finishes a damaged target.",
-          "watch": "The weak dated result and fragile entry favor experienced players; the better early 1.17 sample has no kit change behind it. Vision, enemy peel and the escape route matter more than an attractive burst total.",
+          "watch": "The early 1.17 rise faded and her kit is unchanged. The fragile entry favors experienced players; vision, enemy peel and the escape route matter more than an attractive burst total.",
           "ability_keys": [
             "RMB",
             "Q",
             "R"
           ],
           "evidence": {
-            "winRate": 52.071005917159766,
-            "wonGames": 88,
-            "matches": 169,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-23T21:27:49-05:00"
-          }
+            "winRate": 48.15927873779113,
+            "wonGames": 641,
+            "matches": 1331,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-02T13:20:00-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "khaimera",
@@ -43089,12 +43098,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 53.90070921985816,
-            "wonGames": 76,
-            "matches": 141,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
-            "fetched_at": "2026-09-23T21:27:56-05:00"
-          }
+            "winRate": 46.862265688671556,
+            "wonGames": 575,
+            "matches": 1227,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+            "fetched_at": "2026-10-02T13:20:14-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "morigesh",
@@ -43438,7 +43448,7 @@
           "role": "jungle",
           "tier": "B",
           "why": "Siphon and Reaper of Souls support a scaling frontline; Subjugate can hold a target for allies as durability develops.",
-          "watch": "Protect the early soul-stacking route; both dated role results were slightly below even, so this is a practiced pick. Colossal Blow must not knock the target away from allied damage.",
+          "watch": "Flagged: lowest B jungler with no 1.17 change; if a larger sample's interval excludes his 1.16.4 rate (47.7%) he drops to C. Protect the early soul-stacking route; Colossal Blow must not knock the target away from allied damage.",
           "ability_keys": [
             "Q",
             "E",
@@ -43446,12 +43456,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 47.67726161369193,
-            "wonGames": 390,
-            "matches": 818,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-14T17:20:00-05:00"
-          }
+            "winRate": 43.957968476357266,
+            "wonGames": 251,
+            "matches": 571,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-02T13:20:00-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "sevarog",
@@ -43642,12 +43653,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 41.07142857142857,
-            "wonGames": 46,
-            "matches": 112,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 46.36563876651982,
+            "wonGames": 421,
+            "matches": 908,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-10-02T13:20:03-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "the-fey",
@@ -43759,12 +43771,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 54.76190476190476,
-            "wonGames": 69,
-            "matches": 126,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-09-23T21:27:54-05:00"
-          }
+            "winRate": 48.65900383141762,
+            "wonGames": 508,
+            "matches": 1044,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+            "fetched_at": "2026-10-02T13:20:10-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "wukong",
@@ -43777,12 +43790,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 47.66355140186916,
-            "wonGames": 51,
-            "matches": 107,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-23T21:27:49-05:00"
-          }
+            "winRate": 51.99530516431925,
+            "wonGames": 443,
+            "matches": 852,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-02T13:20:00-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00"
         },
         {
           "slug": "yin",
@@ -43827,21 +43841,23 @@
         {
           "slug": "yurei",
           "role": "jungle",
-          "tier": "B",
+          "tier": "C",
           "why": "Severance and Soulstorm can convert marked targets into an extended sequence, with Hallowed Strikes rewarding attacks between casts.",
-          "watch": "Near-even results support a practiced option. Resets need a Soul Rip target, and a Ground effect now interrupts Soulstorm; preserve a marked route that can also serve as an exit.",
+          "watch": "C since the 3 Oct recheck: results fell below even after 1.17 made Ground effects interrupt Soulstorm. Resets need a Soul Rip target; preserve a marked route that can also serve as an exit.",
           "ability_keys": [
             "E",
             "R",
             "Passive"
           ],
           "evidence": {
-            "winRate": 52.903225806451616,
-            "wonGames": 82,
-            "matches": 155,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-23T21:27:49-05:00"
-          }
+            "winRate": 46.806966618287376,
+            "wonGames": 645,
+            "matches": 1378,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-02T13:20:00-05:00"
+          },
+          "rechecked_at": "2026-10-03T01:20:00-05:00",
+          "previous_tier": "B"
         },
         {
           "slug": "zarus",
@@ -58731,7 +58747,35 @@
           }
         }
       }
-    }
+    },
+    "recheck_log": [
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-03T01:20:00-05:00",
+        "items": [
+          "grade-moved:adele/offlane",
+          "grade-moved:akeron/jungle",
+          "grade-moved:akeron/offlane",
+          "grade-moved:aurora/support",
+          "grade-moved:iggy-scorch/midlane",
+          "grade-moved:iggy-scorch/offlane",
+          "grade-moved:kallari/jungle",
+          "grade-moved:maco/support",
+          "grade-moved:sevarog/jungle",
+          "grade-moved:terra/offlane",
+          "grade-moved:wraith/carry",
+          "grade-moved:wukong/jungle",
+          "grade-moved:yurei/jungle",
+          "plan-mechanics:legion/carry",
+          "mechanics-conflict:official-1-17-mechanics-reconciliation",
+          "mechanics-conflict:official-correction-review",
+          "mechanics-conflict:official-definition-review"
+        ],
+        "scope": "Scheduled recheck of the 17 queued items (13 withheld Gold+ grades, 1 plan, 3 official mechanics notices) against the live Gold+ and Bronze+ bundles published 2026-10-03T03:32:16Z (Pred.gg 1.17 + Hotfix 1.17.1, collected 2 Oct). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-03-0108-ledger.json",
+        "result": "4 changed, 12 checked and retained, 1 unresolved"
+      }
+    ]
   },
   "corrections": [
     {

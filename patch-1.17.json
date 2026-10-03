@@ -2291,7 +2291,10 @@
       "after": "Gain +10 Ultimate Haste. Casting your Ultimate grants you and Allies within 1500 Units +25% Movement Speed for 4s. Ultimate-triggered effect: 20s cooldown (official 1.17).",
       "patch": "1.17",
       "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-      "reason": "Official 1.17 loadout change"
+      "reason": "Official 1.17 loadout change",
+      "accepted_before": [
+        "Gain +10 Ultimate Haste. Casting your Ultimate grants you and Allies within 1500 Units +25% Movement Speed for 4s. (20s CD)."
+      ]
     },
     {
       "id": "patch-1.17-perks-peal-description",
@@ -2304,7 +2307,10 @@
       "after": "Gain 15 Ultimate Ability Haste. Upon casting your Ultimate, Basic Attacks and Abilities apply the maximum amount of Rust stacks for 4s. Ultimate-triggered effect: 20s cooldown (official 1.17).",
       "patch": "1.17",
       "source": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-      "reason": "Official 1.17 loadout change"
+      "reason": "Official 1.17 loadout change",
+      "accepted_before": [
+        "Gain 15 Ultimate Ability Haste. Upon casting your Ultimate, Basic Attacks and Abilities apply the maximum amount of Rust stacks for 4s. (20s CD)."
+      ]
     },
     {
       "id": "patch-1.17-items-hexbound-bracers-stats-Heal and shield power",
