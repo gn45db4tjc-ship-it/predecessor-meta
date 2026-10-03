@@ -131,7 +131,7 @@
     "package-lock.json": "20bf6d200e97e1576061b54ecd7c7e77231857de955840285a77b870cc41f2df",
     "package.json": "13f9c89948f7dbd78e709ea65b93a43b70c4797df960d11fc030ed039c8b6979",
     "package_source.py": "2de7c46d2332d51181f310cdd122e9ef54f6da949ffb94b97eb00ad84ff3b8d0",
-    "patch-1.17.json": "b2564dc7b56044db1da352653055fba02d850f56f252b4f1b445defb9a07c4db",
+    "patch-1.17.json": "825e0ef20e1c24869e326d451f3b0b5f6eb8c02839b2fc3463498cb930b325a7",
     "patch_support.py": "3f3dc0ec556e5f565cc192e7515cebae77b863c35bccba9c7c9b8b42093a5e0c",
     "pred_api.py": "238cd4193841f8e2203523723f82b4732fb0d803b88abb21a9d254bedc9e0816",
     "pred_api_queries.json": "d51514f3167e1be2faf57d3e7412a4df5f21df0eb03a7f2f4794aebce788f43a",
@@ -144,7 +144,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "5346a74945d2481d402a0a7c18f8abc9729dce0e69ae2d3457578d0592adff7e",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "ce90b5e18255c2a2058a5f77683e831061886a4c467820f8cbd09bcfcfe3f25c",
+    "reviewed_guidance.json": "fdb4434830af0fda8c556fe1b92e35543a90c70dcad782b093e6712aa5bc253a",
     "shared_server.py": "ccbc8bc1333575f4a4d75d464d319fcaa4c5e1b2a516efaefa5fcba2b03fb3d7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "30bb52833330f5499ba48fab94ad275c5ab42a4afeed395a5f1e7b4e9c9635ea",
@@ -269,6 +269,8 @@
     "ui.html": "8b03685c41f61adb66e0d50d4a27f75749e1235575ea479fc3477d8dcfc55fb5",
     "ui.js": "0402e6f7dee7bf730a2d2648ff9834dfc608a1f57a9fbe1ed0c923240e2928da",
     "visor_look.js": "06c9b32e5601a2ee44eb5450edb0bf30891c46af7c0f5eb7d9dc4c2519845444",
-    "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90"
+    "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90",
+    "docs/rechecks/2026-10-03-0108-ledger.json": "161e2a1a168a19c205f6c3aa445506da670fe437d35d9d6eef8deebc5bb8b1bf",
+    "docs/rechecks/2026-10-03-0108.md": "71700250a06a634ea7da42808f7079977a6819b7a8d4c9e702c0a66b4ef21500"
   }
 }
