@@ -3492,6 +3492,62 @@ probes.DH2 = async browser => {
   }
   verdict('DH2', seen.quick !== 0 || seen.full !== 0, seen);
 };
+probes.BC1 = async browser => {
+  // 2.49.0 Broadcast look (owner's choice, 3 Oct 2026). Before: system fonts, an outlined hero header with a small
+  // portrait, and Meta rows with no rank numeral and no win-rate gauge.
+  const google = [];
+  const at = async (device, name) => {
+    const {context, page} = await session(browser, device);
+    page.on('request', r => { if (/fonts\.(googleapis|gstatic)\.com/.test(r.url())) google.push(r.url()); });
+    const seen = await page.evaluate(async name => {
+      if (name === 'hero') openHero('gideon', 'midlane'); else changeRoute('meta');
+      await new Promise(r => setTimeout(r, 400));
+      await document.fonts.ready;
+      const pseudo = (el, which) => el ? getComputedStyle(el, which).content : null;
+      const plate = document.querySelector('#main .hero-header');
+      const row = document.querySelector('#mobile-all-list > .mobile-hero-card, #main .meta-table tbody tr');
+      const gauge = row && (row.querySelector('.mobile-stat') || row.querySelector('td > strong'));
+      return {
+        display: [...document.fonts].some(f => f.family.replace(/"/g, '') === 'Saira Condensed' && f.status === 'loaded'),
+        text: [...document.fonts].some(f => f.family.replace(/"/g, '') === 'Barlow' && f.status === 'loaded'),
+        art: plate ? /url\(/.test(plate.style.getPropertyValue('--hero-art')) : null,
+        ghost: plate ? /Gideon/i.test(pseudo(plate, '::after') || '') : null,
+        rowGauge: row ? row.style.getPropertyValue('--wr-d') !== '' && !!row.dataset.trend : null,
+        gaugeDrawn: gauge ? getComputedStyle(gauge, '::after').content !== 'none' : null,
+        rank: row ? /counter/.test(pseudo(row.matches('tr') ? row.querySelector('td') : row, '::before') || '') : null};
+    }, name);
+    await context.close();
+    return seen;
+  };
+  const seen = {deskHero: await at(desktopHero, 'hero'), deskMeta: await at(desktopHero, 'meta'), phoneHero: await at(phone, 'hero'), phoneMeta: await at(phone, 'meta')};
+  const ok = Object.values(seen).every(s => s.display && s.text)
+    && seen.deskHero.art && seen.deskHero.ghost && seen.phoneHero.art && seen.phoneHero.ghost
+    && ['deskMeta', 'phoneMeta'].every(k => seen[k].rowGauge && seen[k].gaugeDrawn && seen[k].rank) && google.length === 0;
+  verdict('BC1', !ok, {...seen, google: google.slice(0, 3)});
+};
+probes.BC2 = async browser => {
+  // GUARD 2.49.0: a slant (clip-path) would also cut off the focus ring. Whatever is clipped drops its clip while
+  // focused, so the one 3px ring stays whole: the main action on the hero plate and a Meta row on the phone.
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktopHero);
+    seen.primary = await page.evaluate(() => { openHero('gideon', 'midlane'); const b = document.querySelector('#main .hero-use-match'); b.focus({focusVisible: true});
+      const s = getComputedStyle(b); return {clip: s.clipPath, ring: s.outlineWidth + ' ' + s.outlineStyle}; });
+    await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+    seen.primaryKeyboard = await page.evaluate(() => { const b = document.activeElement, s = getComputedStyle(b); return {cls: b.className, clip: s.clipPath, ring: s.outlineWidth + ' ' + s.outlineStyle}; });
+    await context.close();
+  }
+  {
+    const {context, page} = await session(browser, phone);
+    await page.evaluate(() => changeRoute('meta'));
+    await page.focus('#mobile-all-list > .mobile-hero-card [data-hero]');
+    seen.row = await page.evaluate(() => { const b = document.activeElement, card = b.closest('.mobile-hero-card'), s = getComputedStyle(b);
+      return {clip: card ? getComputedStyle(card).clipPath : null, ring: s.outlineWidth + ' ' + s.outlineStyle}; });
+    await context.close();
+  }
+  const whole = v => v && (v.clip === 'none' || v.clip === '') && v.ring === '3px solid';
+  verdict('BC2', !(whole(seen.primaryKeyboard) && whole(seen.row)), seen);
+};
 probes.ML2 = async browser => {
  const {context,page}=await session(browser,phone);await page.evaluate(()=>changeRoute('meta'));
  if(!await page.locator('#mobile-meta-order').count()){await context.close();verdict('ML2',true,{missingOrder:true});return;}
