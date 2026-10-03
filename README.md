@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.48.0
+# Predecessor Meta - 2.48.1
 
-A shorter desktop hero page: the reviewed build now opens with all six items and the loadout, so the answer and Use in Match are in the first screen, and Partners, Counters, Kit, the team alternatives and the build sources are folded behind the page's disclosure with a one-line preview, one click away (a section jump or a shared link opens its fold). The page is about 72–74% shorter (Gideon midlane 11,461 → 3,063 px at 1440); nothing is removed, and the phone is unchanged. See [RELEASE-2.48.0.md](RELEASE-2.48.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+Mechanics notices are correct again after a review is published: the publication replay applies the 1.17 corrections after the Pred.gg loadout rows are added, as a fresh collection does, so Peal, Hellfire Strikes and Terminal Treatment no longer read "source field missing", and the official correction notice names only the reviewed corrections still unresolved (Psychosis no longer stays listed after it was verified). Nothing else on the site changes. See [RELEASE-2.48.1.md](RELEASE-2.48.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.48.0
+
+A shorter desktop hero page: the reviewed build now opens with all six items and the loadout, so the answer and Use in Match are in the first screen, and Partners, Counters, Kit, the team alternatives and the build sources are folded behind the page's disclosure with a one-line preview, one click away (a section jump or a shared link opens its fold). The page is about 72–74% shorter (Gideon midlane 11,461 → 3,063 px at 1440); nothing is removed, and the phone is unchanged. See [RELEASE-2.48.0.md](RELEASE-2.48.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.47.0
 
