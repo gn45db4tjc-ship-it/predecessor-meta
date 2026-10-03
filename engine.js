@@ -420,6 +420,30 @@
         reference_bundle:{bracket:bundle?.bracket?.segment||null,label:bundle?.bracket?.label||null,generated_at:bundle?.generated_at||null,sha256:/^[a-f0-9]{64}$/.test(String(revision??''))?revision:null,refresh_result:bundle?.refresh_result||null,source_dates:dates(bundle?.sources)},
         brackets:cohorts?Object.entries(cohorts).map(([key,c])=>({bracket:key,label:c?.label||null,status:c?.status||null,collection_status:c?.collection_status||null,sha256:c?.sha256||null,generated_at:c?.generated_at||null,patch:c?.patch||null,source_dates:c?.source_dates||null})):null};
     }
+    // 2.47.0 (freshness Phase 4): the recheck queue the scheduled reviewer works from, derived from this bundle alone.
+    // Grades first. An item stays queued while its condition holds, so a missed run stays due; deriving the queue
+    // changes no review status, review date, recommendation or observation. Experimental roles that a review kept
+    // unresolved by design are not queued. The weekly backstop is added by review_queue.cjs, which knows the calendar.
+    const RECHECK_ORDER={'grade-moved':1,'plan-mechanics':2,'mechanics-conflict':3,'new-hero':4,'patch-change':5,'weekly':6};
+    const MECHANICS_NOTICE=/^Official (correction review|definition review|[0-9.]+ mechanics reconciliation)$/;
+    function recheckQueue(){
+      const g=bundle?.guidance||{},items=[],rate=v=>(Math.round(v*10)/10)+'%',count=n=>Number(n).toLocaleString('en-US');
+      const add=(kind,key,reason,extra={})=>items.push({id:kind+':'+key,kind,priority:RECHECK_ORDER[kind],reason,...extra});
+      for(const e of g.meta_review?.entries||[]){
+        const r=metaReview(e.slug,e.role);
+        if(r?.evidenceMoved)add('grade-moved',e.slug+'/'+e.role,'Statistics moved since review: '+rate(r.current.wr)+' over '+count(r.current.played)+' games, against '+rate(e.evidence.winRate)+' over '+count(e.evidence.matches)+' at review.',{slug:e.slug,role:e.role,tier:e.tier});
+      }
+      for(const p of g.builds||[]){
+        const b=buildReview(p.slug,p.role);
+        if(b?.changed?.length&&b.patch_review?.result!=='unresolved')add('plan-mechanics',p.slug+'/'+p.role,'Supporting mechanics changed: '+b.changed.join(', ')+'.',{slug:p.slug,role:p.role});
+      }
+      for(const n of bundle?.errors||[])if(MECHANICS_NOTICE.test(String(n?.source||'')))add('mechanics-conflict',String(n.source).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),n.source+': '+n.detail);
+      const reviewed=new Set([...(g.meta_review?.entries||[]),...(g.builds||[])].map(x=>x.slug));
+      for(const slug of Object.keys(heroes))if(!reviewed.has(slug))add('new-hero',slug,'No reviewed grade or build plan exists for '+(heroes[slug]?.display_name||slug)+'.',{slug});
+      const due=strategyReviewDue();
+      if(due.due)add('patch-change',officialSignature()||String(bundle?.official?.live?.version||'unverified'),due.reasons.join(' '));
+      return items.sort((a,b)=>a.priority-b.priority||a.id.localeCompare(b.id));
+    }
     function performance(pick,{source='auto'}={}) {
       const selected=source==='auto'?performancePolicy().source:source;
       if(selected==='pred'){
@@ -1131,7 +1155,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

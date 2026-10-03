@@ -1,0 +1,164 @@
+name: Review gate
+
+# Freshness Phase 4 (2.47.0). Decides review PRs from the scheduled reviewer: label automated-review, opened by the
+# repository owner's account from this repository. It runs the base branch's definition (pull_request_target) and
+# first checks, executing nothing from the PR, that only review files changed; only then does it run the PR's tests,
+# validators and live-data browser suites. review_gate.py decides: merge, hold for the owner (DECISION NEEDED), wait
+# (auto-merge off) or fail. After a merge it publishes and verifies the live site within 30 minutes, and reverts the
+# merge if that fails. The rules: STRATEGY-REVIEW-POLICY.md, "Current scheduling decision".
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: review-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scope:
+    if: >-
+      contains(github.event.pull_request.labels.*.name, 'automated-review') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'automated-review') &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - name: Read the PR head as data
+        run: git fetch --no-tags origin "+refs/pull/${{ github.event.pull_request.number }}/head:refs/remotes/pr/head"
+      - name: Only review files changed (nothing from the PR is executed)
+        run: python -B review_gate.py scope --base ${{ github.event.pull_request.base.sha }} --head ${{ github.event.pull_request.head.sha }}
+
+  checks:
+    needs: scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Install pinned verification tooling (no browser download)
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+      - name: Python tests
+        run: python -B -m unittest discover -s tests -p 'test_static*.py'
+      - name: Node tests
+        run: node --test tests/*.test.cjs
+      - name: Download the live six-rank bundles (sha256 checked against the live manifest)
+        run: python -B tests/fetch_live_bundles.py qa/live-bundles
+      - name: Validate the reviewed packet against every live rank
+        run: python -B review_gate.py validate-live qa/live-bundles/*.json
+      - name: Render the live bundles with the reviewed packet
+        run: |
+          seeds=()
+          for bundle in qa/live-bundles/*.json; do seeds+=(--seed "$bundle"); done
+          python -B tests/stage_preview.py --output qa/live-site --state-dir qa/live-state "${seeds[@]}"
+      - name: Static acceptance and legacy suites on live data
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13061/
+          PREVIEW_DIR: qa/live-site
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_static.cjs
+      - name: Design acceptance on live data
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13062/
+          PREVIEW_DIR: qa/live-site
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_design.cjs
+
+  decide:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write        # merge, and revert if the live site does not verify
+      pull-requests: write   # comments and labels
+      issues: write          # labels and a revert notice
+      actions: write         # dispatch publish.yml: a merge by this token does not trigger it
+      checks: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR: ${{ github.event.pull_request.number }}
+      BASE: ${{ github.event.pull_request.base.sha }}
+      HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - name: Read the PR head as data
+        run: git fetch --no-tags origin "+refs/pull/$PR/head:refs/remotes/pr/head"
+      - name: Wait for CI on the PR head
+        run: |
+          for attempt in $(seq 1 60); do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD/check-runs" --jq '[.check_runs[] | select(.name == "verify")] | if length == 0 then "pending" else (.[0].status + ":" + (.[0].conclusion // "")) end')
+            case "$state" in
+              completed:success) exit 0 ;;
+              completed:*) echo "CI did not pass: $state"; exit 1 ;;
+            esac
+            sleep 60
+          done
+          echo 'CI did not finish within an hour.'; exit 1
+      - name: Decide
+        id: gate
+        run: python -B review_gate.py decide --base "$BASE" --head "$HEAD" --out gate.json
+      - name: Label and comment
+        run: |
+          for label in 'automated-review' 'DECISION NEEDED' 'gate failed'; do gh label create "$label" --force --color 5319e7 >/dev/null; done
+          python -B review_gate.py comment gate.json > comment.md
+          gh pr comment "$PR" --body-file comment.md
+          case '${{ steps.gate.outputs.decision }}' in
+            hold) gh pr edit "$PR" --add-label 'DECISION NEEDED' ;;
+            fail) gh pr edit "$PR" --add-label 'gate failed'; exit 1 ;;
+          esac
+      - name: Merge, publish and verify the live site (revert if it does not verify)
+        if: steps.gate.outputs.decision == 'merge'
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          gh pr merge "$PR" --merge --match-head-commit "$HEAD"
+          merge=$(gh pr view "$PR" --json mergeCommit --jq .mergeCommit.oid)
+          git fetch origin main
+          gh workflow run publish.yml --ref main
+          if python -B review_gate.py verify-live --merge "$merge" --changes gate.json; then
+            gh pr comment "$PR" --body "Merged as $merge, published, and verified live: every rank carries the merged packet and the changed Gold+ grades match."
+            exit 0
+          fi
+          # Revert first, diagnose second.
+          git checkout -B "revert-review-$PR" origin/main
+          git revert -m 1 --no-edit "$merge"
+          git push origin HEAD:main
+          gh workflow run publish.yml --ref main
+          gh pr comment "$PR" --body "The live site did not carry the merged packet within 30 minutes, so merge $merge was reverted and the site republished. See the review gate run for the diagnosis."
+          gh label create freshness-watchdog --force --color b60205 >/dev/null
+          gh issue create --label freshness-watchdog --title "Review gate reverted PR #$PR" \
+            --body "Merge $merge did not verify on the live site within 30 minutes and was reverted. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          exit 1

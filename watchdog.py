@@ -8,7 +8,7 @@ freshness target it names the problem, explains it and says when the next attemp
 - a failed patch check;
 - a publication not refreshed for 3 hours;
 - a Windows collector quiet for more than 6 hours (it checks in every 3);
-- the current review packet due for more than 24 hours.
+- a recheck queued for more than 24 hours (before 2.47.0: the current review packet due for more than 24 hours).
 
 A problem seen in two consecutive hourly checks gets one GitHub issue, kept up to date and closed when the problem
 clears (.github/workflows/watchdog.yml). The watchdog asks publish.yml for a refresh only where the publisher's own
@@ -187,6 +187,19 @@ def check(manifest, review_index, now):
              'This alert stays after Pred.gg API access works: the PC remains the fallback.'],
             'Next attempt: when the collector runs again; it checks in at start and every 3 hours.', False))
 
+    # 2.47.0: the recheck queue (review/index.json rechecks) lists each item with the date it was first queued; one
+    # waiting over 24 hours is overdue (the scheduled reviewer runs every 3 hours). Older indexes have only packets.
+    rechecks = (review_index or {}).get('rechecks')
+    if isinstance(rechecks, list):
+        late = [r for r in rechecks if (hours_since(r.get('first_queued_at'), now) or 0) > LIMITS['queue_overdue_hours']]
+        if late:
+            problems.append(problem(
+                'queue-overdue', 'Rechecks are overdue',
+                '%d recheck%s queued for over 24 hours.' % (len(late), '' if len(late) == 1 else 's'),
+                ['%s: queued %s (%.0f hours ago). %s' % (r.get('id'), when_text(r.get('first_queued_at')),
+                                                         hours_since(r.get('first_queued_at'), now), r.get('reason') or '') for r in late],
+                'Next attempt: the scheduled reviewer, every 3 hours (docs/RECHECK-RUNNER.md).', False))
+        return problems
     # The queue's current state is its newest packet: older packets stay listed as history, superseded by later ones.
     packets = sorted((p for p in (review_index or {}).get('packets') or [] if utc(p.get('generated_at'))),
                      key=lambda p: utc(p['generated_at']))

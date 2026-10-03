@@ -105,6 +105,15 @@ class Checks(unittest.TestCase):
         recent = {'packets': [{'id': 'recent', 'review_due': True, 'generated_at': iso(3)}]}
         self.assertEqual(watchdog.check(manifest(), recent, NOW), [])
 
+    def test_overdue_rechecks(self):
+        index = {'packets': [], 'rechecks': [
+            {'id': 'grade-moved:adele/offlane', 'first_queued_at': iso(30), 'reason': 'Statistics moved since review.'},
+            {'id': 'plan-mechanics:legion/carry', 'first_queued_at': iso(2), 'reason': 'Supporting mechanics changed.'}]}
+        problems = watchdog.check(manifest(), index, NOW)
+        self.assertEqual(ids(problems), ['queue-overdue'])
+        self.assertIn('adele', ' '.join(problems[0]['details'])); self.assertNotIn('legion', ' '.join(problems[0]['details']))
+        self.assertEqual(watchdog.check(manifest(), {'packets': [], 'rechecks': []}, NOW), [])
+
     def test_unreadable_manifest(self):
         self.assertEqual(ids(watchdog.check(None, None, NOW)), ['site-unreachable'])
 

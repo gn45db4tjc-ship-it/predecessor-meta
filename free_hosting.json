@@ -23,6 +23,8 @@
   "policy": "Collect available sources for all six brackets daily in GitHub, plus an extra attempt for changed live patch or hotfix content. Pred.gg is optional and uses only structured data in public game pages; no API or account. Stop after access denial, continue the other sources, and preserve dates on retained data. Future announcements do not trigger collections. Calculated recommendations use the published evidence; authored guidance requires a separate weekly or patch-priority review.",
   "pred_optional": true,
   "pred_access_mode": "public_pages_only",
+  "review_auto_merge": true,
+  "review_auto_merge_note": "Owner's switch for the Phase 4 review gate (2 Oct 2026 decision). Review PRs merge themselves only while this is true on main and the last two nightly live checks passed; set it to false to hold every review PR for the owner.",
   "pred_api_approved": false,
   "pred_api_note": "The Pred.gg API path stays off until Pred.gg approves the application, its quotas and publishing its statistics (2 Oct 2026: anonymous statistics are refused with GraphQL Forbidden under HTTP 200). Set pred_api_approved to true in a reviewed commit only after that approval; credentials alone never enable it."
 }
