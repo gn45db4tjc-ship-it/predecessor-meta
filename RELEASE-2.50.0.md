@@ -15,7 +15,11 @@ The owner asked on 4 October 2026 for a thorough quality-of-life audit: make all
   - "Who do you play?" in Match lists your favorites and recent heroes first.
 - **Search finds heroes in other roles.** A search with no match in this role lists matching heroes from other roles (for example "khai" on Midlane offers Khaimera) instead of "No hero matches". Changing role keeps the search. Enter opens the first match.
 - **Skill order shows all 18 levels.** On the phone the chart is two rows of nine levels (1–9, 10–18). Levels 13–18, including the third ultimate point, used to be off to the side with no sign they were there.
-- **Meta rows are compact again.** A calculated tier standing in for a withheld reviewed grade says "Calculated" on its row. Why ("N reviewed grades are withheld (recheck queued)") is said once above the list, not on every row. With grades withheld, rows went from up to 117 px to 84 px, and tier badges now share one left edge.
+- **Meta rows are compact again.**
+  - A calculated tier standing in for a withheld reviewed grade says "Calculated" on its row. Why ("N reviewed grades are withheld (recheck queued)") is said once above the list, not on every row. With grades withheld, rows went from up to 117 px to 84 px.
+  - Tier badges share one left edge.
+  - Long names fit beside their badge down to 320 px.
+  - A "Build needs review" flag sits under the name, not beside it.
 - **Loadout labels.** Both blessings show their number ("Blessing 1", "Blessing 2"); both used to read "Blessing".
 - **Match's adapted build** is one row per item with room for each "Replaces …" note. It had become three narrow tiles a row.
 - **Smaller fixes.**
@@ -79,7 +83,15 @@ The owner asked on 4 October 2026 for a thorough quality-of-life audit: make all
 
 - **Probes first.** All 29 QL probes reproduced on 2.49.0 (commit 7c5e3d2) and pass now.
 - **Suites.** Python static tests (410), Node tests (397) and the 11 CI browser suites against the committed seed.
-- **Fit sweep on the six live bundles.** __SWEEP__
+- **Fit sweep on the six live bundles.** About 2,500 screens at nine sizes, measured before and after:
+  - Text under 11 px went from 82 to 0.
+  - The overlapping and misaligned phone Meta rows are fixed. A check of every row in every role at 320, 360, 375, 380, 390 and 412 px finds no name running out of its box or under its tier badge. Two causes were found along the way and fixed:
+    - a "Build needs review" flag widened the portrait column and pushed the name under the badge;
+    - long names did not fit beside the 124 px stat column below 380 px.
+  - What the sweep still flags was checked by eye and is not visible on screen:
+    - the desktop hero name's line box touching the line above or below it (the name is slanted and set tight);
+    - a phone figure's line box touching its sample line;
+    - with large text on, outlined tile numbers meeting a cut corner, as in 2.49.0.
 - **Checked by eye** on the live data:
   - phone at 360 px: Meta, hero top, loadout row, skill chart, Match;
   - desktop: the hero header at 1024 px, a Starting builds card at 1280 px.

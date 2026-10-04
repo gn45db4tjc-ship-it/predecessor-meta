@@ -3865,10 +3865,15 @@ probes.QL20 = async browser => {
     const hit = (a, b) => a && b && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
     const overlaps = rows.filter(r => hit(r.querySelector('.tier')?.getBoundingClientRect(), r.querySelector('.name')?.getBoundingClientRect())).map(r => r.querySelector('.name').textContent);
     const lefts = [...new Set(rows.map(r => r.querySelector('.tier')).filter(Boolean).map(t => Math.round(t.getBoundingClientRect().left)))];
-    return {overlaps, lefts};
+    // A long name (GREYSTONE, KHAIMERA) must fit its own box, in every role, rather than run toward the badge.
+    const spill = [];
+    for (const role of roleOrder) { S.role = role; changeRoute('meta');
+      for (const n of document.querySelectorAll('#mobile-all-list > .mobile-hero-card .name')) if (n.scrollWidth > n.clientWidth + 1) spill.push(role + ':' + n.textContent); }
+    return {overlaps, lefts, spill};
   });
   await context.close();
-  verdict('QL20', seen.overlaps.length > 0 || seen.lefts.length > 1, seen);
+  // Sub-pixel rounding can split one edge into two neighbouring integers; a real misalignment is 2 px or more.
+  verdict('QL20', seen.overlaps.length > 0 || Math.max(...seen.lefts) - Math.min(...seen.lefts) > 1 || seen.spill.length > 0, seen);
 };
 probes.QL21 = async browser => {
   // Before: every Starting builds card repeated the same page-wide sentences (the patch-review scope, the Pred.gg

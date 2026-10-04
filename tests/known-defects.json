@@ -218,7 +218,7 @@
     "QL17": "2.50.0 PHONE: both blessings in the loadout row are labeled just Blessing",
     "QL18": "2.50.0 PHONE: Match's adapted build renders as three narrow tiles per row",
     "QL19": "2.50.0 PHONE: table headers on Sources and Changes are 10 px",
-    "QL20": "2.50.0 PHONE: Meta row tier badges do not share one left edge",
+    "QL20": "2.50.0 PHONE: Meta row tier badges do not share one left edge, or a long hero name runs out of its box toward the badge",
     "QL21": "2.50.0 DESKTOP: every Starting builds card repeats the same Pred.gg availability warning",
     "QL22": "2.50.0 PHONE: the Why this build sheet prints the reason more than once",
     "QL23": "2.50.0 DESKTOP: the Kit repeats the same Pred.gg source line under every ability",

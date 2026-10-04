@@ -161,6 +161,21 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
   .match-build li:focus-within{clip-path:none}
   .match-build .simple-position{background:transparent;border-radius:0;font-family:var(--display);font-size:var(--tr-xl);font-weight:800;color:transparent;-webkit-text-stroke:1.2px var(--brand-text);transform:skewX(-10deg)}
   .match-build li.is-changed .simple-position{color:var(--brand-text);-webkit-text-stroke:0}
+  /* 2.50.0: a "Build needs review" flag sits under the name, not under the portrait, so it never widens the portrait
+     column and pushes the name under the tier badge. */
+  .mobile-hero-card .hero-cell:has(.no-build-chip)>.name{grid-column:2;grid-row:1;align-self:end}
+  .mobile-hero-card .hero-cell:has(.no-build-chip) .no-build-chip{grid-column:2;grid-row:2}
+}
+/* 2.50.0: on narrow phones (under 380 px) the rank numeral, portrait, name and stat column all give a little,
+   so a long name (GREYSTONE, KHAIMERA) fits beside its tier badge instead of running under it. */
+@media(max-width:379px){
+  #mobile-all-list>.mobile-hero-card{padding-left:calc(var(--s5) + var(--s1))}
+  #mobile-all-list>.mobile-hero-card::before{width:24px;font-size:var(--tr-lg)}
+  .mobile-hero-card{grid-template-columns:minmax(0,1fr) 104px}
+  .mobile-hero-card .hero-cell .portrait{width:40px;height:40px}
+  .mobile-hero-card .hero-cell .name{font-size:var(--tr-base);letter-spacing:0}
+  .mobile-hero-card .mobile-stat{grid-template-columns:32px minmax(0,1fr)}
+  .mobile-stat .tier{min-width:32px;height:32px;font-size:var(--tr-lg)}
 }
 /* ---- 2.50.0 QoL: one statement of a shared fact, and no dead ends ---- */
 .reading-mode-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin:var(--s2) 0;padding:var(--s1) var(--s1) var(--s1) var(--s3);background:var(--surface-2);font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--brand-text)}
