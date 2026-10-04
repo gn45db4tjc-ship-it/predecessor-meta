@@ -58784,6 +58784,60 @@
         "scope": "Scheduled recheck of the 1 queued item (the official definition review notice for Frost Snap, Harmonic Currents and Mending) against the live bundles published 2026-10-03T07:28:08Z (tool 2.48.1; official 1.17 + Hotfix 1.17.1 and 1.16.4 notes fetched 2 Oct 13:19 CDT). Not a weekly or full review.",
         "ledger": "docs/rechecks/2026-10-03-0407-ledger.json",
         "result": "0 changed, 0 checked and retained, 1 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-04T05:15:00-05:00",
+        "items": [
+          "plan-mechanics:adele/offlane",
+          "plan-mechanics:akeron/jungle",
+          "plan-mechanics:aurora/jungle",
+          "plan-mechanics:aurora/offlane",
+          "plan-mechanics:crunch/jungle",
+          "plan-mechanics:crunch/offlane",
+          "plan-mechanics:dekker/support",
+          "plan-mechanics:feng-mao/jungle",
+          "plan-mechanics:grux/jungle",
+          "plan-mechanics:grux/offlane",
+          "plan-mechanics:kwang/jungle",
+          "plan-mechanics:kwang/offlane",
+          "plan-mechanics:lt-belica/support",
+          "plan-mechanics:maco/support",
+          "plan-mechanics:rampage/offlane",
+          "plan-mechanics:riktor/support",
+          "plan-mechanics:scarlett/jungle",
+          "plan-mechanics:scarlett/offlane",
+          "plan-mechanics:shinbi/jungle",
+          "plan-mechanics:shinbi/offlane",
+          "plan-mechanics:terra/jungle",
+          "plan-mechanics:terra/offlane",
+          "plan-mechanics:the-fey/support",
+          "plan-mechanics:valmont/midlane",
+          "plan-mechanics:wraith/midlane",
+          "plan-mechanics:yurei/jungle",
+          "plan-mechanics:zarus/offlane",
+          "plan-mechanics:zinx/support",
+          "mechanics-conflict:official-1-17-mechanics-reconciliation",
+          "mechanics-conflict:official-correction-review",
+          "mechanics-conflict:official-definition-review"
+        ],
+        "scope": "Scheduled recheck of the 31 queued items (28 plans flagged for supporting mechanics, 3 official mechanics notices) against the live bundles published 2026-10-04T07:39:16+00:00 (collection of 3 Oct 23:22 UTC, in which Pred.gg failed on every rank; four ranks kept Pred.gg 168 game data from 3 Oct 14:06-14:26 CDT, Gold+ and Platinum+ fell back to omeda.city). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-04-0453-ledger.json",
+        "result": "0 changed, 28 checked and retained, 3 unresolved",
+        "held": [
+          {
+            "id": "mechanics-conflict:official-1-17-mechanics-reconciliation",
+            "evidence": "1e84aba401ef67"
+          },
+          {
+            "id": "mechanics-conflict:official-correction-review",
+            "evidence": "0fd21226463a48"
+          },
+          {
+            "id": "mechanics-conflict:official-definition-review",
+            "evidence": "1059582dcae451"
+          }
+        ]
       }
     ]
   },

@@ -1,0 +1,864 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 4 Oct 2026 04:53 (31 queued items)",
+ "reviewed_at": "2026-10-04T05:15:00-05:00",
+ "reviewer": "Claude (Opus 5.5), scheduled recheck runner (predecessor-meta-rechecks)",
+ "scope": "Scheduled recheck of the 31 queued items (28 plans flagged for supporting mechanics, 3 official mechanics notices) against the live bundles published 2026-10-04T07:39:16+00:00 (collection of 3 Oct 23:22 UTC, in which Pred.gg failed on every rank; four ranks kept Pred.gg 168 game data from 3 Oct 14:06-14:26 CDT, Gold+ and Platinum+ fell back to omeda.city). Not a weekly or full review.",
+ "standard": "docs/RECHECK-RUNNER.md: a plan whose reasoning still holds is checked and retained, with its precondition updated from the live source where that source changed; a mechanics notice resolves only with official text, otherwise it is unresolved and held with its queue evidence.",
+ "evidence": {
+  "manifest_published_at": "2026-10-04T07:39:16+00:00",
+  "tool_version": "2.49.0",
+  "collection": "2026-10-03T23:22:35+00:00 (Gold+ bundle generated_at)",
+  "pred_game_data_retained": "2026-10-03T14:09:45-05:00 (Bronze+, Silver+, Diamond+, Paragon+)",
+  "gold_platinum_fallback": "omeda.city items and kits, 2026-10-03T23:22:17+00:00",
+  "official": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17 with Hotfix 1.17.1, fetched 2026-10-03T23:22:13+00:00",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+ },
+ "summary": {
+  "changed": 0,
+  "checked and retained": 28,
+  "unresolved": 3
+ },
+ "entries": [
+  {
+   "kind": "plan",
+   "slug": "adele",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:adele/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "akeron",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:akeron/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "aurora",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:aurora/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "aurora",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:aurora/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "crunch",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:crunch/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "crunch",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:crunch/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "dekker",
+   "role": "support",
+   "queue_id": "plan-mechanics:dekker/support",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Crescelia, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Crescelia since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Crescelia (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "feng-mao",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:feng-mao/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Nightfall, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Activations\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Nightfall since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Nightfall (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "grux",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:grux/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "grux",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:grux/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "kwang",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:kwang/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Oathkeeper, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Oathkeeper since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Oathkeeper (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "kwang",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:kwang/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Oathkeeper, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Oathkeeper since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Oathkeeper (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "lt-belica",
+   "role": "support",
+   "queue_id": "plan-mechanics:lt-belica/support",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Crescelia, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Crescelia since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Crescelia (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "maco",
+   "role": "support",
+   "queue_id": "plan-mechanics:maco/support",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Crescelia, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Crescelia since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Crescelia (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "rampage",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:rampage/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "riktor",
+   "role": "support",
+   "queue_id": "plan-mechanics:riktor/support",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Frosted Lure, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is a dropped match-tracker line (\"Damage Dealt\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Frosted Lure since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Frosted Lure (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "scarlett",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:scarlett/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "scarlett",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:scarlett/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Nightfall, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Activations\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Nightfall since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Nightfall (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "shinbi",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:shinbi/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Oathkeeper, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Oathkeeper since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Oathkeeper (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "shinbi",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:shinbi/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Oathkeeper, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Oathkeeper since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Oathkeeper (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "terra",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:terra/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "terra",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:terra/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Elafrost, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Elafrost since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Elafrost (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "the-fey",
+   "role": "support",
+   "queue_id": "plan-mechanics:the-fey/support",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Crescelia, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the match-tracker label \"Times Applied\" vs \"Times Applied to Heroes\" in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Crescelia since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Crescelia (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "valmont",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:valmont/midlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Valmont the flagged fields are Passive and LMB: the Pred.gg 168 text on the four ranks that kept it still equals the plan's preconditions word for word, and on those ranks the plan is active. The Gold+/Platinum+ text is omeda.city's shorter wording of the same kit (Lilith strikes, 15 (+15% magical power) per strike rising with Bloodbound, 3-41 mana per nearby death, +35% max mana on a hero death; ranged basic attack 49 (+60% physical power)); it is a different source, not a balance change, and the official 1.17 notes and Hotfix 1.17.1 add no Valmont change since the plan's review. The plan's reasoning (spell-focused opening that does not rely on Lilith triggering item on-hits) holds; no part and no precondition changes.",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. omeda.city says \"physical power\" where Pred.gg says \"Bonus Physical Power\" for the basic attack; that wording difference is not settled here and does not bear on this magical plan. No in-game test.",
+   "mechanics_checked": [
+    "Valmont Passive and LMB (Pred.gg 168 on four ranks against the plan preconditions; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/valmont/hero?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wraith",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:wraith/midlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Nightfall, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Activations\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Nightfall since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Nightfall (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "yurei",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:yurei/jungle",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zarus",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:zarus/offlane",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Mutilator, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is an extra match-tracker line (\"Damage Dealt to Heroes\") in the stats footer; no numeric value, trigger, cooldown or scaling differs. The official 1.17 notes and Hotfix 1.17.1 add no change to Mutilator since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Mutilator (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zinx",
+   "role": "support",
+   "queue_id": "plan-mechanics:zinx/support",
+   "verdict": "checked and retained",
+   "reason": "The 3 Oct 23:22 UTC collection got no Pred.gg response on any rank (watchdog issue #117). Bronze+, Silver+, Diamond+ and Paragon+ kept their Pred.gg game data from earlier on 3 Oct (version 168, collected 14:06-14:26 CDT); Gold+ and Platinum+ did not, and fell back to omeda.city item and kit text. The queue reads the Gold+ bundle, so it flags fields where omeda.city words them differently. For Lunaria, the Pred.gg 168 item on the four ranks that kept it still equals the plan's precondition exactly, and on those ranks the plan is active. Against the omeda.city fallback, the only difference is the stat key: \"Heal and shield power: 15.0%\" vs \"heal_shield_increase: 15.0\"; the value is the same 15%. The official 1.17 notes and Hotfix 1.17.1 add no change to Lunaria since the plan's review. The plan's reasoning holds; no part and no precondition changes (rewriting the precondition to the fallback wording would deactivate the plan on the four ranks that still carry the reviewed source).",
+   "limitation": "Gold+ and Platinum+ keep showing the plan as inactive until a collection gets Pred.gg data again (next attempt 4 Oct 17:23 UTC); the queue item will return on each run until then. Only the flagged supporting mechanic was rechecked; the plan's item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Lunaria (Pred.gg 168 on four ranks against the plan precondition; omeda.city fallback on Gold+/Platinum+)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    },
+    {
+     "url": "https://omeda.city/items.json",
+     "fetched_at": "2026-10-03T23:22:17+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "reconciliation",
+   "key": "official-1-17-mechanics-reconciliation",
+   "queue_id": "mechanics-conflict:official-1-17-mechanics-reconciliation",
+   "verdict": "unresolved",
+   "reason": "Gold+ only: \"Unmatched source fields: Peal, Hellfire Strikes (1.17)\". The Gold+ bundle has no perk rows at all this collection (no Pred.gg data; see the plan entries), so the official 1.17 corrections for Peal and Hellfire Strikes have no source field to match. On the four ranks that kept Pred.gg 168, both corrections apply and no notice names Peal or Hellfire Strikes (Peal reads \"... Ultimate-triggered effect: 20s cooldown (official 1.17)\"). No supplement text is wrong, and only official text may change it, so nothing is edited. Unresolved and held with its queue evidence; it clears when Gold+ collects Pred.gg again.",
+   "limitation": "Only official text may resolve it; holding it hides an identical notice until the notice text or any live official article changes. No in-game test.",
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "packet-corrections",
+   "key": "official-correction-review",
+   "queue_id": "mechanics-conflict:official-correction-review",
+   "verdict": "unresolved",
+   "reason": "Gold+ only: \"Correction could not be verified for Psychosis\". With no Pred.gg perk rows in the Gold+ bundle, the 1.16.4 Psychosis correction has no source field to check. The four ranks that kept Pred.gg 168 carry the official 1.16.4 value (\"Deal 3% (+0.3% per Level) more Damage to the closest Enemy Hero ...\") and raise no notice for Psychosis. Nothing in the review files changes. Unresolved and held with its queue evidence.",
+   "limitation": "Only official text may resolve it; holding it hides an identical notice until the notice text or any live official article changes. No in-game test.",
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-03T23:22:16+00:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=168",
+     "fetched_at": "2026-10-03T14:09:45-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "reviewed_definitions",
+   "key": "official-definition-review",
+   "queue_id": "mechanics-conflict:official-definition-review",
+   "verdict": "unresolved",
+   "reason": "Frost Snap (slow-only targets), Harmonic Currents (restoration amount) and Mending (regeneration duration): the official article set is unchanged since the 3 Oct 04:07 pass (1.17 with Hotfix 1.17.1, and 1.16.4; checked 3 Oct 23:22 UTC), and no official text settles any of the three disputed fields. They stay partly verified with the disputed field explicitly unverified. Unresolved and, under the hold rule merged in #118, held with its queue evidence until the notice or any live official article changes.",
+   "limitation": "Only official text may resolve it; holding it hides an identical notice until the notice text or any live official article changes. No in-game test.",
+   "reviewed_at": "2026-10-04T05:15:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-03T23:22:13+00:00"
+    }
+   ]
+  }
+ ]
+}
