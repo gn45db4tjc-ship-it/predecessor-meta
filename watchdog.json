@@ -1,17 +1,7 @@
 {
  "schema": 1,
- "checked_at": "2026-10-04T10:05:09+00:00",
- "open": {
-  "pred-age": {
-   "first_seen": "2026-10-04T02:51:59+00:00"
-  },
-  "attempt-failed": {
-   "first_seen": "2026-10-03T20:12:37+00:00"
-  },
-  "queue-overdue": {
-   "first_seen": "2026-10-04T02:51:59+00:00"
-  }
- },
+ "checked_at": "2026-10-04T15:30:10+00:00",
+ "open": {},
  "dispatches": [
   "2026-10-03T23:19:41+00:00",
   "2026-10-04T10:05:09+00:00"
@@ -34,6 +24,27 @@
    "event": "started",
    "at": "2026-10-04T02:51:59+00:00",
    "summary": "1 recheck queued for over 24 hours."
+  },
+  {
+   "id": "pred-age",
+   "event": "cleared",
+   "at": "2026-10-04T15:30:10+00:00",
+   "started_at": "2026-10-04T02:51:59+00:00",
+   "hours": 12.6
+  },
+  {
+   "id": "attempt-failed",
+   "event": "cleared",
+   "at": "2026-10-04T15:30:10+00:00",
+   "started_at": "2026-10-03T20:12:37+00:00",
+   "hours": 19.3
+  },
+  {
+   "id": "queue-overdue",
+   "event": "cleared",
+   "at": "2026-10-04T15:30:10+00:00",
+   "started_at": "2026-10-04T02:51:59+00:00",
+   "hours": 12.6
   }
  ]
 }
