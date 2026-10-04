@@ -1,9 +1,15 @@
 {
  "schema": 1,
- "checked_at": "2026-10-03T23:19:41+00:00",
+ "checked_at": "2026-10-04T02:51:59+00:00",
  "open": {
+  "pred-age": {
+   "first_seen": "2026-10-04T02:51:59+00:00"
+  },
   "attempt-failed": {
    "first_seen": "2026-10-03T20:12:37+00:00"
+  },
+  "queue-overdue": {
+   "first_seen": "2026-10-04T02:51:59+00:00"
   }
  },
  "dispatches": [
@@ -15,6 +21,18 @@
    "event": "started",
    "at": "2026-10-03T20:12:37+00:00",
    "summary": "Last attempt not ok for Gold+, Platinum+."
+  },
+  {
+   "id": "pred-age",
+   "event": "started",
+   "at": "2026-10-04T02:51:59+00:00",
+   "summary": "Pred.gg exact-patch cohort not current for: Gold+, Bronze+, Silver+, Platinum+, Diamond+, Paragon+."
+  },
+  {
+   "id": "queue-overdue",
+   "event": "started",
+   "at": "2026-10-04T02:51:59+00:00",
+   "summary": "1 recheck queued for over 24 hours."
   }
  ]
 }
