@@ -1,7 +1,14 @@
 {
  "schema": 1,
- "checked_at": "2026-10-04T15:30:10+00:00",
- "open": {},
+ "checked_at": "2026-10-04T22:31:49+00:00",
+ "open": {
+  "pred-age": {
+   "first_seen": "2026-10-04T22:31:49+00:00"
+  },
+  "attempt-failed": {
+   "first_seen": "2026-10-04T22:31:49+00:00"
+  }
+ },
  "dispatches": [
   "2026-10-03T23:19:41+00:00",
   "2026-10-04T10:05:09+00:00"
@@ -45,6 +52,18 @@
    "at": "2026-10-04T15:30:10+00:00",
    "started_at": "2026-10-04T02:51:59+00:00",
    "hours": 12.6
+  },
+  {
+   "id": "pred-age",
+   "event": "started",
+   "at": "2026-10-04T22:31:49+00:00",
+   "summary": "Pred.gg exact-patch cohort not current for: Bronze+."
+  },
+  {
+   "id": "attempt-failed",
+   "event": "started",
+   "at": "2026-10-04T22:31:49+00:00",
+   "summary": "Last attempt not ok for Bronze+, Platinum+."
   }
  ]
 }
