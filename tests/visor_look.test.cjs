@@ -47,3 +47,21 @@ test('following the Visor is on by default and only an explicit off stops it',()
 });
 
 test('the look is re-read about every 30 seconds',()=>assert.ok(V.POLL_MS>=15000&&V.POLL_MS<=60000));
+test('a re-read asked for while one is running runs when that read ends (2.52.0)',async()=>{
+ // Before, a focus during a running read was dropped, so a look file changed meanwhile waited for the 30 s poll.
+ const vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+ const listeners={},reads=[];
+ const sandbox={
+  document:{documentElement:{getAttribute:()=>null},head:{appendChild(){}},createElement:()=>({}),getElementById:()=>null,querySelector:()=>null,addEventListener(){},visibilityState:'visible'},
+  addEventListener:(type,fn)=>{listeners[type]=fn;},setInterval(){},MutationObserver:class{observe(){}},localStorage:{getItem:()=>null},
+  fetch:()=>new Promise(done=>reads.push(()=>done({ok:true,json:async()=>null})))
+ };
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..','visor_look.js'),'utf8'),sandbox);
+ sandbox.VisorLook.start(null);
+ listeners.focus();listeners.focus();listeners.focus();
+ assert.equal(reads.length,1,'one read at a time');
+ reads[0]();await new Promise(r=>setTimeout(r,0));
+ assert.equal(reads.length,2,'the focus during the read asks again once it ends (once, however many arrived)');
+ reads[1]();await new Promise(r=>setTimeout(r,0));
+ assert.equal(reads.length,2,'nothing further was asked for');
+});

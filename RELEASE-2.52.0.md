@@ -77,6 +77,10 @@ Measured on the six live bundles of 4 October with the CPU slowed four times, tw
 - **Portraits first on a slow link.** When the browser reports a slow link (2G or 3G, or Data Saver on), phone Meta lets the visible portraits finish before it downloads the guide (at most 1.5 s). On a fast link, or a browser that doesn't report its link (Safari, Firefox), the guide starts at once as before; any screen that needs it sooner asks for it itself.
 - **One screen is slower, deliberately.** Changes now opens on the Pred.gg history (see above), a larger table than the Statz view it used to open on. It takes 40–60 ms longer to draw on a slowed phone (3,708 elements instead of 2,877).
 
+### Windows app
+
+- **Visor colours follow sooner.** When the Visor's look changes while the app is already reading it, the app reads it again as soon as that read ends. Before, the change waited up to 30 seconds for the next check. 2.52's faster drawing made the Visor suite hit this race in 3 of 8 runs; it passes 8 of 8 now (`tests/visor_look.test.cjs` covers it).
+
 ## Not in this release
 
 These were found but left for a later release. Each needs its own review or carries more risk than a QoL pass should:
@@ -102,16 +106,22 @@ These were found but left for a later release. Each needs its own review or carr
 - `broadcast.css`: font weight ranges, the two fallback faces, and the "QoL pass 2" section at its end (including scrolling tables that contain their screen-reader labels).
 - `predecessor_meta.py`: the bold text face preload; `VERSION` 2.52.0.
 - `sw.js`: the page is answered before its copy is saved; cache `predecessor-meta-shell-v2-52-0`.
+- `visor_look.js` (Windows app only): a re-read asked for during a read runs when it ends.
 - Tests:
   - probes QP1–QP11, QS1–QS7, QT1–QT7 and QF1–QF3 in `tests/browser_audit_regressions.cjs`, with their entries in `tests/known-defects.json`;
   - older probes kept as written, with two corrected: QL10 now makes the real Pred.gg history field (`scoped_changes`) unavailable (it removed a field that never existed), and N1 expects More on the phone's Starting builds (its back link says "← More");
   - `tests/browser_static.cjs`: an exported page's `<main>` may hold the static startup note, never the visitor's draft;
-  - `tests/sw_shell.test.cjs` (new);
+  - `tests/sw_shell.test.cjs` (new) and a re-read case in `tests/visor_look.test.cjs`;
   - `tests/test_static_broadcast.py` expects three font preloads.
 - No new program files for the Windows install.
 
 ## Verification
 
 - **Probe first.** Every new probe reproduced on 2.51.0 and passes now; the ledger's open list is empty. QF1–QF3 were also run against exports of 2.51.0 and of the commit before each fix: 3 recalculations before, 0 after (QF1); 29 px of status line in the flow before, none after (QF2); on 2.51.0 the guide started 700 ms before a slow link's portraits finished, and the first portraits-first version made a fast link wait 700 ms, while 2.52.0 does neither (QF3).
-- **Suites.** SUITE_RESULTS
+- **Suites.**
+  - Python static tests: 410 pass (1 skipped).
+  - Node tests: 400 pass.
+  - The 11 CI browser suites against the committed seed: all pass. The audit suite's 216 probes all match the ledger.
+  - `browser_visor_look`, which runs this source's Windows server with a test data folder: 8 of 8 runs pass.
+- **Timings.** Taken with the scripts from the speed audit. They were run on staged copies of 2.51.0 and 2.52.0 built from the same six live bundles.
 - **Checked by eye** on the six live bundles: desktop at 1440 px and phone at 390 px, dark and light.
