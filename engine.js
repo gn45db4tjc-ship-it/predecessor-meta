@@ -437,7 +437,14 @@
         const b=buildReview(p.slug,p.role);
         if(b?.changed?.length&&b.patch_review?.result!=='unresolved')add('plan-mechanics',p.slug+'/'+p.role,'Supporting mechanics changed: '+b.changed.join(', ')+'.',{slug:p.slug,role:p.role});
       }
-      for(const n of bundle?.errors||[])if(MECHANICS_NOTICE.test(String(n?.source||'')))add('mechanics-conflict',String(n.source).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),n.source+': '+n.detail);
+      // Recheck hold (3 Oct 2026): a notice a logged pass held unresolved (guidance.recheck_log[].held) stays out of the
+      // queue until its evidence changes: the notice text or any live official article. Only official text may resolve
+      // it, so re-queuing it unchanged only produced identical 'unresolved' passes.
+      const held=new Set((g.recheck_log||[]).flatMap(r=>Array.isArray(r?.held)?r.held:[]).map(h=>h?.id+'|'+h?.evidence));
+      for(const n of bundle?.errors||[])if(MECHANICS_NOTICE.test(String(n?.source||''))){
+        const key=String(n.source).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),evidence=textHash(JSON.stringify([String(n.source),String(n.detail??''),officialSignature()]));
+        if(!held.has('mechanics-conflict:'+key+'|'+evidence))add('mechanics-conflict',key,n.source+': '+n.detail,{evidence});
+      }
       const reviewed=new Set([...(g.meta_review?.entries||[]),...(g.builds||[])].map(x=>x.slug));
       for(const slug of Object.keys(heroes))if(!reviewed.has(slug))add('new-hero',slug,'No reviewed grade or build plan exists for '+(heroes[slug]?.display_name||slug)+'.',{slug});
       const due=strategyReviewDue();

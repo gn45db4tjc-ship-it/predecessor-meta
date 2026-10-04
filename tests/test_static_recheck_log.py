@@ -38,6 +38,20 @@ class RecheckLogValidation(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, message):
                 m.validate_guidance_packet(self.with_log(row), None)
 
+    def test_held_notices_are_checked(self):
+        held = copy.deepcopy(VALID) | {'items': ['mechanics-conflict:official-definition-review'],
+                                       'held': [{'id': 'mechanics-conflict:official-definition-review', 'evidence': '0a1b2c3d4e5f60'}]}
+        m.validate_guidance_packet(self.with_log(held), None)
+        for change in (lambda r: r.update(held={}),
+                       lambda r: r['held'][0].update(id='grade-moved:adele/offlane'),
+                       lambda r: r['held'][0].update(id='mechanics-conflict:not-in-this-pass'),
+                       lambda r: r['held'][0].update(evidence='xyz'),
+                       lambda r: r['held'][0].update(extra=True)):
+            row = copy.deepcopy(held)
+            change(row)
+            with self.assertRaisesRegex(ValueError, 'held notice'):
+                m.validate_guidance_packet(self.with_log(row), None)
+
     def test_the_log_must_be_a_list(self):
         packet = copy.deepcopy(self.packet)
         packet['guidance']['recheck_log'] = VALID

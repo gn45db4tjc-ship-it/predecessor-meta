@@ -54,7 +54,7 @@ The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current sc
      - If the plan's reasoning still holds, update the precondition text from the live source and record `checked and retained`.
      - If it does not, change the plan's parts and record `changed`.
      - Otherwise record `unresolved` and leave the plan inactive.
-   - **`mechanics-conflict` (an official correction, definition or reconciliation notice).** Resolve it only with the official source's own text, in the supplement (`patch-<version>.json`). Otherwise record `unresolved`.
+   - **`mechanics-conflict` (an official correction, definition or reconciliation notice).** Resolve it only with the official source's own text, in the supplement (`patch-<version>.json`). Otherwise record `unresolved` and hold it: add `{id, evidence}` (the queue item's `evidence`, exactly as published) to the log's `held`. The queue then skips it until the notice or any live official article changes.
    - **`new-hero`.** Prepare the first grade and plan in the usual format; the gate holds a first grade for the owner.
    - **`patch-change`.** A patch-targeted pass records its narrower scope and does not postpone the weekly pass.
    - **`weekly`.** Check every withheld grade and inactive plan, then log a weekly pass with the ISO week from the item id.
@@ -66,7 +66,8 @@ The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current sc
      - Every changed packet entry, plan or supplement item needs one. A rule that would need an exception gets `policy_exception: "<why>"`, and the gate holds it.
    - Report: `docs/rechecks/<YYYY-MM-DD>-<HHMM>.md`, a short summary of changes, retained, unresolved and limitations.
    - Log: append to `guidance.recheck_log` in `reviewed_guidance.json`:
-     - `{kind: "triggered" | "weekly", week (weekly only), reviewed_at, items: [queue ids], scope, ledger: "docs/rechecks/....json", result: "n changed, n checked and retained, n unresolved"}`.
+     - `{kind: "triggered" | "weekly", week (weekly only), reviewed_at, items: [queue ids], scope, ledger: "docs/rechecks/....json", result: "n changed, n checked and retained, n unresolved", held (optional): [{id, evidence}]}`.
+     - `held` lists only `mechanics-conflict` items of this pass left `unresolved`, each with its queue `evidence`.
 7. **Validate.**
    - `python -B review_gate.py validate-live qa/live-bundles/*.json`
    - `python -B -m unittest discover -s tests -p "test_static*.py"`
