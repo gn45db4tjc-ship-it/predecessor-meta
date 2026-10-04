@@ -159,7 +159,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "5346a74945d2481d402a0a7c18f8abc9729dce0e69ae2d3457578d0592adff7e",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "e5e8dfb24941f0be4367ad40bfdeb18613dd3faa349eec0d957d59627737d565",
+    "reviewed_guidance.json": "dc8c145ccf7be4204d567219f4d48817c3731bdba4bc699b0f7be1db6dff7de5",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "30bb52833330f5499ba48fab94ad275c5ab42a4afeed395a5f1e7b4e9c9635ea",
@@ -286,6 +286,8 @@
     "ui.html": "65634f1f69996c5dadba9af25c74b530a03cb7508d703e916f44e6644cd6c9ab",
     "ui.js": "8c9dc34b1b734adb5ec926ded600314db53d588b3fb2048acb827fabd86bb355",
     "visor_look.js": "06c9b32e5601a2ee44eb5450edb0bf30891c46af7c0f5eb7d9dc4c2519845444",
-    "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90"
+    "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90",
+    "docs/rechecks/2026-10-04-0453-ledger.json": "c3c7d755e235c946663e087feeb117942bc69b4e6389cfc05608a5b46bc19fa3",
+    "docs/rechecks/2026-10-04-0453.md": "68b8cb47f176f3443b6cde0b460c4153660ea95c33b9766119633bb15f8c6acb"
   }
 }
