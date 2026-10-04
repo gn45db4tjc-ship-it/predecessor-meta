@@ -87,10 +87,10 @@ function annexHTML(kind,key,render){const state=annexState(kind,key),problem=ann
 // loading (again, after a retry) and ends by the files' own state (annexPhase), not by placeholders leaving the screen,
 // which a search or a layout change also does. Placeholders are not live regions, so a view with many (the Builds page)
 // never chatters, and a load that finishes within a second stays quiet.
-let annexPhase=id=>(APP_CONFIG.missing_parts||[]).includes(id)?'failed':'loaded';
+let annexPhase=id=>(APP_CONFIG.missing_parts||[]).includes(id)?'failed':'loaded';   // the static adapter reads its downloads
 // 2.52.0: Try again on a failed evidence note (the static adapter clears the failure and downloads the file again).
 let retryAnnex=()=>{};
-const annexRetryButton=id=>APP_CONFIG.mode==='static'&&id?`<button type="button" class="quiet annex-retry" data-annex-retry="${esc(id)}">Try again</button>`:'';   // the static adapter reads its downloads
+const annexRetryButton=id=>APP_CONFIG.mode==='static'&&id?`<button type="button" class="quiet annex-retry" data-annex-retry="${esc(id)}">Try again</button>`:'';
 const evidenceNews={page:null,dialog:null,deferred:null},evidenceTimers={};
 function annexWaiting(root){return new Set([...(root?.querySelectorAll('.annex-loading[data-annex]')||[])].map(el=>el.dataset.annex));}
 function trackEvidence(surface,view,root){
@@ -243,7 +243,8 @@ function sectionPad(){const root=getComputedStyle(document.documentElement),jr=$
 function syncSectionCurrent(){document.querySelectorAll('#main [data-hero-tab]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.heroTab===S.heroTab)));}
 function jumpToSection(t,focus=false){const sec=document.getElementById('hero-sec-'+t);if(!sec)return;
  const fold=sec.querySelector(':scope > details.hero-fold');if(fold&&!fold.open)fold.open=true;
- // 2.52.0: a jump the reader asked for moves keyboard focus into that section (its fold's summary, or the section).
+ // 2.52.0: a jump from another page (Partners in the Statz table) moves focus into the section, its fold's summary or
+ // the section itself; the hero jump row keeps focus on the button pressed (2.29 acceptance S2), so it passes no focus.
  if(focus){const target=fold?.querySelector(':scope > summary')||sec;if(target===sec&&!sec.hasAttribute('tabindex'))sec.setAttribute('tabindex','-1');target.focus({preventScroll:true});}
  sectionSpy.tab=t;sectionSpy.hold=performance.now()+600;syncSectionCurrent();
  window.scrollTo({top:Math.max(0,sec.getBoundingClientRect().top+scrollY-sectionPad())});}
@@ -370,7 +371,8 @@ function heroView(){
 const catalogIndex=new WeakMap();
 function catalogKey(kind,value){const all=B[kind];if(!all)return undefined;if(all[value])return value;
  let index=catalogIndex.get(all);if(!index){index=new Map();for(const k of Object.keys(all)){const n=normalizeName(all[k].display_name||all[k].name);if(!index.has(n))index.set(n,k);}catalogIndex.set(all,index);}
- return index.get(normalizeName(value));}
+ const wanted=normalizeName(value);if(index.has(wanted))return index.get(wanted);
+ const found=Object.keys(all).find(k=>normalizeName(all[k].display_name||all[k].name)===wanted);if(found)index.set(wanted,found);return found;}
 function definitionIssue(kind,key,value=key){return (B.definition_issues||[]).find(i=>i.kind===(kind==='perks'?'perk':'item')&&(i.key===key&&key!=null||normalizeName(i.name)===normalizeName(value)));}
 function normalizeName(value){return String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function reviewedDefinition(value){return Object.values(B.reviewed_definitions||{}).find(d=>normalizeName(d.key)===normalizeName(value)||normalizeName(d.name)===normalizeName(value));}
