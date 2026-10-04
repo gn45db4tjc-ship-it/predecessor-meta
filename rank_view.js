@@ -62,7 +62,8 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   buildsPageView = function() { return rankEvidenceNote() + rankOriginal.buildsPageView(); };
   heroView = function() { return rankEvidenceNote() + rankOriginal.heroView(); };
   guidanceView = function() { return rankEvidenceNote() + rankOriginal.guidanceView(); };
-  libraryView = function() { return rankEvidenceNote() + rankOriginal.libraryView(); };
+  // 2.52.0: Items & loadouts has no rank-specific figures, so it carries no rank note.
+  libraryView = function() { return rankOriginal.libraryView(); };
   changesView = function() { return rankEvidenceNote() + rankOriginal.changesView(); };
   dataView = function() { return rankEvidenceNote() + rankOriginal.dataView(); };
 }

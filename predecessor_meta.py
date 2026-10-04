@@ -3358,7 +3358,7 @@ def json_script(value):
 
 def render_html(bundle, config=None):
     app_config=config or {'mode':'export','tool_version':VERSION}
-    pwa_head=('''<link rel="manifest" href="app.webmanifest">\n<link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">\n<link rel="apple-touch-icon" href="assets/app-icon-192.png">\n<link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="assets/fonts/saira-condensed-800.woff2" as="font" type="font/woff2" crossorigin>'''
+    pwa_head=('''<link rel="manifest" href="app.webmanifest">\n<link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">\n<link rel="apple-touch-icon" href="assets/app-icon-192.png">\n<link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="assets/fonts/barlow-700.woff2" as="font" type="font/woff2" crossorigin>\n<link rel="preload" href="assets/fonts/saira-condensed-800.woff2" as="font" type="font/woff2" crossorigin>'''
               if app_config.get('mode')=='static' else '')
     # Visor colours read a local file, so only the loopback app's own pages carry them; every other mode gets nothing.
     # Replaced last: the look's values then cannot collide with a later placeholder, and the template's own

@@ -4153,7 +4153,8 @@ probes.QP8 = async browser => {
     seen.desk = await page.evaluate(async () => {
       const out = {};
       for (const r of ['builds', 'guidance', 'changes', 'more']) { changeRoute(r); await new Promise(x => setTimeout(x, 200));
-        const current = document.querySelector('#main .destination-sections [aria-current="true"]')?.textContent.trim();
+        // The page's own item (aria-current="page") names it; a group item (aria-current="true") only contains it.
+        const current = (document.querySelector('#main .destination-sections [aria-current="page"]') || document.querySelector('#main .destination-sections [aria-current]'))?.textContent.trim();
         out[r] = {h1: document.querySelector('#main h1')?.textContent.trim(), nav: current}; }
       return out;
     });
@@ -4366,7 +4367,10 @@ probes.QT6 = async browser => {
     for (const r of ['meta', 'hero', 'data']) { if (r === 'hero') openHero('gideon', 'midlane'); else changeRoute(r); await new Promise(x => setTimeout(x, 400));
       for (const e of document.querySelectorAll('#main *, .sidebar *, .topbar *')) { if (!e.offsetParent || ![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
         const s = getComputedStyle(e), fam = s.fontFamily.split(',')[0].replace(/"/g, '').trim(), w = Number(s.fontWeight);
-        const ok = fam === 'Barlow' ? [400, 600, 700].includes(w) && s.fontStyle === 'normal' : fam === 'Saira Condensed' ? [700, 800].includes(w) && s.fontStyle === 'normal' : true;
+        // A weight is real when a shipped face of that family declares it (a single weight or a range); no italic ships.
+        const faces = [...document.fonts].filter(f => f.family.replace(/"/g, '') === fam && f.style === 'normal').map(f => f.weight.split(' ').map(Number));
+        const covered = faces.some(([lo, hi = lo]) => w >= lo && w <= hi);
+        const ok = ['Barlow', 'Saira Condensed'].includes(fam) ? covered && s.fontStyle === 'normal' : true;
         if (!ok) { const k = fam + ' ' + w + (s.fontStyle !== 'normal' ? ' ' + s.fontStyle : ''); bad[k] = (bad[k] || 0) + 1; } } }
     return bad;
   });

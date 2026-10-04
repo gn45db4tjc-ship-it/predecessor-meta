@@ -6,11 +6,15 @@
    the light theme redefines tokens there and never styles a component here.
    Anything clipped to a slant drops its clip while focused, so the focus ring shows.
    ============================================================================ */
-@font-face{font-family:"Barlow";font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/barlow-400.woff2) format("woff2")}
-@font-face{font-family:"Barlow";font-style:normal;font-weight:600;font-display:swap;src:url(assets/fonts/barlow-600.woff2) format("woff2")}
-@font-face{font-family:"Barlow";font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/barlow-700.woff2) format("woff2")}
-@font-face{font-family:"Saira Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/saira-condensed-700.woff2) format("woff2")}
-@font-face{font-family:"Saira Condensed";font-style:normal;font-weight:800;font-display:swap;src:url(assets/fonts/saira-condensed-800.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:100 549;font-display:swap;src:url(assets/fonts/barlow-400.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:550 649;font-display:swap;src:url(assets/fonts/barlow-600.woff2) format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:650 1000;font-display:swap;src:url(assets/fonts/barlow-700.woff2) format("woff2")}
+@font-face{font-family:"Saira Condensed";font-style:normal;font-weight:100 749;font-display:swap;src:url(assets/fonts/saira-condensed-700.woff2) format("woff2")}
+@font-face{font-family:"Saira Condensed";font-style:normal;font-weight:750 1000;font-display:swap;src:url(assets/fonts/saira-condensed-800.woff2) format("woff2")}
+/* 2.52.0 (QT3): metric-matched stand-ins for the condensed face while it loads (or if it never does): Arial Bold on
+   Windows and Apple devices, Roboto Bold on Android, each scaled to Saira's width and line box. */
+@font-face{font-family:"Saira Fallback";src:local("Arial Bold"),local("Arial-BoldMT");font-weight:100 1000;size-adjust:70.2%;ascent-override:161.7%;descent-override:62.5%;line-gap-override:0%}
+@font-face{font-family:"Saira Fallback Roboto";src:local("Roboto Bold"),local("Roboto-Bold");font-weight:100 1000;size-adjust:75.6%;ascent-override:150.1%;descent-override:58.1%;line-gap-override:0%}
 
 /* ---- ground and type ---- */
 body{background:radial-gradient(640px 320px at 0 0,var(--brand-glow),transparent 70%),repeating-linear-gradient(135deg,var(--hatch) 0 1px,transparent 1px 7px),var(--bg)}
@@ -250,3 +254,36 @@ div.hero-header:not(.mobile-hero-head){box-shadow:inset 0 3px var(--brand)}
   .hero-context .hero-sample{grid-column:1/-1}
   .hero-context:not(:has(>button)) .hero-figure{grid-column:1;justify-self:start}
 }
+
+/* ============================================================================
+   QoL pass 2 (2.52.0): type, spacing and states from the 4 Oct audits of 2.51.0. Tokens only.
+   ============================================================================ */
+/* type: shipped faces only (the files cover weight ranges above); figures in Barlow's tabular digits, skewed as before */
+.partner-head .name,.build-head h3,button.text-button.name{font-weight:600}
+em{font-style:normal;font-weight:700}   /* no italic face ships; emphasis is weight */
+.meta-table td>strong,.mobile-stat strong,.hero-context .hero-figure,.hero-header .quick-stats .big,.big{font-family:var(--sans);font-weight:700;font-variant-numeric:tabular-nums}
+/* the last system-monospace labels move to the display face; keys and code keep monospace */
+.brand small,.nav-group,.tag.official,.metric-row>div .tag,th,.table-small th{font-family:var(--display);font-weight:700;letter-spacing:.08em}
+.metric-row strong,.verdict strong,.simple-purchases .simple-position{font-family:var(--sans);font-weight:700;font-variant-numeric:tabular-nums}
+.page-head h1{letter-spacing:.02em}
+/* prose keeps a readable measure on wide screens */
+@media(min-width:701px){.page-head p,.list li,#main details>p,#main .detail-content>p,#main .panel>p{max-width:var(--prose)}}
+/* spacing: paragraphs, back links, card heads, table cells, dialogs, the item dialog's facts */
+p{margin-bottom:var(--s2)}
+.back-link{display:block;margin:0 0 var(--s3)}
+.skill-guide-head{margin-bottom:var(--s2)}
+td>.hero-cell+small{margin-left:var(--s1-5)}
+.table-small td{vertical-align:middle}
+#detail-body dl{margin:0 0 var(--s3)}
+.search-elsewhere{display:grid;gap:var(--s2);justify-items:start;margin-top:var(--s2)}
+.search-elsewhere p{margin:0}
+.annex-retry{margin-top:var(--s2)}
+.startup-note{margin:var(--s5) 0;color:var(--muted)}
+@media(max-width:700px){
+  /* Large text keeps the plate's single column (an older two-column rule broke the name letter by letter) */
+  .large-text .mobile-hero-head--compact{grid-template-columns:minmax(0,1fr);padding:var(--s5) var(--s4) var(--s4);gap:0}
+  .dialog-head{padding:var(--s3) var(--s4)}
+  .toast,#undo-banner{bottom:calc(var(--s6) * 2 + var(--s1) + env(safe-area-inset-bottom,0px));left:var(--s4);right:var(--s4)}
+}
+/* the phone loadout row is three a row up to 430 px, so long single-word names fit their tiles */
+@media(max-width:430px){.simple-build--compact .simple-setup{grid-template-columns:repeat(3,minmax(0,1fr))}}

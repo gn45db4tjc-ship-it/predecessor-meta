@@ -36,7 +36,7 @@ class SelfHostedFonts(unittest.TestCase):
             self.assertRegex(source, r"ui_font\(path\)", name)
             self.assertIn("'font/woff2'", source, name)
 
-    def test_the_page_carries_the_look_last_and_the_hosted_page_preloads_two_faces(self):
+    def test_the_page_carries_the_look_last_and_the_hosted_page_preloads_three_faces(self):
         static = app.render_html(None, {'mode': 'static', 'tool_version': app.VERSION})
         local = app.render_html(None, {'mode': 'local', 'token': 't', 'revision': 0, 'tool_version': app.VERSION})
         for page in (static, local):
@@ -44,7 +44,9 @@ class SelfHostedFonts(unittest.TestCase):
             self.assertIn('@font-face{font-family:"Saira Condensed"', page)
             style = page[page.index('<style>'):page.index('</style>')]
             self.assertTrue(style.rstrip().endswith((ROOT / 'broadcast.css').read_text(encoding='utf-8').rstrip()), 'broadcast.css is the last stylesheet')
-        self.assertEqual(static.count('rel="preload"'), 2)
+        # 2.52.0: the regular and bold text faces and the display face (QT3).
+        self.assertEqual(static.count('rel="preload"'), 3)
+        self.assertIn('barlow-700.woff2" as="font"', static)
         self.assertNotIn('rel="preload"', local)
 
     def test_the_offline_shell_keeps_the_fonts(self):

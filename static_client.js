@@ -55,7 +55,7 @@ if (APP_CONFIG.mode === 'static') {
     if (!banner) {
       banner = document.createElement('section'); banner.id = 'app-update-notice';
       banner.className = 'panel app-update-notice hide'; banner.setAttribute('aria-label', 'App update available');
-      banner.innerHTML = '<p data-app-state role="status" aria-live="polite"></p><button class="primary" data-app-apply>Update app</button>';
+      banner.innerHTML = '<p data-app-state></p><button class="primary" data-app-apply>Update app</button>';
       $('#main').before(banner);
     }
     banner.classList.toggle('hide', !appUpdate.latest);
@@ -217,7 +217,7 @@ if (APP_CONFIG.mode === 'static') {
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
     if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
     if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your match and favourites are saved in this browser.';
-    $('#progress').textContent = latestStatus.message || 'Loading the latest published data…';
+    setText('#progress', latestStatus.message || 'Loading the latest published data…');   // 2.52.0: only when it changes (a live region)
     $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>isMaterialError(e)));
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'No successful publication is available for this bracket yet. Choose another bracket.');
   };
@@ -449,6 +449,7 @@ if (APP_CONFIG.mode === 'static') {
     return 'loading';
   };
   annexProblem = function (kind, key) { return site.annex.failed.get(annexId(kind, key)) || ''; };
+  retryAnnex = function (id) { if (!site.annex?.failed?.has(id)) return; site.annex.failed.delete(id); requestRedraw(true); refreshDialog(new Set([id])); };
   // The state of one evidence file by its id, for announcements; unlike annexState it never starts a download.
   annexPhase = function (id) {
     const part = NAMED_PARTS.includes(id) ? annexPart(id) : annexPart('hero', id.slice(5));
