@@ -158,7 +158,7 @@ function destinationRoute(destination){return {meta:'meta',match:'match',referen
 function destinationIcon(id){const paths={"meta":"<path d=\"M4 19V11h4v8M10 19V5h4v14M16 19V8h4v11\"/>","match":"<path d=\"M8 5h8M8 19h8M5 8v8M19 8v8\"/><rect x=\"2\" y=\"2\" width=\"6\" height=\"6\" rx=\"2\"/><rect x=\"16\" y=\"16\" width=\"6\" height=\"6\" rx=\"2\"/><path d=\"m9 15 6-6m-4 0h4v4\"/>","reference":"<path d=\"M4 4h6l2 2 2-2h6v16h-6l-2 2-2-2H4zM12 6v16\"/>","sources":"<path d=\"m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7zM8 12l3 3 5-6\"/>","more":"<circle cx=\"5\" cy=\"12\" r=\"1.5\"/><circle cx=\"12\" cy=\"12\" r=\"1.5\"/><circle cx=\"19\" cy=\"12\" r=\"1.5\"/>"};return `<svg class="destination-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[id]||paths.more}</svg>`;}
 function destinationNavigation(phone){return destinations.map(([id,label])=>`<button class="nav" data-destination="${id}" data-route="${destinationRoute(id)}" ${companionMedia.matches===phone&&destinationFor(S.route)===id?'aria-current="page"':''}>${destinationIcon(id)}<span>${label}</span></button>`).join('');}
 function destinationSections(){
- const d=destinationFor(S.route),button=(route,label,extra='',group=false)=>`<button data-route="${route}" ${extra} ${S.route===route||group&&['builds','guidance'].includes(S.route)?`aria-current="${group?'true':'page'}"`:''}>${label}</button>`;
+ const d=destinationFor(S.route),button=(route,label,extra='',group=false)=>`<button data-route="${route}" ${extra} ${S.route===route||group&&['builds','guidance'].includes(S.route)?'aria-current="true"':''}>${label}</button>`;
  if(d==='reference')return `<nav class="destination-sections" aria-label="Reference sections">${button('builds','Playbook','',true)}${button('library','Items & loadouts')}${button('changes','Changes')}</nav>${['builds','guidance'].includes(S.route)?`<nav class="destination-sections secondary" aria-label="Playbook sections">${button('builds','Starting builds')}${button('guidance','Reviewed guide')}</nav>`:''}`;
  if(d==='sources')return `<nav class="destination-sections" aria-label="Sources and app settings">${button('data','Sources & accuracy')}${button('more','Settings')}</nav>`;
  return '';
@@ -233,7 +233,7 @@ const HERO_SECTIONS=[['builds','Build'],['pairings','Partners'],['counters','Cou
 function deskFold(){return typeof companionMedia==='undefined'||!companionMedia.matches;}
 function heroEvidenceStatusHTML(slug){const state=annexState('hero',slug),problem=annexProblem('hero',slug),id=esc(annexId('hero',slug));if(state==='loaded')return '';
  return state==='failed'?`<div class="annex-failed" data-annex="${id}">${note('This hero\'s detailed evidence could not be loaded'+(problem?' ('+esc(problem)+')':'')+'.'+annexRetry()+' The sections below say what is missing; nothing is estimated in its place.',true)}${annexRetryButton(annexId('hero',slug))}</div>`:`<div class="note annex-loading" data-annex="${id}">Loading this hero's detailed evidence…</div>`;}
-function heroFold(key,label,preview,inner,open=false){return `<details class="panel hero-fold" data-keep="${esc(key)}"${open?' open':''}><summary><strong>${esc(label)}</strong>${preview?`<small>${esc(preview)}</small>`:''}</summary><div class="detail-content">${inner}</div></details>`;}
+function heroFold(key,label,preview,inner,open=false){return `<details class="panel hero-fold" data-keep="${esc(key)}"${open?' open':''}><summary data-fold="${esc(key)}"><strong>${esc(label)}</strong>${preview?`<small>${esc(preview)}</small>`:''}</summary><div class="detail-content">${inner}</div></details>`;}
 /* S.heroTab is the section being read. A click, a shared link, or code that sets it brings
    that section into view; scrolling keeps it current. sectionSpy.tab is the last value the
    page itself chose, so a redraw that changes nothing never moves the reader. */
@@ -795,7 +795,7 @@ document.addEventListener('click',async event=>{
   else if(d.metaDecision){const [slug,role]=d.metaDecision.split('|');detail(name(slug)+' · '+labels[role]+' tier review',metaDecisionHTML(slug,role));}
   else if(d.calculatedTier){const [slug,role]=d.calculatedTier.split('|');detail(name(slug)+' · '+labels[role]+' calculated tier',calculatedTierHTML(slug,role));}
   else if(d.sort){if(S.sort===d.sort)S.direction*=-1;else{S.sort=d.sort;S.direction=['tier','hero','rank'].includes(d.sort)?1:-1;}render();}
-  else if(d.heroTab){S.heroTab=d.heroTab;jumpToSection(S.heroTab,true);}
+  else if(d.heroTab){S.heroTab=d.heroTab;jumpToSection(S.heroTab);document.querySelector('[data-hero-tab="'+S.heroTab+'"]')?.focus({preventScroll:true});}
   else if(d.pair){showPair(...d.pair.split('|'));}
   else if(d.catalog)showCatalog(d.catalog,d.key);
   else if(d.variant!==undefined){const i=Number(d.variant);if(S.variants.includes(i)){if(S.variants.length>1)S.variants=S.variants.filter(v=>v!==i);}else{S.variants=[...S.variants.slice(-1),i];}render();}

@@ -2919,6 +2919,7 @@ probes.S10 = async browser => {
 
 // Stage 2b: destinations are presentation; legacy screen identities and saved picks survive.
 probes.N1 = async browser => {
+  // 2.52.0 (QP8): on the phone Starting builds is reached from More and shows "← More", so More is its destination.
   const seen=[];
   for(const viewport of [desktop,phone]){
     const {context,page}=await session(browser,viewport);
@@ -2926,7 +2927,7 @@ probes.N1 = async browser => {
       await page.evaluate(route=>{if(route==='hero')openHero('steel','jungle');else changeRoute(route);},route);
       seen.push(await page.evaluate(({route,destination})=>{
         const nav=document.querySelector(innerWidth<=700?'#mobile-navigation':'#navigation');
-        return {route,phone:innerWidth<=700,destination:innerWidth<=700?(route==='match'?'match':['meta','hero','builds'].includes(route)?'meta':'more'):destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
+        return {route,phone:innerWidth<=700,destination:innerWidth<=700?(route==='match'?'match':['meta','hero'].includes(route)?'meta':'more'):destination,labels:[...nav.querySelectorAll('[data-destination]')].map(b=>b.textContent.trim()),current:[...document.querySelectorAll('[aria-current="page"]')].map(b=>b.dataset.destination),headings:document.querySelectorAll('#main h1').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
       },{route,destination}));
     }
     await context.close();
@@ -3715,11 +3716,14 @@ probes.QL9 = async browser => {
 };
 probes.QL10 = async browser => {
   // Before: Changes opened on the Pred.gg history even when that history was unavailable and Statz history existed.
+  // The Pred.gg history is B.scoped_changes, in the history part; it is made unavailable after that part has loaded.
   const {context, page} = await session(browser, desktop);
+  await page.evaluate(() => changeRoute('changes'));
+  await page.waitForFunction(() => annexState('history') === 'loaded', null, {timeout: 30000});
   const seen = await page.evaluate(async () => {
-    const pred = B.scoped_history; B = {...B, scoped_history: undefined}; E = MetaEngine.create(B); S.historySource = undefined;
+    const pred = B.scoped_changes; B = {...B, scoped_changes: {source: 'Pred.gg', status: 'unavailable', reason: 'Probe: no saved collections.'}}; E = MetaEngine.create(B); S.historySource = undefined;
     changeRoute('changes'); await new Promise(r => setTimeout(r, 200));
-    return {hadPred: !!pred, statz: !!B.changes, source: document.querySelector('#history-source')?.value, text: document.querySelector('#main').innerText.match(/Pred\.gg history unavailable[^\n]*/)?.[0] || ''};
+    return {hadPred: !!pred && pred.status !== 'unavailable', statz: !!B.changes, source: document.querySelector('#history-source')?.value, text: document.querySelector('#main').innerText.match(/Pred\.gg history unavailable[^\n]*/)?.[0] || ''};
   });
   await context.close();
   verdict('QL10', seen.statz && (seen.source === 'pred' || !!seen.text), seen);
@@ -4060,15 +4064,15 @@ probes.QP1 = async browser => {
   verdict('QP1', seen.heroRole !== 'hero-role' || (seen.fullMetrics && seen.fullMetrics !== 'full-metrics') || (seen.library && seen.library !== 'library-kind') || seen.favorite !== 'favorite-hero', seen);
 };
 probes.QP2 = async browser => {
-  // Before: a desktop section jump (Kit, Partners, Counters) opened the fold and scrolled, but focus stayed on the jump
-  // strip, so the next Tab went back to the top of Build.
+  // Before: Partners in the desktop Statz table opened the hero scrolled to Partners, but focus went to the top of <main>,
+  // so the next Tab went back to the Build section. (The hero jump row itself keeps focus on the button pressed: S2.)
   const {context, page} = await session(browser, desktopHero);
   await guideLoaded(page);
-  await page.evaluate(() => openHero('gideon', 'midlane')); await page.waitForTimeout(400);
-  await page.locator('[data-hero-tab="kit"]').first().focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(500);
-  const seen = await page.evaluate(() => ({inKit: !!document.activeElement?.closest('#hero-sec-kit'), focus: document.activeElement?.tagName + '.' + (document.activeElement?.className || '')}));
+  await page.evaluate(() => { S.statSource = 'statz'; changeRoute('meta'); render(); }); await page.waitForTimeout(300);
+  await page.locator('#main [data-hero-pairs]').first().focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(500);
+  const seen = await page.evaluate(() => ({route: S.route, tab: S.heroTab, inPairs: !!document.activeElement?.closest('#hero-sec-pairings'), focus: document.activeElement?.tagName + '.' + (document.activeElement?.className || '')}));
   await context.close();
-  verdict('QP2', !seen.inKit, seen);
+  verdict('QP2', seen.route === 'hero' && seen.tab === 'pairings' && !seen.inPairs, seen);
 };
 probes.QP3 = async browser => {
   // Before: Changes chose its default history by a field that does not exist (scoped_history), so it always opened on
@@ -4153,8 +4157,8 @@ probes.QP8 = async browser => {
     seen.desk = await page.evaluate(async () => {
       const out = {};
       for (const r of ['builds', 'guidance', 'changes', 'more']) { changeRoute(r); await new Promise(x => setTimeout(x, 200));
-        // The page's own item (aria-current="page") names it; a group item (aria-current="true") only contains it.
-        const current = (document.querySelector('#main .destination-sections [aria-current="page"]') || document.querySelector('#main .destination-sections [aria-current]'))?.textContent.trim();
+        // The last current item names the page: Playbook is current as the group around Starting builds and Reviewed guide.
+        const current = [...document.querySelectorAll('#main .destination-sections [aria-current]')].pop()?.textContent.trim();
         out[r] = {h1: document.querySelector('#main h1')?.textContent.trim(), nav: current}; }
       return out;
     });
@@ -4200,13 +4204,13 @@ probes.QP11 = async browser => {
 };
 probes.QS1 = async browser => {
   // Before: with Large text on, the phone hero plate kept an old two-column grid: a 40 px name column ("GID/EO/N"),
-  // a vertical Use in Match bar and a 514 px plate.
+  // a vertical Use in Match bar and a 514 px plate, and an older rule shrank the name to 30 px (44 px without Large text).
   const {context, page} = await quickPhoneReady(browser, {width: 390, height: 844});
   const seen = await page.evaluate(async () => { companionPrefs.large = true; saveCompanionPrefs(); companionChrome(); openHero('gideon', 'midlane'); await new Promise(x => setTimeout(x, 300));
     const plate = document.querySelector('#main .hero-header'), h1 = plate.querySelector('h1'), cta = plate.querySelector('.hero-use-match');
-    return {plate: Math.round(plate.getBoundingClientRect().height), name: Math.round(h1.getBoundingClientRect().width), cta: Math.round(cta.getBoundingClientRect().width)}; });
+    return {plate: Math.round(plate.getBoundingClientRect().height), name: Math.round(h1.getBoundingClientRect().width), size: parseFloat(getComputedStyle(h1).fontSize), cta: Math.round(cta.getBoundingClientRect().width)}; });
   await context.close();
-  verdict('QS1', seen.plate > 320 || seen.name < 120 || seen.cta < 200, seen);
+  verdict('QS1', seen.plate > 320 || seen.name < 120 || seen.size < 40 || seen.cta < 200, seen);
 };
 probes.QS2 = async browser => {
   // Before: paragraphs kept the browser's 1em bottom margin (14-26 px gaps), off the spacing scale.

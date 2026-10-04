@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.51.0
+# Predecessor Meta - 2.52.0
 
-2.51.0 builds Broadcast Overdrive, the owner's pick of five stylized Figma directions (4 October 2026): the Broadcast look pushed further, with a hot pink second accent for state, light streaks over the hero art, the desktop patch strip as a ticker whose tag is the data's real state (Current, Aging, Stale, Saved, Paused), a gauge under the hero win rate, a phone stat strip with the figure large, and horizontal loadout tiles. It ships with 2.50.0, the QoL pass below. No evidence, figure or rule changes. See [RELEASE-2.51.0.md](RELEASE-2.51.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.52.0 is a second quality-of-life pass, from four audits of 2.51.0 on 4 October 2026 (type, spacing, interaction and speed). Focus stays on the control you changed, a section jump takes you into the section, Changes opens on the Pred.gg history that exists, a failed evidence file has Try again, and searches offer other-role matches and Clear search. Large text now grows all phone text, prose keeps a readable line length, figures line up in tabular digits, every font weight is a real face, and the headings have a size-matched stand-in while they load. Return visits draw sooner, the desktop hero and hero tabs respond faster, and the phone first screen no longer jumps. No evidence, figure or rule changes. See [RELEASE-2.52.0.md](RELEASE-2.52.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.51.0
+
+2.51.0 builds Broadcast Overdrive, the owner's pick of five stylized Figma directions (4 October 2026): the Broadcast look pushed further, with a hot pink second accent for state, light streaks over the hero art, the desktop patch strip as a ticker whose tag is the data's real state (Current, Aging, Stale, Saved, Paused), a gauge under the hero win rate, a phone stat strip with the figure large, and horizontal loadout tiles. It ships with 2.50.0, the QoL pass below. No evidence, figure or rule changes. See [RELEASE-2.51.0.md](RELEASE-2.51.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.50.0
 

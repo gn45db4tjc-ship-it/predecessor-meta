@@ -267,7 +267,7 @@ em{font-style:normal;font-weight:700}   /* no italic face ships; emphasis is wei
 .metric-row strong,.verdict strong,.simple-purchases .simple-position{font-family:var(--sans);font-weight:700;font-variant-numeric:tabular-nums}
 .page-head h1{letter-spacing:.02em}
 /* prose keeps a readable measure on wide screens */
-@media(min-width:701px){.page-head p,.list li,#main details>p,#main .detail-content>p,#main .panel>p{max-width:var(--prose)}}
+@media(min-width:701px){.list li,#main details>p,#main .detail-content>p,#main .panel>p{max-width:var(--prose)}.page-head p{max-width:var(--prose-intro)}}   /* intros are short: two lines, under 90 characters a line */
 /* spacing: paragraphs, back links, card heads, table cells, dialogs, the item dialog's facts */
 p{margin-bottom:var(--s2)}
 .back-link{display:block;margin:0 0 var(--s3)}
@@ -278,10 +278,13 @@ td>.hero-cell+small{margin-left:var(--s1-5)}
 .search-elsewhere{display:grid;gap:var(--s2);justify-items:start;margin-top:var(--s2)}
 .search-elsewhere p{margin:0}
 .annex-retry{margin-top:var(--s2)}
+/* a scrolling table contains its screen-reader labels, so they never widen the page */
+.table-panel,.table-scroll{position:relative}
 .startup-note{margin:var(--s5) 0;color:var(--muted)}
 @media(max-width:700px){
   /* Large text keeps the plate's single column (an older two-column rule broke the name letter by letter) */
   .large-text .mobile-hero-head--compact{grid-template-columns:minmax(0,1fr);padding:var(--s5) var(--s4) var(--s4);gap:0}
+  .large-text .mobile-hero-head--compact h1{font-size:min(var(--t-5xl),22cqi)}   /* the name keeps its normal size; the older rule shrank it for a 56 px column */
   .dialog-head{padding:var(--s3) var(--s4)}
   .toast,#undo-banner{bottom:calc(var(--s6) * 2 + var(--s1) + env(safe-area-inset-bottom,0px));left:var(--s4);right:var(--s4)}
 }
