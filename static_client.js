@@ -368,6 +368,13 @@ if (APP_CONFIG.mode === 'static') {
     if (hash !== part.sha256) throw Error(mismatch);
     return {bytes, value: MetaProjection.decode(JSON.parse(new TextDecoder().decode(bytes)))};
   }
+  function portraitsFirst() {
+    if (!companionMedia.matches || S.route !== 'meta') return Promise.resolve();
+    const pending = [...document.querySelectorAll('#main img')].filter(img => !img.complete && img.getBoundingClientRect().top < innerHeight);
+    if (!pending.length) return Promise.resolve();
+    const loaded = Promise.all(pending.map(img => new Promise(done => { img.addEventListener('load', done, {once: true}); img.addEventListener('error', done, {once: true}); })));
+    return Promise.race([loaded, new Promise(done => setTimeout(done, 1500))]);
+  }
   function loadAnnex(kind, key) {
     const part = annexPart(kind, key), id = annexId(kind, key);
     if (!part || site.annex.loaded.has(id)) return Promise.resolve('loaded');
@@ -534,7 +541,10 @@ if (APP_CONFIG.mode === 'static') {
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
       // The guide follows the first screen at once; the check stays busy until it arrives, so 'up to date' also means
       // every screen can open (capped by the same ten seconds).
-      const guide = annexPart('guide') ? loadAnnex('guide') : null;
+      // 2.52.0 (speed): on the phone's Meta screen the visible portraits load first (at most 1.5 s); on a slow
+      // connection the guide used to fill the link and hold them back for seconds. Any screen that needs the guide
+      // sooner asks for it itself (guideGate).
+      const guide = annexPart('guide') ? portraitsFirst().then(() => loadAnnex('guide')) : null;
       await Promise.race([Promise.all([commitPublication(manifest, requested, entry, verified), guide]), new Promise(resolve => setTimeout(resolve, 10000))]);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       latestStatus.busy = false;

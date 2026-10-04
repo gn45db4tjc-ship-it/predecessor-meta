@@ -84,7 +84,8 @@ function compactKitHTML(h){
 }
 function teamAlternatesHTML(p){
  const choice=buildSelection(p);if(choice.status==='invalid')return '';
- let r;try{r=E.teamAlternates(p,{variant:choice.index});}catch(e){return '';}
+ const memo=teamAlternatesHTML.cache&&teamAlternatesHTML.cache.E===E?teamAlternatesHTML.cache:(teamAlternatesHTML.cache={E,results:new Map()}),key=p.slug+'|'+p.role+'|'+choice.index;
+ let r;if(memo.results.has(key))r=memo.results.get(key);else{try{r=E.teamAlternates(p,{variant:choice.index});}catch(e){r=null;}memo.results.set(key,r);}if(!r)return '';
  const head=`<div class="skill-guide-head"><h2>Adapt to the enemy team</h2>${badge('Calculated · item rules','calculated')}</div>`;
  if(!r.available)return `<section class="team-alternates panel" data-team-alternates="${esc(p.slug+'|'+p.role)}">${head}<p class="simple-source">${esc(r.reason)}</p></section>`;
  // 2.37.0: one line per swap; answers already in the build and types with no fitting swap fold into one line each.

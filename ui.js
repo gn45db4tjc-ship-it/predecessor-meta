@@ -1,6 +1,6 @@
 'use strict';
 let B=INITIAL_BUNDLE,E=MetaEngine.create(B),local=APP_CONFIG.mode==='local',shared=APP_CONFIG.mode==='shared',revision=APP_CONFIG.revision||0,latestStatus={},draftRepaired=false,draftNotice=null,comparison=null,stopped=false,connectionLost=false;
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),num=(v,d=1)=>MetaEngine.finite(v)?v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}):'—',pct=v=>MetaEngine.finite(v)?num(v)+'%':'—',pp=v=>MetaEngine.finite(v)?(v>0?'+':'')+num(v,2)+' pp':'Unavailable',games=v=>MetaEngine.finite(v)?num(v,0)+(v===1?' game':' games'):'Sample unavailable',date=v=>v?new Date(v).toLocaleString():'Not checked',safe=u=>/^https:\/\//.test(u||'')?u:'#';
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),numFormat={},num=(v,d=1)=>MetaEngine.finite(v)?(numFormat[d]||(numFormat[d]=new Intl.NumberFormat(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}))).format(v):'—',pct=v=>MetaEngine.finite(v)?num(v)+'%':'—',pp=v=>MetaEngine.finite(v)?(v>0?'+':'')+num(v,2)+' pp':'Unavailable',games=v=>MetaEngine.finite(v)?num(v,0)+(v===1?' game':' games'):'Sample unavailable',date=v=>v?new Date(v).toLocaleString():'Not checked',safe=u=>/^https:\/\//.test(u||'')?u:'#';
 const labels={jungle:'Jungle',offlane:'Offlane',midlane:'Midlane',carry:'Carry',support:'Support'},roleOrder=['jungle','offlane','midlane','carry','support'],navs=[['meta','Meta'],['builds','Builds'],['match','Match'],['library','Items & loadouts'],['guidance','Reviewed guide'],['changes','Changes'],['data','Sources & accuracy']],navGroups=[['Plan',['meta','builds','match']],['Reference',['library','guidance','changes','data']]];
 let saved={};try{saved=local?APP_CONFIG.saved||{}:JSON.parse(localStorage.getItem('predecessor-planner-v2')||'{}');}catch{}
 let S={route:'meta',role:'jungle',query:'',sort:'tier',direction:1,full:false,hero:null,heroRole:'jungle',heroTab:'pairings',partnerRole:'',explore:false,pairMetric:'kit',variants:[0,1],size:3,locks:[],enemies:[],bans:[],candidateRole:'jungle',sortComp:'kit',compRole:'auto',draftSort:'kit',includeUnsampled:false,me:'',liveVariant:null,liveContexts:{},...saved};
@@ -367,7 +367,10 @@ function heroView(){
  }
  return html+`<div class="footer">${esc(sentence(B.pairs_meta?.note))} ${esc(sentence(B.pool_note))} Kit explanations use rules and named ability evidence; they are not observed team-performance claims.</div>`;
 }
-function catalogKey(kind,value){if(B[kind]?.[value])return value;return Object.keys(B[kind]||{}).find(k=>normalizeName(B[kind][k].display_name||B[kind][k].name)===normalizeName(value));}
+const catalogIndex=new WeakMap();
+function catalogKey(kind,value){const all=B[kind];if(!all)return undefined;if(all[value])return value;
+ let index=catalogIndex.get(all);if(!index){index=new Map();for(const k of Object.keys(all)){const n=normalizeName(all[k].display_name||all[k].name);if(!index.has(n))index.set(n,k);}catalogIndex.set(all,index);}
+ return index.get(normalizeName(value));}
 function definitionIssue(kind,key,value=key){return (B.definition_issues||[]).find(i=>i.kind===(kind==='perks'?'perk':'item')&&(i.key===key&&key!=null||normalizeName(i.name)===normalizeName(value)));}
 function normalizeName(value){return String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function reviewedDefinition(value){return Object.values(B.reviewed_definitions||{}).find(d=>normalizeName(d.key)===normalizeName(value)||normalizeName(d.name)===normalizeName(value));}

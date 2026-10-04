@@ -4386,6 +4386,45 @@ probes.QT7 = async browser => {
   verdict('QT7', !!seen && seen.transform === 'uppercase' && parseFloat(seen.ls) < 0, seen);
 };
 
+probes.QF1 = async browser => {
+  // Speed guard (2.52.0): team alternates are calculated once per engine, hero, role and playstyle. Before, every return
+  // to the Build tab ran E.teamAlternates again (35-71 ms each on a slowed phone). The hero file replaces the engine when
+  // it arrives, so counting starts after it has loaded.
+  const {context, page} = await quickPhoneReady(browser);
+  await page.evaluate(() => { openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); });
+  await page.waitForFunction(() => annexState('hero', 'steel') === 'loaded', null, {timeout: 15000});
+  await page.waitForTimeout(300);
+  const seen = await page.evaluate(async () => {
+    const engine = E, original = engine.teamAlternates; let calls = 0;
+    const counted = (...a) => { calls++; return original(...a); }; engine.teamAlternates = counted;
+    for (const tab of ['pairings', 'builds', 'kit', 'builds', 'counters', 'builds']) {
+      const button = document.querySelector('[data-simple-section="' + tab + '"]'); if (!button) continue;
+      button.click(); await new Promise(r => setTimeout(r, 150));
+    }
+    return {calls, sameEngine: E === engine && E.teamAlternates === counted};
+  });
+  await context.close();
+  verdict('QF1', seen.sameEngine && seen.calls >= 2, seen);
+};
+probes.QF2 = async browser => {
+  // Speed guard (2.52.0): on the phone the status line takes no layout space. Before, it stood 29 px tall while the page
+  // loaded and collapsed once the phone screen drew, pushing everything under it (a 0.032 layout shift on every load).
+  const context = await browser.newContext({serviceWorkers: 'block', ...phone});
+  await context.addInitScript(() => {
+    window.__progress = [];
+    const look = () => { const el = document.querySelector('#progress'); if (el) window.__progress.push({height: Math.round(el.getBoundingClientRect().height), position: getComputedStyle(el).position}); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', look); else look();
+  });
+  const page = await context.newPage();
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+  await guideLoaded(page);
+  await page.waitForTimeout(300);
+  const seen = await page.evaluate(() => { const el = document.querySelector('#progress'); return {loading: window.__progress, settled: Math.round(el.getBoundingClientRect().height)}; });
+  await context.close();
+  verdict('QF2', seen.loading.some(l => l.height > 1 && l.height !== seen.settled && !['absolute', 'fixed'].includes(l.position)), seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
