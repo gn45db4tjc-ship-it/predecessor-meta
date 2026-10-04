@@ -42949,7 +42949,7 @@
           "role": "offlane",
           "tier": "C",
           "why": "Ambush and Unleash give short trades once Lane Lurker builds Rage from minions; Cull converts a caught target and Invigorate extends contact.",
-          "watch": "The large jungle result does not transfer, and the 1.17 offlane sample is small. Anti-heal and disengage can deny his sustain, especially beyond allied range.",
+          "watch": "The large jungle result does not transfer. His 1.17 offlane results have risen to about even, but nothing in 1.17 changed his kit and the interval still includes his weaker 1.16.4 result, so the grade stays until a kit reason agrees. Anti-heal and disengage can deny his sustain, especially beyond allied range.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42957,12 +42957,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 47.12793733681462,
-            "wonGames": 361,
-            "matches": 766,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-14T17:20:04-05:00"
-          }
+            "winRate": 50.168350168350166,
+            "wonGames": 298,
+            "matches": 594,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-10-04T08:36:40-05:00"
+          },
+          "rechecked_at": "2026-10-04T13:25:00-05:00"
         },
         {
           "slug": "kira",
@@ -43390,7 +43391,7 @@
           "role": "offlane",
           "tier": "A",
           "why": "Minueta and First Intent support repeated ability pressure; Swan Song can convert a reachable target while the team follows.",
-          "watch": "Strong current offlane results support a serious alternative, but energy, exit execution and the unresolved Ashen Vow base field make this a more demanding default than Greystone.",
+          "watch": "Her early 1.17 offlane high has settled back near her 1.16.4 level, still above even over a large sample, which supports a serious alternative. Energy, exit execution and the unresolved Ashen Vow base field make this a more demanding default than Greystone.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -43398,12 +43399,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 54.69613259668508,
-            "wonGames": 198,
-            "matches": 362,
-            "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-09-23T21:27:51-05:00"
-          }
+            "winRate": 51.58869151863898,
+            "wonGames": 2062,
+            "matches": 3997,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+            "fetched_at": "2026-10-04T08:36:40-05:00"
+          },
+          "rechecked_at": "2026-10-04T13:25:00-05:00"
         },
         {
           "slug": "serath",
@@ -58838,6 +58840,19 @@
             "evidence": "1059582dcae451"
           }
         ]
+      },
+      {
+        "kind": "weekly",
+        "week": "2026-W40",
+        "reviewed_at": "2026-10-04T13:25:00-05:00",
+        "items": [
+          "grade-moved:khaimera/offlane",
+          "grade-moved:scarlett/offlane",
+          "weekly:2026-W40"
+        ],
+        "scope": "Weekly backstop pass for 2026-W40 plus the 2 queued withheld grades, against the live bundles published 2026-10-04T17:42:23+00:00 (tool 2.49.0; collection of 4 Oct 08:36-08:58 CDT, with Pred.gg 1.17 + Hotfix 1.17.1 data on all six ranks). Every withheld Gold+ grade (2) and every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. Not a full review.",
+        "ledger": "docs/rechecks/2026-10-04-1315-ledger.json",
+        "result": "0 changed, 2 checked and retained, 7 unresolved"
       }
     ]
   },
