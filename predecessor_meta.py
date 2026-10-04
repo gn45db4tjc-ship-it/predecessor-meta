@@ -4153,13 +4153,16 @@ def validate_guidance_packet(packet,bundle):
     log=packet['guidance'].get('recheck_log',[])
     if not isinstance(log,list):raise ValueError('The recheck log must be a list')
     for row in log:
-        if not isinstance(row,dict) or set(row)-{'kind','week','reviewed_at','items','scope','ledger','result'}:raise ValueError('Unknown recheck log fields')
+        if not isinstance(row,dict) or set(row)-{'kind','week','reviewed_at','items','scope','ledger','result','held'}:raise ValueError('Unknown recheck log fields')
         if row.get('kind') not in ('weekly','triggered'):raise ValueError('A recheck pass is weekly or triggered')
         history_time(row.get('reviewed_at'))
         if row['kind']=='weekly' and not re.fullmatch(r'\d{4}-W\d{2}',str(row.get('week',''))):raise ValueError('A weekly recheck pass names its ISO week')
         if not isinstance(row.get('items'),list) or not row['items'] or any(not isinstance(i,str) or not i for i in row['items']):raise ValueError('A recheck pass lists the queue items it handled')
         if not isinstance(row.get('scope'),str) or not row['scope'].strip():raise ValueError('A recheck pass states its scope')
         if not re.fullmatch(r'docs/rechecks/[0-9A-Za-z._-]+\.json',str(row.get('ledger',''))):raise ValueError('A recheck pass cites its ledger under docs/rechecks/')
+        # Recheck hold (3 Oct 2026): a pass may hold official mechanics notices it left unresolved; the queue skips them until their evidence changes.
+        held=row.get('held',[])
+        if not isinstance(held,list) or any(not isinstance(h,dict) or set(h)!={'id','evidence'} or not str(h['id']).startswith('mechanics-conflict:') or h['id'] not in row['items'] or not re.fullmatch(r'[0-9a-f]{14}',str(h['evidence'])) for h in held):raise ValueError('A held notice names a mechanics-conflict item of this pass and its queue evidence')
     if maintenance is not None:
         history_time(maintenance.get('reviewed_at'))
         # A one-time review may leave the next review unscheduled; a stated date must still be valid.

@@ -51,6 +51,26 @@ test('a live patch the guidance was not reviewed for is queued', () => {
   assert.match(items[0].reason, /1\.16\.4/);
 });
 
+// Recheck hold (3 Oct 2026). Probe first: on main 9e60642 a notice already logged unresolved was queued again every run
+// (passes 04:07 and 10:05 repeated 01:08 word for word), so each run opened another identical 'unresolved' PR.
+test('a notice a logged pass held unresolved stays out of the queue until its evidence changes', () => {
+  const only = () => bundle({moved: false, mechanics: false, newHero: false});
+  const [item] = Meta.create(only()).recheckQueue();
+  assert.equal(item.id, 'mechanics-conflict:official-definition-review');
+  assert.match(item.evidence, /^[0-9a-f]{14}$/);
+  const hold = (b, evidence) => { b.guidance.recheck_log = [{kind: 'triggered', reviewed_at: '2026-10-03T10:05:00-05:00', items: [item.id],
+    scope: 'Official definition review.', ledger: 'docs/rechecks/2026-10-03-1005-ledger.json', result: '0 changed, 0 checked and retained, 1 unresolved',
+    held: [{id: item.id, evidence}]}]; return b; };
+  assert.deepEqual(Meta.create(hold(only(), item.evidence)).recheckQueue(), [], 'held with the same evidence: not queued');
+  assert.deepEqual(Meta.create(hold(only(), '0'.repeat(14))).recheckQueue().map(i => i.id), [item.id], 'held against other evidence: queued');
+  const reworded = hold(only(), item.evidence); reworded.errors[0].detail = 'Partly verified descriptions: Frost Snap, Mending.';
+  assert.deepEqual(Meta.create(reworded).recheckQueue().map(i => i.id), [item.id], 'the notice changed: queued again');
+  const newNotes = hold(only(), item.evidence); newNotes.official.live.fingerprint = 'e'.repeat(64);
+  assert.deepEqual(Meta.create(newNotes).recheckQueue().map(i => i.id), [item.id], 'new official notes: queued again');
+  const logged = hold(only(), item.evidence); delete logged.guidance.recheck_log[0].held;
+  assert.deepEqual(Meta.create(logged).recheckQueue().map(i => i.id), [item.id], 'a pass that did not hold it does not clear it');
+});
+
 // ---- review_queue.cjs publishes the queue with first-queued dates kept in state ----
 function site(root, b) {
   const raw = Buffer.from(JSON.stringify(b)), digest = crypto.createHash('sha256').update(raw).digest('hex'), folder = path.join(root, 'site');
