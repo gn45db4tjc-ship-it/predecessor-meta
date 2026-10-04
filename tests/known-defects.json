@@ -19,7 +19,14 @@
     "QS4",
     "QS5",
     "QS6",
-    "QS7"
+    "QS7",
+    "QT1",
+    "QT2",
+    "QT3",
+    "QT4",
+    "QT5",
+    "QT6",
+    "QT7"
   ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
@@ -265,7 +272,14 @@
     "QS4": "2.52.0 DESKTOP: the Changes table runs the hero name into its role",
     "QS5": "2.52.0 PHONE: a section head inside a card sits 0 px on its content",
     "QS6": "2.52.0 PHONE: the toast floats 71 px above the nav with 8 px sides",
-    "QS7": "2.52.0 PHONE: dialogs leave 10 px side margins and the title starts 4 px left of the body"
+    "QS7": "2.52.0 PHONE: dialogs leave 10 px side margins and the title starts 4 px left of the body",
+    "QT1": "2.52.0 DESKTOP: prose blocks run past 90 characters a line (page intros, source notes, lists)",
+    "QT2": "2.52.0 PHONE: Large text leaves most text on Changes and Items at its old size (pixel type tokens)",
+    "QT3": "2.52.0: the display face has no metric-matched fallback and the bold text face is not preloaded",
+    "QT4": "2.52.0: table headers, metric chips and figures still use the system monospace font",
+    "QT5": "2.52.0: win-rate figures use a face without tabular figures, so decimal points wander about 4 px down the Meta list",
+    "QT6": "2.52.0: text asks for weights the shipped faces lack (Barlow 500/650/900, Saira 500/600), which the browser substitutes",
+    "QT7": "2.52.0 PHONE: page titles in capitals carry negative letter-spacing"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

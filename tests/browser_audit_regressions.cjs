@@ -4270,6 +4270,118 @@ probes.QS7 = async browser => {
   verdict('QS7', seen.margin < 16 || Math.abs(seen.offset || 0) > 1, seen);
 };
 
+probes.QT1 = async browser => {
+  // Before: desktop prose ran ~100 characters a line (--prose:76ch, where 1ch is Barlow's wide "0"), and page intros
+  // (max-width 96ch) and list items had no useful limit. Measured on blocks that wrap, as characters per full line.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    const out = [];
+    for (const r of ['guidance', 'data', 'builds']) { changeRoute(r); await new Promise(x => setTimeout(x, 400));
+      document.querySelectorAll('#main details').forEach(d => { d.open = true; }); await new Promise(x => setTimeout(x, 100));
+      for (const p of document.querySelectorAll('#main .page-head p, #main .detail-content > p, #main details > p, #main .list li, #main .panel > p')) {
+        if (!p.offsetParent) continue;
+        const cs = getComputedStyle(p), fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) || fs * 1.4;
+        if (p.getBoundingClientRect().height < lh * 1.8) continue;   // wraps, so it fills its measure
+        const range = document.createRange(); range.selectNodeContents(p);
+        const lines = [...range.getClientRects()].filter(r => r.width > 0), width = Math.max(...lines.map(r => r.width));
+        out.push({r, chars: Math.round(p.textContent.trim().length / Math.max(1, Math.round(p.getBoundingClientRect().height / lh))), width: Math.round(width / fs * 10) / 10});
+      } }
+    const widest = out.map(o => o.chars).sort((a, b) => b - a);
+    return {blocks: out.length, over90: out.filter(o => o.chars > 90).length, max: widest[0], median: widest[Math.floor(widest.length / 2)]};
+  });
+  await context.close();
+  verdict('QT1', seen.over90 > 0, seen);
+};
+probes.QT2 = async browser => {
+  // Before: Large text left nearly half the phone's text at its old size (13 px tables, 12 px chips, summaries) because
+  // those screens used the fixed pixel type tokens.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    const sizes = () => [...document.querySelectorAll('#main *')].filter(e => e.offsetParent && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())).map(e => parseFloat(getComputedStyle(e).fontSize));
+    const out = {};
+    for (const r of ['changes', 'library']) {
+      companionPrefs.large = false; saveCompanionPrefs(); companionChrome(); changeRoute(r); await new Promise(x => setTimeout(x, 400)); const a = sizes();
+      companionPrefs.large = true; saveCompanionPrefs(); companionChrome(); render(); await new Promise(x => setTimeout(x, 400)); const b = sizes();
+      const n = Math.min(a.length, b.length); let same = 0; for (let i = 0; i < n; i++) if (b[i] <= a[i]) same++;
+      out[r] = {elements: n, unchanged: Math.round(100 * same / Math.max(1, n))};
+    }
+    companionPrefs.large = false; saveCompanionPrefs();
+    return out;
+  });
+  await context.close();
+  verdict('QT2', Object.values(seen).some(v => v.unchanged > 10), seen);
+};
+probes.QT3 = async browser => {
+  // Before: the condensed display face had no metric-matched fallback (Arial is 43% wider), so a late font shifted whole
+  // screens; and the bold text faces were not preloaded.
+  const {context, page} = await session(browser, desktop);
+  const raw = await (await page.request.get(url)).text();
+  const seen = await page.evaluate(() => {
+    const faces = [...document.fonts].map(f => f.family.replace(/"/g, ''));
+    return {display: getComputedStyle(document.documentElement).getPropertyValue('--display'), fallbackFace: faces.some(f => /fallback/i.test(f))};
+  });
+  await context.close();
+  const preloads = [...raw.matchAll(/<link[^>]+rel="preload"[^>]+href="([^"]+\.woff2)"/g)].map(m => m[1].split('/').pop());
+  verdict('QT3', !seen.fallbackFace || !/fallback/i.test(seen.display) || !preloads.some(p => /barlow-700/.test(p)), {...seen, preloads});
+};
+probes.QT4 = async browser => {
+  // Before: ~800 desktop labels (table headers, metric chips and figures) still used the system monospace font, the only
+  // text face not shipped with the site.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    const mono = [];
+    for (const r of ['hero', 'data', 'changes']) { if (r === 'hero') openHero('gideon', 'midlane'); else changeRoute(r); await new Promise(x => setTimeout(x, 400));
+      document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+      for (const e of document.querySelectorAll('body *')) { if (!e.offsetParent || ['KBD', 'PRE', 'CODE', 'SCRIPT', 'STYLE'].includes(e.tagName)) continue;
+        if (![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+        if (/monospace|Cascadia|Consolas|SF Mono/i.test(getComputedStyle(e).fontFamily)) mono.push(r + ':' + e.tagName.toLowerCase() + '.' + [...e.classList].join('.')); } }
+    return {count: mono.length, sample: [...new Set(mono)].slice(0, 6)};
+  });
+  await context.close();
+  verdict('QT4', seen.count > 0, seen);
+};
+probes.QT5 = async browser => {
+  // Before: win-rate figures used the condensed display face, which has no tabular figures, so decimal points wandered
+  // ~4 px down the Meta list.
+  const seen = {};
+  for (const [label, dev, sel] of [['desk', desktop, '.meta-table tbody td > strong'], ['phone', null, '#mobile-all-list .mobile-stat strong']]) {
+    const s = dev ? await session(browser, dev) : await quickPhoneReady(browser);
+    seen[label] = await s.page.evaluate(async sel => { S.role = 'jungle'; changeRoute('meta'); await new Promise(x => setTimeout(x, 300));
+      const xs = [...document.querySelectorAll(sel)].slice(0, 20).map(el => { const t = el.firstChild; if (!t || t.nodeType !== 3) return null; const i = t.textContent.indexOf('.'); if (i < 0) return null;
+        const range = document.createRange(); range.setStart(t, i); range.setEnd(t, i + 1); return range.getBoundingClientRect().left; }).filter(v => v != null);
+      return {rows: xs.length, spread: xs.length ? Math.round((Math.max(...xs) - Math.min(...xs)) * 10) / 10 : null}; }, sel);
+    await s.context.close();
+  }
+  verdict('QT5', Object.values(seen).some(v => v.spread > 1.5), seen);
+};
+probes.QT6 = async browser => {
+  // Before: text asked for weights the shipped faces don't have (Barlow 500/650/750/800/900, Saira 400-650) and a fake
+  // italic, so the browser substituted or synthesised them.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    const bad = {};
+    for (const r of ['meta', 'hero', 'data']) { if (r === 'hero') openHero('gideon', 'midlane'); else changeRoute(r); await new Promise(x => setTimeout(x, 400));
+      for (const e of document.querySelectorAll('#main *, .sidebar *, .topbar *')) { if (!e.offsetParent || ![...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+        const s = getComputedStyle(e), fam = s.fontFamily.split(',')[0].replace(/"/g, '').trim(), w = Number(s.fontWeight);
+        const ok = fam === 'Barlow' ? [400, 600, 700].includes(w) && s.fontStyle === 'normal' : fam === 'Saira Condensed' ? [700, 800].includes(w) && s.fontStyle === 'normal' : true;
+        if (!ok) { const k = fam + ' ' + w + (s.fontStyle !== 'normal' ? ' ' + s.fontStyle : ''); bad[k] = (bad[k] || 0) + 1; } } }
+    return bad;
+  });
+  await context.close();
+  verdict('QT6', Object.keys(seen).length > 0, seen);
+};
+probes.QT7 = async browser => {
+  // Before: page titles in capitals carried negative tracking (-.8px) from the older look, cramping the condensed face.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => { changeRoute('more'); await new Promise(x => setTimeout(x, 200));
+    const h = document.querySelector('#main .page-head h1'); return h ? {ls: getComputedStyle(h).letterSpacing, transform: getComputedStyle(h).textTransform} : null; });
+  await context.close();
+  verdict('QT7', !!seen && seen.transform === 'uppercase' && parseFloat(seen.ls) < 0, seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
