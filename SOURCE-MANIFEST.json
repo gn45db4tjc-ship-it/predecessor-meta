@@ -94,7 +94,7 @@
     "RELEASE-2.49.0.md": "6e9c9b062c96c99d74426ab965d55a44317b2e0a8a805431916fb98de51c38cf",
     "RELEASE-2.50.0.md": "6f3edefb94eb6da8a358d44c655f5eacd172a665efee14865bf231730bad62f5",
     "RELEASE-2.51.0.md": "16539b18dc6984a6211fbe4b3af1f607860f1046233fcfb9ca61b7db7b70659f",
-    "RELEASE-2.52.0.md": "f0dcdae36649f20878fca83e392310168c621aebc9402004e3da3fcac3ee8687",
+    "RELEASE-2.52.0.md": "d79d5e7dda242b4d26ab4a32a04cecf367372acb2a6e6d1c068c0f6b86a67dd5",
     "RELEASE-VERIFICATION.md": "ea083e4c3832947cdb36a891131859d5bd3c2c4dc036529bc99c061858a6a799",
     "STRATEGY-REVIEW-2026-09-14.json": "b5e744c3f1ac70d748d49b597b790540fa11b88a5738260b1f353016b8d08e93",
     "STRATEGY-REVIEW-POLICY.md": "ce8c64258e968d7250b23cfc20a602350a2d9d876b67cd64a9b7cce823e5e8dc",
@@ -114,7 +114,7 @@
     "companion_simple.css": "c1f9da569ec40ac9e557e8a206239dbeab46ec9bd9d35ca40d1b2ac946eee482",
     "companion_simple.js": "9a04bec0e42f8ca7d21f8654d5cc20cea9a2beeee7ee3a1041e6608a98283948",
     "companion_state.js": "279b72ecb54771c60f3f8a14e2b7279984842ce3840d3b761584cdf42d102949",
-    "docs/AI-CONTEXT.md": "99634fac3fc3ea5b1a8d04d280bb5a2500f65665de0d4549c211f7bc4b9ea64a",
+    "docs/AI-CONTEXT.md": "9dc214949b08f3d2143a91ed9d6b5a0c2ef1a85c7cb9f108940d732a1711fa8d",
     "docs/BUILD-REVIEW-2.32.md": "ae097c70cc8e68ae5a0c9587a308edb3c21d0821dc33643367e434e9ff001f36",
     "docs/CALCULATED-TIERS.md": "c269eacd688ce882bcec09c11fbb85b24f0657497fd31d222c786a74a102fed8",
     "docs/DESIGN-SYSTEM.md": "22a08bd9524bf2f637619a80de4ea6ea0cc3e7cca563e982656d5d0bf68fc5eb",
@@ -290,10 +290,10 @@
     "tests/test_static_visor_look.py": "f0736a04a2fbd534d1ad7b8cb9bdc25182939f43be35b9e2794ad850e605a57c",
     "tests/test_static_watchdog.py": "b41dc15a904b9c284b067fab361466859e449f4ba9ce73b85283fa4e0b84d8ff",
     "tests/verification_guard.test.cjs": "bf449da15c3725ec7cc52f6cd0811f533f82c9dd3f9a907e3c9d0ce7066f68f2",
-    "tests/visor_look.test.cjs": "7d84225e77ba8a7dbdd2df0d56282bb301d3b8cb4ad04752e24bdde73c235b41",
+    "tests/visor_look.test.cjs": "59dba6843ef53089125317e474084f2c5be9bfa998c607194333713e34ab3b28",
     "ui.html": "a4a89ce7d1af5adfb53b8332c041e1b5146afb3c9cd26cffaa739a6ad8e0a849",
     "ui.js": "b7d15bcb275b8a264d99c006b37738707dcd860f8f63bccbe567dc6f0c36dceb",
-    "visor_look.js": "06c9b32e5601a2ee44eb5450edb0bf30891c46af7c0f5eb7d9dc4c2519845444",
+    "visor_look.js": "9f4bb6bfe9829c12cf4fec21729c4ba18bde6cd9be4d34b9aa206c9efc90f1a9",
     "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90"
   }
 }
