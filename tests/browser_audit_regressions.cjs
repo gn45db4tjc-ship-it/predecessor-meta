@@ -3560,6 +3560,426 @@ probes.ML2 = async browser => {
  await context.close();verdict('ML2',JSON.stringify(names)!==JSON.stringify([...names].sort((a,b)=>a.localeCompare(b)))||rates.some((r,i)=>i&&r>rates[i-1])||restored!=='wr',{names,rates,restored});
 };
 
+/* ===== 2.50.0 QoL audit (4 Oct 2026): text that does not fit or line up, information said more than once, and
+   friction found by a full-site fit sweep and a tap-through on phone and desktop. QL probes run on the committed seed. */
+// Hero, build and Match screens wait for the guide file on the website (2.38.0); probes that open them wait for it too.
+const guideLoaded = page => page.waitForFunction(() => { const route = S.route; S.route = 'hero'; const gate = guideGate(); S.route = route; return gate === ''; }, null, {timeout: 60000});
+const quickPhoneReady = async (browser, viewport) => { const s = await quickPhone(browser, viewport); await guideLoaded(s.page); return s; };
+const settle = (ms = 250) => new Promise(r => setTimeout(r, ms));
+// Withhold every active Gold+ reviewed grade in a role: its observed rate moves 4 points from the reviewed sample (as CT2).
+const WITHHOLD = role => {
+  const entries = B.guidance.meta_review.entries.filter(r => r.role === role && E.metaReview(r.slug, r.role)?.active && E.performance({slug: r.slug, role}, {source: 'pred'})?.played >= 500);
+  const moved = Object.fromEntries(entries.map(r => [r.slug, r.evidence.winRate + 4]));
+  const move = list => list.map(r => r.role === role && moved[r.slug] != null ? {...r, winRate: moved[r.slug], wonGames: Math.round(r.matches * moved[r.slug] / 100)} : r);
+  const c = B.scoped_statistics;
+  B = {...B, scoped_statistics: {...c, rows: move(c.rows), roles: {...c.roles, [role]: {...c.roles[role], rows: move(c.roles[role].rows)}}}}; E = MetaEngine.create(B);
+  return entries.filter(r => !E.metaReview(r.slug, role).active).length;
+};
+const overflowing = root => [...(root?.querySelectorAll('*') || [])].filter(e => e.offsetParent && e.children.length === 0 && e.textContent.trim() && e.scrollWidth > e.clientWidth + 1 && getComputedStyle(e).overflow !== 'visible').map(e => e.textContent.trim().slice(0, 40));
+probes.QL1 = async browser => {
+  // Before: Full details on the phone was saved and stuck everywhere; its only exit sat at the very end of a ~16,000 px
+  // page, Meta had none, and the full page still said "Use in Live".
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    const exit = () => { const b = [...document.querySelectorAll('#main [data-reading-mode]')].find(b => b.offsetParent); return b ? Math.round(b.getBoundingClientRect().top + scrollY) : null; };
+    openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 300));
+    document.querySelector('#main [data-reading-mode]').click(); await new Promise(r => setTimeout(r, 400));
+    const hero = {exit: exit(), live: /Use in Live|Open Live/.test(document.querySelector('#main').textContent)};
+    changeRoute('meta'); await new Promise(r => setTimeout(r, 300));
+    return {full: companionPrefs.fullDetails, hero, meta: {exit: exit()}};
+  });
+  await context.close();
+  verdict('QL1', !seen.full || seen.hero.exit === null || seen.hero.exit > 700 || seen.hero.live || seen.meta.exit === null || seen.meta.exit > 700, seen);
+};
+probes.QL2 = async browser => {
+  // Before: Back (the phone's back gesture) with an item open closed it and also left the hero page; a tap outside did nothing.
+  const {context, page} = await quickPhoneReady(browser);
+  await page.evaluate(() => { openHero('gideon', 'midlane'); });
+  await page.waitForTimeout(300);
+  await page.locator('#main .simple-build .item-button').first().click();
+  await page.waitForSelector('#detail[open]');
+  await page.evaluate(() => history.back()); await page.waitForTimeout(600);
+  const back = await page.evaluate(() => ({route: S.route, hero: S.hero, open: document.querySelector('#detail').open}));
+  if (back.route !== 'hero') { await page.evaluate(() => { if (document.querySelector('#detail').open) document.querySelector('#detail').close(); openHero('gideon', 'midlane'); }); await page.waitForTimeout(300); }
+  await page.locator('#main .simple-build .item-button').first().click();
+  await page.waitForSelector('#detail[open]');
+  const box = await page.evaluate(() => { const r = document.querySelector('#detail').getBoundingClientRect(); return {top: r.top, bottom: r.bottom, h: innerHeight}; });
+  let outside = null;
+  if (box.top > 24) { await page.mouse.click(195, Math.max(4, box.top / 2)); await page.waitForTimeout(400); outside = await page.evaluate(() => document.querySelector('#detail').open); }
+  else if (box.bottom < box.h - 24) { await page.mouse.click(195, (box.bottom + box.h) / 2); await page.waitForTimeout(400); outside = await page.evaluate(() => document.querySelector('#detail').open); }
+  const after = await page.evaluate(() => ({route: S.route, hero: S.hero}));
+  await context.close();
+  verdict('QL2', back.route !== 'hero' || back.open || outside === true || after.route !== 'hero', {back, box, stillOpenAfterOutsideTap: outside, after});
+};
+probes.QL3 = async browser => {
+  // Before: each enemy tap added a chip row above the grid and pushed the portraits down under the finger (46-74 px).
+  const {context, page} = await quickPhoneReady(browser);
+  const picks = await page.evaluate(() => { S.me = 'gideon'; S.locks = [{slug: 'gideon', role: 'midlane'}]; S.enemies = []; S.bans = []; S.matchPicking = 'enemy'; save(); changeRoute('match');
+    return [...document.querySelectorAll('.match-pick .match-hero')].map(b => b.dataset.matchPick).filter((s, i) => i % 7 === 3).slice(0, 4); });
+  const shifts = [];
+  for (const slug of picks) {
+    const b = page.locator(`.match-pick .match-hero[data-match-pick="${slug}"]`);
+    await b.scrollIntoViewIfNeeded();
+    const y0 = await b.evaluate(e => e.getBoundingClientRect().top);
+    await b.click(); await page.waitForTimeout(250);
+    const y1 = await page.locator(`.match-pick .match-hero[data-match-pick="${slug}"]`).evaluate(e => e.getBoundingClientRect().top);
+    shifts.push(Math.round(y1 - y0));
+  }
+  await context.close();
+  verdict('QL3', shifts.some(s => Math.abs(s) > 4), {picks, shifts});
+};
+probes.QL4 = async browser => {
+  // Before: tapping your hero moved focus into the enemy search box, which raises the phone keyboard over the portraits.
+  const {context, page} = await quickPhoneReady(browser);
+  await page.evaluate(() => { S.me = null; S.locks = []; S.enemies = []; S.bans = []; S.matchPicking = 'me'; save(); changeRoute('match'); });
+  await page.locator('.match-pick .match-hero[data-match-pick="gideon"]').click(); await page.waitForTimeout(300);
+  const tap = await page.evaluate(() => document.activeElement?.id || document.activeElement?.tagName);
+  await page.evaluate(() => { S.matchPicking = 'me'; save(); render(); });
+  await page.locator('.match-pick .match-hero[data-match-pick="gideon"]').focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  const keyboard = await page.evaluate(() => document.activeElement?.id || document.activeElement?.className);
+  await context.close();
+  verdict('QL4', tap === 'match-search' || !keyboard, {tap, keyboard});
+};
+probes.QL5 = async browser => {
+  // Before: Back to a page saved under another rank switched the rank back (the popstate handler re-requested it).
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    const asked = []; const original = requestLinkedBracket; requestLinkedBracket = b => asked.push(b);
+    changeRoute('meta'); await new Promise(r => setTimeout(r, 100));
+    history.replaceState({...history.state, companion: {...history.state.companion, bracket: 'diamond'}}, '', location.href);
+    openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 200));
+    history.back(); await new Promise(r => setTimeout(r, 600));
+    requestLinkedBracket = original;
+    return {asked, route: S.route, bracket: S.bracket};
+  });
+  await context.close();
+  verdict('QL5', seen.asked.length > 0 || seen.route !== 'meta', seen);
+};
+probes.QL6 = async browser => {
+  // Before: the META tab always opened the list at the top, losing the reader's place (browser Back kept it).
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    changeRoute('meta'); await new Promise(r => setTimeout(r, 150)); scrollTo(0, 700); await new Promise(r => setTimeout(r, 150));
+    const before = Math.round(scrollY), btn = [...document.querySelectorAll('#mobile-all-list [data-hero]')].find(b => b.getBoundingClientRect().top > 120);
+    btn.click(); await new Promise(r => setTimeout(r, 350));
+    document.querySelector('#mobile-navigation [data-destination="meta"]').click(); await new Promise(r => setTimeout(r, 500));
+    return {before, after: Math.round(scrollY), route: S.route, max: document.documentElement.scrollHeight - innerHeight};
+  });
+  await context.close();
+  assert.ok(seen.max > 650, 'probe setup: the Meta list scrolls past 650 px');
+  verdict('QL6', seen.route !== 'meta' || Math.abs(seen.after - seen.before) > 40, seen);
+};
+probes.QL7 = async browser => {
+  // Before: the phone skill chart scrolled sideways with no hint; levels 13-18 (the third ultimate point) were off screen.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 300));
+    const levels = [...document.querySelectorAll('#main .skill-chart-level')];
+    return {levels: levels.length, offscreen: levels.filter(l => l.getBoundingClientRect().right > innerWidth + 1).map(l => l.textContent)};
+  });
+  await context.close();
+  assert.ok(seen.levels >= 18, 'probe setup: an 18-level chart');
+  verdict('QL7', seen.offscreen.length > 0, seen);
+};
+probes.QL8 = async browser => {
+  // Before: with Gold+ grades withheld, every phone Meta row repeated "Calculated · reviewed grade withheld" (wrapping to
+  // four lines in a narrow column), so about four heroes fit on a screen.
+  const {context, page} = await quickPhoneReady(browser);
+  await page.evaluate('window.__withhold = ' + WITHHOLD.toString());
+  const seen = await page.evaluate(async () => {
+    const withheld = __withhold('jungle'); S.role = 'jungle'; changeRoute('meta'); await new Promise(r => setTimeout(r, 200));
+    const rows = [...document.querySelectorAll('#mobile-all-list > .mobile-hero-card')];
+    return {withheld, repeated: rows.filter(r => /withheld|recheck queued/i.test(r.textContent)).length,
+      said: /withheld|recheck queued/i.test(document.querySelector('#mobile-role-list').textContent),
+      tallest: Math.max(...rows.map(r => Math.round(r.getBoundingClientRect().height)))};
+  });
+  await context.close();
+  assert.ok(seen.withheld >= 2, 'probe setup: at least two withheld jungle grades');
+  verdict('QL8', seen.repeated > 0 || !seen.said || seen.tallest > 96, seen);
+};
+probes.QL9 = async browser => {
+  // Before: "Your heroes" closed again on every visit to Meta, and Match's "Who do you play?" ignored favorites.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    companionPrefs.favorites = ['zinx|carry', 'gideon|midlane']; saveCompanionPrefs(); changeRoute('meta'); await new Promise(r => setTimeout(r, 150));
+    const saved = document.querySelector('#main details.saved-heroes'); saved.querySelector('summary').click(); await new Promise(r => setTimeout(r, 100));
+    changeRoute('match'); await new Promise(r => setTimeout(r, 150)); changeRoute('meta'); await new Promise(r => setTimeout(r, 150));
+    const open = !!document.querySelector('#main details.saved-heroes')?.open;
+    S.me = null; S.locks = []; S.enemies = []; S.matchPicking = 'me'; save(); changeRoute('match'); await new Promise(r => setTimeout(r, 150));
+    const first = [...document.querySelectorAll('.match-pick .match-hero')].slice(0, 2).map(b => b.dataset.matchPick);
+    return {open, first};
+  });
+  await context.close();
+  verdict('QL9', !seen.open || !(seen.first.includes('zinx') && seen.first.includes('gideon')), seen);
+};
+probes.QL10 = async browser => {
+  // Before: Changes opened on the Pred.gg history even when that history was unavailable and Statz history existed.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(async () => {
+    const pred = B.scoped_history; B = {...B, scoped_history: undefined}; E = MetaEngine.create(B); S.historySource = undefined;
+    changeRoute('changes'); await new Promise(r => setTimeout(r, 200));
+    return {hadPred: !!pred, statz: !!B.changes, source: document.querySelector('#history-source')?.value, text: document.querySelector('#main').innerText.match(/Pred\.gg history unavailable[^\n]*/)?.[0] || ''};
+  });
+  await context.close();
+  verdict('QL10', seen.statz && (seen.source === 'pred' || !!seen.text), seen);
+};
+probes.QL11 = async browser => {
+  // Before: a search for a hero outside the selected role ended in "No hero matches"; a role switch cleared the search.
+  const {context, page} = await quickPhoneReady(browser);
+  const target = await page.evaluate(() => { S.role = 'midlane'; changeRoute('meta'); return Object.keys(E.heroes).find(s => !E.roles(s).includes('midlane') && name(s).length > 4); });
+  await page.fill('#mobile-hero-search', (await page.evaluate(s => name(s), target)).slice(0, 4));
+  await page.waitForTimeout(200);
+  const offered = await page.evaluate(s => !!document.querySelector(`#mobile-role-list [data-hero="${s}"]`), target);
+  const other = await page.evaluate(s => E.roles(s)[0], target);
+  await page.locator(`[data-mobile-role="${other}"]`).click(); await page.waitForTimeout(200);
+  const kept = await page.inputValue('#mobile-hero-search');
+  await context.close();
+  verdict('QL11', !offered || !kept, {target, offered, kept});
+};
+probes.QL12 = async browser => {
+  // Before: the desktop Statz table's tier column was the source's own grade, unlabeled beside the calculated tiers,
+  // and its "Pairings" button opened the Build section.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(async () => {
+    S.statSource = 'statz'; S.role = 'midlane'; changeRoute('meta'); await new Promise(r => setTimeout(r, 200));
+    const head = [...document.querySelectorAll('.meta-table thead th')].map(t => t.textContent.trim());
+    const b = [...document.querySelectorAll('.meta-table tbody button')].find(x => /Pairings|Partners/.test(x.textContent));
+    b?.click(); await new Promise(r => setTimeout(r, 300));
+    return {head, button: b?.textContent.trim(), route: S.route, tab: S.heroTab, open: document.querySelector('#hero-sec-pairings')?.closest('details')?.open ?? null};
+  });
+  await context.close();
+  verdict('QL12', !seen.head.some(h => /Statz/i.test(h)) || seen.tab !== 'pairings', seen);
+};
+probes.QL13 = async browser => {
+  // Before: New match cleared all five enemies at once with no way back.
+  const {context, page} = await quickPhoneReady(browser);
+  await page.evaluate(() => { S.me = 'gideon'; S.locks = [{slug: 'gideon', role: 'midlane'}]; S.enemies = []; S.bans = []; S.matchPicking = 'enemy'; save(); changeRoute('match');
+    for (const s of [...document.querySelectorAll('.match-pick .match-hero')].slice(0, 3).map(b => b.dataset.matchPick)) matchAddEnemy(s); render(); });
+  await page.locator('[data-match-new]').click(); await page.waitForTimeout(200);
+  const undo = page.locator('#toast button, #toast [data-undo], .toast button').first();
+  const offered = await undo.count();
+  if (offered) { await undo.click(); await page.waitForTimeout(200); }
+  const enemies = await page.evaluate(() => S.enemies.length);
+  await context.close();
+  verdict('QL13', !offered || enemies !== 3, {offered, enemies});
+};
+probes.QL14 = async browser => {
+  // Before: at 1024-1279 px the desktop hero header gave the name column ~110 px: a 20 px name, a wrapped rank line
+  // and a three-line "Use in Match".
+  const {context, page} = await session(browser, {viewport: {width: 1024, height: 800}});
+  const seen = await page.evaluate(async () => {
+    openHero('adele', 'offlane'); await new Promise(r => setTimeout(r, 300));
+    const h = document.querySelector('#main .hero-header'), h1 = h.querySelector('h1'), cta = h.querySelector('.hero-use-match'), eye = h.querySelector('.eyebrow');
+    const lines = e => Math.round(e.getBoundingClientRect().height / parseFloat(getComputedStyle(e).lineHeight || 20));
+    return {name: parseFloat(getComputedStyle(h1).fontSize), cta: Math.round(cta.getBoundingClientRect().height), eyebrow: lines(eye)};
+  });
+  await context.close();
+  verdict('QL14', seen.name < 40 || seen.cta > 56 || seen.eyebrow > 1, seen);
+};
+probes.QL15 = async browser => {
+  // Before: a hero role without a sample read "Sample unavailable · unavailable" under a dash.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    // The seed samples every role; the header's own no-sample branch is what this checks.
+    const pick = ['gideon', 'midlane'], create = MetaEngine.create;
+    MetaEngine.create = (...args) => { const e = create(...args); e.displayPerformance = () => null; e.performance = () => null; return e; }; E = MetaEngine.create(B);
+    openHero(pick[0], pick[1]); await new Promise(r => setTimeout(r, 300));
+    return {setup: true, pick, text: document.querySelector('#main .hero-header .quick-stats')?.innerText.replace(/\s+/g, ' ')};
+  });
+  await context.close();
+  assert.ok(seen.setup, 'probe setup: a hero role without a sample');
+  verdict('QL15', /unavailable\s*·\s*unavailable/i.test(seen.text), seen);
+};
+probes.QL16 = async browser => {
+  // Before: in the two-column Starting builds cards the five loadout tiles each repeated the category chip, the
+  // augment and Eternal repeated one shared sample, and the crest path was cut off by the narrow tile.
+  const {context, page} = await session(browser, {viewport: {width: 1280, height: 900}});
+  const seen = await page.evaluate(async () => {
+    S.role = 'midlane'; changeRoute('builds'); await new Promise(r => setTimeout(r, 500));
+    const strip = document.querySelector('#main .build-card .loadout-strip');
+    const chips = [...strip.querySelectorAll('.chip.tag')].map(c => c.textContent.trim());
+    const samples = [...strip.querySelectorAll('small.muted')].map(s => s.textContent.trim()), dup = samples.filter((s, i) => samples.indexOf(s) !== i);
+    const clipped = [...strip.querySelectorAll('*')].filter(e => e.offsetParent && e.children.length === 0 && e.textContent.trim() && (e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > strip.getBoundingClientRect().right + 1)).map(e => e.textContent.trim().slice(0, 30));
+    return {chips, repeatedChips: chips.filter(c => c === chips[0]).length, dup: dup.length, clipped};
+  });
+  await context.close();
+  verdict('QL16', seen.repeatedChips > 1 || seen.dup > 0 || seen.clipped.length > 0, seen);
+};
+probes.QL17 = async browser => {
+  // Before: the phone loadout row clipped names ("Regenerativ") and both blessings were labeled just "Blessing".
+  const {context, page} = await quickPhoneReady(browser, {width: 360, height: 780});
+  const seen = await page.evaluate(async () => {
+    // The plan with the longest loadout name, as on Adele Support ("Regenerative Tissue").
+    const plans = Object.keys(E.heroes).flatMap(s => E.roles(s).map(r => E.plannedBuild(s, r))).filter(p => p.items?.length && p.blessings?.length === 2);
+    const longest = p => Math.max(...[p.augment, p.eternal, ...p.blessings, p.crest].map(n => String(n || '').length));
+    const plan = plans.sort((a, b) => longest(b) - longest(a))[0];
+    openHero(plan.slug, plan.role); await new Promise(r => setTimeout(r, 300));
+    const setup = document.querySelector('#main .simple-setup');
+    // What a sighted reader sees: text inside a 1 px visually hidden span does not count.
+    const shown = el => [...el.childNodes].map(n => n.nodeType === 3 ? n.textContent : n.getBoundingClientRect().width > 1 ? shown(n) : '').join('').trim();
+    const labels = [...setup.querySelectorAll(':scope > div > small')].map(shown);
+    const clipped = [...setup.querySelectorAll('.item-name')].filter(n => n.scrollWidth > n.clientWidth + 1 || n.scrollHeight > n.clientHeight + 1).map(n => n.textContent);
+    return {hero: plan.slug + '|' + plan.role, labels, clipped};
+  });
+  await context.close();
+  verdict('QL17', new Set(seen.labels).size < seen.labels.length || seen.clipped.length > 0, seen);
+};
+probes.QL18 = async browser => {
+  // Before: Match's adapted build rendered as three narrow tiles per row, cramping each "Replaces ..." note.
+  // The seed's reviewed builds all need review for 1.17, so Match states that reason; the layout is checked on an
+  // adapted result built from the seed plan's own six items (one swap), which is what Match draws on live data.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    const plan = E.plannedBuild('gideon', 'midlane'), items = plan.items.slice(0, 6), swap = {from: items[5], to: Object.keys(B.items || {}).find(n => !items.includes(n)) || items[5], reason: 'Calculated item rule.'};
+    matchAdapted = () => ({available: true, baseline: items, slots: [...items.slice(0, 5), swap.to].map(name => ({name})), swaps: [swap], plan, note: 'Calculated, not a win prediction.', needs: [], unmet: [], enemyProfile: {}});
+    S.me = 'gideon'; S.locks = [{slug: 'gideon', role: 'midlane'}]; S.enemies = []; S.bans = []; S.matchPicking = 'enemy'; save(); changeRoute('match');
+    for (const s of [...document.querySelectorAll('.match-pick .match-hero')].slice(0, 5).map(b => b.dataset.matchPick)) matchAddEnemy(s); render(); await new Promise(r => setTimeout(r, 300));
+    const rows = [...document.querySelectorAll('#main .match-build > li')].map(li => li.getBoundingClientRect());
+    return {rows: rows.length, lefts: [...new Set(rows.map(r => Math.round(r.left)))], narrowest: Math.round(Math.min(...rows.map(r => r.width)))};
+  });
+  await context.close();
+  assert.ok(seen.rows >= 6, 'probe setup: an adapted six-item build');
+  verdict('QL18', seen.lefts.length > 1 || seen.narrowest < 300, seen);
+};
+probes.QL19 = async browser => {
+  // Before: phone table headers on Items, Sources and Changes were 10 px.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = {};
+  for (const r of ['library', 'data', 'changes']) seen[r] = await page.evaluate(async r => {
+    changeRoute(r); await new Promise(x => setTimeout(x, 400));
+    return [...document.querySelectorAll('#main *')].filter(e => e.offsetParent && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && parseFloat(getComputedStyle(e).fontSize) < 11 && !e.closest('.sr-only')).map(e => e.tagName + ':' + e.textContent.trim().slice(0, 20)).slice(0, 6);
+  }, r);
+  await context.close();
+  verdict('QL19', Object.values(seen).some(v => v.length), seen);
+};
+probes.QL20 = async browser => {
+  // Before: at 360 px a Meta row's tier badge overlapped the hero name and the badges' left edges differed by 10 px.
+  const {context, page} = await quickPhoneReady(browser, {width: 360, height: 780});
+  await page.evaluate('window.__withhold = ' + WITHHOLD.toString());
+  const seen = await page.evaluate(async () => {
+    __withhold('jungle'); S.role = 'jungle'; changeRoute('meta'); await new Promise(r => setTimeout(r, 200));
+    const rows = [...document.querySelectorAll('#mobile-all-list > .mobile-hero-card')];
+    const hit = (a, b) => a && b && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+    const overlaps = rows.filter(r => hit(r.querySelector('.tier')?.getBoundingClientRect(), r.querySelector('.name')?.getBoundingClientRect())).map(r => r.querySelector('.name').textContent);
+    const lefts = [...new Set(rows.map(r => r.querySelector('.tier')).filter(Boolean).map(t => Math.round(t.getBoundingClientRect().left)))];
+    return {overlaps, lefts};
+  });
+  await context.close();
+  verdict('QL20', seen.overlaps.length > 0 || seen.lefts.length > 1, seen);
+};
+probes.QL21 = async browser => {
+  // Before: every Starting builds card repeated the same page-wide sentences (the patch-review scope, the Pred.gg
+  // availability warning) instead of saying them once.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(async () => {
+    S.role = 'midlane'; changeRoute('builds'); await new Promise(r => setTimeout(r, 500));
+    const count = re => (document.querySelector('#main').textContent.match(re) || []).length;
+    return {cards: document.querySelectorAll('#main .build-card').length, scope: count(/Scope: build choices and skill priority/g), pred: count(/Pred\.gg build observations are unavailable/g)};
+  });
+  await context.close();
+  verdict('QL21', seen.scope > 1 || seen.pred > 1, seen);
+};
+probes.QL22 = async browser => {
+  // Before: the phone "Why this build" sheet printed the reason twice and the category three times.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 300));
+    document.querySelector('[data-build-about]').click(); await new Promise(r => setTimeout(r, 300));
+    const plan = chosenPlan({slug: 'gideon', role: 'midlane'}), first = String(plan.reason || '').split(/(?<=[.!?])\s+/)[0], text = document.querySelector('#detail-body').textContent;
+    return {reason: first ? text.split(first).length - 1 : 0, items: plan.items.filter(n => text.includes(n)).length};
+  });
+  await context.close();
+  verdict('QL22', seen.reason > 1, seen);
+};
+probes.QL23 = async browser => {
+  // Before: the desktop Kit repeated the same Pred.gg source line under every ability.
+  const {context, page} = await session(browser, desktopHero);
+  const seen = await page.evaluate(async () => {
+    openHero('gideon', 'midlane'); S.heroTab = 'kit'; jumpToSection?.('kit'); await new Promise(r => setTimeout(r, 600));
+    const lines = [...document.querySelectorAll('#hero-sec-kit article .source-line')].map(l => l.textContent.trim());
+    const counts = {}; for (const l of lines) counts[l] = (counts[l] || 0) + 1;
+    return {lines: lines.length, most: Math.max(0, ...Object.values(counts))};
+  });
+  await context.close();
+  verdict('QL23', seen.most > 1, seen);
+};
+probes.QL24 = async browser => {
+  // Before: the app update row said the version twice ("Running v2.49.0 You are running the latest app · v2.49.0.").
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    changeRoute('more'); await new Promise(r => setTimeout(r, 300));
+    const row = document.querySelector('#main .app-update-row'); if (!row) return {row: false};
+    const state = row.querySelector('[data-app-state]'); if (state) state.textContent = 'You are running the latest app · v' + APP_CONFIG.tool_version + '.';
+    if (typeof appUpdate === 'object') { appUpdate.message = 'You are running the latest app · v' + APP_CONFIG.tool_version + '.'; }
+    try { renderAppUpdate?.(); } catch {}
+    const text = row.textContent; return {row: true, text, count: text.split(APP_CONFIG.tool_version).length - 1};
+  });
+  await context.close();
+  verdict('QL24', seen.row && seen.count > 1, seen);
+};
+probes.QL25 = async browser => {
+  // Before: phone Starting builds rows printed a full timestamp ("10/3/2026, 6:22:27 PM") on every hero.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    changeRoute('builds'); await new Promise(r => setTimeout(r, 300));
+    return [...document.querySelectorAll('#main .mobile-build-row summary small')].map(s => s.textContent).filter(t => /\d:\d\d/.test(t)).slice(0, 3);
+  });
+  await context.close();
+  verdict('QL25', seen.length > 0, {timestamps: seen});
+};
+probes.QL26 = async browser => {
+  // Before: a desktop Meta row under 100 games said so in its tier cell and again under its win rate.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(async () => {
+    // A rank without its own reviewed grades (the seed has Gold+ only): its table shows calculated tiers.
+    // The seed's Gold+ rows all have 100+ games; one jungle row is given 60 so the under-100 row exists.
+    const c = B.scoped_statistics, target = c.rows.find(r => r.role === 'jungle').slug, small = r => r.role === 'jungle' && r.slug === target ? {...r, matches: 60, wonGames: 31, winRate: 51.7} : r;
+    B = {...B, scoped_statistics: {...c, rows: c.rows.map(small), roles: {...c.roles, jungle: {...c.roles.jungle, rows: c.roles.jungle.rows.map(small)}}}, guidance: {...B.guidance, meta_review: {...B.guidance.meta_review, bracket: 'silver', bracket_label: 'Silver+'}}}; E = MetaEngine.create(B);
+    for (const role of ['jungle']) { S.role = role; changeRoute('meta'); await new Promise(r => setTimeout(r, 100));
+      const row = [...document.querySelectorAll('.meta-table tbody tr')].find(tr => (tr.textContent.match(/100 games/gi) || []).length > 1);
+      if (row) return {role, row: row.innerText.replace(/\s+/g, ' ')}; }
+    return {row: ''};
+  });
+  await context.close();
+  verdict('QL26', !!seen.row, seen);
+};
+probes.QL27 = async browser => {
+  // Before: "Adapt to the enemy team" listed the same swap twice when two team types (Magic damage, Magic burst) share
+  // it, as on live 1.17 data. The seed's builds need review, so the engine's result is given that shape here.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    const plan = E.plannedBuild('gideon', 'midlane'), to = Object.keys(B.items || {}).find(n => !plan.items.includes(n)), from = plan.items[5], create = MetaEngine.create;
+    const rows = [{id: 'magical', label: 'Magic damage', status: 'swap', swaps: [{to, from}]}, {id: 'magic_burst', label: 'Magic burst', status: 'swap', swaps: [{to, from}]}, {id: 'tanky', label: 'Tanky', status: 'none', swaps: []}];
+    MetaEngine.create = (...args) => { const e = create(...args); e.teamAlternates = () => ({available: true, rows}); return e; }; E = MetaEngine.create(B);
+    openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 300));
+    const names = [...document.querySelectorAll('#main .team-alt-list li[data-status="swap"] .item-name')].map(n => n.textContent.trim().toLowerCase());
+    return {setup: !!to && names.length > 0, names, repeated: names.length - new Set(names).size, text: document.querySelector('#main .team-alt-list')?.innerText.replace(/\s+/g, ' ')};
+  });
+  await context.close();
+  assert.ok(seen.setup, 'probe setup: the team alternates list renders');
+  verdict('QL27', seen.repeated > 0 || !/Magic burst/.test(seen.text) || !/Magic damage/.test(seen.text), seen);
+};
+probes.QL28 = async browser => {
+  // Before: the phone Sources page ended with the desktop Export footer.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => { changeRoute('data'); await new Promise(r => setTimeout(r, 300)); return /Export contains the loaded data snapshot/.test(document.querySelector('#main').textContent); });
+  await context.close();
+  verdict('QL28', seen, {exportFooter: seen});
+};
+probes.QL29 = async browser => {
+  // Before: a phone partner card with an observed pair had its own "Baselines, uncertainty & source" disclosure and an
+  // "Evidence & why" button that opens the same evidence.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    openHero('gideon', 'midlane'); S.heroTab = 'pairings'; render(); await new Promise(r => setTimeout(r, 400));
+    const cards = [...document.querySelectorAll('#main .simple-partner')];
+    return {cards: cards.length, both: cards.filter(c => c.querySelector('details') && c.querySelector('[data-pair]')).length};
+  });
+  await context.close();
+  verdict('QL29', seen.both > 0, seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
