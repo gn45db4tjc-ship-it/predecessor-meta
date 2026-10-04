@@ -255,7 +255,8 @@
     "QT6": "2.52.0: text asks for weights the shipped faces lack (Barlow 500/650/900, Saira 500/600), which the browser substitutes",
     "QT7": "2.52.0 PHONE: page titles in capitals carry negative letter-spacing",
     "QF1": "2.52.0 SPEED: every hero open and Build tab revisit recalculates team alternates on the same engine",
-    "QF2": "2.52.0 SPEED: the phone status line takes layout space and collapses after the first check (layout shift)"
+    "QF2": "2.52.0 SPEED: the phone status line takes layout space and collapses after the first check (layout shift)",
+    "QF3": "2.52.0 SPEED: the phone Meta screen starts the guide download regardless of the link: on a slow link it holds the visible portraits back, or on a fast link it waits for them"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

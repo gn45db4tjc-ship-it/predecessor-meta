@@ -4429,6 +4429,43 @@ probes.QF2 = async browser => {
   verdict('QF2', seen.loading.some(l => l.height > 1 && l.height !== seen.settled && !['absolute', 'fixed'].includes(l.position)), seen);
 };
 
+probes.QF3 = async browser => {
+  // Speed guard (2.52.0): the phone Meta screen lets its visible portraits load before the guide download only on a link
+  // the browser reports as slow; a fast link starts the guide at once. Before, the guide always started at once and on a
+  // slow link held the portraits back for seconds. Portraits are answered after 700 ms with a 1 px image, so the timing
+  // does not depend on the network.
+  const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+  const run = async slow => {
+    const context = await browser.newContext({serviceWorkers: 'block', ...phone});
+    if (slow) await context.addInitScript(() => Object.defineProperty(navigator, 'connection', {configurable: true, value: {effectiveType: '3g', saveData: false}}));
+    const times = {guide: null, imagesDone: 0, images: 0}, shots = [];
+    const t0 = Date.now();
+    await context.route('**/*', async route => {
+      const request = route.request();
+      if (request.resourceType() !== 'image') return route.continue();
+      const shot = {asked: Date.now() - t0, done: null}; shots.push(shot); times.images++;
+      await new Promise(r => setTimeout(r, 700));
+      await route.fulfill({status: 200, contentType: 'image/png', body: PIXEL}).catch(() => {});
+      shot.done = Date.now() - t0;
+    });
+    context.on('request', request => { if (times.guide === null && /\/bundles\/\w+-guide-/.test(request.url())) times.guide = Date.now() - t0; });
+    const page = await context.newPage();
+    await page.goto(url);
+    await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+    for (let i = 0; i < 40 && shots.some(x => x.done === null); i++) await page.waitForTimeout(100);
+    // the first screen's portraits: the batch asked for within 200 ms of the first one
+    const first = Math.min(...shots.map(x => x.asked));
+    times.imagesDone = Math.max(0, ...shots.filter(x => x.asked <= first + 200).map(x => x.done ?? 0));
+    await context.close();
+    return times;
+  };
+  const slow = await run(true), fast = await run(false);
+  // Defect: on a slow link the guide starts while portraits are still loading, or on a fast link it waits for them.
+  const reproduced = slow.guide !== null && slow.images > 0 && slow.guide < slow.imagesDone - 150
+    || fast.guide !== null && fast.images > 0 && fast.guide >= fast.imagesDone - 150;
+  verdict('QF3', reproduced, {slow, fast});
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

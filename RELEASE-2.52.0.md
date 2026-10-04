@@ -58,11 +58,24 @@ On 4 October 2026 the owner asked for "yet another QoL check for fonts, spacing,
 
 ### Speed
 
-- **Return visits draw sooner.** The offline worker hands the page over as soon as it arrives and saves its copy in the background. Before, a slow connection waited for the copy to be written first.
-- **The desktop hero opens faster.** Number formatting and item-name lookups are prepared once instead of on every figure. MEASURE_DESK
-- **Hero tabs switch faster.** The "by enemy team type" alternates are calculated once per hero, role and playstyle. Before, they were recalculated on every return to the Build tab (35–71 ms each on a slowed phone). MEASURE_TAB
-- **No jump under the first screen.** The phone status line no longer takes space, so it no longer collapses and pulls the page up when the first check finishes (a layout shift of 0.03). MEASURE_CLS
-- **Portraits before evidence on the phone.** Phone Meta lets the visible portraits finish before it downloads the guide (at most 1.5 s), so the first screen fills first. MEASURE_PORTRAITS
+Measured on the six live bundles of 4 October with the CPU slowed four times, two runs per version (2.51.0 → 2.52.0):
+
+| What you do | 2.51.0 | 2.52.0 |
+|---|---|---|
+| Open a hero on the desktop (main-thread work) | 1,083–1,205 ms | 892–945 ms |
+| Open a hero on the desktop (response) | 296–328 ms | 240–312 ms |
+| Reopen a hero on the phone | 136–160 ms | 72–88 ms |
+| Return to the phone Build tab | 104–208 ms | 56–72 ms |
+| Pick your hero in Match (phone / desktop) | 96–104 / 104–152 ms | 64 / 56–64 ms |
+| Open Sources on the phone (second visit) | 144 ms | 80–88 ms |
+| Layout shift while the phone loads | 0.032 every load | 0 |
+
+- **Return visits draw sooner.** The offline worker hands the page over as soon as it arrives and saves its copy in the background. Before, it waited for the copy to be written. A test proves the page arrives while a save is stuck (`tests/sw_shell.test.cjs`); it was not timed on a real slow link.
+- **The desktop hero opens faster.** Number formatting and item-name lookups are prepared once instead of for every figure.
+- **Hero tabs and Match respond faster.** The "by enemy team type" alternates are calculated once per hero, role and playstyle. Before, every return to the Build tab and every Match pick recalculated them (35–71 ms each on a slowed phone).
+- **No jump under the first screen.** The phone status line no longer takes space, so it no longer collapses and pulls the page up when the first check finishes.
+- **Portraits first on a slow link.** When the browser reports a slow link (2G or 3G, or Data Saver on), phone Meta lets the visible portraits finish before it downloads the guide (at most 1.5 s). On a fast link, or a browser that doesn't report its link (Safari, Firefox), the guide starts at once as before; any screen that needs it sooner asks for it itself.
+- **One screen is slower, deliberately.** Changes now opens on the Pred.gg history (see above), a larger table than the Statz view it used to open on. It takes 40–60 ms longer to draw on a slowed phone (3,708 elements instead of 2,877).
 
 ## Not in this release
 
@@ -84,18 +97,21 @@ These were found but left for a later release. Each needs its own review or carr
 ## Files
 
 - `ui.js`, `mobile.js`, `companion_simple.js`, `static_client.js`, `rank_view.js`: focus return, section focus, the Changes default, Try again, other-role search results, Clear search, page names, the Open button, quiet live regions, and the formatter, catalogue and alternates caches.
-- `ui.html`: phone type tokens in rem, `--prose`, the display fallback stack, the startup note and the phone dialog width.
-- `broadcast.css`: font weight ranges, the two fallback faces, and the "QoL pass 2" section at its end.
+- `ui.html`: phone type tokens in rem, `--prose` and `--prose-intro`, the display fallback stack, the startup note and the phone dialog width.
+- `docs/DESIGN-SYSTEM.md`: `--prose`, `--prose-intro`, the display fallbacks, the phone rem steps and the font weight ranges.
+- `broadcast.css`: font weight ranges, the two fallback faces, and the "QoL pass 2" section at its end (including scrolling tables that contain their screen-reader labels).
 - `predecessor_meta.py`: the bold text face preload; `VERSION` 2.52.0.
 - `sw.js`: the page is answered before its copy is saved; cache `predecessor-meta-shell-v2-52-0`.
 - Tests:
-  - probes QP1–QP11, QS1–QS7, QT1–QT7 and QF1–QF2 in `tests/browser_audit_regressions.cjs`, with their entries in `tests/known-defects.json`;
+  - probes QP1–QP11, QS1–QS7, QT1–QT7 and QF1–QF3 in `tests/browser_audit_regressions.cjs`, with their entries in `tests/known-defects.json`;
+  - older probes kept as written, with two corrected: QL10 now makes the real Pred.gg history field (`scoped_changes`) unavailable (it removed a field that never existed), and N1 expects More on the phone's Starting builds (its back link says "← More");
+  - `tests/browser_static.cjs`: an exported page's `<main>` may hold the static startup note, never the visitor's draft;
   - `tests/sw_shell.test.cjs` (new);
   - `tests/test_static_broadcast.py` expects three font preloads.
 - No new program files for the Windows install.
 
 ## Verification
 
-- **Probe first.** Every new probe reproduced on 2.51.0 and passes now; the ledger's open list is empty. QF1 and QF2 were checked against an export of the pre-speed commit: 3 recalculations before, 0 after; 29 px of status line in the flow before, none after.
+- **Probe first.** Every new probe reproduced on 2.51.0 and passes now; the ledger's open list is empty. QF1–QF3 were also run against exports of 2.51.0 and of the commit before each fix: 3 recalculations before, 0 after (QF1); 29 px of status line in the flow before, none after (QF2); on 2.51.0 the guide started 700 ms before a slow link's portraits finished, and the first portraits-first version made a fast link wait 700 ms, while 2.52.0 does neither (QF3).
 - **Suites.** SUITE_RESULTS
 - **Checked by eye** on the six live bundles: desktop at 1440 px and phone at 390 px, dark and light.
