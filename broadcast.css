@@ -251,7 +251,7 @@ div.hero-header:not(.mobile-hero-head){box-shadow:inset 0 3px var(--brand)}
   .hero-context .hero-figure::before{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(var(--muted),var(--muted)) center/2px 6px no-repeat,linear-gradient(var(--surface-3),var(--surface-3)) center/100% 2px no-repeat}
   .hero-context .hero-figure::after{content:"";position:absolute;bottom:2px;height:3px;left:calc(50% + min(0,var(--wr-d)) * 50%);width:calc(50% * (max(0,var(--wr-d)) - min(0,var(--wr-d))));background:var(--green)}
   .hero-context .hero-figure[data-trend=down]::after{background:var(--red)}
-  .hero-context .hero-sample{grid-column:1/-1}
+  .hero-context .hero-sample{grid-column:1/-1;text-wrap:pretty}
   .hero-context:not(:has(>button)) .hero-figure{grid-column:1;justify-self:start}
 }
 
