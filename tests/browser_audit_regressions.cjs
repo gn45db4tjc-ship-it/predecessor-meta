@@ -2355,8 +2355,9 @@ probes.Y1 = async browser => {
     })) : [];
     return {
       parts, labels: parts.map(p => p.label),
-      // a div that states an ABSENCE is not a part, and carries no category by design
-      without_category: parts.filter(p => !p.tags.length && !p.absent).length,
+      // a div that states an ABSENCE is not a part, and carries no category by design. Since 2.50.0 (QL16) the
+      // category is stated once for the whole loadout at the head of the strip, which covers every part.
+      without_category: strip && strip.querySelector(':scope > .loadout-head .tag') ? 0 : parts.filter(p => !p.tags.length && !p.absent).length,
       engine: {augment: a.plan.augment, eternal: a.plan.eternal, blessings: a.plan.blessings,
                crest: a.plan.crest, upgrades: a.summary && a.summary.crest ? (a.summary.crest.upgrades || []).map(u => u.name) : null},
       evolution_text: /evolution|evolve|upgrade/i.test(strip ? strip.innerText : '')
@@ -3800,7 +3801,8 @@ probes.QL16 = async browser => {
     const strip = document.querySelector('#main .build-card .loadout-strip');
     const chips = [...strip.querySelectorAll('.chip.tag')].map(c => c.textContent.trim());
     const samples = [...strip.querySelectorAll('small.muted')].map(s => s.textContent.trim()), dup = samples.filter((s, i) => samples.indexOf(s) !== i);
-    const clipped = [...strip.querySelectorAll('*')].filter(e => e.offsetParent && e.children.length === 0 && e.textContent.trim() && (e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > strip.getBoundingClientRect().right + 1)).map(e => e.textContent.trim().slice(0, 30));
+    // Visible text only: a 1 px screen-reader span is clipped on purpose.
+    const clipped = [...strip.querySelectorAll('*')].filter(e => e.offsetParent && e.children.length === 0 && e.textContent.trim() && !e.closest('.sr-only') && (e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > strip.getBoundingClientRect().right + 1)).map(e => e.textContent.trim().slice(0, 30));
     return {chips, repeatedChips: chips.filter(c => c === chips[0]).length, dup: dup.length, clipped};
   });
   await context.close();

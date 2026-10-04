@@ -125,7 +125,7 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
   #mobile-all-list>.mobile-hero-card:nth-child(-n+3)::before{color:var(--brand);-webkit-text-stroke:0}
   .mobile-hero-card .hero-cell .portrait{width:50px;height:50px;border:0;border-radius:0;clip-path:polygon(12% 0,100% 0,88% 100%,0 100%)}
   .mobile-hero-card .hero-cell .name{font-family:var(--display);text-transform:uppercase;font-size:var(--display-sm);font-weight:800;letter-spacing:.03em;overflow-wrap:normal}
-  .mobile-hero-card .mobile-stat{position:relative;display:grid;grid-template-columns:auto auto;grid-template-areas:"t w" "t g";align-items:center;column-gap:var(--s2);row-gap:0;max-width:none;padding-bottom:var(--s3)}
+  .mobile-hero-card .mobile-stat{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);grid-template-areas:"t w" "t g";align-items:center;column-gap:var(--s2);row-gap:0;max-width:none;padding-bottom:var(--s3)}
   .mobile-stat .tier{grid-area:t;min-width:38px;height:38px;font-size:var(--tr-xl)}
   .mobile-stat strong{grid-area:w;text-align:right;font-family:var(--display);font-size:var(--tr-xl);font-weight:800;line-height:1}
   .mobile-stat small{grid-area:g;text-align:right;font-size:var(--tr-xs);letter-spacing:.02em}
@@ -144,15 +144,47 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
   .hero-context:focus-within{clip-path:none}
   /* build: three tiles a row, big icons, outlined slanted numbers */
   .purchase-group{font-family:var(--display);text-transform:uppercase;letter-spacing:.12em;color:var(--brand-text);font-size:var(--tr-sm)}
-  .simple-purchases{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s1-5);border:0;background:transparent;overflow:visible}
-  .simple-purchases li{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:var(--s3) var(--s1-5) var(--s2);border:0;border-radius:0;background:radial-gradient(70px 56px at 50% 40%,var(--brand-glow),transparent 70%),var(--surface-2);clip-path:polygon(var(--cut-lg) 0,100% 0,100% 100%,0 100%,0 var(--cut-lg))}
-  .simple-purchases li:focus-within{clip-path:none}
-  .simple-purchases .simple-position{position:absolute;top:var(--s0-5);left:var(--s4);width:auto;height:auto;background:transparent;font-family:var(--display);font-size:var(--tr-xl);font-weight:800;color:transparent;-webkit-text-stroke:1.2px var(--brand-text);transform:skewX(-10deg)}
-  .simple-purchases .item-button{flex-direction:column;align-items:center;text-align:center;gap:var(--s1-5);width:100%}
-  .simple-purchases .item-button img{width:52px;height:52px;box-shadow:0 0 0 1px var(--icon-glow)}
-  .simple-purchases .item-name{font-size:var(--tr-xs);font-weight:600;line-height:1.25}
+  .simple-purchases:not(:where(.match-build)){grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s1-5);border:0;background:transparent;overflow:visible}
+  .simple-purchases:not(:where(.match-build)) li{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:var(--s3) var(--s1-5) var(--s2);border:0;border-radius:0;background:radial-gradient(70px 56px at 50% 40%,var(--brand-glow),transparent 70%),var(--surface-2);clip-path:polygon(var(--cut-lg) 0,100% 0,100% 100%,0 100%,0 var(--cut-lg))}
+  .simple-purchases:not(:where(.match-build)) li:focus-within{clip-path:none}
+  .simple-purchases:not(:where(.match-build)) .simple-position{position:absolute;top:var(--s0-5);left:var(--s4);width:auto;height:auto;background:transparent;font-family:var(--display);font-size:var(--tr-xl);font-weight:800;color:transparent;-webkit-text-stroke:1.2px var(--brand-text);transform:skewX(-10deg)}
+  .simple-purchases:not(:where(.match-build)) .item-button{flex-direction:column;align-items:center;text-align:center;gap:var(--s1-5);width:100%}
+  .simple-purchases:not(:where(.match-build)) .item-button img{width:52px;height:52px;box-shadow:0 0 0 1px var(--icon-glow)}
+  .simple-purchases:not(:where(.match-build)) .item-name{font-size:var(--tr-xs);font-weight:600;line-height:1.25}
   .simple-setup>div{border:0;border-radius:0;background:var(--surface-2);clip-path:polygon(var(--cut) 0,100% 0,100% 100%,0 100%,0 var(--cut))}
   .simple-setup>div:focus-within{clip-path:none}
   .simple-setup>div>small:first-child{font-family:var(--display);color:var(--brand-text);letter-spacing:.12em}
   .build-about{border-color:transparent;background:var(--surface-2);border-radius:0}
+  /* 2.50.0: Match's adapted build is one plate per item, the number beside it, so each "Replaces ..." note has room */
+  .match-build{gap:var(--s1)}
+  .match-build li{border:0!important;border-radius:0;background:var(--surface-2);clip-path:polygon(var(--cut) 0,100% 0,100% 100%,0 100%,0 var(--cut))}
+  .match-build li:focus-within{clip-path:none}
+  .match-build .simple-position{background:transparent;border-radius:0;font-family:var(--display);font-size:var(--tr-xl);font-weight:800;color:transparent;-webkit-text-stroke:1.2px var(--brand-text);transform:skewX(-10deg)}
+  .match-build li.is-changed .simple-position{color:var(--brand-text);-webkit-text-stroke:0}
+}
+/* ---- 2.50.0 QoL: one statement of a shared fact, and no dead ends ---- */
+.reading-mode-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin:var(--s2) 0;padding:var(--s1) var(--s1) var(--s1) var(--s3);background:var(--surface-2);font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--brand-text)}
+.meta-tier-note{margin:var(--s1) 0 var(--s2)}
+.meta-elsewhere p{margin:0 0 var(--s2)}
+.meta-elsewhere-list{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.toast .toast-undo{margin-left:var(--s2);min-height:36px;padding:0 var(--s3);font-weight:700}
+.skill-chart-scroll--split{display:grid;gap:var(--s2);padding-bottom:var(--s1)}
+.skill-chart-scroll--split .skill-chart{width:100%}
+.loadout-strip>.loadout-head{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s3);margin:0}
+.loadout-strip>.loadout-context,.loadout-strip>.loadout-options{grid-column:1/-1}
+.loadout-options ul{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);margin:0;padding:0;list-style:none}
+.loadout-options li{display:flex;align-items:center;gap:var(--s2)}
+.loadout-options p,.loadout-context p{margin:0}
+.loadout-options>p.muted{font-size:var(--t-xs)}
+/* 2.50.0: a narrow build card (two cards a row) shows its six items as Core and Flexible rows of three, so names fit */
+.build-card{container-type:inline-size}
+@container (max-width:640px){.build-card .build-path{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kit-shared-source{margin:var(--s2) 0 var(--s3)}
+.kit-shared-source>small{display:block;color:var(--muted);font-size:var(--t-xs)}
+/* 2.50.0 (QL14): below 1280 px the desktop hero header wraps its stats under the name instead of squeezing the name */
+@media(min-width:701px){
+  div.hero-header:not(.mobile-hero-head){flex-wrap:wrap;row-gap:var(--s4)}
+  div.hero-header:not(.mobile-hero-head) .summary{flex:1 1 22rem}
+  div.hero-header:not(.mobile-hero-head) .quick-stats{flex:0 1 auto;flex-wrap:wrap}
+  div.hero-header:not(.mobile-hero-head) .quick-stats small{max-width:20rem}
 }

@@ -127,21 +127,25 @@ function loadoutEvidence(plan,stats,fetchedAt){
  }
  return out;
 }
+/* 2.50.0: the strip names its category, source variant and collection date once (loadoutHeadHTML); each part shows
+   only its own figure, and the Eternal, which shares the augment's pair figure, says so instead of repeating it. */
 function loadoutSampleHTML(ev,label){
  var s=ev&&ev.parts?ev.parts[label]:null;
- if(!ev||!ev.variant)return '<small class="muted">No matching source variant.</small>';
+ if(!ev||!ev.variant)return '';
  if(!s)return '<small class="muted">No observation for this choice in that variant.</small>';
  if(s.none)return '<small class="muted">'+esc(s.none)+'</small>';
- return '<small class="muted">Win rate '+pct(s.wr)+' over '+games(s.played)+' · '+esc(s.scope)+' · collected '+esc(dayDate(ev.fetched_at))+'</small>';
+ if(label==='Eternal'&&ev.parts.Augment===s)return '<small class="muted">Same pair as the augment<span class="sr-only">: win rate '+pct(s.wr)+' over '+games(s.played)+'</span></small>';
+ return '<small class="muted"><span class="sr-only">Win rate </span>'+pct(s.wr)+' · '+games(s.played)+'<span class="sr-only"> · '+esc(s.scope)+'</span></small>';
 }
+function loadoutHeadHTML(plan,ev){var c=buildCategory(plan,null);
+ return '<p class="loadout-head">'+badge(c.text,c.type)+'<small class="muted">'+(ev&&ev.variant?'Figures: source variant '+(ev.variant.index+1)+' · collected '+esc(dayDate(ev.fetched_at)):'No source variant matches this augment and Eternal, so no part has a figure.')+'</small></p>';}
 /* The categories engine.js actually produces for a build part. A part is never reduced
    to "observed or substituted": a reviewed core, a calculated starting selection, a
    source playstyle the reader chose, an item merely brought forward and an item actually
    replaced are five different claims. */
 function loadoutPartHTML(label,name,kind,plan,ev){
  if(!name)return '<div class="loadout-absent"><small>'+esc(label)+'</small><p class="muted">Unavailable in this source.</p></div>';
- var c=buildCategory(plan,null);
- return '<div><small>'+esc(label)+'</small>'+itemButton(name,kind)+badge(c.text,c.type)+loadoutSampleHTML(ev,label)+'</div>';
+ return '<div><small>'+esc(label)+'</small>'+itemButton(name,kind)+loadoutSampleHTML(ev,label)+'</div>';
 }
 /* The crest path, stated rather than implied: base, mid form, final upgrade, with the
    recommendation marked where it sits. A recommended FINAL upgrade does not evolve again, so
@@ -149,8 +153,10 @@ function loadoutPartHTML(label,name,kind,plan,ev){
    sample or says it has none. */
 function crestRowSample(x,ev,what){
  if(!hasSample(x))return '<small class="muted">'+esc(what)+' has no sample of its own in that variant.</small>';
- return '<small class="muted">Win rate '+pct(x.winRate)+' over '+games(x.playedGames)+' · '+esc(what)+' · collected '+esc(dayDate(ev.fetched_at))+'</small>';
+ return '<small class="muted">'+esc(what)+': '+pct(x.winRate)+' · '+games(x.playedGames)+'</small>';
 }
+// One choice inside a shared tile: the item and its own figure (or that it has none).
+function crestOptionHTML(u){return '<li>'+itemButton(crestName(u),'items')+'<small class="muted">'+(hasSample(u)?'<span class="sr-only">Win rate </span>'+pct(u.winRate)+' · '+games(u.playedGames):'No sample of its own')+'</small></li>';}
 function crestEvolutionHTML(ev,planCrest){
  if(!ev||!ev.variant)return '<div class="loadout-absent"><small>Crest path</small><p class="muted">No source variant matches the recommended augment and Eternal, so no crest rows apply.</p></div>';
  if(!ev.crest)return '<div class="loadout-absent"><small>Crest path</small><p class="muted">That variant recommends a different crest, so its rows do not describe '+esc(planCrest||'this crest')+'. Nothing is estimated in their place.</p></div>';
@@ -159,21 +165,15 @@ function crestEvolutionHTML(ev,planCrest){
  var path='<div class="loadout-context"><small>Crest path</small><p class="crest-path">'
   +mark('base',base)+(mid?' \u2192 '+mark('mid',mid):'')
   +' \u2192 '+(cf.stage==='upgrade'?mark('upgrade',crestName(cf.choice)):'one final upgrade')+'</p>'
-  +crestRowSample(fam,ev,'the base crest, '+base)
+  +crestRowSample(fam,ev,'Base crest, '+base)
   +(mid?'<small class="muted">The mid form, '+esc(mid)+', has no separate sample in this source.</small>':'')+'</div>';
  if(cf.stage==='upgrade'){
   var siblings=ups.filter(function(u){return nk(crestName(u))!==nk(crestName(cf.choice));});
   if(!siblings.length)return path+'<div class="loadout-absent"><small>Other final upgrades</small><p class="muted">No other final upgrade of '+esc(base)+' in this source.</p></div>';
-  return path+siblings.map(function(u){
-   return '<div><small>Other final upgrade</small>'+itemButton(crestName(u),'items')+badge('Observed alternative','observed')+
-    crestRowSample(u,ev,'an alternative to '+crestName(cf.choice)+', not a further step')+'</div>';
-  }).join('');
+  return path+'<div class="loadout-options"><small>Other final upgrades</small>'+badge('Observed alternatives','observed')+'<p class="muted">Each is an alternative to '+esc(crestName(cf.choice))+', not a further step.</p><ul>'+siblings.map(crestOptionHTML).join('')+'</ul></div>';
  }
  if(!ups.length)return path+'<div class="loadout-absent"><small>Evolves into</small><p class="muted">No final-upgrade rows in this source for '+esc(base)+'. Nothing is estimated in their place.</p></div>';
- return path+ups.map(function(u){
-  return '<div><small>Evolves into</small>'+itemButton(crestName(u),'items')+badge('Observed choice','observed')+
-   crestRowSample(u,ev,'a final upgrade of '+base)+'</div>';
- }).join('');
+ return path+'<div class="loadout-options"><small>Evolves into</small>'+badge('Observed choices','observed')+'<p class="muted">Final upgrades of '+esc(base)+'.</p><ul>'+ups.map(crestOptionHTML).join('')+'</ul></div>';
 }
 function companionChrome(){
  if(companionMedia.matches){$('#menu-toggle').textContent='More';$('#menu-toggle').removeAttribute('aria-expanded');$('#menu-toggle').setAttribute('aria-controls','main');}
@@ -191,7 +191,11 @@ function companionChrome(){
 }
 function displayedRoleText(perf){return savedTag(perf.fetched_at,perf.retained)+pct(perf.wr)+' · '+games(perf.played)+' · '+esc(perf.source)+' '+esc(perf.patch||'')+' · '+esc(date(perf.fetched_at))+(perf.inspection_only?' · Previous dataset; not current-patch evidence':'');}
 // 2.37.0: a row shows a tier only when one applies, and flags only the few heroes without a reviewed build.
-function heroTile(p,{favorite=false,flagBuild=true}={}){const perf=E.displayPerformance(p),plan=E.buildReview(p.slug,p.role),ready=!flagBuild||!!plan?.active,shown=perf&&!perf.inspection_only?shownTier(p.slug,p.role):null,tierValue=shown?.tier||null,calculated=shown?.kind==='calculated'?'Calculated'+(fallbackText(shown)?' · '+fallbackText(shown):''):'';return `<article class="mobile-hero-card"${perf?wrVars(perf.wr):''}><div class="meta-hero-identity">${heroButton(p.slug,p.role).replace('</button>',(ready?'':`<span class="chip tag warning no-build-chip">${plan?'Build needs review':'No reviewed build'}</span>`)+'</button>')}</div><div class="mobile-stat">${perf?`${tierValue?tier(tierValue):''} <strong>${pct(perf.wr)}</strong><small>${calculated?`<span class="calculated tier-kind">${esc(calculated)}</span>`:''}${games(perf.played)}${perf.played<100?' · small sample':''}${perf.inspection_only?' · previous dataset':''}</small>`:`<small>${esc(noStatsText(p.role,p.slug))}</small>`}</div>${favorite?`<button class="favorite-button" data-favorite="${p.slug}|${p.role}" aria-label="Remove ${esc(name(p.slug))} from favorites">★</button>`:''}</article>`;}
+// 2.50.0: a calculated tier standing in for a withheld reviewed grade says why once, above the list (tierFallbackNote),
+// instead of on every row; each row keeps its Calculated label.
+function tierFallbackNote(role,rows){const held=rows.map(r=>shownTier(r.slug,role)).filter(t=>t?.kind==='calculated'&&t.fallback),queued=held.filter(t=>t.recheck).length;
+ return held.length?`<p class="simple-source meta-tier-note">${held.length===1?'1 reviewed grade is':held.length+' reviewed grades are'} withheld${queued===held.length?' (recheck queued)':queued?' ('+queued+' with a recheck queued)':''}; ${held.length===1?'its row shows':'those rows show'} the calculated tier.</p>`:'';}
+function heroTile(p,{favorite=false,flagBuild=true}={}){const perf=E.displayPerformance(p),plan=E.buildReview(p.slug,p.role),ready=!flagBuild||!!plan?.active,shown=perf&&!perf.inspection_only?shownTier(p.slug,p.role):null,tierValue=shown?.tier||null,calculated=shown?.kind==='calculated'?'Calculated':'';return `<article class="mobile-hero-card"${perf?wrVars(perf.wr):''}><div class="meta-hero-identity">${heroButton(p.slug,p.role).replace('</button>',(ready?'':`<span class="chip tag warning no-build-chip">${plan?'Build needs review':'No reviewed build'}</span>`)+'</button>')}</div><div class="mobile-stat">${perf?`${tierValue?tier(tierValue):''} <strong>${pct(perf.wr)}</strong><small>${calculated?`<span class="calculated tier-kind">${esc(calculated)}</span>`:''}${games(perf.played)}${perf.played<100?' · small sample':''}${perf.inspection_only?' · previous dataset':''}</small>`:`<small>${esc(noStatsText(p.role,p.slug))}</small>`}</div>${favorite?`<button class="favorite-button" data-favorite="${p.slug}|${p.role}" aria-label="Remove ${esc(name(p.slug))} from favorites">★</button>`:''}</article>`;}
 function strategyReviewDue(){return !!B&&E.strategyReviewDue().due;}
 function mobileStatusHTML(){const core=latestStatus.health?.core_statistics||{},source=B?.sources?.statz_hero_pages||{},when=core.updated_at||source.fetched_at,state={current:'Current',aging:'Aging',stale:'Stale',retained:'Saved',unavailable:'Unavailable'}[E.sourceCurrency({...source,fetched_at:when}).state],verification=(()=>{try{return E.evidenceState().verification.state;}catch{return 'verified';}})(),pendingCheck=verification==='verified'&&(()=>{try{return E.performancePolicy().label==='Verification required';}catch{return false;}})(),paused=!!B&&(verification!=='verified'||pendingCheck),newContent=/content changed after this collection/i.test(B?.recommendation_context?.reason||''),label=paused?'Paused':E.displayPerformancePolicy().inspection_only?'Previous data':state;return `<button class="mobile-health ${paused?'stale':state.toLowerCase()}" data-route="data"><strong>${esc(label)}</strong><span>${APP_CONFIG.mode==='export'?'Snapshot':local||shared?'App refresh':'Site refresh'} · Statz fetched ${esc(relativeTime(when))}${source.status==='retained'?' · retained':''}${E.statzGap?.()?' · '+E.statzGap().failed+(E.statzGap().failed===1?' hero page failed':' hero pages failed'):''} · Statz dataset ${esc(B?.patch||'unknown')} · ${paused?(newContent?'New official content · recommendations paused':pendingCheck?(/live verification failed/i.test(B?.guidance?.status||'')?'Live check failed · recommendations paused':'Live check pending · recommendations paused'):'Patch check failed · recommendations paused'):'Game patch '+esc(B?.official?.status==='verified'?B.official.live?.version:'unverified')}${(()=>{try{const b=E.evidenceState().builds;return b?' · Builds '+b.ready+'/'+b.total+' ready':'';}catch{return '';}})()}${strategyReviewDue()?' · Strategy review due':''}${(()=>{const x=['Stale','Aging','Saved','Paused'].includes(label)&&staleWhyNext();return !x?'':label==='Paused'?' · '+esc(x.check):' · '+esc(x.why)+' '+esc(x.next);})()}</span></button>`;}
 function relativeTime(value){const ms=Date.now()-Date.parse(value);if(!Number.isFinite(ms))return 'unavailable';if(ms<-300000)return 'at a time ahead of this device\'s clock';const hours=Math.max(0,Math.floor(ms/3600000));return hours<1?'less than 1h ago':hours<24?hours+'h ago':Math.floor(hours/24)+'d ago';}
@@ -210,7 +214,7 @@ function savedHeroShortcuts(favorites,recent){
  const recentOnly=recent.filter(p=>!seen.has(p.slug+'|'+p.role));
  if(!favorites.length&&!recentOnly.length)return '';
  const shortcut=p=>`<button data-hero="${esc(p.slug)}" data-role="${esc(p.role)}">${esc(name(p.slug))}<small>${esc(labels[p.role])}</small></button>`;
- return `<details class="saved-heroes" data-keep="saved-heroes"><summary>Your heroes · ${favorites.length} ${favorites.length===1?'favorite':'favorites'} · ${recentOnly.length} recent</summary>${favorites.length?`<section id="mobile-favorites"><h2>Favorites</h2><div class="saved-hero-list">${favorites.map(p=>`<div>${shortcut(p)}<button class="favorite-button" data-favorite="${esc(p.slug+'|'+p.role)}" aria-label="Remove ${esc(name(p.slug))} ${esc(labels[p.role])} from favorites">★</button></div>`).join('')}</div></section>`:''}${recentOnly.length?`<section id="mobile-recent"><h2>Recent</h2><div class="saved-hero-list">${recentOnly.map(p=>`<div>${shortcut(p)}</div>`).join('')}</div></section>`:''}</details>`;
+ return `<details class="saved-heroes" data-keep="saved-heroes"${companionPrefs.savedOpen?' open':''}><summary>Your heroes · ${favorites.length} ${favorites.length===1?'favorite':'favorites'} · ${recentOnly.length} recent</summary>${favorites.length?`<section id="mobile-favorites"><h2>Favorites</h2><div class="saved-hero-list">${favorites.map(p=>`<div>${shortcut(p)}<button class="favorite-button" data-favorite="${esc(p.slug+'|'+p.role)}" aria-label="Remove ${esc(name(p.slug))} ${esc(labels[p.role])} from favorites">★</button></div>`).join('')}</div></section>`:''}${recentOnly.length?`<section id="mobile-recent"><h2>Recent</h2><div class="saved-hero-list">${recentOnly.map(p=>`<div>${shortcut(p)}</div>`).join('')}</div></section>`:''}</details>`;
 }
 function guidedHome(){
  const role=roleOrder.includes(S.role)?S.role:'jungle',query=String(companionPrefs.homeQuery||'').toLowerCase(),everyone=roleHeroes(role),rows=roleListOrder(role).filter(r=>name(r.slug).toLowerCase().includes(query));
@@ -235,19 +239,22 @@ function guidedHome(){
  // (a new patch), one line says so instead of a chip on every row.
  const unreviewed=everyone.all.filter(r=>!E.buildReview(r.slug,role)?.active).length,flagBuilds=unreviewed*2<=everyone.all.length;
  const buildNote=!flagBuilds?`<p class="simple-source meta-build-note">Most ${esc(labels[role].toLowerCase())} starting builds are awaiting review for this patch; each hero page labels what it shows.</p>`:'';
- return (compact?'':mobileStatusHTML())+(companionError?note(esc(companionError),true):'')+(compact?`<h1 class="sr-only">Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[role])}</h1>`:head('Meta · '+esc(B.bracket?.label||''),labels[role]+' at a glance',esc(lead)))+
+ // 2.50.0: a search that matches heroes outside this role offers them instead of a dead end.
+ const elsewhere=query&&!rows.length?Object.keys(E.heroes).filter(s=>!E.roles(s).includes(role)&&name(s).toLowerCase().includes(query)).sort((a,b)=>name(a).localeCompare(name(b))).slice(0,6):[];
+ const noMatch=elsewhere.length?`<div class="empty meta-elsewhere"><p>No ${esc(labels[role].toLowerCase())} matches “${esc(companionPrefs.homeQuery)}”. In other roles:</p><div class="meta-elsewhere-list">${elsewhere.map(s=>heroButton(s,E.roles(s)[0])).join('')}</div></div>`:empty('No hero matches this role and search.');
+ return (typeof readingModeBar==='function'?readingModeBar():'')+(compact?'':mobileStatusHTML())+(companionError?note(esc(companionError),true):'')+(compact?`<h1 class="sr-only">Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[role])}</h1>`:head('Meta · '+esc(B.bracket?.label||''),labels[role]+' at a glance',esc(lead)))+
  `<div class="role-choices compact tab-strip tab-strip--segmented" role="tablist" aria-label="Role">${roleOrder.map(r=>`<button role="tab" data-mobile-role="${r}" aria-selected="${role===r}">${labels[r]}</button>`).join('')}</div><div class="meta-list-controls${compact?' meta-list-controls--quick':''}"><label class="mobile-search"><span${compact?' class="sr-only"':''}>Find a ${esc(labels[role].toLowerCase())}</span><input id="mobile-hero-search" type="search" autocomplete="off" placeholder="${compact?'Find a '+esc(labels[role].toLowerCase()):'Hero name'}" value="${esc(companionPrefs.homeQuery)}"></label><label><span${compact?' class="sr-only"':''}>Order by</span><select id="mobile-meta-order">${options(sortOptions,displayedOrder)}</select></label></div>`+
  savedHeroShortcuts(favorites,recent)+
- `<section id="mobile-role-list">${compact&&unusual?`<details class="meta-context" data-keep="meta-context"><summary>${esc(overview)}</summary><div class="detail-content">${mobileStatusHTML()}<p>${esc(lead)}</p>${listStatus}</div></details>`:''}${compact?`<h2 class="sr-only">${esc(labels[role])} heroes · ${rows.length} of ${everyone.all.length}</h2>`:`<div class="section-title"><h2>All ${esc(labels[role].toLowerCase())} heroes</h2><small>Showing ${rows.length} of ${everyone.all.length}</small></div>`}${compact?'':listStatus}<div class="mobile-card-list" id="mobile-all-list">${rows.map(r=>heroTile({slug:r.slug,role},{flagBuild:flagBuilds})).join('')||empty('No hero matches this role and search.')}</div>${buildNote}</section>`+
+ `<section id="mobile-role-list">${compact&&unusual?`<details class="meta-context" data-keep="meta-context"><summary>${esc(overview)}</summary><div class="detail-content">${mobileStatusHTML()}<p>${esc(lead)}</p>${listStatus}</div></details>`:''}${compact?`<h2 class="sr-only">${esc(labels[role])} heroes · ${rows.length} of ${everyone.all.length}</h2>`:`<div class="section-title"><h2>All ${esc(labels[role].toLowerCase())} heroes</h2><small>Showing ${rows.length} of ${everyone.all.length}</small></div>`}${compact?'':listStatus}${tierFallbackNote(role,rows)}<div class="mobile-card-list" id="mobile-all-list">${rows.map(r=>heroTile({slug:r.slug,role},{flagBuild:flagBuilds})).join('')||noMatch}</div>${buildNote}</section>`+
  `<section id="mobile-changes"><div class="section-title"><h2>What changed</h2><button class="quiet" data-route="changes">All changes</button></div>${changes.length?`<div class="mobile-card-list">${changes.map(c=>`<article class="mobile-change">${heroButton(c.slug,c.role,true)}<strong class="${c.wr_delta>0?'positive':'negative'}">${pp(c.wr_delta)}</strong><small>${num(c.matches_from,0)} → ${num(c.matches_to,0)} games</small></article>`).join('')}</div>`:empty('No qualifying win-rate movement in the available same-rank comparison.')}</section>`;
 }
 function mobileHero(){
  const p={slug:S.hero,role:S.heroRole};if(!E.heroes[p.slug])return guidedHome();if(!['builds','pairings','counters','kit'].includes(S.heroTab))S.heroTab='builds';
  const why=pickBlock(p.slug,p.role),mine=S.me===p.slug&&S.locks.some(x=>x.slug===p.slug&&x.role===p.role),blocked=mine?'':why,perf=E.displayPerformance(p),fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
  const full=heroView(),node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));const body=node.innerHTML;
- return `<button class="text-button" data-route="meta">← Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head"${artVars(p.slug)}>${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</span></p></div><div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${fav?'★ Favorited':'☆ Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Live':'Use in Live'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
+ return `<button class="text-button" data-route="meta">← Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head"${artVars(p.slug)}>${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</span></p></div><div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${fav?'★ Favorited':'☆ Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Match':'Use in Match'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
 }
-function mobileBuilds(){const rows=Object.keys(E.heroes).filter(slug=>E.roles(slug).includes(S.role)&&name(slug).toLowerCase().includes(S.query.toLowerCase())).sort((a,b)=>name(a).localeCompare(name(b)));return head('Builds · '+esc(B.bracket?.label||''),'Reviewed starting plans','Choose a role, then open one compact plan. Source variants remain on the hero page.')+metaToolbarHTML()+maintenanceHTML()+`<div class="mobile-build-list">${rows.map(slug=>{const plan=E.plannedBuild(slug,S.role),perf=E.displayPerformance({slug,role:S.role});return `<details class="panel mobile-build-row" data-keep="build-${slug}"><summary>${art(slug,'tiny')}<span><strong>${esc(name(slug))}</strong><small>${perf?displayedRoleText(perf):'Role sample unavailable'}</small></span><span>${plan.kind==='reviewed'?badge('Reviewed','reviewed'):badge('Provisional','warning')}</span></summary><div class="detail-content">${plannedBuildHTML(plan,true)}<button data-hero-builds="${slug}" data-role="${S.role}">Open full build</button></div></details>`;}).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;}
+function mobileBuilds(){const rows=Object.keys(E.heroes).filter(slug=>E.roles(slug).includes(S.role)&&name(slug).toLowerCase().includes(S.query.toLowerCase())).sort((a,b)=>name(a).localeCompare(name(b)));return head('Builds · '+esc(B.bracket?.label||''),'Reviewed starting plans','Choose a role, then open one compact plan. Source variants remain on the hero page.')+metaToolbarHTML()+maintenanceHTML()+`<div class="mobile-build-list">${rows.map(slug=>{const plan=E.plannedBuild(slug,S.role),perf=E.displayPerformance({slug,role:S.role});return `<details class="panel mobile-build-row" data-keep="build-${slug}"><summary>${art(slug,'tiny')}<span><strong>${esc(name(slug))}</strong><small>${perf?compactRoleText(perf):'Role sample unavailable'}</small></span><span>${plan.kind==='reviewed'?badge('Reviewed','reviewed'):badge('Provisional','warning')}</span></summary><div class="detail-content">${plannedBuildHTML(plan,true)}<button data-hero-builds="${slug}" data-role="${S.role}">Open full build</button></div></details>`;}).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;}
 // 2.37.0: More holds reference screens, sources and preferences. Draft sharing, export and the review packet are
 // desktop tools (the desktop top bar keeps Share, Open and Export); the phone list stays short and tappable.
 function moreView(){const phone=companionMedia.matches,installed=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
@@ -285,7 +292,13 @@ const originalChangeRoute=changeRoute,originalOpenHero=openHero;
 const originalDetail=detail;let dialogReturn=null,dialogSituation=null,dialogReturnKey='';
 // The control that opened a dialog, by id or data attributes, so focus can return to its redrawn copy.
 function returnSelector(el){if(!el||el===document.body||el===document.documentElement)return '';if(el.id)return '#'+CSS.escape(el.id);const data=[...el.attributes].filter(a=>a.name.startsWith('data-')).map(a=>'['+a.name+'="'+CSS.escape(a.value)+'"]').join('');return data?el.tagName.toLowerCase()+data:'';}
-detail=function(title,body,refresh){if(!document.querySelector('#detail')?.open){dialogReturn=document.activeElement;dialogReturnKey=returnSelector(dialogReturn);dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);};
+// 2.50.0: on the phone an open dialog is its own history entry, so Back (the system gesture) closes only the dialog
+// instead of also leaving the page behind it. Closing it any other way removes that entry again.
+let dialogEntry=false,dialogBackPending=false;
+detail=function(title,body,refresh){const opening=!document.querySelector('#detail')?.open;if(opening){dialogReturn=document.activeElement;dialogReturnKey=returnSelector(dialogReturn);dialogSituation=dialogReturn?.dataset?.editSituation;}originalDetail(title,body,refresh);
+ if(opening&&companionMedia.matches&&!historyApplying&&!dialogEntry&&location.protocol!=='file:'&&B&&writeNavigation('pushState',{...history.state,dialog:true},location.href))dialogEntry=true;};
+$('#detail').addEventListener('close',()=>{if(!dialogEntry)return;dialogEntry=false;if(history.state?.dialog){dialogBackPending=true;history.back();}});
+$('#detail').addEventListener('click',event=>{const d=event.currentTarget;if(event.target!==d)return;const r=d.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)d.close();});
 $('#detail').addEventListener('close',()=>{const again=!dialogReturn?.isConnected&&dialogReturnKey?document.querySelector('#main '+dialogReturnKey):null;if(dialogReturn?.isConnected)dialogReturn.focus();else if(again)again.focus();else if(dialogReturn?.hasAttribute('data-edit-roster'))document.querySelector('[data-edit-roster]')?.focus();else if(dialogSituation)document.querySelector('[data-edit-situation]')?.focus();else $('#main').focus({preventScroll:true});});
 let navigationTransition=false,navigationRestore=null,linkedBracketPending=null,navigationRankChange=null;
 try{history.scrollRestoration='manual';}catch{}
@@ -310,16 +323,23 @@ function recordNavigation(replace=false){
  if(history.state?.companion&&JSON.stringify(history.state.companion)===JSON.stringify(n)&&location.hash===hash)return;
  if(writeNavigation(replace?'replaceState':'pushState',{companion:n,scrollY,disclosures:disclosureStates()},url))linkApplied=url.hash;
 }
+// 2.50.0: the META tab returns to the reader's place in the list they left (same role and search); tapping it while on
+// Meta starts at the top, as before.
+let metaPlace=null;
+function leaveMeta(){if(S.route==='meta'&&companionMedia.matches)metaPlace={role:S.role,query:companionPrefs.homeQuery,y:scrollY};}
 changeRoute=function(route){
+ const back=destinationRoute(route)==='meta'&&S.route!=='meta'&&companionMedia.matches?metaPlace:null;
+ leaveMeta();if(destinationRoute(route)==='meta'&&S.route==='meta')metaPlace=null;
  saveNavigationPosition();navigationRestore=null;navigationTransition=true;
  // Suppress an old URL during the draw; the new URL is committed after the draw.
  linkApplied=location.hash;
  try{originalChangeRoute(destinationRoute(route));}finally{navigationTransition=false;}
+ if(back&&S.route==='meta'&&back.role===S.role&&back.query===companionPrefs.homeQuery)requestAnimationFrame(()=>scrollTo({top:back.y,behavior:'instant'}));
  recordNavigation();
 };
 openHero=function(slug,role){
  if(!E.heroes[slug]){companionError='That hero is unavailable. Choose another.';changeRoute('meta');if(!companionMedia.matches)toast(companionError);return;}
- saveNavigationPosition();originalOpenHero(slug,role);
+ leaveMeta();saveNavigationPosition();originalOpenHero(slug,role);
  companionPrefs.recent=[{slug,role:S.heroRole},...companionPrefs.recent.filter(p=>p.slug!==slug||p.role!==S.heroRole)].slice(0,5);saveCompanionPrefs();
 };
 function requestLinkedBracket(bracket){
@@ -382,7 +402,7 @@ document.addEventListener('click',async event=>{
  if(el.id==='download-review-packet'){downloadReviewPacket();return;}
  if(el.id==='mobile-limits'){detail('Source limitations',limitsDialogHTML());return;}
  if(d.limitsSources){dialogReturn=null;dialogSituation=null;$('#detail').close();changeRoute('data');$('#main').focus({preventScroll:true});return;}
- else if(d.mobileRole){S.role=d.mobileRole;companionPrefs.homeQuery='';metaShowAll=false;saveCompanionPrefs();}
+ else if(d.mobileRole){S.role=d.mobileRole;metaShowAll=false;saveCompanionPrefs();}
  else if(d.favorite){companionPrefs.favorites=companionPrefs.favorites.filter(v=>v!==d.favorite);saveCompanionPrefs();}
  else if(el.id==='favorite-hero'){const key=S.hero+'|'+S.heroRole;companionPrefs.favorites=companionPrefs.favorites.includes(key)?companionPrefs.favorites.filter(v=>v!==key):[key,...companionPrefs.favorites].slice(0,20);saveCompanionPrefs();}
  else if(d.startLive){matchSetMe(S.hero);S.locks=[{slug:S.hero,role:E.roles(S.hero).includes(S.heroRole)?S.heroRole:E.roles(S.hero)[0]}];save();S.route='match';}
@@ -400,9 +420,14 @@ document.addEventListener('change',event=>{
  else if(el.id==='large-text'){companionPrefs.large=el.checked;saveCompanionPrefs();companionChrome();}
  else if(el.id==='hero-role')setTimeout(()=>recordNavigation(true),0);
 },true);
+// 2.50.0: Your heroes stays open or closed as the reader left it; Enter in the hero search opens the first match.
+document.addEventListener('toggle',event=>{if(event.target.matches?.('#main details.saved-heroes')){companionPrefs.savedOpen=event.target.open;saveCompanionPrefs();}},true);
+document.addEventListener('keydown',event=>{if(event.key!=='Enter'||event.target.id!=='mobile-hero-search')return;const first=$('#mobile-role-list [data-hero]');if(first){event.preventDefault();first.click();}});
 document.addEventListener('input',event=>{if(event.target.id==='mobile-hero-search'){const pos=event.target.selectionStart;companionPrefs.homeQuery=event.target.value;saveCompanionPrefs();render();const input=$('#mobile-hero-search');input?.focus();input?.setSelectionRange(pos,pos);}});
 document.addEventListener('click',event=>{if(event.target.closest('[data-meta-role]'))recordNavigation(true);if(event.target.closest('[data-hero-tab]')){recordNavigation(true);if(companionMedia.matches){const d=$('#main > details');if(d)d.open=true;}}});
 window.addEventListener('popstate',event=>{
+ if(dialogBackPending){dialogBackPending=false;return;}/* the dialog's own entry, removed after a close */
+ if(dialogEntry&&$('#detail')?.open){dialogEntry=false;$('#detail').close();return;}/* 2.50.0: Back closes only the dialog */
  if($('#detail')?.open){dialogReturn=null;dialogReturnKey='';$('#detail').close();}/* 2.41.0: Back never leaves a dialog over another page */
  historyApplying=true;navigationRestore=event.state?.companion?event.state:null;
  try{
@@ -412,11 +437,15 @@ window.addEventListener('popstate',event=>{
    for(const k of ['query','sort','direction','full'])if(n[k]!==undefined)S[k]=n[k];
    if(n.homeQuery!==undefined)companionPrefs.homeQuery=n.homeQuery;if(n.showAll!==undefined)metaShowAll=n.showAll;
    sectionSpy.requested=null;sectionSpy.tab=n.tab;linkApplied=location.hash;
-   if(n.bracket!==S.bracket)requestLinkedBracket(n.bracket);
+   // 2.50.0: the rank is the reader's current choice, not part of the page being returned to. Back used to switch it
+   // back to whatever rank that page was first opened under.
+   if(n.bracket!==S.bracket){rankKept=true;navigationRestore={...navigationRestore,companion:{...n,bracket:S.bracket}};}
   }else linkApplied='';
   render();
  }finally{historyApplying=false;}
+ if(rankKept){rankKept=false;recordNavigation(true);}
 });
+let rankKept=false;
 window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#plan=')&&location.hash!==linkApplied){render();}});
 window.addEventListener('offline',()=>redrawForEvidence());window.addEventListener('online',()=>redrawForEvidence());
 companionMedia.addEventListener('change',()=>render());
