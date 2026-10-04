@@ -227,7 +227,8 @@
     "QL26": "2.50.0 DESKTOP: a Meta row under 100 games says so in its tier cell and again under its win rate",
     "QL27": "2.50.0: Adapt to the enemy team lists the same swap once per team type that shares it",
     "QL28": "2.50.0 PHONE: the Sources page ends with the desktop Export footer",
-    "QL29": "2.50.0 PHONE: a partner card has its own evidence disclosure and an Evidence & why button that opens the same evidence"
+    "QL29": "2.50.0 PHONE: a partner card has its own evidence disclosure and an Evidence & why button that opens the same evidence",
+    "BO1": "2.51.0 LOOK: one accent colour, a plain patch strip with no state tag, no light streaks over the hero art, no gauge under the hero win rate, the phone stat line as plain text, and loadout parts stacked label/icon/name"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

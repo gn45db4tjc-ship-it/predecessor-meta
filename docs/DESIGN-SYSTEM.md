@@ -195,6 +195,11 @@ The hero plate stays dark in both themes, so its tokens are defined once on `:ro
 | `--brand-sheen` | `#a6f2ff` | `#33a3d6` | The light slashes across the main action; brand text on the plate |
 | `--icon-glow` | `rgba(53,214,255,.28)` | `rgba(0,113,171,.3)` | Hairline around build icons |
 | `--tier-sheen` | `rgba(255,255,255,.28)` | same | Top sheen on tier plates |
+| `--signal` | `#ff3d7f` | `#d1175a` | Broadcast Overdrive (2.51.0): the hot second accent — the ticker's Current tag, the ground's second glow, the sidebar state dot |
+| `--signal-ink` | `#1a0610` | `#ffffff` | Text on `--signal` (5.9:1 dark, 5.3:1 light) |
+| `--signal-glow` | `rgba(255,61,127,.12)` | `rgba(209,23,90,.08)` | The ground's top-right glow |
+| `--streak` | `rgba(53,214,255,.6)` | same | Cyan light streaks over the hero art (the plate is dark in both themes) |
+| `--streak-2` | `rgba(255,61,127,.55)` | same | The pink light streak over the hero art |
 
 Set on components rather than `:root`:
 
@@ -284,6 +289,17 @@ _Usage:_ Only for reviewed or source tiers; never for calculated scores.
 - **Build.** Tiles with a cut corner, a glow behind each icon (52 px on the phone, 56 px on the desktop) and outlined slanted numbers. Desktop loadout slots stack their label, item, evidence chip and provenance in one column, so the provenance no longer wraps around the chip.
 - **Ground.** A faint diagonal hatch and a brand glow in the top-left corner (`--hatch`, `--brand-glow`). Panels lose their outline; fills and the hatch separate them.
 - **Motion.** 150 ms for state changes, a lift on build tiles and a nudge on Meta rows, all inside `prefers-reduced-motion: no-preference`.
+
+## Broadcast Overdrive (2.51.0)
+
+The owner picked this from five stylized Figma directions on 4 October 2026 (file `rjHeYv9EVKJ1GnijQg5ETd`, page 01). It keeps every 2.49 rule above and pushes the look further, in `broadcast.css` (the Overdrive section at its end):
+
+- **Second accent.** `--signal` (hot pink) marks state, never evidence: the ticker's tag when the data is Current, a second glow on the ground, the sidebar state dot. Evidence keeps its own colours.
+- **Ticker.** On the desktop the patch strip reads as one broadcast line: a slanted tag, then each fact separated by `//`. The tag is the data's real state (`statusFacts().label` in `mobile.js`: Current, Aging, Stale, Saved, Paused, Previous data), set as `#patch-strip[data-state]` and drawn with `content: attr(data-state)`. It never says "live".
+- **Hero plate.** Two cyan and one pink light streak (`--streak`, `--streak-2`) cross the art and fade with it. A cyan rule tops the desktop plate. Its eyebrow names the verified game patch, and "Use in Match" ends in chevrons (`::after`, alt text empty). The win-rate plate carries `wrVars()` and draws the gauge under its figure.
+- **Phone stat strip.** `.hero-context` is the tier and its label on the left, the win rate large (`.hero-figure`, with the gauge) on the right, and the sample line under both.
+- **Build.** Core purchases are labelled in the accent colour (`small.is-core`). Loadout parts show the icon beside the name, the label above and the figure below.
+- **Brand mark.** A slanted cyan bar replaces the diamond.
 
 ## Focus and selection
 

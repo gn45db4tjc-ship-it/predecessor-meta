@@ -3987,6 +3987,46 @@ probes.QL29 = async browser => {
   verdict('QL29', seen.both > 0, seen);
 };
 
+probes.BO1 = async browser => {
+  // 2.51.0 Broadcast Overdrive (owner's pick from the five Figma directions, 4 Oct 2026). Before: one accent colour, a
+  // plain patch strip, no light streaks over the hero art, no gauge under the hero's win rate, the phone stat line as
+  // plain text, and the loadout parts stacked label/icon/name.
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktopHero);
+    await guideLoaded(page);
+    seen.desk = await page.evaluate(async () => {
+      openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 400));
+      const root = getComputedStyle(document.documentElement), plate = document.querySelector('#main .hero-header');
+      const art = plate ? getComputedStyle(plate, '::before').backgroundImage : '';
+      const stat = document.querySelector('#main .hero-header .quick-stats > div:last-child');
+      const cta = document.querySelector('#main .hero-use-match'), strip = document.querySelector('#patch-strip');
+      const part = document.querySelector('#main .loadout-strip > div:not(.loadout-context):not(.loadout-options):not(.loadout-absent) .item-button');
+      return {
+        signal: root.getPropertyValue('--signal').trim(),
+        streaks: (art.match(/linear-gradient/g) || []).length,
+        gauge: !!stat && stat.style.getPropertyValue('--wr-d') !== '' && getComputedStyle(stat.querySelector('.big'), '::after').content !== 'none',
+        chevrons: cta ? /›/.test(getComputedStyle(cta, '::after').content) : false,
+        ticker: strip ? {state: strip.dataset.state || '', tag: getComputedStyle(strip, '::before').content} : null,
+        loadoutRow: part ? getComputedStyle(part).flexDirection : null};
+    });
+    await context.close();
+  }
+  {
+    const {context, page} = await quickPhoneReady(browser);
+    seen.phone = await page.evaluate(async () => {
+      openHero('gideon', 'midlane'); await new Promise(r => setTimeout(r, 400));
+      const fig = document.querySelector('#main .hero-context .hero-figure');
+      return {figure: fig ? {text: fig.textContent, wr: fig.style.getPropertyValue('--wr-d') !== '' || fig.closest('[style*="--wr-d"]') !== null, size: parseFloat(getComputedStyle(fig).fontSize)} : null};
+    });
+    await context.close();
+  }
+  const d = seen.desk, p = seen.phone;
+  const ok = !!d.signal && d.streaks >= 2 && d.gauge && d.chevrons && !!d.ticker?.state && d.ticker.tag !== 'none' && d.loadoutRow === 'row'
+    && !!p.figure && p.figure.wr && p.figure.size >= 24;
+  verdict('BO1', !ok, seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

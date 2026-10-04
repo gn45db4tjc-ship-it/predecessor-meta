@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.50.0
+# Predecessor Meta - 2.51.0
 
-2.50.0 is a quality-of-life pass from a full audit of 4 October 2026: text that fits and lines up at every size, each fact said once, and fewer dead ends. On the phone, Full details has its exit at the top, Back closes a dialog without leaving the page, the Match grid stays still under your finger, New match can be undone, the META tab and Back keep your place and rank, a search finds heroes in other roles, and the skill chart shows all 18 levels. On the desktop, the hero header fits at 1024 px, and the loadout, Starting builds and Kit state shared facts once. No evidence, figure or rule changes. See [RELEASE-2.50.0.md](RELEASE-2.50.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.51.0 builds Broadcast Overdrive, the owner's pick of five stylized Figma directions (4 October 2026): the Broadcast look pushed further, with a hot pink second accent for state, light streaks over the hero art, the desktop patch strip as a ticker whose tag is the data's real state (Current, Aging, Stale, Saved, Paused), a gauge under the hero win rate, a phone stat strip with the figure large, and horizontal loadout tiles. It ships with 2.50.0, the QoL pass below. No evidence, figure or rule changes. See [RELEASE-2.51.0.md](RELEASE-2.51.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.50.0
+
+2.50.0 is a quality-of-life pass from a full audit of 4 October 2026: text that fits and lines up at every size, each fact said once, and fewer dead ends. On the phone, Full details has its exit at the top, Back closes a dialog without leaving the page, the Match grid stays still under your finger, New match can be undone, the META tab and Back keep your place and rank, a search finds heroes in other roles, and the skill chart shows all 18 levels. On the desktop, the hero header fits at 1024 px, and the loadout, Starting builds and Kit state shared facts once. No evidence, figure or rule changes. See [RELEASE-2.50.0.md](RELEASE-2.50.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.49.0
 
