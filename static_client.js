@@ -42,9 +42,11 @@ if (APP_CONFIG.mode === 'static') {
     for (let i = 0; i < 3; i++) if (next[i] !== current[i]) return next[i] > current[i];
     return false;
   };
+  // The running version, said once: a message that already names it stands alone.
+  function appStateText() { const v = 'v' + APP_CONFIG.tool_version, m = appUpdate.message || ''; return m.includes(v) ? m : 'Running ' + v + (m ? ' · ' + m : ''); }
   function appUpdateHTML() {
     // 2.37.0: one compact row. Updates keep the saved match, favourites and playstyles; game data updates separately (button title).
-    return '<section class="panel app-update-row" aria-label="App updates"><p><strong>Running v' + esc(APP_CONFIG.tool_version) + '</strong> <span data-app-state></span></p><div class="actions"><button data-app-check title="Updates keep your saved match, favourites and playstyles. Game data updates separately.">Check app update</button><button class="primary hide" data-app-apply>Update app</button></div></section>';
+    return '<section class="panel app-update-row" aria-label="App updates"><p><span data-app-state>' + esc(appStateText()) + '</span></p><div class="actions"><button data-app-check title="Updates keep your saved match, favourites and playstyles. Game data updates separately.">Check app update</button><button class="primary hide" data-app-apply>Update app</button></div></section>';
   }
   const oldMore = moreView;
   moreView = function() { return oldMore() + appUpdateHTML(); };
@@ -58,7 +60,7 @@ if (APP_CONFIG.mode === 'static') {
     }
     banner.classList.toggle('hide', !appUpdate.latest);
     document.querySelectorAll('[data-app-state]').forEach(node => {
-      if (node.textContent !== appUpdate.message) node.textContent = appUpdate.message;
+      const text = appStateText(); if (node.textContent !== text) node.textContent = text;
     });
     document.querySelectorAll('[data-app-check]').forEach(button => {button.disabled = appUpdate.busy || appUpdate.applying; button.textContent = appUpdate.busy ? 'Checking app…' : 'Check app update';});
     document.querySelectorAll('[data-app-apply]').forEach(button => {button.classList.toggle('hide', !appUpdate.latest); button.disabled = appUpdate.applying; button.textContent = appUpdate.applying ? 'Opening update…' : 'Update app';});

@@ -430,7 +430,6 @@
  .team-alt-list>li[data-status="swap"]{display:grid;grid-template-columns:7.5em minmax(0,1fr);align-items:center;gap:var(--s2);padding:var(--s1) 0}
  .team-alt-list .team-alt-change .item-button{min-height:44px}
  .simple-build--compact .simple-setup>div>small:first-child{white-space:nowrap}
- .simple-build--compact .setup-n{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
  .match-grid{grid-template-columns:repeat(auto-fill,minmax(4.75rem,1fr));gap:var(--s1-5)}
  .match-hero{min-height:64px;padding:var(--s1-5) var(--s0-5);line-height:1.2}
  .match-search{align-items:stretch;text-align:left}.match-search input{width:100%}
