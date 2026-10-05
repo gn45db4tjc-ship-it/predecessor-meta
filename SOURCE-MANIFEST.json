@@ -196,7 +196,7 @@
     "tests/browser_rank_companion.cjs": "f6d0b3cddc004c350a018bdc4f7f64b872c39bb71b1992ddb5a2e58b388847e3",
     "tests/browser_ranks.cjs": "87c22443e68456836a3bdcd00d63362cc38896dc24ce412ba925b207da829605",
     "tests/browser_release_222.cjs": "5ea23c573a702b4063c8706833db00b5e14bee005ce870d3d38ed90e885476b0",
-    "tests/browser_release_upgrade.cjs": "d4819bb7e618dae675f92db50c246318568afd82d0e4e34701ab15162c8f7603",
+    "tests/browser_release_upgrade.cjs": "21b5a32cff2f52e2ac94cff08fb4ae642a2604769a9a6cd1dfbf064061789b84",
     "tests/browser_review_corrections.cjs": "ed1f61d91940366ad6bbd3253999b39f2406266c4caef82d7a543a3fe5d618c3",
     "tests/browser_revision2_modes.cjs": "5b564f5c4ab1b55a62afce06d55f444b100baefc464e3a2e093061781fcea71a",
     "tests/browser_role_statistics.cjs": "bcf1c90349210fd56644f3e118c31b5f4bc19de4421d7ad9d6b17a2f6a6b7696",
