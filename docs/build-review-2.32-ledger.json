@@ -6,7 +6,7 @@
  "editorial_reference": "Gold+",
  "evidence": {
   "official": "Patch 1.17 (live 2026-09-22) and 1.16.4 articles as collected 2026-09-23 14:24 CDT, fingerprints 271b9e0e… (1.17) and 0ca8b107… (1.16.4). No hotfix published; confirmed on predecessorgame.com 2026-09-23.",
-  "mechanics": "Pred.gg public definitions collected by the Windows app 2026-09-23 14:24 CDT (evidence/windows-bronze-2313.json), cross-checked against Omeda and the official notes.",
+  "mechanics": "Pred.gg public definitions collected by the Windows app 2026-09-23 14:24 CDT (evidence/windows-bronze-2313.json), cross-checked against Omeda and the official notes. (Correction, 5 Oct 2026: omeda.city is Pred.gg's own former site, so that cross-check was not independent; the official notes were.)",
   "pred_117": "Pred.gg 1.17 ranked Bronze+ role and item-position samples, 2026-09-23 14:24 CDT. The only current-patch outcome sample available; Pred.gg returned no structured data to later automated requests, which was respected.",
   "pred_1164_gold": "Pred.gg 1.16.4 Gold+ samples, 2026-09-21 (previous patch).",
   "statz": "Statz dataset labelled 1.16, collected 2026-09-23 14:52–14:56 CDT for all six ranks; broad dataset, previous patch.",
