@@ -7,7 +7,7 @@
 //   or malformed response can never replace a verified bracket.
 // Both names keep the 'predecessor-meta-' prefix on purpose: if the website is rolled back to 2.24 or earlier,
 // that release's worker deletes them on activation and starts saving afresh, instead of serving a frozen copy.
-const SHELL_CACHE = 'predecessor-meta-shell-v2-51-0';
+const SHELL_CACHE = 'predecessor-meta-shell-v2-52-0';
 const DATA_CACHE = 'predecessor-meta-data-v1';
 const LEGACY = /^predecessor-meta-v\d+-\d+$/;   // releases up to 2.24 kept shell and data together in one cache
 const ROOT = new URL('./', self.location.href);
@@ -97,8 +97,13 @@ function localRequest(request) {
   return url.origin === ROOT.origin && url.pathname.startsWith(ROOT.pathname);
 }
 
-async function rememberShell(request, response) {
-  if (response.ok) await (await caches.open(SHELL_CACHE)).put(request, response.clone());
+// 2.52.0: the response goes to the page at once; its copy is saved in the background, kept alive by the fetch
+// event (keep). Awaiting the write first made a slow return visit wait for the whole page to be stored.
+function rememberShell(request, response, keep = null) {
+  if (response.ok) {
+    const copy = response.clone(), save = caches.open(SHELL_CACHE).then(cache => cache.put(request, copy)).catch(error => console.warn('Shell copy not saved:', error));
+    if (keep) keep(save);
+  }
   return response;
 }
 
@@ -108,12 +113,12 @@ function offlineCopy(cached) {
   return new Response(cached.body, {status: cached.status, statusText: cached.statusText, headers});
 }
 
-async function networkFirst(request, {data = false, fallback = null} = {}) {
+async function networkFirst(request, {data = false, fallback = null, keep = null} = {}) {
   let refused = null;   // the server answered, but not with the file (for example 404 after a redeploy)
   try {
     const response = await fetch(new Request(request, {cache: 'no-store'}));
     if (!response.ok) { refused = response; throw new Error('Publication unavailable'); }
-    return data ? response : rememberShell(request, response);   // data is stored by the page, after verification
+    return data ? response : rememberShell(request, response, keep);   // data is stored by the page, after verification
   } catch (error) {
     // Before serving the saved manifest, make sure it describes bundles that are actually saved (a backstop for
     // browsers without Web Locks, where two tabs could commit at the same moment).
@@ -150,8 +155,9 @@ self.addEventListener('fetch', event => {
   // The explicit app updater checks a fresh root document before navigation. Treat that fetch like
   // navigation too: never serve a cached online response as proof that the release is reachable.
   const shellDocument = url.pathname === ROOT.pathname || url.pathname === new URL('index.html', ROOT).pathname;
-  if (request.mode === 'navigate' || shellDocument) event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT)}));
+  const keep = typeof event.waitUntil === 'function' ? promise => event.waitUntil(promise) : null;
+  if (request.mode === 'navigate' || shellDocument) event.respondWith(networkFirst(request, {fallback: new URL('./', ROOT), keep}));
   else if (data && immutable) event.respondWith(savedImmutable(request).catch(() => null).then(saved => saved || networkFirst(request, {data: true})));
   else if (data) event.respondWith(networkFirst(request, {data: true}));
-  else event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => rememberShell(request, response))));
+  else event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => rememberShell(request, response, keep))));
 });

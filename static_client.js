@@ -55,7 +55,7 @@ if (APP_CONFIG.mode === 'static') {
     if (!banner) {
       banner = document.createElement('section'); banner.id = 'app-update-notice';
       banner.className = 'panel app-update-notice hide'; banner.setAttribute('aria-label', 'App update available');
-      banner.innerHTML = '<p data-app-state role="status" aria-live="polite"></p><button class="primary" data-app-apply>Update app</button>';
+      banner.innerHTML = '<p data-app-state></p><button class="primary" data-app-apply>Update app</button>';
       $('#main').before(banner);
     }
     banner.classList.toggle('hide', !appUpdate.latest);
@@ -217,7 +217,7 @@ if (APP_CONFIG.mode === 'static') {
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
     if (latestStatus.checkedAt) $('#freshness').textContent += ' Browser last checked: ' + date(latestStatus.checkedAt) + '.';
     if (B) $('#freshness').textContent += ' Core Statz health is separate from optional Pred.gg availability. Your match and favourites are saved in this browser.';
-    $('#progress').textContent = latestStatus.message || 'Loading the latest published data…';
+    setText('#progress', latestStatus.message || 'Loading the latest published data…');   // 2.52.0: only when it changes (a live region)
     $('#progress').classList.toggle('failed',!!latestStatus.errors?.some(e=>isMaterialError(e)));
     if (!B && !latestStatus.busy) $('#main').innerHTML = empty(latestStatus.message || 'No successful publication is available for this bracket yet. Choose another bracket.');
   };
@@ -368,6 +368,15 @@ if (APP_CONFIG.mode === 'static') {
     if (hash !== part.sha256) throw Error(mismatch);
     return {bytes, value: MetaProjection.decode(JSON.parse(new TextDecoder().decode(bytes)))};
   }
+  // A link the browser reports as slow (2G/3G, or Data Saver on). Browsers without the report count as fast.
+  function slowLink() { const c = navigator.connection; return !!c && (c.saveData === true || /^(slow-2g|2g|3g)$/.test(c.effectiveType || '')); }
+  function portraitsFirst() {
+    if (!companionMedia.matches || S.route !== 'meta' || !slowLink()) return Promise.resolve();
+    const pending = [...document.querySelectorAll('#main img')].filter(img => !img.complete && img.getBoundingClientRect().top < innerHeight);
+    if (!pending.length) return Promise.resolve();
+    const loaded = Promise.all(pending.map(img => new Promise(done => { img.addEventListener('load', done, {once: true}); img.addEventListener('error', done, {once: true}); })));
+    return Promise.race([loaded, new Promise(done => setTimeout(done, 1500))]);
+  }
   function loadAnnex(kind, key) {
     const part = annexPart(kind, key), id = annexId(kind, key);
     if (!part || site.annex.loaded.has(id)) return Promise.resolve('loaded');
@@ -449,6 +458,7 @@ if (APP_CONFIG.mode === 'static') {
     return 'loading';
   };
   annexProblem = function (kind, key) { return site.annex.failed.get(annexId(kind, key)) || ''; };
+  retryAnnex = function (id) { if (!site.annex?.failed?.has(id)) return; site.annex.failed.delete(id); requestRedraw(true); refreshDialog(new Set([id])); };
   // The state of one evidence file by its id, for announcements; unlike annexState it never starts a download.
   annexPhase = function (id) {
     const part = NAMED_PARTS.includes(id) ? annexPart(id) : annexPart('hero', id.slice(5));
@@ -533,7 +543,10 @@ if (APP_CONFIG.mode === 'static') {
       // seconds, when saving continues in the background), so 'up to date' also means 'available offline'.
       // The guide follows the first screen at once; the check stays busy until it arrives, so 'up to date' also means
       // every screen can open (capped by the same ten seconds).
-      const guide = annexPart('guide') ? loadAnnex('guide') : null;
+      // 2.52.0 (speed): on a slow link the phone's Meta screen lets its visible portraits load first (at most 1.5 s);
+      // the guide used to fill the link and hold them back for seconds. A fast link starts the guide at once. Any
+      // screen that needs the guide sooner asks for it itself (guideGate). Probe QF3.
+      const guide = annexPart('guide') ? portraitsFirst().then(() => loadAnnex('guide')) : null;
       await Promise.race([Promise.all([commitPublication(manifest, requested, entry, verified), guide]), new Promise(resolve => setTimeout(resolve, 10000))]);
       if (sequence !== site.sequence || requested !== S.bracket) return;
       latestStatus.busy = false;

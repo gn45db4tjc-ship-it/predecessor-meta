@@ -115,12 +115,12 @@ Shadows by role; nothing else casts a shadow.
 
 ### Typography
 
-Two scales. `--t-*` is fixed in pixels for the desktop reference. `--tr-*` is in rem so the phone follows the large-text setting; use it for phone text. Font sizes are never literals (probe W4).
+Two scales. `--t-*` is fixed in pixels for the desktop reference. `--tr-*` is in rem so the phone follows the large-text setting; use it for phone text. Since 2.52.0 the phone (≤700px) also redefines `--t-3xs` to `--t-2xl` as the same sizes in rem (`.625rem` … `1.5rem`), so Large text grows every screen that still uses them (probe QT2); `--t-3xl` and up stay in pixels. Font sizes are never literals (probe W4).
 
 | Token | Dark (default) | Light | Role |
 |---|---|---|---|
 | `--sans` | `"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif` | same | All text |
-| `--display` | `"Saira Condensed","Arial Narrow",sans-serif` | same | Headings, tabs, navigation, figures and tier letters (condensed capitals) |
+| `--display` | `"Saira Condensed","Saira Fallback","Saira Fallback Roboto","Arial Narrow",sans-serif` | same | Headings, tabs, navigation, table headers and tier letters (condensed capitals). The two fallbacks are `@font-face` stand-ins in `broadcast.css` (Arial Bold, Roboto Bold) scaled to Saira's width and line box, so text barely moves when the face loads (2.52.0, probe QT3). Figures use `--sans` at 700 with tabular digits since 2.52.0 (probe QT5) |
 | `--mono` | `ui-monospace,"Cascadia Mono","Consolas",monospace` | same | Official text and tabular source figures |
 | `--t-3xs` | `10px` | same | Micro labels |
 | `--t-2xs` | `11px` | same | Dense table captions |
@@ -218,7 +218,8 @@ Page geometry.
 | `--rail-w` | `200px` | same | Desktop sidebar width |
 | `--gutter` | `32px` | same | Desktop page gutter |
 | `--content-max` | `1720px` | same | Maximum content width |
-| `--prose` | `76ch` | same | Readable line length |
+| `--prose` | `60ch` | same | Readable line length for running prose (about 75 characters of Barlow; 76ch until 2.52.0) |
+| `--prose-intro` | `72ch` | same | Page intros on the desktop (`.page-head p`): short, so two lines under 90 characters each (2.52.0) |
 
 ## Components
 
@@ -282,7 +283,7 @@ _Usage:_ Only for reviewed or source tiers; never for calculated scores.
 
 `broadcast.css` is the last stylesheet on every page (`__BROADCAST_CSS__` in `ui.html`). It holds the look; the files before it hold layout. Owner's choice of 3 Oct 2026: direction A ("Broadcast", an esports-overlay look), more stylized.
 
-- **Type.** Barlow (`--sans`) for text, and Saira Condensed (`--display`) in capitals for headings, tabs, navigation, figures and tier letters. Both are OFL fonts, self-hosted in `assets/fonts/` with their licences: only the latin subset, weights 400/600/700 and 700/800. The website publishes them and `sw.js` keeps them for offline use. The Windows app and the shared server serve only the allow-listed files (`UI_FONTS`, `ui_font()`) under `font-src 'self'`. An exported page falls back to system fonts. No page requests Google Fonts (`browser_visual_polish`).
+- **Type.** Barlow (`--sans`) for text, and Saira Condensed (`--display`) in capitals for headings, tabs, navigation, figures and tier letters. Both are OFL fonts, self-hosted in `assets/fonts/` with their licences: only the latin subset, weights 400/600/700 and 700/800. Since 2.52.0 each file's `@font-face` covers a weight range (Barlow 100–549, 550–649, 650–1000; Saira 100–749, 750–1000), so every requested weight maps to a shipped face and the browser never synthesises one (probe QT6); emphasis (`em`) is weight 700, not italic, because no italic ships. Barlow 400 and 700 are preloaded. The website publishes them and `sw.js` keeps them for offline use. The Windows app and the shared server serve only the allow-listed files (`UI_FONTS`, `ui_font()`) under `font-src 'self'`. An exported page falls back to system fonts. No page requests Google Fonts (`browser_visual_polish`).
 - **Slants.** Tier badges, the main action, selected tabs and navigation, Meta rows, build tiles and stat plates are parallelograms or cut corners (`clip-path`, `--cut`, `--cut-lg`). A clip also cuts off the focus ring, so anything clipped that holds or is a control drops its clip on `:focus-visible` or `:focus-within`.
 - **Hero plate.** `.hero-header` is a dark plate in both themes. The portrait (`--hero-art`) fills the right and fades out to the left. The hero's name is drawn behind as a ghost outline (`::after`, `content: attr(data-name) / ""`, so screen readers do not hear it twice). The name is slanted, and the plate redefines `--text`, `--text-2`, `--muted` and `--brand-text` for its contents. On the phone the plate is a lower third: the framed portrait is hidden, the actions sit top right, and the name and role sit low.
 - **Meta list.** Each row is tinted from the left by its tier (`--tc`). The phone role list and the desktop table number their rows (`counter(meta-rank)`, alt text empty), with the first three filled. Each row has a win-rate gauge under the figure: a centre tick at 50%, green or red to the side, full at ±6 points. The figure stays the claim; the gauge only makes the list scannable.

@@ -35,7 +35,7 @@
  function following(storage){try{return (storage||globalThis.localStorage).getItem(KEY)!=='off';}catch(e){return true;}}
  function start(initial){
   const doc=document,rootEl=doc.documentElement;
-  let state=initial,sheet=null,control=null,pending=false;
+  let state=initial,sheet=null,control=null,pending=false,again=false;
   const controlStyle=doc.createElement('style');controlStyle.textContent=CONTROL_CSS;doc.head.appendChild(controlStyle);
   function render(){
    if(!control){
@@ -62,14 +62,17 @@
    }else if(sheet){sheet.remove();sheet=null;}
    render();
   }
+  // One read at a time; a request that arrives during a read runs once it ends (2.52.0), so a change to the look made
+  // meanwhile is not left for the next poll.
   function refresh(){
-   if(pending||typeof fetch!=='function')return;
+   if(typeof fetch!=='function')return;
+   if(pending){again=true;return;}
    pending=true;
    fetch('/api/look',{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(next=>{
     // No answer (app closing, busy) keeps what is on screen; an unchanged look changes nothing.
     if(!next||typeof next!=='object'||JSON.stringify(next)===JSON.stringify(state))return;
     state=next;apply();
-   }).catch(()=>{}).finally(()=>{pending=false;});
+   }).catch(()=>{}).finally(()=>{pending=false;if(again){again=false;refresh();}});
   }
   apply();
   new MutationObserver(render).observe(rootEl,{attributes:true,attributeFilter:['data-theme']});

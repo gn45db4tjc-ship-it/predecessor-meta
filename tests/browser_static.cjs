@@ -131,7 +131,7 @@ function trimRemovedScreens(code,suite){
    check(await visitorPage.evaluate(()=>S.locks.length===2&&S.locks[0].slug==='steel'),'another visitor can import shared picks');await visitor.close();
    await openMore();const downloadPromise=page.waitForEvent('download');await page.locator('#export:visible, #more-export:visible').click();const download=await downloadPromise;
    const exported=path.join(reportDir,(useWebkit?'webkit':'edge')+'-'+viewport.width+'-snapshot.html');await download.saveAs(exported);
-   check(/<main id="main" tabindex="-1"><\/main>/.test(fs.readFileSync(exported,'utf8')),'export does not serialize visitor draft into page markup');
+   check(/<main id="main" tabindex="-1">(<p class="startup-note" role="status">Loading hero data…<\/p>)?<\/main>/.test(fs.readFileSync(exported,'utf8')),'export does not serialize visitor draft into page markup');   // 2.52.0: <main> may hold only the static startup note
    const snapshot=await context.newPage();await snapshot.goto('file:///'+exported.replace(/\\/g,'/'));
    check(await snapshot.evaluate(()=>APP_CONFIG.mode==='export'&&!!B),'standalone export opens');
    check(await snapshot.evaluate(()=>JSON.stringify({at:B.generated_at,pairs:B.pairs,tier:B.tier_list}))===baseline,'export retains exact observations');await snapshot.close();}
