@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.52.0
+# Predecessor Meta - 2.52.1
 
-2.52.0 is a second quality-of-life pass, from four audits of 2.51.0 on 4 October 2026 (type, spacing, interaction and speed). Focus stays on the control you changed, a section jump takes you into the section, Changes opens on the Pred.gg history that exists, a failed evidence file has Try again, and searches offer other-role matches and Clear search. Large text now grows all phone text, prose keeps a readable line length, figures line up in tabular digits, every font weight is a real face, and the headings have a size-matched stand-in while they load. Return visits draw sooner, the desktop hero and hero tabs respond faster, and the phone first screen no longer jumps. No evidence, figure or rule changes. See [RELEASE-2.52.0.md](RELEASE-2.52.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.52.1 keeps the last Pred.gg hero kits and item definitions, with their original dates, when Pred.gg cannot be read, instead of falling back to omeda.city's older text. omeda.city is Pred.gg's former site (same operator), and its hero and item lists stopped updating before patch 1.17 (checked 5 October 2026, docs/SOURCES-CHECK-2026-10-05.md). Community builds are now named as Pred.gg community guides relayed by omeda.city, and wording that called the two sites independent is corrected. No statistic, grade, build or rule changes. See [RELEASE-2.52.1.md](RELEASE-2.52.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.52.0
+
+2.52.0 is a second quality-of-life pass, from four audits of 2.51.0 on 4 October 2026 (type, spacing, interaction and speed). Focus stays on the control you changed, a section jump takes you into the section, Changes opens on the Pred.gg history that exists, a failed evidence file has Try again, and searches offer other-role matches and Clear search. Large text now grows all phone text, prose keeps a readable line length, figures line up in tabular digits, every font weight is a real face, and the headings have a size-matched stand-in while they load. Return visits draw sooner, the desktop hero and hero tabs respond faster, and the phone first screen no longer jumps. No evidence, figure or rule changes. See [RELEASE-2.52.0.md](RELEASE-2.52.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.51.0
 

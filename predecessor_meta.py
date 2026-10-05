@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.52.0"
+VERSION = "2.52.1"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1903,12 +1903,12 @@ def attach_community_builds(bundle):
         raw,_,secs=http_get(url,timeout=OMEDA_TIMEOUT,retries=0)
         builds,issues=parse_community_builds(json.loads(raw),bundle,patch,url,stamp)
         bundle['community_builds']=builds
-        bundle['sources']['community_builds']={'url':url,'fetched_at':stamp,'secs':secs,'status':'partial' if issues else 'ok','count':len(builds),'scope':'First popular-build page only; current official patch labels, no statistical samples or exhaustive coverage.'}
-        for issue in issues:bundle['errors'].append({'source':'Omeda community builds','severity':'warning','detail':issue})
-        if not builds:bundle['errors'].append({'source':'Omeda community builds','severity':'warning','detail':'No usable builds labelled for the verified current patch; community alternatives are unavailable.'})
+        bundle['sources']['community_builds']={'url':url,'fetched_at':stamp,'secs':secs,'status':'partial' if issues else 'ok','count':len(builds),'scope':'First popular page of Pred.gg community guides, as relayed by omeda.city (Pred.gg\'s former site, not a separate source); current official patch labels, no statistical samples or exhaustive coverage.'}
+        for issue in issues:bundle['errors'].append({'source':'Community guides (Pred.gg, via omeda.city)','severity':'warning','detail':issue})
+        if not builds:bundle['errors'].append({'source':'Community guides (Pred.gg, via omeda.city)','severity':'warning','detail':'No usable builds labelled for the verified current patch; community alternatives are unavailable.'})
     except Exception as exc:
         bundle['sources']['community_builds']={'url':url,'fetched_at':stamp,'status':'failed','error':str(exc)}
-        bundle['errors'].append({'source':'Omeda community builds','severity':'warning','detail':str(exc)})
+        bundle['errors'].append({'source':'Community guides (Pred.gg, via omeda.city)','severity':'warning','detail':str(exc)})
 
 
 import patch_support
@@ -2679,7 +2679,7 @@ def pred_role_data(record,hero,cohort,role,kind,heroes):
     return out
 
 
-def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
+def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False,previous=None):
     """Complete game catalog + each planning role; definitions patch-cached, observations 30 minutes."""
     pages=pages or PredPages(force=force);t=time.perf_counter()
     out={'source':'Pred.gg','status':'failed','heroes':{},'items':{},'perks':{},'role_data':{},'errors':[],'records':[],
@@ -2748,6 +2748,8 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
             else:out['role_data'].setdefault(s,{}).setdefault(role,{})[kind]=pred_role_data(rec,roster[s],cohort,role,kind,bundle['heroes'])
         batch(jobs,'kits, builds and matchups',detail)
         out['assets']=sorted(assets)
+        # 2.52.1: a failed kit or catalogue page keeps the previous Pred.gg definition (same patch and hotfix, original date).
+        if out['errors']:out['status']='partial';keep_previous_pred_definitions(bundle,out,previous)
         # Apply validated mechanics transactionally: an unexpected schema cannot leave half an overlay.
         staged=copy.deepcopy(bundle)
         apply_pred_game_data(staged)
@@ -2761,6 +2763,7 @@ def attach_pred_game_data(bundle,progress=lambda s:None,pages=None,force=False):
         **{k:sum(k in r for roles in out['role_data'].values() for r in roles.values()) for k in ('overview','items','counters')}}
     # Distinguish catalog size from observed role-item table coverage.
     out['coverage']['catalog_items']=len(out['items'])
+    out['coverage']['kept_from_previous']=sorted(k for k,v in [*out['heroes'].items(),*((f,out.get(f) or {}) for f in ('items_catalog','eternals_catalog'))] if isinstance(v,dict) and v.get('kept_from_previous'))
     bundle.setdefault('errors',[]).extend(out['errors']);bundle.setdefault('sources',{})['pred_game_data']={'status':out['status'],'url':PRED_BASE,'secs':out['seconds'],'fetched_at':max((r['fetched_at'] for r in out['records']),default=None)}
     return out
 
@@ -3198,38 +3201,57 @@ def bundle_is_publishable(b):
     return (bundle_is_complete(b)[0] and bundle_rows_valid(b)) or (bundle_has_current_primary(b) and primary_rows_valid(b)) or bundle_has_fresh_statz(b)
 
 
+def previous_pred_definitions(bundle, previous):
+    """The previous collection's Pred.gg game data when it may stand in for this one, else None.
+
+    Same verified live version and official fingerprint (so no hotfix in between), same bracket and patch, a dated
+    source, and a complete hero roster. A 'partial' collection qualifies once its hero kits are complete (the roster
+    check): its remaining errors are rank-only pages (overview, items, counters) or a catalogue, which stays as it was (2.52.1). omeda.city, Pred.gg's former site, stopped
+    updating its heroes.json and items.json before patch 1.17, so the last Pred.gg definitions beat that fallback.
+    """
+    current, prior = bundle['official'], previous['official']
+    if current.get('status') != 'verified' or prior.get('status') != 'verified':
+        return None
+    live, old_live = current['live'], prior['live']
+    if not live.get('fingerprint') or any(live.get(k) != old_live.get(k) for k in ('version', 'fingerprint')):
+        return None
+    game = previous.get('pred_game_data') or {}
+    if previous['bracket']['segment'] != bundle['bracket']['segment'] or game.get('cohort', {}).get('patch') != live['version']:
+        return None
+    if game.get('status') not in ('ok', 'retained', 'partial') or set(game.get('heroes', {})) != set(bundle['heroes']):
+        return None
+    source = (previous.get('sources') or {}).get('pred_game_data') or {}
+    if source.get('status') not in ('ok', 'retained', 'partial') or timestamp_age(source.get('fetched_at')) is None:
+        return None
+    return game
+
+
 def retain_pred_partition(bundle, previous):
     """Reuse dated Pred records only for the identical verified patch and bracket.
 
     The operation is transactional. Fresh Statz/Omeda records are not replaced;
     previously collected Pred mechanics pass the existing official-field guards.
+    Since 2.52.1 failed Pred.gg game data (kits, items, Eternals) is kept on its own when this collection's Pred.gg
+    statistics are fresh or cannot be kept; statistics are retained only alongside it, never instead of fresh ones.
     """
-    if not previous or bundle.get('scoped_statistics', {}).get('status') != 'failed' or bundle.get('pred_game_data', {}).get('status') != 'failed':
+    stats_failed = bundle.get('scoped_statistics', {}).get('status') == 'failed'
+    if not previous or bundle.get('pred_game_data', {}).get('status') != 'failed':
         return False
     try:
-        current = bundle['official']; prior = previous['official']
-        if current.get('status') != 'verified' or prior.get('status') != 'verified':
+        game = previous_pred_definitions(bundle, previous)
+        if game is None:
             return False
-        live, old_live = current['live'], prior['live']
-        if not live.get('fingerprint') or any(live.get(k) != old_live.get(k) for k in ('version', 'fingerprint')):
-            return False
-        bracket = bundle['bracket']['segment']
-        scoped, game = previous['scoped_statistics'], previous['pred_game_data']
-        if previous['bracket']['segment'] != bracket or scoped.get('bracket') != bracket:
-            return False
-        if scoped.get('patch') != live['version'] or game.get('cohort', {}).get('patch') != live['version']:
-            return False
-        if scoped.get('status') not in ('ok', 'retained') or game.get('status') not in ('ok', 'retained'):
-            return False
-        if set(game.get('heroes', {})) != set(bundle['heroes']) or not scoped.get('rows'):
-            return False
-        for key in ('pred_scoped', 'pred_game_data'):
-            source = previous['sources'][key]
-            if source.get('status') not in ('ok', 'retained') or timestamp_age(source.get('fetched_at')) is None:
-                return False
+        live, bracket = bundle['official']['live'], bundle['bracket']['segment']
+        scoped = previous.get('scoped_statistics') or {}
+        scoped_source = (previous.get('sources') or {}).get('pred_scoped') or {}
+        keep_stats = (stats_failed and scoped.get('bracket') == bracket and scoped.get('patch') == live['version']
+                      and scoped.get('status') in ('ok', 'retained') and bool(scoped.get('rows'))
+                      and scoped_source.get('status') in ('ok', 'retained') and timestamp_age(scoped_source.get('fetched_at')) is not None)
         staged = copy.deepcopy(bundle)
         attempted = iso(now_utc())
         for field, key in (('scoped_statistics', 'pred_scoped'), ('pred_game_data', 'pred_game_data')):
+            if field == 'scoped_statistics' and not keep_stats:
+                continue
             staged[field] = copy.deepcopy(previous[field])
             staged[field]['status'] = 'retained'
             staged[field]['attempted_at'] = attempted
@@ -3239,15 +3261,20 @@ def retain_pred_partition(bundle, previous):
             staged['sources'][key] = source
         apply_pred_game_data(staged)
         prior_pred = (previous.get('retained_sources') or {}).get('pred') or {}
-        pred_origin = prior_pred.get('collector') if previous['sources']['pred_scoped'].get('status') == 'retained' else (previous.get('collector') or {}).get('host')
-        staged.setdefault('retained_sources', {})['pred'] = {
-            'collector': pred_origin or 'unrecorded',
-            'patch': scoped['patch'], 'bracket': bracket, 'attempted_at': attempted,
-            'statistics_fetched_at': previous['sources']['pred_scoped']['fetched_at'],
-            'mechanics_fetched_at': previous['sources']['pred_game_data']['fetched_at']}
-        staged['errors'].append({'source': 'Pred.gg retained data', 'severity': 'error',
-            'detail': 'Pred.gg could not be refreshed. Its original dated samples and mechanics are retained. '
-                      'Other sources were collected independently; assembly time is not their shared fetch time.'})
+        pred_origin = prior_pred.get('collector') if previous['sources']['pred_game_data'].get('status') == 'retained' else (previous.get('collector') or {}).get('host')
+        record = {'collector': pred_origin or 'unrecorded', 'patch': live['version'], 'bracket': bracket, 'attempted_at': attempted,
+                  'mechanics_fetched_at': previous['sources']['pred_game_data']['fetched_at']}
+        if keep_stats:
+            record['statistics_fetched_at'] = previous['sources']['pred_scoped']['fetched_at']
+        staged.setdefault('retained_sources', {})['pred'] = record
+        if keep_stats:
+            detail = ('Pred.gg could not be refreshed. Its original dated samples and mechanics are retained. '
+                      'Other sources were collected independently; assembly time is not their shared fetch time.')
+        else:
+            detail = ('Pred.gg kit, item and Eternal definitions could not be refreshed. The last Pred.gg definitions (fetched '
+                      + str(record['mechanics_fetched_at']) + ') are retained with their original dates, not omeda.city\'s older text. '
+                      + ('This collection\'s Pred.gg statistics are fresh.' if not stats_failed else 'Pred.gg statistics are unavailable in this collection.'))
+        staged['errors'].append({'source': 'Pred.gg retained data', 'severity': 'error', 'detail': detail})
         bundle.clear(); bundle.update(staged)
         return True
     except (KeyError, IndexError, TypeError, ValueError) as error:
@@ -3255,7 +3282,36 @@ def retain_pred_partition(bundle, previous):
         return False
 
 
+def keep_previous_pred_definitions(bundle, out, previous):
+    """In a partial Pred.gg collection, keep the previous Pred.gg kit of each hero whose kit page failed, and a missing
+    item or Eternal catalogue, instead of omeda.city's older text (2.52.1). Fresh entries are never replaced; kept ones
+    keep their original fetch date and are marked kept_from_previous. Returns what was kept."""
+    if not previous or out.get('status') != 'partial':
+        return []
+    try:
+        game = previous_pred_definitions(bundle, previous)
+        if game is None or pred_definition_version(game.get('cohort') or {}) != pred_definition_version(out.get('cohort') or {}):
+            return []
+        kept = []
+        for slug in sorted(set(bundle['heroes']) - set(out.get('heroes') or {})):
+            entry = (game.get('heroes') or {}).get(slug)
+            if entry and entry.get('data') and entry.get('fetched_at'):
+                out.setdefault('heroes', {})[slug] = dict(copy.deepcopy(entry), kept_from_previous=True); kept.append(slug)
+        for field in ('items_catalog', 'eternals_catalog'):
+            if not (out.get(field) or {}).get('rows') and (game.get(field) or {}).get('rows'):
+                out[field] = dict(copy.deepcopy(game[field]), kept_from_previous=True); kept.append(field)
+        if kept:
+            out.setdefault('errors', []).append({'source': 'Pred.gg kept definitions', 'severity': 'warning',
+                'detail': 'Pages failed for ' + ', '.join(kept) + '. The previous Pred.gg definitions for them are kept with their '
+                          'original fetch dates (same patch and hotfix), not omeda.city\'s older text.'})
+        return kept
+    except (KeyError, IndexError, TypeError, ValueError):
+        return []
+
+
 def previous_pred_bundle(bracket):
+    """The newest saved bundle for this bracket, preferring one that holds Pred.gg definitions (2.52.1), so a failed
+    collection saved since does not hide the last good Pred.gg kits."""
     candidates = []
     for name in ('last_available_', 'last_successful_', 'last_primary_'):
         try:
@@ -3265,7 +3321,11 @@ def previous_pred_bundle(bracket):
                 if age is not None: candidates.append((age, value))
         except Exception:   # a damaged saved file is skipped, never a reason every refresh fails
             pass
-    return min(candidates, key=lambda pair: pair[0])[1] if candidates else None
+    if not candidates:
+        return None
+    candidates.sort(key=lambda pair: pair[0])
+    has_pred = lambda b: (b.get('pred_game_data') or {}).get('status') in ('ok', 'retained', 'partial') and (b.get('pred_game_data') or {}).get('heroes')
+    return next((value for _, value in candidates if has_pred(value)), candidates[0][1])
 
 
 def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
@@ -3331,13 +3391,14 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     if tier_error:attach_retained_statz(bundle,retained,tier_error,tier_attempt)
     enrich_bundle(bundle,official)
     if not fixture_dir:
-        progress('Checking current-patch community build alternatives…')
+        progress('Checking current-patch Pred.gg community guides…')
         attach_community_builds(bundle)
         pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=pred_source_fetch(),
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
-        attach_pred_game_data(bundle,progress,pages=pred_pages)
-        retain_pred_partition(bundle, previous_pred_bundle(bracket))
+        previous_pred=previous_pred_bundle(bracket)
+        attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)
+        retain_pred_partition(bundle, previous_pred)
         patch_support.apply(bundle, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})
     bundle['timings']={'cold_refresh_secs':round(time.perf_counter()-started,2),'hero_pages_secs':pull['secs']}

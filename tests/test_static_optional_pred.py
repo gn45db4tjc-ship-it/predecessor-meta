@@ -105,7 +105,7 @@ class OptionalPublicationTests(unittest.TestCase):
     def test_non_pred_errors_and_interrupted_work_still_fail(self):
         for status in ('failed','interrupted',None):
             self.assertFalse(p.attempt_satisfied(dict(self.a,status=status),self.b))
-        for source in ('statz.gg hero pages','Official patch','Omeda community builds','Pred.gg.example'):
+        for source in ('statz.gg hero pages','Official patch','Community guides (Pred.gg, via omeda.city)','Pred.gg.example'):   # community guides stay required
             a=copy.deepcopy(self.a);a['errors'].append({'source':source,'detail':'Unavailable'})
             self.assertFalse(p.attempt_satisfied(a,self.b))
 

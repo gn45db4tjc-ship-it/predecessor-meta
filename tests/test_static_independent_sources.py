@@ -155,8 +155,89 @@ class IndependentTests(unittest.TestCase):
         self.assertEqual(b['sources'], before['sources'])
         self.assertEqual(b['errors'][-1]['source'], 'Pred.gg retention validation')
 
+    # 2.52.1: Pred.gg kit and item definitions are kept, with their original dates, instead of falling back to omeda.city
+    # (Pred.gg's former site; its heroes.json/items.json stopped updating before patch 1.17).
+    def test_partial_previous_with_complete_kits_is_retained(self):
+        # 4 Oct 2026: Gold+ lost its complete Pred.gg kits because the earlier collection was 'partial' (one rank-only
+        # counters page timed out), and the next failed collection fell back to omeda.city text.
+        b, old = partial(), previous()
+        old['pred_game_data']['status'] = 'partial'; old['sources']['pred_game_data']['status'] = 'partial'
+        with patch.object(p.base, 'apply_pred_game_data') as apply:
+            self.assertTrue(p.base.retain_pred_partition(b, old))
+            apply.assert_called_once()
+        self.assertEqual(b['pred_game_data']['status'], 'retained')
+        self.assertEqual(b['sources']['pred_game_data']['status'], 'retained')
+        self.assertEqual(b['sources']['pred_game_data']['fetched_at'], NOW.isoformat())
+
+    def test_failed_kits_are_kept_while_fresh_statistics_stay(self):
+        later = (NOW + dt.timedelta(hours=1)).isoformat()
+        b = partial()
+        b['scoped_statistics'] = {'status': 'ok', 'patch': '1.2', 'bracket': 'gold', 'rows': [{'slug': 'unit-test-fixture', 'matches': 300}]}
+        b['sources']['pred_scoped'] = {'status': 'ok', 'fetched_at': later}
+        fresh = copy.deepcopy(b['scoped_statistics'])
+        with patch.object(p.base, 'apply_pred_game_data') as apply:
+            self.assertTrue(p.base.retain_pred_partition(b, previous()))
+            apply.assert_called_once()
+        self.assertEqual(b['scoped_statistics'], fresh)
+        self.assertEqual(b['sources']['pred_scoped'], {'status': 'ok', 'fetched_at': later})
+        self.assertEqual(b['pred_game_data']['status'], 'retained')
+        self.assertEqual(b['sources']['pred_game_data']['fetched_at'], NOW.isoformat())
+        kept = b['retained_sources']['pred']
+        self.assertEqual(kept['mechanics_fetched_at'], NOW.isoformat())
+        self.assertNotIn('statistics_fetched_at', kept)
+        self.assertIn('definitions', b['errors'][-1]['detail'])
+
+    def test_partial_collection_keeps_previous_kits_only_for_failed_heroes(self):
+        old_time, new_time = NOW.isoformat(), (NOW + dt.timedelta(hours=1)).isoformat()
+        def two_heroes(x):
+            x['heroes']['second'] = dict(copy.deepcopy(x['heroes']['unit-test-fixture']), slug='second', display_name='Second')
+            return x
+        b, prev = two_heroes(partial()), two_heroes(previous())
+        cohort = {'patch': '1.2', 'definition_version': '9', 'versions': ['9']}
+        kit = lambda when: {'data': {'abilities': [{'key': 'BASIC'}]}, 'fetched_at': when, 'source': 'Pred.gg'}
+        prev['pred_game_data'] = {'status': 'ok', 'cohort': dict(cohort), 'heroes': {'unit-test-fixture': kit(old_time), 'second': kit(old_time)},
+                                  'items_catalog': {'rows': [{'slug': 'x'}], 'fetched_at': old_time}}
+        out = {'status': 'partial', 'cohort': dict(cohort), 'heroes': {'unit-test-fixture': kit(new_time)}, 'errors': []}
+        kept = p.base.keep_previous_pred_definitions(b, out, prev)
+        self.assertEqual(kept, ['second', 'items_catalog'])
+        self.assertEqual(out['heroes']['unit-test-fixture'], kit(new_time))
+        self.assertEqual(out['heroes']['second'], dict(kit(old_time), kept_from_previous=True))
+        self.assertEqual(out['items_catalog'], {'rows': [{'slug': 'x'}], 'fetched_at': old_time, 'kept_from_previous': True})
+        self.assertEqual(out['errors'][-1]['source'], 'Pred.gg kept definitions')
+        self.assertIn('second', out['errors'][-1]['detail'])
+        # Never across a definition version, hotfix fingerprint, bracket or failed official check.
+        for mutate in [lambda b, o, v: v['pred_game_data']['cohort'].update(definition_version='8'),
+                       lambda b, o, v: b['official']['live'].update(fingerprint='hotfix'),
+                       lambda b, o, v: v['bracket'].update(segment='diamond'),
+                       lambda b, o, v: b['official'].update(status='failed')]:
+            b2, prev2 = two_heroes(partial()), two_heroes(previous())
+            prev2['pred_game_data'] = copy.deepcopy(prev['pred_game_data'])
+            out2 = {'status': 'partial', 'cohort': dict(cohort), 'heroes': {'unit-test-fixture': kit(new_time)}, 'errors': []}
+            mutate(b2, out2, prev2)
+            self.assertEqual(p.base.keep_previous_pred_definitions(b2, out2, prev2), [])
+            self.assertNotIn('second', out2['heroes'])
+
+    def test_kept_definitions_are_filled_before_the_one_validated_apply(self):
+        import inspect
+        source = inspect.getsource(p.base.attach_pred_game_data)
+        self.assertLess(source.index('keep_previous_pred_definitions(bundle,out,previous)'), source.index('apply_pred_game_data(staged)'))
+        collect = inspect.getsource(p.base.collect_bundle)
+        self.assertIn('attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)', collect)
+        self.assertIn('retain_pred_partition(bundle, previous_pred)', collect)
+
+    def test_previous_bundle_prefers_the_newest_with_pred_definitions(self):
+        from unittest.mock import patch as _patch
+        with tempfile.TemporaryDirectory() as folder, _patch.object(p.base, 'DATA_DIR', Path(folder)):
+            older, newer = previous(), partial()
+            older['schema'] = newer['schema'] = 3
+            newer['generated_at'] = (NOW + dt.timedelta(hours=2)).isoformat()
+            p.base.save_bundle(older, Path(folder) / 'last_successful_gold.json')
+            p.base.save_bundle(newer, Path(folder) / 'last_available_gold.json')
+            self.assertEqual(p.base.previous_pred_bundle('gold')['generated_at'], older['generated_at'])
+
     def test_fresh_pred_is_not_overwritten_by_retention(self):
-        b = partial(); b['scoped_statistics']['status'] = 'ok'
+        # Fresh statistics and fresh definitions: nothing is retained (failed definitions alone: see the test above).
+        b = partial(); b['scoped_statistics']['status'] = 'ok'; b['pred_game_data']['status'] = 'ok'
         with patch.object(p.base, 'apply_pred_game_data') as apply:
             self.assertFalse(p.base.retain_pred_partition(b, previous()))
             apply.assert_not_called()
