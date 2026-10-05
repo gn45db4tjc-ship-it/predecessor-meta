@@ -70,7 +70,11 @@ omeda.city's `builds.json` is Pred.gg's community guides, converted and relayed.
   - 2.52.0 kept nothing: 0 of 55 kits from Pred.gg.
   - 2.52.1 kept all 55 kits and 270 items, labelled retained with the original date.
   - The publisher accepted the result.
-- **Suites.** SUITE_RESULTS
+- **Suites.**
+  - Python static tests: 415 pass (1 skipped).
+  - Node tests: 400 pass.
+  - The 11 CI browser suites against the committed seed: all pass. The audit suite's 216 probes all match the ledger.
+- **Checked by eye** on the live Gold+ data: Shinbi Offlane shows "Community guides (Pred.gg) · 1 alternative" with its note, and the guide links to pred.gg.
 
 ## Taking effect
 
