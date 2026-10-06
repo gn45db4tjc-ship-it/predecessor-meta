@@ -387,7 +387,9 @@ if (APP_CONFIG.mode === 'static') {
       if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }   // another publication was loaded meanwhile
       MetaProjection.merge(raw, value);
       annex.loaded.add(id); annex.failed.delete(id);
-      B = displayedBundle(raw, site.loadedEntry); E = MetaEngine.create(B);
+      // 2.53.0 (QF4): only the guide changes what the engine reads. The other files are display-only and merge in
+      // place (objects keep their identity), so the engine keeps its memoised answers.
+      B = displayedBundle(raw, site.loadedEntry); if (id === 'guide') E = MetaEngine.create(B);
       // The guide redraws at once and is saved before this resolves: the first check waits for it, so 'up to date'
       // means every screen can open and the guide is available offline. Evidence files share one batched redraw.
       if (id === 'guide') { requestRedraw(true); refreshDialog(new Set([id])); await saveEvidence(part.url, bytes); }
@@ -555,7 +557,8 @@ if (APP_CONFIG.mode === 'static') {
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       site.checkFailed = true;
-      if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
+      if (site.originalBundle) { const next = displayedBundle(site.originalBundle, site.loadedEntry), overlay = v => [v?.guidance?.status, v?.recommendation_context?.status].join('|');
+        if (overlay(next) !== overlay(B)) E = MetaEngine.create(next); B = next; }
       const savedHere = !B && (!navigator.onLine || connectionLost) ? await savedOnThisDevice(requested) : null;
       if (sequence !== site.sequence || requested !== S.bracket) return;
       latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : savedHere?.saved ? (savedHere.worker ? 'A copy of this rank is saved on this device. Reload the page to open it.' : 'A copy of this rank is saved on this device, but offline support is not active in this browser, so it cannot be opened while offline.') : savedHere ? (savedHere.worker ? 'This rank is not saved on this device. Open it once while online to keep it for offline use.' : 'This rank is not saved on this device, and offline support is not active in this browser.') : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};
