@@ -307,6 +307,7 @@ The owner picked this from five stylized Figma directions on 4 October 2026 (fil
 
 - One focus ring: `outline: 3px solid var(--focus); outline-offset: 2px` on `:focus-visible` (ui.html). Components do not define their own.
 - Selection: `aria-selected` on tabs, `aria-pressed` on toggles, `aria-current` on navigation. Visual indicators use `--indicator` or the segmented `--brand` fill.
+- A button whose text names the action it takes ("Switch to light theme") carries no `aria-pressed`: a pressed state would contradict its name. Since 2.53.0 the desktop theme switch is such a button, like the phone's (probe QP13).
 
 ## Tests that enforce this
 

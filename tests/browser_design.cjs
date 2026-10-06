@@ -179,10 +179,10 @@ let preview=null;
    const run={viewport,checks:[],errors};const check=(v,label)=>{assert(v,label+' @light');run.checks.push(label);};
    const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
    check(await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme')),'default theme is dark');
-   check(await page.locator('#theme-toggle').textContent()==='Light theme','toggle offers the light theme');
+   check(await page.locator('#theme-toggle').textContent()==='Switch to light theme','toggle names its action: the light theme');   // 2.53.0 (QP13): an action button, no pressed state
    await page.locator('#theme-toggle').click();
    check(await page.evaluate(()=>document.documentElement.getAttribute('data-theme')==='light'),'toggle switches to light');
-   check(await page.locator('#theme-toggle').textContent()==='Dark theme'&&await page.locator('#theme-toggle').getAttribute('aria-pressed')==='true','toggle reports its state');
+   check(await page.locator('#theme-toggle').textContent()==='Switch to dark theme'&&await page.locator('#theme-toggle').getAttribute('aria-pressed')===null,'toggle names its action, no pressed state');
    await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:60000});
    check(await page.evaluate(()=>document.documentElement.getAttribute('data-theme')==='light'),'light theme persists across reload');
    check(await page.evaluate(()=>localStorage.getItem('predecessor-theme')==='light'&&!/theme/.test(localStorage.getItem('predecessor-planner-v2')||'')),'theme stored separately from the saved plan');
