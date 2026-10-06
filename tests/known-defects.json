@@ -4,8 +4,7 @@
   "open": [
     "QF4",
     "QP12",
-    "QP14",
-    "QP16"
+    "QP14"
   ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
