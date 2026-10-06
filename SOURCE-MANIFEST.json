@@ -169,7 +169,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "5346a74945d2481d402a0a7c18f8abc9729dce0e69ae2d3457578d0592adff7e",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "b88c3a3c525a01ba4a8f2c1b7a545f9ec8ef31bf2d4a7e5d226df8149bab61d1",
+    "reviewed_guidance.json": "1d887c1c360457e73d97f64ccf953a4090a555b94b1f9f7146b1dfb0dd39c199",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "16eb6d75acb139d9db3b779f2238002c8109e55574059bcae79678c7465f4afd",
@@ -297,6 +297,8 @@
     "ui.html": "a4a89ce7d1af5adfb53b8332c041e1b5146afb3c9cd26cffaa739a6ad8e0a849",
     "ui.js": "7cb37832ecff781d3389596123898422b04dd9ae895ee4e6771a66a61d4f7e91",
     "visor_look.js": "9f4bb6bfe9829c12cf4fec21729c4ba18bde6cd9be4d34b9aa206c9efc90f1a9",
-    "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90"
+    "watchdog.py": "205a0ab0b9e45da863c6bef64f6b7b33636c3ea0c7d50b5751e18a2aff702b90",
+    "docs/rechecks/2026-10-06-1433-ledger.json": "f4e54eb345ed95d61a84af1f7581911816168ac4ec8c90bfeb253bf0853ef60d",
+    "docs/rechecks/2026-10-06-1433.md": "fd00802b23343c586ceb516f68da722ced642466b1a91fe8cc22314c10fdf562"
   }
 }

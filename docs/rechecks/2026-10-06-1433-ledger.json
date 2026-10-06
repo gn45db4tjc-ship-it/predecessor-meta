@@ -1,0 +1,105 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 6 Oct 2026 14:33 (1 withheld grade)",
+ "reviewed_at": "2026-10-06T14:36:00-05:00",
+ "reviewer": "Claude (Opus 5.5), scheduled recheck runner (predecessor-meta-rechecks)",
+ "scope": "Triggered pass for the 1 queued withheld grade (shinbi/jungle), against the live bundles published 2026-10-06T19:17:22+00:00 (tool 2.52.2; Gold+ collection generated 2026-10-06T13:56:34-05:00, Pred.gg 1.17 + Hotfix 1.17.1, versions 167 and 168, status ok). Not a full review.",
+ "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard: a grade moves one step at most, a move needs a kit or patch reason plus evidence the same way, a drop without a kit reason needs the whole-line 95% interval to exclude the previous-patch review rate, and a high rate alone never raises a grade.",
+ "evidence": {
+  "manifest_published_at": "2026-10-06T19:17:22+00:00",
+  "tool_version": "2.52.2",
+  "collection": "2026-10-06T13:56:34-05:00 (Gold+ bundle generated_at)",
+  "statistics": "Pred.gg ranked, versions 167 and 168, status ok",
+  "official": "Patch_Notes_1.17 (with Hotfix 1.17.1) fetched 2026-10-06T13:53:00-05:00; Patch_Notes_1.16.4 in the same bundle",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+ },
+ "summary": {
+  "changed": 0,
+  "checked and retained": 1,
+  "unresolved": 0
+ },
+ "entries": [
+  {
+   "kind": "grade",
+   "slug": "shinbi",
+   "role": "jungle",
+   "queue_id": "grade-moved:shinbi/jungle",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "B retained. The engine withheld the grade for 'Statistics moved since review': the entry still cited the 1.16.4 Gold+ jungle sample (49.9% over 637), and the whole 1.17 line (versions 167 and 168) is now 53.5% over 1150 [50.59, 56.34]. That interval lies above the 49.9% review rate, but the standard lets a grade rise only with a kit or patch reason plus evidence the same way; a high rate alone never raises a grade. The official 1.17 notes and Hotfix 1.17.1 list no Shinbi change (her last listed change is the 1.16.4 All-Kill! Track Stacks bugfix, before the 2.34 review), and none of the 1.17 item or perk changes (Typhoon, Terminus, Hexbound Bracers, Transference; Forage, Wind-Rider, Taproot, Rallying Roar, Lich, Sacrifice, Satariel, Event Horizon, Disc Of Demise, Terminal Treatment) touches her jungle plan (Spirit Of Amir, Oathkeeper, Magnify, Caustica, Spellbreaker, Oblivion Crown; Tempest, Allegro, Aion). The 2.34 review's own 1.17 sample was 53.4% over 58, so the line since review is about 53.5% over 1092: the same direction, but still no kit reason. Bronze+ is 52.4% over 2323 (nested, so not independent). The watch text no longer calls the jungle sample small and states why the grade stays. The reference sample is rebased to the whole 1.17 line.",
+   "limitation": "1,150 games, interval about plus or minus 3 points. Offlane (A) is 49.8% over 4216 on the same line, so the jungle result is now the stronger of her two roles by rate; whether B undersells her jungle is a full-review question that needs a kit or patch reason under the standard. The bundle's previous collection had the line at 50.9% over 923, so part of the rise is recent. No in-game test.",
+   "reviewed_at": "2026-10-06T14:36:00-05:00",
+   "evidence": {
+    "winRate": 53.47826086956522,
+    "wonGames": 615,
+    "matches": 1150,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-06T13:53:31-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 53.48,
+     "matches": 1150,
+     "wonGames": 615,
+     "interval95": [
+      50.59,
+      56.34
+     ],
+     "fetched_at": "2026-10-06T13:53:31-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "bronze_nested": {
+     "winRate": 52.39,
+     "matches": 2323,
+     "interval95": [
+      50.36,
+      54.41
+     ],
+     "fetched_at": "2026-10-06T13:56:58-05:00"
+    },
+    "offlane_same_line": {
+     "winRate": 49.79,
+     "matches": 4216,
+     "interval95": [
+      48.28,
+      51.3
+     ]
+    },
+    "at_review": {
+     "winRate": 49.92,
+     "matches": 637,
+     "wonGames": 318,
+     "patch": "1.16.4",
+     "fetched_at": "2026-09-14T17:20:00-05:00",
+     "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "review_117_sample": {
+     "winRate": 53.4,
+     "matches": 58,
+     "note": "2.34 ledger: 1.17 Gold+ at review, version 167."
+    },
+    "interval_includes_review_rate": false,
+    "interval_side": "above the review rate; the drop rule does not apply and a rise needs a kit reason"
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-06T13:53:31-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-06T13:56:58-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-06T13:53:00-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-06T13:53:00-05:00"
+    }
+   ]
+  }
+ ]
+}
