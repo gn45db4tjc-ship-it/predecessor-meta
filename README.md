@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.52.1
+# Predecessor Meta - 2.52.2
 
-2.52.1 keeps the last Pred.gg hero kits and item definitions, with their original dates, when Pred.gg cannot be read, instead of falling back to omeda.city's older text. omeda.city is Pred.gg's former site (same operator), and its hero and item lists stopped updating before patch 1.17 (checked 5 October 2026, docs/SOURCES-CHECK-2026-10-05.md). Community builds are now named as Pred.gg community guides relayed by omeda.city, and wording that called the two sites independent is corrected. No statistic, grade, build or rule changes. See [RELEASE-2.52.1.md](RELEASE-2.52.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.52.2 fixes the Windows collector's timing after a restart. It checks every three hours, and a restart less than three hours after its last check used to push the next check out to as much as six hours; it now checks as soon as the last check makes one due. On 5 October 2026 the collector update restarted it 2 h 13 min after a check, and no check ran for 5 h 13 min. The website and its data are unchanged; the fix reaches the Windows collector only when it is rebuilt and installed with the owner's approval. See [RELEASE-2.52.2.md](RELEASE-2.52.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.52.1
+
+2.52.1 keeps the last Pred.gg hero kits and item definitions, with their original dates, when Pred.gg cannot be read, instead of falling back to omeda.city's older text. omeda.city is Pred.gg's former site (same operator), and its hero and item lists stopped updating before patch 1.17 (checked 5 October 2026, docs/SOURCES-CHECK-2026-10-05.md). Community builds are now named as Pred.gg community guides relayed by omeda.city, and wording that called the two sites independent is corrected. No statistic, grade, build or rule changes. See [RELEASE-2.52.1.md](RELEASE-2.52.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.52.0
 
