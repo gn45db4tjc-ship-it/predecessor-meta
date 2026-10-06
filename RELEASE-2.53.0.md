@@ -96,4 +96,20 @@ Measured on the committed seed, staged the way the site publishes it, desktop at
 
 ## Verification
 
-See the report to the owner for the suite results of this commit.
+- **Probes first.** Every new probe reproduced on 2.52.2 and passes now, and the ledger's open list is empty.
+  - LF1 counted 7,135–9,366 elements on three desktop hero pages before, and 410–702 after.
+  - QF4 saw the engine replaced by a hero, history or catalogue file before, and kept after.
+  - QP12 saw the packet saved before a delayed guide arrived, and after it now.
+  - W3 and W6 now compare drawn marker shapes. V1, V3, S4 and S5 draw or open folds before reading them. PD1 allows the one movement line (see the trade-off above).
+- **First screen.** Rendered from the 2.52.2 core and from the trimmed core with the guide and every evidence file held back: 104 of 104 snapshots identical (phone and desktop; Meta for each role, quick and full; More; the limitations dialog; the status line; four data states).
+- **Suites:**
+  - Python static tests: 422 pass (1 skipped).
+  - Node tests: 404 pass, including `tests/projection.test.cjs` on five cohort states.
+  - The 11 CI browser suites against the committed seed: all pass. The audit suite's 228 probes all match the ledger.
+  - `browser_visor_look` (the Windows server with a test data folder): 35 checks, no errors.
+  - `browser_release_upgrade` from a 2.52.2 site to a 2.53.0 site, in Edge and WebKit: the new worker activates, the new shell opens offline, and picks and the source date are kept.
+- **Timings.** Taken with the committed seed staged by 2.52.2 (`git archive` of main 0ef68c4) and by this branch, desktop at 1440 px, CPU slowed four times, two runs each.
+- **Checked by eye** on the committed seed:
+  - desktop at 1440 px: Changes, a hero page and Sources;
+  - phone at 360 and 390 px: Meta with and without movement, a hero page, the skill chart, More and Items;
+  - dark and light themes.
