@@ -30,7 +30,7 @@ if (APP_CONFIG.mode === 'static') {
     const apple = /iphone|ipad|ipod/i.test(navigator.userAgent);
     detail('Install this app', apple
       ? '<p>In Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</p><p>The app will open from its own icon and keep using the same daily cloud data.</p>'
-      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta</strong> or <strong>Apps → Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
+      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta</strong> or <strong>Apps</strong>, then <strong>Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
   }
   window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); pendingInstallPrompt = event; syncInstallButton(); });
   window.addEventListener('appinstalled', () => { pendingInstallPrompt = null; syncInstallButton(); toast('App installed.'); });
@@ -211,7 +211,7 @@ if (APP_CONFIG.mode === 'static') {
     $('#export').disabled = !B;
     $('#quit').classList.add('hide');
     const verified = latestVerifiedPatch();
-    if (verified?.version) $('#patch-strip .patch-cell').innerHTML = `<div><small>${site.manifest?.patch_check?.status === 'verified' ? 'Game patch' : 'Last verified patch'}</small><strong>v${esc(verified.version)}</strong></div>${link(verified.url,'Official notes ↗')}`;
+    if (verified?.version) $('#patch-strip .patch-cell').innerHTML = `<div><small>${site.manifest?.patch_check?.status === 'verified' ? 'Game patch' : 'Last verified patch'}</small><strong>v${esc(verified.version)}</strong></div>${link(verified.url,'Official notes')}`;
     stableHTML('#bracket', options(allowed.map(b => [b, (site.manifest?.cohorts?.[b]?.label || b[0].toUpperCase()+b.slice(1)+'+') + (site.manifest && site.manifest.cohorts[b]?.status !== 'available' ? ' · unavailable' : '')]), S.bracket));
     $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every ' + patchEvery() + '; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every ' + patchEvery() + '.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every ' + patchEvery() + '; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';

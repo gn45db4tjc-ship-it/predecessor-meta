@@ -184,7 +184,7 @@
 /* Phones: the row shows icon + key so more levels fit; the legend names each key, and the names stay in the row headers for screen readers. */
 @media(max-width:520px){.skill-chart-ability{gap:var(--s1)}.skill-chart-ability img{width:20px;height:20px}.skill-chart-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.skill-chart kbd{margin-left:0}.skill-chart th[scope=row],.skill-chart th.skill-chart-corner{padding:var(--s0-5) var(--s1)}.skill-box{width:22px;height:22px;font-size:var(--tr-xs)}.skill-chart-legend{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3);margin:0 0 var(--s2);font-size:var(--tr-xs);color:var(--text-2)}.skill-chart-legend kbd{padding:0 var(--s1);border:1px solid var(--line-strong);border-radius:var(--radius-sm);font-family:var(--mono);font-size:var(--tr-xs);color:var(--muted);background:var(--surface)}}
 .more-grid button{display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius-lg);background:var(--surface);padding:var(--s4)}
-.more-grid button::after{content:'↗';color:var(--brand-text);padding-left:var(--s3)}
+.more-grid button::after{content:"›";content:"›" / "";color:var(--brand-text);padding-left:var(--s3)}
 @media(min-width:701px){
  .sidebar{padding:var(--s5) var(--s4)}.sidebar .brand{font-size:var(--t-xl)}
  .page-head{padding:0 0 var(--s3)}.page-head h1{font-size:var(--t-4xl)}
@@ -329,14 +329,14 @@
  .compact-context .topbar .tools>label:has(#bracket){flex:1 1 140px;font-size:0;gap:0}
  .compact-context .topbar .tools>label:has(#bracket) select{font-size:var(--tr-base)}
  .compact-context .topbar .tools #refresh{flex:0 0 44px;width:44px;padding:0;font-size:0}
- .compact-context .topbar .tools #refresh::before{content:"\21bb";font-size:var(--tr-lg);line-height:1}
+ .compact-context .topbar .tools #refresh::before{content:"";display:block;width:20px;height:20px;margin:0 auto;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12a8 8 0 1 1-2.34-5.66'/%3E%3Cpath d='M20 3.5V9h-5.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12a8 8 0 1 1-2.34-5.66'/%3E%3Cpath d='M20 3.5V9h-5.5'/%3E%3C/svg%3E") center/contain no-repeat}
  .compact-context #mobile-limits{flex:0 0 auto;width:auto;min-height:44px;padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--radius-md);gap:var(--s1);background:var(--surface-2)}
  .compact-context .topbar .tools #quit{flex:0 0 auto;padding:0 var(--s3)}
  .compact-context #mobile-limits.material{border-color:var(--amber)}
  .compact-context #mobile-limits .limits-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
  .compact-context #mobile-limits .limits-sep{display:none}
- .compact-context #mobile-limits strong::before{content:"\24d8\00a0"}
- .compact-context #mobile-limits.material strong::before{content:"\26a0\00a0"}
+ .compact-context #mobile-limits strong::before{content:"i";content:"i" / "";display:inline-grid;place-items:center;box-sizing:border-box;width:1.3em;height:1.3em;margin-right:.4em;border:1.5px solid currentColor;border-radius:50%;font-size:.78em;font-weight:800;line-height:1;vertical-align:.08em}
+ .compact-context #mobile-limits.material strong::before{content:"!";content:"!" / "";color:var(--amber)}
  .compact-context #mobile-limits>span:not([aria-hidden]){display:none}
  .compact-context #mobile-limits span[aria-hidden]{font-size:0}
  .compact-context #mobile-limits span[aria-hidden]::after{content:"\203a";font-size:var(--tr-sm)}

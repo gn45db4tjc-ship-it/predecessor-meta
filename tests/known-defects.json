@@ -5,9 +5,7 @@
     "QF4",
     "QP12",
     "QP14",
-    "QP15",
-    "QP16",
-    "QT8"
+    "QP16"
   ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",

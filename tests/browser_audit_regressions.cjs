@@ -1845,7 +1845,8 @@ probes.W3 = async browser => {
         host.appendChild(el);
         const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
         out[k] = {color: cs.color, background: cs.backgroundColor, family: cs.fontFamily.split(',')[0],
-                  marker: (before.content || '').replace(/["']/g, '').trim()};
+                  /* 2.53.0 (QT8): markers are drawn, so the marker is compared by its drawn shape, not a glyph. */
+                  marker: (before.content === 'none' || before.content === 'normal' ? '' : [before.content, before.width, before.height, before.borderRadius, before.clipPath, before.transform, before.borderTopWidth, before.borderRightColor, before.backgroundColor].join('|'))};
       }
       const bare = document.createElement('span');
       bare.className = 'tag'; host.appendChild(bare);
@@ -2131,7 +2132,7 @@ probes.W6 = async browser => {
         const el = document.createElement('span');
         el.className = 'tag ' + cls; host.appendChild(el);
         const cs = getComputedStyle(el), before = getComputedStyle(el, '::before');
-        return {color: cs.color, background: cs.backgroundColor, marker: (before.content || '').replace(/["']/g, '').trim()};
+        return {color: cs.color, background: cs.backgroundColor, marker: (before.content === 'none' || before.content === 'normal' ? '' : [before.content, before.width, before.height, before.borderRadius, before.clipPath, before.transform, before.borderTopWidth, before.borderRightColor, before.backgroundColor].join('|'))};
       };
       const styles = {saved: read('saved'), warning: read('warning')};
       host.remove();

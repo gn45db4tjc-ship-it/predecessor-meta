@@ -322,3 +322,6 @@ details>.detail-content,.reference-fold>.detail-content,details.hero-fold>.detai
 @media(max-width:700px){.source-table{min-width:0}.source-table td summary{min-height:44px}.source-table th:nth-child(3),.source-table td:nth-child(3){width:7em}.source-table td:nth-child(3){white-space:normal}}
 /* QS11: desktop Match side by side — both columns start level and space their panels alike */
 @media(min-width:1100px){.match-layout .match-column{display:grid;gap:var(--s3);align-content:start}.match-layout .match-column>*{margin:0}}
+/* QT8: drawn marks in place of glyphs the shipped faces lack. Back links lead with a chevron the faces carry; the phone skill chart ticks its box with a drawn check. */
+.back:before{content:"\2039";content:"\2039" / "";margin-right:var(--s1)}
+.skill-chart td.is-ticked .skill-box::after{content:"";display:block;box-sizing:border-box;width:45%;height:25%;margin-top:-12%;border:solid currentColor;border-width:0 0 2px 2px;transform:rotate(-45deg)}

@@ -236,7 +236,18 @@ main{max-width:var(--content-max);margin:0 auto;padding:var(--s5) var(--gutter) 
 .tag.calculated{color:var(--blue);background:var(--blue-tint)}
 .tag.official{color:var(--official);background:var(--official-tint);font-family:var(--mono)}
 .tag.saved{color:var(--text-2);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
-.tag.observed:before{content:"● "}.tag.calculated:before{content:"◇ "}.tag.reviewed:before{content:"✦ "}.tag.warning:before{content:"! "}.tag.official:before{content:"▢ "}.tag.saved:before{content:"⟳ "}
+/* Evidence markers are drawn, not typed: the shipped faces lack ● ◇ ✦ ▢ ⟳, which fell back to several system fonts and were read aloud (QT8, 2.53.0). */
+.tag:is(.observed,.calculated,.reviewed,.official,.saved):before{content:"";display:inline-block;flex:none;box-sizing:border-box;width:.6em;height:.6em;margin-right:.5em;vertical-align:.02em;background:currentColor}
+.tag.observed:before{border-radius:50%}
+.tag.calculated:before{width:.5em;height:.5em;margin-inline:.06em .56em;background:none;border:1.5px solid currentColor;transform:rotate(45deg)}
+.tag.reviewed:before{width:.72em;height:.72em;margin-right:.44em;vertical-align:-.04em;clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)}
+.tag.official:before{background:none;border:1.5px solid currentColor;border-radius:1px}
+.tag.saved:before{width:.66em;height:.66em;background:none;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;transform:rotate(-45deg)}
+.tag.warning:before{content:"!";content:"!" / "";margin-right:.4em;font-weight:800}
+/* A drawn arrow between steps ("Gold → Platinum"); the words around it carry the meaning and a hidden " to " reads it aloud. */
+.to{display:inline-block;width:.8em;height:.56em;margin:0 .3em;vertical-align:.08em;background:currentColor;clip-path:polygon(0 42%,58% 42%,58% 0,100% 50%,58% 100%,58% 58%,0 58%)}
+.star{width:1em;height:1em;flex:none;vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+[aria-pressed="true"] .star,.star.filled{fill:currentColor}
 /* disclosures: blue chevron = opens; hover confirms */
 details{border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface-2);margin:var(--s2) 0}
 summary{padding:var(--s2) var(--s3) var(--s2) var(--s6);cursor:pointer;font-size:var(--t-sm);font-weight:600;line-height:1.4;color:var(--text-2);position:relative;list-style:none;border-radius:var(--radius-md)}

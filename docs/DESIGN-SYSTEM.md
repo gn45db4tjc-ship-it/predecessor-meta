@@ -228,8 +228,15 @@ Page geometry.
 
 The one label component: padding `--s0-5` `--s2`, `--radius-sm` since 2.49.0, `--t-xs`, weight 700, capitals. Variants add colour only.
 
-- `.chip.tag.observed` / `.calculated` / `.reviewed` / `.official`: evidence. Always rendered with `badge(text, type)`, which adds the marker (●, ◇, ✦, ▢).
-- `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence.
+- `.chip.tag.observed` / `.calculated` / `.reviewed` / `.official`: evidence. Always rendered with `badge(text, type)`. Each class draws its marker in CSS: a filled dot, an outlined diamond, a four-point star and an outlined square. Since 2.53.0 the markers are drawn shapes, not typed glyphs. The shipped faces lack ● ◇ ✦ ▢, so the glyphs fell back to several system fonts, and screen readers read them aloud (probe QT8). W3 compares the drawn shapes.
+- `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence. Warning shows a "!" hidden from screen readers. Saved draws an open ring.
+
+**Symbols.** Use only symbols the shipped faces carry (‹ › · – … ↑ ↓ ×). For anything else, draw the mark and let the words carry the meaning:
+- `TO` (ui.js) draws a step arrow and reads " to " aloud ("Gold to Platinum").
+- `prose(text)` escapes source text and draws any → it contains.
+- `star(filled)` is an inline SVG star, filled under `[aria-pressed="true"]`.
+- `.back` puts a ‹ before a back link.
+- A link's text names its destination ("Official notes", "Source"), never a bare ↗ (QP15).
 - `.chip.status-pill`: a status summary inside the status strip.
 - `.chip.tag.reviewed.ready-chip`: "Build ready" on Meta rows, shown only when the reviewed build is active.
 
