@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import static_publish as p
@@ -32,6 +33,44 @@ class LocalUpdaterTests(unittest.TestCase):
         self.assertFalse(u.due(state,NOW+dt.timedelta(hours=2,minutes=59)))
         self.assertTrue(u.due(state,NOW+dt.timedelta(hours=3)))
         self.assertTrue(u.due(state,NOW+dt.timedelta(days=5)))
+
+    def test_restart_soon_after_a_check_names_when_the_next_check_is_due(self):
+        # 5 Oct 2026: a collector update restarted the daemon 2 h 13 min after its last check. Its first check was not
+        # due and the next attempt was set three hours after the restart, so no check ran for 5 h 13 min.
+        private=self.root/'private';private.mkdir()
+        last=NOW-dt.timedelta(hours=2,minutes=13)
+        p.write_json(private/'updater.json',{'last_check_at':last.isoformat(),'status':'published','pending_publish':False})
+        with patch.object(u,'PRIVATE',private),patch.object(u.publication.base,'now_utc',return_value=NOW):
+            result=u.run_once()
+        due_at=last+dt.timedelta(hours=3)
+        self.assertEqual(result['status'],'not due')
+        self.assertEqual(p.utc_time(result['next_check_at']),due_at)
+        self.assertEqual(u.next_attempt_at(result,NOW.timestamp()),due_at.timestamp())
+
+    def test_after_a_check_or_a_failure_the_next_attempt_stays_three_hours_away(self):
+        t=NOW.timestamp()
+        self.assertEqual(u.next_attempt_at({'status':'published'},t),t+u.CHECK_SECONDS)
+        self.assertEqual(u.next_attempt_at(None,t),t+u.CHECK_SECONDS)
+        later={'status':'not due','next_check_at':(NOW+dt.timedelta(hours=5)).isoformat()}
+        self.assertEqual(u.next_attempt_at(later,t),t+u.CHECK_SECONDS)
+
+    def test_daemon_restarted_between_checks_runs_the_next_check_when_due(self):
+        private=self.root/'private';private.mkdir()
+        start=NOW.timestamp();clock=[start];calls=[];due_at=start+47*60
+        def run_once():
+            calls.append(clock[0])
+            if len(calls)==3:(private/'stop').touch()
+            if len(calls)==1:
+                return {'status':'not due','next_check_at':dt.datetime.fromtimestamp(due_at,dt.timezone.utc).isoformat()}
+            return {'status':'published'}
+        def sleep(seconds):clock[0]+=seconds
+        fake_time=SimpleNamespace(time=lambda:clock[0],sleep=sleep)
+        with patch.object(u,'PRIVATE',private),patch.object(u,'run_once',side_effect=run_once),\
+             patch.object(u,'time',fake_time),patch.object(u.publication.base,'log'):
+            u.daemon()
+        self.assertEqual(calls[0],start)
+        self.assertTrue(due_at<=calls[1]<due_at+30,(calls[1]-start)/60)
+        self.assertTrue(calls[1]+u.CHECK_SECONDS<=calls[2]<calls[1]+u.CHECK_SECONDS+30)
 
     def test_export_only_public_fields_and_dated_matching_hash(self):
         r=u.export_feed(self.state,self.feed)

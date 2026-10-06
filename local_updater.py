@@ -34,6 +34,14 @@ def due(state, now):
     return age.total_seconds() < 0 or age.total_seconds() >= CHECK_SECONDS
 
 
+def next_attempt_at(result, started):
+    """When the daemon tries again: CHECK_SECONDS after this attempt began, or sooner when a check that was
+    not due names its due time. A restart within three hours of the last check must not delay the next to six."""
+    later = started + CHECK_SECONDS
+    due_at = result.get('next_check_at') if isinstance(result, dict) else None
+    return min(later, publication.utc_time(due_at).timestamp()) if due_at else later
+
+
 def export_feed(state_folder, out):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
     state = publication.read_json(Path(state_folder)/'publication.json', {})
@@ -143,7 +151,8 @@ def run_once(*, force=False, collect_only=False, publish_only=False):
         if collect_only:
             return export_feed(state_folder, PRIVATE/'prepared-feed')
         if not status.get('pending_publish') and not publish_only and not check_due:
-            return {'status':'not due'}
+            due_at = publication.utc_time(status['last_check_at']) + dt.timedelta(seconds=CHECK_SECONDS)
+            return {'status':'not due', 'next_check_at':publication.base.iso(due_at)}
         try:
             result = publish_feed(state_folder)
             status.update(status='published', pending_publish=False,
@@ -159,18 +168,20 @@ def run_once(*, force=False, collect_only=False, publish_only=False):
 
 
 def daemon():
-    """Checks on sign-in/resume, then every three hours; source pulls retain daily policy."""
+    """Checks on sign-in/resume, then every three hours from the last check; source pulls retain daily policy."""
     PRIVATE.mkdir(parents=True, exist_ok=True)
     with DataDirectoryLock(PRIVATE):
         stop = PRIVATE/'stop'; stop.unlink(missing_ok=True)
         next_attempt = 0
         while not stop.exists():
             if time.time() >= next_attempt:
-                next_attempt = time.time()+CHECK_SECONDS
+                started = time.time(); result = None
                 try:
-                    publication.base.log(json.dumps(run_once(), ensure_ascii=False))
+                    result = run_once()
+                    publication.base.log(json.dumps(result, ensure_ascii=False))
                 except Exception as error:
                     publication.base.log('Windows updater: '+str(error))
+                next_attempt = next_attempt_at(result, started)
             time.sleep(30)
 
 
