@@ -1,13 +1,13 @@
 {
-  "last_full_attempt_at": "2026-10-05T01:19:17+00:00",
-  "maintenance_day": "2026-10-05",
+  "last_full_attempt_at": "2026-10-05T14:38:35-05:00",
+  "maintenance_day": "2026-10-06",
   "patch_check_status": "verified",
   "brackets": {
-    "gold": "partial",
-    "bronze": "partial",
-    "silver": "partial",
-    "platinum": "partial",
-    "diamond": "partial",
-    "paragon": "partial"
+    "gold": "ok",
+    "bronze": "ok",
+    "silver": "ok",
+    "platinum": "ok",
+    "diamond": "ok",
+    "paragon": "ok"
   }
 }
