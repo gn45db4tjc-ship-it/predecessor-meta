@@ -31,7 +31,7 @@
  assert(text.includes('Alternative · not added'),'Shared-action alternative stays inspectable');
  assert(text.includes('Directional source observations')||text.includes('No eligible observed pair sample'),'Observed evidence remains separate');
  close();
- const leading=document.querySelector('.partner');assert(leading.innerText.includes('kit interaction points')||leading.innerText.includes('Calculated kit fit'),'Hero cards expose the sorting evidence');
+ const leading=document.querySelector('.partner');assert(/Kit fit: \d+ points from \d+ kit interactions|kit fit points from|Calculated kit fit/i.test(leading.innerText),'Hero cards expose the sorting evidence');
  assert(document.documentElement.scrollWidth<=innerWidth,'Pairing page has no horizontal overflow');
  click('[data-pair="steel|gideon|jungle|midlane"]');
  return {passed:checks.length,checks,viewport:[innerWidth,innerHeight]};
