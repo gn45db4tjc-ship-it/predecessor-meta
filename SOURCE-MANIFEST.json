@@ -229,7 +229,7 @@
     "tests/legacy/browser_correction_acceptance.js": "0fe6007d53ab05b5440cba407074d3e124e30e86331345d95d9150d38216e9c3",
     "tests/legacy/browser_live_acceptance.js": "cc7a77fa78c758b20a94b7ce68318ca0d53f0493d6fc66dbc6e9fad3796345f2",
     "tests/legacy/browser_meta_acceptance.js": "1dd6588c3cc8ac92531738ae4a92f9f73d696d91793dd65900385d3c1b8cb2ce",
-    "tests/legacy/browser_sequences_acceptance.js": "73072dc16e1c83d0bb8a782de89dc56204c52f58076c1aaca05156dc7acdbc26",
+    "tests/legacy/browser_sequences_acceptance.js": "721d38544027ff3b35159c37d64374c6107bd44b0d3da4d99b6d25eb6b2f560b",
     "tests/legacy/browser_strategy_acceptance.js": "22836a1c04d43a5cbde9f3f9a0e8e89cdd223f184ce4bd3a9b5c61db853e07ad",
     "tests/legacy/browser_synthesis_acceptance.js": "845ba6bc5834543813bd3ba479a4c2f34fad7c54e7eb22ba1cfa67d40485dbbc",
     "tests/library_catalogue.test.cjs": "89027eb3e7018f1e82bd91b8c7c77ab1775c636ac06f168b01da80c2a41f2983",
