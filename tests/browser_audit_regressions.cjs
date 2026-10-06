@@ -3087,9 +3087,12 @@ async function quickPhone(browser, viewport = {width: 390, height: 844}) {
 }
 const pageTop = sel => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().top + scrollY) : null; };
 probes.PD1 = async browser => {
+  // 2.53.0: the one addition the budget allows is Pred.gg's movement line (QP14), a single compact block of at most
+  // 56 px including its gap; anything else above the list still has to fit in 280 px.
   const {context, page} = await quickPhone(browser);
   const first = await page.evaluate(pageTop, '#main .mobile-hero-card');
-  await context.close(); verdict('PD1', first === null || first > 280, {first_hero_row_y: first});
+  const movement = await page.evaluate(() => { const m = document.querySelector('#main .meta-movement'); if (!m) return 0; const r = m.getBoundingClientRect(); return Math.round(r.height + parseFloat(getComputedStyle(m).marginBottom)); });
+  await context.close(); verdict('PD1', first === null || movement > 56 || first > 280 + movement, {first_hero_row_y: first, movement_line: movement});
 };
 probes.PD2 = async browser => {
   const {context, page} = await quickPhone(browser), seen = {};

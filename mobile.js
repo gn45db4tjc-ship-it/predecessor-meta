@@ -218,19 +218,22 @@ function savedHeroShortcuts(favorites,recent){
  const shortcut=p=>`<button data-hero="${esc(p.slug)}" data-role="${esc(p.role)}">${esc(name(p.slug))}<small>${esc(labels[p.role])}</small></button>`;
  return `<details class="saved-heroes" data-keep="saved-heroes"${companionPrefs.savedOpen?' open':''}><summary>Your heroes · ${favorites.length} ${favorites.length===1?'favorite':'favorites'} · ${recentOnly.length} recent</summary>${favorites.length?`<section id="mobile-favorites"><h2>Favorites</h2><div class="saved-hero-list">${favorites.map(p=>`<div>${shortcut(p)}<button class="favorite-button" data-favorite="${esc(p.slug+'|'+p.role)}" aria-label="Remove ${esc(name(p.slug))} ${esc(labels[p.role])} from favorites">${star(true)}</button></div>`).join('')}</div></section>`:''}${recentOnly.length?`<section id="mobile-recent"><h2>Recent</h2><div class="saved-hero-list">${recentOnly.map(p=>`<div>${shortcut(p)}</div>`).join('')}</div></section>`:''}</details>`;
 }
-// 2.53.0 (QP14): the selected role's largest Pred.gg win-rate moves since the previous pull lead the list, with the
-// source, rank and both pull dates. When Pred.gg history is unavailable, Statz stands in and says so.
+// 2.53.0 (QP14): the selected role's largest Pred.gg rise and fall since the previous pull lead the list, with the
+// source, rank and both pull times (only heroes with 100+ games in both pulls count; Changes lists the rest). One
+// compact tap target, two lines, so the first hero row stays near the top (PD1). When Pred.gg history is unavailable,
+// Statz stands in and says so.
 function movementHTML(role){
- const day=v=>v?new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'date unknown',sameDay=(a,b)=>!!a&&!!b&&new Date(a).toDateString()===new Date(b).toDateString();
+ const day=v=>v?new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'date unknown',time=v=>new Date(v).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+ const span=(a,b)=>esc(day(a))+TO+esc(a&&b&&new Date(a).toDateString()===new Date(b).toDateString()?time(b):day(b));
  const moves=list=>list.map(c=>`<span class="meta-move">${esc(name(c.slug))} <strong class="${c.wr_delta>0?'positive':'negative'}">${pp(c.wr_delta)}</strong></span>`).join('<span aria-hidden="true"> · </span>');
- const section=(text,source,via)=>`<section class="meta-movement" aria-label="${esc(labels[role])} win-rate movement"><p><span class="meta-movement-lead">Since the last pull:</span> ${text}</p><div class="meta-movement-foot"><small>${source}</small><button class="text-button" data-movement-role="${esc(role)}" data-movement-source="${via}">All changes</button></div></section>`;
+ const section=(text,source,via)=>`<button type="button" class="meta-movement" data-movement-role="${esc(role)}" data-movement-source="${via}"><span class="meta-movement-text"><span class="meta-movement-lead">Last pull:</span> ${text}</span><small>${source}<span class="sr-only">. Open all changes</span></small></button>`;
  const lower=esc(labels[role].toLowerCase()),m=E.roleMovement(role);
- if(m){const list=[...m.rises,...m.falls];
+ if(m){const list=[m.rises[0],m.falls[0]].filter(Boolean);
   return section(list.length?moves(list):m.compared?'no '+lower+' hero moved':'no '+lower+' hero has '+m.minimum_games+'+ games in both pulls',
-   `Pred.gg ${esc(m.to.patch)} · ${esc(m.bracket_label||B.bracket?.label||'')} · ${m.minimum_games}+ games · pulls ${esc(day(m.from.fetched_at))}${TO}${esc(sameDay(m.from.fetched_at,m.to.fetched_at)?new Date(m.to.fetched_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}):day(m.to.fetched_at))}`,'pred');}
+   `Pred.gg ${esc(m.to.patch)} · ${esc(m.bracket_label||B.bracket?.label||'')} · ${span(m.from.fetched_at,m.to.fetched_at)}`,'pred');}
  const d=B.changes?.vs_previous_run;if(!d)return '';
- const rows=(d.changes||[]).filter(c=>c.role===role&&c.matches_from>=100&&c.matches_to>=100&&Math.abs(c.wr_delta)>=.005).sort((a,b)=>Math.abs(b.wr_delta)-Math.abs(a.wr_delta)).slice(0,3);
- return section(rows.length?moves(rows):'no qualifying '+lower+' movement',`Statz ${esc(B.patch||'')} · broader dataset · compared with ${esc(day(d.from?.fetched_at))}`,'statz');
+ const rows=(d.changes||[]).filter(c=>c.role===role&&c.matches_from>=100&&c.matches_to>=100&&Math.abs(c.wr_delta)>=.005).sort((a,b)=>Math.abs(b.wr_delta)-Math.abs(a.wr_delta)).slice(0,2);
+ return section(rows.length?moves(rows):'no qualifying '+lower+' movement',`Statz ${esc(B.patch||'')} · broader dataset · since ${esc(day(d.from?.fetched_at))}`,'statz');
 }
 function guidedHome(){
  const role=roleOrder.includes(S.role)?S.role:'jungle',query=String(companionPrefs.homeQuery||'').toLowerCase(),everyone=roleHeroes(role),rows=roleListOrder(role).filter(r=>name(r.slug).toLowerCase().includes(query));

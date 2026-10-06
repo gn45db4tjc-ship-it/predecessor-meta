@@ -335,7 +335,7 @@
  .compact-context #mobile-limits.material{border-color:var(--amber)}
  .compact-context #mobile-limits .limits-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
  .compact-context #mobile-limits .limits-sep{display:none}
- .compact-context #mobile-limits strong::before{content:"i";content:"i" / "";display:inline-grid;place-items:center;box-sizing:border-box;width:1.3em;height:1.3em;margin-right:.4em;border:1.5px solid currentColor;border-radius:50%;font-size:.78em;font-weight:800;line-height:1;vertical-align:.08em}
+ .compact-context #mobile-limits strong::before{content:"i";content:"i" / "";display:inline-grid;place-items:center;box-sizing:border-box;width:1.3em;height:1.3em;margin-right:.4em;border:1.5px solid currentColor;border-radius:50%;font-size:var(--tr-xs);font-weight:800;line-height:1;vertical-align:.08em}
  .compact-context #mobile-limits.material strong::before{content:"!";content:"!" / "";color:var(--amber)}
  .compact-context #mobile-limits>span:not([aria-hidden]){display:none}
  .compact-context #mobile-limits span[aria-hidden]{font-size:0}
@@ -444,12 +444,11 @@
 @media(max-width:360px){
  .simple-build--compact .simple-setup{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
-/* 2.53.0 (QP14): the selected role's Pred.gg movement since the previous pull, directly above the phone Meta list. */
-.meta-movement{display:grid;gap:var(--s1);margin:var(--s2) 0 var(--s3);padding:var(--s2) var(--panel-inset) 0;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface)}
-.meta-movement p{margin:0;font-size:var(--tr-base);line-height:1.45}
+/* 2.53.0 (QP14): the selected role's Pred.gg movement since the previous pull, directly above the phone Meta list.
+   One compact tap target, two lines, so the first hero row stays near the top (PD1). */
+.meta-movement{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:var(--s2);row-gap:0;width:100%;min-height:44px;margin:0 0 var(--s2);padding:var(--s1) var(--panel-inset);border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface);color:var(--text);text-align:left;font-family:inherit;font-weight:400;text-transform:none;letter-spacing:normal}
+.meta-movement-text{grid-column:1;font-size:var(--tr-sm);line-height:1.35}
 .meta-movement-lead{color:var(--muted);font-weight:600}
 .meta-move{white-space:nowrap}
-.meta-movement-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 var(--s3)}
-.meta-movement-foot small{flex:1 1 14em;color:var(--muted);font-size:var(--tr-sm);line-height:1.4}
-.meta-movement-foot .text-button{min-height:44px;margin-left:auto;white-space:nowrap}
-.meta-movement-foot .text-button:after{content:"\203a";content:"\203a" / "";margin-left:var(--s1)}
+.meta-movement small{grid-column:1;color:var(--muted);font-size:var(--tr-xs);line-height:1.35}
+.meta-movement:after{content:"\203a";content:"\203a" / "";grid-column:2;grid-row:1 / span 2;color:var(--brand-text);font-size:var(--tr-lg)}
