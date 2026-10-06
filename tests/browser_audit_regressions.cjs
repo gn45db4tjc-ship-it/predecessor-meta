@@ -4598,7 +4598,8 @@ probes.QS8 = async browser => {
     const vals = new Set(), px = el => Math.round(parseFloat(getComputedStyle(el).paddingLeft));
     const visible = el => el.getClientRects().length && el.offsetParent !== null;
     for (const el of document.querySelectorAll('#main .panel:not(details):not(.table-panel)')) if (visible(el) && !el.closest('.library-grid') && !el.matches('.hero-header,.mobile-hero-card')) vals.add(px(el));
-    for (const el of document.querySelectorAll('#main details > .detail-content')) if (visible(el)) vals.add(px(el));
+    // A disclosure nested in a phone build card lines up with the card's own text (the card carries the inset).
+    for (const el of document.querySelectorAll('#main details > .detail-content')) if (visible(el) && !el.closest('.simple-build')) vals.add(px(el));
     let doubled = 0; for (const el of document.querySelectorAll('#main details.hero-fold.panel')) if (parseFloat(getComputedStyle(el).paddingLeft) > 0) doubled++;
     return {insets: [...vals].sort((a, b) => a - b), doubled};
   });

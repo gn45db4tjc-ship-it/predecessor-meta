@@ -220,6 +220,7 @@ Page geometry.
 | `--content-max` | `1720px` | same | Maximum content width |
 | `--prose` | `60ch` | same | Readable line length for running prose (about 75 characters of Barlow; 76ch until 2.52.0) |
 | `--prose-intro` | `72ch` | same | Page intros on the desktop (`.page-head p`): short, so two lines under 90 characters each (2.52.0) |
+| `--panel-inset` | `var(--s4)`; `var(--s3)` at 700px and below | same | The one inner padding of panels, cards, fold bodies, notes and table edge cells (2.53.0, probe QS8) |
 
 ## Components
 
@@ -261,7 +262,7 @@ _Usage:_ Never draw an item icon without this button; the dialog is how sources 
 
 ### `.panel`
 
-A card: `--surface` on the hatched ground, no visible border since 2.49.0, `--radius-lg`, padding `--s3` (phone) or `--s4`.
+A card: `--surface` on the hatched ground, no visible border since 2.49.0, `--radius-lg`, padding `--panel-inset` (`--s4`, `--s3` on the phone). Since 2.53.0 every panel, card, fold body, note and the edge cells of a scrolling table use that one inset (probe QS8): a fold pads its body, not itself, and `.table-panel` keeps 0. Tiles (library entries, loadout slots, metric chips, Match heroes) keep their own smaller sizes.
 
 _Usage:_ Don't nest panels more than one deep.
 

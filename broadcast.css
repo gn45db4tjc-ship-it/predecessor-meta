@@ -292,3 +292,33 @@ td>.hero-cell+small{margin-left:var(--s1-5)}
 @media(max-width:430px){.simple-build--compact .simple-setup{grid-template-columns:repeat(3,minmax(0,1fr))}}
 /* speed (L1): on the phone the status line is a live region only, so it never pushes the page down as it empties */
 @media(max-width:700px){#progress{position:absolute;width:1px;height:1px;min-height:0;padding:0;margin:-1px;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}
+
+/* ============================================================================
+   QoL pass 3 (2.53.0): the spacing items deferred from 2.52.0. Tokens only.
+   ============================================================================ */
+/* QS8: one inner padding for every panel (--panel-inset: 16 px desktop, 12 px phone). Scrolling tables keep 0 and
+   pad their edge cells; folds pad their body, not themselves (they were padded twice). Tiles keep their own sizes. */
+.panel,.meta-aside .panel,.simple-hero-section .panel,.partner,.build-card,.reviewed-composition,.reviewed-counter,.strategic-profile,.app-update-row,.more-grid button{padding:var(--panel-inset)}
+.table-panel,details.hero-fold.panel{padding:0}
+details>.detail-content,.reference-fold>.detail-content,details.hero-fold>.detail-content,.mobile-build-row>summary{padding-inline:var(--panel-inset)}
+.note,.note.rank-evidence,.verdict>div{padding-inline:var(--panel-inset)}
+.table-panel :is(th,td):first-child{padding-left:var(--panel-inset)}
+.table-panel :is(th,td):last-child{padding-right:var(--panel-inset)}
+.library-grid .panel{padding:var(--s2) var(--s3)}
+@media(max-width:700px){.dialog-head,#detail-body{padding-inline:var(--panel-inset)}}
+/* QS9: with Large text the phone role picker wraps to two rows instead of three */
+@media(max-width:700px){
+  .large-text .role-choices.compact{display:flex;flex-wrap:wrap}
+  .large-text .role-choices.compact button,.large-text .role-choices.compact button:last-child{flex:1 1 auto;grid-column:auto}
+}
+/* QS10: Sources table — figures right-aligned under their header, every cell on the source name's line, narrow
+   columns sized to their content, and on the phone no sideways scroll (the date wraps before its time) */
+.table-small th.num{text-align:right}
+.source-table td{vertical-align:baseline}
+.source-table th:nth-child(n+2),.source-table td:nth-child(n+2){width:1%;white-space:nowrap}
+.source-table td details{border:0;background:none;margin:0}
+.source-table td summary{min-height:0;padding:var(--s1) 0 var(--s1) var(--s4);font-weight:500;color:var(--muted)}
+.source-table td summary:before{left:var(--s0-5)}
+@media(max-width:700px){.source-table{min-width:0}.source-table td summary{min-height:44px}.source-table th:nth-child(3),.source-table td:nth-child(3){width:7em}.source-table td:nth-child(3){white-space:normal}}
+/* QS11: desktop Match side by side — both columns start level and space their panels alike */
+@media(min-width:1100px){.match-layout .match-column{display:grid;gap:var(--s3);align-content:start}.match-layout .match-column>*{margin:0}}
