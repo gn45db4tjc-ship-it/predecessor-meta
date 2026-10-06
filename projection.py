@@ -39,7 +39,9 @@ CATALOG_PATHS = (('pred_game_data', 'field_protections'),)
 CATALOG_FIELDS = ('pred_raw', 'previous_source')   # on each item and perk
 # Version 3: what Changes, Sources and the reviewed-definition dialog read (publisherNewsHTML, scopedHistoryHTML,
 # reviewedDefinitionHTML, definitionReviewAuditHTML).
-HISTORY_PATHS = (('official', 'definition_history'), ('official', 'publisher_news'), ('scoped_changes',))
+HISTORY_PATHS = (('official', 'definition_history'), ('official', 'publisher_news'),
+                 # 2.53.0: the Pred.gg history's status and movement digest stay in the core for the phone's Meta screen.
+                 ('scoped_changes', 'vs_previous_run'), ('scoped_changes', 'vs_previous_patch'), ('scoped_changes', 'current'))
 # The overlays after the core, in the order the page usually needs them.
 PARTS = ('guide', 'catalog', 'history', 'shared')
 # The guide (2.38.0): read by the engine for hero pages, Match, the reviewed guide and desktop views, never by the phone's

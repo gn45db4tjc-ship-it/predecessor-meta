@@ -444,3 +444,12 @@
 @media(max-width:360px){
  .simple-build--compact .simple-setup{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+/* 2.53.0 (QP14): the selected role's Pred.gg movement since the previous pull, directly above the phone Meta list. */
+.meta-movement{display:grid;gap:var(--s1);margin:var(--s2) 0 var(--s3);padding:var(--s2) var(--panel-inset) 0;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface)}
+.meta-movement p{margin:0;font-size:var(--tr-base);line-height:1.45}
+.meta-movement-lead{color:var(--muted);font-weight:600}
+.meta-move{white-space:nowrap}
+.meta-movement-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 var(--s3)}
+.meta-movement-foot small{flex:1 1 14em;color:var(--muted);font-size:var(--tr-sm);line-height:1.4}
+.meta-movement-foot .text-button{min-height:44px;margin-left:auto;white-space:nowrap}
+.meta-movement-foot .text-button:after{content:"\203a";content:"\203a" / "";margin-left:var(--s1)}
