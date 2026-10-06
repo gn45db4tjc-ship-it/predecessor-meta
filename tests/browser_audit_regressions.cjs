@@ -951,12 +951,13 @@ const probes = {
     // the role page it came from) and never a dead link. Every such hero role, desktop; Steel jungle also on phone.
     const seen = {problems: []};
     const scan = async (page, only) => page.evaluate(async only => {
-      const problems = [], wait = () => new Promise(r => setTimeout(r, 0));
+      // 2.53.0 (LF1): closed desktop folds draw their bodies on first open; draw them (still closed) before reading.
+      const problems = [], wait = () => new Promise(r => setTimeout(r, 0)), fillFolds = () => document.querySelectorAll('#main details.hero-fold[data-lazy]').forEach(d => fillHeroFold(d));
       const pairs = only ? [only] : Object.keys(B.heroes).flatMap(slug => E.roles(slug).filter(role => !B.heroes[slug].roles?.[role]?.url).map(role => [slug, role]));
       for (const [slug, role] of pairs) {
         openHero(slug, role);
         for (const tab of ['builds', 'pairings', 'counters', 'kit']) {
-          S.heroTab = tab; render(); await wait();
+          S.heroTab = tab; render(); fillFolds(); await wait();
           // Since 2.29 stage 3c every section is on one page: the per-tab rule reads the section
           // it is about, or the whole page where sections do not exist.
           const main = document.querySelector('#hero-sec-' + tab) || document.querySelector('#main'), id = slug + '|' + role + '|' + tab;
@@ -971,7 +972,7 @@ const probes = {
           if (![...main.querySelectorAll('.source-line')].some(l => /No Statz \w+ sample in|failed to load in this collection|different patch and was excluded/.test(l.textContent))) problems.push(id + ': no Statz gap line');
         }
       }
-      openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); await wait();
+      openHero('steel', 'jungle'); S.heroTab = 'builds'; render(); fillFolds(); await wait();
       return {checked: pairs.length, problems, names_statz_gap: /No Statz build sample for Jungle/.test(document.querySelector('#main').textContent), pred_builds: /Pred\.gg build evidence/.test(document.querySelector('#main').textContent)};
     }, only);
     for (const [label, options, only] of [['desktop', desktop, null], ['phone', phone, ['steel', 'jungle']]]) {
@@ -993,6 +994,7 @@ const probes = {
     const seen = {};
     const SAVED = /Saved (January|February|March|April|May|June|July|August|September|October|November|December) \d/;
     const read = page => page.evaluate(source => {
+      document.querySelectorAll('#main details.hero-fold[data-lazy]').forEach(d => fillHeroFold(d));   // 2.53.0 (LF1): draw closed desktop folds, still closed
       const saved = new RegExp(source), main = document.querySelector('#main'), all = (sel, test = () => true) => [...main.querySelectorAll(sel)].filter(test);
       const count = els => ({n: els.length, saved: els.filter(e => saved.test(e.textContent)).length});
       return {
@@ -2732,6 +2734,7 @@ probes.S4 = async browser => {
       const out = {};
       for (const [slug, role] of [['steel', 'jungle'], ['countess', 'midlane'], ['murdock', 'carry']]) {
         S.role = role; S.explore = false; S.pairMetric = 'kit'; openHero(slug, role); render();
+        document.querySelectorAll('#main details.hero-fold[data-lazy]').forEach(d => fillHeroFold(d));   // 2.53.0 (LF1): drawn, still closed
         await new Promise(r => requestAnimationFrame(() => r()));
         const sec = document.querySelector('#hero-sec-pairings');
         const partners = E.partners(slug, {min: 100, role: '', heroRole: role, metric: 'kit'});
@@ -2769,6 +2772,8 @@ probes.S5 = async browser => {
     const out = {};
     const rowSel = 'table.table-small tbody tr, .choice';     // every evidence row the product counts
     for (const section of ['counters', 'builds']) {
+      // 2.53.0 (LF1): a closed desktop fold draws its rows when a reader opens it.
+      document.getElementById('hero-sec-' + section)?.querySelectorAll('details.hero-fold').forEach(d => { if (!d.open) d.querySelector(':scope > summary').click(); });
       const root = document.getElementById('hero-sec-' + section);
       const box = root && root.querySelector('[data-evidence-search="' + section + '"]');
       const rows = root ? [...root.querySelectorAll(rowSel)] : [];
@@ -4684,6 +4689,47 @@ probes.QS11 = async browser => {
   verdict('QS11', bad, seen);
 };
 
+probes.LF1 = async browser => {
+  // Speed: a desktop hero page drew every closed fold's body (6,400-10,500 elements in #main), so each open and each
+  // redraw rebuilt tables nobody had opened. A closed fold draws no body; a click, a section jump, a redraw and a
+  // search still reach everything. Deterministic: element counts, no timing.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = {};
+  for (const [slug, role] of [['gideon', 'midlane'], ['countess', 'midlane'], ['steel', 'jungle']]) {
+    await page.evaluate(({slug, role}) => { changeRoute('meta'); openHero(slug, role); render(); }, {slug, role});
+    await page.waitForFunction(() => !document.querySelector('#main .annex-loading'), null, {timeout: 60000}).catch(() => {});
+    seen[slug] = await page.evaluate(() => {
+      const main = document.querySelector('#main'), folds = [...main.querySelectorAll('details.hero-fold')];
+      const body = d => d.querySelectorAll(':scope > .detail-content table, :scope > .detail-content article.partner, :scope > .detail-content .choice, :scope > .detail-content .kit-abilities, :scope > .detail-content .team-alternates').length;
+      return {nodes: main.getElementsByTagName('*').length, closedWithBody: folds.filter(d => !d.open && body(d) > 0).map(d => d.dataset.keep),
+        sources: [...main.querySelectorAll('section.hero-section')].every(sec => sec.querySelector('.source-line')),
+        searchBoxes: main.querySelectorAll('[data-evidence-search]').length};
+    });
+    // A reader's click draws the fold in the same task as the click (no empty frame), and a redraw keeps it drawn.
+    seen[slug].opened = {};
+    for (const key of ['hero-build-evidence', 'hero-pairings', 'hero-counters', 'hero-kit']) {
+      seen[slug].opened[key] = await page.evaluate(key => {
+        const d = document.querySelector(`#main details.hero-fold[data-keep="${key}"]`); if (!d) return null;
+        d.querySelector(':scope > summary').click();
+        const atClick = d.querySelectorAll(':scope > .detail-content *').length;
+        redrawKeepingFocus();
+        const again = document.querySelector(`#main details.hero-fold[data-keep="${key}"]`);
+        const out = {atClick, open: again.open, afterRedraw: again.querySelectorAll(':scope > .detail-content *').length};
+        again.querySelector(':scope > summary').click();
+        return out;
+      }, key);
+    }
+  }
+  // A section jump draws the section before it scrolls to it; a search reaches rows in a closed fold.
+  seen.jump = await page.evaluate(() => { changeRoute('meta'); openHero('countess', 'midlane'); render(); jumpToSection('counters');
+    const sec = document.getElementById('hero-sec-counters'); return {open: !!sec?.querySelector('details.hero-fold')?.open, tables: sec ? sec.querySelectorAll('table').length : 0}; });
+  await context.close();
+  const bad = ['gideon', 'countess', 'steel'].some(k => { const x = seen[k];
+    return x.nodes > 2000 || x.closedWithBody.length || !x.sources || x.searchBoxes < 2
+      || Object.values(x.opened).some(o => o && (o.atClick < 20 || !o.open || o.afterRedraw < o.atClick)); }) || !seen.jump.open || !seen.jump.tables;
+  verdict('LF1', bad, seen);
+};
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

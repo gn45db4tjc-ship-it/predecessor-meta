@@ -267,7 +267,8 @@
     "QS8": "2.53.0: panels use several inner paddings (desktop 12/16 and double-padded folds; phone 8/12/16)",
     "QS9": "2.53.0 PHONE: with Large text the Meta role picker takes three rows",
     "QS10": "2.53.0: the Sources table misaligns its Seconds header and cell baselines, and scrolls sideways on the phone",
-    "QS11": "2.53.0 DESKTOP: Match columns start 12 px apart and space their panels differently"
+    "QS11": "2.53.0 DESKTOP: Match columns start 12 px apart and space their panels differently",
+    "LF1": "2.53.0 DESKTOP SPEED: a hero page draws every closed fold's body (6,400-10,500 elements), and every redraw rebuilds them"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",

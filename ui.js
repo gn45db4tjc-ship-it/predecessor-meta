@@ -237,7 +237,7 @@ const HERO_SECTIONS=[['builds','Build'],['pairings','Partners'],['counters','Cou
 function deskFold(){return typeof companionMedia==='undefined'||!companionMedia.matches;}
 function heroEvidenceStatusHTML(slug){const state=annexState('hero',slug),problem=annexProblem('hero',slug),id=esc(annexId('hero',slug));if(state==='loaded')return '';
  return state==='failed'?`<div class="annex-failed" data-annex="${id}">${note('This hero\'s detailed evidence could not be loaded'+(problem?' ('+esc(problem)+')':'')+'.'+annexRetry()+' The sections below say what is missing; nothing is estimated in its place.',true)}${annexRetryButton(annexId('hero',slug))}</div>`:`<div class="note annex-loading" data-annex="${id}">Loading this hero's detailed evidence…</div>`;}
-function heroFold(key,label,preview,inner,open=false){return `<details class="panel hero-fold" data-keep="${esc(key)}"${open?' open':''}><summary data-fold="${esc(key)}"><strong>${esc(label)}</strong>${preview?`<small>${esc(preview)}</small>`:''}</summary><div class="detail-content">${inner}</div></details>`;}
+const heroFoldBodies=new Map();function heroFoldKeepFilled(key){const m=$('#main');if(!m||m.dataset.view!==disclosureView())return false;const d=m.querySelector('details.hero-fold[data-keep="'+CSS.escape(key)+'"]');return !!d&&(d.open||!d.hasAttribute('data-lazy'));}function heroFold(key,label,preview,inner,open=false,tail='',fillNow=false,head=''){const lazy=typeof inner==='function',fill=!lazy||open||fillNow||heroFoldKeepFilled(key);if(lazy)heroFoldBodies.set(key,inner);return `<details class="panel hero-fold" data-keep="${esc(key)}"${open?' open':''}${fill?'':' data-lazy'}><summary data-fold="${esc(key)}"><strong>${esc(label)}</strong>${preview?`<small>${esc(preview)}</small>`:''}</summary><div class="detail-content">${head}${fill?(lazy?inner():inner):'<div data-fold-slot hidden></div>'}${tail}</div></details>`;}function fillHeroFold(d){if(!d||!d.hasAttribute('data-lazy'))return;const f=heroFoldBodies.get(d.dataset.keep);d.removeAttribute('data-lazy');const slot=d.querySelector(':scope > .detail-content > [data-fold-slot]');if(f&&slot){slot.insertAdjacentHTML('beforebegin',f());slot.remove();}}function openedHeroFold(d){if(!d||!d.hasAttribute('data-lazy'))return;fillHeroFold(d);const t=d.closest('section.hero-section')?.dataset.heroSection;if(t&&t in evidenceQuery)applyEvidenceSearch(t);const m=$('#main');if(m)trackEvidence('page',evidencePageView(),m);}document.addEventListener('click',e=>{const x=e.target.closest&&e.target.closest('summary[data-fold]');if(x)openedHeroFold(x.parentElement);},true);document.addEventListener('toggle',e=>{if(e.target.open&&e.target.matches?.('details.hero-fold[data-lazy]'))openedHeroFold(e.target);},true);
 /* S.heroTab is the section being read. A click, a shared link, or code that sets it brings
    that section into view; scrolling keeps it current. sectionSpy.tab is the last value the
    page itself chose, so a redraw that changes nothing never moves the reader. */
@@ -246,7 +246,7 @@ function sectionPad(){const root=getComputedStyle(document.documentElement),jr=$
  return (parseFloat(root.getPropertyValue('--page-top-h'))||0)+(jr&&getComputedStyle(jr).position==='sticky'?jr.offsetHeight:0)+8;}
 function syncSectionCurrent(){document.querySelectorAll('#main [data-hero-tab]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.heroTab===S.heroTab)));}
 function jumpToSection(t,focus=false){const sec=document.getElementById('hero-sec-'+t);if(!sec)return;
- const fold=sec.querySelector(':scope > details.hero-fold');if(fold&&!fold.open)fold.open=true;
+ const fold=sec.querySelector(':scope > details.hero-fold');if(fold&&!fold.open){openedHeroFold(fold);fold.open=true;}
  // 2.52.0: a jump from another page (Partners in the Statz table) moves focus into the section, its fold's summary or
  // the section itself; the hero jump row keeps focus on the button pressed (2.29 acceptance S2), so it passes no focus.
  if(focus){const target=fold?.querySelector(':scope > summary')||sec;if(target===sec&&!sec.hasAttribute('tabindex'))sec.setAttribute('tabindex','-1');target.focus({preventScroll:true});}
@@ -287,6 +287,7 @@ function evidenceSearchHTML(section,label){return `<div class="evidence-search">
 /* Narrows rows in place, without a redraw, so focus and caret stay in the box. A match inside
    a closed disclosure opens it: a search that finds a row nobody can see has found nothing. */
 function applyEvidenceSearch(section){const root=document.getElementById('hero-sec-'+section);if(!root)return;
+ if((evidenceQuery[section]||'').trim())root.querySelectorAll('details.hero-fold[data-lazy]').forEach(fillHeroFold);
  const q=(evidenceQuery[section]||'').trim().toLowerCase(),rows=[...root.querySelectorAll(EVIDENCE_ROWS)];let shown=0;
  const disclosures=evidenceDisclosures(root);
  if(q){
@@ -340,10 +341,10 @@ function heroView(){
  if(!perf)html+=note(esc(role?.error||'No data for this role.')+' Pair observations are hero-wide; the selected role does not create a role-specific pair sample.',true);
  html+=`<nav class="toolbar hero-jump" aria-label="Sections of this hero"><div class="tabs">${HERO_SECTIONS.map(([t,n])=>`<button type="button" data-hero-tab="${t}" aria-current="${S.heroTab===t}">${n}</button>`).join('')}</div></nav>`;
  /* Each section is exactly what its tab used to render, closed by its own source line. */
- let pairsHTML='',partnerPreview='';
+ let pairsHTMLFn=()=>'',partnerPreview='';
  {
   const ordered=S.pairMetric==='kit'?partners.combined:partners.observed;const leading=S.pairMetric==='kit'?RecommendationView.partnerShortlist(ordered,5):ordered.slice(0,5);const remainder=ordered.filter(r=>!leading.some(p=>p.slug===r.slug));partnerPreview=leading.slice(0,3).map(r=>name(r.slug)).join(', ');
-  pairsHTML+=`<div class="hero-intro"><h2>What pairs well with ${esc(h.display_name)}?</h2><p>${S.pairMetric==='kit'?'Kit fit first; observed pair rates shown separately.':'Exploratory Statz comparison; kit fit shown separately.'} ${S.explore?'Samples below 100 games included.':'At least 100 games by default.'}</p></div>`+
+  pairsHTMLFn=()=>`<div class="hero-intro"><h2>What pairs well with ${esc(h.display_name)}?</h2><p>${S.pairMetric==='kit'?'Kit fit first; observed pair rates shown separately.':'Exploratory Statz comparison; kit fit shown separately.'} ${S.explore?'Samples below 100 games included.':'At least 100 games by default.'}</p></div>`+
   `<div class="grid three">${leading.map(r=>pairCard(r,S.hero,true)).join('')}</div>${!leading.length?empty('No observed pair clears this filter. Kit-based alternatives are available below; no pair rate is estimated.'):''}`+
   `<div class="toolbar"><div class="toolbar-group"><label>Partner role <select id="partner-role">${options(roleOrder.filter(r=>r!==S.heroRole).map(r=>[r,labels[r]]),S.partnerRole,'All other roles')}</select></label><label>Compare with <select id="pair-metric">${options([['kit','Kit fit · current mechanics'],['stronger','Statz · above the better solo win rate'],['mean','Statz · above the two heroes\' average']],S.pairMetric)}</select></label><label><input id="explore" type="checkbox" ${S.explore?'checked':''}> Include samples below 100</label></div></div>`+
   `<details><summary>How partners are ranked</summary><div class="detail-content"><p class="muted">Kit fit leads by default. Counted ability commitments and delivery conditions are inspected separately; tied points use the shown eligible role sample. The partner role is selected for kit fit before role win rate. Statz pair figures describe dataset ${esc(B.patch)} with an unconfirmed match window; they are not current-hotfix evidence. Missing pairs are neutral: absence is not evidence of a weak pair.</p></div></details>`+
@@ -351,24 +352,24 @@ function heroView(){
   (S.pairMetric==='kit'?'':`<details class="partner-tail" data-keep="partner-alternatives"><summary>Kit-based alternatives · ${Math.min(9,partners.derived.length)}</summary><div class="detail-content">${badge('Calculated · no observed pair','calculated')}<p class="muted">These alternatives explain complementary abilities without assigning a win rate.</p><div class="grid three">${partners.derived.slice(0,9).map(r=>pairCard({...r,pair:null},S.hero)).join('')}</div></div></details>`);
  }
  const section=(t,label,inner,source=heroSourceHTML(h,S.heroRole,t))=>`<section class="hero-section" id="hero-sec-${t}" data-hero-section="${t}" aria-label="${label}">${inner}${source}</section>`;
- const fold=deskFold(),pick={slug:S.hero,role:S.heroRole},alternates=teamAlternatesHTML(pick),source=t=>heroSourceHTML(h,S.heroRole,t);
- const buildEvidence=evidenceSearchHTML('builds','Search the build evidence')+predBuildsHTML(S.hero,S.heroRole)+buildsView(h,role);
- const pairsBody=patchContextHTML(S.hero,'partners')+pairsHTML;
- const countersBody=counterplayHTML(S.hero,S.heroRole)+evidenceSearchHTML('counters','Search the matchup tables')+supportedMatchupsHTML(S.hero,S.heroRole,h,role)+exploratoryMatchupsHTML(S.hero,S.heroRole,h,role);
- const kitBody=predKitHTML(h)+kitView(h);
+ const fold=deskFold(),pick={slug:S.hero,role:S.heroRole},alternatesFn=()=>teamAlternatesHTML(pick),alternates=fold?buildSelection(pick).status!=='invalid':alternatesFn(),wantTab=sectionSpy.requested||(sectionSpy.hero===S.hero+'|'+S.heroRole?(S.heroTab!==sectionSpy.tab?S.heroTab:null):(S.heroTab!=='builds'?S.heroTab:null)),source=t=>heroSourceHTML(h,S.heroRole,t);
+ const buildHead=evidenceSearchHTML('builds','Search the build evidence'),buildEvidenceFn=()=>predBuildsHTML(S.hero,S.heroRole)+buildsView(h,role);
+ const pairsBodyFn=()=>patchContextHTML(S.hero,'partners')+pairsHTMLFn();
+ const countersHead=counterplayHTML(S.hero,S.heroRole)+evidenceSearchHTML('counters','Search the matchup tables'),countersBodyFn=()=>supportedMatchupsHTML(S.hero,S.heroRole,h,role)+exploratoryMatchupsHTML(S.hero,S.heroRole,h,role);
+ const kitBodyFn=()=>predKitHTML(h)+kitView(h);
  if(fold){
   html+=heroEvidenceStatusHTML(S.hero);
   html+=section('builds','Build',recommendedBuildHTML()+skillPointsHTML(chosenPlan(pick))+patchContextHTML(S.hero)+
-   (alternates?heroFold('hero-alternatives','Adapt to the enemy team','Build alternatives by enemy team type',alternates):'')+
-   heroFold('hero-build-evidence','Build sources and evidence','Evidence search, Pred.gg and Statz variants and reviewed adaptations',buildEvidence,!!evidenceQuery.builds));
-  html+=section('pairings','Partners',heroFold('hero-pairings','Partners',partnerPreview?'Leading: '+partnerPreview:'Kit fit and observed pairs',pairsBody+source('pairings')),'');
-  html+=section('counters','Counters',heroFold('hero-counters','Counters','How to play as or against '+h.display_name+', reviewed responses and matchup tables',countersBody+source('counters'),!!evidenceQuery.counters),'');
-  html+=section('kit','Kit',heroFold('hero-kit','Kit','Abilities, augments and official patch evidence',kitBody+source('kit')),'');
+   (alternates?heroFold('hero-alternatives','Adapt to the enemy team','Build alternatives by enemy team type',alternatesFn):'')+
+   heroFold('hero-build-evidence','Build sources and evidence','Evidence search, Pred.gg and Statz variants and reviewed adaptations',buildEvidenceFn,!!evidenceQuery.builds,'',false,buildHead));
+  html+=section('pairings','Partners',heroFold('hero-pairings','Partners',partnerPreview?'Leading: '+partnerPreview:'Kit fit and observed pairs',pairsBodyFn,false,source('pairings'),wantTab==='pairings'),'');
+  html+=section('counters','Counters',heroFold('hero-counters','Counters','How to play as or against '+h.display_name+', reviewed responses and matchup tables',countersBodyFn,!!evidenceQuery.counters,source('counters'),wantTab==='counters',countersHead),'');
+  html+=section('kit','Kit',heroFold('hero-kit','Kit','Abilities, augments and official patch evidence',kitBodyFn,false,source('kit'),wantTab==='kit'),'');
  }else{
-  html+=section('builds','Build',patchContextHTML(S.hero)+recommendedBuildHTML()+alternates+skillPointsHTML(chosenPlan(pick))+buildEvidence);
-  html+=section('pairings','Partners',pairsBody);
-  html+=section('counters','Counters',countersBody);
-  html+=section('kit','Kit',kitBody);
+  html+=section('builds','Build',patchContextHTML(S.hero)+recommendedBuildHTML()+alternates+skillPointsHTML(chosenPlan(pick))+buildHead+buildEvidenceFn());
+  html+=section('pairings','Partners',pairsBodyFn());
+  html+=section('counters','Counters',countersHead+countersBodyFn());
+  html+=section('kit','Kit',kitBodyFn());
  }
  return html+`<div class="footer">${esc(sentence(B.pairs_meta?.note))} ${esc(sentence(B.pool_note))} Kit explanations use rules and named ability evidence; they are not observed team-performance claims.</div>`;
 }
@@ -866,7 +867,7 @@ function flushEvidenceRedraw(){if(!evidenceView.pending)return;if(pointerHeld()|
 function disclosureView(){return S.route+'|'+(S.route==='hero'?S.hero+'|'+S.heroRole:S.route==='builds'?S.role+'|'+S.query:S.route==='meta'?S.role:'');}
 function disclosureKey(d){return d.dataset.keep||(d.querySelector(':scope>summary')?.textContent||'').split('·')[0].replace(/\s+/g,' ').trim();}
 function disclosureStates(){const main=$('#main');if(!main)return null;const seen={},states=[];for(const d of main.querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;states.push([k+'#'+seen[k],d.open,!!d.dataset.keep]);}return {view:main.dataset.view||'',states};}
-function restoreDisclosures(kept){if(!kept||kept.view!==disclosureView())return;const map=new Map(kept.states.map(([k,open,keep])=>[k,{open,keep}])),seen={};for(const d of $('#main').querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;const s=map.get(k+'#'+seen[k]);if(!s)continue;if(s.open)d.open=true;else if(s.keep&&d.dataset.keep)d.open=false;}}
+function restoreDisclosures(kept){if(!kept||kept.view!==disclosureView())return;{const open=new Set(kept.states.filter(x=>x[1]).map(x=>x[0]));for(const d of document.querySelectorAll('#main details.hero-fold[data-lazy]'))if(open.has(disclosureKey(d)+'#1'))fillHeroFold(d);}const map=new Map(kept.states.map(([k,open,keep])=>[k,{open,keep}])),seen={};for(const d of $('#main').querySelectorAll('details')){const k=disclosureKey(d);if(!k)continue;seen[k]=(seen[k]||0)+1;const s=map.get(k+'#'+seen[k]);if(!s)continue;if(s.open)d.open=true;else if(s.keep&&d.dataset.keep)d.open=false;}}
 const renderView=render;render=function(){const kept=disclosureStates(),anchor=captureSectionAnchor();renderView();restoreDisclosures(kept);restoreSectionAnchor(anchor);afterHeroRender();afterDestinationRender();const main=$('#main');if(main){main.dataset.view=disclosureView();trackEvidence('page',evidencePageView(),main);}evidenceView.drawn=evidenceSignature();evidenceView.pending=false;};
 document.addEventListener('input',event=>{if(textEntry(event.target))evidenceView.lastInput=Date.now();},true);
 document.addEventListener('focusout',event=>{if(evidenceView.pending&&!(textEntry(event.relatedTarget)&&$('#main')?.contains(event.relatedTarget)))setTimeout(flushEvidenceRedraw,0);});
