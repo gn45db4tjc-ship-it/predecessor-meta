@@ -4466,6 +4466,222 @@ probes.QF3 = async browser => {
   verdict('QF3', reproduced, {slow, fast});
 };
 
+// ---- QoL pass 3 (2.53.0): the items deferred from 2.52.0 (scoped 6 Oct 2026 by four read-only audits) ----
+probes.QF4 = async browser => {
+  // Speed: a display-only evidence file (a hero's file, the history, the catalog) rebuilt the whole engine on arrival,
+  // throwing away its memoised answers (team alternates cost 35-71 ms per hero on a slowed phone). Only the guide
+  // changes the engine's inputs.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    const wait = async test => { for (let i = 0; i < 100 && !test(); i++) await new Promise(r => setTimeout(r, 100)); return test(); };
+    window.__engineAtStart = E;
+    openHero('steel', 'jungle'); render(); await wait(() => annexState('hero', 'steel') === 'loaded');
+    changeRoute('changes'); await wait(() => annexState('history') === 'loaded');
+    annexState('catalog'); await wait(() => annexState('catalog') === 'loaded');
+    return {same: E === window.__engineAtStart, hero: annexState('hero', 'steel'), history: annexState('history'), catalog: annexState('catalog')};
+  });
+  await context.close();
+  verdict('QF4', !seen.same && seen.hero === 'loaded', seen);
+};
+probes.QP12 = async browser => {
+  // Desktop Settings: "Download strategy review packet" built the packet before the guide (official changes,
+  // maintenance review) had arrived, so an early click saved an incomplete packet.
+  const context = await browser.newContext({serviceWorkers: 'block', acceptDownloads: true, ...desktop});
+  let guideAsked = false, guideAt = null;
+  await context.route(/-guide-[0-9a-f]+\.json/, async route => { guideAsked = true; await new Promise(r => setTimeout(r, 2500)); guideAt = Date.now(); await route.continue().catch(() => {}); });
+  const page = await context.newPage();
+  await page.goto(url); await page.waitForFunction(() => !!B, null, {timeout: 60000});
+  await page.evaluate(() => changeRoute('more'));
+  const button = page.locator('#download-review-packet');
+  if (!await button.count()) { await context.close(); return verdict('QP12', false, {skipped: 'no packet button'}); }
+  const download = page.waitForEvent('download', {timeout: 30000});
+  await button.click(); const file = await download; const savedAt = Date.now();
+  await context.close();
+  // Saved before the delayed guide arrived (guideAt still unset, or later) means the packet did not wait for it.
+  verdict('QP12', guideAsked && (guideAt === null || savedAt < guideAt), {guideAsked, guideAt, savedAt, name: file.suggestedFilename()});
+};
+probes.QP13 = async browser => {
+  // Desktop theme toggle: its text named the other theme ("Switch to the dark theme") while it announced itself as
+  // a pressed toggle, and the pressed style painted it as if that theme were selected.
+  const {context, page} = await session(browser, desktop);
+  const seen = await page.evaluate(() => { const b = document.querySelector('#theme-toggle'), out = [];
+    for (let i = 0; i < 2; i++) { out.push({text: b.textContent.trim(), pressed: b.getAttribute('aria-pressed'), label: b.getAttribute('aria-label')}); b.click(); }
+    return out; });
+  await context.close();
+  verdict('QP13', seen.some(s => s.pressed !== null || !/^Switch to (light|dark) theme$/.test(s.text) || (s.label && s.label !== s.text)), seen);
+};
+probes.QP14 = async browser => {
+  // Phone Meta: "What changed" sat below the whole list and read Statz history (often no movement), with no source
+  // or date. Pred.gg's pull-to-pull movement now leads the list for the selected role, with its source and dates.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(() => {
+    const line = document.querySelector('#main .meta-movement'), first = document.querySelector('#main .mobile-hero-card');
+    return {present: !!line, text: line?.innerText.replace(/\s+/g, ' ').slice(0, 200) || '', above: !!(line && first && line.getBoundingClientRect().top < first.getBoundingClientRect().top)};
+  });
+  await context.close();
+  verdict('QP14', !seen.present || !seen.above || !/Pred\.gg/.test(seen.text), seen);
+};
+probes.QP15 = async browser => {
+  // Changes and Sources: a link whose whole text was "↗" (one per official change row) had no accessible name.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    const out = {};
+    for (const r of ['changes', 'data', 'builds']) { changeRoute(r); await new Promise(x => setTimeout(x, 600));
+      document.querySelectorAll('#main details').forEach(d => { d.open = true; });
+      out[r] = [...document.querySelectorAll('#main a')].filter(a => !/[A-Za-z0-9]/.test((a.innerText || '') + (a.getAttribute('aria-label') || ''))).length; }
+    return out;
+  });
+  await context.close();
+  verdict('QP15', Object.values(seen).some(n => n > 0), seen);
+};
+probes.QP16 = async browser => {
+  // Wording: source labels in internal jargon ("Exact patch", "gap vs stronger baseline", "kit interaction points",
+  // "Observed provenance", raw status codes such as "source already updated"). Facts stay; the words get plainer.
+  const JARGON = [/Exact patch ·/, /Observed provenance/, /kit interaction points/, /gap vs (stronger|mean) baseline/, /exact match window unconfirmed/,
+    /source already updated/, /official correction applied/, /reviewed source reconciliation applied/, /official fields take priority/];
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktopHero);
+    await guideLoaded(page);
+    Object.assign(seen, await page.evaluate(async JARGON => {
+      const rx = JARGON.map(s => new RegExp(s.slice(1, -1))), out = {};
+      const scan = label => { const t = document.querySelector('#main').innerText; const hit = rx.filter(r => r.test(t)).map(String); if (hit.length) out[label] = hit; };
+      for (const r of ['meta', 'builds', 'changes', 'data', 'library', 'guidance']) { changeRoute(r); await new Promise(x => setTimeout(x, 500)); document.querySelectorAll('#main details').forEach(d => { d.open = true; }); scan(r); }
+      openHero('steel', 'jungle'); render(); await new Promise(x => setTimeout(x, 1500)); document.querySelectorAll('#main details').forEach(d => { d.open = true; }); scan('hero');
+      return out;
+    }, JARGON.map(String)));
+    await context.close();
+  }
+  verdict('QP16', Object.keys(seen).length > 0, seen);
+};
+probes.QT8 = async browser => {
+  // Glyphs the shipped fonts lack (arrows, the evidence markers ● ◇ ✦ ▢, ✓, ★ ☆, ⓘ ⚠ ↻) fell back to several system
+  // faces at different sizes, and screen readers read the markers aloud. Shapes are drawn in CSS; words stay.
+  const GLYPHS = '[←→↗●◇✦▢✓★☆ⓘ⚠↻⟳]';
+  const scan = async page => page.evaluate(async GLYPHS => {
+    const rx = new RegExp(GLYPHS), count = {text: 0, pseudo: 0}, sample = new Set();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walker.nextNode());) {
+      const p = n.parentElement; if (!p || p.closest('script,style,kbd,.sr-only') || !p.getClientRects().length) continue;
+      if (rx.test(n.nodeValue)) { count.text++; if (sample.size < 8) sample.add(n.nodeValue.trim().slice(0, 30)); }
+    }
+    for (const el of document.querySelectorAll('body *')) for (const pseudo of ['::before', '::after']) {
+      const c = getComputedStyle(el, pseudo).content; if (c && c !== 'none' && c !== 'normal' && rx.test(c)) { count.pseudo++; if (sample.size < 12) sample.add(pseudo + ' ' + c.slice(0, 20)); }
+    }
+    return {...count, sample: [...sample]};
+  }, GLYPHS);
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktopHero);
+    await guideLoaded(page);
+    for (const r of ['meta', 'changes', 'data', 'builds']) { await page.evaluate(r => changeRoute(r), r); await page.waitForTimeout(500); seen['desk-' + r] = await scan(page); }
+    await page.evaluate(() => { openHero('steel', 'jungle'); render(); }); await page.waitForTimeout(1500);
+    await page.evaluate(() => document.querySelectorAll('#main details').forEach(d => { d.open = true; })); await page.waitForTimeout(300);
+    seen['desk-hero'] = await scan(page);
+    await context.close();
+  }
+  {
+    const {context, page} = await quickPhoneReady(browser);
+    seen['phone-meta'] = await scan(page);
+    await page.evaluate(() => { openHero('steel', 'jungle'); render(); }); await page.waitForTimeout(1200);
+    seen['phone-hero'] = await scan(page);
+    await context.close();
+  }
+  verdict('QT8', Object.values(seen).some(s => s.text + s.pseudo > 0), seen);
+};
+probes.QS8 = async browser => {
+  // Panels used several inner paddings (desktop 12 and 16, folds padded twice; phone 8, 12 and 16), so text started
+  // at a different inset on each card. One token, --panel-inset (16 desktop, 12 phone), now sets them all.
+  const measure = page => page.evaluate(() => {
+    const vals = new Set(), px = el => Math.round(parseFloat(getComputedStyle(el).paddingLeft));
+    const visible = el => el.getClientRects().length && el.offsetParent !== null;
+    for (const el of document.querySelectorAll('#main .panel:not(details):not(.table-panel)')) if (visible(el) && !el.closest('.library-grid') && !el.matches('.hero-header,.mobile-hero-card')) vals.add(px(el));
+    for (const el of document.querySelectorAll('#main details > .detail-content')) if (visible(el)) vals.add(px(el));
+    let doubled = 0; for (const el of document.querySelectorAll('#main details.hero-fold.panel')) if (parseFloat(getComputedStyle(el).paddingLeft) > 0) doubled++;
+    return {insets: [...vals].sort((a, b) => a - b), doubled};
+  });
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktopHero);
+    await guideLoaded(page);
+    await page.evaluate(() => { openHero('steel', 'jungle'); render(); }); await page.waitForTimeout(1500);
+    await page.evaluate(() => document.querySelectorAll('#main details').forEach(d => { d.open = true; })); await page.waitForTimeout(300);
+    seen.deskHero = await measure(page);
+    for (const r of ['data', 'guidance']) { await page.evaluate(r => changeRoute(r), r); await page.waitForTimeout(500); seen['desk-' + r] = await measure(page); }
+    await context.close();
+  }
+  {
+    const {context, page} = await quickPhoneReady(browser);
+    for (const r of ['more', 'data']) { await page.evaluate(r => changeRoute(r), r); await page.waitForTimeout(500); seen['phone-' + r] = await measure(page); }
+    await page.evaluate(() => { openHero('steel', 'jungle'); render(); }); await page.waitForTimeout(1200);
+    seen.phoneHero = await measure(page);
+    await context.close();
+  }
+  const desk = new Set(Object.entries(seen).filter(([k]) => k.startsWith('desk')).flatMap(([, v]) => v.insets));
+  const phoneSet = new Set(Object.entries(seen).filter(([k]) => k.startsWith('phone')).flatMap(([, v]) => v.insets));
+  verdict('QS8', desk.size > 1 || phoneSet.size > 1 || Object.values(seen).some(v => v.doubled > 0), {...seen, desk: [...desk], phone: [...phoneSet]});
+};
+probes.QS9 = async browser => {
+  // Phone with Large text: the Meta role picker took three rows (150 px) and pushed the first hero to 423 px.
+  const {context, page} = await quickPhoneReady(browser, {width: 390, height: 844});
+  const seen = await page.evaluate(async () => {
+    companionPrefs.large = true; saveCompanionPrefs(); companionChrome(); render(); await new Promise(r => setTimeout(r, 300));
+    const buttons = [...document.querySelectorAll('#main .role-choices.compact button')];
+    const rows = new Set(buttons.map(b => Math.round(b.getBoundingClientRect().top)));
+    return {rows: rows.size, small: buttons.filter(b => b.getBoundingClientRect().height < 44).length, clipped: buttons.filter(b => b.scrollWidth > b.clientWidth + 1).length};
+  });
+  await context.close();
+  verdict('QS9', seen.rows > 2 || seen.small > 0 || seen.clipped > 0, seen);
+};
+probes.QS10 = async browser => {
+  // Sources table: the Seconds header sat 96 px left of its figures, the status/date/seconds cells sat 23 px below
+  // their source name, and on the phone the table scrolled sideways with the time split over two lines.
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktopHero);
+    await page.evaluate(() => changeRoute('data')); await page.waitForTimeout(500);
+    seen.desk = await page.evaluate(() => {
+      const t = document.querySelector('#main .source-table'); if (!t) return {missing: true};
+      const th = [...t.querySelectorAll('thead th')], last = th[th.length - 1], cell = t.querySelector('tbody tr td:last-child');
+      const range = el => { const r = document.createRange(); r.selectNodeContents(el); const rects = [...r.getClientRects()]; return rects.length ? rects[0] : el.getBoundingClientRect(); };
+      const headSkew = Math.round(Math.abs(range(last).right - range(cell).right));
+      const row = t.querySelector('tbody tr'), first = range(row.cells[0].querySelector('strong,span,a') || row.cells[0]);
+      const lineSkew = Math.max(...[...row.cells].slice(1).map(c => Math.round(Math.abs(range(c).bottom - first.bottom))));
+      return {headSkew, lineSkew};
+    });
+    await context.close();
+  }
+  {
+    const {context, page} = await quickPhoneReady(browser, {width: 390, height: 844});
+    await page.evaluate(() => changeRoute('data')); await page.waitForTimeout(500);
+    seen.phone = await page.evaluate(() => { const t = document.querySelector('#main .source-table'), panel = t?.closest('.table-panel,.panel,.table-scroll'); return t ? {overflow: Math.max(0, (panel?.scrollWidth || 0) - (panel?.clientWidth || 0))} : {missing: true}; });
+    await context.close();
+  }
+  verdict('QS10', !!seen.desk.missing || seen.desk.headSkew > 1 || seen.desk.lineSkew > 1 || seen.phone.overflow > 0, seen);
+};
+probes.QS11 = async browser => {
+  // Desktop Match (side by side from 1100 px): the left column's first panel sat 12 px below the right column's,
+  // and the right column's gaps were 16 px against 12 on the left.
+  const seen = {};
+  for (const width of [1440, 1100]) {
+    const {context, page} = await session(browser, {viewport: {width, height: 900}});
+    await guideLoaded(page);
+    seen[width] = await page.evaluate(async () => {
+      changeRoute('match'); await new Promise(r => setTimeout(r, 300));
+      const me = Object.keys(E.heroes).find(s => E.roles(s).includes('jungle')); matchSetMe(me); save(); render(); await new Promise(r => setTimeout(r, 500));
+      const cols = [...document.querySelectorAll('#main .match-column')]; if (cols.length < 2) return {columns: cols.length};
+      const tops = cols.map(c => Math.round([...c.children].find(x => x.getClientRects().length)?.getBoundingClientRect().top ?? 0));
+      const gaps = cols.map(c => { const kids = [...c.children].filter(x => x.getClientRects().length); return kids.slice(1).map((k, i) => Math.round(k.getBoundingClientRect().top - kids[i].getBoundingClientRect().bottom)); });
+      return {offset: Math.abs(tops[0] - tops[1]), gaps};
+    });
+    await context.close();
+  }
+  const bad = Object.values(seen).some(s => s.columns !== undefined ? false : s.offset > 1 || new Set(s.gaps.flat()).size > 1);
+  verdict('QS11', bad, seen);
+};
+
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

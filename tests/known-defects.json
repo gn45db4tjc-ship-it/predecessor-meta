@@ -1,7 +1,19 @@
 {
   "note": "Ledger for tests/browser_audit_regressions.cjs. A defect listed under 'open' MUST reproduce; a defect not listed MUST NOT. Either mismatch fails the run. The fix for a defect removes its id here in the same change. Probes trigger update checks the way a returning tab does; the 'online' event is avoided because the phone code redraws on it, which hid B2 and B3 in an early version of this suite. Ids under 'retired' belong to removed features; their probes were deleted and the runner skips them.",
   "baseline": "2.23.0 / 9bac0c2",
-  "open": [],
+  "open": [
+    "QF4",
+    "QP12",
+    "QP13",
+    "QP14",
+    "QP15",
+    "QP16",
+    "QT8",
+    "QS8",
+    "QS9",
+    "QS10",
+    "QS11"
+  ],
   "defects": {
     "A1": "Generate, then ban a suggested hero, then apply: the banned hero enters allied locks (ui.js apply handler)",
     "A2": "Mobile Undo restores a ban without invalidating generated alternatives (mobile.js undo handler)",
@@ -256,7 +268,18 @@
     "QT7": "2.52.0 PHONE: page titles in capitals carry negative letter-spacing",
     "QF1": "2.52.0 SPEED: every hero open and Build tab revisit recalculates team alternates on the same engine",
     "QF2": "2.52.0 SPEED: the phone status line takes layout space and collapses after the first check (layout shift)",
-    "QF3": "2.52.0 SPEED: the phone Meta screen starts the guide download regardless of the link: on a slow link it holds the visible portraits back, or on a fast link it waits for them"
+    "QF3": "2.52.0 SPEED: the phone Meta screen starts the guide download regardless of the link: on a slow link it holds the visible portraits back, or on a fast link it waits for them",
+    "QF4": "2.53.0 SPEED: a display-only evidence file (hero, history, catalog) rebuilds the engine and drops its memoised answers",
+    "QP12": "2.53.0 DESKTOP: Download strategy review packet builds the packet before the guide has arrived",
+    "QP13": "2.53.0 DESKTOP: the theme toggle names the other theme while announcing itself as a pressed toggle",
+    "QP14": "2.53.0 PHONE: Meta shows no Pred.gg movement for the role near the top; its What changed reads Statz below the list, unlabelled",
+    "QP15": "2.53.0: links whose whole text is a symbol (↗) have no accessible name",
+    "QP16": "2.53.0: source labels use internal jargon (Exact patch, gap vs stronger baseline, kit interaction points, raw status codes)",
+    "QT8": "2.53.0: arrows, evidence markers, ✓, ★/☆ and ⓘ⚠↻ fall back to several system faces and the markers are read aloud",
+    "QS8": "2.53.0: panels use several inner paddings (desktop 12/16 and double-padded folds; phone 8/12/16)",
+    "QS9": "2.53.0 PHONE: with Large text the Meta role picker takes three rows",
+    "QS10": "2.53.0: the Sources table misaligns its Seconds header and cell baselines, and scrolls sideways on the phone",
+    "QS11": "2.53.0 DESKTOP: Match columns start 12 px apart and space their panels differently"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
