@@ -40,8 +40,18 @@ class ProjectionRoundTrip(unittest.TestCase):
         self.assertIn('previous_abilities', heroes[slug]['heroes'][slug])
         self.assertNotIn('definition_history', core['official'])
         self.assertIn('definition_history', parts['history']['official'])
-        for key in ('tier_list', 'scoped_statistics', 'sources', 'bracket'):
+        for key in ('tier_list', 'sources', 'bracket'):
             self.assertEqual(core.get(key), self.bundle.get(key), key + ' stays whole in the core')
+        # 2.53.0: the Pred.gg cohort keeps its status, cohort and dates in the core; its rows wait for the guide.
+        moved = {'rows', 'records', 'hero_wide'}
+        scoped = self.bundle.get('scoped_statistics') or {}
+        self.assertEqual(core.get('scoped_statistics'), {k: v for k, v in scoped.items() if k not in moved})
+        for key in moved & set(scoped):
+            self.assertEqual((guide if key != 'hero_wide' else parts['shared'])['scoped_statistics'][key], scoped[key])
+        for key in ('community_builds', 'definition_issues', 'official_hotfix_changes', 'reviewed_definitions'):
+            if key in self.bundle:
+                self.assertNotIn(key, core, key + ' is read only after the first screen')
+                self.assertEqual(guide[key], self.bundle[key])
         for key in ('pairs', 'official_changes'):
             if key in self.bundle:
                 self.assertNotIn(key, core, key + ' is read only after the first screen')

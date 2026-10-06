@@ -19,6 +19,7 @@ function parts(status) {
       '    for role, d in roles.items():',
       '        t = ((d.get("counters") or {}).get("tables") or {}).get("counters")',
       '        if isinstance(t, dict) and n % 2: t["cohort_verified"] = False'] : []),
+    ...(status.includes('+oldguidance') ? ['b["guidance"]["patch"] = "0.0"'] : []),
     'p = P.build(b)',
     'sys.stdout.buffer.write(json.dumps({"full": P.dumps(b).decode(), "core": p["core"].decode(), "named": {n: p[n].decode() for n in P.PARTS}, "heroes": {k: v.decode() for k, v in p["heroes"].items()}, "fields": {"hero": P.HERO_FIELDS, "ability": P.ABILITY_FIELDS, "role": P.ROLE_FIELDS}}).encode())',
   ].join('\n');
@@ -115,6 +116,13 @@ function outputs(bundle) {
   call('statzGap', () => E.statzGap());
   for (const source of Object.keys(bundle.sources || {})) call('sourceCurrency ' + source, () => E.sourceCurrency(source, now));
   for (let i = 0; i < 6; i++) call('reviewedComposition ' + i, () => E.reviewedComposition(i));
+  // 2.53.0: the screens whose fields moved to the guide (library, loadout definitions, re-check queue, adaptation review,
+  // team alternates, calculated tiers).
+  for (const kind of ['items', 'perks']) call('libraryCatalog ' + kind, () => E.libraryCatalog(kind));
+  for (const name of Object.keys(bundle.guidance?.build_patch_review?.loadout_definitions || {})) call('buildLoadoutDefinition ' + name, () => E.buildLoadoutDefinition(name));
+  call('recheckQueue', () => E.recheckQueue({now}));
+  call('adaptationReview', () => E.adaptationReview());
+  for (const slug of slugs) for (const role of E.roles(slug)) { call('teamAlternates ' + slug + '|' + role, () => E.teamAlternates({slug, role})); call('calculatedTier ' + slug + '|' + role, () => E.calculatedTier(slug, role)); }
   call('reviewPacket', () => { const r = E.reviewPacket({revision: 'fixed', cohorts: null, toolVersion: 'test', now}); delete r.prepared_at; delete r.generated_at; return r; });
   return out;
 }
@@ -138,10 +146,11 @@ function firstScreen(bundle) {
   }
   for (const role of Meta.ROLES) call('metaReviewSummary ' + role, () => E.metaReviewSummary(role));
   for (const role of Meta.ROLES) call('roleMovement ' + role, () => E.roleMovement(role));   // 2.53.0 (QP14)
+  for (const slug of Object.keys(E.heroes).sort()) for (const role of E.roles(slug)) call('calculatedTier ' + slug + '|' + role, () => E.calculatedTier(slug, role));
   return out;
 }
 
-for (const status of ['ok', 'retained', 'partial', 'ok+unverified']) {
+for (const status of ['ok', 'retained', 'partial', 'ok+unverified', 'ok+oldguidance']) {
   test(`projection (Pred.gg cohort ${status}): core, guide and annexes reproduce the full bundle exactly in the page, in any order`, {skip}, () => {
     const {full, core, named, heroes} = get(status), parts = Object.values(named);
     for (const overlays of [[...parts, ...Object.values(heroes)], [...Object.values(heroes), ...parts.reverse()]]) {
