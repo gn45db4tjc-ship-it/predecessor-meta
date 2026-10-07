@@ -43492,7 +43492,7 @@
           "role": "jungle",
           "tier": "B",
           "why": "Line Tempo and Circle Rhythm support repeated trades before All-Kill! converts accumulated pressure; Rushing Beat helps choose the exit.",
-          "watch": "Offlane is the more established option. She is a damage threat rather than the default damage sponge, and the jungle sample is relatively small.",
+          "watch": "Offlane is the more established option. Her 1.17 jungle results have risen above her 1.16.4 review rate, but nothing in 1.17 or Hotfix 1.17.1 changed her kit or her plan's items, so the grade stays until a kit reason agrees. She is a damage threat rather than the default damage sponge.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -43500,12 +43500,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 49.92150706436421,
-            "wonGames": 318,
-            "matches": 637,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-14T17:20:00-05:00"
-          }
+            "winRate": 53.47826086956522,
+            "wonGames": 615,
+            "matches": 1150,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-06T13:53:31-05:00"
+          },
+          "rechecked_at": "2026-10-06T14:36:00-05:00"
         },
         {
           "slug": "shinbi",
@@ -58853,6 +58854,16 @@
         "scope": "Weekly backstop pass for 2026-W40 plus the 2 queued withheld grades, against the live bundles published 2026-10-04T17:42:23+00:00 (tool 2.49.0; collection of 4 Oct 08:36-08:58 CDT, with Pred.gg 1.17 + Hotfix 1.17.1 data on all six ranks). Every withheld Gold+ grade (2) and every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. Not a full review.",
         "ledger": "docs/rechecks/2026-10-04-1315-ledger.json",
         "result": "0 changed, 2 checked and retained, 7 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-06T14:36:00-05:00",
+        "items": [
+          "grade-moved:shinbi/jungle"
+        ],
+        "scope": "Triggered pass for the 1 queued withheld grade (shinbi/jungle), against the live bundles published 2026-10-06T19:17:22+00:00 (tool 2.52.2; Gold+ collection generated 2026-10-06T13:56:34-05:00, Pred.gg 1.17 + Hotfix 1.17.1, versions 167 and 168, status ok). Not a full review.",
+        "ledger": "docs/rechecks/2026-10-06-1433-ledger.json",
+        "result": "0 changed, 1 checked and retained, 0 unresolved"
       }
     ]
   },
