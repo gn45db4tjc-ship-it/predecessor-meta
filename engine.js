@@ -286,6 +286,22 @@
       const c=key?sourceCurrency(bundle.sources?.[key],now):{state:'unavailable',age_hours:null};
       return {...policy,currency:c.state,age_hours:c.age_hours,saved:!!policy.source&&!['current','aging'].includes(c.state)};
     }
+    // 2.53.0: Pred.gg's largest win-rate moves for one role since the previous pull, for the phone's Meta screen. The
+    // published digest is used when present; a full local bundle derives the same rows (both pulls 100+ games).
+    function roleMovement(role) {
+      const sc=bundle?.scoped_changes;
+      if(!sc||sc.status==='unavailable'||!ROLES.includes(role))return null;
+      let m=sc.movement;
+      if(!m&&sc.vs_previous_run?.changes){
+        const d=sc.vs_previous_run,rows=d.changes.filter(c=>c.role===role&&(c.minimum_sample||0)>=100&&Number.isFinite(c.wr_delta)),moved=rows.filter(c=>Math.abs(c.wr_delta)>=0.01);
+        const pick=c=>({slug:c.slug,wr_delta:c.wr_delta,matches_from:c.before.matches,matches_to:c.after.matches}),bySlug=(a,b)=>a.slug<b.slug?-1:a.slug>b.slug?1:0;
+        m={from:{patch:d.from.cohort.patch,fetched_at:d.from.fetched_at},to:{patch:d.to.cohort.patch,fetched_at:d.to.fetched_at},bracket_label:d.to.cohort.bracket_label,minimum_games:100,
+          roles:{[role]:{compared:rows.length,rises:moved.filter(c=>c.wr_delta>0).sort((a,b)=>b.wr_delta-a.wr_delta||bySlug(a,b)).slice(0,2).map(pick),
+            falls:moved.filter(c=>c.wr_delta<0).sort((a,b)=>a.wr_delta-b.wr_delta||bySlug(a,b)).slice(0,2).map(pick)}}};
+      }
+      const r=m?.roles?.[role];
+      return r?{...r,from:m.from,to:m.to,bracket_label:m.bracket_label||null,minimum_games:m.minimum_games||100}:null;
+    }
     // Displaying a dated observation does not make it eligible for recommendation ranking.
     // Keep this policy separate: performance()/assess()/recommend() retain their patch gates.
     function displayPerformancePolicy({now=Date.now()}={}) {
@@ -1162,7 +1178,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,roleMovement,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

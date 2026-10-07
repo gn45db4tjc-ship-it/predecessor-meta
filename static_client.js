@@ -30,7 +30,7 @@ if (APP_CONFIG.mode === 'static') {
     const apple = /iphone|ipad|ipod/i.test(navigator.userAgent);
     detail('Install this app', apple
       ? '<p>In Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</p><p>The app will open from its own icon and keep using the same daily cloud data.</p>'
-      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta</strong> or <strong>Apps → Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
+      : '<p>Open your browser menu and choose <strong>Install Predecessor Meta</strong> or <strong>Apps</strong>, then <strong>Install this site as an app</strong>.</p><p>After installation it opens in its own window and keeps using the same daily cloud data.</p>');
   }
   window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); pendingInstallPrompt = event; syncInstallButton(); });
   window.addEventListener('appinstalled', () => { pendingInstallPrompt = null; syncInstallButton(); toast('App installed.'); });
@@ -211,7 +211,7 @@ if (APP_CONFIG.mode === 'static') {
     $('#export').disabled = !B;
     $('#quit').classList.add('hide');
     const verified = latestVerifiedPatch();
-    if (verified?.version) $('#patch-strip .patch-cell').innerHTML = `<div><small>${site.manifest?.patch_check?.status === 'verified' ? 'Game patch' : 'Last verified patch'}</small><strong>v${esc(verified.version)}</strong></div>${link(verified.url,'Official notes ↗')}`;
+    if (verified?.version) $('#patch-strip .patch-cell').innerHTML = `<div><small>${site.manifest?.patch_check?.status === 'verified' ? 'Game patch' : 'Last verified patch'}</small><strong>v${esc(verified.version)}</strong></div>${link(verified.url,'Official notes')}`;
     stableHTML('#bracket', options(allowed.map(b => [b, (site.manifest?.cohorts?.[b]?.label || b[0].toUpperCase()+b.slice(1)+'+') + (site.manifest && site.manifest.cohorts[b]?.status !== 'available' ? ' · unavailable' : '')]), S.bracket));
     $('#freshness').textContent += site.manifest?.collection_host === 'cloud' ? ' Daily cloud update target: ' + nextDaily() + ' (your time). Your PC can be off. Patch checks every ' + patchEvery() + '; schedules can be delayed.' : site.manifest?.local_collector?.checked_at ? ' Windows updater: '+date(site.manifest.local_collector.checked_at)+'. Checks every three hours while your PC is on and signed in; full data daily or after a live patch change.' : site.manifest?.collection_paused_reason ? ' Statistical updates paused. Official patch checks every ' + patchEvery() + '.' : ' Daily update target: ' + nextDaily() + ' (your time). Patch checks every ' + patchEvery() + '; schedules can be delayed.';
     if (site.manifest?.patch_check?.checked_at) $('#freshness').textContent += ' Official check: ' + date(site.manifest.patch_check.checked_at) + '.';
@@ -387,7 +387,9 @@ if (APP_CONFIG.mode === 'static') {
       if (site.originalBundle !== raw || site.annex !== annex) { redrawForAnnex('*'); return 'stale'; }   // another publication was loaded meanwhile
       MetaProjection.merge(raw, value);
       annex.loaded.add(id); annex.failed.delete(id);
-      B = displayedBundle(raw, site.loadedEntry); E = MetaEngine.create(B);
+      // 2.53.0 (QF4): only the guide changes what the engine reads. The other files are display-only and merge in
+      // place (objects keep their identity), so the engine keeps its memoised answers.
+      B = displayedBundle(raw, site.loadedEntry); if (id === 'guide') E = MetaEngine.create(B);
       // The guide redraws at once and is saved before this resolves: the first check waits for it, so 'up to date'
       // means every screen can open and the guide is available offline. Evidence files share one batched redraw.
       if (id === 'guide') { requestRedraw(true); refreshDialog(new Set([id])); await saveEvidence(part.url, bytes); }
@@ -555,7 +557,8 @@ if (APP_CONFIG.mode === 'static') {
     } catch (error) {
       if (sequence !== site.sequence || requested !== S.bracket) return;
       site.checkFailed = true;
-      if (site.originalBundle) { B = displayedBundle(site.originalBundle, site.loadedEntry); E = MetaEngine.create(B); }
+      if (site.originalBundle) { const next = displayedBundle(site.originalBundle, site.loadedEntry), overlay = v => [v?.guidance?.status, v?.recommendation_context?.status].join('|');
+        if (overlay(next) !== overlay(B)) E = MetaEngine.create(next); B = next; }
       const savedHere = !B && (!navigator.onLine || connectionLost) ? await savedOnThisDevice(requested) : null;
       if (sequence !== site.sequence || requested !== S.bracket) return;
       latestStatus = {busy: false, checkedAt: new Date().toISOString(), message: 'Update check failed. ' + (B ? 'The last loaded data remains usable.' : savedHere?.saved ? (savedHere.worker ? 'A copy of this rank is saved on this device. Reload the page to open it.' : 'A copy of this rank is saved on this device, but offline support is not active in this browser, so it cannot be opened while offline.') : savedHere ? (savedHere.worker ? 'This rank is not saved on this device. Open it once while online to keep it for offline use.' : 'This rank is not saved on this device, and offline support is not active in this browser.') : 'No data has loaded yet.'), errors: [{source: 'Shared website', severity: 'error', detail: controller.signal.aborted ? 'The publication request timed out. Try Reload latest data again.' : error.message}]};

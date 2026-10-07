@@ -220,6 +220,7 @@ Page geometry.
 | `--content-max` | `1720px` | same | Maximum content width |
 | `--prose` | `60ch` | same | Readable line length for running prose (about 75 characters of Barlow; 76ch until 2.52.0) |
 | `--prose-intro` | `72ch` | same | Page intros on the desktop (`.page-head p`): short, so two lines under 90 characters each (2.52.0) |
+| `--panel-inset` | `var(--s4)`; `var(--s3)` at 700px and below | same | The one inner padding of panels, cards, fold bodies, notes and table edge cells (2.53.0, probe QS8) |
 
 ## Components
 
@@ -227,8 +228,15 @@ Page geometry.
 
 The one label component: padding `--s0-5` `--s2`, `--radius-sm` since 2.49.0, `--t-xs`, weight 700, capitals. Variants add colour only.
 
-- `.chip.tag.observed` / `.calculated` / `.reviewed` / `.official`: evidence. Always rendered with `badge(text, type)`, which adds the marker (●, ◇, ✦, ▢).
-- `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence.
+- `.chip.tag.observed` / `.calculated` / `.reviewed` / `.official`: evidence. Always rendered with `badge(text, type)`. Each class draws its marker in CSS: a filled dot, an outlined diamond, a four-point star and an outlined square. Since 2.53.0 the markers are drawn shapes, not typed glyphs. The shipped faces lack ● ◇ ✦ ▢, so the glyphs fell back to several system fonts, and screen readers read them aloud (probe QT8). W3 compares the drawn shapes.
+- `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence. Warning shows a "!" hidden from screen readers. Saved draws an open ring.
+
+**Symbols.** Use only symbols the shipped faces carry (‹ › · – … ↑ ↓ ×). For anything else, draw the mark and let the words carry the meaning:
+- `TO` (ui.js) draws a step arrow and reads " to " aloud ("Gold to Platinum").
+- `prose(text)` escapes source text and draws any → it contains.
+- `star(filled)` is an inline SVG star, filled under `[aria-pressed="true"]`.
+- `.back` puts a ‹ before a back link.
+- A link's text names its destination ("Official notes", "Source"), never a bare ↗ (QP15).
 - `.chip.status-pill`: a status summary inside the status strip.
 - `.chip.tag.reviewed.ready-chip`: "Build ready" on Meta rows, shown only when the reviewed build is active.
 
@@ -261,7 +269,7 @@ _Usage:_ Never draw an item icon without this button; the dialog is how sources 
 
 ### `.panel`
 
-A card: `--surface` on the hatched ground, no visible border since 2.49.0, `--radius-lg`, padding `--s3` (phone) or `--s4`.
+A card: `--surface` on the hatched ground, no visible border since 2.49.0, `--radius-lg`, padding `--panel-inset` (`--s4`, `--s3` on the phone). Since 2.53.0 every panel, card, fold body, note and the edge cells of a scrolling table use that one inset (probe QS8): a fold pads its body, not itself, and `.table-panel` keeps 0. Tiles (library entries, loadout slots, metric chips, Match heroes) keep their own smaller sizes.
 
 _Usage:_ Don't nest panels more than one deep.
 
@@ -306,6 +314,7 @@ The owner picked this from five stylized Figma directions on 4 October 2026 (fil
 
 - One focus ring: `outline: 3px solid var(--focus); outline-offset: 2px` on `:focus-visible` (ui.html). Components do not define their own.
 - Selection: `aria-selected` on tabs, `aria-pressed` on toggles, `aria-current` on navigation. Visual indicators use `--indicator` or the segmented `--brand` fill.
+- A button whose text names the action it takes ("Switch to light theme") carries no `aria-pressed`: a pressed state would contradict its name. Since 2.53.0 the desktop theme switch is such a button, like the phone's (probe QP13).
 
 ## Tests that enforce this
 
