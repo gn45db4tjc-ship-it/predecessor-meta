@@ -11,13 +11,15 @@ const python = process.env.PYTHON_EXE || 'python';
 
 function parts(status) {
   const code = [
-    'import gzip, json, sys', 'sys.path.insert(0, ".")', 'import projection as P',
-    'b = json.loads(gzip.open("public-seed-gold.json.gz").read())',
+    'import gzip, json, sys', 'sys.path.insert(0, ".")', 'import projection as P', 'import predecessor_meta as M',
+    // 2.53.0: publication adds the Pred.gg movement digest before projecting, as static_publish.py does.
+    'b = M.with_scoped_movement(json.loads(gzip.open("public-seed-gold.json.gz").read()))',
     `b["scoped_statistics"]["status"] = ${JSON.stringify(status.split('+')[0])}`,
     ...(status.includes('+unverified') ? ['for n, (slug, roles) in enumerate(sorted(b["pred_game_data"]["role_data"].items())):',
       '    for role, d in roles.items():',
       '        t = ((d.get("counters") or {}).get("tables") or {}).get("counters")',
       '        if isinstance(t, dict) and n % 2: t["cohort_verified"] = False'] : []),
+    ...(status.includes('+oldguidance') ? ['b["guidance"]["patch"] = "0.0"'] : []),
     'p = P.build(b)',
     'sys.stdout.buffer.write(json.dumps({"full": P.dumps(b).decode(), "core": p["core"].decode(), "named": {n: p[n].decode() for n in P.PARTS}, "heroes": {k: v.decode() for k, v in p["heroes"].items()}, "fields": {"hero": P.HERO_FIELDS, "ability": P.ABILITY_FIELDS, "role": P.ROLE_FIELDS}}).encode())',
   ].join('\n');
@@ -114,6 +116,13 @@ function outputs(bundle) {
   call('statzGap', () => E.statzGap());
   for (const source of Object.keys(bundle.sources || {})) call('sourceCurrency ' + source, () => E.sourceCurrency(source, now));
   for (let i = 0; i < 6; i++) call('reviewedComposition ' + i, () => E.reviewedComposition(i));
+  // 2.53.0: the screens whose fields moved to the guide (library, loadout definitions, re-check queue, adaptation review,
+  // team alternates, calculated tiers).
+  for (const kind of ['items', 'perks']) call('libraryCatalog ' + kind, () => E.libraryCatalog(kind));
+  for (const name of Object.keys(bundle.guidance?.build_patch_review?.loadout_definitions || {})) call('buildLoadoutDefinition ' + name, () => E.buildLoadoutDefinition(name));
+  call('recheckQueue', () => E.recheckQueue({now}));
+  call('adaptationReview', () => E.adaptationReview());
+  for (const slug of slugs) for (const role of E.roles(slug)) { call('teamAlternates ' + slug + '|' + role, () => E.teamAlternates({slug, role})); call('calculatedTier ' + slug + '|' + role, () => E.calculatedTier(slug, role)); }
   call('reviewPacket', () => { const r = E.reviewPacket({revision: 'fixed', cohorts: null, toolVersion: 'test', now}); delete r.prepared_at; delete r.generated_at; return r; });
   return out;
 }
@@ -136,10 +145,12 @@ function firstScreen(bundle) {
     call('buildReview ' + k, () => { const r = E.buildReview(slug, role); return r && {active: r.active, status: r.status, missing: r.missing, changed: r.changed, invalid: r.invalid}; });
   }
   for (const role of Meta.ROLES) call('metaReviewSummary ' + role, () => E.metaReviewSummary(role));
+  for (const role of Meta.ROLES) call('roleMovement ' + role, () => E.roleMovement(role));   // 2.53.0 (QP14)
+  for (const slug of Object.keys(E.heroes).sort()) for (const role of E.roles(slug)) call('calculatedTier ' + slug + '|' + role, () => E.calculatedTier(slug, role));
   return out;
 }
 
-for (const status of ['ok', 'retained', 'partial', 'ok+unverified']) {
+for (const status of ['ok', 'retained', 'partial', 'ok+unverified', 'ok+oldguidance']) {
   test(`projection (Pred.gg cohort ${status}): core, guide and annexes reproduce the full bundle exactly in the page, in any order`, {skip}, () => {
     const {full, core, named, heroes} = get(status), parts = Object.values(named);
     for (const overlays of [[...parts, ...Object.values(heroes)], [...Object.values(heroes), ...parts.reverse()]]) {
@@ -178,4 +189,27 @@ test('projection: merging an annex keeps the identity of objects the engine alre
 test('projection: rows written as columns decode to identical objects', () => {
   const decoded = Projection.decode({rows: {$c: ['b', 'a'], $r: [[1, {$c: ['x'], $r: [[1], [2], [3]]}], [2, null], [3, []]]}});
   assert.equal(JSON.stringify(decoded), JSON.stringify({rows: [{b: 1, a: [{x: 1}, {x: 2}, {x: 3}]}, {b: 2, a: null}, {b: 3, a: []}]}));
+});
+
+test('projection: the page derives the same Pred.gg movement as the published digest when a full bundle lacks it', {skip}, () => {
+  // 2.53.0 (QP14): a local full bundle (no publication step) carries the history rows but not the digest.
+  const code = [
+    'import gzip, json, sys', 'sys.path.insert(0, ".")', 'import predecessor_meta as M',
+    'b = json.loads(gzip.open("public-seed-gold.json.gz").read())',
+    'rows = b["scoped_changes"]["vs_previous_run"]["changes"]',
+    'for i, c in enumerate(rows): c["wr_delta"] = round(((i * 37) % 23 - 11) / 7.0, 6)',
+    'sys.stdout.buffer.write(json.dumps({"plain": b, "published": M.with_scoped_movement(b)}).encode())',
+  ].join('\n');
+  const run = spawnSync(python, ['-B', '-c', code], {cwd: root, maxBuffer: 1 << 30});
+  if (run.status) throw Error('predecessor_meta.py failed: ' + run.stderr);
+  const {plain, published} = JSON.parse(run.stdout.toString('utf8'));
+  assert.ok(published.scoped_changes.movement && !plain.scoped_changes.movement);
+  const round = v => JSON.parse(JSON.stringify(v, (k, x) => k === 'wr_delta' ? Math.round(x * 1e4) / 1e4 : x));
+  let moved = 0;
+  for (const role of Meta.ROLES) {
+    const derived = Meta.create(plain).roleMovement(role), digest = Meta.create(published).roleMovement(role);
+    assert.deepEqual(round(derived), round(digest), role);
+    moved += digest.rises.length + digest.falls.length;
+  }
+  assert.ok(moved > 10, 'probe setup: the altered seed moves heroes in every role');
 });

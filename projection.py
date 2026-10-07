@@ -27,30 +27,45 @@ import copy, json, re
 VERSION = 3
 TIER3 = ('firstTier3', 'secondTier3', 'thirdTier3', 'fourthTier3', 'fifthTier3', 'sixthTier3')
 # Per hero, display-only (kit tab, hero Builds and Counters tabs) or read by no page code at all.
-HERO_FIELDS = ('statz_abilities', '_teammates_raw', 'tag_evidence', 'lane_previews', 'previous_abilities', 'pred_attributes')
+HERO_FIELDS = ('statz_abilities', '_teammates_raw', 'tag_evidence', 'lane_previews', 'previous_abilities', 'pred_attributes',
+               'role_evidence', 'previous_classes', 'statz_roles', 'tier_roles', 'partners_listed')   # 2.53.0: the last five, read by no page code
 ABILITY_FIELDS = ('pred_raw', 'pred_source', 'game_description', 'menu_description')   # the descriptions: no reader
 ROLE_FIELDS = ('matchups',)   # on each hero's per-role statistics; read by no page code
 # Shared, display-only (Sources, library and audit views) or read by no page code at all.
 SHARED_PATHS = (('pred_game_data', 'assets'), ('pred_game_data', 'items_catalog'), ('pred_game_data', 'eternals_catalog'),
                 ('pred_game_data', 'heroes'), ('pred_game_data', 'records'),
-                ('image_index',), ('omeda_items',), ('unverified_changes',))
+                ('image_index',), ('omeda_items',), ('unverified_changes',),
+                ('scoped_statistics', 'hero_wide'))   # 2.53.0: read by no page code
 # Version 3 (2.39.0): what an item or loadout dialog reads (ui.js predCatalogAudit), so a tap downloads only this.
 CATALOG_PATHS = (('pred_game_data', 'field_protections'),)
-CATALOG_FIELDS = ('pred_raw', 'previous_source')   # on each item and perk
+CATALOG_FIELDS = ('pred_raw', 'previous_source', 'pred_source', 'source_stats', 'metadata_source')   # on each item and perk (2.53.0: the last three)
 # Version 3: what Changes, Sources and the reviewed-definition dialog read (publisherNewsHTML, scopedHistoryHTML,
 # reviewedDefinitionHTML, definitionReviewAuditHTML).
-HISTORY_PATHS = (('official', 'definition_history'), ('official', 'publisher_news'), ('scoped_changes',))
+HISTORY_PATHS = (('official', 'definition_history'), ('official', 'publisher_news'),
+                 # 2.53.0: the Pred.gg history's status and movement digest stay in the core for the phone's Meta screen.
+                 ('scoped_changes', 'vs_previous_run'), ('scoped_changes', 'vs_previous_patch'), ('scoped_changes', 'current'))
 # The overlays after the core, in the order the page usually needs them.
 PARTS = ('guide', 'catalog', 'history', 'shared')
 # The guide (2.38.0): read by the engine for hero pages, Match, the reviewed guide and desktop views, never by the phone's
 # first screen. See the module docstring.
 GUIDE_PATHS = (('pairs',), ('corrections',), ('official_changes',), ('patch_support',), ('mechanics_resolutions',),
                ('guidance', 'strategic_review'), ('guidance', 'capability_reviews'), ('guidance', 'sequence_review'),
-               ('guidance', 'compositions'))
+               ('guidance', 'compositions'),
+               # 2.53.0: read only by screens that wait for the guide (desktop Meta for other ranks, Sources, Changes, hero
+               # pages, the library, the review packet), never by the phone's first screen.
+               ('scoped_statistics', 'rows'), ('scoped_statistics', 'records'), ('pred_game_data', 'items'), ('pred_game_data', 'perks'),
+               ('changes', 'vs_previous_patch'), ('community_builds',), ('definition_issues',), ('official_hotfix_changes',),
+               ('reviewed_definitions',), ('description_reviews',), ('mechanics_boundaries',),
+               ('guidance', 'notes'), ('guidance', 'recheck_log'), ('guidance', 'build_advice'))
 GUIDE_HERO_FIELDS = ('patch_context', 'general_strong_against', 'general_counters', 'hero_wide', 'hero_wide_url',
-                     'hero_wide_fetched_at', 'tags', 'tags_source')
+                     'hero_wide_fetched_at', 'tags', 'tags_source', 'pred_source', 'pred_main_attributes', 'classes')   # 2.53.0: the last three
 GUIDE_ROLE_FIELDS = ('builds',)        # Statz playstyles on each hero's per-role statistics
-GUIDE_ABILITY_FIELDS = ('game_text',)
+GUIDE_ABILITY_FIELDS = ('game_text', 'display_name', 'image_url', 'image', 'cooldown', 'cost')   # 2.53.0: all but key and text
+# 2.53.0: on each item and perk, read by the engine or the page only on screens that wait for the guide. A field that a
+# reviewed build's source_preconditions compares (buildReview runs for every Meta row) is never moved; see split().
+GUIDE_ITEM_FIELDS = ('item_meta', 'image_url', 'image', 'source', 'total_price', 'stat_note_source')
+GUIDE_PERK_FIELDS = ('image_url', 'image', 'source', 'slot', 'eternal', 'hero')
+LOADOUT_DEFINITION_GUIDE_FIELDS = ('sources',)   # buildLoadoutDefinition: the first screen reads the description only
 # What buildReview reads on each reviewed build (the Meta list runs it for every row); the rest of a build is text.
 BUILD_CORE_FIELDS = frozenset(('slug', 'role', 'style', 'damage', 'core', 'finish', 'crest', 'augment', 'eternal', 'blessings',
                                'skill_priority', 'patch', 'reviewed_at', 'patch_review', 'source_preconditions', 'auto_recommend',
@@ -217,6 +232,21 @@ def split(bundle):
                 part = _node(catalog, section, key)
                 for field in CATALOG_FIELDS:
                     if field in entry: move(entry, field, part)
+    # 2.53.0: item and perk fields for the guide, never one a reviewed build's source_preconditions compares.
+    compared = {k for b in ((core.get('guidance') or {}).get('builds') or []) if isinstance(b, dict)
+                for v in (((b.get('source_preconditions') or {}).get('items') or {}).values()) if isinstance(v, dict) for k in v}
+    for section, fields in (('items', GUIDE_ITEM_FIELDS), ('perks', GUIDE_PERK_FIELDS)):
+        fields = [f for f in fields if f not in compared]
+        for key, entry in (core.get(section) or {}).items():
+            if isinstance(entry, dict):
+                for field in fields:
+                    if field in entry: move(entry, field, _node(guide, section, key))
+    definitions = ((core.get('guidance') or {}).get('build_patch_review') or {}).get('loadout_definitions')
+    if isinstance(definitions, dict):
+        for name, entry in definitions.items():
+            if isinstance(entry, dict):
+                for field in LOADOUT_DEFINITION_GUIDE_FIELDS:
+                    if field in entry: move(entry, field, _node(guide, 'guidance', 'build_patch_review', 'loadout_definitions', name))
     # Official article text blocks: no page code reads them (the fingerprints the engine checks stay).
     official = core.get('official')
     if isinstance(official, dict):

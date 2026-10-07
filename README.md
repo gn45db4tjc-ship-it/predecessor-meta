@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.52.2
+# Predecessor Meta - 2.53.0
 
-2.52.2 fixes the Windows collector's timing after a restart. It checks every three hours, and a restart less than three hours after its last check used to push the next check out to as much as six hours; it now checks as soon as the last check makes one due. On 5 October 2026 the collector update restarted it 2 h 13 min after a check, and no check ran for 5 h 13 min. The website and its data are unchanged; the fix reaches the Windows collector only when it is rebuilt and installed with the owner's approval. See [RELEASE-2.52.2.md](RELEASE-2.52.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.53.0 is a third quality-of-life pass: the items 2.52.0 left for later. A desktop hero page opens about four to eight times faster on a slowed CPU (442–579 ms → 52–136 ms), because its closed folds draw only when opened. The phone's first file is about a quarter smaller (343 → 262 KB gzipped), and display-only evidence no longer resets the engine. Phone Meta now leads with a compact Pred.gg line naming the role's biggest rise and fall since the last pull, with its source and times. Symbols the fonts lack are drawn instead of falling back to system fonts, every link names where it goes, source labels use plainer words, panels share one inner padding, and the theme switch and the review packet behave as they say. No evidence, figure, grade, build or rule changes. See [RELEASE-2.53.0.md](RELEASE-2.53.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.52.2
+
+2.52.2 fixes the Windows collector's timing after a restart. It checks every three hours, and a restart less than three hours after its last check used to push the next check out to as much as six hours; it now checks as soon as the last check makes one due. On 5 October 2026 the collector update restarted it 2 h 13 min after a check, and no check ran for 5 h 13 min. The website and its data are unchanged; the fix reaches the Windows collector only when it is rebuilt and installed with the owner's approval. See [RELEASE-2.52.2.md](RELEASE-2.52.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.52.1
 

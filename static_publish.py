@@ -583,6 +583,9 @@ def render_site(folder, out, state):
                 # Store the audited replay once; a guidance release never advances
                 # the original collection or source fetch dates.
                 bundle = retain_publication(reviewed, folder)
+            # 2.53.0: the phone's Meta screen leads with Pred.gg's latest movement; a bundle collected before 2.53.0
+            # gets the same small digest here (its observations and dates are unchanged).
+            bundle = base.with_scoped_movement(bundle)
             raw = json.dumps(bundle, ensure_ascii=False, separators=(',', ':')).encode('utf8')
             digest = hashlib.sha256(raw).hexdigest()
             relative = 'bundles/' + bracket + '-' + digest + '.json'

@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.52.2"
+VERSION = "2.53.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1015,6 +1015,33 @@ def diff_scoped_snapshots(old,new):
             'note':'Rate movements compare overlapping or changing source populations. They are not independent samples, causal patch effects, incremental-match win rates, or confidence intervals for a change. Newly available/unavailable rows can reflect eligibility or sample coverage.'}
 
 
+def scoped_movement(scoped):
+    """The largest Pred.gg win-rate moves per role since the previous pull (2.53.0), small enough for the phone's first
+    screen. Same rows and rule as the Changes table: both pulls carry 100+ games. A zero change is not a move."""
+    d=scoped.get('vs_previous_run') if isinstance(scoped,dict) else None
+    if not isinstance(d,dict) or not isinstance(d.get('changes'),list):return None
+    side=lambda w:{'patch':w['cohort']['patch'],'fetched_at':w['fetched_at']}
+    roles={}
+    for role in ROLES:
+        rows=[c for c in d['changes'] if c.get('role')==role and (c.get('minimum_sample') or 0)>=100 and isinstance(c.get('wr_delta'),(int,float))]
+        moved=[c for c in rows if abs(c['wr_delta'])>=0.01]
+        pick=lambda c:{'slug':c['slug'],'wr_delta':round(c['wr_delta'],4),'matches_from':c['before']['matches'],'matches_to':c['after']['matches']}
+        roles[role]={'compared':len(rows),
+                     'rises':[pick(c) for c in sorted((c for c in moved if c['wr_delta']>0),key=lambda c:(-c['wr_delta'],c['slug']))[:2]],
+                     'falls':[pick(c) for c in sorted((c for c in moved if c['wr_delta']<0),key=lambda c:(c['wr_delta'],c['slug']))[:2]]}
+    return {'window':'vs_previous_run','from':side(d['from']),'to':side(d['to']),'bracket_label':d['to']['cohort'].get('bracket_label'),
+            'minimum_games':100,'roles':roles}
+
+
+def with_scoped_movement(bundle):
+    """A bundle collected before 2.53.0 gets the same movement digest at publication. Observations are unchanged."""
+    sc=bundle.get('scoped_changes')
+    if not isinstance(sc,dict) or 'movement' in sc:return bundle
+    try:movement=scoped_movement(sc)
+    except (KeyError,TypeError,ValueError):return bundle
+    return bundle if movement is None else {**bundle,'scoped_changes':{**sc,'movement':movement}}
+
+
 def attach_scoped_history(bundle,import_saved=True):
     out={'source':'Pred.gg','status':'unavailable','errors':[],'vs_previous_run':None,'vs_previous_patch':None,'snapshots_on_disk':0,'imported':0}
     bundle['scoped_changes']=out
@@ -1060,6 +1087,8 @@ def attach_scoped_history(bundle,import_saved=True):
             except (ValueError,TypeError,KeyError) as e:report(key,e)
     out.update({'status':'partial' if out['errors'] else 'ok','current':{k:current[k] for k in ('cohort','fetched_at','records','origin')},
                 'snapshots_on_disk':len(seen),'compatible_prior_collections':len(older)})
+    try:out['movement']=scoped_movement(out)
+    except (KeyError,TypeError,ValueError) as e:report('movement',e)
     if out['errors']:bundle.setdefault('errors',[]).append({'source':'Pred.gg local history','severity':'warning','detail':'Some history records could not be used: '+'; '.join(x['file']+': '+x['detail'] for x in out['errors'])})
     return out
 
