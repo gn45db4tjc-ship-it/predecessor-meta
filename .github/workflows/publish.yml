@@ -164,3 +164,19 @@ jobs:
       - name: Show the known collection pause without repeated failure alerts
         if: needs.build.outputs.collection_paused == 'true'
         run: echo '::warning::Complete statistics refreshes remain paused because Pred.gg is unavailable to this collector. The public website retains dated verified data. Official patch checks continue.'
+
+  watchdog:
+    # Every publication run ends by starting the freshness watchdog, so it checks what this run published. GitHub
+    # creates only some hourly scheduled runs (2-6 Oct 2026: 19 of 97 for the watchdog), so the watchdog does not
+    # depend on its own schedule alone. A dispatch keeps its own permissions and concurrency group.
+    needs: [build, deploy]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Start the freshness watchdog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run watchdog.yml --repo "$GITHUB_REPOSITORY" --ref main

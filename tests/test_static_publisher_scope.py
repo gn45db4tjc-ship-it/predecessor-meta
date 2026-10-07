@@ -31,3 +31,20 @@ class CanonicalPublisherScope(unittest.TestCase):
         self.assertIn('MANUAL_REFRESH',environment)
         self.assertIn('DIAGNOSE_PRED',environment)
         self.assertTrue(environment['COLLECTION_RELEASE'].strip("'\""))
+
+    def test_every_publication_run_ends_by_starting_the_watchdog(self):
+        # 2 to 6 Oct 2026: GitHub created only 19 of 97 hourly scheduled watchdog runs (none failed or was cancelled;
+        # the rest never started), so the watchdog no longer depends on its own schedule alone.
+        root=Path(__file__).resolve().parents[1]
+        publish=(root/'.github/workflows/publish.yml').read_text()
+        job=publish[publish.index('\n  watchdog:'):]
+        self.assertIn('needs: [build, deploy]',job,'It runs after the deployment, so it reads what this run published')
+        self.assertIn('if: ${{ !cancelled() }}',job,'A skipped or failed deployment still gets checked')
+        self.assertIn('actions: write',job)
+        self.assertIn('gh workflow run watchdog.yml --repo "$GITHUB_REPOSITORY" --ref main',job)
+        self.assertNotIn('uses:',job,'A dispatch keeps the watchdog\'s own permissions and concurrency group')
+        self.assertNotIn('contents: write',job)
+        self.assertNotIn('issues: write',job)
+        watchdog=(root/'.github/workflows/watchdog.yml').read_text()
+        self.assertIn('workflow_dispatch:',watchdog)
+        self.assertIn("- cron: '41 * * * *'",watchdog,'The hourly schedule stays for the runs GitHub does start')
