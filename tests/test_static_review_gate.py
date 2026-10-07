@@ -5,10 +5,15 @@ no grade moves more than one step, nothing unresolved supports a newly endorsed 
 held for the owner for a first grade, a removal, a policy exception, a validator or policy change or more than 10
 grade changes; and auto-merge waits for its switch and two passing nightly checks. Probe first: on main 55d11e4 no
 gate exists, so nothing could merge a review PR safely, and nothing would stop an unsafe one."""
+import contextlib
 import copy
+import hashlib
+import io
 import json
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import review_gate as gate
 
@@ -117,6 +122,17 @@ class Fail(Fixture):
         failures = ' '.join(self.decide(files=files, manifests=(manifest, bad))['failures'])
         self.assertIn('engine.js', failures); self.assertIn('"version"', failures)
 
+    def test_manifest_line_endings_stay_as_on_the_base(self):
+        # 0fbe4f3 (PR #131) rewrote all 304 LF lines with CRLF; the parsed manifests agreed, so the gate merged it.
+        self.move()
+        manifest = json.loads((ROOT / 'SOURCE-MANIFEST.json').read_text(encoding='utf-8'))
+        ok = copy.deepcopy(manifest); ok['files']['reviewed_guidance.json'] = '0' * 64
+        files = ['reviewed_guidance.json', LEDGER, 'SOURCE-MANIFEST.json']
+        lf = tuple((json.dumps(m, indent=2) + '\n').encode('utf-8') for m in (manifest, ok))
+        self.assertEqual(self.decide(files=files, manifests=(manifest, ok), manifest_bytes=lf)['decision'], 'merge')
+        result = self.decide(files=files, manifests=(manifest, ok), manifest_bytes=(lf[0], lf[1].replace(b'\n', b'\r\n')))
+        self.assertEqual(result['decision'], 'fail'); self.assertIn('line endings', ' '.join(result['failures']))
+
     def test_supplement_mechanics_need_their_own_ledger_record(self):
         supplement = json.loads((ROOT / 'patch-1.17.json').read_text(encoding='utf-8'))
         changed = copy.deepcopy(supplement)
@@ -171,6 +187,28 @@ class LiveVerification(unittest.TestCase):
         ranks['silver']['fingerprint'] = 'old'
         self.assertIn('silver', ' '.join(gate.verified(ranks, 'abc', {})))
         self.assertIn('adele/offlane', ' '.join(gate.verified({'gold': {'fingerprint': 'abc', 'tiers': {'adele/offlane': 'C'}}}, 'abc', {'adele/offlane': 'B'})))
+
+
+class ManifestRefresh(unittest.TestCase):
+    def test_update_manifest_keeps_lf_and_changes_only_review_hashes(self):
+        """The runner's `update-manifest` on Windows wrote CRLF (0fbe4f3, PR #131): Path.write_text turns each '\\n' into
+        '\\r\\n' there. The patch replays that translation, so the probe fails on any platform, CI included."""
+        write_text = Path.write_text
+
+        def windows_write_text(path, data, encoding=None, errors=None, newline=None):
+            if newline is None:
+                data, newline = data.replace('\n', '\r\n'), '\n'
+            return write_text(path, data, encoding=encoding, errors=errors, newline=newline)
+
+        with tempfile.TemporaryDirectory() as temp, mock.patch.object(gate, 'ROOT', Path(temp)), \
+                mock.patch.object(Path, 'write_text', windows_write_text), contextlib.redirect_stdout(io.StringIO()):
+            root = Path(temp)
+            (root / 'reviewed_guidance.json').write_bytes(b'{}\n')
+            manifest = {'version': '0.0.0', 'files': {'engine.js': '0' * 64, 'reviewed_guidance.json': '0' * 64}}
+            (root / 'SOURCE-MANIFEST.json').write_bytes((json.dumps(manifest, indent=2) + '\n').encode('utf-8'))
+            self.assertEqual(gate.main(['update-manifest']), 0)
+            manifest['files']['reviewed_guidance.json'] = hashlib.sha256(b'{}\n').hexdigest()
+            self.assertEqual((root / 'SOURCE-MANIFEST.json').read_bytes(), (json.dumps(manifest, indent=2) + '\n').encode('utf-8'))
 
 
 

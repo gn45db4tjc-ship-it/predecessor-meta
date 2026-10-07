@@ -85,7 +85,7 @@ The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current sc
 ## The gate's rules (for reference)
 
 - **Merges only when:**
-  - only review files changed (`reviewed_guidance.json`, the supplement, `docs/rechecks/`, and SOURCE-MANIFEST hashes of those files);
+  - only review files changed (`reviewed_guidance.json`, the supplement, `docs/rechecks/`, and SOURCE-MANIFEST hashes of those files, with the manifest's line endings kept as on main);
   - the validators, tests and live-data browser suites pass, and CI is green;
   - every changed entry has a complete ledger record;
   - no grade moves more than one step;
