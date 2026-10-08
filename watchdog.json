@@ -1,7 +1,10 @@
 {
  "schema": 1,
- "checked_at": "2026-10-08T00:59:43+00:00",
+ "checked_at": "2026-10-08T01:06:20+00:00",
  "open": {
+  "pred-age": {
+   "first_seen": "2026-10-08T01:06:20+00:00"
+  },
   "attempt-failed": {
    "first_seen": "2026-10-07T20:09:14+00:00"
   }
@@ -83,6 +86,12 @@
    "event": "started",
    "at": "2026-10-07T20:09:14+00:00",
    "summary": "Last attempt not ok for Gold+, Silver+."
+  },
+  {
+   "id": "pred-age",
+   "event": "started",
+   "at": "2026-10-08T01:06:20+00:00",
+   "summary": "Pred.gg exact-patch cohort not current for: Gold+, Bronze+, Silver+, Platinum+, Diamond+, Paragon+."
   }
  ]
 }
