@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.53.0
+# Predecessor Meta - 2.53.1
 
-2.53.0 is a third quality-of-life pass: the items 2.52.0 left for later. A desktop hero page opens about four to eight times faster on a slowed CPU (442–579 ms → 52–136 ms), because its closed folds draw only when opened. The phone's first file is about a quarter smaller (343 → 262 KB gzipped), and display-only evidence no longer resets the engine. Phone Meta now leads with a compact Pred.gg line naming the role's biggest rise and fall since the last pull, with its source and times. Symbols the fonts lack are drawn instead of falling back to system fonts, every link names where it goes, source labels use plainer words, panels share one inner padding, and the theme switch and the review packet behave as they say. No evidence, figure, grade, build or rule changes. See [RELEASE-2.53.0.md](RELEASE-2.53.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.53.1 keeps a Pred.gg role's last good numbers when its page fails. On 10 Oct 2026 Pred.gg returned HTTP 500 for the jungle, offlane and midlane pages, and those roles' Meta tables were empty until the next good collection. The collector now keeps a failed role's rows from the previous collection of the same patch and rank, at most 30 hours old, with their original dates; the website and the app label them as kept, never as fresh, and no Statz numbers stand in. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.53.1.md](RELEASE-2.53.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.53.0
+
+2.53.0 is a third quality-of-life pass: the items 2.52.0 left for later. A desktop hero page opens about four to eight times faster on a slowed CPU (442–579 ms → 52–136 ms), because its closed folds draw only when opened. The phone's first file is about a quarter smaller (343 → 262 KB gzipped), and display-only evidence no longer resets the engine. Phone Meta now leads with a compact Pred.gg line naming the role's biggest rise and fall since the last pull, with its source and times. Symbols the fonts lack are drawn instead of falling back to system fonts, every link names where it goes, source labels use plainer words, panels share one inner padding, and the theme switch and the review packet behave as they say. No evidence, figure, grade, build or rule changes. See [RELEASE-2.53.0.md](RELEASE-2.53.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.52.2
 
