@@ -472,7 +472,9 @@
       if(selected==='pred'){
         if(bundle.official?.status!=='verified'||!bundle.scoped_statistics||bundle.scoped_statistics.patch!==bundle.official?.live?.version)return null;
         const r=bundle.scoped_statistics.roles?.[pick.role]?.rows?.find(x=>x.slug===pick.slug);
-        return r&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.matches)&&r.matches>0?{wr:r.winRate,played:r.matches,tier:null,url:r.url,source:'Pred.gg',patch:bundle.scoped_statistics.patch,fetched_at:r.fetched_at,interval95:r.interval95,retained:bundle.scoped_statistics.status==='retained'}:null;
+        return r&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.matches)&&r.matches>0?{wr:r.winRate,played:r.matches,tier:null,url:r.url,source:'Pred.gg',patch:bundle.scoped_statistics.patch,fetched_at:r.fetched_at,interval95:r.interval95,
+          // 2.53.1: a role kept from the previous collection (its page failed in this one) is retained, never fresh.
+          retained:bundle.scoped_statistics.status==='retained'||bundle.scoped_statistics.roles?.[pick.role]?.status==='retained'}:null;
       }
       if(selected!=='statz')return null;
       const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.playedGames)&&r.playedGames>0?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch,fetched_at:r.fetched_at||bundle.sources?.statz_hero_pages?.fetched_at,broad_dataset:true,retained:bundle.sources?.statz_hero_pages?.status==='retained'}:null;

@@ -3338,6 +3338,46 @@ def keep_previous_pred_definitions(bundle, out, previous):
         return []
 
 
+PRED_ROLE_KEEP_SECONDS = 30 * 3600   # the website's window for retained exact-patch Pred.gg observations
+
+
+def keep_previous_pred_roles(bundle, previous, at=None):
+    """In a partial Pred.gg collection, keep each failed role's rows from the previous collection of the identical cohort
+    (patch, hotfix versions, rank, rating, ranked mode), at most 30 hours old, with their original dates (2.53.1). On 10
+    Oct 2026 three role pages returned HTTP 500 and those roles' Meta tables were empty until the next good collection.
+    Fresh roles are never replaced, a wholly failed collection is retain_pred_partition's, and sources are never pooled:
+    a role with nothing to keep stays unavailable. The collection stays 'partial'. Returns the roles kept."""
+    scoped = bundle.get('scoped_statistics') or {}
+    if not previous or scoped.get('status') != 'partial':
+        return []
+    try:
+        old = previous.get('scoped_statistics') or {}
+        if history_cohort(old) != history_cohort(scoped):
+            return []
+        kept, dates = [], []
+        for role in ROLES:
+            mine, theirs = (scoped.get('roles') or {}).get(role) or {}, (old.get('roles') or {}).get(role) or {}
+            if mine.get('status') != 'failed' or theirs.get('status') not in ('ok', 'retained') or not theirs.get('rows'):
+                continue
+            age = timestamp_age(theirs.get('fetched_at'), at)
+            if age is None or age > PRED_ROLE_KEEP_SECONDS:
+                continue
+            block = copy.deepcopy(theirs)
+            block.update(status='retained', kept_from_previous=True, error=mine.get('error'))
+            scoped['roles'][role] = block
+            scoped['rows'].extend(r for r in copy.deepcopy(theirs['rows'])
+                                  if role in ((bundle['heroes'].get(r.get('slug')) or {}).get('roles_order') or []))
+            kept.append(role); dates.append(theirs['fetched_at'])
+        if kept:
+            bundle.setdefault('errors', []).append({'source': 'Pred.gg kept role statistics', 'severity': 'warning',
+                'detail': 'Pred.gg could not be read for ' + ', '.join(kept) + ' in this collection. Their rows from the previous '
+                          'collection of the same patch and rank (fetched ' + ', '.join(sorted(set(dates))) + ') are kept with their '
+                          'original dates; they are not a fresh sample.'})
+        return kept
+    except (AttributeError, KeyError, TypeError, ValueError):
+        return []
+
+
 def previous_pred_bundle(bracket):
     """The newest saved bundle for this bracket, preferring one that holds Pred.gg definitions (2.52.1), so a failed
     collection saved since does not hide the last good Pred.gg kits."""
@@ -3426,6 +3466,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         previous_pred=previous_pred_bundle(bracket)
+        keep_previous_pred_roles(bundle,previous_pred)
         attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)
         retain_pred_partition(bundle, previous_pred)
         patch_support.apply(bundle, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)

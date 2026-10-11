@@ -4733,6 +4733,33 @@ probes.LF1 = async browser => {
       || Object.values(x.opened).some(o => o && (o.atClick < 20 || !o.open || o.afterRedraw < o.atClick)); }) || !seen.jump.open || !seen.jump.tables;
   verdict('LF1', bad, seen);
 };
+probes.PF1 = async browser => {
+  // 2.53.1: when Pred.gg fails one role's page, the collector keeps that role's rows from the previous collection of the
+  // same cohort, with their original date (keep_previous_pred_roles). The page must not present them as fresh: the
+  // engine marks them retained, and Meta names them as kept, with their date, on the desktop source line and on the
+  // phone. Simulated on the seed: jungle kept from a collection 6 hours earlier, this collection partial.
+  const mark = () => { const c = B.scoped_statistics, r = c.roles.jungle, when = new Date(Date.parse(r.fetched_at) - 6 * 3600000).toISOString();
+    c.status = 'partial'; c.roles.jungle = {...r, status: 'retained', kept_from_previous: true, fetched_at: when, error: 'HTTP 500 for jungle'};
+    E = MetaEngine.create(B); };
+  const seen = {};
+  {
+    const {context, page} = await session(browser, desktop);
+    await guideLoaded(page);
+    seen.desktop = await page.evaluate(mark => { (0, eval)('(' + mark + ')')(); S.role = 'jungle'; changeRoute('meta');
+      const slug = B.scoped_statistics.roles.jungle.rows[0].slug, row = E.performance({slug, role: 'jungle'}, {source: 'pred'});
+      const line = [...document.querySelectorAll('#main .source-line')].map(l => l.innerText).join(' | ');
+      return {rows: document.querySelectorAll('.meta-table tbody tr').length, retained: !!row?.retained, line: line.slice(0, 240), kept: /kept from the previous collection/i.test(line)}; }, mark.toString());
+    await context.close();
+  }
+  {
+    const {context, page} = await quickPhoneReady(browser);
+    seen.phone = await page.evaluate(mark => { (0, eval)('(' + mark + ')')(); S.role = 'jungle'; changeRoute('meta');
+      const note = document.querySelector('#main .meta-kept-note');
+      return {note: note ? note.innerText.replace(/\s+/g, ' ').slice(0, 200) : null, kept: !!note && /previous Pred\.gg collection/i.test(note.innerText)}; }, mark.toString());
+    await context.close();
+  }
+  verdict('PF1', !seen.desktop.retained || !seen.desktop.kept || !seen.phone.kept || seen.desktop.rows === 0, seen);
+};
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
