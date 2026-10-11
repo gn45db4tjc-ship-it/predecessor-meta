@@ -58875,6 +58875,17 @@
         "scope": "Triggered pass for the 1 queued withheld grade (steel/jungle), against the live bundles published 2026-10-09T07:00:11+00:00 (tool 2.53.0; Gold+ collection generated 2026-10-08T14:00:55-05:00, Pred.gg 1.17 + Hotfix 1.17.1, versions 167 and 168, status ok). Not a full review.",
         "ledger": "docs/rechecks/2026-10-09-0212-ledger.json",
         "result": "0 changed, 1 checked and retained, 0 unresolved"
+      },
+      {
+        "kind": "weekly",
+        "week": "2026-W41",
+        "reviewed_at": "2026-10-11T15:05:00-05:00",
+        "items": [
+          "weekly:2026-W41"
+        ],
+        "scope": "Weekly backstop pass for 2026-W41, against the live bundles published 2026-10-11T19:29:01+00:00 (tool 2.53.1; collection of 11 Oct 08:09-08:11 UTC). Every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. No Gold+ grade could be rechecked: the Gold+ bundle has no Pred.gg statistics in this collection, so no grade is withheld for moved statistics and none was changed. Not a full review.",
+        "ledger": "docs/rechecks/2026-10-11-1444-ledger.json",
+        "result": "0 changed, 0 checked and retained, 7 unresolved"
       }
     ]
   },
