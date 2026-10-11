@@ -4,7 +4,7 @@ A review pull request from the scheduled reviewer (label `automated-review`) mer
 (STRATEGY-REVIEW-POLICY.md, "Current scheduling decision"):
 
 - it touches guidance and review files only: reviewed_guidance.json, the same-patch supplement, docs/rechecks/
-  (ledger and report) and SOURCE-MANIFEST.json entries for those files; no code;
+  (ledger and report) and SOURCE-MANIFEST.json entries for those files, its line endings unchanged; no code;
 - the validators, the Python and Node tests and the browser suites pass on a preview built from live data (the
   workflow's checks job), and CI is green;
 - every changed entry has a complete ledger record: verdict, reason, uncertainties, review date and dated sources;
@@ -89,6 +89,21 @@ def manifest_scope(base, head):
     return failures
 
 
+def line_endings(raw):
+    crlf, lf = raw.count(b'\r\n'), raw.count(b'\n')
+    return 'LF' if not crlf else 'CRLF' if crlf == lf else 'mixed'
+
+
+def manifest_line_endings(base, head):
+    """SOURCE-MANIFEST.json keeps the base's line endings: rewriting them is a whole-file diff that conflicts with other PRs."""
+    if base is None or head is None:
+        return []
+    before, after = line_endings(base), line_endings(head)
+    if before == after:
+        return []
+    return ['SOURCE-MANIFEST.json changes its line endings from %s to %s; keep them as on the base.' % (before, after)]
+
+
 def entries(packet, key):
     guidance = (packet or {}).get('guidance') or {}
     rows = (guidance.get('meta_review') or {}).get('entries') if key == 'grades' else guidance.get('builds')
@@ -135,10 +150,12 @@ def incomplete(record):
     return ', '.join(missing)
 
 
-def evaluate(base, head, files, ledgers, supplements=(None, None), manifests=(None, None), nightly=(), auto_merge=False):
+def evaluate(base, head, files, ledgers, supplements=(None, None), manifests=(None, None), nightly=(), auto_merge=False,
+             manifest_bytes=(None, None)):
     """The gate's decision on one review PR. base/head: reviewed_guidance.json; ledgers: changed docs/rechecks/*.json."""
     failures, holds = scope(files)
     failures += manifest_scope(*manifests)
+    failures += manifest_line_endings(*manifest_bytes)
     records = ledger_records(ledgers)
 
     def require(key, label):
@@ -330,6 +347,8 @@ def main(argv=None):
                           supplements=(show_json(args.base, supplement), show_json(args.head, supplement)) if supplement else (None, None),
                           manifests=(show_json(args.base, 'SOURCE-MANIFEST.json'), show_json(args.head, 'SOURCE-MANIFEST.json'))
                           if 'SOURCE-MANIFEST.json' in files else (None, None),
+                          manifest_bytes=(show(args.base, 'SOURCE-MANIFEST.json'), show(args.head, 'SOURCE-MANIFEST.json'))
+                          if 'SOURCE-MANIFEST.json' in files else (None, None),
                           nightly=nightly_conclusions(), auto_merge=bool(config.get('review_auto_merge')))
         result['files'] = files
         if args.out:
@@ -377,7 +396,8 @@ def main(argv=None):
         for name in sorted(set(manifest['files']) | {str(p.relative_to(ROOT)).replace('\\', '/') for p in (ROOT / 'docs' / 'rechecks').glob('*')}):
             if allowed(name) and (ROOT / name).is_file():
                 manifest['files'][name] = hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-        path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+        # Bytes, not text mode: on Windows text mode writes CRLF and rewrites every line (PR #131).
+        path.write_bytes((json.dumps(manifest, indent=2, ensure_ascii=False) + '\n').encode('utf-8'))
         print('SOURCE-MANIFEST.json review-file hashes refreshed')
         return 0
     return 2
