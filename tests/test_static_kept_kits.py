@@ -31,7 +31,8 @@ class KeptKits(unittest.TestCase):
         previous = m.previous_kit_records('gold')
         omeda = {o['slug']: o for o in previous['omeda']}
         self.assertEqual(previous['omeda_fetched_at'], self.saved['sources']['omeda_heroes']['fetched_at'])
-        self.assertEqual(previous['heroes_fetched_at'], self.saved['generated_at'])
+        self.assertEqual(previous['heroes_fetched_at']['grim-exe'], self.saved['generated_at'])
+        self.assertEqual(previous['omeda_collector'], (self.saved.get('collector') or {}).get('host') or 'unrecorded')
         grim = self.records['heroes']['grim-exe']
         self.assertEqual([a['key'] for a in omeda['grim-exe']['abilities']], [a['key'] for a in grim['abilities']],
                          'official audit paths refer to ability indexes, so the order is kept')
@@ -57,6 +58,36 @@ class KeptKits(unittest.TestCase):
             self.assertEqual(warning[0]['severity'], 'warning')
             self.assertIn(hero.get('display_name') or slug, warning[0]['detail'])
             m.enrich_bundle(bundle, bundle['official'])
+
+    def test_a_kit_kept_again_keeps_its_original_date_and_collector(self):
+        # Review finding on PR #142: a second failed collection must not restamp a kept kit with the newer bundle's date.
+        older = '2026-10-09T18:00:00-05:00'
+        saved = copy.deepcopy(self.saved)
+        saved['heroes']['grim-exe']['kit_kept_from_previous'] = older
+        saved['sources']['omeda_heroes'] = dict(saved['sources']['omeda_heroes'], status='retained', fetched_at=older)
+        saved['collector'] = {'host': 'cloud'}
+        saved['retained_sources'] = {'omeda': {'collector': 'windows', 'fetched_at': older}}
+        m.save_bundle(saved, self.tmp / 'last_available_gold.json', False)
+        previous = m.previous_kit_records('gold')
+        self.assertEqual(previous['heroes_fetched_at']['grim-exe'], older)
+        self.assertEqual(previous['heroes_fetched_at']['grux'], saved['generated_at'])
+        self.assertEqual((previous['omeda_fetched_at'], previous['omeda_collector']), (older, 'windows'))
+        bundle = copy.deepcopy(self.records)
+        bundle['heroes']['grim-exe'].pop('abilities')
+        m.keep_previous_kits(bundle, 'gold')
+        self.assertEqual(bundle['heroes']['grim-exe']['kit_kept_from_previous'], older)
+        self.assertIn('(kit from ' + older + ')', [e for e in bundle['errors'] if e['source'] == 'Hero kits'][0]['detail'])
+
+    def test_retained_omeda_kits_name_who_fetched_them(self):
+        import static_publish as p
+        p.validate_collector({'collector': {'host': 'cloud', 'retained_from': {'omeda': 'windows'}}})
+        with self.assertRaises(ValueError):
+            p.validate_collector({'collector': {'host': 'cloud', 'retained_from': {'omeda': 'someone else'}}})
+        src = inspect.getsource(m.collect_bundle)
+        self.assertIn("bundle.setdefault('retained_sources',{})['omeda']", src)
+        self.assertLess(src.index('attach_retained_statz(bundle'), src.index("['omeda']={'collector'"),
+                        'attach_retained_statz replaces retained_sources, so the omeda record is added after it')
+        self.assertIn("('omeda', ('omeda_heroes',))", inspect.getsource(p))
 
     def test_nothing_is_invented_without_a_previous_kit(self):
         bundle = copy.deepcopy(self.records)
