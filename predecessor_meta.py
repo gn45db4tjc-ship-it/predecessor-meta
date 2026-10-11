@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.53.1"
+VERSION = "2.53.2"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1351,6 +1351,9 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
         errors.append({"source": "statz.gg", "severity": "error", "detail": "%d hero page(s) report a different patch than the tier list (%s). Those pages were EXCLUDED, not blended; see the Data tab and run Refresh Data.bat later." % (len(patch_conflicts), tier["patch"])})
     if not omeda_heroes:
         errors.append({"source": "omeda.city heroes.json", "severity": "error", "detail": omeda_meta.get("heroes_error") or "unavailable"})
+    elif omeda_meta.get("heroes_retained"):
+        errors.append({"source": "omeda.city heroes.json", "severity": "error", "detail": (omeda_meta.get("heroes_error") or "unavailable") +
+                       ". Hero kits are kept from the collection fetched " + omeda_meta["heroes_retained"]["fetched_at"] + "; Pred.gg kits replace them where collected."})
     if omeda_items is None and omeda_meta.get("items_error"):
         errors.append({"source": "omeda.city items.json", "severity": "warning", "detail": omeda_meta["items_error"]})
     for p in SETTINGS_PROBLEMS:
@@ -1384,7 +1387,12 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
                                  "mean_secs": None if offline else round(sum((r.get("secs") or 0) for r in page_results.values() if r.get("ok")) / max(1, ok_pages), 2),
                                  "offline": offline, "blocked": blocked},
             "omeda_heroes": {"url": OMEDA_BASE + "/heroes.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("heroes_secs"),
-                             "count": len(omeda_heroes or []), "status": ("offline (read from disk)" if omeda_meta.get("offline") else "ok") if omeda_heroes else "failed", "error": omeda_meta.get("heroes_error")},
+                             "count": len(omeda_heroes or []), "status": ("offline (read from disk)" if omeda_meta.get("offline") else "ok") if omeda_heroes else "failed", "error": omeda_meta.get("heroes_error")}
+                            if not omeda_meta.get("heroes_retained") else
+                            {"url": OMEDA_BASE + "/heroes.json", "fetched_at": omeda_meta["heroes_retained"]["fetched_at"], "secs": None,
+                             "count": len(omeda_heroes or []), "status": "retained", "error": omeda_meta.get("heroes_error"),
+                             "attempted_at": omeda_meta.get("fetched_at"),
+                             "note": "This collection could not read omeda.city heroes.json; the kits of the previous collection are kept with their original fetch date. Pred.gg kits replace them where collected."},
             "omeda_items": {"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("items_secs"),
                             "count": len(omeda_items or []), "status": ("offline (read from disk)" if omeda_meta.get("offline") else "ok") if omeda_items else "failed", "error": omeda_meta.get("items_error")},
         },
@@ -3045,7 +3053,7 @@ def bundle_has_current_primary(b):
         scoped.get('status')=='ok' and game.get('status')=='ok' and
         scoped.get('patch')==official.get('live',{}).get('version')==game.get('cohort',{}).get('patch') and
         scoped.get('bracket')==b.get('bracket',{}).get('segment') and
-        b.get('sources',{}).get('omeda_heroes',{}).get('status')=='ok')
+        b.get('sources',{}).get('omeda_heroes',{}).get('status') in ('ok','retained'))
 
 
 def hero_page_coverage(requested, ok, failed=0, conflicting=0):
@@ -3160,6 +3168,8 @@ def bundle_has_fresh_statz(b):
         for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items'):
             source = b['sources'][key]
             age = timestamp_age(source.get('fetched_at'))
+            if key == 'omeda_heroes' and source.get('status') == 'retained' and not source.get('offline') and age is not None:
+                continue   # kits kept from the previous collection keep their own date; they are not called fresh (2.53.2)
             if source.get('status') != expected.get(key, 'ok') or source.get('offline') or age is None:
                 return False
             # Fresh means fetched in this collection, not recently repackaged.
@@ -3397,6 +3407,76 @@ def previous_pred_bundle(bracket):
     return next((value for _, value in candidates if has_pred(value)), candidates[0][1])
 
 
+KIT_FIELDS = ('key', 'display_name', 'image', 'cooldown', 'cost', 'game_description', 'menu_description')
+
+
+def previous_kit_records(bracket):
+    """The source kits (before review and Pred.gg) of the newest saved collection of this bracket, or None.
+
+    {'heroes': {slug: [abilities]}, 'heroes_fetched_at': generated_at, 'omeda': [heroes.json entries] or [],
+    'omeda_fetched_at': that collection's omeda.city date}. omeda.city stopped updating heroes.json before 1.17 (2.52.1),
+    so its kits are the same text a day later; Statz-only kits (a hero not on omeda.city) come from that hero's page."""
+    candidates = []
+    for name in ('last_available_', 'last_successful_', 'last_primary_'):
+        try:
+            value = load_bundle(DATA_DIR / (name + bracket + '.json'))
+            if isinstance(value, dict) and value.get('schema') == 3 and (value.get('bracket') or {}).get('segment') == bracket:
+                age = timestamp_age(value.get('generated_at'))
+                if age is not None: candidates.append((age, value))
+        except Exception:   # a damaged saved file is skipped
+            pass
+    for _, value in sorted(candidates, key=lambda pair: pair[0]):
+        try:
+            records = source_records_before_review(value)
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            continue
+        heroes = {slug: [{k: a.get(k) for k in KIT_FIELDS} for a in h.get('abilities') or [] if isinstance(a, dict)]
+                  for slug, h in (records.get('heroes') or {}).items() if isinstance(h, dict) and h.get('abilities')}
+        if not heroes:
+            continue
+        source = (value.get('sources') or {}).get('omeda_heroes') or {}
+        omeda = []
+        if source.get('status') in ('ok', 'retained') and timestamp_age(source.get('fetched_at')) is not None:
+            for slug, h in records['heroes'].items():
+                o = h.get('omeda') if isinstance(h, dict) else None
+                if isinstance(o, dict) and o.get('id') is not None and heroes.get(slug):
+                    omeda.append({'id': o['id'], 'slug': slug, 'name': o.get('name'), 'display_name': h.get('display_name'),
+                                  'roles': o.get('roles') or [], 'classes': o.get('classes') or h.get('classes') or [],
+                                  'image': o.get('image'), 'abilities': copy.deepcopy(heroes[slug])})
+        return {'heroes': heroes, 'heroes_fetched_at': value['generated_at'], 'omeda': omeda,
+                'omeda_fetched_at': source.get('fetched_at') if omeda else None}
+    return None
+
+
+def keep_previous_kits(bundle, bracket):
+    """A hero with no kit in this collection (no omeda.city entry and its Statz page failed) keeps its kit from the
+    previous collection, marked kit_kept_from_previous with that collection's date, instead of failing the rank.
+    Returns the slugs kept (2.53.2)."""
+    missing = [slug for slug, h in bundle.get('heroes', {}).items() if not h.get('abilities')]
+    previous = previous_kit_records(bracket) if missing else None
+    kept = []
+    for slug in missing:
+        abilities = (previous or {}).get('heroes', {}).get(slug)
+        if not abilities:
+            continue
+        h = bundle['heroes'][slug]
+        h['abilities'] = copy.deepcopy(abilities)
+        h['kit_kept_from_previous'] = previous['heroes_fetched_at']
+        for a in h['abilities']:
+            a['text'] = clean_text(a.get('menu_description') or a.get('game_description'))
+            a['game_text'] = clean_text(a.get('game_description'))
+        try:
+            h['tags'], h['tag_evidence'] = derive_tags(h); h['tags_source'] = 'kit kept from the previous collection'
+        except Exception:
+            pass
+        kept.append(slug)
+    if kept:
+        bundle.setdefault('errors', []).append({'source': 'Hero kits', 'severity': 'warning',
+            'detail': 'No kit was collected this time for ' + ', '.join(bundle['heroes'][s].get('display_name') or s for s in kept) +
+                      '; their kits are kept from the collection of ' + previous['heroes_fetched_at'] + '. Pred.gg kits replace them where collected.'})
+    return kept
+
+
 def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     started = time.perf_counter(); bracket = settings['bracket']; ABORT.clear()
     tier_error=None; retained=None; tier_attempt=iso(now_utc())
@@ -3435,7 +3515,11 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
             official={'status':'unverified','error':'Fixture validation; no live patch check.'}; omeda_meta['offline']=True
         else:
             try: kits, omeda_meta['heroes_secs'] = fh.result()
-            except Exception as e: kits=[]; omeda_meta['heroes_error']=str(e)
+            except Exception as e:
+                kits=[]; omeda_meta['heroes_error']=str(e)
+                previous_kits=previous_kit_records(bracket)
+                if previous_kits and previous_kits['omeda']:
+                    kits=previous_kits['omeda']; omeda_meta['heroes_retained']={'fetched_at':previous_kits['omeda_fetched_at']}
             try: omitems, omeda_meta['items_secs'] = fi.result()
             except Exception as e: omitems=None; omeda_meta['items_error']=str(e)
             progress('Verifying official patch notes and supporting history…')
@@ -3458,6 +3542,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
                 'roles_order':roles,'roles':{r:{'status':'unavailable','error':'No Statz sample in this bracket.'} for r in roles},
                 'abilities':copy.deepcopy(o.get('abilities',[])),'classes':o.get('classes',[]),'statz_roles':[], 'tier_roles':[]}
     if tier_error:attach_retained_statz(bundle,retained,tier_error,tier_attempt)
+    if not fixture_dir:keep_previous_kits(bundle,bracket)
     enrich_bundle(bundle,official)
     if not fixture_dir:
         progress('Checking current-patch Pred.gg community guides…')
