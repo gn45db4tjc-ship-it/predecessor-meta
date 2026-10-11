@@ -43610,7 +43610,7 @@
           "role": "jungle",
           "tier": "A",
           "why": "Shield Bash and Shield Slam provide clear catch conversion, while Force Shield can protect an approach or the backline.",
-          "watch": "Jungle rests on a much smaller sample than support, and the early 1.17 jungle sample is too small to judge. Heavy Metal attacks no longer break spell shields, so bring a real answer before engaging.",
+          "watch": "Jungle rests on a much smaller sample than support. His 1.17 jungle results sit below even and below his 1.16.4 review rate, though not clearly, and the only 1.17 change to his plan is the narrow Heavy Metal spell-shield interaction, so A stays for now; it drops to B if a larger sample's interval excludes 52.6%. Heavy Metal attacks no longer break spell shields, so bring a real answer before engaging.",
           "ability_keys": [
             "LMB",
             "RMB",
@@ -43618,12 +43618,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 52.63870094722598,
-            "wonGames": 389,
-            "matches": 739,
-            "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-09-14T17:20:00-05:00"
-          }
+            "winRate": 49.6206373292868,
+            "wonGames": 327,
+            "matches": 659,
+            "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+            "fetched_at": "2026-10-08T13:56:59-05:00"
+          },
+          "rechecked_at": "2026-10-09T02:25:00-05:00"
         },
         {
           "slug": "terra",
@@ -58863,6 +58864,16 @@
         ],
         "scope": "Triggered pass for the 1 queued withheld grade (shinbi/jungle), against the live bundles published 2026-10-06T19:17:22+00:00 (tool 2.52.2; Gold+ collection generated 2026-10-06T13:56:34-05:00, Pred.gg 1.17 + Hotfix 1.17.1, versions 167 and 168, status ok). Not a full review.",
         "ledger": "docs/rechecks/2026-10-06-1433-ledger.json",
+        "result": "0 changed, 1 checked and retained, 0 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-09T02:25:00-05:00",
+        "items": [
+          "grade-moved:steel/jungle"
+        ],
+        "scope": "Triggered pass for the 1 queued withheld grade (steel/jungle), against the live bundles published 2026-10-09T07:00:11+00:00 (tool 2.53.0; Gold+ collection generated 2026-10-08T14:00:55-05:00, Pred.gg 1.17 + Hotfix 1.17.1, versions 167 and 168, status ok). Not a full review.",
+        "ledger": "docs/rechecks/2026-10-09-0212-ledger.json",
         "result": "0 changed, 1 checked and retained, 0 unresolved"
       }
     ]
