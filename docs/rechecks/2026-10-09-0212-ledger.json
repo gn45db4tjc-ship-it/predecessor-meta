@@ -1,0 +1,124 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 9 Oct 2026 02:12 (1 withheld grade)",
+ "reviewed_at": "2026-10-09T02:25:00-05:00",
+ "reviewer": "Claude (Opus 5.5), scheduled recheck runner (predecessor-meta-rechecks)",
+ "scope": "Triggered pass for the 1 queued withheld grade (steel/jungle), against the live bundles published 2026-10-09T07:00:11+00:00 (tool 2.53.0; Gold+ collection generated 2026-10-08T14:00:55-05:00, Pred.gg 1.17 + Hotfix 1.17.1, versions 167 and 168, status ok). Not a full review.",
+ "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard: a grade moves one step at most, a move needs a kit or patch reason plus evidence the same way, a drop without a kit reason needs the whole-line 95% interval to exclude the previous-patch review rate (with at least 500 games), and a high rate alone never raises a grade.",
+ "evidence": {
+  "manifest_published_at": "2026-10-09T07:00:11+00:00",
+  "tool_version": "2.53.0",
+  "collection": "2026-10-08T14:00:55-05:00 (Gold+ bundle generated_at)",
+  "statistics": "Pred.gg ranked, versions 167 and 168, status ok",
+  "official": "Patch_Notes_1.17 (with Hotfix 1.17.1) and Patch_Notes_1.16.4 as embedded in the bundle, fetched 2026-10-08T13:56:33-05:00",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+ },
+ "summary": {
+  "changed": 0,
+  "checked and retained": 1,
+  "unresolved": 0
+ },
+ "entries": [
+  {
+   "kind": "grade",
+   "slug": "steel",
+   "role": "jungle",
+   "queue_id": "grade-moved:steel/jungle",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "A retained, flagged. The engine withheld the grade for 'Statistics moved since review': the entry still cited the 1.16.4 Gold+ jungle sample (52.6% over 739), and the whole 1.17 line (versions 167 and 168) is now 49.6% over 659 [45.82, 53.43]. That interval still includes 52.6%, so the drop rule without a kit reason does not apply. The only 1.17 change that touches his jungle plan is the official statement that Heavy Metal basic attacks no longer destroy spell shields: a narrow interaction, not a numbers change to his kit, and the 2.34 review already weighed it when it retained A. The official 1.17 notes and Hotfix 1.17.1 list no other Steel change (his last listed changes are the 1.16.4 Shield Bash max-health and monster-damage increases, before the 2.34 review), and the one 1.17 jungle-related change found, the Forage perk XP cut, is not in his plan (Fire Blossom, Dynamo, Flux Matrix, Giant's Ring, Unbroken Will, Stonewall; Saphir's Mantle, Heavy Metal, Krix with Regenerative Tissue and Predator). The 2.34 review's own 1.17 sample was 48.4% over 62, so the games since review are about 49.7% over 597, the same level as the whole line, and the bundle's previous collection had 49.3% over 635, so the result is stable rather than a recent fall. Among A junglers he is second lowest by rate (Serath 49.1% over 5722 is lower), and Rampage jungle A was retained on 27 Sep at 49.6% over 779 with no kit change. Bronze+ is 49.3% over 1141 [46.45, 52.24] (nested, so not independent). The watch text no longer calls the 1.17 sample too small to judge and states the drop trigger. The reference sample is rebased to the whole 1.17 line.",
+   "limitation": "659 games, interval about plus or minus 4 points; the upper bound clears the 52.6% review rate by only 0.8 points, so this is a close call, and a larger sample may meet the drop rule. How much the Heavy Metal spell-shield change costs him is not measured. The nested Bronze+ interval already excludes 52.6%, but Bronze+ is not the reference cohort. The review rate is the 1.16.4 sample the 2.34 entry cited (52.6% over 739); the whole 1.16.4 Gold+ line in the bundle's comparison is 53.1% over 1007, which the interval also includes. No in-game test.",
+   "reviewed_at": "2026-10-09T02:25:00-05:00",
+   "evidence": {
+    "winRate": 49.6206373292868,
+    "wonGames": 327,
+    "matches": 659,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-08T13:56:59-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 49.62,
+     "matches": 659,
+     "wonGames": 327,
+     "interval95": [
+      45.82,
+      53.43
+     ],
+     "fetched_at": "2026-10-08T13:56:59-05:00",
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "previous_collection": {
+     "winRate": 49.29,
+     "matches": 635,
+     "wonGames": 313,
+     "note": "scoped_changes vs_previous_run 'before' in the same Gold+ bundle."
+    },
+    "bronze_nested": {
+     "winRate": 49.34,
+     "matches": 1141,
+     "wonGames": 563,
+     "interval95": [
+      46.45,
+      52.24
+     ],
+     "fetched_at": "2026-10-08T14:01:23-05:00"
+    },
+    "at_review": {
+     "winRate": 52.64,
+     "matches": 739,
+     "wonGames": 389,
+     "patch": "1.16.4",
+     "fetched_at": "2026-09-14T17:20:00-05:00",
+     "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "previous_patch_whole_line": {
+     "winRate": 53.13,
+     "matches": 1007,
+     "wonGames": 535,
+     "note": "scoped_changes vs_previous_patch 'before' in the same Gold+ bundle (1.16.4)."
+    },
+    "review_117_sample": {
+     "winRate": 48.4,
+     "matches": 62,
+     "note": "2.34 ledger: 1.17 Gold+ at review, version 167."
+    },
+    "since_review_estimate": {
+     "winRate": 49.75,
+     "matches": 597,
+     "wonGames": 297,
+     "note": "Whole line minus the 2.34 review sample (30 of 62); assumes that sample is contained in the whole line."
+    },
+    "a_jungle_peers": {
+     "serath": "49.1% over 5722",
+     "wukong": "50.8% over 1307",
+     "rampage": "51.8% over 3541",
+     "boris": "51.9% over 4033",
+     "khaimera": "53.0% over 9375",
+     "yin": "53.6% over 2696"
+    },
+    "interval_includes_review_rate": true,
+    "interval_side": "includes the review rate (upper bound 53.43 against 52.64); the drop rule does not apply"
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-08T13:56:59-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-08T14:01:23-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-08T13:56:33-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-08T13:56:33-05:00"
+    }
+   ]
+  }
+ ]
+}
