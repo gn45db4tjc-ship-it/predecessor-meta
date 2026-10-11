@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.53.1
+# Predecessor Meta - 2.53.2
 
-2.53.1 keeps a Pred.gg role's last good numbers when its page fails. On 10 Oct 2026 Pred.gg returned HTTP 500 for the jungle, offlane and midlane pages, and those roles' Meta tables were empty until the next good collection. The collector now keeps a failed role's rows from the previous collection of the same patch and rank, at most 30 hours old, with their original dates; the website and the app label them as kept, never as fresh, and no Statz numbers stand in. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.53.1.md](RELEASE-2.53.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.53.2 stops one missing hero kit from failing a whole rank's collection. On 10 Oct 2026 at 21:00 CDT the collection failed on Gold, Bronze, Silver, Platinum and Diamond with "Unknown or duplicate sequence-review ability"; the same night omeda.city's heroes.json failed with an SSL error (recorded on Paragon, whose run got further). Without omeda.city a hero's kit came only from its Statz page, so a hero with no Statz page in that rank had no kit, and checking the reviewed packet against it aborted the rank. The collector now keeps omeda.city's kits from the previous collection with their original date (labelled retained, never fresh), and any hero still without a kit keeps its previous kit, named in a warning. Paragon's Pred.gg HTTP 500s were Pred.gg's own outage; they stay recorded and are handled as before. The fix takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.53.2.md](RELEASE-2.53.2.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.53.1
+
+2.53.1 keeps a Pred.gg role's last good numbers when its page fails. On 10 Oct 2026 Pred.gg returned HTTP 500 for the jungle, offlane and midlane pages, and those roles' Meta tables were empty until the next good collection. The collector now keeps a failed role's rows from the previous collection of the same patch and rank, at most 30 hours old, with their original dates; the website and the app label them as kept, never as fresh, and no Statz numbers stand in. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.53.1.md](RELEASE-2.53.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.53.0
 

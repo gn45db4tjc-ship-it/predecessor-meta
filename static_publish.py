@@ -192,7 +192,7 @@ def validate_collector(bundle):
         raise ValueError('Bundle carries an invalid collector record')
     if 'retained_from' in collector:
         origin = collector['retained_from']
-        if not isinstance(origin, dict) or not origin or set(origin) - {'statz', 'pred'} or any(v not in COLLECTOR_HOSTS + ('unrecorded',) for v in origin.values()):
+        if not isinstance(origin, dict) or not origin or set(origin) - {'statz', 'pred', 'omeda'} or any(v not in COLLECTOR_HOSTS + ('unrecorded',) for v in origin.values()):
             raise ValueError('Bundle carries an invalid collector retained_from')
     for key in ('run_id', 'run_attempt', 'tool_version'):
         value = collector.get(key)
@@ -749,7 +749,7 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                     # retained), not only who assembled this bundle.
                     sources, kept = bundle.get('sources') or {}, bundle.get('retained_sources') or {}
                     origin = {name: (kept.get(name) or {}).get('collector') or 'unrecorded'
-                              for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')))
+                              for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')), ('omeda', ('omeda_heroes',)))
                               if any((sources.get(k) or {}).get('status') == 'retained' for k in keys)}
                     if origin:
                         bundle['collector']['retained_from'] = {k: (v if v in COLLECTOR_HOSTS else 'unrecorded') for k, v in origin.items()}
