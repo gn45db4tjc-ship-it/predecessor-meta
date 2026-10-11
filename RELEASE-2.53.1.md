@@ -48,4 +48,10 @@ A partial collection, even one whose only failed page is the all-roles page, wit
 
 ## Verification
 
-See the owner report for the suite results of this commit.
+- **Tests first:** `tests/test_static_partial_pred_roles.py` and probe PF1 failed on 2.53.0 and pass now. The ledger's open list is empty.
+- **Real-data replay:** the last 20 Gold+ bundles on the Windows feed were replayed. Only the partial ones change: 10 Oct 15:09 CDT keeps jungle, offlane and midlane. 10 Oct 18:07 CDT, where only the all-roles page failed, keeps nothing because every role was fresh. Each result passes the publisher's projection.
+- **Suites:**
+  - Python static tests: 433 pass (1 skipped). Node tests: 404 pass.
+  - The 11 CI browser suites against the committed seed: all pass. The audit suite's 229 probes match the ledger.
+  - `browser_visor_look`: 35 checks, no errors.
+  - `browser_release_upgrade` from 2.53.0 to 2.53.1 passes in Edge and WebKit.
