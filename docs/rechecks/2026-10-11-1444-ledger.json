@@ -1,0 +1,226 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 11 Oct 2026 14:44 (weekly pass 2026-W41)",
+ "reviewed_at": "2026-10-11T15:05:00-05:00",
+ "reviewer": "Claude (Opus 5.5), scheduled recheck runner (predecessor-meta-rechecks)",
+ "scope": "Weekly backstop for 2026-W41 (the only queued item), against the live bundles published 2026-10-11T19:29:01+00:00 (tool 2.53.1; collection of 2026-10-11 08:09-08:11 UTC). Every inactive plan on any rank (7) was checked. No Gold+ grade was rechecked: the Gold+ reference bundle has no Pred.gg statistics (scoped_statistics failed), so all 86 reviewed grades show \"Review covers a different cohort\" and none is withheld for moved statistics. Not a full review.",
+ "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard: a grade moves one step at most, a move needs a kit or patch reason plus evidence the same way, a drop without a kit reason needs the whole-line 95% interval to exclude the previous-patch review rate, and a high rate alone never raises a grade. Without the reference sample no grade can be judged, so none is touched.",
+ "evidence": {
+  "manifest_published_at": "2026-10-11T19:29:01+00:00",
+  "tool_version": "2.53.1",
+  "collection": "2026-10-11T08:09:50+00:00 (Gold+ bundle generated_at)",
+  "statistics": "Gold+: Pred.gg current-patch statistics failed (\"no structured page responses found\"); no Gold+ Pred.gg sample. Bronze+, Silver+, Platinum+, Diamond+ and Paragon+ carry retained Pred.gg samples (1.17, versions 167 and 168, fetched 10 Oct about 18:12 CDT), which are not the reference cohort.",
+  "official": "Patch_Notes_1.17 (with Hotfix 1.17.1, fingerprint 7d2dd627b5a5...) fetched 2026-10-11T08:09:27+00:00; Patch_Notes_1.16.4 (0ca8b1077b09...) fetched 2026-10-11T08:09:29+00:00; both match article_fingerprints. Patch_Notes_1.17.2 is announced (release date 2026-10-13), not live.",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+ },
+ "summary": {
+  "changed": 0,
+  "checked and retained": 0,
+  "unresolved": 7
+ },
+ "entries": [
+  {
+   "kind": "plan",
+   "slug": "akeron",
+   "role": "support",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role with no Statz page in any rank and a small current-patch sample; 1.17 lowered Akeron's magical-power scaling. Role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "ikra",
+   "role": "support",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role with no Statz page in any rank and a small current-patch sample. Role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "maco",
+   "role": "midlane",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role: 6 current-patch Bronze+ games and no Statz page in any rank. The loadout is valid but role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role with no usable sample; kept out of automatic suggestions. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "scarlett",
+   "role": "midlane",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role: 6 current-patch Bronze+ games and no Statz page in any rank. The loadout is valid but role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role with no usable sample; kept out of automatic suggestions. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "the-fey",
+   "role": "carry",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role: 5 current-patch Bronze+ games and no Statz page in any rank. Role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wraith",
+   "role": "support",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role with no Statz page in any rank and a small current-patch sample. Role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wukong",
+   "role": "offlane",
+   "queue_id": "weekly:2026-W41",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because its 2.32 patch review left it unresolved as an experimental role (\"Experimental role: 20 current-patch Bronze+ games and no Statz page; 1.17 deliberately reduced Wukong's offlane value (Windsurge damage, base durability, clone gold). Role strength cannot be established.\"). No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17 with Hotfix 1.17.1, 1.16.4) carry the same fingerprints as the reviewed packet. The Gold+ reference cohort has no Pred.gg statistics in this collection (Pred.gg returned no structured page responses), so there is no new Gold+ sample, and nothing that could establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities. No current Gold+ sample in this collection; role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the retained Pred.gg definitions (fetched 2026-10-10T18:07:07-05:00; the 11 Oct refresh failed)"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-11T15:05:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-11T08:09:27+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+     "fetched_at": "2026-10-11T08:09:29+00:00"
+    },
+    {
+     "url": "https://pred.gg",
+     "fetched_at": "2026-10-10T18:07:07-05:00"
+    }
+   ]
+  }
+ ]
+}
