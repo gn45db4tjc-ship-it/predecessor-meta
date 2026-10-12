@@ -45,7 +45,7 @@ dialog h2{text-transform:none;letter-spacing:.01em}   /* dialog titles keep the 
 .patch-cell strong{font-family:var(--display);font-weight:800}
 
 /* ---- the hero plate: dark in both themes, the portrait as art on the right, a ghost name behind ---- */
-.hero-header{--hero-art:none;--text:var(--on-plate);--text-2:var(--on-plate-2);--muted:var(--on-plate-2);--brand-text:var(--brand-sheen);
+.hero-header{--hero-art:none;--text:var(--on-plate);--text-2:var(--on-plate-2);--muted:var(--on-plate-2);--amber:var(--on-plate-warn);--brand-text:var(--brand-sheen);
   position:relative;isolation:isolate;overflow:hidden;color:var(--on-plate);background:var(--plate);border:0;border-radius:0;box-shadow:none;
   clip-path:polygon(0 0,100% 0,100% calc(100% - var(--s5)),calc(100% - var(--s5)) 100%,0 100%)}
 .hero-header::before{content:"";position:absolute;inset:0 0 0 auto;width:64%;z-index:-2;background:var(--hero-art) 50% 18%/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,black 48%);mask-image:linear-gradient(90deg,transparent,black 48%)}
@@ -137,7 +137,7 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
   .mobile-hero-card .mobile-stat::after{content:"";position:absolute;bottom:2px;height:4px;left:calc(50% + min(0,var(--wr-d)) * 50%);width:calc(50% * (max(0,var(--wr-d)) - min(0,var(--wr-d))));background:var(--green)}
   .mobile-hero-card[data-trend=down] .mobile-stat::after{background:var(--red)}
   /* hero plate: a lower third. The art fills the right, the slanted name sits low, actions top right */
-  .mobile-hero-head--compact{grid-template-areas:"main" "match";grid-template-columns:minmax(0,1fr);align-content:end;min-height:230px;padding:var(--s5) var(--s4) var(--s4);margin:0 0 var(--s2)}
+  .mobile-hero-head--compact{grid-template-areas:"main" "match";grid-template-columns:minmax(0,1fr);align-content:end;min-height:196px;padding:var(--s4) var(--s4) var(--s4);margin:0 0 var(--s2)}
   .mobile-hero-head--compact>.portrait{display:none}
   .mobile-hero-head--compact .hero-head-actions{position:absolute;top:var(--s3);right:var(--s3);z-index:1}
   .mobile-hero-head--compact .hero-head-actions button{background:var(--plate-stat);border-color:transparent;color:var(--on-plate);white-space:nowrap}
@@ -155,6 +155,8 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
   .simple-purchases:not(:where(.match-build)) .item-button{flex-direction:column;align-items:center;text-align:center;gap:var(--s1-5);width:100%}
   .simple-purchases:not(:where(.match-build)) .item-button img{width:52px;height:52px;box-shadow:0 0 0 1px var(--icon-glow)}
   .simple-purchases:not(:where(.match-build)) .item-name{font-size:var(--tr-xs);font-weight:600;line-height:1.25}
+  /* an icon that failed to load leaves the name at the top of the tile; keep it below the numeral (2.55.0, UI1) */
+  .simple-purchases:not(:where(.match-build)) li:has(img[data-failed]) .item-button{padding-top:var(--s6)}
   .simple-setup>div{border:0;border-radius:0;background:var(--surface-2);clip-path:polygon(var(--cut) 0,100% 0,100% 100%,0 100%,0 var(--cut))}
   .simple-setup>div:focus-within{clip-path:none}
   .simple-setup>div>small:first-child{font-family:var(--display);color:var(--brand-text);letter-spacing:.12em}

@@ -20,7 +20,7 @@ __LOCAL_HEAD__<script>try{if(localStorage.getItem('predecessor-theme')==='light'
   --line:#282f42;--line-strong:#3d4660;--control-line:#6b7896;
   --text:#f5f7fc;--text-2:#c5cbdb;--muted:#9099b0;
   --gold:#ffc44d;--indicator:#35d6ff;--gold-ink:#14110a;
-  --green:#74e0c1;--red:#ff8a9a;--blue:#c3a6ff;--amber:#f0c27a;
+  --green:#74e0c1;--red:#ff8a9a;--blue:#c3a6ff;--amber:#ffa36b;
   --gold-text:#ffd27a;--focus:#35d6ff;--on-strong:#fff;--control-hover:#8591ad;
   --green-tint:#15271f;--gold-tint:#2a220e;--amber-tint:#2b2419;--amber-tint-2:#2b201a;--blue-tint:#182238;--amber-ink:#f1e3c8;
   --observed-tint:rgba(116,224,193,.10);--observed-line:rgba(116,224,193,.34);--calculated-tint:rgba(195,166,255,.10);--calculated-line:rgba(195,166,255,.34);--reviewed-tint:rgba(255,196,77,.12);--reviewed-line:rgba(255,196,77,.36);
@@ -43,7 +43,7 @@ __LOCAL_HEAD__<script>try{if(localStorage.getItem('predecessor-theme')==='light'
   --official:#aab8c9;--official-tint:rgba(170,184,201,.12);--official-line:rgba(170,184,201,.34);
   /* broadcast (2.49): display face, slanted cuts, the dark hero plate in both themes, hatch ground */
   --display:"Saira Condensed","Saira Fallback","Saira Fallback Roboto","Arial Narrow",sans-serif;--cut:10px;--cut-lg:14px;
-  --plate:#0a0d15;--on-plate:#f5f7fc;--on-plate-2:#bfe9f7;--plate-fade:rgba(7,8,13,.94);--plate-fade-2:rgba(7,8,13,.78);--plate-clear:rgba(7,8,13,0);
+  --plate:#0a0d15;--on-plate:#f5f7fc;--on-plate-2:#bfe9f7;--on-plate-warn:#ffa36b;--plate-fade:rgba(7,8,13,.94);--plate-fade-2:rgba(7,8,13,.78);--plate-clear:rgba(7,8,13,0);
   --plate-glass:rgba(255,255,255,.1);--plate-stat:rgba(7,8,13,.62);--ghost-ink:rgba(255,255,255,.07);
   --hatch:rgba(255,255,255,.022);--brand-glow:rgba(53,214,255,.11);--brand-sheen:#a6f2ff;--icon-glow:rgba(53,214,255,.28);
   /* Broadcast Overdrive (2.51): a hot second accent for the state tag and the glow, and the light streaks over the hero art */
@@ -65,7 +65,7 @@ __LOCAL_HEAD__<script>try{if(localStorage.getItem('predecessor-theme')==='light'
   --line:#dde2eb;--line-strong:#b6bfd0;--control-line:#7a859b;--control-hover:#5d6982;
   --text:#0a0e17;--text-2:#2c3445;--muted:#566176;
   --gold:#f2b632;--gold-ink:#14110a;--gold-text:#7a5300;--indicator:#0071ab;--focus:#0071ab;--on-strong:#17233d;
-  --green:#17735a;--red:#b0273a;--blue:#6842a8;--amber:#8a5a0a;
+  --green:#17735a;--red:#b0273a;--blue:#6842a8;--amber:#9a4500;
   --green-tint:#dff3ec;--gold-tint:#fbefd0;--amber-tint:#f7ecd6;--amber-tint-2:#f7ecd6;--blue-tint:#e4e9fb;--amber-ink:#4a3204;
   --observed-tint:rgba(23,115,90,.09);--observed-line:rgba(23,115,90,.38);--calculated-tint:rgba(104,66,168,.07);--calculated-line:rgba(104,66,168,.35);--reviewed-tint:rgba(154,122,44,.12);--reviewed-line:rgba(154,122,44,.42);
   --accent-fill:#faf3e2;--accent-line:#9a7a2c;--enemy-line:#d9a9b4;--enemy-tint:#fbeef1;--enemy-text:#8a2e42;
@@ -233,7 +233,7 @@ main{max-width:var(--content-max);margin:0 auto;padding:var(--s5) var(--gutter) 
 .tag{border:0;background:var(--surface-3);color:var(--text-2)}
 .tag.observed{color:var(--green);background:var(--green-tint)}
 .tag.reviewed{color:var(--gold-text);background:var(--gold-tint)}
-.tag.warning{color:var(--amber);background:var(--amber-tint-2)}
+.tag.warning{color:var(--amber);background:transparent;box-shadow:inset 0 0 0 1px currentColor}   /* a status, not a grade: outlined orange, never a filled yellow plate (2.55.0, UI2) */
 .tag.calculated{color:var(--blue);background:var(--blue-tint)}
 .tag.official{color:var(--official);background:var(--official-tint);font-family:var(--mono)}
 .tag.saved{color:var(--text-2);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}

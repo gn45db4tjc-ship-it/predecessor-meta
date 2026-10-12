@@ -4,6 +4,10 @@
 
 ## Previous release
 
+### 2.55.0
+
+2.55.0 makes the fixes from the 12 Oct 2026 UI review. Warnings are now orange outlines instead of filled yellow chips, so a "Saved" warning no longer looks like part of an S grade. The desktop build drops its repeated labels: the "Reviewed reasoning before rates" chip, the plan eyebrow, and the warning colour on calculated plans. The hero page's "Selected rank" note moves inside the role-statistics disclosure, one tap away. A reviewed tier reads "Reviewed". The phone hero plate is 34 px shorter, and a build tile whose item icon fails to load keeps its name clear of the position number. No figure, source or evidence rule changes. See RELEASE-2.55.0.md.
+
 ### 2.54.1
 
 2.54.1 keeps the hourly official patch check working when an older patch-notes page fails to load. On 12 Oct 2026 at 08:03 UTC the Windows collector's check failed with "HTTP 404" for the v1.16.4 article, so it could not confirm that v1.17 is the live patch, although it had just loaded the v1.17 article itself. The older article is only the comparison page; the cloud's check loaded it four minutes later. Now, when the older article fails, its last verified copy is kept with its original date and named in a warning. The current patch article is always loaded live, a copy whose text no longer matches its fingerprint is never used, an access answer (403 or 429) still stops the check, and without a saved copy the check fails as before. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.54.1.md](RELEASE-2.54.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
