@@ -164,18 +164,50 @@ document.addEventListener('click',event=>{
 const LEGACY_MATCH_ROUTES=['planner','draft','live'];
 function matchMe(){return S.locks.find(p=>p.slug===S.me)||null;}
 function matchEnemies(){const me=matchMe();return S.enemies.filter(e=>!me||e.slug!==me.slug);}
-function matchSetMe(slug){
+// 2.56.0: your allies follow you in S.locks (one hero per role, never yours), and the enemy you mark as your lane
+// opponent (S.matchLane) takes your role; the enemy who held it takes theirs. Other roles are still only assigned
+// because the engine needs one hero per role.
+function matchAllies(){const me=matchMe();return me?S.locks.filter(p=>p.slug!==me.slug):[];}
+function matchFreeRole(taken,slug){return E.roles(slug).find(r=>!taken.has(r))||roleOrder.find(r=>!taken.has(r));}
+// An ally keeps a role they play (the engine checks allied roles); an ally with no free role of their own leaves.
+function matchFixRoles(){
+ const me=matchMe();if(!me)return;
+ const taken=new Set([me.role]),dropped=[],allies=[];
+ for(const a of matchAllies()){const role=taken.has(a.role)?E.roles(a.slug).find(r=>!taken.has(r)):a.role;if(!role){dropped.push(name(a.slug));continue;}taken.add(role);allies.push({slug:a.slug,role});}
+ S.locks=[me,...allies];
+ if(dropped.length)toast(dropped.join(', ')+' left'+' your team: no role they play is free.');
+ const lane=S.enemies.find(e=>e.slug===S.matchLane);
+ // No lane opponent: enemy roles go back to the order they were added, so no enemy keeps your role from a cleared lane.
+ if(!lane){S.matchLane='';const t=new Set();S.enemies=S.enemies.map(e=>{const role=matchFreeRole(t,e.slug);t.add(role);return {...e,role};});return;}
+ if(lane.role!==me.role){const old=lane.role;S.enemies=S.enemies.map(e=>e.slug===lane.slug?{...e,role:me.role}:e.role===me.role?{...e,role:old}:e);}
+}
+function matchSetMe(slug,wanted){
  if(!E.heroes[slug])throw Error('Choose an available hero.');
- // Default to a role with an active reviewed build, so the adapted build has a plan to start from.
- const current=matchMe(),roles=E.roles(slug),role=current?.slug===slug?current.role:roles.find(r=>E.buildReview(slug,r)?.active)||roles[0];
- S.enemies=S.enemies.filter(e=>e.slug!==slug);S.bans=[];S.locks=[{slug,role}];S.me=slug;S.liveVariant=null;S.matchPicking='enemy';save();
+ // Default to a role with an active reviewed build, so the adapted build has a plan to start from. A role asked for
+ // (the hero page's Use in Match) wins; your allies stay either way.
+ const current=matchMe(),roles=E.roles(slug),role=roles.includes(wanted)?wanted:current?.slug===slug?current.role:roles.find(r=>E.buildReview(slug,r)?.active)||roles[0],allies=matchAllies().filter(a=>a.slug!==slug);
+ S.enemies=S.enemies.filter(e=>e.slug!==slug);S.bans=[];S.locks=[{slug,role},...allies];S.me=slug;S.liveVariant=null;S.matchPicking='enemy';matchFixRoles();save();
 }
 function matchAddEnemy(slug){
  const me=matchMe();if(!E.heroes[slug]||slug===me?.slug)throw Error('Choose an available enemy hero.');
- if(S.enemies.some(e=>e.slug===slug)){S.enemies=S.enemies.filter(e=>e.slug!==slug);save();return;}
+ if(S.enemies.some(e=>e.slug===slug)){S.enemies=S.enemies.filter(e=>e.slug!==slug);if(S.matchLane===slug)S.matchLane='';save();return;}
+ if(matchAllies().some(a=>a.slug===slug))throw Error(name(slug)+' is on your team. Remove them from your team first.');
  if(S.enemies.length>=5)throw Error('An enemy team has five heroes. Remove one first.');
- const taken=new Set(S.enemies.map(e=>e.role)),role=E.roles(slug).find(r=>!taken.has(r))||roleOrder.find(r=>!taken.has(r));
+ const taken=new Set(S.enemies.map(e=>e.role)),role=matchFreeRole(taken,slug);
  S.enemies=[...S.enemies,{slug,role}];save();
+}
+function matchAddAlly(slug){
+ const me=matchMe();if(!me||!E.heroes[slug]||slug===me.slug)throw Error('Choose an available ally.');
+ if(matchAllies().some(a=>a.slug===slug)){S.locks=S.locks.filter(a=>a.slug!==slug);save();return;}
+ if(S.enemies.some(e=>e.slug===slug))throw Error(name(slug)+' is on the enemy team. Remove them from the enemy team first.');
+ if(S.locks.length>=5)throw Error('Your team has five heroes. Remove an ally first.');
+ const role=E.roles(slug).find(r=>!S.locks.some(a=>a.role===r));
+ if(!role)throw Error(name(slug)+' plays '+E.roles(slug).map(r=>labels[r]).join(' or ')+', already taken on your team.');
+ S.locks=[...S.locks,{slug,role}];save();
+}
+function matchSetLane(slug){
+ if(!S.enemies.some(e=>e.slug===slug))throw Error('Choose an enemy hero for your lane.');
+ S.matchLane=S.matchLane===slug?'':slug;matchFixRoles();save();
 }
 function matchTeamTypes(profile){
  const who=list=>list?.length?' · '+list.map(s=>name(s)).join(', '):'',types=[];
@@ -189,18 +221,21 @@ function matchTeamTypes(profile){
  return types;
 }
 function matchGridHTML(mode){
- const me=matchMe(),chosen=new Set(S.enemies.map(e=>e.slug));
+ const me=matchMe(),ally=mode==='ally',chosen=new Set((ally?matchAllies():S.enemies).map(e=>e.slug)),other=new Set((ally?S.enemies:matchAllies()).map(e=>e.slug));
  // 2.50.0: when you choose your own hero, your favorites and recent heroes come first, then everyone alphabetically.
  const mine=mode==='me'?[...new Set([...companionPrefs.favorites.map(v=>v.split('|')[0]),...companionPrefs.recent.map(p=>p.slug)])].filter(s=>E.heroes[s]):[];
- const heroes=mine.concat(Object.keys(E.heroes).filter(s=>(mode==='me'||s!==me?.slug)&&!mine.includes(s)).sort((a,b)=>name(a).localeCompare(name(b))));
- return `<label class="match-search">${mode==='me'?'Find your hero':'Find an enemy hero'}<input id="match-search" type="search" autocomplete="off" placeholder="Hero name"></label>
- <div class="match-grid" role="group" aria-label="${mode==='me'?'Choose your hero':'Enemy heroes'}">${heroes.map(s=>`<button type="button" class="match-hero" data-match-pick="${esc(s)}" data-match-mode="${mode}" data-name="${esc(name(s).toLowerCase())}" ${mode==='enemy'?`aria-pressed="${chosen.has(s)}"`:''}${mine.includes(s)?' data-mine="true"':''}>${art(s,'tiny')}<span>${esc(name(s))}</span></button>`).join('')}</div>`;
+ // 2.56.0: a hero on the other team is left out of the ally and enemy grids.
+ const heroes=mine.concat(Object.keys(E.heroes).filter(s=>(mode==='me'||s!==me?.slug&&!other.has(s))&&!mine.includes(s)).sort((a,b)=>name(a).localeCompare(name(b))));
+ return `<label class="match-search">${mode==='me'?'Find your hero':ally?'Find an ally':'Find an enemy hero'}<input id="${ally?'match-ally-search':'match-search'}" type="search" autocomplete="off" placeholder="Hero name"></label>
+ <div class="match-grid" role="group" aria-label="${mode==='me'?'Choose your hero':ally?'Allied heroes':'Enemy heroes'}">${heroes.map(s=>`<button type="button" class="match-hero" data-match-pick="${esc(s)}" data-match-mode="${mode}" data-name="${esc(name(s).toLowerCase())}" ${mode!=='me'?`aria-pressed="${chosen.has(s)}"`:''}${mine.includes(s)?' data-mine="true"':''}>${art(s,'tiny')}<span>${esc(name(s))}</span></button>`).join('')}</div>`;
 }
 // One adaptBuild per enemy line-up: the Enemy team summary and the result below share it.
+// 2.56.0: allies reach the engine (team advice) and the lane opponent is the primary threat.
 function matchAdapted(me,enemies){
- const choice=buildSelection(me),key=[me.slug,me.role,choice.status,choice.index,enemies.map(e=>e.slug+':'+e.role).join(',')].join('|'),c=matchAdapted.cache;
+ const allies=matchAllies(),lane=enemies.some(e=>e.slug===S.matchLane)?S.matchLane:null;
+ const choice=buildSelection(me),key=[me.slug,me.role,choice.status,choice.index,enemies.map(e=>e.slug+':'+e.role).join(','),allies.map(a=>a.slug+':'+a.role).join(','),lane].join('|'),c=matchAdapted.cache;
  if(c&&c.key===key&&c.E===E)return c.a;
- let a;try{if(choice.status==='invalid')throw Error(choice.reason);a=E.adaptBuild(me,[],enemies,{state:'even',primaryThreat:null,variant:choice.index});}
+ let a;try{if(choice.status==='invalid')throw Error(choice.reason);a=E.adaptBuild(me,allies,enemies,{state:'even',primaryThreat:lane,variant:choice.index});}
  catch(e){a={error:e.message};}
  matchAdapted.cache={key,E,a};return a;
 }
@@ -211,16 +246,42 @@ function matchSummaryHTML(me,enemies){
  const adds=final.filter(n=>!base.has(key(n))),drops=a.baseline.filter(n=>!kept.has(key(n)));
  return `<p class="match-summary">${adds.length?`<strong>${adds.length===1?'1 change':adds.length+' changes'}:</strong> add ${adds.map(esc).join(', ')} <span>· drop ${drops.map(esc).join(', ')}</span>`:'<strong>Keep the starting build</strong> for these enemies.'}</p>`;
 }
+// 2.56.0: one line to watch for per enemy (engine enemyWatch), with the source of that line, and a toggle that
+// marks the enemy in your lane.
+function matchWatchHTML(enemies){
+ const from=w=>w.kind==='reviewed'?'Reviewed '+dayDate(w.reviewed_at):w.kind==='previous'?'Previous review'+(w.reviewed_at?' '+dayDate(w.reviewed_at):'')+' · needs a check':'Calculated from the kit';
+ return `<ul class="match-watch">${enemies.map(e=>{const w=E.enemyWatch(e.slug);return `<li><p><strong>${esc(name(e.slug))}</strong>${w?` ${esc(w.text)} <small>${esc(from(w))}</small>`:''}</p><button type="button" class="quiet" data-match-lane="${esc(e.slug)}" aria-pressed="${S.matchLane===e.slug}" aria-label="${esc(name(e.slug))} is in my lane">My lane</button></li>`;}).join('')}</ul>`;
+}
+// The lane opponent: the current head-to-head sample, the reviewed counterplay and the item needs that answer them.
+function matchLaneHTML(me,enemies){
+ const lane=enemies.find(e=>e.slug===S.matchLane);if(!lane)return '';
+ const m=E.currentMatchup(me,lane,100),data=RecommendationView.counterplay(E,E.heroes,lane.slug,lane.role),a=matchAdapted(me,enemies);
+ const answers=!a.error&&a.available?(a.needs||[]).filter(n=>n.threat&&!n.manual):[];
+ const h2h=m?`<p><strong>${pct(m.wr)}</strong> ${esc(name(me.slug))} win rate against ${esc(name(lane.slug))} · ${games(m.played)}</p><p class="simple-source">${esc(m.label)} · fetched ${esc(dayDate(m.fetched_at))}. The opponent's role is not recorded, so this is not a lane-only sample.</p>`
+  :`<p class="simple-source">No current Pred.gg head-to-head sample with 100 or more games for ${esc(name(me.slug))} against ${esc(name(lane.slug))}.</p>`;
+ const tips=data.points.length?`<h3>Playing against ${esc(name(lane.slug))}</h3><ol>${data.points.map(t=>`<li>${esc(t)}</li>`).join('')}</ol><p class="simple-source">${data.strategy.active?'Reviewed '+esc(dayDate(data.strategy.reviewed_at))+' · patch '+esc(data.strategy.patch):'Previous review · needs a check for this patch'}</p>`:'';
+ const items=answers.length?`<h3>Items that answer ${esc(name(lane.slug))}</h3><ul class="match-reasons">${answers.map(n=>`<li><strong>${esc(n.label)}</strong>: ${n.answeredBy?.length?esc(n.answeredBy.join(', '))+' in this build':'no flexible slot answers it; keep the starting build'}</li>`).join('')}</ul>`:'';
+ return `<section class="panel match-lane"><div class="skill-guide-head"><h2>Your lane · ${esc(name(lane.slug))}</h2></div>${h2h}${tips}${items}</section>`;
+}
+// What your team's kits cover (engine coverage) and the engine's team advice. Allies do not change the item swaps.
+function matchTeamHTML(me,a){
+ const allies=matchAllies();if(!allies.length)return '';
+ // Damage types are left out: their check needs each ally's current reviewed damage plan, which a kit alone cannot show.
+ const words={'Frontline':'frontline','Hard CC':'hard crowd control','Engage':'engage','Peel':'peel'};
+ const missing=E.coverage([me,...allies]).checks.filter(c=>!c.present&&words[c.label]).map(c=>words[c.label]);
+ const advice=a&&!a.error?a.teamAdvice||[]:[];
+ return `<section class="panel match-team-check"><div class="skill-guide-head"><h2>Your team</h2>${badge('Calculated · team kits','calculated')}</div><p>${missing.length?'Not in your team’s kits yet: '+esc(missing.join(', '))+'.':'Your team’s kits cover frontline, hard crowd control, engage and peel.'}</p>${advice.length?`<ul class="match-reasons">${advice.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}<p class="simple-source">Counted from the kits of the ${allies.length+1} heroes entered, not from their items or play. Allies change this advice, not the item swaps.</p></section>`;
+}
 // 2.41.0: a kept build carries its own category (a source playstyle is an observed choice, not a reviewed build).
 function matchResultHTML(me,enemies){
  const selection=buildSelection(me);
  if(selection.status==='invalid')return `<section class="panel match-result"><h2>Choose your playstyle again</h2>${note(esc(selection.reason),true)}<button data-reset-playstyle="${esc(me.slug+'|'+me.role)}">Use the starting plan</button></section>`;
- if(!enemies.length)return `<section class="panel match-result"><h2>No enemies yet</h2><p class="simple-source">Tap the enemy heroes you can see. Until then, these are this build's answers by enemy team type.</p></section>${teamAlternatesHTML(me)}`;
+ if(!enemies.length)return `<section class="panel match-result"><h2>No enemies yet</h2><p class="simple-source">Tap the enemy heroes you can see. Until then, these are this build's answers by enemy team type.</p></section>${teamAlternatesHTML(me)}${matchTeamHTML(me,matchAllies().length?matchAdapted(me,enemies):null)}`;
  const a=matchAdapted(me,enemies);
  if(a.error)return `<section class="panel match-result">${note(esc(a.error),true)}</section>`;
  const types=matchTeamTypes(a.enemyProfile||{});
- const typesHTML=`<section class="panel match-types"><div class="skill-guide-head"><h2>Enemy team type</h2>${badge('Calculated · enemy kits','calculated')}</div>${types.length?`<ul class="match-type-list">${types.map(([label,n,who])=>`<li><strong>${esc(label)}</strong> <span>${n}${esc(who)}</span></li>`).join('')}</ul>`:'<p class="simple-source">No team type stands out from these kits yet.</p>'}<p class="simple-source">Counted from each hero's kit, not from what they buy or how much damage they deal.</p></section>`;
- if(!a.available)return typesHTML+`<section class="panel match-result"><h2>Build for this match</h2>${note(esc(a.unavailableReason),true)}<button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open the build page</button></section>`;
+ const typesHTML=matchLaneHTML(me,enemies)+`<section class="panel match-types"><div class="skill-guide-head"><h2>Enemy team type</h2>${badge('Calculated · enemy kits','calculated')}</div>${types.length?`<ul class="match-type-list">${types.map(([label,n,who])=>`<li><strong>${esc(label)}</strong> <span>${n}${esc(who)}</span></li>`).join('')}</ul>`:'<p class="simple-source">No team type stands out from these kits yet.</p>'}<p class="simple-source">Counted from each hero's kit, not from what they buy or how much damage they deal.</p></section>`;
+ if(!a.available)return typesHTML+`<section class="panel match-result"><h2>Build for this match</h2>${note(esc(a.unavailableReason),true)}<button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open the build page</button></section>${matchTeamHTML(me,a)}`;
  const base=new Set(a.baseline.map(n=>n.toLowerCase())),changed=new Map(a.swaps.map(s=>[s.to.toLowerCase(),s]));
  const rows=a.slots.map((s,i)=>{const swap=changed.get(s.name.toLowerCase()),moved=!swap&&base.has(s.name.toLowerCase())&&a.baseline.findIndex(n=>n.toLowerCase()===s.name.toLowerCase())!==i;
   return `<li class="${swap?'is-changed':''}"><span class="simple-position">${i+1}</span>${itemButton(s.name)}${swap?`<small>Replaces ${esc(swap.from)}${s.candidate?.trigger?.condition?' · '+esc(s.candidate.trigger.condition):''}</small>`:moved?'<small>Bought earlier for this match</small>':''}</li>`;}).join('');
@@ -231,44 +292,49 @@ function matchResultHTML(me,enemies){
  ${reasons?`<ul class="match-reasons">${reasons}</ul>`:'<p class="simple-source">No change is needed for these enemies under the item rules; keep the starting build.</p>'}
  ${unmet.length?`<p class="simple-source">Not changed automatically: ${esc(unmet.join(', '))}.</p>`:''}
  <p class="simple-source">${esc(a.note)}</p>
- <button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open ${esc(name(me.slug))}'s build page</button></section>`;
+ <button data-hero="${esc(me.slug)}" data-role="${esc(me.role)}">Open ${esc(name(me.slug))}'s build page</button></section>${matchTeamHTML(me,a)}`;
 }
 function matchView(){
- const me=matchMe(),enemies=matchEnemies(),picking=!me||S.matchPicking==='me'?'me':'enemy';
+ const me=matchMe(),enemies=matchEnemies(),picking=!me||S.matchPicking==='me'?'me':S.matchPicking==='ally'?'ally':'enemy';
  const intro=head('Match',me?name(me.slug)+' · '+labels[me.role]:'Your match',me?'Pick the enemy heroes you can see. The adapted build updates as you go.':'Choose who you play, then pick the enemy heroes you can see.');
  const meHTML=me?`<section class="panel match-me"><div class="match-me-row">${art(me.slug,'')}<div><strong>${esc(name(me.slug))}</strong><label>Role<select id="match-role">${options(E.roles(me.slug).map(r=>[r,labels[r]]),me.role)}</select></label></div></div><div class="match-actions"><button type="button" data-match-change="me">${picking==='me'?'Keep '+esc(name(me.slug)):'Change hero'}</button><button type="button" data-match-new="true">New match</button></div></section>`:'';
- const enemyHTML=me?`<section class="panel match-enemies"><div class="skill-guide-head"><h2>Enemy team · ${enemies.length}/5</h2></div>${enemies.length?`<ul class="match-chips">${enemies.map(e=>`<li><button type="button" class="match-chip" data-match-pick="${esc(e.slug)}" data-match-mode="enemy" aria-label="Remove ${esc(name(e.slug))}">${art(e.slug,'tiny')}<span>${esc(name(e.slug))}</span><span aria-hidden="true">×</span></button></li>`).join('')}</ul>${matchSummaryHTML(me,enemies)}`:'<p class="simple-source">None yet.</p>'}</section>`:'';
- return intro+(picking==='me'?meHTML+`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:`<div class="match-layout"><div class="match-column">${meHTML}${enemyHTML}<details class="panel match-pick" data-keep="match-enemy-grid${enemies.length<5?'':'-full'}" ${enemies.length<5?'open':''}><summary>${enemies.length<5?'Add enemy heroes':'Change enemy heroes'}</summary>${matchGridHTML('enemy')}</details></div><div class="match-column match-column--result">${matchResultHTML(me,enemies)}</div></div>`);
+ const allies=matchAllies(),chip=(p,mode,who)=>`<li><button type="button" class="match-chip" data-match-pick="${esc(p.slug)}" data-match-mode="${mode}" aria-label="Remove ${esc(name(p.slug))}${who}">${art(p.slug,'tiny')}<span>${esc(name(p.slug))}</span><span aria-hidden="true">×</span></button></li>`;
+ const teamHTML=me?`<section class="panel match-team"><div class="skill-guide-head"><h2>Your team · ${allies.length+1}/5</h2></div>${allies.length?`<ul class="match-chips">${allies.map(p=>chip(p,'ally',' from your team')).join('')}</ul>`:'<p class="simple-source">Optional: add your allies to check what your team covers.</p>'}<div class="match-actions"><button type="button" data-match-allies="true" aria-expanded="${picking==='ally'}">${picking==='ally'?'Done with allies':allies.length?'Change allies':'Add allies'}</button></div></section>`:'';
+ const enemyHTML=me?`<section class="panel match-enemies"><div class="skill-guide-head"><h2>Enemy team · ${enemies.length}/5</h2></div>${enemies.length?`<ul class="match-chips">${enemies.map(e=>`<li><button type="button" class="match-chip" data-match-pick="${esc(e.slug)}" data-match-mode="enemy" aria-label="Remove ${esc(name(e.slug))}">${art(e.slug,'tiny')}<span>${esc(name(e.slug))}</span><span aria-hidden="true">×</span></button></li>`).join('')}</ul>${matchSummaryHTML(me,enemies)}${matchWatchHTML(enemies)}`:'<p class="simple-source">None yet.</p>'}</section>`:'';
+ return intro+(picking==='me'?meHTML+`<section class="panel match-pick"><h2>${me?'Choose a different hero':'Who do you play?'}</h2>${matchGridHTML('me')}</section>`:`<div class="match-layout"><div class="match-column">${meHTML}${enemyHTML}${picking==='ally'?`<section class="panel match-pick" id="match-ally-pick"><h2>Your allies · ${matchAllies().length}/4</h2>${matchGridHTML('ally')}<div class="match-actions"><button type="button" data-match-allies="true">Done with allies</button></div></section>`:`<details class="panel match-pick" data-keep="match-enemy-grid${enemies.length<5?'':'-full'}" ${enemies.length<5?'open':''}><summary>${enemies.length<5?'Add enemy heroes':'Change enemy heroes'}</summary>${matchGridHTML('enemy')}</details>`}${teamHTML}</div><div class="match-column match-column--result">${matchResultHTML(me,enemies)}</div></div>`);
 }
 // 2.50.0: an action that clears picks says so and offers Undo for as long as the message shows.
 function undoToast(message,undo){const t=$('#toast');toast(message);const b=document.createElement('button');b.type='button';b.className='toast-undo';b.textContent='Undo';b.addEventListener('click',()=>{t.classList.add('hide');undo();});t.append(' ',b);}
 document.addEventListener('click',event=>{
- const el=event.target.closest('[data-match-pick],[data-match-change],[data-match-new]');if(!el)return;
+ const el=event.target.closest('[data-match-pick],[data-match-change],[data-match-new],[data-match-lane],[data-match-allies]');if(!el)return;
  event.preventDefault();event.stopImmediatePropagation();
  try{
   const key=el.dataset.matchPick,mode=el.dataset.matchMode,y=scrollY,keyboard=event.detail===0;
   // 2.50.0: the tapped portrait stays under the finger. A new chip row above the grid used to push the grid down.
-  const gridButton=()=>key?document.querySelector(`.match-pick .match-hero[data-match-pick="${CSS.escape(key)}"]`):null,anchor=mode==='enemy'&&el.matches('.match-hero')?el.getBoundingClientRect().top:null;
+  const gridButton=()=>key?document.querySelector(`.match-pick .match-hero[data-match-pick="${CSS.escape(key)}"][data-match-mode="${CSS.escape(mode||'')}"]`):null,anchor=mode==='enemy'&&el.matches('.match-hero')?el.getBoundingClientRect().top:null;
   let undo=null;
-  if(key)mode==='me'?matchSetMe(key):matchAddEnemy(key);
+  if(key)mode==='me'?matchSetMe(key):mode==='ally'?matchAddAlly(key):matchAddEnemy(key);
+  else if(el.dataset.matchLane)matchSetLane(el.dataset.matchLane);
+  // 2.56.0: allies are picked in place of the enemy grid, so only one hero grid is on the page at a time.
+  else if(el.dataset.matchAllies){S.matchPicking=S.matchPicking==='ally'?'enemy':'ally';}
   else if(el.dataset.matchChange){S.matchPicking=S.matchPicking==='me'&&matchMe()?'enemy':'me';}
-  else if(el.dataset.matchNew){const before={enemies:S.enemies,bans:S.bans};if(before.enemies.length)undo=()=>{S.enemies=before.enemies;S.bans=before.bans;S.matchPicking='enemy';save();render();};S.enemies=[];S.bans=[];S.matchPicking='enemy';save();}
+  else if(el.dataset.matchNew){const before={enemies:S.enemies,bans:S.bans,locks:S.locks,lane:S.matchLane},me=matchMe();if(before.enemies.length||before.locks.length>1)undo=()=>{S.enemies=before.enemies;S.bans=before.bans;S.locks=before.locks;S.matchLane=before.lane;S.matchPicking='enemy';save();render();};S.enemies=[];S.bans=[];S.locks=me?[me]:[];S.matchLane='';S.matchPicking='enemy';save();}
   // Keep keyboard focus: the same grid button survives the redraw; a removed chip or the finished hero grid hands
   // focus to that hero's grid button, or (from the keyboard only) to the enemy search. A tap never moves focus into
   // the search box, which would raise the phone keyboard over the portraits.
   redrawKeepingFocus();
-  if(key&&!$('#main').contains(document.activeElement))(mode==='me'?(keyboard?$('#match-search'):$('#main')):gridButton())?.focus({preventScroll:true});
+  if(key&&!$('#main').contains(document.activeElement))(mode==='me'?(keyboard?$('#match-search'):$('#main')):gridButton()||(mode==='ally'?$('[data-match-allies]'):null))?.focus({preventScroll:true});
   if(mode==='enemy'){const now=gridButton(),top=now?.getClientRects().length?now.getBoundingClientRect().top:null;if(anchor!=null&&top!=null)scrollBy(0,top-anchor);else scrollTo(0,y);}
-  if(undo)undoToast('New match · enemy team cleared.',undo);
+  if(undo)undoToast('New match · both teams cleared.',undo);
  }catch(e){toast(e.message);}
 },true);
 document.addEventListener('input',event=>{
- if(event.target.id!=='match-search')return;
+ if(!['match-search','match-ally-search'].includes(event.target.id))return;
  const q=event.target.value.trim().toLowerCase();
  for(const b of event.target.closest('.match-pick')?.querySelectorAll('.match-hero')||[])b.hidden=!!q&&!b.dataset.name.includes(q);
 });
 document.addEventListener('change',event=>{
  if(event.target.id!=='match-role')return;event.stopImmediatePropagation();
  const me=matchMe(),role=event.target.value;if(!me||!E.roles(me.slug).includes(role))return;
- S.locks=[{slug:me.slug,role}];S.liveVariant=null;save();render();
+ S.locks=[{slug:me.slug,role},...matchAllies()];S.liveVariant=null;matchFixRoles();save();render();
 },true);

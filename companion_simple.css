@@ -264,8 +264,8 @@
 @media(max-height:480px){#mobile-navigation{position:static}}
 
 /* Focused companion refinements: retain the full roster, dates and evidence. */
-.saved-heroes{margin:var(--s2) 0 var(--s3);border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface)}
-.saved-heroes section{padding:0 var(--s3) var(--s3)}.saved-heroes h2{font-size:var(--tr-base);margin:var(--s2) 0}
+.saved-heroes,.favorite-changes{margin:var(--s2) 0 var(--s3);border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface)}
+.saved-heroes section,.favorite-changes section{padding:0 var(--s3) var(--s3)}.saved-heroes h2{font-size:var(--tr-base);margin:var(--s2) 0}
 .saved-hero-list{display:grid;gap:var(--s1-5)}.saved-hero-list>div{display:flex;gap:var(--s1-5);min-width:0}
 .saved-hero-list [data-hero]{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);flex:1;min-width:0;text-align:left}
 .saved-hero-list small{color:var(--muted);font-weight:400}.saved-hero-list .favorite-button{position:static;flex:none;min-width:44px;min-height:44px}
@@ -452,3 +452,14 @@
 .meta-move{white-space:nowrap}
 .meta-movement small{grid-column:1;color:var(--muted);font-size:var(--tr-xs);line-height:1.35}
 .meta-movement:after{content:"\203a";content:"\203a" / "";grid-column:2;grid-row:1 / span 2;color:var(--brand-text);font-size:var(--tr-lg)}
+/* 2.56.0: patch changes to favorite heroes on phone Meta (mobile.js favoriteChangesHTML). */
+.favorite-change-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.favorite-change-list h3{font-size:var(--tr-base);margin:var(--s2) 0 var(--s1)}.favorite-change-list h3 small{color:var(--muted);font-weight:400}
+.favorite-change-list ul{margin:0;padding-left:var(--s3)}.favorite-change-list li li{margin:var(--s1) 0}
+/* 2.56.0: Match allies, one watch line per enemy, the lane opponent and the team check (companion_simple.js). */
+.match-team,.match-lane,.match-team-check{margin:var(--s3) 0}
+.match-watch{list-style:none;margin:var(--s3) 0 0;padding:0;display:grid;gap:var(--s2)}
+.match-watch li{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s2)}
+.match-watch p{margin:0;font-size:var(--tr-sm);color:var(--text-2)}.match-watch strong{color:var(--text)}.match-watch small{display:block;color:var(--muted);font-size:var(--tr-xs)}
+.match-watch button{flex:none;min-height:44px}.match-watch button[aria-pressed=true]{background:var(--brand-tint);outline:2px solid var(--indicator);outline-offset:-2px}
+.match-lane h3{font-size:var(--tr-base);margin:var(--s3) 0 var(--s1)}.match-lane ol{margin:var(--s1) 0;padding-left:var(--s4);font-size:var(--tr-sm)}

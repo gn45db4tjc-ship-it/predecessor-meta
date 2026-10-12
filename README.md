@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.55.0
+# Predecessor Meta - 2.56.0
 
-2.55.0 makes the fixes from the 12 Oct 2026 UI review. Warnings are now orange outlines instead of filled yellow chips, so a "Saved" warning no longer looks like part of an S grade. The desktop build drops its repeated labels: the "Reviewed reasoning before rates" chip, the plan eyebrow, and the warning colour on calculated plans. The hero page's "Selected rank" note moves inside the role-statistics disclosure, one tap away. A reviewed tier reads "Reviewed". The phone hero plate is 34 px shorter, and a build tile whose item icon fails to load keeps its name clear of the position number. No figure, source or evidence rule changes. See RELEASE-2.55.0.md.
+2.56.0 adds four things. Phone Meta shows a closed line when the live patch or a current hotfix changed one of your favorite heroes, listing each official change note with a link to the notes (changes are shown as written, not called buffs or nerfs). In Match, each enemy gets one line to watch for (reviewed counterplay, or a line calculated from the kit), you can mark the enemy in your lane to see the current head-to-head sample, the counterplay against them and the item needs that answer them, and you can add allies, which reach the adapted build as team advice and show what your team's kits are missing. Allies change advice, not item swaps. See [RELEASE-2.56.0.md](RELEASE-2.56.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.55.0
+
+2.55.0 makes the fixes from the 12 Oct 2026 UI review. Warnings are now orange outlines instead of filled yellow chips, so a "Saved" warning no longer looks like part of an S grade. The desktop build drops its repeated labels: the "Reviewed reasoning before rates" chip, the plan eyebrow, and the warning colour on calculated plans. The hero page's "Selected rank" note moves inside the role-statistics disclosure, one tap away. A reviewed tier reads "Reviewed". The phone hero plate is 34 px shorter, and a build tile whose item icon fails to load keeps its name clear of the position number. No figure, source or evidence rule changes. See RELEASE-2.55.0.md.
 
 ### 2.54.1
 

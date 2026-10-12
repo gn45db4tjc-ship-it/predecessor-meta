@@ -211,6 +211,16 @@ function roleListOrder(role){
  sampled.sort((a,b)=>{if(chosen==='reviewed'){const gap=(TIER_ORDER[shownTier(a.slug,role)?.tier]??9)-(TIER_ORDER[shownTier(b.slug,role)?.tier]??9);if(gap)return gap;}return b.perf.wr-a.perf.wr||b.perf.played-a.perf.played||byName(a,b);});
  return sampled.concat(rest);
 }
+// 2.56.0: when the live patch or a current hotfix changed a favorite hero, one closed line says so above Your heroes;
+// opening it lists each official change note with a link to the official notes. Change notes are not called buffs or
+// nerfs. The rows arrive with the guide, so the line appears once it has loaded.
+function favoriteChangesHTML(favorites){
+ const slugs=[...new Set(favorites.map(p=>p.slug))],rows=slugs.map(slug=>({slug,r:E.heroPatchChanges(slug)})).filter(x=>x.r);
+ if(!rows.length)return '';
+ const patch=rows[0].r.patch,url=rows[0].r.url,hotfix=rows.some(x=>x.r.changes.some(c=>c.hotfix));
+ const heroRows=rows.map(({slug,r})=>`<li><h3>${esc(name(slug))} <small>${r.changes.length===1?'1 change':r.changes.length+' changes'}</small></h3><ul>${r.changes.map(c=>`<li>${c.field?`<strong>${esc(c.field)}</strong>: `:''}${esc(c.change)}${c.hotfix?` <small>Hotfix ${esc(c.patch||'')}</small>`:''}</li>`).join('')}</ul></li>`).join('');
+ return `<details class="favorite-changes" data-keep="favorite-changes"><summary>Patch ${esc(patch)} changed ${rows.length===1?esc(name(rows[0].slug)):rows.length+' of your favorites'}</summary><section><ul class="favorite-change-list">${heroRows}</ul><p class="simple-source">Official change notes for patch ${esc(patch)}${hotfix?' and its current hotfixes':''}. ${url?link(url,'Official patch '+patch+' notes'):''}</p></section></details>`;
+}
 function savedHeroShortcuts(favorites,recent){
  const seen=new Set(favorites.map(p=>p.slug+'|'+p.role));
  const recentOnly=recent.filter(p=>!seen.has(p.slug+'|'+p.role));
@@ -265,7 +275,7 @@ function guidedHome(){
  const noMatch=elsewhere.length?`<div class="empty meta-elsewhere"><p>No ${esc(labels[role].toLowerCase())} matches “${esc(companionPrefs.homeQuery)}”. In other roles:</p><div class="meta-elsewhere-list">${elsewhere.map(s=>heroButton(s,E.roles(s)[0])).join('')}</div><button type="button" class="quiet" data-clear-search>Clear search</button></div>`:empty('No hero matches this role and search.')+'<button type="button" class="quiet" data-clear-search>Clear search</button>';
  return (typeof readingModeBar==='function'?readingModeBar():'')+(compact?'':mobileStatusHTML())+(companionError?note(esc(companionError),true):'')+(compact?`<h1 class="sr-only">Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[role])}</h1>`:head('Meta · '+esc(B.bracket?.label||''),labels[role]+' at a glance',esc(lead)))+
  `<div class="role-choices compact tab-strip tab-strip--segmented" role="tablist" aria-label="Role">${roleOrder.map(r=>`<button role="tab" data-mobile-role="${r}" aria-selected="${role===r}">${labels[r]}</button>`).join('')}</div><div class="meta-list-controls${compact?' meta-list-controls--quick':''}"><label class="mobile-search"><span${compact?' class="sr-only"':''}>Find a ${esc(labels[role].toLowerCase())}</span><input id="mobile-hero-search" type="search" autocomplete="off" placeholder="${compact?'Find a '+esc(labels[role].toLowerCase()):'Hero name'}" value="${esc(companionPrefs.homeQuery)}"></label><label><span${compact?' class="sr-only"':''}>Order by</span><select id="mobile-meta-order">${options(sortOptions,displayedOrder)}</select></label></div>`+
- savedHeroShortcuts(favorites,recent)+movementHTML(role)+keptRoleNote(role)+
+ favoriteChangesHTML(favorites)+savedHeroShortcuts(favorites,recent)+movementHTML(role)+keptRoleNote(role)+
  `<section id="mobile-role-list">${compact&&unusual?`<details class="meta-context" data-keep="meta-context"><summary>${esc(overview)}</summary><div class="detail-content">${mobileStatusHTML()}<p>${esc(lead)}</p>${listStatus}</div></details>`:''}${compact?`<h2 class="sr-only">${esc(labels[role])} heroes · ${rows.length} of ${everyone.all.length}</h2>`:`<div class="section-title"><h2>All ${esc(labels[role].toLowerCase())} heroes</h2><small>Showing ${rows.length} of ${everyone.all.length}</small></div>`}${compact?'':listStatus}${tierFallbackNote(role,rows)}<div class="mobile-card-list" id="mobile-all-list">${rows.map(r=>heroTile({slug:r.slug,role},{flagBuild:flagBuilds})).join('')||noMatch}</div>${buildNote}</section>`;
 }
 function mobileHero(){
@@ -428,7 +438,7 @@ document.addEventListener('click',async event=>{
  else if('clearSearch' in d){companionPrefs.homeQuery='';saveCompanionPrefs();render();$('#mobile-hero-search')?.focus();return;}
  else if(d.favorite){companionPrefs.favorites=companionPrefs.favorites.filter(v=>v!==d.favorite);saveCompanionPrefs();}
  else if(el.id==='favorite-hero'){const key=S.hero+'|'+S.heroRole;companionPrefs.favorites=companionPrefs.favorites.includes(key)?companionPrefs.favorites.filter(v=>v!==key):[key,...companionPrefs.favorites].slice(0,20);saveCompanionPrefs();}
- else if(d.startLive){matchSetMe(S.hero);S.locks=[{slug:S.hero,role:E.roles(S.hero).includes(S.heroRole)?S.heroRole:E.roles(S.hero)[0]}];save();S.route='match';}
+ else if(d.startLive){matchSetMe(S.hero,S.heroRole);S.route='match';}
  else if(el.id==='companion-install'){installHelp();return;}
  else if(el.id==='companion-theme'){$('#theme-toggle').click();}
  else if(el.id==='share-hero'){await shareHero();return;}
