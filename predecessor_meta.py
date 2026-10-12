@@ -1726,6 +1726,22 @@ def previously_verified_patch():
     return max(versions,key=patch_tuple) if versions else None
 
 
+def previous_official_article(url,version):
+    """The last verified copy of an older official article, kept with its original fetch date (2.54.1). Only the
+    article being compared with the current patch may be kept: the current patch itself is always fetched live."""
+    found=[]
+    paths=[DATA_DIR/'latest_bundle.json',*(p for name in ('last_successful_','last_primary_','last_available_') for p in DATA_DIR.glob(name+'*.json'))]
+    for path in paths:
+        try:
+            for a in load_bundle(path).get('official',{}).get('articles',[]):
+                if (a.get('url')==url and a.get('version')==version and a.get('status')=='live' and a.get('fetched_at')
+                        and official_article_fingerprint(a['blocks'])==a.get('fingerprint')):
+                    found.append(a)
+        except (OSError,ValueError,KeyError,TypeError,AttributeError):pass
+    if not found:return None
+    return copy.deepcopy(max(found,key=lambda a:a['fetched_at']))
+
+
 def fetch_official(force_history=False):
     publisher=fetch_publisher_news();index_record={'url':OFFICIAL_INDEX,'fetched_at':iso(now_utc())}
     candidates={}
@@ -1749,10 +1765,21 @@ def fetch_official(force_history=False):
         raise ValueError('Official patch discovery failed: '+index_record.get('error','no index links')+'; Steam: '+publisher.get('error','no linked official articles'))
     articles = []
     # Keep announcements separate while checking the current and preceding article.
+    kept=[]
     for v in sorted(candidates, key=patch_tuple, reverse=True)[:4]:
         time.sleep(1)
-        raw, _, _ = http_get(candidates[v], retries=1)
-        a=official_parse(raw,candidates[v])
+        current=next((a for a in articles if a['status']=='live'),None)
+        try:
+            raw, _, _ = http_get(candidates[v], retries=1)
+            a=official_parse(raw,candidates[v])
+        except SourceBlocked:raise
+        except Exception as e:
+            # 12 Oct 2026: one HTTP 404 on the older 1.16.4 article failed the whole check after 1.17 was confirmed
+            # live. An older article is only the comparison, so its last verified copy is kept, dated as fetched.
+            a=previous_official_article(candidates[v],v) if current and patch_tuple(v)<patch_tuple(current['version']) else None
+            if a is None:raise
+            a['kept_from_previous']=True;a['retrieval_error']=str(e)[:300]
+            kept.append({'version':v,'url':candidates[v],'fetched_at':a['fetched_at'],'error':a['retrieval_error']})
         if a['version']!=v:raise ValueError('Official article version disagrees with its harvested link: '+candidates[v])
         a['discovered_from']='Website index' if v in index_versions else 'Steam publisher announcement'
         articles.append(a)
@@ -1802,7 +1829,7 @@ def fetch_official(force_history=False):
     return {'status': 'verified', 'live': live, 'articles': articles, 'index_url': OFFICIAL_INDEX,
             'index_check':index_record,'publisher_news':publisher,
             'verification_path':'Steam publisher links and full official articles' if any(a['discovered_from']=='Steam publisher announcement' for a in articles) else 'Official index and full articles',
-            'checked_at': iso(now_utc()), 'definition_history':history,
+            'checked_at': iso(now_utc()), 'definition_history':history,'kept_articles':kept,
             'fingerprint': hashlib.sha256(''.join(a['fingerprint'] for a in articles).encode()).hexdigest()}
 
 
@@ -2036,6 +2063,11 @@ def enrich_bundle(bundle, official=None):
     if discovery.get('status')=='failed':
         bundle.setdefault('errors',[]).append({'source':'Official patch discovery','severity':'warning',
             'detail':'The website index was unavailable ('+discovery.get('error','unknown error')+'). Publisher links from Steam located the full official articles, which were checked independently. No saved article was substituted for the current live checks.'})
+    # Rebuilt on every enrichment, so a replay at publication does not repeat it.
+    bundle['errors']=[e for e in bundle.get('errors',[]) if e.get('source')!='Official patch notes (older article)']
+    for kept in bundle['official'].get('kept_articles') or []:
+        bundle['errors'].append({'source':'Official patch notes (older article)','severity':'warning','url':kept['url'],
+            'detail':'The older v'+kept['version']+' article could not be loaded ('+kept['error']+'). Its last verified copy, fetched '+kept['fetched_at']+', is kept for comparison. The current patch article was checked live.'})
     if publisher.get('status')=='failed':
         bundle.setdefault('errors',[]).append({'source':'Steam publisher announcements','severity':'warning',
             'detail':'The additional publisher hotfix check is unavailable: '+publisher.get('error','unknown error')+'. The official website remains the patch source.'})
