@@ -826,7 +826,7 @@ document.addEventListener('click',async event=>{
   else if(el.id==='menu-toggle'){const open=el.getAttribute('aria-expanded')!=='true';el.setAttribute('aria-expanded',String(open));document.querySelector('.sidebar').classList.toggle('menu-open',open);}
   else if(el.id==='status-toggle'){const open=el.getAttribute('aria-expanded')!=='true';el.setAttribute('aria-expanded',String(open));document.querySelector('.workspace').classList.toggle('status-open',open);}
   else if(el.id==='share-plan')sharePlan();
-  else if(el.id==='use-shared-plan'){const p=pendingSharedPlan;S.locks=p.allies;S.enemies=p.enemies;S.bans=p.bans;S.size=p.size;S.me=p.allies[0]?.slug||'';S.matchPicking=S.me?'enemy':'me';S.liveContexts={};S.liveVariant=null;S.route='match';save();$('#detail').close();render();if(typeof recordNavigation==='function')recordNavigation(true);/* the #plan= link is replaced by the Match address */}
+  else if(el.id==='use-shared-plan'){const p=pendingSharedPlan;S.locks=p.allies;S.enemies=p.enemies;S.bans=p.bans;S.size=p.size;S.me=p.allies[0]?.slug||'';S.matchLane='';S.matchPicking=S.me?'enemy':'me';S.liveContexts={};S.liveVariant=null;S.route='match';save();$('#detail').close();render();if(typeof recordNavigation==='function')recordNavigation(true);/* the #plan= link is replaced by the Match address */}
   else if(el.id==='copy-plan-link'){const input=$('#plan-link');try{await navigator.clipboard.writeText(input.value);toast('Plan link copied.');}catch{input.focus();input.select();toast('Select Copy to copy the highlighted link.');}}
   else if(el.id==='native-share-plan'){await navigator.share({title:'Predecessor match',url:$('#plan-link').value});}
   else if(el.id==='import-guidance')$('#guidance-file').click();

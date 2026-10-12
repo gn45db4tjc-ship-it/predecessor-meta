@@ -438,7 +438,7 @@ document.addEventListener('click',async event=>{
  else if('clearSearch' in d){companionPrefs.homeQuery='';saveCompanionPrefs();render();$('#mobile-hero-search')?.focus();return;}
  else if(d.favorite){companionPrefs.favorites=companionPrefs.favorites.filter(v=>v!==d.favorite);saveCompanionPrefs();}
  else if(el.id==='favorite-hero'){const key=S.hero+'|'+S.heroRole;companionPrefs.favorites=companionPrefs.favorites.includes(key)?companionPrefs.favorites.filter(v=>v!==key):[key,...companionPrefs.favorites].slice(0,20);saveCompanionPrefs();}
- else if(d.startLive){matchSetMe(S.hero);S.locks=[{slug:S.hero,role:E.roles(S.hero).includes(S.heroRole)?S.heroRole:E.roles(S.hero)[0]}];save();S.route='match';}
+ else if(d.startLive){matchSetMe(S.hero,S.heroRole);S.route='match';}
  else if(el.id==='companion-install'){installHelp();return;}
  else if(el.id==='companion-theme'){$('#theme-toggle').click();}
  else if(el.id==='share-hero'){await shareHero();return;}

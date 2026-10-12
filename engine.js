@@ -304,13 +304,15 @@
     }
     // 2.54.0: one hero and role's Pred.gg win rate at one pull a day this week (scoped_changes.trend, in the
     // guide). Only days with 100+ games count; two are needed. Patch-to-date points overlap: a description, not a sample.
-    // 2.56.0: a hero's official changes in the live patch and its current hotfixes (earlier hotfixes are historical).
+    // 2.56.0: a hero's official changes in the live patch and its verified live hotfixes.
     // Factual change notes only: a change is not labelled a buff or a nerf.
     function heroPatchChanges(slug) {
       const live=bundle?.official?.live;if(!heroes[slug]||!live?.version)return null;
       const row=(c,hotfix)=>({patch:c.patch??null,field:c.field??'',change:c.change??'',source:c.source??null,hotfix});
+      // The collector marks every hotfix row historical, so currentness comes from the verified live hotfix versions.
+      const fixes=new Set((live.hotfixes||[]).filter(h=>typeof h==='string'||h?.status==='live').map(h=>typeof h==='string'?h:h.version).filter(v=>String(v).startsWith(live.version+'.')));
       const rows=[...(bundle.official_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&c.patch===live.version).map(c=>row(c,false)),
-        ...(bundle.official_hotfix_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&!c.historical).map(c=>row(c,true))].filter(c=>c.change);
+        ...(bundle.official_hotfix_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&fixes.has(c.patch)).map(c=>row(c,true))].filter(c=>c.change);
       return rows.length?{patch:live.version,url:live.url||null,changes:rows}:null;
     }
     // 2.56.0: one line to watch for per enemy in Match. The reviewed counterplay's first sentence when it exists

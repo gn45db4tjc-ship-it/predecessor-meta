@@ -169,17 +169,23 @@ function matchEnemies(){const me=matchMe();return S.enemies.filter(e=>!me||e.slu
 // because the engine needs one hero per role.
 function matchAllies(){const me=matchMe();return me?S.locks.filter(p=>p.slug!==me.slug):[];}
 function matchFreeRole(taken,slug){return E.roles(slug).find(r=>!taken.has(r))||roleOrder.find(r=>!taken.has(r));}
+// An ally keeps a role they play (the engine checks allied roles); an ally with no free role of their own leaves.
 function matchFixRoles(){
  const me=matchMe();if(!me)return;
- const taken=new Set([me.role]);S.locks=[me,...matchAllies().map(a=>{const role=taken.has(a.role)?matchFreeRole(taken,a.slug):a.role;taken.add(role);return {slug:a.slug,role};})];
+ const taken=new Set([me.role]),dropped=[],allies=[];
+ for(const a of matchAllies()){const role=taken.has(a.role)?E.roles(a.slug).find(r=>!taken.has(r)):a.role;if(!role){dropped.push(name(a.slug));continue;}taken.add(role);allies.push({slug:a.slug,role});}
+ S.locks=[me,...allies];
+ if(dropped.length)toast(dropped.join(', ')+' left'+' your team: no role they play is free.');
  const lane=S.enemies.find(e=>e.slug===S.matchLane);
- if(!lane){S.matchLane='';return;}
+ // No lane opponent: enemy roles go back to the order they were added, so no enemy keeps your role from a cleared lane.
+ if(!lane){S.matchLane='';const t=new Set();S.enemies=S.enemies.map(e=>{const role=matchFreeRole(t,e.slug);t.add(role);return {...e,role};});return;}
  if(lane.role!==me.role){const old=lane.role;S.enemies=S.enemies.map(e=>e.slug===lane.slug?{...e,role:me.role}:e.role===me.role?{...e,role:old}:e);}
 }
-function matchSetMe(slug){
+function matchSetMe(slug,wanted){
  if(!E.heroes[slug])throw Error('Choose an available hero.');
- // Default to a role with an active reviewed build, so the adapted build has a plan to start from.
- const current=matchMe(),roles=E.roles(slug),role=current?.slug===slug?current.role:roles.find(r=>E.buildReview(slug,r)?.active)||roles[0],allies=matchAllies().filter(a=>a.slug!==slug);
+ // Default to a role with an active reviewed build, so the adapted build has a plan to start from. A role asked for
+ // (the hero page's Use in Match) wins; your allies stay either way.
+ const current=matchMe(),roles=E.roles(slug),role=roles.includes(wanted)?wanted:current?.slug===slug?current.role:roles.find(r=>E.buildReview(slug,r)?.active)||roles[0],allies=matchAllies().filter(a=>a.slug!==slug);
  S.enemies=S.enemies.filter(e=>e.slug!==slug);S.bans=[];S.locks=[{slug,role},...allies];S.me=slug;S.liveVariant=null;S.matchPicking='enemy';matchFixRoles();save();
 }
 function matchAddEnemy(slug){
@@ -195,7 +201,9 @@ function matchAddAlly(slug){
  if(matchAllies().some(a=>a.slug===slug)){S.locks=S.locks.filter(a=>a.slug!==slug);save();return;}
  if(S.enemies.some(e=>e.slug===slug))throw Error(name(slug)+' is on the enemy team. Remove them from the enemy team first.');
  if(S.locks.length>=5)throw Error('Your team has five heroes. Remove an ally first.');
- S.locks=[...S.locks,{slug,role:matchFreeRole(new Set(S.locks.map(a=>a.role)),slug)}];save();
+ const role=E.roles(slug).find(r=>!S.locks.some(a=>a.role===r));
+ if(!role)throw Error(name(slug)+' plays '+E.roles(slug).map(r=>labels[r]).join(' or ')+', already taken on your team.');
+ S.locks=[...S.locks,{slug,role}];save();
 }
 function matchSetLane(slug){
  if(!S.enemies.some(e=>e.slug===slug))throw Error('Choose an enemy hero for your lane.');
@@ -241,7 +249,7 @@ function matchSummaryHTML(me,enemies){
 // 2.56.0: one line to watch for per enemy (engine enemyWatch), with the source of that line, and a toggle that
 // marks the enemy in your lane.
 function matchWatchHTML(enemies){
- const from=w=>w.kind==='reviewed'?'Reviewed '+dayDate(w.reviewed_at):w.kind==='previous'?'Previous review · needs a check':'Calculated from the kit';
+ const from=w=>w.kind==='reviewed'?'Reviewed '+dayDate(w.reviewed_at):w.kind==='previous'?'Previous review'+(w.reviewed_at?' '+dayDate(w.reviewed_at):'')+' · needs a check':'Calculated from the kit';
  return `<ul class="match-watch">${enemies.map(e=>{const w=E.enemyWatch(e.slug);return `<li><p><strong>${esc(name(e.slug))}</strong>${w?` ${esc(w.text)} <small>${esc(from(w))}</small>`:''}</p><button type="button" class="quiet" data-match-lane="${esc(e.slug)}" aria-pressed="${S.matchLane===e.slug}" aria-label="${esc(name(e.slug))} is in my lane">My lane</button></li>`;}).join('')}</ul>`;
 }
 // The lane opponent: the current head-to-head sample, the reviewed counterplay and the item needs that answer them.
@@ -268,7 +276,7 @@ function matchTeamHTML(me,a){
 function matchResultHTML(me,enemies){
  const selection=buildSelection(me);
  if(selection.status==='invalid')return `<section class="panel match-result"><h2>Choose your playstyle again</h2>${note(esc(selection.reason),true)}<button data-reset-playstyle="${esc(me.slug+'|'+me.role)}">Use the starting plan</button></section>`;
- if(!enemies.length)return `<section class="panel match-result"><h2>No enemies yet</h2><p class="simple-source">Tap the enemy heroes you can see. Until then, these are this build's answers by enemy team type.</p></section>${teamAlternatesHTML(me)}${matchTeamHTML(me,null)}`;
+ if(!enemies.length)return `<section class="panel match-result"><h2>No enemies yet</h2><p class="simple-source">Tap the enemy heroes you can see. Until then, these are this build's answers by enemy team type.</p></section>${teamAlternatesHTML(me)}${matchTeamHTML(me,matchAllies().length?matchAdapted(me,enemies):null)}`;
  const a=matchAdapted(me,enemies);
  if(a.error)return `<section class="panel match-result">${note(esc(a.error),true)}</section>`;
  const types=matchTeamTypes(a.enemyProfile||{});
@@ -315,7 +323,7 @@ document.addEventListener('click',event=>{
   // focus to that hero's grid button, or (from the keyboard only) to the enemy search. A tap never moves focus into
   // the search box, which would raise the phone keyboard over the portraits.
   redrawKeepingFocus();
-  if(key&&!$('#main').contains(document.activeElement))(mode==='me'?(keyboard?$('#match-search'):$('#main')):gridButton())?.focus({preventScroll:true});
+  if(key&&!$('#main').contains(document.activeElement))(mode==='me'?(keyboard?$('#match-search'):$('#main')):gridButton()||(mode==='ally'?$('[data-match-allies]'):null))?.focus({preventScroll:true});
   if(mode==='enemy'){const now=gridButton(),top=now?.getClientRects().length?now.getBoundingClientRect().top:null;if(anchor!=null&&top!=null)scrollBy(0,top-anchor);else scrollTo(0,y);}
   if(undo)undoToast('New match · both teams cleared.',undo);
  }catch(e){toast(e.message);}

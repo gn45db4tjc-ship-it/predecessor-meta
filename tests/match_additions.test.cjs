@@ -29,6 +29,14 @@ test('a favorite hero lists its current-patch and current-hotfix changes, and no
   assert.equal(r.changes[2].patch, '1.17.1');
 });
 
+test('a collected bundle marks every hotfix row historical: the live hotfix still counts, an older one does not', () => {
+  const b = changes();
+  b.official.live.hotfixes = [{version: '1.17.1', status: 'live'}];
+  b.official_hotfix_changes = b.official_hotfix_changes.map(c => ({...c, historical: true}));
+  b.official_hotfix_changes.push({patch: '1.17.2', kind: 'hero', key: 'kira', name: 'Kira', field: 'General', change: 'Not verified live yet.', source: NOTES, historical: true});
+  assert.deepEqual(M.create(b).heroPatchChanges('kira').changes.filter(c => c.hotfix).map(c => c.change), ['Cooldown decreased from 8 to 7.']);
+});
+
 test('a hero with no change, an unknown hero or a bundle without official changes shows nothing', () => {
   const b = changes();
   assert.equal(M.create(b).heroPatchChanges('nobody'), null);

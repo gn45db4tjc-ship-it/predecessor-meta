@@ -14,6 +14,19 @@ On 12 Oct 2026 the owner asked for the four next ideas proposed in the project t
 - Allies change advice, not item swaps. The engine has no rule that changes an item because of an ally, and the app cannot see what allies buy (for example whether someone already has anti-heal), so no such rule is invented here. The Your team panel says so.
 - No new source, sample or tier. Head-to-head rows are the existing Pred.gg counters rows (`currentMatchup`).
 
+## Review fixes
+
+From the automated code review of the PR:
+
+- A current hotfix counts when its version is one of the verified live hotfixes. The collector marks every hotfix row `historical`, so the first version showed no hotfix changes on a collected bundle.
+- An ally keeps a role they play. An ally whose only roles are taken is refused with a message, and a role change that leaves an ally no free role removes that ally with a message.
+- Clearing My lane puts enemy roles back in the order the enemies were added, so no enemy keeps your role.
+- Use in Match from a hero page keeps your allies and applies the page's role.
+- Opening a shared match clears the lane opponent.
+- A previous-review watch line shows its review date.
+- Team advice from allies shows before any enemy is picked.
+- Removing an ally chip from the keyboard leaves focus on the allies button.
+
 ## Files
 
 - `engine.js`: `heroPatchChanges`, `enemyWatch`; item needs carry `threat` when they answer the primary threat.
@@ -23,7 +36,7 @@ On 12 Oct 2026 the owner asked for the four next ideas proposed in the project t
 - `companion_simple.css`: styles for the new sections, existing tokens only.
 - `predecessor_meta.py`: `VERSION` 2.56.0. `sw.js`: cache `predecessor-meta-shell-v2-56-0`.
 - `docs/AI-CONTEXT.md`, `README.md`, `SOURCE-MANIFEST.json`.
-- Tests: `tests/match_additions.test.cjs` (new, 5 tests; the four engine tests failed before the change).
+- Tests: `tests/match_additions.test.cjs` (new, 6 tests; the engine tests failed before each change).
 
 ## Verification
 
