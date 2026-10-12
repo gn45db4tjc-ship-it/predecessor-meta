@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.53.2"
+VERSION = "2.53.3"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1931,13 +1931,29 @@ def parse_community_builds(rows,bundle,patch,url,fetched_at):
         except (ValueError,KeyError,TypeError) as exc:issues.append(str(exc))
     return builds,issues
 
-def attach_community_builds(bundle):
+def previous_community_builds(bundle,previous):
+    """The previous collection's community guides that still fit this one (2.53.3): same verified live patch line, a
+    hero and role still on the roster, each with its original fetch date. None when there is nothing to keep."""
+    try:
+        source=(previous or {}).get('sources',{}).get('community_builds') or {}
+        if source.get('status') not in ('ok','partial','retained') or not source.get('fetched_at'):return None
+        if (previous.get('official') or {}).get('live',{}).get('version')!=bundle['official']['live']['version']:return None
+        current={bundle['official']['live']['version'],*live_hotfix_versions(bundle.get('official'))}
+        rows=[copy.deepcopy(b) for b in previous.get('community_builds') or []
+              if b.get('patch') in current and b.get('fetched_at') and b.get('role') in ((bundle['heroes'].get(b.get('slug')) or {}).get('roles_order') or [])]
+        return (rows,source) if rows else None
+    except (AttributeError,KeyError,TypeError):
+        return None
+
+
+def attach_community_builds(bundle,previous=None):
     url=OMEDA_BASE+'/builds.json?filter%5Bcurrent_version%5D=1&filter%5Border%5D=popular'
     stamp=iso(now_utc());patch=bundle.get('official',{}).get('live',{}).get('version')
     bundle['community_builds']=[]
     try:
         if bundle.get('official',{}).get('status')!='verified':raise ValueError('Current game patch unverified; community patch matching withheld')
-        raw,_,secs=http_get(url,timeout=OMEDA_TIMEOUT,retries=0)
+        # 2.53.3: one HTTP 500 from omeda.city on 11 Oct 2026 emptied this section in every rank; retry 5xx and network errors.
+        raw,_,secs=http_get(url,timeout=OMEDA_TIMEOUT,retries=2)
         builds,issues=parse_community_builds(json.loads(raw),bundle,patch,url,stamp)
         bundle['community_builds']=builds
         bundle['sources']['community_builds']={'url':url,'fetched_at':stamp,'secs':secs,'status':'partial' if issues else 'ok','count':len(builds),'scope':'First popular page of Pred.gg community guides, as relayed by omeda.city (Pred.gg\'s former site, not a separate source); current official patch labels, no statistical samples or exhaustive coverage.'}
@@ -1945,7 +1961,16 @@ def attach_community_builds(bundle):
         if not builds:bundle['errors'].append({'source':'Community guides (Pred.gg, via omeda.city)','severity':'warning','detail':'No usable builds labelled for the verified current patch; community alternatives are unavailable.'})
     except Exception as exc:
         bundle['sources']['community_builds']={'url':url,'fetched_at':stamp,'status':'failed','error':str(exc)}
-        bundle['errors'].append({'source':'Community guides (Pred.gg, via omeda.city)','severity':'warning','detail':str(exc)})
+        detail=str(exc)
+        kept=previous_community_builds(bundle,previous) if bundle.get('official',{}).get('status')=='verified' else None
+        if kept:
+            # Kept guides carry their original fetch date and are never called fresh.
+            rows,source=kept
+            bundle['community_builds']=[dict(b,kept_from_previous=True) for b in rows]
+            bundle['sources']['community_builds']=dict({k:v for k,v in source.items() if k not in ('secs','error')},
+                status='retained',attempted_at=stamp,count=len(rows),error=str(exc))
+            detail+='. The previous collection\'s '+str(len(rows))+' current-patch guides are kept with their original fetch date ('+str(source['fetched_at'])+').'
+        bundle['errors'].append({'source':'Community guides (Pred.gg, via omeda.city)','severity':'warning','detail':detail})
 
 
 import patch_support
@@ -2528,11 +2553,19 @@ def pred_source_fetch(environ=None):
     return fetch
 
 
+# 2.53.3: a dropped Pred.gg request is tried again after these waits (seconds). On 11 Oct 2026 one SSL EOF on the first
+# request (https://pred.gg/heroes) cost every rank its Pred.gg collection until the next day. Only network errors and
+# HTTP 5xx are retried, never an access answer (401, 403, 429) or another 4xx. After PRED_RETRY_STOP pages in a row
+# fail even with retries, the rest of the run tries each page once, so an outage does not slow every page.
+PRED_RETRY_WAITS = (5, 15)
+PRED_RETRY_STOP = 3
+
+
 class PredPages:
     """Optional public pages, or Pred.gg's authorized API in the same form (pred_source_fetch); no access-control retries."""
-    def __init__(self, force=False, cache_dir=None, fetch=None, paused_reason=None):
+    def __init__(self, force=False, cache_dir=None, fetch=None, paused_reason=None, sleep=None):
         self.force=force; self.root=Path(cache_dir or DATA_DIR/'pred_pages'); self.fetch=fetch or http_get
-        self.paused_reason=paused_reason
+        self.paused_reason=paused_reason; self.sleep=sleep or time.sleep; self.failed_in_a_row=0
         self.lock=threading.Lock(); self.blocked=threading.Event(); self.memory={}; self.records=[]; self.next_start=0
         self.access_file=self.root/'public-access.json'
         if self.access_file.exists():
@@ -2542,6 +2575,20 @@ class PredPages:
                     self.paused_reason='Public access stopped at '+access['checked_at']+': '+access['reason']
             except (ValueError,KeyError,TypeError):
                 self.paused_reason='Public access state is invalid; review it before requesting this source again.'
+    def fetch_retrying(self,url):
+        """self.fetch, tried again after PRED_RETRY_WAITS on a network error or HTTP 5xx (2.53.3). A source block, an
+        access answer or any other 4xx is raised at once, and nothing is retried once access has stopped."""
+        waits=PRED_RETRY_WAITS if self.failed_in_a_row<PRED_RETRY_STOP else ()
+        for wait in (*waits,None):
+            try:result=self.fetch(url)
+            except FetchError as e:
+                if isinstance(e,SourceBlocked) or re.search(r'HTTP [1-4]\d\d\b',str(e)):raise
+                if wait is None or self.blocked.is_set():
+                    with self.lock:self.failed_in_a_row+=1
+                    raise
+                self.sleep(wait);continue
+            with self.lock:self.failed_in_a_row=0
+            return result
     def stop_access(self,reason):
         self.blocked.set()
         atomic_write(self.access_file,json.dumps({'schema':1,'status':'blocked',
@@ -2574,7 +2621,7 @@ class PredPages:
                     delay=max(0,self.next_start-time.monotonic());self.next_start=time.monotonic()+delay+.55
                 if delay:time.sleep(delay)
                 if self.blocked.is_set():raise SourceBlocked('Pred.gg collection stopped after source block')
-                try:raw,_,secs=self.fetch(url)
+                try:raw,_,secs=self.fetch_retrying(url)
                 except SourceBlocked as e:self.stop_access(e);raise
                 except FetchError as e:
                     if re.search(r'HTTP 401\b',str(e)):self.stop_access(e)
@@ -3283,9 +3330,12 @@ def retain_pred_partition(bundle, previous):
         live, bracket = bundle['official']['live'], bundle['bracket']['segment']
         scoped = previous.get('scoped_statistics') or {}
         scoped_source = (previous.get('sources') or {}).get('pred_scoped') or {}
+        # 2.53.3: a 'partial' previous cohort counts too. On 11 Oct 2026 Gold+ lost every Pred.gg row because its last
+        # good collection (10 Oct) was partial (one cohort page failed, all five roles ok), while the other ranks kept theirs.
+        # Its failed roles stay failed: their status travels with the retained cohort, and nothing fills them in.
         keep_stats = (stats_failed and scoped.get('bracket') == bracket and scoped.get('patch') == live['version']
-                      and scoped.get('status') in ('ok', 'retained') and bool(scoped.get('rows'))
-                      and scoped_source.get('status') in ('ok', 'retained') and timestamp_age(scoped_source.get('fetched_at')) is not None)
+                      and scoped.get('status') in ('ok', 'retained', 'partial') and bool(scoped.get('rows'))
+                      and scoped_source.get('status') in ('ok', 'retained', 'partial') and timestamp_age(scoped_source.get('fetched_at')) is not None)
         staged = copy.deepcopy(bundle)
         attempted = iso(now_utc())
         for field, key in (('scoped_statistics', 'pred_scoped'), ('pred_game_data', 'pred_game_data')):
@@ -3309,6 +3359,10 @@ def retain_pred_partition(bundle, previous):
         if keep_stats:
             detail = ('Pred.gg could not be refreshed. Its original dated samples and mechanics are retained. '
                       'Other sources were collected independently; assembly time is not their shared fetch time.')
+            if scoped.get('status') == 'partial':
+                gaps = sorted(r for r, v in (scoped.get('roles') or {}).items() if (v or {}).get('status') == 'failed')
+                detail += (' The retained collection was itself partial' + (' (' + ', '.join(gaps) + ' failed)' if gaps else '')
+                           + '; what it lacked stays unavailable.')
         else:
             detail = ('Pred.gg kit, item and Eternal definitions could not be refreshed. The last Pred.gg definitions (fetched '
                       + str(record['mechanics_fetched_at']) + ') are retained with their original dates, not omeda.city\'s older text. '
@@ -3553,12 +3607,12 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     if not fixture_dir:keep_previous_kits(bundle,bracket)
     enrich_bundle(bundle,official)
     if not fixture_dir:
+        previous_pred=previous_pred_bundle(bracket)
         progress('Checking current-patch Pred.gg community guides…')
-        attach_community_builds(bundle)
+        attach_community_builds(bundle,previous_pred)
         pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=pred_source_fetch(),
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
-        previous_pred=previous_pred_bundle(bracket)
         keep_previous_pred_roles(bundle,previous_pred)
         attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)
         retain_pred_partition(bundle, previous_pred)

@@ -99,6 +99,11 @@ def collection_reason(state, official, now, manual=False):
             and int(retry.get('attempts', 0)) < int(CONFIG.get('required_retry_limit', 2))
             and now-utc_time(last) >= dt.timedelta(hours=CONFIG.get('required_retry_hours', 3))):
         return 'Automatic required-source retry'
+    pred = state.get('pred_retry') or {}
+    if (COLLECTOR_HOST == 'windows' and pred.get('pending')
+            and int(pred.get('attempts', 0)) < int(CONFIG.get('pred_retry_limit', 4))
+            and now-utc_time(last) >= dt.timedelta(hours=CONFIG.get('pred_retry_hours', 2.5))):
+        return PRED_RETRY
     # Remember attempts as well as successes: an unavailable source is not hammered every check.
     if signature and signature != state.get('last_attempted_signature'):
         return 'Live patch or hotfix article changed'
@@ -519,6 +524,18 @@ def required_source_block(attempt):
                for e in attempt.get('errors', []))
 
 
+PRED_RETRY = 'Pred.gg retry'
+PRED_STOP = re.compile(r'\b(?:401|403|429)\b|blocked|rate.limit|paused|stopped|access', re.I)
+
+
+def pred_retryable(attempt):
+    """A Pred.gg error worth another collection the same day (2.53.3): a dropped connection or a server error, never an
+    access answer, a pause or a stop (Pred.gg's access stops are never retried around)."""
+    errors = [e for e in attempt.get('errors', []) if e.get('severity') == 'error'
+              and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')) and e.get('source') != 'Pred.gg retained data']
+    return bool(errors) and not any(PRED_STOP.search(str(e.get('detail', ''))) for e in errors)
+
+
 def required_source_failure(attempt):
     """Required-source errors only; optional Pred never controls core refresh health."""
     return any(not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')))
@@ -720,7 +737,9 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
             if release: state['collection_release'] = release
             changed_patch = live_signature(official) != state.get('last_attempted_signature')
             prior_retry_count = int((state.get('required_retry') or {}).get('attempts', 0))
-            retry_count = prior_retry_count + 1 if reason == 'Automatic required-source retry' else 0
+            retry_count = (prior_retry_count + 1 if reason == 'Automatic required-source retry'
+                           else prior_retry_count if reason == PRED_RETRY else 0)
+            pred_count = int((state.get('pred_retry') or {}).get('attempts', 0)) + 1 if reason == PRED_RETRY else 0
             state['last_full_attempt_at'] = base.iso(now)
             state['last_attempted_signature'] = live_signature(official)
             state['blocked_in_last_full'] = False
@@ -796,6 +815,13 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                 state['last_completed_signature'] = signature
                 state['required_retry'] = {'pending': False, 'blocked': False, 'attempts': retry_count,
                                            'limit': retry_limit, 'next_at': None, 'reason': None}
+            # Pred.gg is read only by the Windows collector, so only it retries Pred.gg the same day (2.53.3); the daily
+            # collection alone used to leave a dropped Pred.gg request unrecovered until the next day.
+            pred_limit = int(CONFIG.get('pred_retry_limit', 4))
+            pred_pending = (COLLECTOR_HOST == 'windows' and pred_count < pred_limit
+                            and any(pred_retryable(a) for a in state['attempts'].values()))
+            state['pred_retry'] = {'pending': pred_pending, 'attempts': pred_count, 'limit': pred_limit,
+                'next_at': base.iso(now + dt.timedelta(hours=CONFIG.get('pred_retry_hours', 2.5))) if pred_pending else None}
             output_flag('full_attempt', True)
         else:
             base.log('Statistics collection paused: ' + paused if paused else
