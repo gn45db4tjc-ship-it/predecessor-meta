@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.54.0
+# Predecessor Meta - 2.55.0
 
-2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.55.0 makes the fixes from the 12 Oct 2026 UI review. Warnings are now orange outlines instead of filled yellow chips, so a "Saved" warning no longer looks like part of an S grade. The desktop build drops its repeated labels: the "Reviewed reasoning before rates" chip, the plan eyebrow, and the warning colour on calculated plans. The hero page's "Selected rank" note moves inside the role-statistics disclosure, one tap away. A reviewed tier reads "Reviewed". The phone hero plate is 34 px shorter, and a build tile whose item icon fails to load keeps its name clear of the position number. No figure, source or evidence rule changes. See RELEASE-2.55.0.md.
 
 ## Previous release
+
+### 2.54.0
+
+2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.53.3
 
