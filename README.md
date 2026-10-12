@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.53.3
+# Predecessor Meta - 2.54.0
 
-2.53.3 helps the collector ride out a brief Pred.gg or omeda.city outage. On 11 Oct 2026 one dropped connection on the very first Pred.gg request cost every rank its Pred.gg collection until the next day, Gold+ lost all of its Pred.gg numbers while the other ranks kept yesterday's, and one omeda.city server error emptied the community guides everywhere. Now a dropped Pred.gg page is tried again twice (network errors and server errors only; an access answer still stops it), the Windows collector tries Pred.gg again every few hours, up to four times, after a failed daily run, Gold+ keeps its last cohort even when that cohort was partial, and community guides are retried and otherwise kept with their original date. Kept data is always labelled retained, never fresh. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.53.3.md](RELEASE-2.53.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at the last pull of each day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.53.3
+
+2.53.3 helps the collector ride out a brief Pred.gg or omeda.city outage. On 11 Oct 2026 one dropped connection on the very first Pred.gg request cost every rank its Pred.gg collection until the next day, Gold+ lost all of its Pred.gg numbers while the other ranks kept yesterday's, and one omeda.city server error emptied the community guides everywhere. Now a dropped Pred.gg page is tried again twice (network errors and server errors only; an access answer still stops it), the Windows collector tries Pred.gg again every few hours, up to four times, after a failed daily run, Gold+ keeps its last cohort even when that cohort was partial, and community guides are retried and otherwise kept with their original date. Kept data is always labelled retained, never fresh. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.53.3.md](RELEASE-2.53.3.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.53.2
 

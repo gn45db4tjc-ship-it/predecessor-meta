@@ -54,7 +54,7 @@ GUIDE_PATHS = (('pairs',), ('corrections',), ('official_changes',), ('patch_supp
                # 2.53.0: read only by screens that wait for the guide (desktop Meta for other ranks, Sources, Changes, hero
                # pages, the library, the review packet), never by the phone's first screen.
                ('scoped_statistics', 'rows'), ('scoped_statistics', 'records'), ('pred_game_data', 'items'), ('pred_game_data', 'perks'),
-               ('changes', 'vs_previous_patch'), ('community_builds',), ('definition_issues',), ('official_hotfix_changes',),
+               ('changes', 'vs_previous_patch'), ('community_builds',), ('scoped_changes', 'trend'), ('definition_issues',), ('official_hotfix_changes',),
                ('reviewed_definitions',), ('description_reviews',), ('mechanics_boundaries',),
                ('guidance', 'notes'), ('guidance', 'recheck_log'), ('guidance', 'build_advice'))
 GUIDE_HERO_FIELDS = ('patch_context', 'general_strong_against', 'general_counters', 'hero_wide', 'hero_wide_url',

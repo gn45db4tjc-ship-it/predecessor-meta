@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.53.3"
+VERSION = "2.54.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1033,6 +1033,33 @@ def scoped_movement(scoped):
             'minimum_games':100,'roles':roles}
 
 
+TREND_DAYS = 7
+
+
+def scoped_trend(snapshots,current):
+    """Each hero and role's Pred.gg win rate and games at the last pull of each UTC day, over the last TREND_DAYS days of
+    the current cohort (same patch, versions, rank and rating), for the hero page (2.54.0). Each point counts the whole
+    patch line so far, so points overlap and are not separate samples. None until two days have a pull."""
+    end=history_time(current['fetched_at']);by_day={}
+    for s in sorted(snapshots,key=lambda s:history_time(s['fetched_at'])):
+        age=end-history_time(s['fetched_at'])
+        if dt.timedelta(0)<=age<dt.timedelta(days=TREND_DAYS) and scoped_history_compatible(s,current,True):
+            by_day[history_time(s['fetched_at']).date()]=s
+    points=[by_day[d] for d in sorted(by_day)]
+    if len(points)<2:return None
+    series={}
+    for row in current['rows']:
+        if not row['matches']:continue
+        values=[]
+        for s in points:
+            r=next((x for x in s['rows'] if x['slug']==row['slug'] and x['role']==row['role']),None)
+            values.append([round(r['winRate'],2),r['matches']] if r and r['matches'] else None)
+        series.setdefault(row['role'],{})[row['slug']]=values
+    return {'window_days':TREND_DAYS,'basis':'patch_to_date','patch':current['cohort']['patch'],'bracket_label':current['cohort']['bracket_label'],
+            'points':[s['fetched_at'] for s in points],'series':series,
+            'note':'Win rate and games at the last Pred.gg pull of each day. Each pull counts the whole patch so far, so the points overlap; a change is not a separate sample or a measured patch effect.'}
+
+
 def with_scoped_movement(bundle):
     """A bundle collected before 2.53.0 gets the same movement digest at publication. Observations are unchanged."""
     sc=bundle.get('scoped_changes')
@@ -1089,6 +1116,8 @@ def attach_scoped_history(bundle,import_saved=True):
                 'snapshots_on_disk':len(seen),'compatible_prior_collections':len(older)})
     try:out['movement']=scoped_movement(out)
     except (KeyError,TypeError,ValueError) as e:report('movement',e)
+    try:out['trend']=scoped_trend(list(seen.values()),current)
+    except (KeyError,TypeError,ValueError) as e:report('trend',e)
     if out['errors']:bundle.setdefault('errors',[]).append({'source':'Pred.gg local history','severity':'warning','detail':'Some history records could not be used: '+'; '.join(x['file']+': '+x['detail'] for x in out['errors'])})
     return out
 
