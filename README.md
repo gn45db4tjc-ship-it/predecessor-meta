@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.55.0
+# Predecessor Meta - 2.56.0
 
-2.55.0 adds four things. Phone Meta shows a closed line when the live patch or a current hotfix changed one of your favorite heroes, listing each official change note with a link to the notes (changes are shown as written, not called buffs or nerfs). In Match, each enemy gets one line to watch for (reviewed counterplay, or a line calculated from the kit), you can mark the enemy in your lane to see the current head-to-head sample, the counterplay against them and the item needs that answer them, and you can add allies, which reach the adapted build as team advice and show what your team's kits are missing. Allies change advice, not item swaps. See [RELEASE-2.55.0.md](RELEASE-2.55.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.56.0 adds four things. Phone Meta shows a closed line when the live patch or a current hotfix changed one of your favorite heroes, listing each official change note with a link to the notes (changes are shown as written, not called buffs or nerfs). In Match, each enemy gets one line to watch for (reviewed counterplay, or a line calculated from the kit), you can mark the enemy in your lane to see the current head-to-head sample, the counterplay against them and the item needs that answer them, and you can add allies, which reach the adapted build as team advice and show what your team's kits are missing. Allies change advice, not item swaps. See [RELEASE-2.56.0.md](RELEASE-2.56.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.54.1
+
+2.54.1 keeps the hourly official patch check working when an older patch-notes page fails to load. On 12 Oct 2026 at 08:03 UTC the Windows collector's check failed with "HTTP 404" for the v1.16.4 article, so it could not confirm that v1.17 is the live patch, although it had just loaded the v1.17 article itself. The older article is only the comparison page; the cloud's check loaded it four minutes later. Now, when the older article fails, its last verified copy is kept with its original date and named in a warning. The current patch article is always loaded live, a copy whose text no longer matches its fingerprint is never used, an access answer (403 or 429) still stops the check, and without a saved copy the check fails as before. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.54.1.md](RELEASE-2.54.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.54.0
 

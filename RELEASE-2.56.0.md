@@ -1,6 +1,6 @@
-# 2.55.0 — favorites' patch changes, and your lane, enemies and allies in Match
+# 2.56.0 — favorites' patch changes, and your lane, enemies and allies in Match
 
-On 12 Oct 2026 the owner asked for the four next ideas proposed in the project thread ("Sure do 1-4"). All four are display and engine changes; nothing new is collected.
+On 12 Oct 2026 the owner asked for the four next ideas proposed in the project thread ("Sure do 1-4"). All four are display and engine changes; nothing new is collected. It is numbered 2.56.0 because the UI and design fixes (PR #145) take 2.55.0.
 
 ## What changes
 
@@ -21,13 +21,13 @@ On 12 Oct 2026 the owner asked for the four next ideas proposed in the project t
 - `companion_simple.js`: `matchAllies`, `matchFreeRole`, `matchFixRoles`, `matchAddAlly`, `matchSetLane`, `matchWatchHTML`, `matchLaneHTML`, `matchTeamHTML`; `matchAdapted` passes allies and the lane opponent.
 - `ui.js`: `matchLane` in the saved state.
 - `companion_simple.css`: styles for the new sections, existing tokens only.
-- `predecessor_meta.py`: `VERSION` 2.55.0. `sw.js`: cache `predecessor-meta-shell-v2-55-0`.
+- `predecessor_meta.py`: `VERSION` 2.56.0. `sw.js`: cache `predecessor-meta-shell-v2-56-0`.
 - `docs/AI-CONTEXT.md`, `README.md`, `SOURCE-MANIFEST.json`.
 - Tests: `tests/match_additions.test.cjs` (new, 5 tests; the four engine tests failed before the change).
 
 ## Verification
 
-- `python -B -m unittest discover -s tests -p "test_static*.py"`: 467 tests, OK (2 skipped).
+- `python -B -m unittest discover -s tests -p "test_static*.py"`: 475 tests, OK (2 skipped).
 - `node --test tests/*.test.cjs`: 411 pass, 0 fail (5 of them new).
 - `tests/browser_companion_simple.cjs` against the staged gold seed (Chromium): 30 checks, no errors.
 - A scripted preview check at 390 px and 1440 px: the favorites line for Adele (patch 1.16.4 seed, 10 changes, official notes link); Match with Khaimera, Muriel as ally and Kallari, Steel and Gideon as enemies; marking Gideon as the lane opponent moved Gideon to jungle and Kallari to midlane, showed the lane panel and saved the choice; New match cleared both teams and Undo restored them; no horizontal scroll, no page errors, and axe (WCAG 2 A/AA) found no violations on Meta or Match.

@@ -211,7 +211,7 @@ function roleListOrder(role){
  sampled.sort((a,b)=>{if(chosen==='reviewed'){const gap=(TIER_ORDER[shownTier(a.slug,role)?.tier]??9)-(TIER_ORDER[shownTier(b.slug,role)?.tier]??9);if(gap)return gap;}return b.perf.wr-a.perf.wr||b.perf.played-a.perf.played||byName(a,b);});
  return sampled.concat(rest);
 }
-// 2.55.0: when the live patch or a current hotfix changed a favorite hero, one closed line says so above Your heroes;
+// 2.56.0: when the live patch or a current hotfix changed a favorite hero, one closed line says so above Your heroes;
 // opening it lists each official change note with a link to the official notes. Change notes are not called buffs or
 // nerfs. The rows arrive with the guide, so the line appears once it has loaded.
 function favoriteChangesHTML(favorites){

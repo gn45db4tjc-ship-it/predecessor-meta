@@ -1,5 +1,5 @@
 'use strict';
-/* 2.55.0: patch changes for favorite heroes, one watch line per enemy, the lane opponent as the primary threat in
+/* 2.56.0: patch changes for favorite heroes, one watch line per enemy, the lane opponent as the primary threat in
    Match, and allies passed to the adapted build. Synthetic fixtures; they never enter a published bundle. */
 const test = require('node:test'), assert = require('node:assert/strict');
 const M = require('../engine.js');

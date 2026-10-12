@@ -164,7 +164,7 @@ document.addEventListener('click',event=>{
 const LEGACY_MATCH_ROUTES=['planner','draft','live'];
 function matchMe(){return S.locks.find(p=>p.slug===S.me)||null;}
 function matchEnemies(){const me=matchMe();return S.enemies.filter(e=>!me||e.slug!==me.slug);}
-// 2.55.0: your allies follow you in S.locks (one hero per role, never yours), and the enemy you mark as your lane
+// 2.56.0: your allies follow you in S.locks (one hero per role, never yours), and the enemy you mark as your lane
 // opponent (S.matchLane) takes your role; the enemy who held it takes theirs. Other roles are still only assigned
 // because the engine needs one hero per role.
 function matchAllies(){const me=matchMe();return me?S.locks.filter(p=>p.slug!==me.slug):[];}
@@ -216,13 +216,13 @@ function matchGridHTML(mode){
  const me=matchMe(),ally=mode==='ally',chosen=new Set((ally?matchAllies():S.enemies).map(e=>e.slug)),other=new Set((ally?S.enemies:matchAllies()).map(e=>e.slug));
  // 2.50.0: when you choose your own hero, your favorites and recent heroes come first, then everyone alphabetically.
  const mine=mode==='me'?[...new Set([...companionPrefs.favorites.map(v=>v.split('|')[0]),...companionPrefs.recent.map(p=>p.slug)])].filter(s=>E.heroes[s]):[];
- // 2.55.0: a hero on the other team is left out of the ally and enemy grids.
+ // 2.56.0: a hero on the other team is left out of the ally and enemy grids.
  const heroes=mine.concat(Object.keys(E.heroes).filter(s=>(mode==='me'||s!==me?.slug&&!other.has(s))&&!mine.includes(s)).sort((a,b)=>name(a).localeCompare(name(b))));
  return `<label class="match-search">${mode==='me'?'Find your hero':ally?'Find an ally':'Find an enemy hero'}<input id="${ally?'match-ally-search':'match-search'}" type="search" autocomplete="off" placeholder="Hero name"></label>
  <div class="match-grid" role="group" aria-label="${mode==='me'?'Choose your hero':ally?'Allied heroes':'Enemy heroes'}">${heroes.map(s=>`<button type="button" class="match-hero" data-match-pick="${esc(s)}" data-match-mode="${mode}" data-name="${esc(name(s).toLowerCase())}" ${mode!=='me'?`aria-pressed="${chosen.has(s)}"`:''}${mine.includes(s)?' data-mine="true"':''}>${art(s,'tiny')}<span>${esc(name(s))}</span></button>`).join('')}</div>`;
 }
 // One adaptBuild per enemy line-up: the Enemy team summary and the result below share it.
-// 2.55.0: allies reach the engine (team advice) and the lane opponent is the primary threat.
+// 2.56.0: allies reach the engine (team advice) and the lane opponent is the primary threat.
 function matchAdapted(me,enemies){
  const allies=matchAllies(),lane=enemies.some(e=>e.slug===S.matchLane)?S.matchLane:null;
  const choice=buildSelection(me),key=[me.slug,me.role,choice.status,choice.index,enemies.map(e=>e.slug+':'+e.role).join(','),allies.map(a=>a.slug+':'+a.role).join(','),lane].join('|'),c=matchAdapted.cache;
@@ -238,7 +238,7 @@ function matchSummaryHTML(me,enemies){
  const adds=final.filter(n=>!base.has(key(n))),drops=a.baseline.filter(n=>!kept.has(key(n)));
  return `<p class="match-summary">${adds.length?`<strong>${adds.length===1?'1 change':adds.length+' changes'}:</strong> add ${adds.map(esc).join(', ')} <span>· drop ${drops.map(esc).join(', ')}</span>`:'<strong>Keep the starting build</strong> for these enemies.'}</p>`;
 }
-// 2.55.0: one line to watch for per enemy (engine enemyWatch), with the source of that line, and a toggle that
+// 2.56.0: one line to watch for per enemy (engine enemyWatch), with the source of that line, and a toggle that
 // marks the enemy in your lane.
 function matchWatchHTML(enemies){
  const from=w=>w.kind==='reviewed'?'Reviewed '+dayDate(w.reviewed_at):w.kind==='previous'?'Previous review · needs a check':'Calculated from the kit';
@@ -307,7 +307,7 @@ document.addEventListener('click',event=>{
   let undo=null;
   if(key)mode==='me'?matchSetMe(key):mode==='ally'?matchAddAlly(key):matchAddEnemy(key);
   else if(el.dataset.matchLane)matchSetLane(el.dataset.matchLane);
-  // 2.55.0: allies are picked in place of the enemy grid, so only one hero grid is on the page at a time.
+  // 2.56.0: allies are picked in place of the enemy grid, so only one hero grid is on the page at a time.
   else if(el.dataset.matchAllies){S.matchPicking=S.matchPicking==='ally'?'enemy':'ally';}
   else if(el.dataset.matchChange){S.matchPicking=S.matchPicking==='me'&&matchMe()?'enemy':'me';}
   else if(el.dataset.matchNew){const before={enemies:S.enemies,bans:S.bans,locks:S.locks,lane:S.matchLane},me=matchMe();if(before.enemies.length||before.locks.length>1)undo=()=>{S.enemies=before.enemies;S.bans=before.bans;S.locks=before.locks;S.matchLane=before.lane;S.matchPicking='enemy';save();render();};S.enemies=[];S.bans=[];S.locks=me?[me]:[];S.matchLane='';S.matchPicking='enemy';save();}
