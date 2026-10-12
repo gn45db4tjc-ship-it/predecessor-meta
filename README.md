@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.54.0
+# Predecessor Meta - 2.54.1
 
-2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.54.1 keeps the hourly official patch check working when an older patch-notes page fails to load. On 12 Oct 2026 at 08:03 UTC the Windows collector's check failed with "HTTP 404" for the v1.16.4 article, so it could not confirm that v1.17 is the live patch, although it had just loaded the v1.17 article itself. The older article is only the comparison page; the cloud's check loaded it four minutes later. Now, when the older article fails, its last verified copy is kept with its original date and named in a warning. The current patch article is always loaded live, a copy whose text no longer matches its fingerprint is never used, an access answer (403 or 429) still stops the check, and without a saved copy the check fails as before. The collector part takes effect once the Windows collector is rebuilt from this release. See [RELEASE-2.54.1.md](RELEASE-2.54.1.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.54.0
+
+2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.53.3
 
