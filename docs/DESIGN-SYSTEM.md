@@ -69,9 +69,9 @@ Each class of evidence keeps its own colour and marker (probe W3). Status colour
 | `--blue` | `#c3a6ff` | `#6842a8` | Calculated evidence text |
 | `--blue-tint` | `#182238` | `#e4e9fb` | Calculated chip fill |
 | `--red` | `#ff8a9a` | `#b0273a` | Negative values and errors |
-| `--amber` | `#f0c27a` | `#8a5a0a` | Warnings and required-source failures |
+| `--amber` | `#ffa36b` | `#9a4500` | Warnings and required-source failures. Orange since 2.55.0, so a warning never shares the gold of the S tier or the reviewed marker (UI2) |
 | `--amber-tint` | `#2b2419` | `#f7ecd6` | Warning background; offline banner |
-| `--amber-tint-2` | `#2b201a` | `#f7ecd6` | Warning chip fill |
+| `--amber-tint-2` | `#2b201a` | `#f7ecd6` | Warning fill (no longer used by the warning chip, which is outlined since 2.55.0) |
 | `--amber-ink` | `#f1e3c8` | `#4a3204` | Text on amber backgrounds |
 | `--official` | `#aab8c9` | `#4a5768` | Official text marker |
 | `--official-tint` | `rgba(170,184,201,.12)` | `rgba(74,87,104,.09)` | Official chip and cell fill |
@@ -184,6 +184,7 @@ The hero plate stays dark in both themes, so its tokens are defined once on `:ro
 | `--plate` | `#0a0d15` | same | The hero plate behind the portrait art |
 | `--on-plate` | `#f5f7fc` | same | Text on the plate |
 | `--on-plate-2` | `#bfe9f7` | same | Labels on the plate |
+| `--on-plate-warn` | `#ffa36b` | same | Warning text on the plate, which stays dark in both themes (2.55.0); the plate sets `--amber` to it |
 | `--plate-fade` | `rgba(7,8,13,.94)` | same | The plate's shade over the art (left edge) |
 | `--plate-fade-2` | `rgba(7,8,13,.78)` | same | The plate's shade (middle and bottom) |
 | `--plate-clear` | `rgba(7,8,13,0)` | same | Where the shade ends |
@@ -229,7 +230,7 @@ Page geometry.
 The one label component: padding `--s0-5` `--s2`, `--radius-sm` since 2.49.0, `--t-xs`, weight 700, capitals. Variants add colour only.
 
 - `.chip.tag.observed` / `.calculated` / `.reviewed` / `.official`: evidence. Always rendered with `badge(text, type)`. Each class draws its marker in CSS: a filled dot, an outlined diamond, a four-point star and an outlined square. Since 2.53.0 the markers are drawn shapes, not typed glyphs. The shipped faces lack ● ◇ ✦ ▢, so the glyphs fell back to several system fonts, and screen readers read them aloud (probe QT8). W3 compares the drawn shapes.
-- `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence. Warning shows a "!" hidden from screen readers. Saved draws an open ring.
+- `.chip.tag.warning` and `.chip.tag.saved`: status, not evidence. Warning shows a "!" hidden from screen readers. Since 2.55.0 it is outlined in `--amber` with no fill, so it never reads as a filled tier plate (UI2). Saved draws an open ring.
 
 **Symbols.** Use only symbols the shipped faces carry (‹ › · – … ↑ ↓ ×). For anything else, draw the mark and let the words carry the meaning:
 - `TO` (ui.js) draws a step arrow and reads " to " aloud ("Gold to Platinum").
@@ -309,6 +310,16 @@ The owner picked this from five stylized Figma directions on 4 October 2026 (fil
 - **Phone stat strip.** `.hero-context` is the tier and its label on the left, the win rate large (`.hero-figure`, with the gauge) on the right, and the sample line under both.
 - **Build.** Core purchases are labelled in the accent colour (`small.is-core`). Loadout parts show the icon beside the name, the label above and the figure below.
 - **Brand mark.** A slanted cyan bar replaces the diamond.
+
+## UI review fixes (2.55.0)
+
+From the owner-requested UI review of 12 October 2026 (probes UI1–UI4):
+
+- **Warnings are orange outlines.** `--amber` moved from yellow to orange and the warning chip lost its fill, so the gold family (S tier, reviewed marker, primary fill) means one thing (UI2).
+- **One evidence label per claim.** The desktop build head no longer repeats itself: no "Reviewed reasoning before rates" chip over the section, no "Reviewed plan"/"Provisional plan" eyebrow, and a calculated plan is labelled with the calculated chip, not a warning (UI3). A reviewed tier reads "Reviewed".
+- **The rank note is one tap away on hero pages.** It sits inside the role-statistics disclosure at the top of the page instead of a second band over the plate (UI3, `rank_view.js`).
+- **Phone plate.** 196 px instead of 230 px (UI4).
+- **Missing icons.** A build tile whose icon failed to load keeps its name below the position numeral (UI1).
 
 ## Focus and selection
 

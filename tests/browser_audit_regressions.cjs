@@ -4760,6 +4760,76 @@ probes.PF1 = async browser => {
   }
   verdict('PF1', !seen.desktop.retained || !seen.desktop.kept || !seen.phone.kept || seen.desktop.rows === 0, seen);
 };
+/* ===== 2.55.0 UI review (12 Oct 2026): the owner asked for the review's fixes. ===== */
+probes.UI1 = async browser => {
+  // Before: when an item icon fails to load, the phone build tile's slanted position numeral sits on the item name
+  // ("5ainted Rounds"). Remote images must degrade to names, so the name must stay clear of the numeral.
+  const context = await browser.newContext({serviceWorkers: 'block', ...phone});
+  await context.route(/statz\.gg|omeda\.city|pred\.gg\/.*\.(webp|png|jpe?g)/, r => r.abort());
+  const page = await context.newPage();
+  await page.goto(url);
+  await page.waitForFunction(() => !!B && !latestStatus.busy, null, {timeout: 120000});
+  await page.evaluate(() => { companionPrefs.fullDetails = false; saveCompanionPrefs(); S.role = 'jungle'; changeRoute('meta'); });
+  await guideLoaded(page);
+  await page.evaluate(() => openHero('serath', 'jungle'));
+  await page.waitForFunction(() => document.querySelectorAll('#main .simple-purchases li img[data-failed]').length >= 6, null, {timeout: 20000});
+  const seen = await page.evaluate(() => [...document.querySelectorAll('#main .simple-purchases:not(.match-build) li')].map(li => {
+    const n = li.querySelector('.simple-position').getBoundingClientRect(), t = li.querySelector('.item-name').getBoundingClientRect();
+    const overlap = Math.max(0, Math.min(n.right, t.right) - Math.max(n.left, t.left)) * Math.max(0, Math.min(n.bottom, t.bottom) - Math.max(n.top, t.top));
+    return {item: li.querySelector('.item-name').textContent.trim(), overlap: Math.round(overlap)};
+  }));
+  await context.close();
+  verdict('UI1', seen.length < 6 || seen.some(r => r.overlap > 0), seen);
+};
+probes.UI2 = async browser => {
+  // Before: warnings were filled amber chips, the same yellow family as the S-tier plate and the reviewed marker, so the
+  // "Saved September 8" warning under an S badge read as part of the grade. A warning is a status: an outlined orange
+  // tag with no fill, its hue at least 12 degrees from the gold.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    openHero('serath', 'jungle'); await new Promise(r => setTimeout(r, 400));
+    const hue = c => { const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map(v => v / 255), max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+      if (!d) return 0; const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4; return Math.round((h * 60 + 360) % 360); };
+    const warn = document.querySelector('#main .chip.tag.warning, #main .tag.warning'), s = document.querySelector('#main .tier-s');
+    if (!warn || !s) return {missing: {warning: !!warn, s: !!s}};
+    const w = getComputedStyle(warn), fill = w.backgroundColor;
+    return {warningHue: hue(w.color), goldHue: hue(getComputedStyle(s).backgroundColor), filled: !/rgba\(0, 0, 0, 0\)|transparent/.test(fill), fill};
+  });
+  await context.close();
+  verdict('UI2', !!seen.missing || seen.filled || Math.abs(seen.warningHue - seen.goldHue) < 12, seen);
+};
+probes.UI3 = async browser => {
+  // Before: the desktop hero page stacked the role-statistics line and a separate "Selected rank" band above the plate;
+  // the build section carried a gold "Reviewed reasoning before rates" chip even over a calculated plan, which repeated
+  // itself three times (eyebrow, title and a warning-coloured "Calculated starting point" chip). The rank note now sits
+  // inside the role-statistics disclosure (one tap away, never removed) and the plan head names its evidence once.
+  const {context, page} = await session(browser, desktopHero);
+  await guideLoaded(page);
+  const seen = await page.evaluate(async () => {
+    openHero('serath', 'jungle'); await new Promise(r => setTimeout(r, 400));
+    const main = document.querySelector('#main'), plate = main.querySelector('.hero-header');
+    const before = [...main.children].filter(e => plate && (e.compareDocumentPosition(plate) & Node.DOCUMENT_POSITION_FOLLOWING) && e.offsetParent && !e.classList.contains('back'));
+    const rank = main.querySelector('.rank-evidence'), head = main.querySelector('.build-head'), title = main.querySelector('#main .section-title .tag');
+    return {bands: before.map(e => e.className), rankInDisclosure: !!rank && !!rank.closest('details.evidence-line'),
+      sectionChip: title ? title.textContent.trim() : null, eyebrow: head?.querySelector('.eyebrow')?.textContent || null,
+      planChip: head ? [...head.querySelectorAll('.tag')].map(t => t.className + ':' + t.textContent.trim()) : []};
+  });
+  await context.close();
+  verdict('UI3', seen.bands.length > 1 || !seen.rankInDisclosure || /before rates/.test(seen.sectionChip || '') || !!seen.eyebrow
+    || seen.planChip.some(c => /warning/.test(c) && /Calculated/.test(c)), seen);
+};
+probes.UI4 = async browser => {
+  // Before: the phone hero plate reserved 230 px, so the build began below the middle of a 844 px screen. The plate
+  // keeps its art and every control at 200 px or less.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(async () => {
+    openHero('serath', 'jungle'); await new Promise(r => setTimeout(r, 400));
+    const h = document.querySelector('#main .mobile-hero-head'), build = document.querySelector('#main .simple-hero-section');
+    return {plate: h ? Math.round(h.getBoundingClientRect().height) : null, buildTop: build ? Math.round(build.getBoundingClientRect().top + scrollY) : null};
+  });
+  await context.close();
+  verdict('UI4', !seen.plate || seen.plate > 200, seen);
+};
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {

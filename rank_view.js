@@ -2,7 +2,7 @@
 // Uses the selected bundle only; never changes observations or extends an authored review's scope.
 if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
   const rankOriginal = {chrome, metaView, metaTierButton, metaDecisionHTML, rolePriorityHTML,
-    metaReviewMethod, buildsPageView, heroView, guidanceView, libraryView, changesView, dataView};
+    metaReviewMethod, buildsPageView, heroView, guidanceView, libraryView, changesView, dataView, recommendationEvidenceHTML};
   isMaterialError = e => e?.severity === 'error' && !/^Pred\.gg(?: |$)/.test(e.source || '');   // optional Pred.gg is not a required source
   function selectedRankLabel() { return B?.scoped_statistics?.bracket_label || B?.bracket?.label || 'Rank unavailable'; }
   function matchingRankReview() {
@@ -60,7 +60,14 @@ if (APP_CONFIG.mode === 'static' || APP_CONFIG.mode === 'export') {
       `<div class="meta-layout"><div>${table}</div>${aside}</div>`;
   };
   buildsPageView = function() { return rankEvidenceNote() + rankOriginal.buildsPageView(); };
-  heroView = function() { return rankEvidenceNote() + rankOriginal.heroView(); };
+  // 2.55.0 (UI3): on the hero page the rank note sits inside the role-statistics disclosure that heads the page
+  // (one tap away, never removed), not as a second band over the plate.
+  heroView = function() { return rankOriginal.heroView(); };
+  recommendationEvidenceHTML = function() {
+    const html = rankOriginal.recommendationEvidenceHTML(), note = rankEvidenceNote();
+    if (S.route !== 'hero' || !note || !html.includes('<div class="detail-content">')) return html;
+    return html.replace('<div class="detail-content">', '<div class="detail-content"><p class="rank-evidence">' + note.replace(/^<div class="note rank-evidence">|<\/div>$/g, '') + '</p>');
+  };
   guidanceView = function() { return rankEvidenceNote() + rankOriginal.guidanceView(); };
   // 2.52.0: Items & loadouts has no rank-specific figures, so it carries no rank note.
   libraryView = function() { return rankOriginal.libraryView(); };
