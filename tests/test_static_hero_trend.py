@@ -1,4 +1,4 @@
-"""2.54.0: a hero page shows a 7-day line of Pred.gg's win rate, one point per day (the day's last pull).
+"""2.54.0: a hero page shows a 7-day line of Pred.gg's win rate, one pull a day, each at least 24 hours before the next.
 
 Built at collection from the validated history snapshots of the same cohort (patch, versions, rank, rating). Each point
 counts the whole patch so far, so the series is described as overlapping, never as separate samples. The series rides the
@@ -18,17 +18,21 @@ def snap(fetched, rows, **cohort):
 
 
 class ScopedTrend(unittest.TestCase):
-    def test_last_pull_of_each_day_within_seven_days(self):
+    def test_one_pull_a_day_at_least_24_hours_apart_within_seven_days(self):
         now = snap('2026-10-12T20:00:00Z', [('shinbi', 'jungle', 52.004, 900)])
         history = [snap('2026-10-04T20:00:00Z', [('shinbi', 'jungle', 40, 100)]),   # 8 days old: outside
-                   snap('2026-10-10T08:00:00Z', [('shinbi', 'jungle', 49, 500)]),
-                   snap('2026-10-10T23:00:00Z', [('shinbi', 'jungle', 50, 600)]),   # later the same day: kept
+                   snap('2026-10-10T08:00:00Z', [('shinbi', 'jungle', 49, 500)]),   # latest 24 h+ before Oct 11 12:00
+                   snap('2026-10-10T23:00:00Z', [('shinbi', 'jungle', 50, 600)]),   # only 13 h before the next point
                    snap('2026-10-11T12:00:00Z', [('shinbi', 'jungle', 51, 700)]), now]
         out = m.scoped_trend(history, now)
-        self.assertEqual(out['points'], ['2026-10-10T23:00:00Z', '2026-10-11T12:00:00Z', '2026-10-12T20:00:00Z'])
-        self.assertEqual(out['series']['jungle']['shinbi'], [[50, 600], [51, 700], [52.0, 900]])
+        self.assertEqual(out['points'], ['2026-10-10T08:00:00Z', '2026-10-11T12:00:00Z', '2026-10-12T20:00:00Z'])
+        self.assertEqual(out['series']['jungle']['shinbi'], [[49, 500], [51, 700], [52.0, 900]])
         self.assertEqual((out['window_days'], out['basis'], out['patch'], out['bracket_label']), (7, 'patch_to_date', '1.17.1', 'Gold+'))
         self.assertRegex(out['note'], 'overlap')
+
+    def test_pulls_either_side_of_utc_midnight_are_not_two_days(self):
+        now = snap('2026-10-12T00:05:00Z', [('shinbi', 'jungle', 52, 900)])   # 19:05 CDT on 11 Oct, like the pull before
+        self.assertIsNone(m.scoped_trend([snap('2026-10-11T23:00:00Z', [('shinbi', 'jungle', 51, 800)]), now], now))
 
     def test_other_cohorts_never_join_the_line(self):
         now = snap('2026-10-12T20:00:00Z', [('shinbi', 'jungle', 52, 900)])

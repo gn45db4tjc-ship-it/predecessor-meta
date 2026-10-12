@@ -1037,15 +1037,16 @@ TREND_DAYS = 7
 
 
 def scoped_trend(snapshots,current):
-    """Each hero and role's Pred.gg win rate and games at the last pull of each UTC day, over the last TREND_DAYS days of
-    the current cohort (same patch, versions, rank and rating), for the hero page (2.54.0). Each point counts the whole
-    patch line so far, so points overlap and are not separate samples. None until two days have a pull."""
-    end=history_time(current['fetched_at']);by_day={}
-    for s in sorted(snapshots,key=lambda s:history_time(s['fetched_at'])):
-        age=end-history_time(s['fetched_at'])
-        if dt.timedelta(0)<=age<dt.timedelta(days=TREND_DAYS) and scoped_history_compatible(s,current,True):
-            by_day[history_time(s['fetched_at']).date()]=s
-    points=[by_day[d] for d in sorted(by_day)]
+    """Each hero and role's Pred.gg win rate and games, one pull a day over the last TREND_DAYS days of the current cohort
+    (same patch, versions, rank and rating), for the hero page (2.54.0). Going back from the newest pull, each point is the
+    latest pull at least 24 hours before the one after it, so no two points share a calendar date in any time zone. Each
+    point counts the whole patch line so far, so points overlap and are not separate samples. None until two points."""
+    end=history_time(current['fetched_at']);points=[]
+    for s in sorted(snapshots,key=lambda s:history_time(s['fetched_at']),reverse=True):
+        at=history_time(s['fetched_at'])
+        if not (dt.timedelta(0)<=end-at<dt.timedelta(days=TREND_DAYS) and scoped_history_compatible(s,current,True)):continue
+        if not points or at<=history_time(points[-1]['fetched_at'])-dt.timedelta(days=1):points.append(s)
+    points.reverse()
     if len(points)<2:return None
     series={}
     for row in current['rows']:
@@ -1058,7 +1059,7 @@ def scoped_trend(snapshots,current):
         series.setdefault(row['role'],{})[row['slug']]=values
     return {'window_days':TREND_DAYS,'basis':'patch_to_date','patch':current['cohort']['patch'],'bracket_label':current['cohort']['bracket_label'],
             'points':[s['fetched_at'] for s in points],'series':series,
-            'note':'Win rate and games at the last Pred.gg pull of each day. Each pull counts the whole patch so far, so the points overlap; a change is not a separate sample or a measured patch effect.'}
+            'note':'Win rate and games at one Pred.gg pull a day, each at least 24 hours after the one before. Each pull counts the whole patch so far, so the points overlap; a change is not a separate sample or a measured patch effect.'}
 
 
 def with_scoped_movement(bundle):

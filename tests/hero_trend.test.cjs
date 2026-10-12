@@ -1,5 +1,5 @@
 'use strict';
-/* 2.54.0: a hero's Pred.gg win rate at the last pull of each day this week (scoped_changes.trend). Days under 100 games
+/* 2.54.0: a hero's Pred.gg win rate at one pull a day this week (scoped_changes.trend). Days under 100 games
    are left out, two days are needed, and a malformed series shows nothing. Synthetic fixtures. */
 const test = require('node:test'), assert = require('node:assert/strict');
 const Meta = require('../engine.js');

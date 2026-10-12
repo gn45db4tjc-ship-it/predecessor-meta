@@ -4,8 +4,8 @@ On 12 Oct 2026 the owner asked for the improvements proposed in the project thre
 
 ## What changes
 
-- **The hero page shows a daily trend.** Under the hero header (desktop, phone and the companion), a small line plots the hero's Pred.gg win rate for the selected role at the last pull of each day over the past 7 days, with the first and last values, the change in percentage points, the dates and the games at each end ("Daily trend: 49.1% to 51.2% +2.10 pp").
-- **It is honest about what it is.** Each Pred.gg pull counts the whole patch so far, so the points overlap; the text says "win rate so far this patch, at the last pull of each day", and the stored note says the change is not a separate sample or a measured patch effect. A point under 100 games is dropped, a row with no games is a gap rather than 0%, and the line needs two days. Other cohorts (another patch, game versions, rank or rating) never join the line.
+- **The hero page shows a daily trend.** Under the hero header (desktop, phone and the companion), a small line plots the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days (going back from the newest pull, each point is the latest pull at least 24 hours before the next, so no two points share a date in any time zone), with the first and last values, the change in percentage points, the dates and the games at each end ("Daily trend: 49.1% to 51.2% +2.10 pp").
+- **It is honest about what it is.** Each Pred.gg pull counts the whole patch so far, so the points overlap; the text says "win rate so far this patch, one pull a day", and the stored note says the change is not a separate sample or a measured patch effect. A point under 100 games is dropped, a row with no games is a gap rather than 0%, and the line needs two days. Other cohorts (another patch, game versions, rank or rating) never join the line.
 - **Where it comes from.** `scoped_trend` in `predecessor_meta.py` reads the validated Pred.gg history snapshots the collector already keeps for the Changes view (`attach_scoped_history`) and stores `scoped_changes.trend`. The projection puts it in the guide, so the phone's first screen does not grow.
 
 ## Review follow-ups to 2.53.3
@@ -17,6 +17,7 @@ The Codex review of the pull request found five gaps in the 2.53.3 changes and t
 - **The retry count is saved before collecting.** A crash during a Pred.gg retry could leave the count unchanged and repeat the same numbered retry indefinitely. The count is now saved with the existing checkpoint before any slow work.
 - **Kept community guides come from the newest bundle that has them** (`previous_guides_bundle`), not the bundle chosen for Pred.gg definitions, which can be older.
 - **A trend point whose Pred.gg hero id differs is a gap**, as the Changes view already treats it.
+- **Trend points are at least 24 hours apart.** The first version took the last pull of each UTC day, so a pull just after midnight UTC and the one just before it could both be points and show the same local date at both ends. Points are now picked going back from the newest pull, each at least 24 hours before the next.
 
 ## Where it takes effect
 

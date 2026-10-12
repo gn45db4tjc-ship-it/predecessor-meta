@@ -302,7 +302,7 @@
       const r=m?.roles?.[role];
       return r?{...r,from:m.from,to:m.to,bracket_label:m.bracket_label||null,minimum_games:m.minimum_games||100}:null;
     }
-    // 2.54.0: one hero and role's Pred.gg win rate at the last pull of each day this week (scoped_changes.trend, in the
+    // 2.54.0: one hero and role's Pred.gg win rate at one pull a day this week (scoped_changes.trend, in the
     // guide). Only days with 100+ games count; two are needed. Patch-to-date points overlap: a description, not a sample.
     function heroTrend(slug,role) {
       const t=bundle?.scoped_changes?.trend,s=t?.series?.[role]?.[slug];
