@@ -219,7 +219,7 @@ function favoriteChangesHTML(favorites){
  if(!rows.length)return '';
  const patch=rows[0].r.patch,url=rows[0].r.url,hotfix=rows.some(x=>x.r.changes.some(c=>c.hotfix));
  const heroRows=rows.map(({slug,r})=>`<li><h3>${esc(name(slug))} <small>${r.changes.length===1?'1 change':r.changes.length+' changes'}</small></h3><ul>${r.changes.map(c=>`<li>${c.field?`<strong>${esc(c.field)}</strong>: `:''}${esc(c.change)}${c.hotfix?` <small>Hotfix ${esc(c.patch||'')}</small>`:''}</li>`).join('')}</ul></li>`).join('');
- return `<details class="saved-heroes favorite-changes" data-keep="favorite-changes"><summary>Patch ${esc(patch)} changed ${rows.length===1?esc(name(rows[0].slug)):rows.length+' of your favorites'}</summary><section><ul class="favorite-change-list">${heroRows}</ul><p class="simple-source">Official change notes for patch ${esc(patch)}${hotfix?' and its current hotfixes':''}. ${url?link(url,'Official patch '+patch+' notes'):''}</p></section></details>`;
+ return `<details class="favorite-changes" data-keep="favorite-changes"><summary>Patch ${esc(patch)} changed ${rows.length===1?esc(name(rows[0].slug)):rows.length+' of your favorites'}</summary><section><ul class="favorite-change-list">${heroRows}</ul><p class="simple-source">Official change notes for patch ${esc(patch)}${hotfix?' and its current hotfixes':''}. ${url?link(url,'Official patch '+patch+' notes'):''}</p></section></details>`;
 }
 function savedHeroShortcuts(favorites,recent){
  const seen=new Set(favorites.map(p=>p.slug+'|'+p.role));
