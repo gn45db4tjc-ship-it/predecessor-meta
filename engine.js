@@ -302,6 +302,16 @@
       const r=m?.roles?.[role];
       return r?{...r,from:m.from,to:m.to,bracket_label:m.bracket_label||null,minimum_games:m.minimum_games||100}:null;
     }
+    // 2.54.0: one hero and role's Pred.gg win rate at one pull a day this week (scoped_changes.trend, in the
+    // guide). Only days with 100+ games count; two are needed. Patch-to-date points overlap: a description, not a sample.
+    function heroTrend(slug,role) {
+      const t=bundle?.scoped_changes?.trend,s=t?.series?.[role]?.[slug];
+      if(!t||!Array.isArray(t.points)||!Array.isArray(s)||s.length!==t.points.length)return null;
+      const points=t.points.map((at,i)=>{const v=s[i];return Array.isArray(v)&&finite(v[0])&&Number.isInteger(v[1])&&v[1]>=100&&Number.isFinite(Date.parse(at))?{fetched_at:at,wr:v[0],played:v[1]}:null;}).filter(Boolean);
+      if(points.length<2)return null;
+      const first=points[0],last=points[points.length-1];
+      return {points,first,last,delta:last.wr-first.wr,patch:t.patch||null,bracket_label:t.bracket_label||null,window_days:t.window_days||7,minimum_games:100,note:t.note||''};
+    }
     // Displaying a dated observation does not make it eligible for recommendation ranking.
     // Keep this policy separate: performance()/assess()/recommend() retain their patch gates.
     function displayPerformancePolicy({now=Date.now()}={}) {
@@ -1180,7 +1190,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,roleMovement,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,roleMovement,heroTrend,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

@@ -146,8 +146,9 @@ def check(manifest, review_index, now):
             lines.append('Pred.gg collection is paused: ' + str(manifest['source_pauses']['pred']) + '.')
         problems.append(problem('pred-age', 'The Pred.gg cohort is not current',
                                 'Pred.gg exact-patch cohort not current for: ' + ', '.join(late) + '.', lines,
-                                "Next attempt: the Windows collector's next daily run from " + CONFIG['daily_utc'] +
-                                ' UTC, if it is running.', False))
+                                "Next attempt: the Windows collector, if it is running. After a dropped Pred.gg connection "
+                                'it tries again every few hours (up to ' + str(CONFIG.get('pred_retry_limit', 4)) +
+                                ' times), then at its next daily run from ' + CONFIG['daily_utc'] + ' UTC.', False))
 
     failed = [(r, cohorts[r].get('last_attempt') or {}) for r in ranks
               if r in cohorts and r not in missing and (cohorts[r].get('last_attempt') or {}).get('status') not in (None, 'ok')]
