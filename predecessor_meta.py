@@ -1053,7 +1053,8 @@ def scoped_trend(snapshots,current):
         values=[]
         for s in points:
             r=next((x for x in s['rows'] if x['slug']==row['slug'] and x['role']==row['role']),None)
-            values.append([round(r['winRate'],2),r['matches']] if r and r['matches'] else None)
+            same=r and r['matches'] and r.get('source_hero_id')==row.get('source_hero_id')   # as diff_scoped_snapshots: a changed id is not the same hero
+            values.append([round(r['winRate'],2),r['matches']] if same else None)
         series.setdefault(row['role'],{})[row['slug']]=values
     return {'window_days':TREND_DAYS,'basis':'patch_to_date','patch':current['cohort']['patch'],'bracket_label':current['cohort']['bracket_label'],
             'points':[s['fetched_at'] for s in points],'series':series,
@@ -2615,7 +2616,10 @@ class PredPages:
                 if wait is None or self.blocked.is_set():
                     with self.lock:self.failed_in_a_row+=1
                     raise
-                self.sleep(wait);continue
+                self.sleep(wait)
+                # Another page may have hit 403/429 while this one waited: the access stop holds for every request.
+                if self.blocked.is_set():raise SourceBlocked('Pred.gg stopped after source block; the retry was not sent')
+                continue
             with self.lock:self.failed_in_a_row=0
             return result
     def stop_access(self,reason):
@@ -3474,6 +3478,18 @@ def keep_previous_pred_roles(bundle, previous, at=None):
 def previous_pred_bundle(bracket):
     """The newest saved bundle for this bracket, preferring one that holds Pred.gg definitions (2.52.1), so a failed
     collection saved since does not hide the last good Pred.gg kits."""
+    has_pred = lambda b: (b.get('pred_game_data') or {}).get('status') in ('ok', 'retained', 'partial') and (b.get('pred_game_data') or {}).get('heroes')
+    return saved_bundle_preferring(bracket, has_pred)
+
+
+def previous_guides_bundle(bracket):
+    """The newest saved bundle for this bracket that holds community guides (2.54.0), chosen separately from the Pred.gg
+    definitions so a collection whose Pred.gg pass failed still passes on its fresh guides."""
+    return saved_bundle_preferring(bracket, lambda b: ((b.get('sources') or {}).get('community_builds') or {}).get('status')
+                                   in ('ok', 'partial', 'retained') and b.get('community_builds'))
+
+
+def saved_bundle_preferring(bracket, wanted):
     candidates = []
     for name in ('last_available_', 'last_successful_', 'last_primary_'):
         try:
@@ -3486,8 +3502,7 @@ def previous_pred_bundle(bracket):
     if not candidates:
         return None
     candidates.sort(key=lambda pair: pair[0])
-    has_pred = lambda b: (b.get('pred_game_data') or {}).get('status') in ('ok', 'retained', 'partial') and (b.get('pred_game_data') or {}).get('heroes')
-    return next((value for _, value in candidates if has_pred(value)), candidates[0][1])
+    return next((value for _, value in candidates if wanted(value)), candidates[0][1])
 
 
 KIT_FIELDS = ('key', 'display_name', 'image', 'cooldown', 'cost', 'game_description', 'menu_description')
@@ -3638,7 +3653,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     if not fixture_dir:
         previous_pred=previous_pred_bundle(bracket)
         progress('Checking current-patch Pred.gg community guides…')
-        attach_community_builds(bundle,previous_pred)
+        attach_community_builds(bundle,previous_guides_bundle(bracket))
         pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=pred_source_fetch(),
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)

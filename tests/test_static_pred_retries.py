@@ -252,5 +252,59 @@ class CommunityGuidesSurviveAServerError(unittest.TestCase):
             self.assertEqual(b['sources']['community_builds']['status'], 'failed')
 
 
+
+class ReviewFollowUps(unittest.TestCase):
+    """Codex review of #143: each case below failed on the first 2.54.0 commit."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.addCleanup(setattr, p, 'COLLECTOR_HOST', p.COLLECTOR_HOST)
+
+    def test_no_retry_is_sent_once_another_page_stopped_access_during_the_wait(self):
+        pages = m.PredPages(cache_dir=self.root, fetch=Fetch(EOF, PAGE), sleep=lambda wait: pages.blocked.set())
+        with self.assertRaises(m.SourceBlocked):
+            pages.fetch_retrying('https://pred.gg/heroes')
+        self.assertEqual(len(pages.fetch.urls), 1, 'the 403/429 stop holds for a page that was waiting to retry')
+
+    def test_only_a_transient_failure_schedules_a_same_day_retry(self):
+        for detail in ('Pred.gg roster coverage mismatch: 61 of 62 heroes', 'Expecting value: line 1 column 1 (char 0)',
+                       'Current game patch unverified'):
+            self.assertFalse(p.pred_retryable(attempt(detail)), detail)
+        for detail in ('HTTP 502 for https://pred.gg/heroes', 'TimeoutError: The read operation timed out (for https://pred.gg/heroes)',
+                       'RemoteDisconnected: Remote end closed connection without response (for https://pred.gg/heroes)'):
+            self.assertTrue(p.pred_retryable(attempt(detail)), detail)
+
+    def test_the_retry_count_is_saved_before_the_collection_starts(self):
+        p.COLLECTOR_HOST = 'windows'
+        (self.root / 'data').mkdir()
+        p.write_json(self.root / 'publication.json', {'attempts': {}, 'last_attempted_signature': p.live_signature(official()),
+            'last_full_attempt_at': (NOW - dt.timedelta(hours=3)).isoformat(), 'pred_retry': {'pending': True, 'attempts': 1}})
+        seen = []
+
+        def crash(settings, progress):
+            seen.append(p.read_json(self.root / 'publication.json')['pred_retry']['attempts'])
+            raise RuntimeError('collector stopped')
+        with patch.object(p.base, 'fetch_official', return_value=official()), patch.object(p.base, 'now_utc', return_value=NOW), \
+             patch.object(p.base, 'collect_bundle', side_effect=crash), patch.object(p.base, 'DATA_DIR', self.root / 'data'), \
+             patch.object(p, 'daily_boundary', return_value=NOW - dt.timedelta(hours=12)), \
+             patch.object(p, 'waits_for_local_collector', return_value=False), \
+             patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            try:p.run(self.root, self.root / 'site')
+            except Exception:pass
+        self.assertEqual(seen, [2], 'a crash during retry 2 cannot run retry 2 again')
+
+    def test_guides_come_from_the_newest_bundle_that_has_them(self):
+        def saved(name, hours, guides, pred):
+            b = saved_builds() if guides else builds_bundle()
+            b.update(schema=3, bracket={'segment': 'gold'}, generated_at=(NOW - dt.timedelta(hours=hours)).isoformat(),
+                     pred_game_data={'status': 'ok', 'heroes': {'kira': {}}} if pred else {'status': 'failed'})
+            m.save_bundle(b, self.root / (name + 'gold.json'), also_latest=False)
+        with patch.object(m, 'DATA_DIR', self.root), patch.object(m, 'now_utc', return_value=NOW):
+            saved('last_available_', 3, guides=True, pred=False)
+            saved('last_successful_', 27, guides=False, pred=True)
+            self.assertTrue(m.previous_guides_bundle('gold')['community_builds'])
+            self.assertEqual(m.previous_pred_bundle('gold')['pred_game_data']['status'], 'ok')
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -43,6 +43,11 @@ class ScopedTrend(unittest.TestCase):
         self.assertEqual(out['series']['jungle']['kallari'], [None, [48, 300]])
         self.assertNotIn('zarus', out['series']['jungle'], 'a row with no games today has no line')
 
+    def test_a_changed_source_hero_id_is_not_the_same_hero(self):
+        now = snap('2026-10-12T20:00:00Z', [('shinbi', 'jungle', 52, 900)]); now['rows'][0]['source_hero_id'] = 'b'
+        old = snap('2026-10-11T12:00:00Z', [('shinbi', 'jungle', 51, 700)]); old['rows'][0]['source_hero_id'] = 'a'
+        self.assertEqual(m.scoped_trend([old, now], now)['series']['jungle']['shinbi'], [None, [52, 900]])
+
     def test_the_series_rides_the_guide_not_the_core(self):
         self.assertIn(('scoped_changes', 'trend'), P.GUIDE_PATHS)
 

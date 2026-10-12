@@ -526,6 +526,8 @@ def required_source_block(attempt):
 
 PRED_RETRY = 'Pred.gg retry'
 PRED_STOP = re.compile(r'\b(?:401|403|429)\b|blocked|rate.limit|paused|stopped|access', re.I)
+# What another collection can fix: a dropped or timed-out connection or a server error (http_get's FetchError text).
+PRED_TRANSIENT = re.compile(r'HTTP 5\d\d\b|URLError|SSL|EOF|timed out|[Tt]imeout|Connection\w*Error|RemoteDisconnected|IncompleteRead|temporar', re.I)
 
 
 def pred_retryable(attempt):
@@ -533,7 +535,8 @@ def pred_retryable(attempt):
     access answer, a pause or a stop (Pred.gg's access stops are never retried around)."""
     errors = [e for e in attempt.get('errors', []) if e.get('severity') == 'error'
               and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')) and e.get('source') != 'Pred.gg retained data']
-    return bool(errors) and not any(PRED_STOP.search(str(e.get('detail', ''))) for e in errors)
+    details = [str(e.get('detail', '')) for e in errors]
+    return any(PRED_TRANSIENT.search(d) for d in details) and not any(PRED_STOP.search(d) for d in details)
 
 
 def required_source_failure(attempt):
@@ -745,6 +748,8 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
             state['blocked_in_last_full'] = False
             state['required_retry'] = {'pending': True, 'blocked': False, 'attempts': retry_count,
                 'next_at': base.iso(now + dt.timedelta(hours=CONFIG.get('required_retry_hours', 3)))}
+            if reason == PRED_RETRY:   # counted before the slow work, so a crash cannot repeat a numbered retry
+                state['pred_retry'] = {**(state.get('pred_retry') or {}), 'attempts': pred_count}
             # Checkpoint before any slow work. A crash cannot cause a retry storm.
             for bracket in CONFIG['brackets']:
                 state['attempts'][bracket] = {'at': base.iso(now), 'status': 'interrupted',
