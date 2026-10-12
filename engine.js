@@ -304,6 +304,29 @@
     }
     // 2.54.0: one hero and role's Pred.gg win rate at one pull a day this week (scoped_changes.trend, in the
     // guide). Only days with 100+ games count; two are needed. Patch-to-date points overlap: a description, not a sample.
+    // 2.55.0: a hero's official changes in the live patch and its current hotfixes (earlier hotfixes are historical).
+    // Factual change notes only: a change is not labelled a buff or a nerf.
+    function heroPatchChanges(slug) {
+      const live=bundle?.official?.live;if(!heroes[slug]||!live?.version)return null;
+      const row=(c,hotfix)=>({patch:c.patch??null,field:c.field??'',change:c.change??'',source:c.source??null,hotfix});
+      const rows=[...(bundle.official_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&c.patch===live.version).map(c=>row(c,false)),
+        ...(bundle.official_hotfix_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&!c.historical).map(c=>row(c,true))].filter(c=>c.change);
+      return rows.length?{patch:live.version,url:live.url||null,changes:rows}:null;
+    }
+    // 2.55.0: one line to watch for per enemy in Match. The reviewed counterplay's first sentence when it exists
+    // (labelled previous when it is not active for this patch); otherwise a calculated line from the hero's kit.
+    function enemyWatch(slug) {
+      if(!heroes[slug])return null;
+      const s=heroStrategy(slug);
+      if(s?.counterplay){const first=String(s.counterplay).split(/(?<=[.!?])\s+/).filter(Boolean)[0];
+        if(first)return {kind:s.active?'reviewed':'previous',text:first,reviewed_at:s.reviewed_at||null,patch:s.patch||null};}
+      const p=heroProfile(slug);if(!p)return null;
+      const ev=heroes[slug].capability_evidence||{},names=tags=>[...new Set(tags.flatMap(t=>(ev[t]||[]).map(r=>r.ability)).filter(Boolean))];
+      const part=(label,list)=>label+(list.length?': '+list.join(', '):'')+'.';
+      const parts=[p.cc&&part('Hard crowd control',names(['hard_cc'])),p.healer&&part(ev.ally_healing?.length?'Heals allies':'Heals',names(['ally_healing','healing'])),
+        p.shielder&&part('Shields allies',names(['ally_shield'])),p.burst&&'Burst damage.'].filter(Boolean);
+      return {kind:'kit',text:parts.length?parts.join(' '):'No crowd control, healing, shields or burst identified in the kit.'};
+    }
     function heroTrend(slug,role) {
       const t=bundle?.scoped_changes?.trend,s=t?.series?.[role]?.[slug];
       if(!t||!Array.isArray(t.points)||!Array.isArray(s)||s.length!==t.points.length)return null;
@@ -1078,7 +1101,7 @@
         const base = r.prio(E, profile), prio = Math.max(0.5, base - 1.5 * coveredBy.length)+(threatMatches(r)?3:0);
         const candidates = catalogue.filter(it => (!coreKeys.has(NK(it.name))||priority||owned.length) && r.pick(it, profile)).map(it => { const m = pool[NK(it.name)] || null, f = itemFit(it, profile, m); if(profile.style==='burst_carry'&&(statNum(it,'Attack speed')>0)) {f.score-=2;f.why.push('-2 attack speed is not this reviewed firing-window plan');} return {name: it.name, price: it.total_price, stats: it.stats || {}, measured: m, score: f.score, why: f.why, trigger:needTrigger(r,it,profile),evidence: r.manual?r.show(it):(fxText(it) || r.show(it))}; })
           .sort((a, b) => Number(b.trigger.eligible)-Number(a.trigger.eligible)||b.score - a.score || (b.measured?.supports_current_fit?b.measured.played:0) - (a.measured?.supports_current_fit?a.measured.played:0) || (a.price || 0) - (b.price || 0)).slice(0, 6);
-        return {id: r.id, label: r.label, manual: !!r.manual, priority:r.id===priority,prio, basePrio: base, coveredBy, why: r.id===priority?'You selected this priority from the actual game. Kit counts do not establish enemy purchases.':r.why(E, profile), candidates};
+        return {id: r.id, label: r.label, manual: !!r.manual, priority:r.id===priority,threat:threatMatches(r),prio, basePrio: base, coveredBy, why: r.id===priority?'You selected this priority from the actual game. Kit counts do not establish enemy purchases.':r.why(E, profile), candidates};
       }).sort((a, b) => Number(b.priority)-Number(a.priority)||b.prio - a.prio);
       const slots=[...owned,...plan.items.filter(n=>!ownedKeys.has(NK(n)))].slice(0,6).map(name=>({name,kind:ownedKeys.has(NK(name))?'owned':coreKeys.has(NK(name))?'core':'baseline',label:ownedKeys.has(NK(name))?'Owned · kept':plan.kind==='reviewed'?(coreKeys.has(NK(name))?'Reviewed core':'Reviewed flexible slot'):'Calculated starting sequence',measured:pool[NK(name)]||null}));
       const swaps=[],unmet=[],used=new Set(slots.map(s=>NK(s.name))),reserved=new Set();
@@ -1190,7 +1213,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,roleMovement,heroTrend,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,roleMovement,heroTrend,heroPatchChanges,enemyWatch,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');

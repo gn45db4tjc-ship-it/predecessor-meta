@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.54.0
+# Predecessor Meta - 2.55.0
 
-2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.55.0 adds four things. Phone Meta shows a closed line when the live patch or a current hotfix changed one of your favorite heroes, listing each official change note with a link to the notes (changes are shown as written, not called buffs or nerfs). In Match, each enemy gets one line to watch for (reviewed counterplay, or a line calculated from the kit), you can mark the enemy in your lane to see the current head-to-head sample, the counterplay against them and the item needs that answer them, and you can add allies, which reach the adapted build as team advice and show what your team's kits are missing. Allies change advice, not item swaps. See [RELEASE-2.55.0.md](RELEASE-2.55.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.54.0
+
+2.54.0 adds a daily trend to each hero page: a small line of the hero's Pred.gg win rate for the selected role at one pull a day over the past 7 days, with the first and last values, the change and the games behind each end. Each pull counts the whole patch so far, so the points overlap and the change is not a separate sample or a measured patch effect; a day under 100 games is left out, and the line needs two days. It is built by the Windows collector from the Pred.gg history it already keeps for the Changes view, so it appears once the collector is rebuilt from this release and has collected on two days. It also carries 2.53.3's collector fixes. See [RELEASE-2.54.0.md](RELEASE-2.54.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.53.3
 
