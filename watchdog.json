@@ -1,15 +1,12 @@
 {
  "schema": 1,
- "checked_at": "2026-10-13T11:47:17+00:00",
+ "checked_at": "2026-10-13T11:52:16+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-10-13T00:55:55+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-10-09T19:31:24+00:00"
-  },
-  "publication-quiet": {
-   "first_seen": "2026-10-13T11:47:17+00:00"
   }
  },
  "dispatches": [
@@ -185,6 +182,13 @@
    "event": "started",
    "at": "2026-10-13T11:47:17+00:00",
    "summary": "Last publication 3.0 hours ago."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "cleared",
+   "at": "2026-10-13T11:52:16+00:00",
+   "started_at": "2026-10-13T11:47:17+00:00",
+   "hours": 0.1
   }
  ]
 }
