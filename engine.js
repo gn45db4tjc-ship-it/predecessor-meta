@@ -8,6 +8,19 @@
   const mean = xs => { const a = xs.filter(finite); return a.length ? a.reduce((s,x)=>s+x,0)/a.length : null; };
   const key = (a,b) => [a,b].sort().join('|');
   const cap = (h,c) => (h?.capabilities || []).includes(c);
+  // 2.57.0: what changed for one favorite hero and role between two snapshots the phone saved on separate visits
+  // (snapshot: tier, tier_kind, wr, played, source, patch, items). A win rate counts only from the same source, with
+  // 100+ games on both sides, when it moved by a full point; items only when both visits showed an active reviewed build.
+  function snapshotChanges(before, after) {
+    if (!before || !after) return [];
+    const out = [];
+    if (before.tier && after.tier && before.tier !== after.tier) out.push({kind:'tier', from:before.tier, to:after.tier, from_kind:before.tier_kind || null, to_kind:after.tier_kind || null});
+    if (finite(before.wr) && finite(after.wr) && before.played >= 100 && after.played >= 100 && before.source && before.source === after.source && Math.abs(after.wr - before.wr) >= 1)
+      out.push({kind:'wr', from:before.wr, to:after.wr, delta:after.wr - before.wr, from_played:before.played, to_played:after.played, source:after.source, from_patch:before.patch || null, to_patch:after.patch || null});
+    if (Array.isArray(before.items) && Array.isArray(after.items) && before.items.join('|') !== after.items.join('|'))
+      out.push({kind:'build', added:after.items.filter(n => !before.items.includes(n)), removed:before.items.filter(n => !after.items.includes(n))});
+    return out;
+  }
   // 2.42.0: an inactive reviewed build is explained in a sentence, never "The reviewed build is <status>."
   function reviewReason(status) {
     const s = String(status || ''), unresolved = s.match(/^review unresolved: (.+)$/);
@@ -314,6 +327,21 @@
       const rows=[...(bundle.official_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&c.patch===live.version).map(c=>row(c,false)),
         ...(bundle.official_hotfix_changes||[]).filter(c=>c?.kind==='hero'&&c.key===slug&&fixes.has(c.patch)).map(c=>row(c,true))].filter(c=>c.change);
       return rows.length?{patch:live.version,url:live.url||null,changes:rows}:null;
+    }
+    // 2.57.0: how an active reviewed build differs from the reviewed build of the previous patch (previous_review):
+    // items in and out, items that moved, and loadout changes. The patch review's own reason explains why.
+    function buildChanges(slug,role) {
+      const r=buildReview(slug,role),p=r?.previous_review;
+      if(!r?.active||!p||!Array.isArray(p.core)||!Array.isArray(p.finish)||!p.patch||p.patch===r.patch)return null;
+      const now=[...r.core,...r.finish],was=[...p.core,...p.finish],at=(list,n)=>list.findIndex(x=>NK(x)===NK(n));
+      const added=now.filter(n=>at(was,n)<0),removed=was.filter(n=>at(now,n)<0);
+      const moved=now.map((n,i)=>({item:n,from:at(was,n),to:i})).filter(m=>m.from>=0&&m.from!==m.to);
+      const list=v=>Array.isArray(v)?v.join(' / '):String(v??'');
+      const fields=[['crest','Crest'],['augment','Augment'],['eternal','Eternal'],['blessings','Blessings'],['skill_priority','Skill priority']]
+        .filter(([k])=>p[k]!=null&&r[k]!=null&&NK(list(p[k]))!==NK(list(r[k]))).map(([k,label])=>({key:k,label,from:p[k],to:r[k]}));
+      return {from:{patch:p.patch,reviewed_at:p.reviewed_at||null},to:{patch:r.patch,reviewed_at:r.reviewed_at||null},
+        result:r.patch_review?.result||null,reason:r.patch_review?.reason||null,added,removed,moved,fields,
+        unchanged:!added.length&&!removed.length&&!moved.length&&!fields.length};
     }
     // 2.56.0: one line to watch for per enemy in Match. The reviewed counterplay's first sentence when it exists
     // (labelled previous when it is not active for this patch); otherwise a calculated line from the hero's kit.
@@ -1215,7 +1243,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,roleMovement,heroTrend,heroPatchChanges,enemyWatch,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,roleMovement,heroTrend,heroPatchChanges,buildChanges,enemyWatch,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
@@ -1240,5 +1268,5 @@
     if(typeof hash!=='string'||hash.length>4000||!/^#plan=[A-Za-z0-9_-]+$/.test(hash))throw Error('Invalid shared plan link');
     try{return validatePlan(JSON.parse(atob(hash.slice(6).replaceAll('-','+').replaceAll('_','/'))));}catch{throw Error('The shared plan is invalid or uses an unsupported format');}
   }
-  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason};
+  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason,snapshotChanges};
 });

@@ -5,6 +5,7 @@ name: Hourly freshness watchdog
 # publish.yml for a refresh only where the publisher's own rules allow it (no pause, block, exhausted retry, imminent
 # scheduled attempt or wait for the Windows collector; one request per 6 hours, two a day). Each miss is recorded
 # in automation-state (watchdog.json). Decision logic and its tests: watchdog.py, tests/test_static_watchdog.py.
+# 2.57.0: it also reports a live site still running another release than main 90 minutes after main changed.
 # Every publish.yml run also starts it when it ends (its last job), because GitHub creates only some hourly
 # scheduled runs (2-6 Oct 2026: 19 of 97).
 on:

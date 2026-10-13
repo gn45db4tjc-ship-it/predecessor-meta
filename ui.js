@@ -60,6 +60,26 @@ function trendHTML(slug,role){const t=E.heroTrend(slug,role);if(!t)return '';
  const w=96,h=24,wr=t.points.map(p=>p.wr),lo=Math.min(...wr),span=Math.max(Math.max(...wr)-lo,1),x=i=>(2+i*(w-4)/(t.points.length-1)).toFixed(1),y=v=>(h-2-(v-lo)/span*(h-4)).toFixed(1);
  const line=t.points.map((p,i)=>(i?'L':'M')+x(i)+' '+y(p.wr)).join(' ');
  return `<p class="hero-trend"><svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><path d="${line}"/></svg><span><span class="hero-trend-lead">Daily trend:</span> ${pct(t.first.wr)}${TO}${pct(t.last.wr)} <strong class="${t.delta>0?'positive':t.delta<0?'negative':''}">${pp(t.delta)}</strong><small>Pred.gg ${esc(t.patch||'')} win rate so far this patch, one pull a day · ${esc(dayDate(t.first.fetched_at))}${TO}${esc(dayDate(t.last.fetched_at))} · ${games(t.first.played)}${TO}${games(t.last.played)}</small></span></p>`;}
+// 2.57.0: this hero beside another of the same role: tier, win rate and sample, the daily trend, the starting build
+// and this patch's official changes, plus the current head-to-head sample when there is one. Each figure keeps its
+// own source and label; nothing is combined into a score. The choice lasts for the visit (compareWith).
+const compareWith={};
+function heroCompareHTML(p){
+ const others=Object.keys(E.heroes).filter(s=>s!==p.slug&&E.roles(s).includes(p.role)).sort((a,b)=>name(a).localeCompare(name(b)));
+ if(!others.length)return '';
+ const key=p.slug+'|'+p.role,other=others.includes(compareWith[key])?compareWith[key]:'',role=esc(labels[p.role].toLowerCase());
+ const pickHTML=`<label class="hero-compare-pick">Compare ${esc(name(p.slug))} with <select id="hero-compare">${options(others.map(s=>[s,name(s)]),other,'Choose a '+role+' hero')}</select></label>`;
+ if(!other)return `<details class="hero-compare" data-keep="hero-compare"><summary>Compare with another ${role} hero</summary><div class="detail-content">${pickHTML}</div></details>`;
+ const col=s=>{const q={slug:s,role:p.role},perf=E.displayPerformance(q),current=perf&&!perf.inspection_only,shown=current?shownTier(s,p.role):null,trend=E.heroTrend(s,p.role),plan=E.plannedBuild(s,p.role),changes=E.heroPatchChanges(s);
+  return {tier:shown?tier(shown.tier)+(shown.kind==='calculated'?' <small>Calculated</small>':' <small>Reviewed</small>'):'<small>No tier</small>',
+   wr:perf?`<strong>${pct(perf.wr)}</strong><br><small>${games(perf.played)} · ${esc(perf.source)} ${esc(perf.patch||'')}${perf.inspection_only?' · previous dataset':''}</small>`:`<small>${esc(roleSampleText(s,p.role))}</small>`,
+   trend:trend?`${pct(trend.first.wr)}${TO}${pct(trend.last.wr)} <span class="${trend.delta>0?'positive':trend.delta<0?'negative':''}">${pp(trend.delta)}</span><br><small>${esc(dayDate(trend.first.fetched_at))}${TO}${esc(dayDate(trend.last.fetched_at))}</small>`:'<small>Not enough daily pulls</small>',
+   build:plan.items.length?`<ol class="hero-compare-build">${plan.items.map(n=>`<li>${esc(n)}</li>`).join('')}</ol><small>${plan.kind==='reviewed'?'Reviewed '+esc(dayDate(plan.reviewed_at)):'Calculated starting point'}</small>`:'<small>Unavailable</small>',
+   changes:changes?`${changes.changes.length} official ${changes.changes.length===1?'change':'changes'}<br><small>Patch ${esc(changes.patch)}</small>`:'<small>None listed this patch</small>'};};
+ const a=col(p.slug),b=col(other),row=(label,k)=>`<tr><th scope="row">${label}</th><td>${a[k]}</td><td>${b[k]}</td></tr>`;
+ const h2h=E.currentMatchup({slug:p.slug,role:p.role},{slug:other,role:p.role},100);
+ return `<details class="hero-compare" data-keep="hero-compare"><summary>Compare with ${esc(name(other))}</summary><div class="detail-content">${pickHTML}<div class="table-scroll"><table class="table-small hero-compare-table"><caption class="sr-only">${esc(name(p.slug))} and ${esc(name(other))} as ${esc(labels[p.role])} in ${esc(B.bracket?.label||'this rank')}</caption><thead><tr><th scope="col"><span class="sr-only">Measure</span></th><th scope="col">${esc(name(p.slug))}</th><th scope="col">${esc(name(other))}</th></tr></thead><tbody>${row('Tier','tier')}${row('Win rate','wr')}${row('Daily trend','trend')}${row('Starting build','build')}${row('Patch changes','changes')}</tbody></table></div><p class="simple-source">${h2h?`Head to head: ${esc(name(p.slug))} wins ${pct(h2h.wr)} of ${games(h2h.played)} against ${esc(name(other))} · ${esc(h2h.label)}, fetched ${esc(dayDate(h2h.fetched_at))}.`:`No current head-to-head sample with 100 or more games.`} Each figure is ${esc(B.bracket?.label||'this rank')} and keeps its own source; the two columns are not a combined score.</p></div></details>`;
+}
 function savedTag(fetched_at,retained=false){if(!fetched_at)return '';let state='unavailable';try{state=E.sourceCurrency({status:retained?'retained':'ok',fetched_at}).state;}catch{}return state==='retained'||state==='stale'?badge('Saved '+dayDate(fetched_at),state==='retained'?'saved':'warning')+' ':'';}
 function roleLabel(role){return labels[role]||role||'this role';}
 function statzRoleGap(h,role){const r=h?.roles?.[role];return r?.status==='failed'?'The Statz '+roleLabel(role)+' page failed to load in this collection':r?.status==='patch_conflict'?'The Statz '+roleLabel(role)+' page reports a different patch and was excluded':'No Statz '+roleLabel(role)+' sample in '+(B?.bracket?.label||'this bracket');}
@@ -344,7 +364,7 @@ function heroView(){
  const role=h.roles?.[S.heroRole],perf=E.displayPerformance({slug:S.hero,role:S.heroRole}),partners=E.partners(S.hero,{min:S.explore?1:100,role:S.partnerRole,heroRole:S.heroRole,metric:S.pairMetric});
  const heroTierCell=B.scoped_statistics?metaTierButton(S.hero,S.heroRole):tier(perf?.tier),heroTierLabel=!B.scoped_statistics?'Role tier':heroTierCell.includes('data-calculated-tier')?'Calculated for '+(B.bracket?.label||'this rank')+' · open method':'Tier · open reasoning';
  let html=`<button class="text-button muted back" data-route="meta">Meta · ${esc(B.bracket?.label||'')} · ${esc(labels[S.role])}</button><div class="hero-header"${artVars(S.hero)}>${art(S.hero,'large')}<div class="summary"><div class="eyebrow">${esc(B.bracket?.label)} · ${esc(labels[S.heroRole])}${B.official?.status==='verified'&&B.official.live?.version?' · Patch '+esc(B.official.live.version):''}</div><h1>${esc(h.display_name)}</h1><label>Role <select id="hero-role">${options(E.roles(S.hero).map(r=>[r,labels[r]+(E.performance({slug:S.hero,role:r})?'':' · no current sample')]),S.heroRole)}</select></label><button class="primary hero-use-match" data-start-live="true">Use in Match</button></div><div class="quick-stats"><div>${heroTierCell}<small>${esc(heroTierLabel)}</small></div><div${perf?wrVars(perf.wr):''}><div class="big"><span class="sr-only">Win rate </span>${pct(perf?.wr)}</div><small>${perf?`${savedTag(perf.fetched_at,perf.retained)}${games(perf.played)} · ${esc(perf.source)} ${esc(perf.patch||'')} ${esc(date(perf.fetched_at))}${perf.inspection_only?' · previous dataset · not current':''}`:esc(roleSampleText(S.hero,S.heroRole))}</small></div></div></div>`;
- html+=trendHTML(S.hero,S.heroRole);
+ html+=trendHTML(S.hero,S.heroRole)+heroCompareHTML({slug:S.hero,role:S.heroRole});
  if(!perf)html+=note(esc(role?.error||'No data for this role.')+' Pair observations are hero-wide; the selected role does not create a role-specific pair sample.',true);
  html+=`<nav class="toolbar hero-jump" aria-label="Sections of this hero"><div class="tabs">${HERO_SECTIONS.map(([t,n])=>`<button type="button" data-hero-tab="${t}" aria-current="${S.heroTab===t}">${n}</button>`).join('')}</div></nav>`;
  /* Each section is exactly what its tab used to render, closed by its own source line. */
@@ -619,7 +639,7 @@ function plannedBuildHTML(plan,compact=false,lead=false,{items=true,scope=true}=
  const firstSentence=String(plan.reason||'').split(/(?<=[.!?])\s+/)[0]||'';
  const reason=compact&&plan.reason&&plan.reason.length>firstSentence.length+20?`<p class="plan-reason">${esc(firstSentence)}</p><details><summary>Full reasoning</summary><div class="detail-content"><p>${esc(plan.reason)}</p></div></details>`:`<p class="plan-reason">${esc(plan.reason)}</p>`;
  return `<div class="build-head"><div><h3>${esc(plan.title)}</h3></div>${badge(reviewed?(plan.experimental_role?'Reviewed · experimental role':plan.role_confidence?'Reviewed · limited sample':'Reviewed · editorial judgment'):'Calculated starting point',reviewed&&!plan.experimental_role?'reviewed':plan.experimental_role?'warning':'calculated')}</div>${plan.role_note?note(esc(plan.role_note),!!plan.experimental_role):''}${lead?'':reason+patchReviewHTML(plan,false,scope)}
- ${items?`<ol class="build-path">${plan.items.map((n,i)=>`<li>${itemButton(n)}<small${i<plan.core.length?' class="is-core"':''}>${i<plan.core.length?'Core purchase':'Flexible final slot'}</small></li>`).join('')}</ol>`:''}
+ ${items?`<ol class="build-path">${plan.items.map((n,i)=>`<li>${itemButton(n)}<small${i<plan.core.length?' class="is-core"':''}>${i<plan.core.length?'Core purchase':'Flexible final slot'}</small></li>`).join('')}</ol>${reviewed?buildChangesHTML(plan.slug,plan.role):''}`:''}
  <div class="loadout-strip">${loadoutHeadHTML(plan,planEvidence)}${loadout.map(([label,n,kind])=>loadoutPartHTML(label,n,kind,plan,planEvidence)).join('')}${crestEvolutionHTML(planEvidence,plan.crest)}</div>
  ${lead?reason+patchReviewHTML(plan,true,scope):''}
  ${plan.items.length<6?note('A complete six cannot be assembled from verified item metadata. Missing slots stay unavailable.',true):''}${planReviewHTML(plan)}
@@ -631,6 +651,20 @@ function plannedBuildHTML(plan,compact=false,lead=false,{items=true,scope=true}=
 const PATCH_REVIEW_SCOPE='Scope: build choices and skill priority. Level-by-level orders, rankings and team advice keep their own review status.';
 function patchReviewHTML(plan,folded=false,scope=true){if(!plan.patch_review)return '';const r=plan.patch_review,body=`<p>${prose(r.reason)}</p><p>Alternative: ${esc(r.alternative)}</p><p>${esc(r.limitation)}</p>${scope?`<p>${PATCH_REVIEW_SCOPE}</p>`:''}`;
  return folded?`<details data-keep="plan-patch-review"><summary>Patch review · ${esc(date(r.reviewed_at))}</summary><div class="detail-content">${body}</div></details>`:`<div class="note"><strong>Patch review · ${esc(date(r.reviewed_at))}</strong>${body}</div>`;}
+// 2.57.0: how this reviewed build differs from the previous patch's reviewed build (engine buildChanges). One closed
+// line names both patches and the count; it opens on the items in, out and moved, the loadout changes and the patch
+// review's reason. A build the review kept says so in one line.
+const ordinal=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
+function buildChangesHTML(slug,role){const c=E.buildChanges?.(slug,role);if(!c)return '';
+ const from='v'+esc(c.from.patch);
+ if(c.unchanged)return `<p class="simple-source build-changes-same">Same six items and loadout as the ${from} reviewed build.</p>`;
+ const names=l=>l.map(esc).join(', '),shown=(k,v)=>Array.isArray(v)?v.map(x=>esc(k==='skill_priority'?SKILL_KEYS[x]||x:x)).join(k==='skill_priority'?', ':' / '):esc(v);
+ const lines=[c.added.length?`<li><strong>In:</strong> ${names(c.added)}</li>`:'',c.removed.length?`<li><strong>Out:</strong> ${names(c.removed)}</li>`:'',
+  ...c.moved.map(m=>`<li><strong>${esc(m.item)}</strong> moved from ${ordinal(m.from+1)} to ${ordinal(m.to+1)}</li>`),
+  ...c.fields.map(f=>`<li><strong>${esc(f.label)}</strong> was ${shown(f.key,f.from)}; now ${shown(f.key,f.to)}</li>`)].join('');
+ const count=[c.added.length?c.added.length+' in':'',c.removed.length?c.removed.length+' out':'',c.moved.length?c.moved.length+' moved':'',c.fields.length?c.fields.length+' loadout '+(c.fields.length===1?'change':'changes'):''].filter(Boolean).join(', ');
+ return `<details class="build-changes" data-keep="build-changes"><summary>Changed since the ${from} build · ${esc(count)}</summary><div class="detail-content"><ul>${lines}</ul><p class="simple-source">The ${from} reviewed build (${esc(dayDate(c.from.reviewed_at))}) compared with this v${esc(c.to.patch)} review (${esc(dayDate(c.to.reviewed_at))}).${c.reason?' Why: '+prose(c.reason):''}</p></div></details>`;
+}
 function previousReviewedBuild(review){return review?.patch_review?.result==='unresolved'?(review.previous_review||review):review;}
 function sourceReconciliationHTML(plan){
  const review=plan.source_reconciliation;if(!review?.entries?.length)return '';
@@ -840,6 +874,7 @@ document.addEventListener('change',async event=>{const el=event.target,d=el.data
  else if(['history-source','history-role','history-window','history-order','history-thin'].includes(el.id)){const key={'history-source':'historySource','history-role':'historyRole','history-window':'historyWindow','history-order':'historyOrder','history-thin':'historyThin'}[el.id];S[key]=el.type==='checkbox'?el.checked:el.value;const id=el.id;render();$('#'+id)?.focus();}
  else if(el.id==='full-metrics'){S.full=el.checked;render();}
  else if(el.id==='hero-role'){S.heroRole=el.value;S.variants=[0,1];render();}
+ else if(el.id==='hero-compare'){compareWith[S.hero+'|'+S.heroRole]=el.value;render();}
  else if(el.id==='partner-role'){S.partnerRole=el.value;render();}
  else if(el.id==='pair-metric'){S.pairMetric=el.value;render();}
  else if(el.id==='explore'){S.explore=el.checked;render();}
