@@ -8,7 +8,8 @@ freshness target it names the problem, explains it and says when the next attemp
 - a failed patch check;
 - a publication not refreshed for 3 hours;
 - a Windows collector quiet for more than 6 hours (it checks in every 3);
-- a recheck queued for more than 24 hours (before 2.47.0: the current review packet due for more than 24 hours).
+- a recheck queued for more than 24 hours (before 2.47.0: the current review packet due for more than 24 hours);
+- a live site still running another app release than main 90 minutes after main last changed (2.57.0).
 
 A problem seen in two consecutive hourly checks gets one GitHub issue, kept up to date and closed when the problem
 clears (.github/workflows/watchdog.yml). The watchdog asks publish.yml for a refresh only where the publisher's own
@@ -22,6 +23,7 @@ import datetime as dt
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.error
@@ -43,6 +45,7 @@ LIMITS = {
     'scheduled_within_hours': 1,    # a scheduled attempt this close is awaited
     'dispatch_memory_days': 7,
     'miss_log': 500,
+    'release_grace_minutes': 90,    # a merge to main publishes in its push run of publish.yml; allow one queued run
 }
 LABEL = 'freshness-watchdog'
 MARKER = re.compile(r'<!-- watchdog:([a-z-]+) -->')
@@ -91,8 +94,22 @@ def problem(pid, title, summary, details, next_attempt, refresh):
             'refresh': refresh}
 
 
-def check(manifest, review_index, now):
-    """Every missed freshness target in this publication, as problems with a diagnosis and the next attempt."""
+def source_release(root=ROOT):
+    """The app release main carries (predecessor_meta.VERSION, read as text) and when main last changed."""
+    found = re.search(r'^VERSION = "([^"]+)"', (root / 'predecessor_meta.py').read_text(encoding='utf-8'), re.M)
+    try:
+        committed = subprocess.run(['git', '-C', str(root), 'log', '-1', '--format=%cI'], capture_output=True,
+                                   text=True, timeout=30).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        committed = ''
+    return {'version': found.group(1) if found else None, 'committed_at': committed or None}
+
+
+def check(manifest, review_index, now, release=None):
+    """Every missed freshness target in this publication, as problems with a diagnosis and the next attempt.
+
+    release: main's app version and last commit time (source_release()). When given, a live site that still runs
+    another release once the grace period after main's last change has passed is a miss (2.57.0)."""
     if not isinstance(manifest, dict):
         return [problem('site-unreachable', 'The live manifest could not be read',
                         'The watchdog could not read manifest.json from the live site.',
@@ -100,6 +117,19 @@ def check(manifest, review_index, now):
                         'Next attempt: the next hourly watchdog check.', False)]
     problems, cohorts = [], manifest.get('cohorts') or {}
     ranks = CONFIG.get('brackets') or list(cohorts)
+
+    live = (manifest.get('app') or {}).get('version')
+    if release and release.get('version') and live != release['version']:
+        since = hours_since(release.get('committed_at'), now)
+        if since is None or since * 60 >= LIMITS['release_grace_minutes']:
+            problems.append(problem(
+                'release-behind', 'The live site is not running the current release',
+                'The live site runs %s; main has %s.' % (live or 'no recorded release', release['version']),
+                ['main last changed %s; its push run of publish.yml normally publishes it within the hour.'
+                 % when_text(release.get('committed_at')),
+                 'Live manifest published %s. Check the latest publish.yml runs in Actions (build and deploy jobs).'
+                 % when_text(manifest.get('published_at'))],
+                'Next attempt: the next hourly publication run (every hour at :23) publishes main again.', False))
 
     missing = [r for r in ranks if (cohorts.get(r) or {}).get('status') != 'available']
     if missing:
@@ -393,7 +423,7 @@ def main(argv=None):
     manifest = json.loads(args.manifest.read_text(encoding='utf-8')) if args.manifest else fetch_json(args.site + 'manifest.json')
     index = (json.loads(args.review_index.read_text(encoding='utf-8')) if args.review_index
              else fetch_json(args.site + 'review/index.json') if manifest is not None else None)
-    problems = check(manifest, index, now)
+    problems = check(manifest, index, now, release=None if args.manifest else source_release())
     decision = refresh_decision(manifest or {}, problems, state, now)
     new = next_state(state, problems, decision, now)
     if args.sync_issues:

@@ -114,6 +114,7 @@ In order. Grades first, as the brief asks.
   5. After a merge it publishes and verifies that every rank carries the merged packet (and the changed Gold+ grades) within 30 minutes, and reverts the merge if not.
 - **Prerequisite:** the nightly live check passed on main twice in a row on 2 Oct (15:48Z and 21:04Z, both manual dispatches; the 18:47Z schedule was skipped by GitHub). `review_auto_merge` is on, and the gate re-checks the last two nightly runs at every decision.
 - **Watchdog:** a recheck queued for over 24 hours is reported as `queue-overdue`.
+- **Watchdog (2.57.0):** a live site whose manifest app release differs from main's `VERSION` 90 minutes after main last changed is reported as `release-behind` (no refresh request; the next hourly publication publishes main again).
 - **Tests:**
   - `tests/recheck_queue.test.cjs` (5);
   - `tests/test_static_recheck_log.py` (3);

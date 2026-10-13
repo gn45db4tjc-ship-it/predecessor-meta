@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.56.0
+# Predecessor Meta - 2.57.0
 
-2.56.0 adds four things. Phone Meta shows a closed line when the live patch or a current hotfix changed one of your favorite heroes, listing each official change note with a link to the notes (changes are shown as written, not called buffs or nerfs). In Match, each enemy gets one line to watch for (reviewed counterplay, or a line calculated from the kit), you can mark the enemy in your lane to see the current head-to-head sample, the counterplay against them and the item needs that answer them, and you can add allies, which reach the adapted build as team advice and show what your team's kits are missing. Allies change advice, not item swaps. See [RELEASE-2.56.0.md](RELEASE-2.56.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.57.0 adds five things. Phone Meta says what changed for your favorite heroes since you last looked (tier, win rate, reviewed build). A hero's reviewed build shows how it differs from the previous patch's build, and any hero page can compare two heroes of the same role side by side. The hourly watchdog now opens an issue when the live site is not running main's release, and three stale browser suites test the current app and run in CI. See [RELEASE-2.57.0.md](RELEASE-2.57.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.56.0
+
+2.56.0 adds four things. Phone Meta shows a closed line when the live patch or a current hotfix changed one of your favorite heroes, listing each official change note with a link to the notes (changes are shown as written, not called buffs or nerfs). In Match, each enemy gets one line to watch for (reviewed counterplay, or a line calculated from the kit), you can mark the enemy in your lane to see the current head-to-head sample, the counterplay against them and the item needs that answer them, and you can add allies, which reach the adapted build as team advice and show what your team's kits are missing. Allies change advice, not item swaps. See [RELEASE-2.56.0.md](RELEASE-2.56.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.55.0
 

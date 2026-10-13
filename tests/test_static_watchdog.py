@@ -117,6 +117,27 @@ class Checks(unittest.TestCase):
     def test_unreadable_manifest(self):
         self.assertEqual(ids(watchdog.check(None, None, NOW)), ['site-unreachable'])
 
+    def test_a_live_site_behind_main_after_the_grace_period(self):
+        # 2.57.0 probe: on main 372048c a live site still on an older release than main raised nothing; only review
+        # PRs had a post-merge live check (review_gate.py verify-live).
+        behind = {'version': '2.47.0', 'committed_at': iso(2)}
+        problems = watchdog.check(manifest(), {'packets': []}, NOW, release=behind)
+        self.assertEqual(ids(problems), ['release-behind'])
+        self.assertIn('runs 2.46.0; main has 2.47.0', problems[0]['summary'])
+        self.assertFalse(problems[0]['refresh'])
+        # Within 90 minutes of main changing, the push run may still be publishing.
+        self.assertEqual(watchdog.check(manifest(), {'packets': []}, NOW, release={'version': '2.47.0', 'committed_at': iso(1)}), [])
+        # The current release, or no release information, raises nothing.
+        self.assertEqual(watchdog.check(manifest(), {'packets': []}, NOW, release={'version': '2.46.0', 'committed_at': iso(9)}), [])
+        self.assertEqual(watchdog.check(manifest(), {'packets': []}, NOW, release={'version': None}), [])
+        # A manifest without an app release is behind too.
+        m = manifest(); m.pop('app')
+        self.assertEqual(ids(watchdog.check(m, {'packets': []}, NOW, release=behind)), ['release-behind'])
+
+    def test_source_release_reads_main(self):
+        release = watchdog.source_release()
+        self.assertRegex(release['version'] or '', r'^\d+\.\d+\.\d+$')
+
 
 class Refresh(unittest.TestCase):
     def stale(self, **extra):
