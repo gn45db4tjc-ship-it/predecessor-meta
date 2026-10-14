@@ -23,6 +23,11 @@ let preview;
  await page.evaluate(()=>{S.matchPicking='enemy';render();});for(const s of ['gideon','narbash'])await page.locator(`.match-hero[data-match-pick="${s}"]`).click();check(await page.locator('.match-chip').count()===2,'enemies are picked in place');
  await page.locator('[data-match-new]').click();check(await page.locator('.match-chip').count()===0&&await page.evaluate(()=>S.me==='steel'),'New match clears the enemies and keeps your hero');
  await page.locator('#toast .toast-undo').click();check(await page.evaluate(()=>S.enemies.map(e=>e.slug).sort().join())==='gideon,narbash','Undo restores the enemy team');
+ // 2.58.0: log the result once per match; the hero page shows your record; New match starts the next one.
+ await page.locator('#match-log-win').click();check(/Logged as a win/.test(await page.locator('.match-log').innerText())&&await page.evaluate(()=>document.activeElement?.id==='match-log-undo'),'a logged win says so and focuses Undo');
+ check(await page.evaluate(()=>companionPrefs.games.length===1&&companionPrefs.games[0].slug==='steel'&&companionPrefs.games[0].enemies.sort().join()==='gideon,narbash'),'the game keeps your hero and the enemies');
+ await page.evaluate(()=>openHero('steel',S.locks[0].role));check(/Your games as \w+: 1 won, 0 lost/.test(await page.locator('#main .hero-record summary').innerText()),'the hero page shows your record');
+ await page.locator('[data-start-live]').click();
  await page.reload();await ready(page);check(await page.evaluate(()=>S.me==='steel'&&S.enemies.length===2),'reload keeps the match picks');
  await context.setOffline(true);await page.waitForFunction(()=>!document.querySelector('#offline-status')?.hidden);check(/offline/i.test(await page.locator('#offline-status').innerText()),'offline notice is shown');await context.setOffline(false);
  check(report.errors.length===0,'no browser exceptions');await context.close();
