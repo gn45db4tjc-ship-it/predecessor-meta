@@ -47,7 +47,10 @@ let preview=null;
    check(await page.evaluate(()=>getComputedStyle(document.querySelector('.meta-table .text-button.hero-cell .name')).textDecorationLine.includes('underline')),'hero names carry link styling');
    check(await page.evaluate(()=>[...document.querySelectorAll('.tag')].every(t=>getComputedStyle(t).borderTopWidth==='0px')),'status chips are flat, never bordered');
    if(reviewedTiers)check(await page.evaluate(()=>document.querySelector('[data-meta-decision] small')!==null),'reviewed tier button explains itself');
-   else check(await page.locator('[data-meta-decision]').count()===0,'no reviewed tier buttons for an earlier patch');
+   // With no active reviewed grade (the review covers an earlier patch) a role whose current sample is too small for a
+   // calculated tier keeps a button that says its review is pending (seen 13 Oct 2026, the first night of 1.17.2: every
+   // Gold+ role under 100 games). What must never show is a reviewed grade: no tier letter, no "Reviewed" label.
+   else check(await page.evaluate(()=>[...document.querySelectorAll('[data-meta-decision]')].every(b=>!b.querySelector('.tier')&&/^Tier review pending\b/.test(b.innerText.trim())&&!/\bReviewed\b/.test(b.innerText))),'no reviewed grade for an earlier patch, only "Tier review pending"');
    // Contrast: control borders and inputs use the verified 3:1 border against the page and their own fill.
    const border=await page.evaluate(()=>getComputedStyle(document.querySelector('#bracket')).borderTopColor);
    const bg=await page.evaluate(()=>getComputedStyle(document.querySelector('#bracket')).backgroundColor);
