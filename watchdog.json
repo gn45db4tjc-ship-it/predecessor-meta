@@ -1,7 +1,10 @@
 {
  "schema": 1,
- "checked_at": "2026-10-14T02:09:46+00:00",
+ "checked_at": "2026-10-14T15:13:33+00:00",
  "open": {
+  "publication-quiet": {
+   "first_seen": "2026-10-14T15:13:33+00:00"
+  },
   "queue-overdue": {
    "first_seen": "2026-10-14T02:09:46+00:00"
   }
@@ -206,6 +209,12 @@
    "event": "started",
    "at": "2026-10-14T02:09:46+00:00",
    "summary": "74 rechecks queued for over 24 hours."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-10-14T15:13:33+00:00",
+   "summary": "Last publication 3.0 hours ago."
   }
  ]
 }
