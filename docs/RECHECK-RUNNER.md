@@ -2,7 +2,7 @@
 
 The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current scheduling decision"): reviews of builds and grades are queued automatically and run by a scheduled agent, and a review PR merges itself when it passes the gate.
 
-- **Runner:** a Claude Code scheduled task on the owner's machine (`predecessor-meta-rechecks`), every 3 hours. It runs only while the Claude app is open; a missed run starts at the next launch.
+- **Runner:** since 2.58.0, a Claude Code cloud routine (`Predecessor Meta rechecks`), every 3 hours, in a cloud environment whose network access allows `gn45db4tjc-ship-it.github.io`. It runs whether or not the owner's PC is on. Follow **In the cloud** below, which replaces the PC-only parts of the steps. Until 12 Oct 2026 the runner was a scheduled task on the owner's machine (`predecessor-meta-rechecks`, now disabled); never run both, since the lock below is a PC file the cloud cannot see.
 - **Single accountable reviewer:** the runner owns review content. Code changes stay with whoever is assigned the code.
 - **Queue:** `review/index.json` on the live site, field `rechecks` (`review_queue.cjs`, engine `recheckQueue`).
 - **Gate:** `.github/workflows/review-gate.yml` and `review_gate.py`. Never merge yourself.
@@ -81,6 +81,21 @@ The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current sc
 9. **Report.**
    - Report the PR link, the items handled and the verdict counts.
    - If code would have to change (a validator, the engine or the policy), stop. Open an issue for the owner instead, labeled `DECISION NEEDED`.
+
+## In the cloud
+
+The cloud routine starts each run in a fresh container with its own clone of the repository, so nothing on disk survives between runs. These replace the PC-only parts of the steps above; everything else applies as written.
+
+- **Network.** Before step 1, fetch `https://gn45db4tjc-ship-it.github.io/predecessor-meta/manifest.json`. If the fetch is refused (a proxy 403 or a blocked host), stop and report that the environment's network access does not allow the live site. Never read the queue or bundles from anywhere else: the review must use what the live site publishes.
+- **GitHub.** There is no `gh`. Use the GitHub MCP tools: list open PRs with the label `automated-review`, create the PR, then add the label `automated-review` to it (the gate starts on that label). The PR must be opened by the repository owner's account, which the GitHub connection is.
+- **The lock and unfinished passes (step 2).** There is no lock file. Instead:
+  - an open `automated-review` PR means stop, as in step 2;
+  - a pushed `review/recheck-*` branch with no PR, whose last commit is under 3 hours old, means another run is working: stop and say so;
+  - such a branch whose last commit is older is an unfinished pass: check it out and resume it from its last committed record;
+  - otherwise start a new branch `review/recheck-<YYYYMMDD-HHMM>` (UTC) from `origin/main`.
+- **Workspace (step 3).** Work in the routine's own clone. Commit as you go, and push the branch after each commit, so a cut-off run leaves its work for the next run. Pushing a branch without a PR starts nothing; the gate acts only on a labelled PR.
+- **Python.** Use `python3` wherever the steps say `python` or name the PC's Python.
+- **Validate (step 7).** Run the same commands. The gate's live-data browser suites run in CI, not in the routine.
 
 ## The gate's rules (for reference)
 

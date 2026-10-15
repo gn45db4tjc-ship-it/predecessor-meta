@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.57.0
+# Predecessor Meta - 2.58.0
 
-2.57.0 adds five things. Phone Meta says what changed for your favorite heroes since you last looked (tier, win rate, reviewed build). A hero's reviewed build shows how it differs from the previous patch's build, and any hero page can compare two heroes of the same role side by side. The hourly watchdog now opens an issue when the live site is not running main's release, and three stale browser suites test the current app and run in CI. See [RELEASE-2.57.0.md](RELEASE-2.57.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.58.0 adds three things and restarts the reviews. After a game, Match lets you log a win or a loss; each hero page then shows your own record with that hero and role, kept on your device only. An item's details now list the starting builds on your rank that use it, reviewed or calculated, each opening its hero. When a new patch empties the daily trend, the hero page says the trend starts after two daily pulls on that patch instead of dropping the line. The scheduled reviewer moves from the owner's PC to a cloud routine every 3 hours ([docs/RECHECK-RUNNER.md](docs/RECHECK-RUNNER.md), "In the cloud"). See [RELEASE-2.58.0.md](RELEASE-2.58.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ## Previous release
+
+### 2.57.0
+
+2.57.0 adds five things. Phone Meta says what changed for your favorite heroes since you last looked (tier, win rate, reviewed build). A hero's reviewed build shows how it differs from the previous patch's build, and any hero page can compare two heroes of the same role side by side. The hourly watchdog now opens an issue when the live site is not running main's release, and three stale browser suites test the current app and run in CI. See [RELEASE-2.57.0.md](RELEASE-2.57.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.56.0
 

@@ -5,6 +5,7 @@ const copyValue=v=>JSON.parse(JSON.stringify(v));
 let companionPrefs={recent:[],favorites:[],large:false,installSeen:false,homeQuery:''};
 try{Object.assign(companionPrefs,JSON.parse(localStorage.getItem(prefsKey)||'{}'));}catch{}
 if(!Array.isArray(companionPrefs.recent))companionPrefs.recent=[];if(!Array.isArray(companionPrefs.favorites))companionPrefs.favorites=[];
+if(!Array.isArray(companionPrefs.games))companionPrefs.games=[];
 let undoAction=null,undoTimer=null,historyApplying=false,linkApplied='',companionError='';
 S.liveContexts={};S.liveVariant=null;
 try{const m=JSON.parse(sessionStorage.getItem(matchKey)||'{}');if(m.v===2&&m.contexts&&typeof m.contexts==='object'&&!Array.isArray(m.contexts))S.liveContexts=m.contexts;}catch{}
@@ -249,6 +250,14 @@ function favoriteSinceHTML(favorites){
  const oldest=rows.map(r=>r.at).filter(Boolean).sort()[0];
  return `<details class="favorite-changes favorite-since" data-keep="favorite-since"><summary>Since you last looked: ${rows.length===1?esc(name(rows[0].p.slug))+' changed':rows.length+' favorites changed'}</summary><section><ul class="favorite-change-list">${rows.map(({p,changes})=>`<li><h3>${esc(name(p.slug))} <small>${esc(labels[p.role])}</small></h3><ul>${changes.map(line).join('')}</ul></li>`).join('')}</ul><p class="simple-source">Compared with what this device showed for ${esc(B.bracket?.label||rank)}${oldest?' on '+esc(dayDate(oldest)):''}. A win rate counts when it moved by a full point from the same source with 100+ games both times.</p></section></details>`;
 }
+// 2.58.0: your own games with this hero and role, logged from Match (companionPrefs.games, on this device only). The
+// counts are yours, never a sample of the rank, and are not set against the public win rate.
+function recordHTML(slug,role){
+ const patch=B.official?.live?.version||B.patch||null,r=MetaEngine.gameRecord(companionPrefs.games,slug,role,patch);if(!r)return '';
+ const line=x=>`${x.won} won, ${x.lost} lost`,label=g=>(g.result==='win'?'win':'loss')+' of '+dayDate(g.at);
+ const rows=r.recent.map(g=>`<li><span>${g.result==='win'?'Won':'Lost'} · ${esc(dayDate(g.at))}${g.patch?' · v'+esc(g.patch):''}${g.lane&&E.heroes[g.lane]?' · lane '+esc(name(g.lane)):''}</span><button type="button" class="text-button" data-game-delete="${esc(g.id)}" aria-label="Delete the ${esc(label(g))}">Delete</button></li>`).join('');
+ return `<details class="hero-record" data-keep="hero-record"><summary>Your games as ${esc(labels[role])}: ${line(r)} (${Math.round(r.won_share)}% won)${r.current&&r.current.total!==r.total?` · v${esc(patch)}: ${line(r.current)}`:''}</summary><div class="detail-content"><p class="simple-source">Logged from Match on this device. These are your games, not a sample of the rank.</p><ul class="hero-record-list">${rows}</ul>${r.total>r.recent.length?`<p class="simple-source">Your last ${r.recent.length} of ${r.total} games.</p>`:''}</div></details>`;
+}
 function savedHeroShortcuts(favorites,recent){
  const seen=new Set(favorites.map(p=>p.slug+'|'+p.role));
  const recentOnly=recent.filter(p=>!seen.has(p.slug+'|'+p.role));
@@ -310,7 +319,7 @@ function mobileHero(){
  const p={slug:S.hero,role:S.heroRole};if(!E.heroes[p.slug])return guidedHome();if(!['builds','pairings','counters','kit'].includes(S.heroTab))S.heroTab='builds';
  const why=pickBlock(p.slug,p.role),mine=S.me===p.slug&&S.locks.some(x=>x.slug===p.slug&&x.role===p.role),blocked=mine?'':why,perf=E.displayPerformance(p),fav=companionPrefs.favorites.includes(p.slug+'|'+p.role);
  const full=heroView(),node=document.createElement('div');node.innerHTML=full.slice(full.indexOf('<nav class="toolbar hero-jump"'));const body=node.innerHTML;
- return `<button class="text-button back" data-route="meta">Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head"${artVars(p.slug)}>${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</span></p></div>${trendHTML(p.slug,p.role)}${heroCompareHTML(p)}<div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${star()}${fav?'Favorited':'Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Match':'Use in Match'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
+ return `<button class="text-button back" data-route="meta">Meta</button>${mobileStatusHTML()}<div class="hero-header mobile-hero-head"${artVars(p.slug)}>${art(p.slug,'large')}<div><h1>${esc(name(p.slug))}</h1><label>Role<select id="mobile-hero-role">${options(E.roles(p.slug).map(r=>[r,labels[r]]),p.role)}</select></label></div><p class="mobile-hero-status">${metaTierButton(p.slug,p.role)}<span>${perf?displayedRoleText(perf):esc(roleSampleText(p.slug,p.role))}</span></p></div>${trendHTML(p.slug,p.role)}${recordHTML(p.slug,p.role)}${heroCompareHTML(p)}<div class="hero-actions"><button id="favorite-hero" aria-pressed="${fav}">${star()}${fav?'Favorited':'Favorite'}</button><button id="share-hero">Share</button><button data-start-live="true" ${blocked?'disabled aria-describedby="start-live-reason"':''}>${mine?'Open Match':'Use in Match'}</button></div>${blocked?`<p id="start-live-reason">${esc(blocked)}. Choose another hero or role.</p>`:''}${body}`;
 }
 function mobileBuilds(){const rows=Object.keys(E.heroes).filter(slug=>E.roles(slug).includes(S.role)&&name(slug).toLowerCase().includes(S.query.toLowerCase())).sort((a,b)=>name(a).localeCompare(name(b)));return head('Builds · '+esc(B.bracket?.label||''),'Starting builds','Choose a role, then open one compact plan. Source variants remain on the hero page.')+metaToolbarHTML()+maintenanceHTML()+`<div class="mobile-build-list">${rows.map(slug=>{const plan=E.plannedBuild(slug,S.role),perf=E.displayPerformance({slug,role:S.role});return `<details class="panel mobile-build-row" data-keep="build-${slug}"><summary>${art(slug,'tiny')}<span><strong>${esc(name(slug))}</strong><small>${perf?compactRoleText(perf):'Role sample unavailable'}</small></span><span>${plan.kind==='reviewed'?badge('Reviewed','reviewed'):badge('Provisional','warning')}</span></summary><div class="detail-content">${plannedBuildHTML(plan,true)}<button data-hero-builds="${slug}" data-role="${S.role}">Open full build</button></div></details>`;}).join('')}</div>${!rows.length?empty('No heroes match this role and search.'):''}`;}
 // 2.37.0: More holds reference screens, sources and preferences. Draft sharing, export and the review packet are
@@ -453,7 +462,7 @@ function installHelp(){companionPrefs.installSeen=true;saveCompanionPrefs();docu
 async function shareHero(){const url=new URL(APP_CONFIG.mode==='local'||location.protocol==='file:'?'https://gn45db4tjc-ship-it.github.io/predecessor-meta/':location.href);url.search='';url.hash='hero='+encodeURIComponent(S.hero)+'&role='+S.heroRole+'&bracket='+S.bracket+'&tab='+S.heroTab;try{if(navigator.share){await navigator.share({title:name(S.hero)+' build',url:url.href});return;}}catch(e){if(e.name==='AbortError')return;}try{await navigator.clipboard.writeText(url.href);toast('Hero link copied.');}catch{detail('Share hero',`<label>Copy this link<input readonly value="${esc(url.href)}"></label><p>Contains only hero, role, bracket and section.</p>`);}}
 document.addEventListener('click',async event=>{
  const el=event.target.closest('button');if(!el)return;const d=el.dataset;
- const handled=d.movementRole||d.mobileRole||d.favorite||'clearSearch' in d||d.liveLookup||d.startLive||d.newMatch||d.editSituation||d.pickerRole||d.pickLive||d.confirmLive||d.closeDetail||d.limitsSources||['mobile-all-heroes','mobile-limits','menu-toggle','undo-action','companion-install','companion-theme','share-hero','favorite-hero','download-review-packet','live-context-clear','retry-companion'].includes(el.id);
+ const handled=d.movementRole||d.mobileRole||d.favorite||d.gameDelete||'clearSearch' in d||d.liveLookup||d.startLive||d.newMatch||d.editSituation||d.pickerRole||d.pickLive||d.confirmLive||d.closeDetail||d.limitsSources||['mobile-all-heroes','mobile-limits','menu-toggle','undo-action','companion-install','companion-theme','share-hero','favorite-hero','download-review-packet','live-context-clear','retry-companion'].includes(el.id);
  if(!handled)return;event.preventDefault();event.stopImmediatePropagation();
  try{
  if(el.id==='menu-toggle'){changeRoute('more');return;}
@@ -465,6 +474,7 @@ document.addEventListener('click',async event=>{
  else if(d.mobileRole){S.role=d.mobileRole;metaShowAll=false;saveCompanionPrefs();}
  else if('clearSearch' in d){companionPrefs.homeQuery='';saveCompanionPrefs();render();$('#mobile-hero-search')?.focus();return;}
  else if(d.favorite){companionPrefs.favorites=companionPrefs.favorites.filter(v=>v!==d.favorite);saveCompanionPrefs();}
+ else if(d.gameDelete){companionPrefs.games=companionPrefs.games.filter(g=>g.id!==d.gameDelete);if(companionPrefs.lastGame===d.gameDelete)companionPrefs.lastGame='';saveCompanionPrefs();render();($('#main .hero-record summary')||$('#main')).focus({preventScroll:true});return;}
  else if(el.id==='favorite-hero'){const key=S.hero+'|'+S.heroRole;companionPrefs.favorites=companionPrefs.favorites.includes(key)?companionPrefs.favorites.filter(v=>v!==key):[key,...companionPrefs.favorites].slice(0,20);saveCompanionPrefs();}
  else if(d.startLive){matchSetMe(S.hero,S.heroRole);S.route='match';}
  else if(el.id==='companion-install'){installHelp();return;}

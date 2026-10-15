@@ -21,6 +21,15 @@
       out.push({kind:'build', added:after.items.filter(n => !before.items.includes(n)), removed:before.items.filter(n => !after.items.includes(n))});
     return out;
   }
+  // 2.58.0: your own logged games for one hero and role (games: [{slug, role, result: 'win'|'loss', at, patch}], kept on
+  // the device only). Counts, the share won, and the same for the given patch; never compared with a public sample.
+  function gameRecord(games, slug, role, patch) {
+    const mine = (Array.isArray(games) ? games : []).filter(g => g && g.slug === slug && g.role === role && (g.result === 'win' || g.result === 'loss'));
+    if (!mine.length) return null;
+    const count = list => { const won = list.filter(g => g.result === 'win').length; return {won, lost:list.length - won, total:list.length, won_share:list.length ? won / list.length * 100 : null}; };
+    return {...count(mine), patch:patch || null, current:patch ? count(mine.filter(g => g.patch === patch)) : null,
+      recent:mine.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 10)};
+  }
   // 2.42.0: an inactive reviewed build is explained in a sentence, never "The reviewed build is <status>."
   function reviewReason(status) {
     const s = String(status || ''), unresolved = s.match(/^review unresolved: (.+)$/);
@@ -356,6 +365,22 @@
       const parts=[p.cc&&part('Hard crowd control',names(['hard_cc'])),p.healer&&part(ev.ally_healing?.length?'Heals allies':'Heals',names(['ally_healing','healing'])),
         p.shielder&&part('Shields allies',names(['ally_shield'])),p.burst&&'Burst damage.'].filter(Boolean);
       return {kind:'kit',text:parts.length?parts.join(' '):'No crowd control, healing, shields or burst identified in the kit.'};
+    }
+    // 2.58.0: the collector stores a null trend until the current cohort has two daily pulls, so a new patch empties
+    // every hero's trend for about a day. Says which patch it is waiting on; null when there is a trend or no Pred.gg history.
+    function trendPending() {
+      const sc=bundle?.scoped_changes;
+      if(!sc||typeof sc!=='object'||!('trend' in sc)||sc.trend||sc.status==='unavailable')return null;
+      return {patch:bundle?.official?.live?.version||bundle?.patch||null};
+    }
+    // 2.58.0: the starting builds on this rank that use an item, as each hero page shows them: the reviewed build while
+    // active, otherwise the calculated starting point. slot counts from 1 in build order.
+    let itemUsageIndex=null;
+    function itemUsage(itemName) {
+      if(!itemUsageIndex){itemUsageIndex=new Map();
+        for(const slug of Object.keys(heroes))for(const role of roles(slug)){const p=plannedBuild(slug,role);
+          p.items.forEach((n,i)=>{const k=NK(n);if(!itemUsageIndex.has(k))itemUsageIndex.set(k,[]);itemUsageIndex.get(k).push({slug,role,kind:p.kind,slot:i+1});});}}
+      return (itemUsageIndex.get(NK(itemName))||[]).slice();
     }
     function heroTrend(slug,role) {
       const t=bundle?.scoped_changes?.trend,s=t?.series?.[role]?.[slug];
@@ -1243,7 +1268,7 @@
       return {available:true,rows,note:'Calculated from item effects on this build\'s reviewed core: the core stays and at most one flexible item changes. Not a win prediction.'};
     }
     // ==== end BUILDS ====
-    return {teamAlternates,roleMovement,heroTrend,heroPatchChanges,buildChanges,enemyWatch,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
+    return {teamAlternates,roleMovement,heroTrend,trendPending,itemUsage,heroPatchChanges,buildChanges,enemyWatch,heroes,libraryCatalog,patchContext,freshnessAreas,heroStrategy,counterIdeas,buildAdaptations,reviewedComposition,guidedCompositions,pair,fit,sequenceReview,plannedKit,roles,performancePolicy,displayPerformancePolicy,displayPerformance,sourceCurrency,evidenceState,statzGap,strategyReviewDue,reviewPacket,recheckQueue,performance,metaReview,calculatedTier,metaReviewSummary,coverage,damageAssessment,matchup,currentMatchup,assess,partners,recommend,generate,substitute,fightPlan,validPicks,compare,variantChoice,buildSummary,buildLoadoutDefinition,buildReview,plannedBuild,heroProfile,enemyProfile,adaptBuild,liveBuild,bestMatchup,currentItemPool,adaptationClassifications,adaptationReview,itemNeeds:ITEM_NEEDS.map(r=>({id:r.id,label:r.label,manual:!!r.manual}))};
   }
   function validatePlan(packet){
     if(!packet||typeof packet!=='object'||Array.isArray(packet)||Object.keys(packet).sort().join()!=='allies,bans,enemies,patch,size,v'||packet.v!==1||![2,3,5].includes(packet.size)||!(packet.patch===null||(typeof packet.patch==='string'&&packet.patch.length<=30&&/^\d+\.\d+(?:\.\d+)?$/.test(packet.patch))))throw Error('Unsupported shared plan');
@@ -1268,5 +1293,5 @@
     if(typeof hash!=='string'||hash.length>4000||!/^#plan=[A-Za-z0-9_-]+$/.test(hash))throw Error('Invalid shared plan link');
     try{return validatePlan(JSON.parse(atob(hash.slice(6).replaceAll('-','+').replaceAll('_','/'))));}catch{throw Error('The shared plan is invalid or uses an unsupported format');}
   }
-  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason,snapshotChanges};
+  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason,snapshotChanges,gameRecord};
 });

@@ -101,7 +101,7 @@ In order. Grades first, as the brief asks.
   - a live patch the guidance was not reviewed for.
 
   `review_queue.cjs` publishes it in `review/index.json` (`rechecks`) with each item's first-queued date, so a missed run stays due. It adds the weekly backstop after Sunday's collection, which clears only when `guidance.recheck_log` records a weekly pass. Experimental roles kept unresolved by design are not queued. On the 2 Oct data it would list 13 withheld grades, Legion carry and three mechanics notices.
-- **Runner:** the Claude Code scheduled task `predecessor-meta-rechecks`, every 3 hours (`docs/RECHECK-RUNNER.md`). It exits at once when the queue is empty, handles one pass at a time, and opens a review PR labeled `automated-review`.
+- **Runner:** since 2.58.0 a Claude Code cloud routine, every 3 hours, independent of the owner's PC (`docs/RECHECK-RUNNER.md`, "In the cloud"; the PC task `predecessor-meta-rechecks` it replaces was disabled on 12 Oct 2026, which left 74 rechecks waiting by 14 Oct). It exits at once when the queue is empty, handles one pass at a time, and opens a review PR labeled `automated-review`.
 - **Gate:** `.github/workflows/review-gate.yml` and `review_gate.py`.
   1. It checks first, executing nothing from the PR, that only review files changed.
   2. It runs the tests, validates the packet against every live rank and runs the live-data browser suites.
