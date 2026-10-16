@@ -1,7 +1,10 @@
 {
  "schema": 1,
- "checked_at": "2026-10-15T21:41:58+00:00",
+ "checked_at": "2026-10-16T18:44:45+00:00",
  "open": {
+  "attempt-failed": {
+   "first_seen": "2026-10-16T18:44:45+00:00"
+  },
   "queue-overdue": {
    "first_seen": "2026-10-14T02:09:46+00:00"
   }
@@ -283,6 +286,12 @@
    "at": "2026-10-15T21:41:58+00:00",
    "started_at": "2026-10-15T19:20:21+00:00",
    "hours": 2.4
+  },
+  {
+   "id": "attempt-failed",
+   "event": "started",
+   "at": "2026-10-16T18:44:45+00:00",
+   "summary": "Last attempt not ok for Gold+, Silver+, Platinum+, Diamond+."
   }
  ]
 }
