@@ -24,7 +24,7 @@ test('all four authored schedules pass the real skill-guide path with legal rank
   const {bundle,plan}=fixture(entry),result=K.make(bundle,plan);
   assert.equal(result.kind,'reviewed',entry.slug);assert.ok(K.validOrder(result.order));assert.equal(result.points.length,18);
   assert.deepEqual(result.points.filter(p=>p.token==='Ultimate').map(p=>p.level),[6,11,16]);
-  assert.ok(result.reason.length>250);assert.equal(result.source.patch,'1.17');
+  assert.ok(result.reason.length>250);assert.equal(result.source.patch,plan.patch);
  }
 });
 test('changed mechanics, future dates or an inactive build cannot promote a skill schedule',()=>{

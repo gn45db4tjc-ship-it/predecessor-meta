@@ -89,7 +89,9 @@ def apply(bundle, packet, validate, clean, capabilities):
         hero['capabilities'], hero['capability_evidence'] = capabilities(hero)
     g = bundle.setdefault('guidance', {})
     build_pass = g.get('build_patch_review')
-    if build_pass and build_pass.get('patch') == data['patch']:
+    # A supplement plan joins the build pass it was reviewed for: the 1.17 pass, or a later patch's pass once the
+    # plan itself was re-reviewed for that patch (1.17.2, 17 Oct 2026). Corrections above stay bound to 1.17.
+    if build_pass and data['plans'] and all(p.get('patch') == build_pass.get('patch') for p in data['plans']):
         build_pass.setdefault('loadout_definitions', {}).update(copy.deepcopy(data['definitions']))
         # Validate the new plan through the normal build validator, separately from
         # the historical 54-hero strategic review, whose date and coverage remain intact.
