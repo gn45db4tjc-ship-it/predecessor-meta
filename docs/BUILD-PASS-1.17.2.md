@@ -2,7 +2,7 @@
 
 The owner allowed the code and test changes this pass needed (issue #157). It is a patch-targeted build review, not a strategy review: tiers, compositions and the strategy packet stay on their 24 Sep 1.17 review (`patch` 1.17, `maintenance_review` "1.17 strategy review").
 
-**Result: 0 changed, 89 checked and retained, 7 unresolved** (96 plans, including the 1.17 supplement's Baron Valmont Midlane).
+**Result: 0 changed, 89 checked and retained, 7 unresolved** across the packet's 96 plans. The 1.17 supplement's Baron Valmont Midlane is also checked and retained, so 90 plans are active.
 
 ## What moved
 
