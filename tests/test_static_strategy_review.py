@@ -51,7 +51,7 @@ class ReviewLedgerTests(unittest.TestCase):
     def test_one_time_review_schedules_no_next_review(self):
         # STRATEGY-REVIEW-POLICY.md (21 Sep): no recurring review is scheduled, so none is dated here.
         review=self.packet['guidance']['maintenance_review']
-        self.assertEqual(review['kind'],'1.17 strategy review')
+        self.assertEqual(review['kind'],'1.17.2 strategy review')
         self.assertNotIn('next_weekly_review',review)
         m.validate_guidance_packet(self.packet,None)
         review['next_weekly_review']='not a date'

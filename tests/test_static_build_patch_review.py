@@ -8,12 +8,13 @@ class BuildPatchReviewTests(unittest.TestCase):
         self.packet=json.loads((Path(m.__file__).parent/'reviewed_guidance.json').read_text(encoding='utf8'))
     def test_build_only_review_does_not_advance_full_strategy_dates(self):
         m.validate_guidance_packet(self.packet,None)
-        # The strategy dates move only with an actual strategy review: the 2.34 one-time 1.17 review (24 Sep),
-        # not a build-only pass. The 17 Oct 1.17.2 patch-targeted build pass keeps its own date and leaves them alone.
-        self.assertEqual(self.packet['patch'],'1.17')
-        self.assertTrue(self.packet['reviewed_at'].startswith('2026-09-24'))
-        self.assertEqual(self.packet['guidance']['maintenance_review']['kind'],'1.17 strategy review')
+        # The strategy dates move only with an actual strategy review (the 17 Oct 1.17.2 review), not a build-only pass.
+        # The 1.17.2 build pass, earlier the same day, keeps its own date.
+        self.assertEqual(self.packet['patch'],'1.17.2')
+        self.assertTrue(self.packet['reviewed_at'].startswith('2026-10-17'))
+        self.assertEqual(self.packet['guidance']['maintenance_review']['kind'],'1.17.2 strategy review')
         self.assertTrue(self.packet['guidance']['build_patch_review']['reviewed_at'].startswith('2026-10-17'))
+        self.assertNotEqual(self.packet['reviewed_at'],self.packet['guidance']['build_patch_review']['reviewed_at'])
         review=self.packet['guidance']['build_patch_review']
         self.assertEqual(sum(review['summary'].values()),96)
         self.assertEqual(review['patch'],'1.17.2')

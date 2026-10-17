@@ -48,7 +48,8 @@ const zoned = value => /(Z|[+-]\d\d:\d\d)$/.test(String(value)) && Number.isFini
 test('the reviewed packet and every recheck ledger agree', () => {
   const packet = JSON.parse(fs.readFileSync(path.join(root, 'reviewed_guidance.json'), 'utf8'));
   const review = packet.guidance.meta_review, key = x => x.slug + '/' + x.role;
-  const records = gradeRecords(), applied = records.filter(row => row.verdict !== 'proposed');
+  // A full strategy review (1.17.2, 17 Oct 2026) re-grades every entry; records from before it are the previous review's history.
+  const records = gradeRecords().filter(row => Date.parse(row.reviewed_at) > Date.parse(review.reviewed_at)), applied = records.filter(row => row.verdict !== 'proposed');
   // A proposed grade is a record for the owner, never a tier the app shows.
   for (const row of records.filter(r => r.verdict === 'proposed'))
     assert.equal(review.entries.find(x => key(x) === key(row)), undefined, key(row) + ' is only proposed');

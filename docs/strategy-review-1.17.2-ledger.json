@@ -1,0 +1,2452 @@
+{
+ "schema": 1,
+ "title": "One-time 1.17.2 strategy review",
+ "reviewed_at": "2026-10-17T14:50:00-05:00",
+ "reviewer": "Claude, 1.17.2 editorial strategy review",
+ "editorial_reference": "Gold+",
+ "doc": "docs/STRATEGY-REVIEW-1.17.2.md",
+ "standard": "Authored judgments from 1.17.2 kits (Pred.gg version 169), the official 1.17.2 changes, the 1.17.2 build pass plans and role economy, weighed against Pred.gg Gold+ 1.17.2 role results collected 17 October 2026 (about four days since the 13 October release, roughly 9,000 games per role; Bronze+ contains the same games). Each grade was compared with its previous reference sample (the 1.17 review or the 1.17 line). A grade moved at most one step, and only with a kit or patch reason and evidence pointing the same way, or under the drop rule: one step down without a kit reason when a 95% interval over at least 500 games excludes the previous reference rate. A high rate alone never raises a grade, and a sample under 100 games is not graded on alone; the two roles with fewer than 100 Gold+ 1.17.2 games keep their previous sample. Grades are not calculated win probabilities, source-provided tiers, or proven optimal picks. A 3 percentage-point change from the listed sample with at least 500 current games flags the grade for review; that trigger is not a significance test. Refreshing data does not rewrite this review.",
+ "tiers": [
+  {
+   "slug": "adele",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Adele change; Gold+ 1.17.2 offlane 42.1% over 328 [36.9, 47.5] against 47.8% over 735 (1.17 line sample). Already C, so the grade holds; the watch drops the superseded 1.17 'improved' wording.",
+   "limitation": "328 games; the interval sits wholly below the role average but includes the reference.",
+   "gold_1172": {
+    "winRate": 42.07,
+    "wonGames": 138,
+    "matches": 328,
+    "interval95": [
+     36.85,
+     47.48
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 47.755102040816325,
+    "wonGames": 351,
+    "matches": 735,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-02T13:20:03-05:00"
+   }
+  },
+  {
+   "slug": "adele",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Adele change; Gold+ 1.17.2 support 50.0% over 806 [46.6, 53.4] against 48.1% over 243 (1.17 review sample), near the 49.8% role average. B holds; the watch no longer calls her current results lower.",
+   "limitation": "Interval includes both the reference and the role average; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.0,
+    "wonGames": 403,
+    "matches": 806,
+    "interval95": [
+     46.56,
+     53.44
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 48.148148148148145,
+    "wonGames": 117,
+    "matches": 243,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "akeron",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Akeron change; Gold+ 1.17.2 jungle 46.9% over 145 [39.0, 55.0] against 46.0% over 511 (1.17 line sample), still below even as the 3 Oct recheck text says. Text checked and retained.",
+   "limitation": "Only 145 games; the interval is wide and includes the reference.",
+   "gold_1172": {
+    "winRate": 46.9,
+    "wonGames": 68,
+    "matches": 145,
+    "interval95": [
+     38.96,
+     54.99
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 45.98825831702544,
+    "wonGames": 235,
+    "matches": 511,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-02T13:20:00-05:00"
+   }
+  },
+  {
+   "slug": "akeron",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Akeron change; Gold+ 1.17.2 offlane 47.5% over 476 [43.0, 52.0] against 48.4% over 1,427 (1.17 line sample), still below even. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 47.48,
+    "wonGames": 226,
+    "matches": 476,
+    "interval95": [
+     43.03,
+     51.97
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 48.35318850735809,
+    "wonGames": 690,
+    "matches": 1427,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-02T13:20:03-05:00"
+   }
+  },
+  {
+   "slug": "argus",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Argus change; Gold+ 1.17.2 midlane 51.9% over 1,030 [48.9, 55.0] against 48.4% over 314 (1.17 review sample), the interval excluding the reference upward. A high rate alone never raises a grade, so A holds; the watch replaces the 'early 1.17 sample' wording.",
+   "limitation": "The reference is a small early 1.17 sample (314 games); about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.94,
+    "wonGames": 535,
+    "matches": 1030,
+    "interval95": [
+     48.89,
+     54.98
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 48.40764331210191,
+    "wonGames": 152,
+    "matches": 314,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "argus",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Argus change; Gold+ 1.17.2 support 47.0% over 502 [42.7, 51.4] against 47.9% over 146 (1.17 review sample), below midlane's 51.9% over 1,030. C holds; 'previous-patch' was ambiguous after 1.17.2, so the watch now cites the current sample.",
+   "limitation": "Interval includes the reference and reaches the role average.",
+   "gold_1172": {
+    "winRate": 47.01,
+    "wonGames": 236,
+    "matches": 502,
+    "interval95": [
+     42.69,
+     51.38
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 47.945205479452056,
+    "wonGames": 70,
+    "matches": 146,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "aurora",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "1.17.2 only fixed Glacial Charge bugs (the wall's movement speed now applies; minions stop at it), which restores stated behavior and changes nothing the text claims. Gold+ 1.17.2 jungle 53.0% over 1,405 [50.3, 55.5] against 54.3% over 951 (1.17 line sample), above the 50.6% role average. S and text retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 52.95,
+    "wonGames": 744,
+    "matches": 1405,
+    "interval95": [
+     50.34,
+     55.55
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 54.25867507886435,
+    "wonGames": 516,
+    "matches": 951,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-26T13:47:11-05:00"
+   }
+  },
+  {
+   "slug": "aurora",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "Only Glacial Charge bug fixes in 1.17.2. Gold+ 1.17.2 offlane 49.4% over 589 [45.4, 53.4] against 51.0% over 204 (1.17 review sample), near the role average and below jungle. B and text retained.",
+   "limitation": "Interval includes the reference and the role average.",
+   "gold_1172": {
+    "winRate": 49.41,
+    "wonGames": 291,
+    "matches": 589,
+    "interval95": [
+     45.39,
+     53.43
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 50.98039215686274,
+    "wonGames": 104,
+    "matches": 204,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "aurora",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "Only Glacial Charge bug fixes in 1.17.2. Gold+ 1.17.2 support 50.9% over 281 [45.1, 56.7] against 54.6% over 734 (1.17 line sample); the 1.17 rise the old watch described did not carry into 1.17.2. B holds.",
+   "limitation": "281 games; the interval includes both the reference and the role average.",
+   "gold_1172": {
+    "winRate": 50.89,
+    "wonGames": 143,
+    "matches": 281,
+    "interval95": [
+     45.07,
+     56.68
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 54.63215258855586,
+    "wonGames": 401,
+    "matches": 734,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-02T13:20:14-05:00"
+   }
+  },
+  {
+   "slug": "bayle",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "B",
+   "reason": "Kit reason plus evidence: 1.17.2 buffs to Cursed Edge, Skull Crusher, Dire Howl, attack speed and armor growth, and Gold+ 1.17.2 jungle 51.6% over 739 [48.0, 55.1] excludes 44.4% over 1,495 (1.16.4 review sample). C to B; Dire Howl added to the named abilities.",
+   "limitation": "The reference is the 1.16.4 sample (no 100-game 1.17 jungle sample); about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.56,
+    "wonGames": 381,
+    "matches": 739,
+    "interval95": [
+     47.95,
+     55.14
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 44.414715719063544,
+    "wonGames": 664,
+    "matches": 1495,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-14T17:20:00-05:00"
+   }
+  },
+  {
+   "slug": "bayle",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "Same 1.17.2 buffs as jungle, but Gold+ 1.17.2 offlane 46.6% over 896 [43.4, 49.9] against 45.7% over 129 (1.17 review sample) barely moved and sits below even. C held; the watch now names the buffs that did not lift him.",
+   "limitation": "Interval includes the reference; the buffs may need more time to show.",
+   "gold_1172": {
+    "winRate": 46.65,
+    "wonGames": 418,
+    "matches": 896,
+    "interval95": [
+     43.41,
+     49.93
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 45.736434108527135,
+    "wonGames": 59,
+    "matches": 129,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "boris",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Boris change; Gold+ 1.17.2 jungle 51.0% over 1,058 [48.0, 54.0] against 53.0% over 270 (1.17 review sample), near the 50.6% role average as the text says. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.04,
+    "wonGames": 540,
+    "matches": 1058,
+    "interval95": [
+     48.03,
+     54.04
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 52.96296296296296,
+    "wonGames": 143,
+    "matches": 270,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "countess",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Countess change; Gold+ 1.17.2 jungle 50.3% over 380 [45.3, 55.3] against 48.8% over 127 (1.17 review sample). B holds; the watch cites the current sample instead of the one 'since the fix'.",
+   "limitation": "380 games; wide interval including the reference and the role average.",
+   "gold_1172": {
+    "winRate": 50.26,
+    "wonGames": 191,
+    "matches": 380,
+    "interval95": [
+     45.26,
+     55.26
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 48.818897637795274,
+    "wonGames": 62,
+    "matches": 127,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "countess",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "Drop rule: no 1.17.2 Countess change, and Gold+ 1.17.2 offlane 46.9% over 556 [42.8, 51.1] excludes 52.0% over 417 (1.17 line sample) with 500+ games. A to B.",
+   "limitation": "No kit reason; 556 games, about four days of 1.17.2 data, and the drop rests on the interval alone.",
+   "gold_1172": {
+    "winRate": 46.94,
+    "wonGames": 261,
+    "matches": 556,
+    "interval95": [
+     42.83,
+     51.1
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 52.038369304556355,
+    "wonGames": 217,
+    "matches": 417,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   }
+  },
+  {
+   "slug": "countess",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Countess change; Gold+ 1.17.2 midlane 51.8% over 469 [47.3, 56.3] against 50.5% over 198 (1.17 review sample), above the role average, but a high rate alone never raises a grade. Text makes no sample claim; retained.",
+   "limitation": "Interval includes the reference; 469 games.",
+   "gold_1172": {
+    "winRate": 51.81,
+    "wonGames": 243,
+    "matches": 469,
+    "interval95": [
+     47.29,
+     56.3
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 50.505050505050505,
+    "wonGames": 100,
+    "matches": 198,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "crunch",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Crunch change; Gold+ 1.17.2 jungle 50.7% over 667 [46.9, 54.5] against 47.9% over 169 (1.17 review sample), near the role average. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.67,
+    "wonGames": 338,
+    "matches": 667,
+    "interval95": [
+     46.89,
+     54.45
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 47.928994082840234,
+    "wonGames": 81,
+    "matches": 169,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "crunch",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Crunch change; Gold+ 1.17.2 offlane 50.1% over 846 [46.8, 53.5] against 47.8% over 232 (1.17 review sample), near the role average. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.12,
+    "wonGames": 424,
+    "matches": 846,
+    "interval95": [
+     46.76,
+     53.48
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 47.8448275862069,
+    "wonGames": 111,
+    "matches": 232,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "dekker",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Dekker change; Gold+ 1.17.2 support 48.3% over 1,695 [46.0, 50.7] against 45.9% over 1,516 (1.17 line sample), risen but still below even, so 'below-even role results' still holds. B and text retained.",
+   "limitation": "The interval excludes the reference upward; a high rate alone never raises a grade.",
+   "gold_1172": {
+    "winRate": 48.32,
+    "wonGames": 819,
+    "matches": 1695,
+    "interval95": [
+     45.95,
+     50.7
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 45.91029023746702,
+    "wonGames": 696,
+    "matches": 1516,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   }
+  },
+  {
+   "slug": "drongo",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "1.17.2 base stat cuts; Gold+ 1.17.2 carry 50.5% over 1,877 [48.2, 52.7] against 52.2% over 1,922 (1.17 line sample), inside the interval. S retained per the verdict, flagged for recheck; the watch names the nerfs.",
+   "limitation": "Interval includes the reference by a small margin; S now rests on kit role more than results.",
+   "gold_1172": {
+    "winRate": 50.45,
+    "wonGames": 947,
+    "matches": 1877,
+    "interval95": [
+     48.19,
+     52.71
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 52.2372528616025,
+    "wonGames": 1004,
+    "matches": 1922,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   }
+  },
+  {
+   "slug": "eden",
+   "role": "carry",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "No 1.17.2 Eden change (the Marksman Crest stacking fix is not in her plan); Gold+ 1.17.2 carry 51.4% over 930 [48.2, 54.6] against 52.9% over 289 (1.17 review sample), above the role average. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.4,
+    "wonGames": 478,
+    "matches": 930,
+    "interval95": [
+     48.19,
+     54.6
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 52.94117647058823,
+    "wonGames": 153,
+    "matches": 289,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-23T21:27:54-05:00"
+   }
+  },
+  {
+   "slug": "feng-mao",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Feng Mao change; Gold+ 1.17.2 jungle 48.0% over 910 [44.8, 51.3] against 49.8% over 277 (1.17 review sample). C holds; the watch replaces 'early 1.17 results'.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 48.02,
+    "wonGames": 437,
+    "matches": 910,
+    "interval95": [
+     44.79,
+     51.27
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 49.81949458483754,
+    "wonGames": 138,
+    "matches": 277,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "feng-mao",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Feng Mao change; Gold+ 1.17.2 offlane 42.9% over 84 [32.8, 53.5] against 45.6% over 406 (1.16.4 review sample), still a small sample as the text says. Text checked and retained.",
+   "limitation": "Only 84 games, under the 100-game eligibility line.",
+   "gold_1172": {
+    "winRate": 42.86,
+    "wonGames": 36,
+    "matches": 84,
+    "interval95": [
+     32.82,
+     53.52
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 45.566502463054185,
+    "wonGames": 185,
+    "matches": 406,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-14T17:20:04-05:00"
+   }
+  },
+  {
+   "slug": "gadget",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "1.17.2 shortened Security Gate's max-range travel time and raised Tesla Dome's magical armor shred; Gold+ 1.17.2 midlane 50.2% over 1,830 [47.9, 52.5] against 51.0% over 429 (1.17 review sample), near the role average. A holds; the watch names the small buffs.",
+   "limitation": "Interval includes the reference; the buffs are small.",
+   "gold_1172": {
+    "winRate": 50.22,
+    "wonGames": 919,
+    "matches": 1830,
+    "interval95": [
+     47.93,
+     52.51
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 51.04895104895105,
+    "wonGames": 219,
+    "matches": 429,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "gadget",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "Small 1.17.2 Security Gate and Tesla Dome buffs do not change the support claims; Gold+ 1.17.2 support 47.8% over 320 [42.4, 53.3] against 50.3% over 791 (1.16.4 review sample), still a smaller sample below even. Text checked and retained.",
+   "limitation": "320 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 47.81,
+    "wonGames": 153,
+    "matches": 320,
+    "interval95": [
+     42.4,
+     53.28
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 50.31605562579014,
+    "wonGames": 398,
+    "matches": 791,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-14T17:20:16-05:00"
+   }
+  },
+  {
+   "slug": "gideon",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Gideon change; Gold+ 1.17.2 midlane 50.1% over 2,042 [48.0, 52.3] against 49.4% over 1,739 (1.17 line sample), near the role average. The text describes 1.17 and Hotfix 1.17.1 changes, not a sample; retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.15,
+    "wonGames": 1024,
+    "matches": 2042,
+    "interval95": [
+     47.98,
+     52.31
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 49.396204715353655,
+    "wonGames": 859,
+    "matches": 1739,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   }
+  },
+  {
+   "slug": "greystone",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 cut the Assault The Gates refund and limited it to heroes and camp leaders; Gold+ 1.17.2 jungle 49.7% over 475 [45.2, 54.2] against 47.7% over 107 (1.17 review sample). B holds; the watch adds the refund change.",
+   "limitation": "475 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 49.68,
+    "wonGames": 236,
+    "matches": 475,
+    "interval95": [
+     45.21,
+     54.17
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 47.66355140186916,
+    "wonGames": 51,
+    "matches": 107,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "greystone",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "1.17.2 trimmed the Assault The Gates refund; Gold+ 1.17.2 offlane 51.0% over 2,052 [48.9, 53.2] against 50.3% over 1,884 (1.17 line sample), near even. A holds; the watch now cites 1.17.2 results.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.02,
+    "wonGames": 1047,
+    "matches": 2052,
+    "interval95": [
+     48.86,
+     53.18
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 50.26539278131635,
+    "wonGames": 947,
+    "matches": 1884,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   }
+  },
+  {
+   "slug": "grim-exe",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 GRIM.exe change; Gold+ 1.17.2 carry 52.5% over 469 [47.9, 56.9] against 47.1% over 384 (1.17 line sample). B holds; the old 'below the leading carries' wording no longer matches the current sample.",
+   "limitation": "469 games; the interval includes the reference and the role average.",
+   "gold_1172": {
+    "winRate": 52.45,
+    "wonGames": 246,
+    "matches": 469,
+    "interval95": [
+     47.93,
+     56.93
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 47.135416666666664,
+    "wonGames": 181,
+    "matches": 384,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   }
+  },
+  {
+   "slug": "grux",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 base physical power and Double Pain mana nerfs; Gold+ 1.17.2 jungle 49.7% over 951 [46.6, 52.9] against 50.7% over 302 (1.17 review sample). B holds; 'offlane is the preferred role' is dropped now both roles are B.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.74,
+    "wonGames": 473,
+    "matches": 951,
+    "interval95": [
+     46.57,
+     52.91
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 50.66225165562914,
+    "wonGames": 153,
+    "matches": 302,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "grux",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "Kit reason plus evidence: 1.17.2 physical power and Double Pain mana nerfs, and Gold+ 1.17.2 offlane 49.2% over 1,546 [46.7, 51.6] excludes 51.8% over 1,466 (1.17 line sample). A to B.",
+   "limitation": "The nerfs are small; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.16,
+    "wonGames": 760,
+    "matches": 1546,
+    "interval95": [
+     46.67,
+     51.65
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 51.77353342428376,
+    "wonGames": 759,
+    "matches": 1466,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   }
+  },
+  {
+   "slug": "howitzer",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Howitzer change; Gold+ 1.17.2 midlane 52.9% over 720 [49.3, 56.5] against 51.6% over 601 (1.17 line sample), above the role average. Text makes no sample claim; retained.",
+   "limitation": "Interval includes the reference; 720 games.",
+   "gold_1172": {
+    "winRate": 52.92,
+    "wonGames": 381,
+    "matches": 720,
+    "interval95": [
+     49.26,
+     56.54
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 51.58069883527454,
+    "wonGames": 310,
+    "matches": 601,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   }
+  },
+  {
+   "slug": "iggy-scorch",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Iggy & Scorch change; Gold+ 1.17.2 offlane 52.1% over 622 [48.2, 56.0] excludes 56.4% over 1,157 (1.17 line sample) but stays above the role average, so the drop rule permits but does not require a drop. A and text retained; flagged for recheck.",
+   "limitation": "622 games; a larger sample could confirm the fall.",
+   "gold_1172": {
+    "winRate": 52.09,
+    "wonGames": 324,
+    "matches": 622,
+    "interval95": [
+     48.16,
+     55.99
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 56.4390665514261,
+    "wonGames": 653,
+    "matches": 1157,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-02T13:20:03-05:00"
+   }
+  },
+  {
+   "slug": "iggy-scorch",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Iggy & Scorch change; Gold+ 1.17.2 midlane 50.0% over 1,023 [47.0, 53.1] against 51.4% over 1,861 (1.17 line sample), near the role average. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.05,
+    "wonGames": 512,
+    "matches": 1023,
+    "interval95": [
+     46.99,
+     53.11
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 51.37023105857066,
+    "wonGames": 956,
+    "matches": 1861,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-02T13:20:06-05:00"
+   }
+  },
+  {
+   "slug": "ikra",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "1.17.2 mixed changes (Herald and Cascade gains, Narcosis cooldown, Genesis damage and slow cuts); Gold+ 1.17.2 midlane 46.9% over 686 [43.2, 50.7] against 46.8% over 171 (1.17 review sample). C holds; the watch names the nerfs to the named abilities.",
+   "limitation": "Interval includes the reference; the changes pull in both directions.",
+   "gold_1172": {
+    "winRate": 46.94,
+    "wonGames": 322,
+    "matches": 686,
+    "interval95": [
+     43.23,
+     50.68
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 46.78362573099415,
+    "wonGames": 80,
+    "matches": 171,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "kallari",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Kallari change; Gold+ 1.17.2 jungle 48.2% over 521 [43.9, 52.5] against 48.2% over 1,331 (1.17 line sample). C holds; the watch replaces the 'early 1.17 rise' wording.",
+   "limitation": "Interval includes the reference; 521 games.",
+   "gold_1172": {
+    "winRate": 48.18,
+    "wonGames": 251,
+    "matches": 521,
+    "interval95": [
+     43.92,
+     52.46
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 48.15927873779113,
+    "wonGames": 641,
+    "matches": 1331,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-02T13:20:00-05:00"
+   }
+  },
+  {
+   "slug": "khaimera",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "S",
+   "reason": "Kit reason plus evidence: 1.17.2 Ambush scaling and a flat 40% slow, and Gold+ 1.17.2 jungle 55.7% over 2,501 [53.7, 57.6] excludes 51.6% over 728 (1.17 review sample) upward over the largest jungle sample. A to S.",
+   "limitation": "Base physical power and armor also fell; about four days of 1.17.2 data, though the sample is large.",
+   "gold_1172": {
+    "winRate": 55.66,
+    "wonGames": 1392,
+    "matches": 2501,
+    "interval95": [
+     53.7,
+     57.59
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 51.64835164835165,
+    "wonGames": 376,
+    "matches": 728,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "khaimera",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "1.17.2 Ambush buff and base stat changes; Gold+ 1.17.2 offlane 45.0% over 160 [37.5, 52.7] against 50.2% over 594 (1.17 line sample). C holds; the old watch's 'risen to about even' and 'nothing changed his kit' no longer hold.",
+   "limitation": "Only 160 games; wide interval including the reference.",
+   "gold_1172": {
+    "winRate": 45.0,
+    "wonGames": 72,
+    "matches": 160,
+    "interval95": [
+     37.5,
+     52.74
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 50.168350168350166,
+    "wonGames": 298,
+    "matches": 594,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-04T08:36:40-05:00"
+   }
+  },
+  {
+   "slug": "kira",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Kira change; Gold+ 1.17.2 carry 50.9% over 1,398 [48.3, 53.5] against 50.9% over 1,266 (1.17 line sample). A holds; the watch cites 1.17.2 instead of 'results since the review'.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.93,
+    "wonGames": 712,
+    "matches": 1398,
+    "interval95": [
+     48.31,
+     53.54
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 50.947867298578196,
+    "wonGames": 645,
+    "matches": 1266,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   }
+  },
+  {
+   "slug": "kwang",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 buffs (tether, Surge, Fury, cleave); Gold+ 1.17.2 jungle 49.7% over 1,102 [46.8, 52.7] against 47.4% over 559 (1.17 line sample), rise inside the interval and below the 50.6% role average. B held; the watch names the buffs.",
+   "limitation": "Interval includes the reference; the buffs may need more time to show.",
+   "gold_1172": {
+    "winRate": 49.73,
+    "wonGames": 548,
+    "matches": 1102,
+    "interval95": [
+     46.78,
+     52.68
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 47.40608228980322,
+    "wonGames": 265,
+    "matches": 559,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-26T13:47:11-05:00"
+   }
+  },
+  {
+   "slug": "kwang",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "A",
+   "reason": "Kit reason plus evidence: 1.17.2 tether, Surge, Fury and cleave buffs, and Gold+ 1.17.2 offlane 50.9% over 1,151 [48.0, 53.8] excludes 47.3% over 205 (1.17 review sample). B to A; the why now names Surge of the Heavens and drops Light of the Heavens.",
+   "limitation": "The reference is a small early 1.17 sample (205 games); about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.91,
+    "wonGames": 586,
+    "matches": 1151,
+    "interval95": [
+     48.03,
+     53.79
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 47.31707317073171,
+    "wonGames": 97,
+    "matches": 205,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "legion",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Legion change; Gold+ 1.17.2 carry 49.7% over 1,738 [47.4, 52.1] against 49.8% over 1,623 (1.17 line sample). A holds; the watch cites 1.17.2 results.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.71,
+    "wonGames": 864,
+    "matches": 1738,
+    "interval95": [
+     47.36,
+     52.06
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 49.78434996919285,
+    "wonGames": 808,
+    "matches": 1623,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   }
+  },
+  {
+   "slug": "lt-belica",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "A",
+   "reason": "Kit reason plus evidence: 1.17.2 nerfs to Seismic Assault, Void Bomb, Void Drone, Innovation and health, and Gold+ 1.17.2 midlane 49.7% over 1,361 [47.1, 52.4] excludes 52.6% over 536 (1.17 review sample). S to A.",
+   "limitation": "The reference is a 536-game early 1.17 sample; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.74,
+    "wonGames": 677,
+    "matches": 1361,
+    "interval95": [
+     47.09,
+     52.4
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 52.61194029850746,
+    "wonGames": 282,
+    "matches": 536,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "lt-belica",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "Same 1.17.2 nerfs as midlane; Gold+ 1.17.2 support 50.0% over 696 [46.3, 53.7] against 49.6% over 244 (1.17 review sample), inside the interval and near the role average. A held; 'midlane has the stronger role evidence' no longer holds, so the watch names the nerfs instead.",
+   "limitation": "Nerfs without a matching fall; 696 games; recheck with a larger sample.",
+   "gold_1172": {
+    "winRate": 50.0,
+    "wonGames": 348,
+    "matches": 696,
+    "interval95": [
+     46.3,
+     53.7
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 49.59016393442623,
+    "wonGames": 121,
+    "matches": 244,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "maco",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Maco change; Gold+ 1.17.2 support 44.6% over 540 [40.5, 48.9] against 46.9% over 1,227 (1.17 line sample). C holds; 'previous-patch' was ambiguous after 1.17.2.",
+   "limitation": "Interval includes the reference; 540 games.",
+   "gold_1172": {
+    "winRate": 44.63,
+    "wonGames": 241,
+    "matches": 540,
+    "interval95": [
+     40.49,
+     48.85
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 46.862265688671556,
+    "wonGames": 575,
+    "matches": 1227,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-02T13:20:14-05:00"
+   }
+  },
+  {
+   "slug": "morigesh",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Morigesh change; Gold+ 1.17.2 midlane 48.3% over 1,079 [45.3, 51.3] against 49.5% over 283 (1.17 review sample). B holds; the watch replaces 'the early 1.17 rise is a small sample'.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 48.29,
+    "wonGames": 521,
+    "matches": 1079,
+    "interval95": [
+     45.32,
+     51.27
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 49.46996466431096,
+    "wonGames": 140,
+    "matches": 283,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "mourn",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "No 1.17.2 Mourn change; Gold+ 1.17.2 support 51.1% over 1,797 [48.8, 53.5] against 52.3% over 386 (1.17 review sample), above the role average. Text makes no sample claim; retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.14,
+    "wonGames": 919,
+    "matches": 1797,
+    "interval95": [
+     48.83,
+     53.45
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 52.33160621761658,
+    "wonGames": 202,
+    "matches": 386,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "murdock",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "B",
+   "reason": "Kit reason plus evidence: 1.17.2 base physical power, health regen and attack speed growth buffs, and Gold+ 1.17.2 carry 49.3% over 2,351 [47.3, 51.3] excludes 44.4% over 1,579 (1.17 line sample). C to B.",
+   "limitation": "His 1.17 buffs did not lift him before; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.3,
+    "wonGames": 1159,
+    "matches": 2351,
+    "interval95": [
+     47.28,
+     51.32
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 44.39518682710576,
+    "wonGames": 701,
+    "matches": 1579,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-26T13:47:21-05:00"
+   }
+  },
+  {
+   "slug": "muriel",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "No 1.17.2 Muriel change; Gold+ 1.17.2 support 54.8% over 1,241 [52.0, 57.5] against 55.1% over 283 (1.17 review sample), above the role average. S holds; the watch's 're-check as 1.17 data grows' is answered by the 1.17.2 sample.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 54.79,
+    "wonGames": 680,
+    "matches": 1241,
+    "interval95": [
+     52.01,
+     57.54
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 55.12367491166078,
+    "wonGames": 156,
+    "matches": 283,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "narbash",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "No 1.17.2 Narbash change; Gold+ 1.17.2 support 53.9% over 1,381 [51.2, 56.5] against 52.1% over 849 (1.17 line sample), above the role average. Text makes no sample claim; retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 53.87,
+    "wonGames": 744,
+    "matches": 1381,
+    "interval95": [
+     51.24,
+     56.49
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 52.06124852767962,
+    "wonGames": 442,
+    "matches": 849,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   }
+  },
+  {
+   "slug": "neon",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "C",
+   "reason": "Drop rule: no 1.17.2 Neon change, and Gold+ 1.17.2 midlane 46.7% over 901 [43.5, 50.0] excludes 51.7% over 729 (1.17 line sample) with 500+ games. B to C.",
+   "limitation": "No kit reason; the drop rests on the interval alone over about four days.",
+   "gold_1172": {
+    "winRate": 46.73,
+    "wonGames": 421,
+    "matches": 901,
+    "interval95": [
+     43.49,
+     49.99
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 51.71467764060357,
+    "wonGames": 377,
+    "matches": 729,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   }
+  },
+  {
+   "slug": "phase",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Phase change; Gold+ 1.17.2 support 47.9% over 986 [44.8, 51.0] against 49.7% over 346 (1.17 review sample), inside the interval. Text describes 1.17 changes, not a sample; retained.",
+   "limitation": "Results sit below the role average; the interval reaches the reference only narrowly.",
+   "gold_1172": {
+    "winRate": 47.87,
+    "wonGames": 472,
+    "matches": 986,
+    "interval95": [
+     44.77,
+     50.99
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 49.71098265895954,
+    "wonGames": 172,
+    "matches": 346,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "rampage",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Rampage change; Gold+ 1.17.2 jungle 49.9% over 900 [46.6, 53.1] against 49.6% over 779 (1.17 line sample). A holds; the watch cites 1.17.2.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.89,
+    "wonGames": 449,
+    "matches": 900,
+    "interval95": [
+     46.63,
+     53.15
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 49.55070603337612,
+    "wonGames": 386,
+    "matches": 779,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-26T13:47:11-05:00"
+   }
+  },
+  {
+   "slug": "renna",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "A",
+   "reason": "Kit reason plus evidence: 1.17.2 Mortal Coil buffs and the hero passive-stacking fix, and Gold+ 1.17.2 midlane 51.9% over 2,236 [49.8, 53.9] excludes 49.0% over 1,264 (1.17 line sample). B to A; Mortal Coil added to the named abilities.",
+   "limitation": "About four days of 1.17.2 data; the interval's lower bound sits near the role average.",
+   "gold_1172": {
+    "winRate": 51.88,
+    "wonGames": 1160,
+    "matches": 2236,
+    "interval95": [
+     49.81,
+     53.94
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 48.971518987341774,
+    "wonGames": 619,
+    "matches": 1264,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   }
+  },
+  {
+   "slug": "revenant",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "Kit reason plus evidence: 1.17.2 nerfs across Bounty Hunter, Obliterate, Hellfire Rounds, Reckoning and health, and Gold+ 1.17.2 carry 51.8% over 2,211 [49.7, 53.9] excludes 54.2% over 570 (1.17 review sample). A to B.",
+   "limitation": "Still above the role average; the reference is a 570-game early 1.17 sample.",
+   "gold_1172": {
+    "winRate": 51.79,
+    "wonGames": 1145,
+    "matches": 2211,
+    "interval95": [
+     49.7,
+     53.86
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 54.21052631578947,
+    "wonGames": 309,
+    "matches": 570,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-23T21:27:54-05:00"
+   }
+  },
+  {
+   "slug": "riktor",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Riktor change; Gold+ 1.17.2 jungle 47.5% over 392 [42.5, 52.4] against 45.4% over 130 (1.17 review sample), still below even. Text cites the dated reference, not a 1.17 sample; retained.",
+   "limitation": "392 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 47.45,
+    "wonGames": 186,
+    "matches": 392,
+    "interval95": [
+     42.55,
+     52.39
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 45.38461538461539,
+    "wonGames": 59,
+    "matches": 130,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "riktor",
+   "role": "support",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Riktor change; Gold+ 1.17.2 support 50.7% over 2,381 [48.7, 52.7] against 48.4% over 1,960 (1.17 line sample), risen but a high rate alone never raises. Text makes no sample claim; retained.",
+   "limitation": "The interval excludes the reference upward; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.69,
+    "wonGames": 1207,
+    "matches": 2381,
+    "interval95": [
+     48.69,
+     52.7
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 48.41836734693877,
+    "wonGames": 949,
+    "matches": 1960,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   }
+  },
+  {
+   "slug": "riktor",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Riktor change; Gold+ 1.17.2 offlane 50.7% over 481 [46.3, 55.2] against 50.6% over 162 (1.17 review sample). C holds; the watch replaces 'the early 1.17 sample'.",
+   "limitation": "481 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 50.73,
+    "wonGames": 244,
+    "matches": 481,
+    "interval95": [
+     46.27,
+     55.17
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 50.617283950617285,
+    "wonGames": 82,
+    "matches": 162,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "scarlett",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "1.17.2 nerfs; Gold+ 1.17.2 jungle 41.3% over 349 [36.2, 46.5] against 47.9% over 146 (1.17 review sample). Already C, so the grade holds; the watch names the nerfs and the fall.",
+   "limitation": "349 games; already the lowest grade.",
+   "gold_1172": {
+    "winRate": 41.26,
+    "wonGames": 144,
+    "matches": 349,
+    "interval95": [
+     36.22,
+     46.49
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 47.945205479452056,
+    "wonGames": 70,
+    "matches": 146,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "scarlett",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "1.17.2 nerfs; Gold+ 1.17.2 offlane 51.4% over 1,173 [48.5, 54.3] against 51.6% over 3,997 (1.17 line sample), inside the interval and above the role average. A holds; the watch replaces the 'early 1.17 offlane high' wording.",
+   "limitation": "Nerfs without a matching fall yet; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 51.41,
+    "wonGames": 603,
+    "matches": 1173,
+    "interval95": [
+     48.55,
+     54.26
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 51.58869151863898,
+    "wonGames": 2062,
+    "matches": 3997,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-04T08:36:40-05:00"
+   }
+  },
+  {
+   "slug": "serath",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Serath change; Gold+ 1.17.2 jungle 49.9% over 1,266 [47.2, 52.7] against 47.2% over 489 (1.17 review sample), rise inside the interval. A holds; the watch replaces 'early results fell'.",
+   "limitation": "The reference is a small early 1.17 sample; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.92,
+    "wonGames": 632,
+    "matches": 1266,
+    "interval95": [
+     47.17,
+     52.67
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 47.239263803680984,
+    "wonGames": 231,
+    "matches": 489,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "serath",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Serath change; Gold+ 1.17.2 offlane 47.4% over 78 [36.7, 58.4] against 43.2% over 294 (1.16.4 review sample), still small as the text says. Text checked and retained.",
+   "limitation": "Only 78 games, under the 100-game eligibility line.",
+   "gold_1172": {
+    "winRate": 47.44,
+    "wonGames": 37,
+    "matches": 78,
+    "interval95": [
+     36.74,
+     58.38
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 43.197278911564624,
+    "wonGames": 127,
+    "matches": 294,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-14T17:20:04-05:00"
+   }
+  },
+  {
+   "slug": "sevarog",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "A",
+   "reason": "Kit reason plus evidence: 1.17.2 Siphon monster damage, Colossal Blow range and the hero passive-stacking fix, and Gold+ 1.17.2 jungle 52.6% over 308 [47.0, 58.1] excludes 44.0% over 571 (1.17 line sample). B to A.",
+   "limitation": "Only 308 games; the interval is wide and its lower bound sits below the role average.",
+   "gold_1172": {
+    "winRate": 52.6,
+    "wonGames": 162,
+    "matches": 308,
+    "interval95": [
+     47.02,
+     58.11
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 43.957968476357266,
+    "wonGames": 251,
+    "matches": 571,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-02T13:20:00-05:00"
+   }
+  },
+  {
+   "slug": "sevarog",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 buffs and passive fix; Gold+ 1.17.2 offlane 47.0% over 604 [43.1, 51.0] against 47.3% over 550 (1.17 line sample), flat. B held; the watch names the changes that did not lift him.",
+   "limitation": "Interval includes the reference; the passive fix may take longer to show.",
+   "gold_1172": {
+    "winRate": 47.02,
+    "wonGames": 284,
+    "matches": 604,
+    "interval95": [
+     43.07,
+     51.01
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 47.27272727272727,
+    "wonGames": 260,
+    "matches": 550,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   }
+  },
+  {
+   "slug": "shinbi",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 All-Kill nerf (and the Allegro augment's Rushing Beat reduction); Gold+ 1.17.2 jungle 49.2% over 309 [43.7, 54.7] against 53.5% over 1,150 (1.17 line sample). B holds; the old watch's 1.17 rise no longer applies.",
+   "limitation": "309 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 49.19,
+    "wonGames": 152,
+    "matches": 309,
+    "interval95": [
+     43.66,
+     54.74
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 53.47826086956522,
+    "wonGames": 615,
+    "matches": 1150,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-06T13:53:31-05:00"
+   }
+  },
+  {
+   "slug": "shinbi",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "1.17.2 All-Kill nerf; Gold+ 1.17.2 offlane 50.4% over 1,165 [47.5, 53.2] against 50.9% over 976 (1.17 line sample), near the role average. A holds; the watch names the nerf.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.39,
+    "wonGames": 587,
+    "matches": 1165,
+    "interval95": [
+     47.52,
+     53.25
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 50.92213114754098,
+    "wonGames": 497,
+    "matches": 976,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-26T13:47:15-05:00"
+   }
+  },
+  {
+   "slug": "skylar",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Skylar change; Gold+ 1.17.2 carry 48.1% over 970 [45.0, 51.3] against 45.6% over 287 (1.17 review sample). B holds; the watch replaces 'early 1.17'.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 48.14,
+    "wonGames": 467,
+    "matches": 970,
+    "interval95": [
+     45.01,
+     51.29
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 45.64459930313589,
+    "wonGames": 131,
+    "matches": 287,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-23T21:27:54-05:00"
+   }
+  },
+  {
+   "slug": "sparrow",
+   "role": "carry",
+   "verdict": "checked and retained",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "No 1.17.2 Sparrow change; Gold+ 1.17.2 carry 50.4% over 2,389 [48.4, 52.4] against 49.6% over 772 (1.17 review sample), near even. Text makes no sample claim; retained.",
+   "limitation": "S rests on kit role more than results; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.36,
+    "wonGames": 1203,
+    "matches": 2389,
+    "interval95": [
+     48.35,
+     52.36
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 49.61139896373057,
+    "wonGames": 383,
+    "matches": 772,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-23T21:27:54-05:00"
+   }
+  },
+  {
+   "slug": "steel",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Steel change; Gold+ 1.17.2 offlane 49.5% over 895 [46.2, 52.8] against 47.2% over 284 (1.17 review sample), near the role average. Text checked and retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 49.5,
+    "wonGames": 443,
+    "matches": 895,
+    "interval95": [
+     46.23,
+     52.77
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 47.183098591549296,
+    "wonGames": 134,
+    "matches": 284,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "steel",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "A",
+   "reason": "Drop rule: no 1.17.2 Steel change, and Gold+ 1.17.2 support 49.4% over 2,381 [47.4, 51.4] excludes 51.5% over 748 (1.17 review sample) with 500+ games. S to A.",
+   "limitation": "No kit reason; results sit near the role average, and the drop rests on the interval alone.",
+   "gold_1172": {
+    "winRate": 49.43,
+    "wonGames": 1177,
+    "matches": 2381,
+    "interval95": [
+     47.43,
+     51.44
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 51.470588235294116,
+    "wonGames": 385,
+    "matches": 748,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-23T21:27:56-05:00"
+   }
+  },
+  {
+   "slug": "steel",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Steel change; Gold+ 1.17.2 jungle 51.1% over 141 [42.9, 59.2] against 49.6% over 659 (1.17 line sample); the stated trigger (interval excluding 52.6%) is not met. A holds; the watch cites 1.17.2.",
+   "limitation": "Only 141 games; very wide interval.",
+   "gold_1172": {
+    "winRate": 51.06,
+    "wonGames": 72,
+    "matches": 141,
+    "interval95": [
+     42.89,
+     59.18
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 49.6206373292868,
+    "wonGames": 327,
+    "matches": 659,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-08T13:56:59-05:00"
+   }
+  },
+  {
+   "slug": "terra",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "1.17.2 Highland Hurl buff; Gold+ 1.17.2 jungle 46.7% over 165 [39.2, 54.3] against 44.6% over 543 (1.16.4 review sample). C holds; 'made no Terra changes' is no longer true.",
+   "limitation": "Only 165 games; the reference is the 1.16.4 sample.",
+   "gold_1172": {
+    "winRate": 46.67,
+    "wonGames": 77,
+    "matches": 165,
+    "interval95": [
+     39.22,
+     54.27
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 44.56721915285451,
+    "wonGames": 242,
+    "matches": 543,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-14T17:20:00-05:00"
+   }
+  },
+  {
+   "slug": "terra",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "B",
+   "reason": "Kit reason: 1.17.2 Highland Hurl armor scaling, shred and 1.25s slow or root; Gold+ 1.17.2 offlane 49.7% over 632 [45.8, 53.6] against 46.4% over 908 (1.17 line sample), rise inside the interval. C to B on the buff (the 2.34 Murdock precedent).",
+   "limitation": "The interval includes the reference; the move rests on the kit change.",
+   "gold_1172": {
+    "winRate": 49.68,
+    "wonGames": 314,
+    "matches": 632,
+    "interval95": [
+     45.8,
+     53.57
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 46.36563876651982,
+    "wonGames": 421,
+    "matches": 908,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-02T13:20:03-05:00"
+   }
+  },
+  {
+   "slug": "the-fey",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "S",
+   "reason": "1.17.2 nerfs; Gold+ 1.17.2 midlane 51.0% over 2,057 [48.8, 53.1] against 52.1% over 532 (1.17 review sample), inside the interval and above the role average. S retained per the verdict, flagged for recheck; the watch names the nerfs.",
+   "limitation": "Interval includes the reference; S now rests more on kit role than results.",
+   "gold_1172": {
+    "winRate": 51.0,
+    "wonGames": 1049,
+    "matches": 2057,
+    "interval95": [
+     48.84,
+     53.15
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 52.067669172932334,
+    "wonGames": 277,
+    "matches": 532,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "the-fey",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "Kit reason plus evidence: 1.17.2 Harvest Nettles and Bramble Patch nerfs, and Gold+ 1.17.2 support 45.3% over 234 [39.0, 51.7] excludes 52.8% over 817 (1.16.4 review sample). A to B.",
+   "limitation": "Only 234 games; the reference is the 1.16.4 sample.",
+   "gold_1172": {
+    "winRate": 45.3,
+    "wonGames": 106,
+    "matches": 234,
+    "interval95": [
+     39.05,
+     51.7
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 52.75397796817625,
+    "wonGames": 431,
+    "matches": 817,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-14T17:20:16-05:00"
+   }
+  },
+  {
+   "slug": "twinblast",
+   "role": "carry",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "A",
+   "reason": "Kit reason: 1.17.2 Vaporize scaling and on-hit, Vortex Grenade scaling; Gold+ 1.17.2 carry 50.0% over 2,703 [48.1, 51.9] against 48.4% over 581 (1.17 review sample), rise inside the interval. B to A on the buffs (the 2.34 Murdock precedent).",
+   "limitation": "The interval includes the reference; the move rests on the kit change.",
+   "gold_1172": {
+    "winRate": 49.98,
+    "wonGames": 1351,
+    "matches": 2703,
+    "interval95": [
+     48.1,
+     51.87
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 48.36488812392427,
+    "wonGames": 281,
+    "matches": 581,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-09-23T21:27:54-05:00"
+   }
+  },
+  {
+   "slug": "wraith",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "No 1.17.2 Wraith change; Gold+ 1.17.2 midlane 47.7% over 922 [44.5, 51.0] against 46.8% over 205 (1.17 review sample), below even. Text makes no sample claim; retained.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 47.72,
+    "wonGames": 440,
+    "matches": 922,
+    "interval95": [
+     44.51,
+     50.95
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 46.829268292682926,
+    "wonGames": 96,
+    "matches": 205,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-23T21:27:53-05:00"
+   }
+  },
+  {
+   "slug": "valmont",
+   "role": "midlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 nerfs to Rupture, Exsanguinate damage, Hemophagia and armor (Exsanguinate healing scaling up) and to Sanguine Banquet; Gold+ 1.17.2 midlane 53.4% over 524 [49.1, 57.7] against 50.4% over 1,354 (1.17 line sample). B holds; 'near even' no longer matches and the watch names the nerfs.",
+   "limitation": "524 games; interval includes the reference; nerfs and a higher rate point in opposite directions.",
+   "gold_1172": {
+    "winRate": 53.44,
+    "wonGames": 280,
+    "matches": 524,
+    "interval95": [
+     49.15,
+     57.67
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-17T13:19:15-05:00"
+   },
+   "reference": {
+    "winRate": 50.369276218611525,
+    "wonGames": 682,
+    "matches": 1354,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-09-26T13:47:18-05:00"
+   }
+  },
+  {
+   "slug": "wraith",
+   "role": "carry",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Wraith change; Gold+ 1.17.2 carry 46.6% over 451 [42.0, 51.2] against 48.7% over 1,044 (1.17 line sample). Text makes no sample claim; retained.",
+   "limitation": "451 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 46.56,
+    "wonGames": 210,
+    "matches": 451,
+    "interval95": [
+     42.01,
+     51.18
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-17T13:19:21-05:00"
+   },
+   "reference": {
+    "winRate": 48.65900383141762,
+    "wonGames": 508,
+    "matches": 1044,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-02T13:20:10-05:00"
+   }
+  },
+  {
+   "slug": "wukong",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "1.17.2 84000 Hairs stack retention; Gold+ 1.17.2 jungle 49.5% over 305 [43.9, 55.1] against 52.0% over 852 (1.17 line sample). A holds; the watch names the change.",
+   "limitation": "305 games; interval includes the reference.",
+   "gold_1172": {
+    "winRate": 49.51,
+    "wonGames": 151,
+    "matches": 305,
+    "interval95": [
+     43.94,
+     55.09
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 51.99530516431925,
+    "wonGames": 443,
+    "matches": 852,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-02T13:20:00-05:00"
+   }
+  },
+  {
+   "slug": "yin",
+   "role": "jungle",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Yin change; Gold+ 1.17.2 jungle 50.1% over 650 [46.3, 54.0] against 54.0% over 213 (1.17 review sample), excluded only by rounding against a 213-game reference. A and text retained.",
+   "limitation": "The reference is small and early; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.15,
+    "wonGames": 326,
+    "matches": 650,
+    "interval95": [
+     46.32,
+     53.99
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 53.990610328638496,
+    "wonGames": 115,
+    "matches": 213,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "yin",
+   "role": "offlane",
+   "verdict": "checked and retained",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Yin change; Gold+ 1.17.2 offlane 44.8% over 134 [36.6, 53.2] against 52.2% over 719 (1.16.4 review sample), still small as the text says. Text checked and retained.",
+   "limitation": "Only 134 games; the reference is the 1.16.4 sample.",
+   "gold_1172": {
+    "winRate": 44.78,
+    "wonGames": 60,
+    "matches": 134,
+    "interval95": [
+     36.62,
+     53.22
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 52.1557719054242,
+    "wonGames": 375,
+    "matches": 719,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-14T17:20:04-05:00"
+   }
+  },
+  {
+   "slug": "yurei",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "1.17.2 Severance bug fix; Gold+ 1.17.2 jungle 49.7% over 763 [46.1, 53.2] against 46.8% over 1,378 (1.17 line sample), rise inside the interval. C holds; the watch names the fix.",
+   "limitation": "Interval includes the reference; the fix's effect is not yet measurable.",
+   "gold_1172": {
+    "winRate": 49.67,
+    "wonGames": 379,
+    "matches": 763,
+    "interval95": [
+     46.14,
+     53.21
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 46.806966618287376,
+    "wonGames": 645,
+    "matches": 1378,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-02T13:20:00-05:00"
+   }
+  },
+  {
+   "slug": "zarus",
+   "role": "jungle",
+   "verdict": "changed",
+   "old_tier": "S",
+   "tier": "A",
+   "reason": "Kit reason plus evidence: 1.17.2 Coliseum damage and scaling and base physical power cuts, and Gold+ 1.17.2 jungle 50.1% over 1,555 [47.6, 52.6] excludes 53.3% over 463 (1.17 review sample). S to A.",
+   "limitation": "The reference is a 463-game early 1.17 sample; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 50.1,
+    "wonGames": 779,
+    "matches": 1555,
+    "interval95": [
+     47.61,
+     52.58
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-17T13:19:06-05:00"
+   },
+   "reference": {
+    "winRate": 53.347732181425485,
+    "wonGames": 247,
+    "matches": 463,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-09-23T21:27:49-05:00"
+   }
+  },
+  {
+   "slug": "zarus",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "1.17.2 Coliseum nerf; Gold+ 1.17.2 offlane 53.5% over 694 [49.7, 57.1] excludes 47.8% over 180 (1.17 review sample) upward, conflicting with the kit change. B held; 'offlane is weaker' no longer holds.",
+   "limitation": "694 games; the rise conflicts with the nerf.",
+   "gold_1172": {
+    "winRate": 53.46,
+    "wonGames": 371,
+    "matches": 694,
+    "interval95": [
+     49.74,
+     57.14
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 47.77777777777778,
+    "wonGames": 86,
+    "matches": 180,
+    "url": "https://pred.gg/heroes?versions=167&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-23T21:27:51-05:00"
+   }
+  },
+  {
+   "slug": "zinx",
+   "role": "offlane",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "A",
+   "reason": "No 1.17.2 Zinx change; Gold+ 1.17.2 offlane 56.0% over 109 [46.6, 64.9] against 54.5% over 576 (1.16.4 review sample). A holds; the watch cites the 1.17.2 sample.",
+   "limitation": "Only 109 games; very wide interval.",
+   "gold_1172": {
+    "winRate": 55.96,
+    "wonGames": 61,
+    "matches": 109,
+    "interval95": [
+     46.6,
+     64.92
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-17T13:19:09-05:00"
+   },
+   "reference": {
+    "winRate": 54.513888888888886,
+    "wonGames": 314,
+    "matches": 576,
+    "url": "https://pred.gg/heroes?versions=166&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-09-14T17:20:04-05:00"
+   }
+  },
+  {
+   "slug": "zinx",
+   "role": "support",
+   "verdict": "changed",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "No 1.17.2 Zinx change; Gold+ 1.17.2 support 47.9% over 787 [44.4, 51.4] against 49.0% over 780 (1.17 line sample). B holds; the watch cites 1.17.2.",
+   "limitation": "Interval includes the reference; about four days of 1.17.2 data.",
+   "gold_1172": {
+    "winRate": 47.9,
+    "wonGames": 377,
+    "matches": 787,
+    "interval95": [
+     44.43,
+     51.4
+    ],
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-10-17T13:19:27-05:00"
+   },
+   "reference": {
+    "winRate": 48.97435897435897,
+    "wonGames": 382,
+    "matches": 780,
+    "url": "https://pred.gg/heroes?versions=167%2C168&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+    "fetched_at": "2026-09-26T13:47:25-05:00"
+   }
+  }
+ ],
+ "strategy_changes": {
+  "hero_notes": [],
+  "counter_picks": [],
+  "build_adaptations": [
+   {
+    "slug": "grux",
+    "role": "jungle",
+    "item": "Rapture",
+    "verdict": "changed",
+    "reason": "Rapture supplies health, attack speed and close-range, health-based on-hit damage; Double Pain explicitly applies on-hit twice. Trade away Mutilator's power, haste, higher omnivamp and ability-trigger pattern. Kiting still defeats the plan. 1.17.2 fixed Mutilator so it applies when an area ability damages several enemies, which raises the cost of giving it up in grouped fights.",
+    "why_verdict": "The swap still holds, but the 1.17.2 Mutilator bugfix makes the replaced item stronger on area hits such as Double Pain's cleave, so the trade-off now says so. Double Pain's higher mana cost and base power cut do not affect the swap."
+   },
+   {
+    "slug": "grux",
+    "role": "offlane",
+    "item": "Rapture",
+    "verdict": "changed",
+    "reason": "Rapture adds health, attack speed and a close-range on-hit that scales with your health, and Double Pain applies on-hit effects twice. You give up Mutilator's power, haste, larger omnivamp and ability-triggered hits. Earlier Rapture results were weak, so keep this a matchup swap; kiting still defeats it. 1.17.2 fixed Mutilator so it applies when an area ability damages several enemies, so the trade costs more in grouped fights.",
+    "why_verdict": "The swap still holds, but the 1.17.2 Mutilator bugfix makes the replaced item stronger on area hits such as Double Pain's cleave, so the trade-off now says so. Double Pain's higher mana cost and base power cut do not affect the swap."
+   }
+  ],
+  "damage_profiles": [],
+  "sequence": [
+   {
+    "slug": "kwang",
+    "key": "Q",
+    "verdict": "changed",
+    "setup": "boundary",
+    "readiness": "direct",
+    "control_window": "boundary",
+    "followup": "none",
+    "note": "The blade tether limits movement for 1.45s but does not establish a stun. Recalling the blade early ends the tether.",
+    "why_verdict": "1.17.2 raised the tether from 1.3s to 1.45s, so the note's duration is updated. A boundary that limits movement is still a boundary, not a stun or a hold, so boundary, direct, boundary and none still fit."
+   }
+  ],
+  "capability": [
+   {
+    "slug": "lt-belica",
+    "augment": "Combat Veteran",
+    "verdict": "changed",
+    "remove": [],
+    "add": [],
+    "reason": "Combat Veteran adds passive experience and 2.5% movement speed. It changes levelling pace, not Lt. Belica's control or damage tools.",
+    "why_verdict": "1.17.2 cut the augment's movement speed from 3% to 2.5% and its passive experience to 0.1-2; the reason quoted 3%, so it now says 2.5%. Innovation's haste per maxed ability (10 to 8) does not affect the capability. No tag change."
+   },
+   {
+    "slug": "the-fey",
+    "augment": "Wild Growth",
+    "verdict": "changed",
+    "remove": [],
+    "add": [],
+    "reason": "Bramble Patch has 30% more range. The augment does not change the slow or the allied movement speed; it extends where they can be placed.",
+    "why_verdict": "1.17.2 cut the patch's allied movement speed from 15% to 12%. The old wording 'are unchanged' could read as a patch claim, so it now says the augment does not change them. No tag change."
+   }
+  ]
+ },
+ "compositions": [
+  {
+   "name": "Containment into Black Hole",
+   "verdict": "changed",
+   "why_verdict": "Picks kept. Zarus moved S to A in jungle, but his job here is containment, which is intact: Coliseum still leaps at an enemy hero and summons the arena for 4s. 1.17.2 lowered Coliseum's damage (200/325/450 to 180/305/430, bonus physical scaling 100% to 90%) and his base physical power, so the weakness now says the kill must come from Black Hole. Gideon had no 1.17.2 change; the 2.75s Black Hole line is still exact. The Ground sentence is dated 'since 1.17' and names Valmont's bind as his 1.17.2 Arterial Grip text does ('grounded', broken by crowd control on Valmont), so a Zarus Barricade stun still breaks it."
+  },
+  {
+   "name": "Direct catch, compact burst",
+   "verdict": "changed",
+   "why_verdict": "Picks kept. Steel's Shield Bash and Shield Slam are unchanged. Lt. Belica moved S to A in midlane: 1.17.2 lowered Seismic Assault damage and raised its cooldown (16-12 to 17-13), lowered Void Bomb damage and cut Innovation's haste per maxed ability (10 to 8). The plan's sequence (stun, then Seismic Assault and Void Bomb, not both controls at once) holds and matters more with a longer cooldown, so the weakness now states the trims. Steel's jungle sample is still small (141 Gold+ 1.17.2 games), and the official 1.17 Heavy Metal spell-shield rule is unchanged."
+  },
+  {
+   "name": "Second-wave dive",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. Neither Serath nor Mourn had a 1.17.2 hero change. Abduct still pulls the first enemy hit and slows it 90%, Heaven's Fury still teleports on the final strike, and the visage still grants a free Heresy and a 65% basic-cooldown cut only after a takedown. Serath stays A; the 1.17.2 Weald and Wind-Rider trims touch her loadout, not this sequence."
+  },
+  {
+   "name": "Buy time for Sparrow",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. Muriel and Sparrow had no 1.17.2 hero change and keep S. Consecrated Ground and Alacrity still grant attack speed, healing, a shield and movement speed, and Heightened Senses is still a stealth reposition, so Sparrow still needs other roles for the opening and a durable body. Weald and Wind-Rider trims are small loadout changes."
+  },
+  {
+   "name": "Protect the channel",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. The text quotes no Coliseum or Reversal number. Reversal of Fortune's 1.17.2 text still gives 30% damage reduction and a shield while Muriel flies to any allied hero, Gideon's 2.75s line is exact, and the Torn Space Ground rule is unchanged. Zarus's Coliseum damage cut and his move to A do not affect setting the target; Muriel stays S."
+  },
+  {
+   "name": "Catch, silence, convert",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. Steel is unchanged. Belica's 1.17.2 trims lower her burst but keep the layered stun-then-burst sequence. Drongo lost 1 base physical power and some health and armor, but Gag Grenade's silence, Rad Rounds and Shrapnel Cannon's in-air push-back are unchanged, and he stays S. The weakness already asks another role for protection."
+  },
+  {
+   "name": "Grouped sustain and cleanup",
+   "verdict": "changed",
+   "why_verdict": "Picks kept. Aurora's 1.17.2 change is a bug fix: Glacial Charge's ice now grants her and her allies its movement speed while on it, which serves 'move together', so the plan names it. Narbash had no 1.17.2 change and Legion's area plan is unchanged; Legion stays A. Cryoseism's 1.5s delay is unchanged, so 'partly delayed' still holds."
+  },
+  {
+   "name": "Peel before damage",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. Steel, Muriel and Sparrow had no 1.17.2 hero change. Steel's stuns and Force Shield still let him take first contact and keep a control for the diver; Muriel still keeps Sparrow firing. None of the three is a magical damage plan, so the weakness stands."
+  },
+  {
+   "name": "Controlled front-to-back",
+   "verdict": "changed",
+   "why_verdict": "Picks kept. Greystone (A) lost some of Assault The Gates' cooldown refund on a hero hit (35% to 30%), and the refund now occurs only on a hero or camp leader hit; the weakness adds this because the plan uses him to pressure space. Stone Forged Soul is unchanged (2.5s stasis heal with a proximity slow). Steel, Gideon, Sparrow and Mourn had no 1.17.2 change; the 2.75s line is exact."
+  },
+  {
+   "name": "Compact catch with protection",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. Zarus and Belica moved to A on 1.17.2 damage and cooldown trims, but the plan uses them only to identify a single target, which their kits still do. Drongo's silence and in-air blast are unchanged, Muriel still protects the damage window, and Akeron (B since 3 Oct) had no 1.17.2 change. The overcommit warning stands."
+  },
+  {
+   "name": "Prepared objective control",
+   "verdict": "changed",
+   "why_verdict": "Picks kept. The Fey stays S in midlane; 1.17.2 trimmed Harvest Nettles' damage and Bramble Patch's ally movement speed (15% to 12%), but Bramble Patch and the delayed Fly Trap pull still need enemies to stay nearby, as the weakness says. Aurora's Glacial Charge fix now gives allies on the ice its movement speed, which helps 'arrive first', so the plan names it. Greystone's refund trim does not affect occupying the second angle; Legion and Narbash are unchanged."
+  },
+  {
+   "name": "Protected second entry",
+   "verdict": "checked and retained",
+   "why_verdict": "Retained. Akeron, Serath, Eden and Steel had no 1.17.2 hero change; Steel support moved S to A under the drop rule, without a kit change, and his Shield Bash, Shield Slam and Force Shield still let him establish contact and save a control. Belica's trims do not stop her confirming a target. The execution warning stands."
+  }
+ ],
+ "pools_why": "Jungle (reordered): Khaimera moves to first as the new S jungler (1.17.2 Ambush scaling 70% to 80% and a flat 40% slow; 55.7% over 2,501 Gold+ games, interval excluding his 51.6% reference upward) and Aurora stays S second. Zarus moves from first to third after his S to A move (Coliseum and base power cut; interval excludes his reference); he stays for the containment job the compositions use. Serath, Steel and Rampage keep their A grades and order. Sevarog (B to A, 308 games) is not added: the pool already covers his frontline job and his sample is small. Midlane (changed): The Fey leads as the only S midlaner. Lt. Belica moves to second after her S to A move; she stays for the compact catch the compositions use. Gideon (A) stays third. Renna is added fourth after her B to A move (stronger Mortal Coil and a passive-stacking fix; 51.9% over 2,236, interval excludes her 49.0% reference), ahead of Argus, whose A was retained without a kit change. Offlane (changed): Greystone leads; his A was retained (51.0% over 2,052) and no offlaner holds S. Shinbi (A) stays second. Kwang is added third after his B to A move (tether 1.3s to 1.45s, Surge and Fury damage up; 50.9% over 1,151, interval excludes his 47.3% reference). Grux moves from first to fourth after his A to B move (base power and Double Pain cost; 49.2% over 1,546). Akeron (B) stays last for sustain and frontline. Support (reordered): the three S supports lead, Mourn, Muriel and Narbash; Steel moves from second to last after his S to A drop-rule move (no kit change; 49.4% over 2,381, interval excludes his 51.5% reference). He stays for the direct opening. Carry (unchanged): Drongo, Sparrow and Eden keep S and Legion keeps A. TwinBlast (B to A) is not added because his move rests on the buffs, not the sample; Revenant fell to B and was not in the pool. Every pooled hero has a reviewed grade and plan in that role, and no pool leads with a hero this review moved down."
+}
