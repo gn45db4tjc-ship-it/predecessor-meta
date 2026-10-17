@@ -7644,7 +7644,7 @@
           "Primary"
         ],
         "why": "Use Rusty and the charged item slow to establish contact, then maintain attacks while Rad Rounds accumulates. Silence a response that would undo the allied catch rather than throwing it away for incidental damage. The crit curve follows an attack-speed opening, with penetration when armored targets become the safe target.",
-        "caution": "The ultimate pushes enemies away and can undo allied area damage. Preserve it or the silence for peel when a diver threatens you. Defensive and anti-heal purchases depend on the actual fight. Patch 1.17 lowers Forage XP to 3, Wind-Rider base attack speed to 15%, and Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.",
+        "caution": "The ultimate pushes enemies away and can undo allied area damage. Preserve it or the silence for peel when a diver threatens you. Defensive and anti-heal purchases depend on the actual fight. Patch 1.17 lowers Forage XP to 3, Wind-Rider base attack speed to 15%, and Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -10066,7 +10066,7 @@
         "item_notes": [
           {
             "item": "Soulbinder",
-            "reason": "Magical power, mana and haste; ability hits on heroes from 1,450 units or more deal 8% bonus damage and permanently add magical power.",
+            "reason": "Magical power, mana and haste; ability hits on heroes from 1,450 units or more deal 7% bonus damage and permanently add magical power.",
             "ability_keys": [
               "RMB",
               "Q"
@@ -21111,7 +21111,7 @@
           "Primary"
         ],
         "why": "Essence Catalyst provides real healing to the linked ally after casts, while Telekinetic Link and Hyperflux amplify their damage window. Marshal gives you and nearby allies attack speed and on-hit damage, and Enra's Blessing shields an ally who is immobilized nearby. Keep the ally within the separate ranges of the link and nearby item auras.",
-        "caution": "An immobilized ally cannot be pulled. A long link does not extend Marshal's aura. Sources have differed on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage (the current Pred.gg text says the healing can stack, gives 35% movement speed and 12% of missing mana); this plan does not depend on any of them. Rebirth's physical power is not a default contribution to this healing plan.",
+        "caution": "An immobilized ally cannot be pulled. A long link does not extend Marshal's aura. The current source and official 1.17 notes disagree on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage; this plan does not depend on any of them. Rebirth's physical power is not a default contribution to this healing plan.",
         "title": "Feed a linked attacker without surrendering spacing",
         "role": "support",
         "author": "Claude (Opus 5.5) editorial build review, 2.32",
@@ -32796,7 +32796,7 @@
           "Primary"
         ],
         "why": "Build attacks and range pressure, then fight behind a reliable initiator. Windburn’s extended attacks and native healing reward uninterrupted contact; Onixian Quiver supports its melee critical-chance and low-health mitigation effects; it does not grant Yin ranged extra projectiles. Use the projectile tools deliberately to preserve the attack window, not as a reason to stand in every threat.",
-        "caution": "The swing is also your escape. Deflection timing is brief, and the ultimate stops projectiles rather than every form of damage or control. Move defense or armor penetration earlier when the enemy makes the printed offensive timings unsafe. Respect Ground: 1.17 fixes the relevant movement/ultimate bypass, so the old escape interaction is not part of this recommendation. Patch 1.17 lowers Forage XP to 3, Wind-Rider base attack speed to 15%, and Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.",
+        "caution": "The swing is also your escape. Deflection timing is brief, and the ultimate stops projectiles rather than every form of damage or control. Move defense or armor penetration earlier when the enemy makes the printed offensive timings unsafe. Respect Ground: 1.17 fixes the relevant movement/ultimate bypass, so the old escape interaction is not part of this recommendation. Patch 1.17 lowers Forage XP to 3, Wind-Rider base attack speed to 15%, and Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -33192,7 +33192,7 @@
           "Primary"
         ],
         "why": "Farm with Windburn’s range and cleave, then use Lash Kick or Backlash to preserve a safe attack lane. The selected Storm of Salvation and Taproot support recovery while attacking. Equinox comes before the final damage purchases to give this exposed offlaner a better survival window.",
-        "caution": "Yin remains a melee hero for Onixian Quiver’s melee effect; longer whip range does not establish the ranged-projectile passive. Backlash reflects only during its brief window, and neither it nor Quelling Gale guarantees safety against melee control. Respect Ground: 1.17 fixes the relevant movement/ultimate bypass, so the old escape interaction is not part of this recommendation. Patch 1.17 lowers Forage XP to 3, Wind-Rider base attack speed to 15%, and Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.",
+        "caution": "Yin remains a melee hero for Onixian Quiver’s melee effect; longer whip range does not establish the ranged-projectile passive. Backlash reflects only during its brief window, and neither it nor Quelling Gale guarantees safety against melee control. Respect Ground: 1.17 fixes the relevant movement/ultimate bypass, so the old escape interaction is not part of this recommendation. Patch 1.17 lowers Forage XP to 3, Wind-Rider base attack speed to 15%, and Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {
@@ -35598,7 +35598,7 @@
           "Alternate"
         ],
         "why": "Carry Zinx is a ranged on-hit attacker, not a healer: every Refibrillator hit adds physical base damage and a stacking magical damage-over-time effect, Prophecy adds magical on-hit damage, and Terminal Treatment raises on-hit damage as the target's health falls. Spectra and Orion supply attack speed (Orion converts item haste), and Typhoon's stacks add more while you keep attacking. Open with Bad Medicine or Ricochet, attack while the slow or stun holds, and keep Infuse for your support and Neural Regenesis for whoever is about to die.",
-        "caution": "1.17 raised attack speed to 115% but lengthened base attack time to 1.5, cut Terminal Treatment to 25% and slowed Typhoon's scaling and dash, so do not read this as an attack-speed buff. The official note gives Terminal Treatment 25% (as additional DoT damage), and the current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%; the plan relies only on that. Zinx has no dash of her own: Typhoon's Mirage at four stacks is the only one, so stand behind your support and buy Spellbreaker earlier into magical burst.",
+        "caution": "1.17 raised attack speed to 115% but lengthened base attack time to 1.5, cut Terminal Treatment to 25% and slowed Typhoon's scaling and dash, so do not read this as an attack-speed buff. The published loadout text still calls Terminal Treatment an Infuse effect of up to 60%; the official note gives 25% (as additional DoT damage) and current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%, and the plan relies only on that. Zinx has no dash of her own: Typhoon's Mirage at four stacks is the only one, so stand behind your support and buy Spellbreaker earlier into magical burst.",
         "rune_note": "Authored for the stated kit and role. Blessings are checked against their Eternal and slot. Disputed blessing triggers are excluded from default plans; no whole-loadout win rate is inferred.",
         "sources": [
           {

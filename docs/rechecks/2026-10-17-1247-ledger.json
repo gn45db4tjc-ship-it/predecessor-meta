@@ -600,8 +600,8 @@
    "role": "carry",
    "queue_id": "plan-mechanics:drongo/carry",
    "verdict": "checked and retained",
-   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Drongo lost 1 base power and some durability, and Weald and Taproot were trimmed again; the attack-speed and crit plan holds. The caution now states Taproot's 1.17.2 value. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
-   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Drongo lost 1 base power and some durability, and Weald and Taproot were trimmed again; the attack-speed and crit plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test. Text correction deferred to the 1.17.2 build pass, because the inactive plan is shown as the dated 1.17 review with its 1.17 sources: caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\".",
    "mechanics_checked": [
     "Ability LMB (drongo): basic attack: base damage 57 to 56 [official 1.17.2 change]",
     "Ability E (drongo): the cooldown-timing note is gone [wording only]",
@@ -612,7 +612,6 @@
     "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
    ],
    "text_changed": [
-    "caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\"",
     "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
    ],
    "reviewed_at": "2026-10-17T08:10:00-05:00",
@@ -765,8 +764,8 @@
    "role": "support",
    "queue_id": "plan-mechanics:gadget/support",
    "verdict": "checked and retained",
-   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Soulbinder's long-range bonus rose from 7% to 8%, which supports the poke plan; the Soulbinder note now says 8%. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
-   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Soulbinder's long-range bonus rose from 7% to 8%, which supports the poke plan. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test. Text correction deferred to the 1.17.2 build pass, because the inactive plan is shown as the dated 1.17 review with its 1.17 sources: item note Soulbinder: \"deal 7% bonus damage\" -> \"deal 8% bonus damage\".",
    "mechanics_checked": [
     "Ability Q (gadget): Sticky Mine: 1.17 empowered damage (110-290) [source now shows the official 1.17 value]",
     "Ability E (gadget): Security Gate: 1.17 allied speed (50%) [source now shows the official 1.17 value]",
@@ -775,7 +774,6 @@
     "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
    ],
    "text_changed": [
-    "item note Soulbinder: \"deal 7% bonus damage\" -> \"deal 8% bonus damage\"",
     "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
    ],
    "reviewed_at": "2026-10-17T08:10:00-05:00",
@@ -1721,8 +1719,8 @@
    "role": "support",
    "queue_id": "plan-mechanics:phase/support",
    "verdict": "checked and retained",
-   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Hyperflux and Essence Catalyst now show their 1.17 values and Psychic Support restores more mana; the plan does not depend on any of them. The caution is updated to say what the source now shows. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
-   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Hyperflux and Essence Catalyst now show their 1.17 values and Psychic Support restores more mana; the plan does not depend on any of them. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test. Text correction deferred to the 1.17.2 build pass, because the inactive plan is shown as the dated 1.17 review with its 1.17 sources: caution: \"The current source and official 1.17 notes disagree on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage; this plan does not depend on any of them.\" -> \"Sources have differed on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage (the current Pred.gg text says the healing can stack, gives 35% movement speed and 12% of missing mana); this plan does not depend on any of them.\".",
    "mechanics_checked": [
     "Ability RMB (phase): the link-radius note is gone [wording only]",
     "Ability R (phase): Hyperflux: 1.17 attack speed (35-75%); the decaying movement speed now reads 35% [source now shows the official 1.17 value]",
@@ -1731,7 +1729,6 @@
     "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
    ],
    "text_changed": [
-    "caution: \"The current source and official 1.17 notes disagree on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage; this plan does not depend on any of them.\" -> \"Sources have differed on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage (the current Pred.gg text says the healing can stack, gives 35% movement speed and 12% of missing mana); this plan does not depend on any of them.\"",
     "source_preconditions: 10 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
    ],
    "reviewed_at": "2026-10-17T08:10:00-05:00",
@@ -2705,8 +2702,8 @@
    "role": "jungle",
    "queue_id": "plan-mechanics:yin/jungle",
    "verdict": "checked and retained",
-   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Onixian Quiver was strengthened; Storm of Salvation, Weald and Taproot were trimmed. The attack-uptime plan holds, and the caution now states Taproot's 1.17.2 value. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
-   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Onixian Quiver was strengthened; Storm of Salvation, Weald and Taproot were trimmed. The attack-uptime plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test. Text correction deferred to the 1.17.2 build pass, because the inactive plan is shown as the dated 1.17 review with its 1.17 sources: caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\".",
    "mechanics_checked": [
     "Item Onixian Quiver: Onixian Quiver: multishot 8-30% to 10-35% [official 1.17.2 change]",
     "Loadout Storm of Salvation: Storm of Salvation: Windburn extension 2s to 1s, bonus 1% to 0.75% [Pred.gg-only change, in neither official article]",
@@ -2716,7 +2713,6 @@
     "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
    ],
    "text_changed": [
-    "caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\"",
     "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
    ],
    "reviewed_at": "2026-10-17T08:10:00-05:00",
@@ -2745,8 +2741,8 @@
    "role": "offlane",
    "queue_id": "plan-mechanics:yin/offlane",
    "verdict": "checked and retained",
-   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Onixian Quiver was strengthened; Storm of Salvation, Weald and Taproot were trimmed. The plan holds, and the caution now states Taproot's 1.17.2 value. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
-   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Onixian Quiver was strengthened; Storm of Salvation, Weald and Taproot were trimmed. The plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test. Text correction deferred to the 1.17.2 build pass, because the inactive plan is shown as the dated 1.17 review with its 1.17 sources: caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\".",
    "mechanics_checked": [
     "Item Onixian Quiver: Onixian Quiver: multishot 8-30% to 10-35% [official 1.17.2 change]",
     "Loadout Storm of Salvation: Storm of Salvation: Windburn extension 2s to 1s, bonus 1% to 0.75% [Pred.gg-only change, in neither official article]",
@@ -2756,7 +2752,6 @@
     "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
    ],
    "text_changed": [
-    "caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\"",
     "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
    ],
    "reviewed_at": "2026-10-17T08:10:00-05:00",
@@ -2874,8 +2869,8 @@
    "role": "carry",
    "queue_id": "plan-mechanics:zinx/carry",
    "verdict": "checked and retained",
-   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Terminal Treatment now reads 0-25% on Refibrillator's on-hit damage, the official 1.17 value the plan already relied on; the caution drops the note that the source disagreed. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
-   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Terminal Treatment now reads 0-25% on Refibrillator's on-hit damage, the official 1.17 value the plan already relied on. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test. Text correction deferred to the 1.17.2 build pass, because the inactive plan is shown as the dated 1.17 review with its 1.17 sources: caution: \"The published loadout text still calls Terminal Treatment an Infuse effect of up to 60%; the official note gives 25% (as additional DoT damage) and current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%, and the plan relies only on that.\" -> \"The official note gives Terminal Treatment 25% (as additional DoT damage), and the current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%; the plan relies only on that.\".",
    "mechanics_checked": [
     "Ability RMB (zinx): Infuse: 1.17 missing-health healing (50%) [source now shows the official 1.17 value]",
     "Loadout Terminal Treatment: Terminal Treatment: 0-60% on Infuse to 0-25% on Refibrillator's on-hit damage (the official 1.17 value) [source now shows the official 1.17 value]",
@@ -2883,7 +2878,6 @@
     "7 other precondition field(s) differ only in formatting or tracker lines; no value changed"
    ],
    "text_changed": [
-    "caution: \"The published loadout text still calls Terminal Treatment an Infuse effect of up to 60%; the official note gives 25% (as additional DoT damage) and current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%, and the plan relies only on that.\" -> \"The official note gives Terminal Treatment 25% (as additional DoT damage), and the current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%; the plan relies only on that.\"",
     "source_preconditions: 10 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
    ],
    "reviewed_at": "2026-10-17T08:10:00-05:00",
@@ -2979,9 +2973,7 @@
    ]
   },
   {
-   "kind": "patch",
-   "slug": null,
-   "role": null,
+   "kind": "mechanics",
    "queue_id": "patch-change:1e29c606fefd88",
    "verdict": "unresolved",
    "reason": "The live patch is 1.17.2 (official notes, released 13 Oct 2026) and the reviewed guidance is for 1.17. A 1.17.2 build pass and strategy review would move guidance.build_patch_review to 1.17.2 with new article fingerprints, but the committed tests pin that pass to 1.17 (tests/test_static_build_patch_review.py: patch '1.17', reviewed_at 23 Sep, 96 plans, maintenance kind '1.17 strategy review') and patch_support.py applies the 1.17 supplement only on 1.17. The runner forbids changing code or tests to pass, so the patch move is left for the owner (DECISION NEEDED issue).",
@@ -2996,7 +2988,9 @@
      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
      "fetched_at": "2026-10-16T19:16:11-05:00"
     }
-   ]
+   ],
+   "section": "patch",
+   "key": "1.17.2"
   }
  ]
 }
