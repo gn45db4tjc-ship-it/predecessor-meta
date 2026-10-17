@@ -1,0 +1,3002 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 17 Oct 2026 12:47 UTC (91 queued items)",
+ "reviewed_at": "2026-10-17T08:10:00-05:00",
+ "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+ "scope": "Scheduled recheck of the 91 queued items (90 plans flagged for supporting mechanics, 1 patch change) against the live bundles published 2026-10-17T12:21:43+00:00 (tool 2.58.0; Gold+ collection generated 2026-10-16T19:20:09-05:00, Pred.gg 1.17.2 version 169, status ok). Not a weekly or full review.",
+ "standard": "docs/RECHECK-RUNNER.md: a plan whose reasoning still holds is checked and retained, with its precondition updated from the live source where that source changed; work that needs code or test changes is left unresolved for the owner.",
+ "evidence": {
+  "manifest_published_at": "2026-10-17T12:21:43+00:00",
+  "publish_run": "39032015025",
+  "tool_version": "2.58.0",
+  "collection": "2026-10-16T19:20:09-05:00 (Gold+ bundle generated_at)",
+  "pred_game_data": "Pred.gg 1.17.2, version 169, fetched 2026-10-16T19:20:07-05:00, status ok",
+  "official": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2 fetched 2026-10-16T19:16:10-05:00 (fingerprint 921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e); Patch_Notes_1.17 with Hotfix 1.17.1 fetched 2026-10-16T19:16:11-05:00",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)",
+  "replay": "After the edits, review_saved_sources on every live bundle leaves no changed precondition on the 88 retained plans on any rank; muriel/support and valmont/midlane stay flagged"
+ },
+ "summary": {
+  "changed": 0,
+  "checked and retained": 88,
+  "unresolved": 3
+ },
+ "entries": [
+  {
+   "kind": "plan",
+   "slug": "adele",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:adele/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). The plan uses Knell for its armor shred, not the multi-hit rule, and its items and Tyrant of Thorns trade pattern are unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Knell: Knell: the multi-hit sentence (the official 1.17 fix, previously added from the 1.17 notes) is no longer in the Pred.gg tooltip; the official 1.17 note is still live [wording only]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "adele",
+   "role": "support",
+   "queue_id": "plan-mechanics:adele/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Cannibalism's smaller takedown health is a minor trim to the regeneration blessing slot; the catch-and-protect plan does not depend on it. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 3 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "akeron",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:akeron/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). The 1.17 magical-scaling cuts the plan already cites now show in the source, and Flux Matrix gained haste; the health route still holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (akeron): Crushing Maw: 1.17 scaling (35% magical power, 4.5% bonus health) [source now shows the official 1.17 value]",
+    "Ability Q (akeron): Hellfire: 1.17 scaling (14%) [source now shows the official 1.17 value]",
+    "Ability E (akeron): Web Lash: 1.17 scaling (30%) [source now shows the official 1.17 value]",
+    "Ability R (akeron): Consume: 1.17 pull scaling (4%) [source now shows the official 1.17 value]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/akeron/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:03-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "akeron",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:akeron/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). The 1.17 magical-scaling cuts the plan already cites now show in the source, and Flux Matrix gained haste; the health-and-defense route still holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (akeron): Crushing Maw: 1.17 scaling (35% magical power, 4.5% bonus health) [source now shows the official 1.17 value]",
+    "Ability Q (akeron): Hellfire: 1.17 scaling (14%) [source now shows the official 1.17 value]",
+    "Ability E (akeron): Web Lash: 1.17 scaling (30%) [source now shows the official 1.17 value]",
+    "Ability R (akeron): Consume: 1.17 pull scaling (4%) [source now shows the official 1.17 value]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/akeron/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:03-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "argus",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:argus/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Azure Core lost 5 haste but keeps the mana and shield that justify it first; Entropy and the beam plan are unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Azure Core: Azure Core: ability haste 15 to 10 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "argus",
+   "role": "support",
+   "queue_id": "plan-mechanics:argus/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Lotus and Immaculate were trimmed; neither is the reason for the control-and-uptime plan. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "aurora",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:aurora/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Shatter's 1.17 scaling now shows in the source and Flux Matrix gained haste; the root-and-gank plan is unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (aurora): Shatter: 1.17 on-hit scaling (25%) [source now shows the official 1.17 value]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/aurora/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:44-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "aurora",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:aurora/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Feeding Frenzy lost 2% attack speed and Flux Matrix gained haste; the plan's root, anti-heal and Magnify reasoning holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (aurora): Shatter: 1.17 on-hit scaling (25%) [source now shows the official 1.17 value]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Feeding Frenzy: Feeding Frenzy: attack speed 12% to 10% [official 1.17.2 change]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/aurora/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:44-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "aurora",
+   "role": "support",
+   "queue_id": "plan-mechanics:aurora/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Cannibalism was trimmed and Flux Matrix gained haste; the control-and-Dynamo plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (aurora): Shatter: 1.17 on-hit scaling (25%) [source now shows the official 1.17 value]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/aurora/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:44-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "bayle",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:bayle/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 strengthened Skull Crusher, Cursed Edge and Dire Howl, which supports the plan's heavy-hit direction; Knell's multi-hit rule is not relied on. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (bayle): basic attack: base damage per level lowered (52 to 49 at level 1) [Pred.gg-only change, in neither official article]",
+    "Ability RMB (bayle): Skull Crusher: scaling 110% to 125% [official 1.17.2 change]",
+    "Ability Q (bayle): Cursed Edge: scaling 80%/50% to 85%/55% [official 1.17.2 change]",
+    "Ability E (bayle): Dire Howl: healing 10-26% to 10-30% [official 1.17.2 change]",
+    "Ability Passive (bayle): Berserk: attack speed now listed per level (15% to 91.5%) [wording only]",
+    "Loadout Knell: Knell: the multi-hit sentence (the official 1.17 fix, previously added from the 1.17 notes) is no longer in the Pred.gg tooltip; the official 1.17 note is still live [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/bayle/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T16:17:57-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "bayle",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:bayle/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 strengthened Skull Crusher, Cursed Edge and Dire Howl, which supports the plan's heavy-hit direction; Knell's multi-hit rule is not relied on. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (bayle): basic attack: base damage per level lowered (52 to 49 at level 1) [Pred.gg-only change, in neither official article]",
+    "Ability RMB (bayle): Skull Crusher: scaling 110% to 125% [official 1.17.2 change]",
+    "Ability Q (bayle): Cursed Edge: scaling 80%/50% to 85%/55% [official 1.17.2 change]",
+    "Ability E (bayle): Dire Howl: healing 10-26% to 10-30% [official 1.17.2 change]",
+    "Ability Passive (bayle): Berserk: attack speed now listed per level (15% to 91.5%) [wording only]",
+    "Loadout Knell: Knell: the multi-hit sentence (the official 1.17 fix, previously added from the 1.17 notes) is no longer in the Pred.gg tooltip; the official 1.17 note is still live [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/bayle/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T16:17:57-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "boris",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:boris/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Weald's missiles still apply on-hit effects to low-health heroes, now at 20%, and Wind-Rider still triggers on the dash or grab; the sustained-contact plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Apex Hunter: Apex Hunter: Chrono Swipe bonus 80% to 70% and threshold 25% to 20% health [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Wind-Rider: Wind-Rider: attack speed 20% to 15% [source now shows the official 1.17 value]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "countess",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:countess/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Sanguine Slash keeps the same isolated-target damage and healing in new wording. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Sanguine Slash: Sanguine Slash: the isolated-target heal is now in the same sentence, same values [wording only]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "countess",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:countess/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Sanguine Slash keeps the same isolated-target damage and healing in new wording. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Sanguine Slash: Sanguine Slash: the isolated-target heal is now in the same sentence, same values [wording only]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "countess",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:countess/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Sanguine Slash keeps the same isolated-target damage and healing in new wording. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Sanguine Slash: Sanguine Slash: the isolated-target heal is now in the same sentence, same values [wording only]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "crunch",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:crunch/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Combo Crunch still builds attack speed from Cross Crunch, now faster to a lower stack cap; the cast-and-attack plan holds, and the Mutilator bugfix only helps its area hits. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Combo Crunch: Combo Crunch: 5% to 7.5% per stack, maximum 6 to 4 stacks [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 4 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "crunch",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:crunch/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Combo Crunch still builds attack speed from Cross Crunch, now faster to a lower stack cap; the cast-and-attack plan holds, and the Mutilator bugfix only helps its area hits. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Combo Crunch: Combo Crunch: 5% to 7.5% per stack, maximum 6 to 4 stacks [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 4 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "dekker",
+   "role": "support",
+   "queue_id": "plan-mechanics:dekker/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Lotus and Immaculate were trimmed; neither is the reason for the control plan. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "drongo",
+   "role": "carry",
+   "queue_id": "plan-mechanics:drongo/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Drongo lost 1 base power and some durability, and Weald and Taproot were trimmed again; the attack-speed and crit plan holds. The caution now states Taproot's 1.17.2 value. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (drongo): basic attack: base damage 57 to 56 [official 1.17.2 change]",
+    "Ability E (drongo): the cooldown-timing note is gone [wording only]",
+    "Loadout Bring The Boom: Bring The Boom: Rad Rounds explosion 50% to 60% (the 600u radius note is gone) [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Forage: Forage: experience 4 to 3 [source now shows the official 1.17 value]",
+    "Loadout Taproot: Taproot: bonus physical power scaling 8% to 6% (7% in the official 1.17 notes, 6% in 1.17.2) [official 1.17.2 change]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\"",
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/drongo/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:34-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "eden",
+   "role": "carry",
+   "queue_id": "plan-mechanics:eden/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Only explanatory heat notes left the tooltips, and Lotus and Immaculate were trimmed; the Focal Lens burst sequence holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (eden): the heat-per-hit note is gone [wording only]",
+    "Ability Q (eden): the heat-per-hit note is gone [wording only]",
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/eden/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:28-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "feng-mao",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:feng-mao/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Only wording changed (damage types named, tracker lines dropped). No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/feng-mao/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:59-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "feng-mao",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:feng-mao/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Only wording changed (damage types named, tracker lines dropped). No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 4 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/feng-mao/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:59-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "gadget",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:gadget/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Azure Core lost 5 haste but keeps the mana and shield the plan uses; Tesla Dome's shred rose, which supports the zone plan. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (gadget): Sticky Mine: 1.17 empowered damage (110-290) [source now shows the official 1.17 value]",
+    "Ability E (gadget): Security Gate: 1.17 allied speed (50%) [source now shows the official 1.17 value]",
+    "Ability R (gadget): Tesla Dome: magical armor shred 3.5% to 4% [official 1.17.2 change]",
+    "Item Azure Core: Azure Core: ability haste 15 to 10 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/gadget/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:49-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "gadget",
+   "role": "support",
+   "queue_id": "plan-mechanics:gadget/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Soulbinder's long-range bonus rose from 7% to 8%, which supports the poke plan; the Soulbinder note now says 8%. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (gadget): Sticky Mine: 1.17 empowered damage (110-290) [source now shows the official 1.17 value]",
+    "Ability E (gadget): Security Gate: 1.17 allied speed (50%) [source now shows the official 1.17 value]",
+    "Ability R (gadget): Tesla Dome: magical armor shred 3.5% to 4% [official 1.17.2 change]",
+    "Item Soulbinder: Soulbinder: Arcane Salvo 7% to 8% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "item note Soulbinder: \"deal 7% bonus damage\" -> \"deal 8% bonus damage\"",
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/gadget/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:49-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "gideon",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:gideon/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Azure Core lost 5 haste; the protected-channel plan and the official 1.17 Grounded rule in the caution are unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability E (gideon): the Grounded note (official 1.17) is no longer in the tooltip [wording only]",
+    "Item Azure Core: Azure Core: ability haste 15 to 10 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/gideon/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:17-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "greystone",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:greystone/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Close Cut rose and Assault The Gates refunds a little less on a hero hit; the farm-then-armor plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (greystone): Assault The Gates: hero-hit refund 35% to 30% [official 1.17.2 change]",
+    "Loadout Close Cut: Close Cut: Make Way bonus 15% to 20% [Pred.gg-only change, in neither official article]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/greystone/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:24-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "greystone",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:greystone/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Close Cut rose, Assault The Gates refunds a little less and Cannibalism was trimmed; the lane-pressure plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (greystone): Assault The Gates: hero-hit refund 35% to 30% [official 1.17.2 change]",
+    "Loadout Close Cut: Close Cut: Make Way bonus 15% to 20% [Pred.gg-only change, in neither official article]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/greystone/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:24-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "grim-exe",
+   "role": "carry",
+   "queue_id": "plan-mechanics:grim-exe/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). System Restore restores less, and Satariel and Demonic Bargain now show their 1.17 values, which the caution already states. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout System Restore: System Restore: restore 30 (+15% health) to 20 (+10% health), decay 25% to 20% [Pred.gg-only change, in neither official article]",
+    "Loadout Satariel: Satariel: per-stack bonus 5% to 4% [source now shows the official 1.17 value]",
+    "Loadout Demonic Bargain: Demonic Bargain: second payment now at level 10 only [source now shows the official 1.17 value]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "grim-exe",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:grim-exe/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). System Restore restores less, and Weald and Wind-Rider show their trimmed values; the sustained-attack plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout System Restore: System Restore: restore 30 (+15% health) to 20 (+10% health), decay 25% to 20% [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Wind-Rider: Wind-Rider: attack speed 20% to 15% [source now shows the official 1.17 value]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "grux",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:grux/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Grux lost 2 base power and Double Pain costs more mana; Lust For Blood heals a little differently. The bleed-and-contact plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (grux): basic attack: base damage 64 to 62 [official 1.17.2 change]",
+    "Loadout Lust For Blood: Lust For Blood: heal 4-12.5% to 5-11.3% [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/grux/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:28-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "grux",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:grux/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Grux lost 2 base power and Double Pain costs more mana; Lust For Blood heals a little differently. The bleed-and-contact plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (grux): basic attack: base damage 64 to 62 [official 1.17.2 change]",
+    "Loadout Lust For Blood: Lust For Blood: heal 4-12.5% to 5-11.3% [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/grux/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:28-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "howitzer",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:howitzer/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Combat Thrusters gives less movement speed, which the caution already treats as movement only; the poke plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Combat Thrusters: Combat Thrusters: movement speed 40%/80%/200% to 30%/60%/115% [Pred.gg-only change, in neither official article]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "iggy-scorch",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:iggy-scorch/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Inferno's tooltip now includes the turret attack-speed line from the 1.17 description fix; the turret-nest plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability R (iggy-scorch): Inferno: the turret attack-speed line from the 1.17 description fix [source now shows the official 1.17 value]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/iggy-scorch/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:02-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "iggy-scorch",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:iggy-scorch/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Inferno's tooltip now includes the turret attack-speed line from the 1.17 description fix; the turret-nest plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability R (iggy-scorch): Inferno: the turret attack-speed line from the 1.17 description fix [source now shows the official 1.17 value]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/iggy-scorch/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:02-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "ikra",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:ikra/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Cascade and Herald were strengthened and Genesis weakened; the bubble-and-Brine plan does not rest on Genesis damage. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (ikra): Brine: kill gold 3-7 to 3-5 [official 1.17.2 change]",
+    "Ability R (ikra): Genesis: damage 320-640 to 320-600, slow 50% to 40% [official 1.17.2 change]",
+    "Ability Passive (ikra): Herald: Fathom scaling 8% to 10%, bubble healing raised [official 1.17.2 change]",
+    "Loadout Cascade: Cascade: damage 10 (+20%) to 15 (+30%) [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/ikra/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:22-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "kallari",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:kallari/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Deadly Finesse refunds slightly less cooldown; the mark-and-execute plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (kallari): basic attack: scaling no longer says \"bonus\" [wording only]",
+    "Loadout Deadly Finesse: Deadly Finesse: cooldown reduction 1.5s to 1.25s [Pred.gg-only change, in neither official article]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/kallari/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:01-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "khaimera",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:khaimera/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Khaimera traded base armor and power for stronger Ambush, and Jungle Invasion gives less power; the sustain plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (khaimera): basic attack: base damage 65 to 63 [official 1.17.2 change]",
+    "Ability RMB (khaimera): Ambush: scaling 70% to 80%, slow now 40% at every rank [official 1.17.2 change]",
+    "Ability Q (khaimera): Unleash: an unfilled placeholder is gone [wording only]",
+    "Loadout Jungle Invasion: Jungle Invasion: physical power 4-21/8-42 to 3-17/6-34 [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/khaimera/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:14-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "khaimera",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:khaimera/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Khaimera traded base armor and power for stronger Ambush; the Lane Lurker plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (khaimera): basic attack: base damage 65 to 63 [official 1.17.2 change]",
+    "Ability RMB (khaimera): Ambush: scaling 70% to 80%, slow now 40% at every rank [official 1.17.2 change]",
+    "Ability Q (khaimera): Unleash: an unfilled placeholder is gone [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/khaimera/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:14-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "kira",
+   "role": "carry",
+   "queue_id": "plan-mechanics:kira/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Mercy, Dusk and her basic attack now show their 1.17 values, which the plan was reviewed against; Weald, Wind-Rider and Bringer Of Mercy were trimmed slightly. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (kira): basic attack: the 1.17 base damage and growth [source now shows the official 1.17 value]",
+    "Ability RMB (kira): Mercy: 1.17 damage (25-45) [source now shows the official 1.17 value]",
+    "Ability Q (kira): Dusk: the 1.17 mana refund [source now shows the official 1.17 value]",
+    "Loadout Bringer Of Mercy: Bringer Of Mercy: cooldown reduction 1s to 0.75s [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Wind-Rider: Wind-Rider: attack speed 20% to 15% [source now shows the official 1.17 value]",
+    "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/kira/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:43-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "kwang",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:kwang/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 strengthened Kwang's tether, Surge and Fury, and Oathkeeper and Flux Matrix both rose; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (kwang): Judgement Of The Heavens: tether 1.3s to 1.45s [official 1.17.2 change]",
+    "Ability E (kwang): Surge Of The Heavens: damage 75-175 to 75-195 [official 1.17.2 change]",
+    "Ability R (kwang): Fury Of The Heavens: damage 230-450 to 250-470, slow 45-65% to 50-70% [official 1.17.2 change]",
+    "Item Oathkeeper: Oathkeeper: Celestial Spellblade 60 to 65 [official 1.17.2 change]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Slayer of the Heavens: Slayer of the Heavens: strike bonus 20% to 25% [Pred.gg-only change, in neither official article]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 10 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/kwang/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:49-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "kwang",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:kwang/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 strengthened Kwang's tether, Surge and Fury, and Oathkeeper and Flux Matrix both rose; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (kwang): Judgement Of The Heavens: tether 1.3s to 1.45s [official 1.17.2 change]",
+    "Ability E (kwang): Surge Of The Heavens: damage 75-175 to 75-195 [official 1.17.2 change]",
+    "Ability R (kwang): Fury Of The Heavens: damage 230-450 to 250-470, slow 45-65% to 50-70% [official 1.17.2 change]",
+    "Item Oathkeeper: Oathkeeper: Celestial Spellblade 60 to 65 [official 1.17.2 change]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Slayer of the Heavens: Slayer of the Heavens: strike bonus 20% to 25% [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/kwang/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:49-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "legion",
+   "role": "carry",
+   "queue_id": "plan-mechanics:legion/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Deathstalker's text only clarifies that its shred is on-hit, and Rallying Roar's tooltip now states its official cooldown. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Deathstalker: Deathstalker: the armor shred now says \"On-Hit\" [wording only]",
+    "Loadout Rallying Roar: Rallying Roar: the tooltip now states the official 20s cooldown itself [wording only]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "legion",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:legion/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Deathstalker's text only clarifies that its shred is on-hit; the penetration and haste thresholds the plan relies on are unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Deathstalker: Deathstalker: the armor shred now says \"On-Hit\" [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 4 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "lt-belica",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:lt-belica/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 trimmed Belica's bombs, drone and Innovation, and Lotus, Immaculate and Combat Veteran; the knock-up-then-bomb sequence holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (lt-belica): Void Bomb: damage 100-260 to 95-255 [official 1.17.2 change]",
+    "Ability Q (lt-belica): Seismic Assault: damage 100-280 to 100-260 (the hitbox note is gone) [official 1.17.2 change]",
+    "Ability E (lt-belica): Void Drone: scaling 20% to 17.5% [official 1.17.2 change]",
+    "Ability R (lt-belica): Neural Disruptor: the reset now also counts a takedown shortly after the hit [Pred.gg-only change, in neither official article]",
+    "Ability Passive (lt-belica): Innovation: haste per maxed ability 10 to 8 [official 1.17.2 change]",
+    "Loadout Combat Veteran: Combat Veteran: movement speed 3% to 2.5% [official 1.17.2 change]",
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 13 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/lt-belica/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "lt-belica",
+   "role": "support",
+   "queue_id": "plan-mechanics:lt-belica/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 trimmed Belica's bombs, drone and Innovation; Combat Veteran still adds passive experience, with less movement speed. The control plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (lt-belica): Void Bomb: damage 100-260 to 95-255 [official 1.17.2 change]",
+    "Ability Q (lt-belica): Seismic Assault: damage 100-280 to 100-260 (the hitbox note is gone) [official 1.17.2 change]",
+    "Ability E (lt-belica): Void Drone: scaling 20% to 17.5% [official 1.17.2 change]",
+    "Ability R (lt-belica): Neural Disruptor: the reset now also counts a takedown shortly after the hit [Pred.gg-only change, in neither official article]",
+    "Ability Passive (lt-belica): Innovation: haste per maxed ability 10 to 8 [official 1.17.2 change]",
+    "Loadout Combat Veteran: Combat Veteran: movement speed 3% to 2.5% [official 1.17.2 change]",
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 12 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/lt-belica/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:00-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "maco",
+   "role": "support",
+   "queue_id": "plan-mechanics:maco/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Only the tooltips' wording changed; the heal-or-damage plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (maco): the ally bonus no longer shows a percent sign [wording only]",
+    "Ability Passive (maco): Mach Speed: reworded, the hero-damage removal is unchanged [wording only]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/maco/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T16:18:55-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "morigesh",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:morigesh/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Curse and Cursed Infestation now show higher values; the Hive-then-Mark plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability R (morigesh): Curse: 1.17 damage (320-580) [source now shows the official 1.17 value]",
+    "Loadout Cursed Infestation: Cursed Infestation: Hive bonus 10% to 12% [Pred.gg-only change, in neither official article]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/morigesh/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:49-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "mourn",
+   "role": "support",
+   "queue_id": "plan-mechanics:mourn/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Knell's multi-hit rule is not relied on and the ultimate is now described as a channel; the catch-and-sustain plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability R (mourn): the ultimate is now described as a channel [wording only]",
+    "Loadout Knell: Knell: the multi-hit sentence (the official 1.17 fix, previously added from the 1.17 notes) is no longer in the Pred.gg tooltip; the official 1.17 note is still live [wording only]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/mourn/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:52-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "murdock",
+   "role": "carry",
+   "queue_id": "plan-mechanics:murdock/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Murdock gained base power, regeneration and attack-speed growth, and Buckshot and the sniper show their 1.17 values; Justice's Reach has less range. The attack plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (murdock): basic attack: base damage 55 to 57 [official 1.17.2 change]",
+    "Ability RMB (murdock): Buckshot: 1.17 damage (60-180) [source now shows the official 1.17 value]",
+    "Ability R (murdock): Long Arm of the Law: 1.17 damage and scaling [source now shows the official 1.17 value]",
+    "Loadout Justice's Reach: Justice's Reach: extra range 300 to 250 [Pred.gg-only change, in neither official article]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/murdock/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:18-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "muriel",
+   "role": "support",
+   "queue_id": "plan-mechanics:muriel/support",
+   "verdict": "unresolved",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). The plan's reasoning holds for every flagged field but one, and those preconditions now carry the live text: Serenity only lost the projectile figures that the 1.17 correction had added from the official notes, and the other fields changed only in formatting. Sentinel (Passive) cannot be updated: the live Pred.gg text repeats the anti-heal value per level and appends two stray values (\"...45/45/35/45%\"), and the official 1.17 correction that states 25/35/45% at levels 1/7/13 and 10%-16.8% applies only while the live patch is 1.17 (patch_support.py). tests/test_static_muriel_sentinel.py requires the plan to cite the corrected text, so the precondition keeps it. No part or text changes; the plan stays inactive.",
+   "limitation": "Resolves with the 1.17.2 patch move (see the patch-change entry and the DECISION NEEDED issue), which needs code or test changes the runner may not make. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (muriel): the projectile note is gone [wording only]",
+    "Ability Passive (muriel): Sentinel: the source text repeats per-level values with two stray values; the official 1.17 correction no longer applies on 1.17.2 [source defect, kept]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/muriel/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:08-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "narbash",
+   "role": "support",
+   "queue_id": "plan-mechanics:narbash/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). The source shows a slightly stronger basic attack and ultimate; the sustain plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (narbash): basic attack: base damage 58 to 60 [Pred.gg-only change, in neither official article]",
+    "Ability R (narbash): ultimate: scaling 3%/5% to 4%/7% [Pred.gg-only change, in neither official article]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/narbash/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:33-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "neon",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:neon/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). The source shows slightly more construct damage; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (neon): construct damage 48-128 to 48-132 [Pred.gg-only change, in neither official article]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/neon/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "phase",
+   "role": "support",
+   "queue_id": "plan-mechanics:phase/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Hyperflux and Essence Catalyst now show their 1.17 values and Psychic Support restores more mana; the plan does not depend on any of them. The caution is updated to say what the source now shows. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (phase): the link-radius note is gone [wording only]",
+    "Ability R (phase): Hyperflux: 1.17 attack speed (35-75%); the decaying movement speed now reads 35% [source now shows the official 1.17 value]",
+    "Ability Passive (phase): Essence Catalyst: 1.17 healing (10-61); the tooltip now says it can stack [source now shows the official 1.17 value]",
+    "Loadout Psychic Support: Psychic Support: mana restore 10% to 12% of missing mana [Pred.gg-only change, in neither official article]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "caution: \"The current source and official 1.17 notes disagree on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage; this plan does not depend on any of them.\" -> \"Sources have differed on Essence Catalyst stacking, Hyperflux movement speed and Psychic Support's mana percentage (the current Pred.gg text says the healing can stack, gives 35% movement speed and 12% of missing mana); this plan does not depend on any of them.\"",
+    "source_preconditions: 10 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/phase/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:31-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "rampage",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:rampage/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Rock & Awe still adds damage with throw distance, which is all the plan uses. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Rock & Awe: Rock & Awe: distance bonus 0-80% to 0-100%, cap 6000u to 4000u, and the mid-air rip is no longer listed [Pred.gg-only change, in neither official article]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "rampage",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:rampage/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Rock & Awe still adds damage with throw distance, and Cannibalism was trimmed; the health-scaling lane plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Rock & Awe: Rock & Awe: distance bonus 0-80% to 0-100%, cap 6000u to 4000u, and the mid-air rip is no longer listed [Pred.gg-only change, in neither official article]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "renna",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:renna/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Mortal Coil was strengthened; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (renna): Mortal Coil: damage and scaling raised [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/renna/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:39-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "revenant",
+   "role": "carry",
+   "queue_id": "plan-mechanics:revenant/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). 1.17.2 trimmed Obliterate, Bounty Hunter, Hellfire Rounds and Reckoning; the deliberate-duel plan does not assume snowball stacks and holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (revenant): Hellfire Rounds: fourth-shot speed 12% to 10% [official 1.17.2 change]",
+    "Ability Q (revenant): Obliterate: missile damage 35-95 to 30-90 [official 1.17.2 change]",
+    "Ability R (revenant): Reckoning: stat steal 8-10% to 6-8% [official 1.17.2 change]",
+    "Ability Passive (revenant): Bounty Hunter: bonus power per level lowered [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/revenant/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:33-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "riktor",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:riktor/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Flux Matrix gained haste; the hook plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "riktor",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:riktor/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Flux Matrix gained haste and Cannibalism was trimmed; the hook plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "riktor",
+   "role": "support",
+   "queue_id": "plan-mechanics:riktor/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Flux Matrix gained haste and Cannibalism was trimmed; the hook plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "scarlett",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:scarlett/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Minueta's critical modifier and two cooldowns were trimmed; the multi-hit sequence still rests on the official 1.17 Knell fix. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (scarlett): basic attack: damage growth per level slightly higher [Pred.gg-only change, in neither official article]",
+    "Ability RMB (scarlett): Minueta: critical modifier 60% to 50% [official 1.17.2 change]",
+    "Ability R (scarlett): the range note is gone [wording only]",
+    "Loadout Knell: Knell: the multi-hit sentence (the official 1.17 fix, previously added from the 1.17 notes) is no longer in the Pred.gg tooltip; the official 1.17 note is still live [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/scarlett/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:28-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "scarlett",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:scarlett/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Minueta's critical modifier and two cooldowns were trimmed; the Volcaic Slam plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (scarlett): basic attack: damage growth per level slightly higher [Pred.gg-only change, in neither official article]",
+    "Ability RMB (scarlett): Minueta: critical modifier 60% to 50% [official 1.17.2 change]",
+    "Ability R (scarlett): the range note is gone [wording only]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/scarlett/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:28-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "serath",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:serath/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Crushing Descent's stun is 0.2s and Weald and Wind-Rider were trimmed; the plan already treats the stun as brief. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (serath): scaling reads \"physical power\", not \"Total Physical Power\" [wording only]",
+    "Loadout Crushing Descent: Crushing Descent: stun 0.25s to 0.2s [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Wind-Rider: Wind-Rider: attack speed 20% to 15% [source now shows the official 1.17 value]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/serath/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:46-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "serath",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:serath/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Crushing Descent's stun is 0.2s; the plan already treats it as a brief opening. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (serath): scaling reads \"physical power\", not \"Total Physical Power\" [wording only]",
+    "Loadout Crushing Descent: Crushing Descent: stun 0.25s to 0.2s [Pred.gg-only change, in neither official article]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/serath/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:46-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "sevarog",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:sevarog/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Siphon farms monsters faster and Flux Matrix gained haste; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (sevarog): Siphon: monster damage 30-50 to 40-60 [official 1.17.2 change]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/sevarog/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:14-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "sevarog",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:sevarog/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Siphon gained monster damage and Cannibalism was trimmed; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (sevarog): Siphon: monster damage 30-50 to 40-60 [official 1.17.2 change]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/sevarog/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:14-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "shinbi",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:shinbi/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). All-Kill, Allegro and Philosopher were trimmed and Oathkeeper rose; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability R (shinbi): All-Kill: damage 44-92 to 44-88, scaling per wolf 16% to 15% [official 1.17.2 change]",
+    "Item Oathkeeper: Oathkeeper: Celestial Spellblade 60 to 65 [official 1.17.2 change]",
+    "Loadout Allegro: Allegro: Rushing Beat cooldown reduction 20% to 15% [official 1.17.2 change]",
+    "Loadout Philosopher: Philosopher: gold 5 to 4 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/shinbi/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:38-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "shinbi",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:shinbi/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). All-Kill, Allegro and Philosopher were trimmed and Oathkeeper rose; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability R (shinbi): All-Kill: damage 44-92 to 44-88, scaling per wolf 16% to 15% [official 1.17.2 change]",
+    "Item Oathkeeper: Oathkeeper: Celestial Spellblade 60 to 65 [official 1.17.2 change]",
+    "Loadout Allegro: Allegro: Rushing Beat cooldown reduction 20% to 15% [official 1.17.2 change]",
+    "Loadout Philosopher: Philosopher: gold 5 to 4 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/shinbi/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:38-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "skylar",
+   "role": "carry",
+   "queue_id": "plan-mechanics:skylar/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Satariel and Demonic Bargain now show their 1.17 values, which the caution already states. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Satariel: Satariel: per-stack bonus 5% to 4% [source now shows the official 1.17 value]",
+    "Loadout Demonic Bargain: Demonic Bargain: second payment now at level 10 only [source now shows the official 1.17 value]",
+    "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 4 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "sparrow",
+   "role": "carry",
+   "queue_id": "plan-mechanics:sparrow/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Weald and Wind-Rider show their trimmed values; the attack plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Wind-Rider: Wind-Rider: attack speed 20% to 15% [source now shows the official 1.17 value]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "steel",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:steel/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Flux Matrix gained haste; the official 1.17 spell-shield rule in the caution is unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (steel): the spell-shield note (official 1.17) is no longer in the tooltip [wording only]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/steel/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:09-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "steel",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:steel/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Flux Matrix gained haste and Cannibalism was trimmed; the official 1.17 spell-shield rule in the caution is unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (steel): the spell-shield note (official 1.17) is no longer in the tooltip [wording only]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/steel/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:09-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "steel",
+   "role": "support",
+   "queue_id": "plan-mechanics:steel/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Flux Matrix gained haste and Cannibalism was trimmed; the official 1.17 spell-shield rule in the caution is unchanged. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (steel): the spell-shield note (official 1.17) is no longer in the tooltip [wording only]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Cannibalism: Cannibalism: takedown max health 30 to 25 [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/steel/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:09-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "terra",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:terra/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Highland Hurl was strengthened; Iron Resolve reduces less damage during the charge, which the plan already treats as conditional. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (terra): armor scaling no longer says \"bonus\" [wording only]",
+    "Ability E (terra): Highland Hurl: armor scaling 30% to 40%, shred up to 30%, slow and root 1.25s [official 1.17.2 change]",
+    "Loadout Iron Resolve: Iron Resolve: reduction 30-65% to 25-35% [Pred.gg-only change, in neither official article]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 9 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/terra/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:35-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "terra",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:terra/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Highland Hurl was strengthened and Flux Matrix gained haste; Iron Resolve reduces less during the charge, which the plan already treats as conditional. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (terra): armor scaling no longer says \"bonus\" [wording only]",
+    "Ability E (terra): Highland Hurl: armor scaling 30% to 40%, shred up to 30%, slow and root 1.25s [official 1.17.2 change]",
+    "Item Flux Matrix: Flux Matrix: ability haste 10 to 15 [official 1.17.2 change]",
+    "Loadout Iron Resolve: Iron Resolve: reduction 30-65% to 25-35% [Pred.gg-only change, in neither official article]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 10 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/terra/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:18:35-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "the-fey",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:the-fey/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Harvest Nettles and Bramble Patch were trimmed; the Bottomless Vial bugfix (15 to 5 power) matches the 5 the source already listed. The poke plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (the-fey): Bramble Patch: movement speed 15% to 12% [official 1.17.2 change]",
+    "Ability E (the-fey): Harvest Nettles: damage 80-240 to 80-220 [official 1.17.2 change]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/the-fey/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:34-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "the-fey",
+   "role": "support",
+   "queue_id": "plan-mechanics:the-fey/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Harvest Nettles and Bramble Patch were trimmed, Natural Infusion rose, and Lotus and Immaculate were trimmed; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Q (the-fey): Bramble Patch: movement speed 15% to 12% [official 1.17.2 change]",
+    "Ability E (the-fey): Harvest Nettles: damage 80-240 to 80-220 [official 1.17.2 change]",
+    "Loadout Natural Infusion: Natural Infusion: haste 8 to 10, duration 5.5s to 6s [Pred.gg-only change, in neither official article]",
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/the-fey/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:34-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "twinblast",
+   "role": "carry",
+   "queue_id": "plan-mechanics:twinblast/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Vaporize and Vortex Grenade were strengthened; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (twinblast): Vortex Grenade: scaling 40% to 45% [official 1.17.2 change]",
+    "Ability Q (twinblast): Vaporize: scaling 90% to 95%, on-hit 170% to 200% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/twinblast/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:20:32-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "valmont",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:valmont/midlane",
+   "verdict": "unresolved",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169): 1.17.2 trimmed Rupture, Hemophagia, Exsanguinate, Azure Core and Sanguine Banquet, and Pred.gg's own kit text replaced the official launch text. On the mechanics alone the plan's spell-and-mana reasoning would hold, since it never used attack speed or Lilith procs. But this plan lives in the same-patch supplement patch-1.17.json, whose preconditions must match the supplement's own 1.17 launch kit (tests/patch_support.test.cjs checks the plan is reviewed against that kit). Updating them to 1.17.2 text would mean rewriting the supplement's official launch kit with Pred.gg text, and the supplement only describes 1.17. Nothing is edited; the plan stays inactive until the 1.17.2 patch move gives it a 1.17.2 home.",
+   "limitation": "Resolves with the 1.17.2 patch move (see the patch-change entry and the DECISION NEEDED issue). When it moves, the caution should say crowd control on Valmont breaks the bind, as Pred.gg's current text does, instead of immobilization. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability Passive (valmont): Hemophagia: the official launch text is replaced by Pred.gg text; Lilith damage 15-47 to 12-44 [official 1.17.2 change]",
+    "Ability LMB (valmont): basic attack: Pred.gg per-level damage replaces the launch text [wording only]",
+    "Ability Q (valmont): Rupture: damage 20-56 to 20-52 [official 1.17.2 change]",
+    "Ability E (valmont): Bloodbound: Pred.gg text replaces the launch text; damage unchanged [wording only]",
+    "Ability RMB (valmont): Arterial Grip: Pred.gg text replaces the launch text; any crowd control on Valmont breaks the bind [wording only]",
+    "Ability R (valmont): Exsanguinate: damage 40-100 to 40-90, hero healing 25-65 to 20-60 [official 1.17.2 change]",
+    "Item Azure Core: Azure Core: ability haste 15 to 10 [official 1.17.2 change]",
+    "Loadout Sanguine Banquet: Sanguine Banquet: omnivamp scaling 0.5% to 0.4%, hero-death mana 30 to 20, and kills must be Valmont's own [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/valmont/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:36-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wraith",
+   "role": "carry",
+   "queue_id": "plan-mechanics:wraith/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Only wording changed (damage types named, tracker lines dropped). No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/wraith/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:56-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wraith",
+   "role": "midlane",
+   "queue_id": "plan-mechanics:wraith/midlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Sniper's Bounty pays 6 gold instead of 7, and Satariel and Demonic Bargain now show their 1.17 values, which the caution already states. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Sniper's Bounty: Sniper's Bounty: gold 7 to 6 [Pred.gg-only change, in neither official article]",
+    "Loadout Satariel: Satariel: per-stack bonus 5% to 4% [source now shows the official 1.17 value]",
+    "Loadout Demonic Bargain: Demonic Bargain: second payment now at level 10 only [source now shows the official 1.17 value]",
+    "5 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wukong",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:wukong/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Windsurge and High Impact show their 1.17 values, and Hair Stacks no longer reset out of combat; the plan does not depend on clone counts. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (wukong): Windsurge: 1.17 damage and scaling [source now shows the official 1.17 value]",
+    "Ability E (wukong): High Impact: 1.17 minion reduction (70%) [source now shows the official 1.17 value]",
+    "Ability R (wukong): Hair Stacks are no longer reset out of combat [official 1.17.2 change]",
+    "Item Deathstalker: Deathstalker: the armor shred now says \"On-Hit\" [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/wukong/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:19:52-05:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "yin",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:yin/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Onixian Quiver was strengthened; Storm of Salvation, Weald and Taproot were trimmed. The attack-uptime plan holds, and the caution now states Taproot's 1.17.2 value. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Onixian Quiver: Onixian Quiver: multishot 8-30% to 10-35% [official 1.17.2 change]",
+    "Loadout Storm of Salvation: Storm of Salvation: Windburn extension 2s to 1s, bonus 1% to 0.75% [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Forage: Forage: experience 4 to 3 [source now shows the official 1.17 value]",
+    "Loadout Taproot: Taproot: bonus physical power scaling 8% to 6% (7% in the official 1.17 notes, 6% in 1.17.2) [official 1.17.2 change]",
+    "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\"",
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "yin",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:yin/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Onixian Quiver was strengthened; Storm of Salvation, Weald and Taproot were trimmed. The plan holds, and the caution now states Taproot's 1.17.2 value. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Item Onixian Quiver: Onixian Quiver: multishot 8-30% to 10-35% [official 1.17.2 change]",
+    "Loadout Storm of Salvation: Storm of Salvation: Windburn extension 2s to 1s, bonus 1% to 0.75% [Pred.gg-only change, in neither official article]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "Loadout Forage: Forage: experience 4 to 3 [source now shows the official 1.17 value]",
+    "Loadout Taproot: Taproot: bonus physical power scaling 8% to 6% (7% in the official 1.17 notes, 6% in 1.17.2) [official 1.17.2 change]",
+    "2 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "caution: \"Taproot bonus-physical-power scaling to 7%; only the blessings selected above apply.\" -> \"Taproot bonus-physical-power scaling to 7%, and 1.17.2 lowers Taproot again to 6%; only the blessings selected above apply.\"",
+    "source_preconditions: 7 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/items?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "yurei",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:yurei/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Knell's multi-hit rule is not relied on, and the Yurei skull and Mutilator bugfixes do not change the plan. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Loadout Knell: Knell: the multi-hit sentence (the official 1.17 fix, previously added from the 1.17 notes) is no longer in the Pred.gg tooltip; the official 1.17 note is still live [wording only]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 4 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zarus",
+   "role": "jungle",
+   "queue_id": "plan-mechanics:zarus/jungle",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Coliseum and his base power were trimmed, and Lotus and Immaculate too; the arena plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (zarus): basic attack: base damage 64 to 62 [official 1.17.2 change]",
+    "Ability R (zarus): Coliseum: damage 200-450 to 180-430, scaling 100% to 90% [official 1.17.2 change]",
+    "Loadout Lotus: Lotus: max-health bonus 1.5% to 1.25% [official 1.17.2 change]",
+    "Loadout Immaculate: Immaculate: damage reduction 12% to 10% [official 1.17.2 change]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/zarus/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T16:19:28-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zarus",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:zarus/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Coliseum and his base power were trimmed; the arena plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability LMB (zarus): basic attack: base damage 64 to 62 [official 1.17.2 change]",
+    "Ability R (zarus): Coliseum: damage 200-450 to 180-430, scaling 100% to 90% [official 1.17.2 change]",
+    "3 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 5 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/zarus/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T16:19:28-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zinx",
+   "role": "carry",
+   "queue_id": "plan-mechanics:zinx/carry",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Terminal Treatment now reads 0-25% on Refibrillator's on-hit damage, the official 1.17 value the plan already relied on; the caution drops the note that the source disagreed. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (zinx): Infuse: 1.17 missing-health healing (50%) [source now shows the official 1.17 value]",
+    "Loadout Terminal Treatment: Terminal Treatment: 0-60% on Infuse to 0-25% on Refibrillator's on-hit damage (the official 1.17 value) [source now shows the official 1.17 value]",
+    "Loadout Weald: Weald: missile base damage 8 to 7 and on-hit effectiveness 30% to 20% [official 1.17.2 change]",
+    "7 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "caution: \"The published loadout text still calls Terminal Treatment an Infuse effect of up to 60%; the official note gives 25% (as additional DoT damage) and current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%, and the plan relies only on that.\" -> \"The official note gives Terminal Treatment 25% (as additional DoT damage), and the current Pred.gg text puts it on Refibrillator's on-hit damage at up to 25%; the plan relies only on that.\"",
+    "source_preconditions: 10 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/zinx/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:55-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zinx",
+   "role": "offlane",
+   "queue_id": "plan-mechanics:zinx/offlane",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Infuse and Disc Of Demise now show their 1.17 values; the plan holds. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (zinx): Infuse: 1.17 missing-health healing (50%) [source now shows the official 1.17 value]",
+    "Loadout Disc Of Demise: Disc Of Demise: cooldown reduction 5%/10% to 6%/12% [source now shows the official 1.17 value]",
+    "4 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 6 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/zinx/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:55-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "zinx",
+   "role": "support",
+   "queue_id": "plan-mechanics:zinx/support",
+   "verdict": "checked and retained",
+   "reason": "Queued because supporting mechanics changed with patch 1.17.2 (Pred.gg version 169). Heal Matrix's two-charge healing penalty grew from 10% to 15%; Infuse and Lunaria still carry the healing plan. No core, finish, crest, augment, eternal or blessing changes; the precondition text now matches the live source.",
+   "limitation": "The plan stays inactive on every rank until a 1.17.2 build pass exists: the reviewed build pass is for 1.17 (see the patch-change entry). Pred.gg-only values are public definitions, not officially verified mechanics. Only the flagged mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Ability RMB (zinx): Infuse: 1.17 missing-health healing (50%) [source now shows the official 1.17 value]",
+    "Loadout Heal Matrix: Heal Matrix: two-charge healing penalty 10% to 15% [Pred.gg-only change, in neither official article]",
+    "6 other precondition field(s) differ only in formatting or tracker lines; no value changed"
+   ],
+   "text_changed": [
+    "source_preconditions: 8 field(s) set to the Pred.gg 169 text (identical on all six ranks)"
+   ],
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes/zinx/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+     "fetched_at": "2026-10-16T13:17:55-05:00"
+    },
+    {
+     "url": "https://pred.gg/eternals?version=169",
+     "fetched_at": "2026-10-16T13:17:42-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "patch",
+   "slug": null,
+   "role": null,
+   "queue_id": "patch-change:1e29c606fefd88",
+   "verdict": "unresolved",
+   "reason": "The live patch is 1.17.2 (official notes, released 13 Oct 2026) and the reviewed guidance is for 1.17. A 1.17.2 build pass and strategy review would move guidance.build_patch_review to 1.17.2 with new article fingerprints, but the committed tests pin that pass to 1.17 (tests/test_static_build_patch_review.py: patch '1.17', reviewed_at 23 Sep, 96 plans, maintenance kind '1.17 strategy review') and patch_support.py applies the 1.17 supplement only on 1.17. The runner forbids changing code or tests to pass, so the patch move is left for the owner (DECISION NEEDED issue).",
+   "limitation": "Until the owner decides, every reviewed plan shows 'needs review' on the site and Match uses calculated builds. This pass only refreshed mechanics text.",
+   "reviewed_at": "2026-10-17T08:10:00-05:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-16T19:16:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-16T19:16:11-05:00"
+    }
+   ]
+  }
+ ]
+}
