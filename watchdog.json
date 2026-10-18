@@ -1,12 +1,15 @@
 {
  "schema": 1,
- "checked_at": "2026-10-18T18:18:18+00:00",
+ "checked_at": "2026-10-18T19:40:55+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-10-18T18:18:18+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-10-18T18:18:18+00:00"
+  },
+  "collector-quiet": {
+   "first_seen": "2026-10-18T19:40:55+00:00"
   }
  },
  "dispatches": [
@@ -16,7 +19,8 @@
   "2026-10-13T11:47:17+00:00",
   "2026-10-15T20:32:34+00:00",
   "2026-10-16T23:01:17+00:00",
-  "2026-10-17T22:31:08+00:00"
+  "2026-10-17T22:31:08+00:00",
+  "2026-10-18T19:40:55+00:00"
  ],
  "misses": [
   {
@@ -381,6 +385,12 @@
    "event": "started",
    "at": "2026-10-18T18:18:18+00:00",
    "summary": "Last attempt not ok for Gold+, Bronze+, Silver+, Platinum+, Diamond+, Paragon+."
+  },
+  {
+   "id": "collector-quiet",
+   "event": "started",
+   "at": "2026-10-18T19:40:55+00:00",
+   "summary": "No Windows collector check-in for 7.4 hours."
   }
  ]
 }
