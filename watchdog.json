@@ -1,15 +1,12 @@
 {
  "schema": 1,
- "checked_at": "2026-10-17T22:31:08+00:00",
+ "checked_at": "2026-10-18T00:47:38+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-10-17T21:50:12+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-10-17T18:57:45+00:00"
-  },
-  "queue-overdue": {
-   "first_seen": "2026-10-14T02:09:46+00:00"
   }
  },
  "dispatches": [
@@ -353,6 +350,13 @@
    "event": "started",
    "at": "2026-10-17T21:50:12+00:00",
    "summary": "Pred.gg exact-patch cohort not current for: Gold+."
+  },
+  {
+   "id": "queue-overdue",
+   "event": "cleared",
+   "at": "2026-10-18T00:47:38+00:00",
+   "started_at": "2026-10-14T02:09:46+00:00",
+   "hours": 94.6
   }
  ]
 }
