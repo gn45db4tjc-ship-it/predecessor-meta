@@ -10,11 +10,19 @@ class GradeRecheckValidationTests(unittest.TestCase):
 
     def setUp(self):
         self.packet = json.loads((Path(m.__file__).parent / 'reviewed_guidance.json').read_text(encoding='utf8'))
+        self.committed = copy.deepcopy(self.packet)
         self.entries = self.packet['guidance']['meta_review']['entries']
+        # A full strategy review (1.17.2, 17 Oct 2026) clears the earlier rechecks; until a scheduled pass rechecks a
+        # grade again, the rules are exercised on a moved grade added here, a day after the review and its sample.
+        if not any(e.get('previous_tier') for e in self.entries):
+            entry = self.entries[0]
+            when = max(dt.datetime.fromisoformat(v) for v in (self.packet['guidance']['meta_review']['reviewed_at'], entry['evidence']['fetched_at']))
+            entry.update(rechecked_at=(when + dt.timedelta(days=1)).isoformat(), previous_tier='C' if entry['tier'] != 'C' else 'B')
         self.moved = next(e for e in self.entries if e.get('previous_tier'))
         self.plain = next(e for e in self.entries if 'rechecked_at' not in e)
 
     def test_committed_packet_is_valid(self):
+        m.validate_guidance_packet(self.committed, None)
         m.validate_guidance_packet(self.packet, None)
         self.assertTrue(any('rechecked_at' in e for e in self.entries))
 

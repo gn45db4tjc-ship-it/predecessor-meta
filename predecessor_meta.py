@@ -4621,7 +4621,8 @@ def validate_guidance_packet(packet,bundle):
         # A new hero's reviewed plan can live in the dated patch supplement for the same patch (Valmont, 1.17).
         supplement=patch_support.load() if patch_support.PATH.exists() else {}
         packet_plans=set(plans)
-        if supplement.get('patch')==packet.get('patch'):plans|={(x.get('slug'),x.get('role')) for x in supplement.get('plans',[])}
+        # A supplement plan re-reviewed for a later patch (the 1.17.2 build pass) counts on that patch too (17 Oct 2026).
+        plans|={(x.get('slug'),x.get('role')) for x in supplement.get('plans',[]) if packet.get('patch') in (supplement.get('patch'),x.get('patch'))}
         if not isinstance(entries,list) or not entries:raise ValueError('Meta review has no entries')
         for row in entries:
             identity=(row.get('slug'),row.get('role'))
