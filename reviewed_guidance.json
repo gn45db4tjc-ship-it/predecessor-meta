@@ -2,7 +2,7 @@
   "patch": "1.17.2",
   "reviewed_at": "2026-10-17T14:50:00-05:00",
   "article_fingerprints": {
-    "1.17.2": "921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e",
+    "1.17.2": "dba1f61e07b05e9c3e87808c5f1f7fd1a202f1fcba15a1f136dff433a1ab401f",
     "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
   },
   "planning_roles": {
@@ -48236,7 +48236,7 @@
       "scope": "1.17.2 patch-targeted build review (17 Oct 2026) of every hero/role plan, including the 1.17 supplement's Baron Valmont Midlane: supporting mechanics against Pred.gg 1.17.2 (version 169), the official 1.17.2 notes, and Pred.gg 1.17.2 Gold+ item, crest, augment, Eternal and blessing samples. Gold+ is the editorial reference; ranks are not pooled. This does not review tiers, compositions or strategy.",
       "limitations": "About four days of 1.17.2 data: Gold+ slot samples are small and many slots were compared, so no plan part was changed on win rate alone. Item order and the other ranks were not re-reviewed; skill orders were rechecked only for the five plans with a reviewed order (Gideon, Greystone, Serath, Steel, Baron Valmont). Loadout definitions keep their 1.16/1.17 source texts as a fallback; ranks read Pred.gg 1.17.2 definitions directly. No in-game test.",
       "article_fingerprints": {
-        "1.17.2": "921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e",
+        "1.17.2": "dba1f61e07b05e9c3e87808c5f1f7fd1a202f1fcba15a1f136dff433a1ab401f",
         "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
       },
       "loadout_catalog": {
