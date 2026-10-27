@@ -173,3 +173,7 @@ Reviewer reservations, kept but worth an early recheck (nothing queues them auto
 - Pred.gg's Murdock passive still shows the pre-1.17 36-60% text; the plan precondition keeps that text so the plan matches the source, and no displayed text quotes the number.
 - On the saved Diamond+ and Paragon bundles the Pred.gg collection was partial and served a 16 Oct cached perk text (Vital Essence +4g; Sanguine Slash on Paragon), so the "Official correction review" notice names them there until the next full collection. The site shows the notice; it does not guess a replacement.
 - No in-game test. Other ranks show the engine's calculated tiers; reviewed grades describe Gold+ only.
+
+## Addendum, 27 October 2026: 1.17.2 article fingerprint
+
+Some time after the 18 Oct collections (the nightly live check of 23 Oct already shows it) the official 1.17.2 article's fingerprint changed from `921faae1…` to `dba1f61e…`, so every rank published the packet as "needs review": reviewed corrections, reconciliations, builds and tiers were withheld. Comparing the article blocks saved in the 17 Oct 22:19 CDT and 26 Oct 19:54 CDT Gold+ collections, the only change is a related-article card near the end of the page (an image and the heading "The Road to Paragon: Ranked in 1.18 and Beyond"). No balance, hotfix or store text changed, so the packet and the build pass now pin `dba1f61e07b05e9c3e87808c5f1f7fd1a202f1fcba15a1f136dff433a1ab401f`. Nothing else in the review changed.

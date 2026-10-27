@@ -27,7 +27,11 @@
  assert(document.querySelector('#detail-body').innerText.includes(B.guidance.meta_review.entries.find(r=>r.slug==='steel'&&r.role==='jungle').evidence.matches.toLocaleString()+' games'),'Dated Steel reference sample');
  click('#detail [data-hero="steel"]');assert(!document.querySelector('#detail').open,'Tier to hero closes modal');
  assert(document.querySelector('h1').textContent==='Steel','Tier to partners opens correct hero');
- click('[data-meta-decision="steel|jungle"]');click('#detail [data-support-ability]');
+ click('[data-meta-decision="steel|jungle"]');
+ // The tier cites several abilities; open one whose source field carries an applied official correction. Which one comes
+ // first depends on the review's wording (the 1.17.2 review leads with Punch, which no correction touches).
+ const officialAbility=[...document.querySelectorAll('#detail [data-support-ability]')].find(e=>{const [slug,key]=e.dataset.supportAbility.split('|'),index=B.heroes[slug]?.abilities?.findIndex(a=>a.key===key);return (B.corrections||[]).some(r=>r.path?.[0]==='heroes'&&r.path[1]===slug&&r.path[2]==='abilities'&&r.path[3]===index&&['official correction applied','source already updated'].includes(r.status));});
+ assert(officialAbility,'Steel jungle tier cites an officially reviewed ability');officialAbility.click();
  assert(document.querySelector('#detail-body').innerText.includes('Officially reviewed fields'),'Ability opens official field provenance');close();
  click('[data-route="meta"]');click('[data-meta-role="jungle"]');click('[data-hero="countess"]');click('[data-hero-tab="kit"]');
  const feast=[...document.querySelectorAll('article')].find(a=>a.querySelector('h3')?.textContent==='Feast');
