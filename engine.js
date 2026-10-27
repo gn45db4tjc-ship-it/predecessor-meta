@@ -30,6 +30,20 @@
     return {...count(mine), patch:patch || null, current:patch ? count(mine.filter(g => g.patch === patch)) : null,
       recent:mine.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 10)};
   }
+  // 27 Oct 2026: a per-level number list in kit text that cannot be a clean progression (more values than the 18 hero
+  // levels, or repeats that also go back down, as Pred.gg 169's Sentinel text "25/25/.../45/35/45%" does) is shown as
+  // the range of its values; the published list stays one tap away. Clean lists are left as written.
+  function levelLists(text) {
+    const lists = [];
+    const shown = String(text ?? '').replace(/\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?){5,}%?/g, raw => {
+      const unit = raw.endsWith('%') ? '%' : '', v = raw.replace(/%$/, '').split('/').map(Number), steps = v.slice(1).map((x, i) => x - v[i]);
+      if (!(v.length > 18 || (steps.includes(0) && steps.some(d => d > 0) && steps.some(d => d < 0)))) return raw;
+      const low = Math.min(...v), high = Math.max(...v);
+      lists.push({raw, low, high, unit});
+      return low === high ? low + unit : low + '\u2013' + high + unit;
+    });
+    return {text:shown, lists};
+  }
   // 2.42.0: an inactive reviewed build is explained in a sentence, never "The reviewed build is <status>."
   function reviewReason(status) {
     const s = String(status || ''), unresolved = s.match(/^review unresolved: (.+)$/);
@@ -1293,5 +1307,5 @@
     if(typeof hash!=='string'||hash.length>4000||!/^#plan=[A-Za-z0-9_-]+$/.test(hash))throw Error('Invalid shared plan link');
     try{return validatePlan(JSON.parse(atob(hash.slice(6).replaceAll('-','+').replaceAll('_','/'))));}catch{throw Error('The shared plan is invalid or uses an unsupported format');}
   }
-  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason,snapshotChanges,gameRecord};
+  return {create,finite,mean,ROLES,validatePlan,encodePlan,decodePlan,reviewReason,snapshotChanges,gameRecord,levelLists};
 });
