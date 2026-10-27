@@ -42521,7 +42521,7 @@
           "role": "offlane",
           "tier": "C",
           "why": "Iron Rose lets her trade up close, and Imperial Lash or Queen's Garden opens the damage window; Crown of Thorns helps allies convert contact.",
-          "watch": "Her offlane results fell further on 1.17.2 with no kit change and sit well below even over a modest sample. Tyrant of Thorns removes Royal Flourish's mesmerize, so the offlane damage plan is not the support peel plan.",
+          "watch": "Her 1.17.2 offlane results recovered from the early low over a larger sample but still sit below the role average with no kit change, and a rate alone does not raise a grade. Tyrant of Thorns removes Royal Flourish's mesmerize, so the offlane damage plan is not the support peel plan.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42530,12 +42530,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 42.073170731707314,
-            "wonGames": 138,
-            "matches": 328,
+            "winRate": 46.09984399375975,
+            "wonGames": 591,
+            "matches": 1282,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-10-17T13:19:09-05:00"
-          }
+            "fetched_at": "2026-10-27T10:55:41-05:00"
+          },
+          "rechecked_at": "2026-10-27T18:55:00+00:00"
         },
         {
           "slug": "adele",
@@ -42796,7 +42797,7 @@
           "role": "midlane",
           "tier": "C",
           "why": "Shadow Slip and Blade Siphon support short trades; Feast converts a target after two ability hits apply Haemorrhage.",
-          "watch": "1.17 restored Feast's intended damage, but midlane still asks a melee hero to trade into ranged lanes. Keep a safe Shadow Slip return and follow the jungler's catch rather than entering first.",
+          "watch": "1.17 restored Feast's intended damage, but her 1.17.2 midlane results sit below the role average, and midlane still asks a melee hero to trade into ranged lanes. Keep a safe Shadow Slip return and follow the jungler's catch rather than entering first.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42804,12 +42805,13 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 51.81236673773987,
-            "wonGames": 243,
-            "matches": 469,
+            "winRate": 48.521082441787286,
+            "wonGames": 771,
+            "matches": 1589,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-10-17T13:19:15-05:00"
-          }
+            "fetched_at": "2026-10-27T10:55:49-05:00"
+          },
+          "rechecked_at": "2026-10-27T18:55:00+00:00"
         },
         {
           "slug": "crunch",
@@ -43048,19 +43050,20 @@
           "role": "carry",
           "tier": "B",
           "why": "Assault Mode and Pulsefire provide a magical basic-attack threat; Energy Shield can preserve a firing window against an important spell.",
-          "watch": "His 1.17.2 carry results sit above the role average with no kit change over a modest sample, and a high rate alone does not raise a grade, so treat him as a practiced pick. Buy penetration for the magical damage he actually deals, and do not count the shield as a general escape.",
+          "watch": "His 1.17.2 carry results settled near the role average over a larger sample with no kit change, so treat him as a practiced pick, not a priority. Buy penetration for the magical damage he actually deals, and do not count the shield as a general escape.",
           "ability_keys": [
             "RMB",
             "E",
             "Passive"
           ],
           "evidence": {
-            "winRate": 52.45202558635395,
-            "wonGames": 246,
-            "matches": 469,
+            "winRate": 49.44375772558715,
+            "wonGames": 800,
+            "matches": 1618,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
-            "fetched_at": "2026-10-17T13:19:21-05:00"
-          }
+            "fetched_at": "2026-10-27T10:55:57-05:00"
+          },
+          "rechecked_at": "2026-10-27T18:55:00+00:00"
         },
         {
           "slug": "grux",
@@ -43631,7 +43634,7 @@
           "role": "jungle",
           "tier": "C",
           "why": "A committed, resource-sensitive entry plus the weak dated Gold+ jungle reference makes this a practiced specialist choice. The stronger offlane reference does not transfer to jungle.",
-          "watch": "1.17.2 lengthened Ashen Vow and Minueta cooldowns and cut Minueta's critical modifier, and her jungle results fell well below even. Offlane is her role; manage energy and avoid relying on the disputed Ashen Vow base value.",
+          "watch": "1.17.2 lengthened Ashen Vow and Minueta cooldowns and cut Minueta's critical modifier, and her jungle results stay well below the role average over a larger sample. Offlane is her role; manage energy and avoid relying on the disputed Ashen Vow base value.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -43639,12 +43642,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 41.260744985673355,
-            "wonGames": 144,
-            "matches": 349,
+            "winRate": 45.91593973037272,
+            "wonGames": 579,
+            "matches": 1261,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-10-17T13:19:06-05:00"
-          }
+            "fetched_at": "2026-10-27T10:55:37-05:00"
+          },
+          "rechecked_at": "2026-10-27T18:55:00+00:00"
         },
         {
           "slug": "scarlett",
@@ -43707,9 +43711,9 @@
         {
           "slug": "sevarog",
           "role": "jungle",
-          "tier": "A",
+          "tier": "B",
           "why": "Siphon deals more damage to monsters and steals health from heroes, and Reaper of Souls stacks correctly after a 1.17.2 fix; Subjugate holds a target for allies as durability develops.",
-          "watch": "A on 1.17.2: stronger Siphon clears, a longer Colossal Blow and the passive fix came with jungle results above his 1.17 rate, over a modest sample. Colossal Blow knocks heroes back, so aim it so the target is not pushed away from allied damage.",
+          "watch": "B after the 27 Oct recheck: stronger Siphon clears, a longer Colossal Blow and the passive fix lifted him above his 1.17 jungle results, but over a larger 1.17.2 sample he sits just under the role average. Colossal Blow knocks heroes back, so aim it so the target is not pushed away from allied damage.",
           "ability_keys": [
             "Q",
             "E",
@@ -43717,12 +43721,14 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 52.5974025974026,
-            "wonGames": 162,
-            "matches": 308,
+            "winRate": 49.45054945054945,
+            "wonGames": 495,
+            "matches": 1001,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-10-17T13:19:06-05:00"
-          }
+            "fetched_at": "2026-10-27T10:55:37-05:00"
+          },
+          "rechecked_at": "2026-10-27T18:55:00+00:00",
+          "previous_tier": "A"
         },
         {
           "slug": "sevarog",
@@ -55322,6 +55328,22 @@
         "scope": "Weekly backstop pass for 2026-W42, against the live bundles published 2026-10-18T18:17:01+00:00 (tool 2.58.0; collection of 18 Oct 18:15 UTC). Every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. All 86 reviewed Gold+ grades are withheld only because the Gold+ Pred.gg sample is retained from 17 Oct 22:19 CDT (Pred.gg could not be refreshed); none has moved statistics against it and none was changed. Not a full review.",
         "ledger": "docs/rechecks/2026-10-18-1833-ledger.json",
         "result": "0 changed, 0 checked and retained, 7 unresolved"
+      },
+      {
+        "kind": "weekly",
+        "week": "2026-W43",
+        "reviewed_at": "2026-10-27T18:55:00+00:00",
+        "items": [
+          "grade-moved:adele/offlane",
+          "grade-moved:countess/midlane",
+          "grade-moved:grim-exe/carry",
+          "grade-moved:scarlett/jungle",
+          "grade-moved:sevarog/jungle",
+          "weekly:2026-W43"
+        ],
+        "scope": "Five withheld Gold+ grades queued for moved statistics (adele/offlane, countess/midlane, grim-exe/carry, scarlett/jungle, sevarog/jungle) and the weekly backstop for 2026-W43, against the live bundles published 2026-10-27T17:59:38+00:00 (publish run 40555400669, tool 2.58.0; Gold+ collection generated 2026-10-27T10:59:38-05:00 with a fresh Pred.gg 1.17.2 sample). Every withheld Gold+ grade (these five) and every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. Not a full review.",
+        "ledger": "docs/rechecks/2026-10-27-1833-ledger.json",
+        "result": "1 changed, 4 checked and retained, 7 unresolved"
       }
     ]
   },
