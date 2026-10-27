@@ -1,0 +1,678 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 27 Oct 2026 18:33 UTC (five grades and weekly pass 2026-W43)",
+ "reviewed_at": "2026-10-27T18:55:00+00:00",
+ "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+ "scope": "Five withheld Gold+ grades queued for moved statistics (adele/offlane, countess/midlane, grim-exe/carry, scarlett/jungle, sevarog/jungle) and the weekly backstop for 2026-W43, against the live bundles published 2026-10-27T17:59:38+00:00 (publish run 40555400669, tool 2.58.0; Gold+ collection generated 2026-10-27T10:59:38-05:00 with a fresh Pred.gg 1.17.2 sample). Every withheld Gold+ grade (these five) and every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. Not a full review.",
+ "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard as the 1.17.2 strategy review applied it: a grade moves one step at most, a move needs a kit or patch reason plus evidence the same way, a drop without a kit reason needs a 95% interval over at least 500 games to exclude the previous review rate with the games since review agreeing (the rule permits a drop; it does not require one), and a high rate alone never raises a grade. C is the lowest defined grade.",
+ "evidence": {
+  "manifest_published_at": "2026-10-27T17:59:38+00:00",
+  "publish_run": "40555400669",
+  "tool_version": "2.58.0",
+  "collection": "2026-10-27T10:59:38-05:00 (Gold+ bundle generated_at)",
+  "statistics": "Gold+: Pred.gg 1.17.2 (version 169) ranked, ranks 27-36, status ok on all five roles, fetched 2026-10-27T10:55:37-05:00 to 10:55:57-05:00. Role averages (engine roleBaseline): carry 50.23%, jungle 50.50%, midlane 50.26%, offlane 49.97%. Bronze+ contains the Gold+ games (nested).",
+  "official": "Patch_Notes_1.17.2 (dba1f61e07b0...) fetched 2026-10-27T10:55:01-05:00; Patch_Notes_1.17 with Hotfix 1.17.1 (7d2dd627b5a5...) fetched 2026-10-27T10:55:02-05:00; both match article_fingerprints, so no official text changed since the 1.17.2 strategy review.",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+ },
+ "summary": {
+  "changed": 1,
+  "checked and retained": 4,
+  "unresolved": 7
+ },
+ "entries": [
+  {
+   "kind": "grade",
+   "slug": "adele",
+   "role": "offlane",
+   "queue_id": "grade-moved:adele/offlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "C retained. The engine withheld the grade for 'Statistics moved since review': the 1.17.2 strategy review cited 42.1% over 328 (17 Oct), and the Gold+ 1.17.2 line is now 46.1% over 1,282 [43.39, 48.84]. The move is upward, and no official text changed since the review (both live articles match the packet's fingerprints; 1.17.2 lists no Adele change), so there is no kit or patch reason, and a higher rate alone never raises a grade. The interval still sits wholly below the offlane role average (49.97% over 60,107), and the engine's calculated tier for Gold+ is also C. Games since the review run about 47.5% over 954, the same level as the whole line. Offlane C peers: Bayle 46.5% over 2,672, Khaimera 47.8% over 592. The watch text no longer says her results 'fell further'; it states that they recovered but stay below average.",
+   "limitation": "Rate-only evidence; the early 328-game sample overstated the fall. Bronze+ (nested, not independent) is 46.9% over 3,035 [45.12, 48.66], the same picture. No in-game test.",
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "evidence": {
+    "winRate": 46.09984399375975,
+    "wonGames": 591,
+    "matches": 1282,
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+    "fetched_at": "2026-10-27T10:55:41-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 46.1,
+     "matches": 1282,
+     "wonGames": 591,
+     "interval95": [
+      43.39,
+      48.84
+     ],
+     "fetched_at": "2026-10-27T10:55:41-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "at_review": {
+     "winRate": 42.07,
+     "matches": 328,
+     "wonGames": 138,
+     "fetched_at": "2026-10-17T13:19:09-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+    },
+    "since_review_estimate": {
+     "winRate": 47.48,
+     "matches": 954,
+     "wonGames": 453,
+     "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+    },
+    "role_average": {
+     "winRate": 49.97,
+     "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 offlane rate over heroes with 100+ games."
+    },
+    "calculated_tier": "C",
+    "bronze_nested": {
+     "winRate": 46.89,
+     "matches": 3035,
+     "wonGames": 1423,
+     "interval95": [
+      45.12,
+      48.66
+     ],
+     "fetched_at": "2026-10-27T11:00:07-05:00"
+    },
+    "interval_excludes_review_rate": true
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-27T10:55:41-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-27T11:00:07-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "countess",
+   "role": "midlane",
+   "queue_id": "grade-moved:countess/midlane",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "C retained. The engine withheld the grade for 'Statistics moved since review': the review cited 51.8% over 469 (17 Oct), and the Gold+ 1.17.2 midlane line is now 48.5% over 1,589 [46.07, 50.98]. That interval excludes 51.8% with more than 500 games, and the games since the review (about 47.1% over 1,120) point the same way, so the drop rule would allow one step down, but C is already the lowest grade the packet defines (tier_definitions S, A, B, C), so there is no lower step. No official text changed since the review (both live articles match the packet's fingerprints; 1.17.2 lists no Countess change). The engine's calculated tier is B because the interval still includes the midlane role average (50.26%); the reviewed C rests on the melee-into-ranged lane concern, which this sample does not contradict. Midlane C peers: Neon 47.4% over 2,926, Wraith 48.8% over 3,285, Ikra 45.4% over 2,024. The watch text now states that her results sit below the role average.",
+   "limitation": "The 469-game review sample overstated her; the grade cannot fall further, and whether she belongs above C is not tested here (a raise would need a kit reason). Bronze+ (nested) is 48.9% over 4,096 [47.32, 50.38]. No in-game test.",
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "evidence": {
+    "winRate": 48.521082441787286,
+    "wonGames": 771,
+    "matches": 1589,
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+    "fetched_at": "2026-10-27T10:55:49-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 48.52,
+     "matches": 1589,
+     "wonGames": 771,
+     "interval95": [
+      46.07,
+      50.98
+     ],
+     "fetched_at": "2026-10-27T10:55:49-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "at_review": {
+     "winRate": 51.81,
+     "matches": 469,
+     "wonGames": 243,
+     "fetched_at": "2026-10-17T13:19:15-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE"
+    },
+    "since_review_estimate": {
+     "winRate": 47.14,
+     "matches": 1120,
+     "wonGames": 528,
+     "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+    },
+    "role_average": {
+     "winRate": 50.26,
+     "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 midlane rate over heroes with 100+ games."
+    },
+    "calculated_tier": "B",
+    "bronze_nested": {
+     "winRate": 48.85,
+     "matches": 4096,
+     "wonGames": 2001,
+     "interval95": [
+      47.32,
+      50.38
+     ],
+     "fetched_at": "2026-10-27T11:00:10-05:00"
+    },
+    "interval_excludes_review_rate": true
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-27T10:55:49-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-27T11:00:10-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "grim-exe",
+   "role": "carry",
+   "queue_id": "grade-moved:grim-exe/carry",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "B retained, a judgment call. The engine withheld the grade for 'Statistics moved since review': the review cited 52.5% over 469 (17 Oct), and the Gold+ 1.17.2 carry line is now 49.4% over 1,618 [47.01, 51.88]. That interval excludes 52.5% with more than 500 games, and the games since the review (about 48.2% over 1,149) point the same way, so the drop rule permits B to C. It permits the drop; it does not require it, and the drop is not applied here: the interval still includes the carry role average (50.23% over 61,278), the engine's calculated tier is B, and three carries the review graded B sit lower over larger samples (Murdock 48.5% over 7,767, Skylar 47.1% over 3,284, Wraith 46.4% over 1,811), so a C would rank him below them. B ('situational or practiced pick') describes a near-average result. No official text changed since the review (both live articles match the packet's fingerprints; 1.17.2 lists no Grim.exe change). The watch text no longer says his results sit above the role average.",
+   "limitation": "The drop rule was available and not applied; the owner may prefer C. Bronze+ (nested, not independent) is lower, 48.0% over 3,846 [46.45, 49.60], and excludes the role average. Kira (A) is 49.3% over 4,679, so carry grades are not ordered by rate alone. No in-game test.",
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "evidence": {
+    "winRate": 49.44375772558715,
+    "wonGames": 800,
+    "matches": 1618,
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+    "fetched_at": "2026-10-27T10:55:57-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 49.44,
+     "matches": 1618,
+     "wonGames": 800,
+     "interval95": [
+      47.01,
+      51.88
+     ],
+     "fetched_at": "2026-10-27T10:55:57-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "at_review": {
+     "winRate": 52.45,
+     "matches": 469,
+     "wonGames": 246,
+     "fetched_at": "2026-10-17T13:19:21-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY"
+    },
+    "since_review_estimate": {
+     "winRate": 48.22,
+     "matches": 1149,
+     "wonGames": 554,
+     "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+    },
+    "role_average": {
+     "winRate": 50.23,
+     "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 carry rate over heroes with 100+ games."
+    },
+    "calculated_tier": "B",
+    "bronze_nested": {
+     "winRate": 48.02,
+     "matches": 3846,
+     "wonGames": 1847,
+     "interval95": [
+      46.45,
+      49.6
+     ],
+     "fetched_at": "2026-10-27T11:00:15-05:00"
+    },
+    "interval_excludes_review_rate": true
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-10-27T10:55:57-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-10-27T11:00:15-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "scarlett",
+   "role": "jungle",
+   "queue_id": "grade-moved:scarlett/jungle",
+   "verdict": "checked and retained",
+   "old_tier": "C",
+   "tier": "C",
+   "reason": "C retained. The engine withheld the grade for 'Statistics moved since review': the review cited 41.3% over 349 (17 Oct), and the Gold+ 1.17.2 jungle line is now 45.9% over 1,261 [43.18, 48.67]. The move is upward with no new kit or patch reason (no official text changed since the review; the 1.17.2 Scarlett changes were all nerfs the review already weighed), and a higher rate alone never raises a grade. The interval sits wholly below the jungle role average (50.50% over 62,080), and the engine's calculated tier is also C. Games since the review run about 47.7% over 912. Her offlane grade (A, 52.3% over 3,776) is unaffected. The watch text now says her results 'stay well below the role average' rather than describing a fall.",
+   "limitation": "Rate-only evidence; the early sample overstated the fall. Bronze+ (nested) is 45.3% over 3,625 [43.71, 46.95]. The disputed Ashen Vow base value is unchanged and unresolved. No in-game test.",
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "evidence": {
+    "winRate": 45.91593973037272,
+    "wonGames": 579,
+    "matches": 1261,
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-27T10:55:37-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 45.92,
+     "matches": 1261,
+     "wonGames": 579,
+     "interval95": [
+      43.18,
+      48.67
+     ],
+     "fetched_at": "2026-10-27T10:55:37-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "at_review": {
+     "winRate": 41.26,
+     "matches": 349,
+     "wonGames": 144,
+     "fetched_at": "2026-10-17T13:19:06-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "since_review_estimate": {
+     "winRate": 47.7,
+     "matches": 912,
+     "wonGames": 435,
+     "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+    },
+    "role_average": {
+     "winRate": 50.5,
+     "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 jungle rate over heroes with 100+ games."
+    },
+    "calculated_tier": "C",
+    "bronze_nested": {
+     "winRate": 45.32,
+     "matches": 3625,
+     "wonGames": 1643,
+     "interval95": [
+      43.71,
+      46.95
+     ],
+     "fetched_at": "2026-10-27T11:00:04-05:00"
+    },
+    "interval_excludes_review_rate": true
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-27T10:55:37-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-27T11:00:04-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "grade",
+   "slug": "sevarog",
+   "role": "jungle",
+   "queue_id": "grade-moved:sevarog/jungle",
+   "verdict": "changed",
+   "old_tier": "A",
+   "tier": "B",
+   "reason": "A to B under the drop rule. The 1.17.2 strategy review raised him B to A on the 1.17.2 Siphon, Colossal Blow and passive-stacking changes plus 52.6% over 308, and flagged that sample as its weakest raise (its interval reached below the role average). The Gold+ 1.17.2 jungle line is now 49.5% over 1,001 [46.36, 52.54], which excludes the 52.6% review rate with more than 500 games, and the games since the review (about 48.1% over 693) point the same way. No official text changed since the review (both live articles match the packet's fingerprints). The kit reason for the raise still holds and his results remain above his 1.17 line (44.0% over 571), but they now sit just under the jungle role average (50.50% over 62,080), the engine's calculated tier is B, and B junglers span 47.9% to 51.1% (Greystone 48.5% over 1,687, Kwang 48.6% over 3,230, Grux 50.2% over 3,222, Crunch 50.8% over 2,433). One step, as the rule allows. The watch text states the new grade and why.",
+   "limitation": "Close call: the interval's upper bound (52.54) clears the review rate (52.60) by only 0.06 points. Serath keeps A at 48.9% over 4,628, so A junglers are not ordered by rate alone. Bronze+ (nested, not independent) is lower, 46.7% over 1,763 [44.36, 49.02]. No in-game test.",
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "evidence": {
+    "winRate": 49.45054945054945,
+    "wonGames": 495,
+    "matches": 1001,
+    "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+    "fetched_at": "2026-10-27T10:55:37-05:00"
+   },
+   "figures": {
+    "current": {
+     "winRate": 49.45,
+     "matches": 1001,
+     "wonGames": 495,
+     "interval95": [
+      46.36,
+      52.54
+     ],
+     "fetched_at": "2026-10-27T10:55:37-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "at_review": {
+     "winRate": 52.6,
+     "matches": 308,
+     "wonGames": 162,
+     "fetched_at": "2026-10-17T13:19:06-05:00",
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+    },
+    "since_review_estimate": {
+     "winRate": 48.05,
+     "matches": 693,
+     "wonGames": 333,
+     "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+    },
+    "role_average": {
+     "winRate": 50.5,
+     "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 jungle rate over heroes with 100+ games."
+    },
+    "calculated_tier": "B",
+    "bronze_nested": {
+     "winRate": 46.68,
+     "matches": 1763,
+     "wonGames": 823,
+     "interval95": [
+      44.36,
+      49.02
+     ],
+     "fetched_at": "2026-10-27T11:00:04-05:00"
+    },
+    "interval_excludes_review_rate": true
+   },
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-27T10:55:37-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+     "fetched_at": "2026-10-27T11:00:04-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "akeron",
+   "role": "support",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 50.9% over 175 games for support, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 50.857142857142854,
+     "matches": 175,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-27T10:56:02-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-27T10:56:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "ikra",
+   "role": "support",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 44.0% over 434 games for support, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 44.00921658986175,
+     "matches": 434,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-27T10:56:02-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-27T10:56:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "maco",
+   "role": "midlane",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 38.6% over 44 games for midlane, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 38.63636363636363,
+     "matches": 44,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-27T10:55:49-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-27T10:55:49-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "scarlett",
+   "role": "midlane",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 51.4% over 35 games for midlane, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 51.42857142857143,
+     "matches": 35,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-27T10:55:49-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+     "fetched_at": "2026-10-27T10:55:49-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "the-fey",
+   "role": "carry",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 46.0% over 50 games for carry, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 46.0,
+     "matches": 50,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-10-27T10:55:57-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+     "fetched_at": "2026-10-27T10:55:57-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wraith",
+   "role": "support",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 51.1% over 611 games for support, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 51.06382978723404,
+     "matches": 611,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-27T10:56:02-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+     "fetched_at": "2026-10-27T10:56:02-05:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wukong",
+   "role": "offlane",
+   "queue_id": "weekly:2026-W43",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. The Gold+ sample is fresh (collected 27 Oct about 10:55 CDT); it shows 47.8% over 423 games for offlane, which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; no in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+    "Kit and item text from the Pred.gg 1.17.2 definitions (version 169) in the 27 Oct collection"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 47.75413711583924,
+     "matches": 423,
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-27T10:55:41-05:00"
+    }
+   },
+   "reviewed_at": "2026-10-27T18:55:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-10-27T10:55:01-05:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+     "fetched_at": "2026-10-27T10:55:02-05:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+     "fetched_at": "2026-10-27T10:55:41-05:00"
+    }
+   ]
+  }
+ ]
+}

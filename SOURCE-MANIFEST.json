@@ -186,7 +186,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "249514f03de92b9528886c74553113ee1ef389dcd47539e73d9b03aa512190cb",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "fd39c455472ce84eb672abb58350089c4a4a0bcb0a4e8c51f17466ac5c07aa1b",
+    "reviewed_guidance.json": "0ef3687c9af04eada84e99a6eb2f38c5ad9e4ae75f0ecc10fba307733056ce2f",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "53997bdcd062f206293f790b1fe5b8dedc2c473cbf6244b35964e690e9ed2309",
@@ -331,6 +331,8 @@
     "docs/strategy-review-1.17.2-ledger.json": "5b1a31cfd957cb7629cda7703bd0a151a8bc67665b2012a1997afc12120a10ef",
     "tests/level_lists.test.cjs": "a01c57e48e0ef56226277cf74864fc88fa8d06c5c341a7340a885024fb7bc195",
     "docs/rechecks/2026-10-18-1833-ledger.json": "7626be74ce47cad43c65f2e424750b7fc887417dbe26a1a83c16107482b9d5f5",
-    "docs/rechecks/2026-10-18-1833.md": "ef1ac329154a5042fba15c5f8ce89bd791ddeed11042b42c3033864d47bb3bf6"
+    "docs/rechecks/2026-10-18-1833.md": "ef1ac329154a5042fba15c5f8ce89bd791ddeed11042b42c3033864d47bb3bf6",
+    "docs/rechecks/2026-10-27-1833-ledger.json": "4e52d2a05db03e84d0e10264f6ec5aeaba3715d9870a8f01bcdc89c869fd3605",
+    "docs/rechecks/2026-10-27-1833.md": "8a5ac71a00c1c79aede5aafec5f6d484a61c52080944d7c8507f88c968d3f278"
   }
 }
