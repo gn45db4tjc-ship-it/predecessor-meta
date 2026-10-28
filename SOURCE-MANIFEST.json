@@ -186,7 +186,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "249514f03de92b9528886c74553113ee1ef389dcd47539e73d9b03aa512190cb",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "ca2f1e2570b90716412cd3c80e15d0492cb1a3778b9c43fca623f106dd42488c",
+    "reviewed_guidance.json": "07beba3577f3f62af9c771f01f4e8b1618851cf5dc51d33d30108dbb05452ec7",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "53997bdcd062f206293f790b1fe5b8dedc2c473cbf6244b35964e690e9ed2309",
@@ -335,6 +335,8 @@
     "docs/rechecks/2026-10-27-1833-ledger.json": "4e52d2a05db03e84d0e10264f6ec5aeaba3715d9870a8f01bcdc89c869fd3605",
     "docs/rechecks/2026-10-27-1833.md": "8a5ac71a00c1c79aede5aafec5f6d484a61c52080944d7c8507f88c968d3f278",
     "docs/rechecks/2026-10-28-0333-ledger.json": "018d4f90266c22305d5802aa2f579c7dac031f9ccad9fc040443f76f99f1859d",
-    "docs/rechecks/2026-10-28-0333.md": "b9a8898b8e743bcae2ada9b814d21fd85229420339627d3c282a63c98bcd54b6"
+    "docs/rechecks/2026-10-28-0333.md": "b9a8898b8e743bcae2ada9b814d21fd85229420339627d3c282a63c98bcd54b6",
+    "docs/rechecks/2026-10-28-2245-ledger.json": "d4cd13b6bea53d71b6f578c2d7273466b53acbd90a2cbbe5592324bd6594dd15",
+    "docs/rechecks/2026-10-28-2245.md": "efce3747aae5d9160e0ae791d0a7ebe8301db48b45f6abc691416462929db6fa"
   }
 }

@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "title": "Owner-requested recheck, 28 Oct 2026 22:45 UTC (Sevarog offlane grade)",
+  "reviewed_at": "2026-10-28T22:45:00+00:00",
+  "reviewer": "Claude, project thread at the owner's request (not the scheduled runner)",
+  "scope": "One Gold+ grade the owner asked to have rechecked for consistency with the 28 Oct Terra offlane drop (sevarog/offlane; not withheld, so not queued), against the live bundles published 2026-10-28T22:02:39+00:00 (publish run 40776468309, tool 2.58.0; Gold+ collection generated 2026-10-28T14:01:55-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
+  "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard as the 1.17.2 strategy review applied it: a grade moves one step at most, a move needs a kit or patch reason plus evidence the same way, a drop without a kit reason needs a 95% interval over at least 500 games to exclude the previous review rate with the games since review agreeing, and a high rate alone never raises a grade. This drop does not meet the drop rule and is recorded as a policy exception for the owner.",
+  "evidence": {
+    "manifest_published_at": "2026-10-28T22:02:39+00:00",
+    "publish_run": "40776468309",
+    "tool_version": "2.58.0",
+    "collection": "2026-10-28T14:01:55-05:00 (Gold+ bundle generated_at)",
+    "statistics": "Gold+: Pred.gg 1.17.2 (version 169) ranked, ranks 27-36, status ok, offlane fetched 2026-10-28T13:57:42-05:00. Offlane role average (games-weighted over heroes with 100+ games, as engine roleBaseline) 49.82% over 58,797. Bronze+ contains the Gold+ games (nested).",
+    "official": "Patch_Notes_1.17.2 (dba1f61e07b0...) fetched 2026-10-28T13:57:05-05:00; Patch_Notes_1.17 with Hotfix 1.17.1 (7d2dd627b5a5...) fetched 2026-10-28T13:57:07-05:00; both match article_fingerprints, so no official text changed since the 1.17.2 strategy review.",
+    "bundles": "live bundles via tests/fetch_live_bundles.py (sha256-checked)"
+  },
+  "summary": {
+    "changed": 1,
+    "checked and retained": 0,
+    "unresolved": 0
+  },
+  "entries": [
+    {
+      "kind": "grade",
+      "slug": "sevarog",
+      "role": "offlane",
+      "queue_id": "owner-request:sevarog/offlane",
+      "verdict": "changed",
+      "old_tier": "B",
+      "tier": "C",
+      "reason": "B to C for consistency, by policy exception. The 1.17.2 strategy review held B on 47.0% over 604 against his 1.17 line of 47.3% over 550 (flat), with the limitation that the 1.17.2 passive-stacking fix might take longer to show. Over 2,262 games (3.7 times that sample) the Gold+ 1.17.2 offlane line is 46.6% [44.55, 48.66] and the games since the review run about 46.4% over 1,658, so the fix has not shown. The interval sits wholly below the offlane role average (49.82% over 58,797) and the engine's calculated tier for Gold+ is C. Every other offlane hero at this level is C: Terra 46.6% over 1,945 (dropped B to C on 28 Oct), Bayle 46.8% over 2,872, Adele 45.9% over 1,380. Keeping B ranks him above all three and level with heroes near 49-50%. One step.",
+      "policy_exception": "The drop rule is not met: the 95% interval [44.55, 48.66] still includes the 47.0% review rate, because he was already this low when graded B, and no official text changed since the review, so there is no new kit or patch reason. The drop rests on the review's own stated condition (the passive fix showing) failing over a much larger sample, plus consistency with the offlane C grades. The owner decides.",
+      "limitation": "Rate-only evidence; no in-game test. Bronze+ (nested, not independent) is 46.2% over 4,177 [44.72, 47.74], the same picture.",
+      "reviewed_at": "2026-10-28T22:45:00+00:00",
+      "evidence": {
+        "winRate": 46.59593280282935,
+        "wonGames": 1054,
+        "matches": 2262,
+        "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+        "fetched_at": "2026-10-28T13:57:42-05:00"
+      },
+      "figures": {
+        "current": {
+          "winRate": 46.6,
+          "matches": 2262,
+          "wonGames": 1054,
+          "interval95": [
+            44.55,
+            48.66
+          ],
+          "fetched_at": "2026-10-28T13:57:42-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+        },
+        "at_review": {
+          "winRate": 47.02,
+          "matches": 604,
+          "wonGames": 284,
+          "interval95": [
+            43.07,
+            51.01
+          ],
+          "fetched_at": "2026-10-17T13:19:09-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+        },
+        "since_review_estimate": {
+          "winRate": 46.44,
+          "matches": 1658,
+          "wonGames": 770,
+          "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+        },
+        "line_1_17": {
+          "winRate": 47.27,
+          "matches": 550,
+          "note": "1.17 line sample cited by docs/strategy-review-1.17.2-ledger.json."
+        },
+        "role_average": {
+          "winRate": 49.82,
+          "matches": 58797,
+          "note": "Games-weighted Gold+ 1.17.2 offlane rate over heroes with 100+ games (engine roleBaseline method)."
+        },
+        "calculated_tier": "C",
+        "offlane_c_peers": {
+          "terra": {
+            "winRate": 46.63,
+            "matches": 1945
+          },
+          "bayle": {
+            "winRate": 46.83,
+            "matches": 2872
+          },
+          "adele": {
+            "winRate": 45.87,
+            "matches": 1380
+          }
+        },
+        "bronze_nested": {
+          "winRate": 46.23,
+          "matches": 4177,
+          "wonGames": 1931,
+          "interval95": [
+            44.72,
+            47.74
+          ],
+          "fetched_at": "2026-10-28T14:02:43-05:00"
+        },
+        "interval_excludes_review_rate": false
+      },
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-28T13:57:42-05:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-28T14:02:43-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-28T13:57:05-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-10-28T13:57:07-05:00"
+        }
+      ]
+    }
+  ]
+}
