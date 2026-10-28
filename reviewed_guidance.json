@@ -43733,9 +43733,9 @@
         {
           "slug": "sevarog",
           "role": "offlane",
-          "tier": "B",
+          "tier": "C",
           "why": "Siphon and Reaper of Souls support a scaling frontline; Subjugate can hold a target for allies as durability develops.",
-          "watch": "1.17.2 lengthened Colossal Blow and fixed his passive stacking, but his offlane results stay below even. Souls need ability kills, and Colossal Blow must not eject the target from allied damage.",
+          "watch": "C after the 28 Oct recheck: 1.17.2 lengthened Colossal Blow and fixed his passive stacking, but over a much larger 1.17.2 sample his offlane results have not moved off his weak 1.17 level and sit clearly below the role average. Souls need ability kills, and Colossal Blow must not eject the target from allied damage.",
           "ability_keys": [
             "Q",
             "E",
@@ -43743,12 +43743,14 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 47.019867549668874,
-            "wonGames": 284,
-            "matches": 604,
+            "winRate": 46.59593280282935,
+            "wonGames": 1054,
+            "matches": 2262,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-10-17T13:19:09-05:00"
-          }
+            "fetched_at": "2026-10-28T13:57:42-05:00"
+          },
+          "rechecked_at": "2026-10-28T22:45:00+00:00",
+          "previous_tier": "B"
         },
         {
           "slug": "shinbi",
@@ -55355,6 +55357,16 @@
         ],
         "scope": "One withheld Gold+ grade queued for moved statistics (terra/offlane), against the live bundles published 2026-10-28T02:27:26+00:00 (publish run 40620729701, tool 2.58.0; Gold+ collection generated 2026-10-27T20:00:08-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
         "ledger": "docs/rechecks/2026-10-28-0333-ledger.json",
+        "result": "1 changed, 0 checked and retained, 0 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-28T22:45:00+00:00",
+        "items": [
+          "owner-request:sevarog/offlane"
+        ],
+        "scope": "One Gold+ grade the owner asked to have rechecked for consistency with the 28 Oct Terra offlane drop (sevarog/offlane; not withheld, so not queued), against the live bundles published 2026-10-28T22:02:39+00:00 (publish run 40776468309, tool 2.58.0; Gold+ collection generated 2026-10-28T14:01:55-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-28-2245-ledger.json",
         "result": "1 changed, 0 checked and retained, 0 unresolved"
       }
     ]
