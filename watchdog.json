@@ -1,9 +1,12 @@
 {
  "schema": 1,
- "checked_at": "2026-10-28T13:32:15+00:00",
+ "checked_at": "2026-10-28T21:20:06+00:00",
  "open": {
   "attempt-failed": {
    "first_seen": "2026-10-18T18:18:18+00:00"
+  },
+  "patch-check": {
+   "first_seen": "2026-10-28T21:20:06+00:00"
   }
  },
  "dispatches": [
@@ -663,6 +666,12 @@
    "at": "2026-10-28T13:32:15+00:00",
    "started_at": "2026-10-28T07:41:33+00:00",
    "hours": 5.8
+  },
+  {
+   "id": "patch-check",
+   "event": "started",
+   "at": "2026-10-28T21:20:06+00:00",
+   "summary": "The live patch check is failed."
   }
  ]
 }
