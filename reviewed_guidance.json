@@ -43908,21 +43908,23 @@
         {
           "slug": "terra",
           "role": "offlane",
-          "tier": "B",
+          "tier": "C",
           "why": "Highland Hurl now slows or roots for 1.25s at every rank and shreds more armor, setting up Ruthless Assault on a held target; Unstoppable Force helps a committed frontline sequence.",
-          "watch": "B on 1.17.2: the Highland Hurl buff came with offlane results near even, above her weak 1.17 rate, though the rise alone is not conclusive. Her damage scales with armor, so pick her as a practiced frontline answer rather than a default.",
+          "watch": "C after the 28 Oct recheck: the 1.17.2 Highland Hurl buff first came with offlane results near even, but over a larger 1.17.2 sample she is back at her weak 1.17 level, clearly below the role average. Her damage scales with armor, so pick her only as a practiced frontline answer.",
           "ability_keys": [
             "Q",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 49.68354430379747,
-            "wonGames": 314,
-            "matches": 632,
+            "winRate": 46.63487016428193,
+            "wonGames": 880,
+            "matches": 1887,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-10-17T13:19:09-05:00"
-          }
+            "fetched_at": "2026-10-27T19:56:26-05:00"
+          },
+          "rechecked_at": "2026-10-28T03:50:00+00:00",
+          "previous_tier": "B"
         },
         {
           "slug": "the-fey",
@@ -55344,6 +55346,16 @@
         "scope": "Five withheld Gold+ grades queued for moved statistics (adele/offlane, countess/midlane, grim-exe/carry, scarlett/jungle, sevarog/jungle) and the weekly backstop for 2026-W43, against the live bundles published 2026-10-27T17:59:38+00:00 (publish run 40555400669, tool 2.58.0; Gold+ collection generated 2026-10-27T10:59:38-05:00 with a fresh Pred.gg 1.17.2 sample). Every withheld Gold+ grade (these five) and every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. Not a full review.",
         "ledger": "docs/rechecks/2026-10-27-1833-ledger.json",
         "result": "1 changed, 4 checked and retained, 7 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-28T03:50:00+00:00",
+        "items": [
+          "grade-moved:terra/offlane"
+        ],
+        "scope": "One withheld Gold+ grade queued for moved statistics (terra/offlane), against the live bundles published 2026-10-28T02:27:26+00:00 (publish run 40620729701, tool 2.58.0; Gold+ collection generated 2026-10-27T20:00:08-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-28-0333-ledger.json",
+        "result": "1 changed, 0 checked and retained, 0 unresolved"
       }
     ]
   },
