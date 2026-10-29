@@ -1692,7 +1692,9 @@ def parse_publisher_news(data,when):
         text=htmllib.unescape(re.sub(r'\[(?:/?(?:p|h[1-6]|quote|list|\*))[^\]]*\]','\n',row['contents'],flags=re.I))
         text=re.sub(r'\[[^\]]*\]','',text);text=re.sub(r'\n{3,}','\n\n',text).strip()
         published=dt.datetime.fromtimestamp(row['date'],dt.timezone.utc)
-        announced=published>now_utc() or bool(re.search(r'\b(preview|upcoming|tomorrow|next week|coming soon)\b',title,re.I))
+        # 29 Oct 2026: "Update 1.18 Frostbite - First Look Dev Stream" was read as a released 1.18 and stopped every
+        # collection. A stream, first look, trailer or roadmap names an update without releasing it.
+        announced=published>now_utc() or bool(re.search(r'\b(preview|upcoming|tomorrow|next week|coming soon|first look|sneak peek|teaser|trailer|reveal(?:ed)?|roadmap|(?:dev|live) ?stream|showcase)\b',title,re.I))
         entries.append({'id':row['gid'],'title':title,'version':version,'url':row['url'],
             'published_at':published.isoformat(),'status':'announced' if announced else 'published',
             'text':text,'official_links':links,'source_contents':row['contents'],

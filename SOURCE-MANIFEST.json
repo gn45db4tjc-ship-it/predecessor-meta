@@ -177,7 +177,7 @@
     "patch_support.py": "b1575a9a1d9793125c7f3d10a95faae3f8d55bd3d252e3bbf16a5c8b72150676",
     "pred_api.py": "238cd4193841f8e2203523723f82b4732fb0d803b88abb21a9d254bedc9e0816",
     "pred_api_queries.json": "d51514f3167e1be2faf57d3e7412a4df5f21df0eb03a7f2f4794aebce788f43a",
-    "predecessor_meta.py": "a5a76fd03cf88864d154f712a52568b1409932d3f361174cb79f690233807d6c",
+    "predecessor_meta.py": "5a75a3a854eabaa9878e9ab384bb17cf8c022983962f7eadb91c33012d2df88a",
     "projection.py": "d15579f676d26e5c171a077fc975ec1a281771623351ad39d0c4c19992ecbae4",
     "projection_client.js": "b6954734ae53ddf5d242d8f5155dd5f2c8a292b291ccf5b208bc9b22ebad2426",
     "public-seed-gold.json.gz": "281f22d572cb6b7f4071b368b1b64e5c605cd577907a0ea65d76442add6840b8",
@@ -337,6 +337,7 @@
     "docs/rechecks/2026-10-28-0333-ledger.json": "018d4f90266c22305d5802aa2f579c7dac031f9ccad9fc040443f76f99f1859d",
     "docs/rechecks/2026-10-28-0333.md": "b9a8898b8e743bcae2ada9b814d21fd85229420339627d3c282a63c98bcd54b6",
     "docs/rechecks/2026-10-28-2245-ledger.json": "d4cd13b6bea53d71b6f578c2d7273466b53acbd90a2cbbe5592324bd6594dd15",
-    "docs/rechecks/2026-10-28-2245.md": "efce3747aae5d9160e0ae791d0a7ebe8301db48b45f6abc691416462929db6fa"
+    "docs/rechecks/2026-10-28-2245.md": "efce3747aae5d9160e0ae791d0a7ebe8301db48b45f6abc691416462929db6fa",
+    "tests/test_static_publisher_news.py": "b3029c6221d80d5571e758d6f38fc29756a94c06d13c0fc337f7f827912ab2ee"
   }
 }
