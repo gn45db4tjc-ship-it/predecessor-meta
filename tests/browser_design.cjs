@@ -174,14 +174,14 @@ let preview=null;
   // ---- revision 2: light theme — opt-in toggle, persistence, and the same contrast floors measured live.
   {
    const viewport={width:1920,height:1080,scale:1,theme:'light'};
-   const context=await browser.newContext({viewport:{width:1920,height:1080}}),page=await context.newPage();
+   const context=await browser.newContext({viewport:{width:1920,height:1080},colorScheme:'dark'}),page=await context.newPage();   // a dark device; a light one is browser_system_theme.cjs
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:60000});
    await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();});
    if(await page.locator('#bracket').inputValue()!=='gold'){await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B&&!latestStatus.busy&&B.bracket.segment==='gold');}
    const run={viewport,checks:[],errors};const check=(v,label)=>{assert(v,label+' @light');run.checks.push(label);};
    const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
-   check(await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme')),'default theme is dark');
+   check(await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme')),'default theme is dark on a dark device');
    check(await page.locator('#theme-toggle').textContent()==='Switch to light theme','toggle names its action: the light theme');   // 2.53.0 (QP13): an action button, no pressed state
    await page.locator('#theme-toggle').click();
    check(await page.evaluate(()=>document.documentElement.getAttribute('data-theme')==='light'),'toggle switches to light');

@@ -123,6 +123,12 @@ jobs:
           PREVIEW_URL: http://127.0.0.1:13063/
           BROWSER_CHANNEL: chrome
         run: node tests/browser_companion_accessibility.cjs
+      - name: The website follows the device's light or dark setting until a theme is chosen
+        env:
+          START_PREVIEW: '1'
+          PREVIEW_URL: http://127.0.0.1:13064/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_system_theme.cjs
       - name: Show app upgrade verdicts
         if: always()
         run: cat qa/app-updates-edge.json || true

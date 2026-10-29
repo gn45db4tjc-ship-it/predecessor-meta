@@ -4,7 +4,7 @@ The visual language of Predecessor Meta: tokens, components and the rules that k
 
 ## Rules
 
-- Every colour, space, radius and type size resolves through a token declared on `:root` in `ui.html`. The light theme (`:root[data-theme=light]`) redefines tokens only, never component rules (probes W1, W2, W4, DS1, DS2).
+- Every colour, space, radius and type size resolves through a token declared on `:root` in `ui.html`. The light theme (`:root[data-theme=light]`) redefines tokens only, never component rules (probes W1, W2, W4, DS1, DS2). On the website it follows the device's setting until the theme switch stores a choice; the Windows app opens dark unless light was chosen.
 - The four classes of evidence (observed, calculated, reviewed, official) keep distinct colours and markers in both themes (W3). A status (warning, saved) is not a class of evidence.
 - Gold is a fill. Borders, outlines and underlines that show selection use `--indicator`; focus uses `--focus`. Both reach 3:1 on every surface in both themes (DS5).
 - Phone touch targets are at least 44px. Phone tab strips wrap; they never scroll sideways (2.29 stage 1, DS3).
