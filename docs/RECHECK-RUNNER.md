@@ -57,6 +57,7 @@ The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current sc
    - **`mechanics-conflict` (an official correction, definition or reconciliation notice).** Resolve it only with the official source's own text, in the supplement (`patch-<version>.json`). Otherwise record `unresolved` and hold it: add `{id, evidence}` (the queue item's `evidence`, exactly as published) to the log's `held`. The queue then skips it until the notice or any live official article changes.
    - **`new-hero`.** Prepare the first grade and plan in the usual format; the gate holds a first grade for the owner.
    - **`patch-change`.** A patch-targeted pass records its narrower scope and does not postpone the weekly pass.
+     For 1.18, follow `docs/PATCH-DAY-1.18.md`: it holds the owner's decisions for the seven experimental plans.
    - **`weekly`.** Check every withheld grade and inactive plan, then log a weekly pass with the ISO week from the item id.
 
    Follow `STRATEGY-REVIEW-POLICY.md` for coverage and for each plan's record: mechanics checked, reason, uncertainties, sources with dates. An unresolved mechanic may not support a newly endorsed choice.
