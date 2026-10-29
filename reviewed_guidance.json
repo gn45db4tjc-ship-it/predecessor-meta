@@ -42755,9 +42755,9 @@
         {
           "slug": "countess",
           "role": "jungle",
-          "tier": "B",
+          "tier": "C",
           "why": "Shadow Slip and Blade Siphon support short trades; the fixed Feast now gives a real targeted conversion after two abilities apply Haemorrhage.",
-          "watch": "A practiced option: her 1.17.2 jungle sample is modest and near the role average, and her roles did not all move together. Mark a safe Shadow Slip return point before committing Feast.",
+          "watch": "C after the 29 Oct recheck: with no kit change, her 1.17.2 jungle results fell below the role average over a sample more than three times the one first reviewed. Mark a safe Shadow Slip return point before committing Feast, and treat her as a practiced pick only.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -42765,12 +42765,14 @@
             "Passive"
           ],
           "evidence": {
-            "winRate": 50.26315789473684,
-            "wonGames": 191,
-            "matches": 380,
+            "winRate": 47.232207045291155,
+            "wonGames": 657,
+            "matches": 1391,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
-            "fetched_at": "2026-10-17T13:19:06-05:00"
-          }
+            "fetched_at": "2026-10-29T13:59:58-05:00"
+          },
+          "rechecked_at": "2026-10-29T20:50:00+00:00",
+          "previous_tier": "B"
         },
         {
           "slug": "countess",
@@ -43225,7 +43227,7 @@
           "role": "offlane",
           "tier": "C",
           "why": "Ambush and Unleash give short trades once Lane Lurker builds Rage from minions; Cull converts a caught target and Invigorate extends contact.",
-          "watch": "The large jungle result does not transfer: his 1.17.2 offlane sample is small and below even despite the Ambush buff. Anti-heal and disengage can deny his sustain, especially beyond allied range.",
+          "watch": "The large jungle result does not transfer: his 1.17.2 offlane results recovered toward even over a larger sample but remain inside the role average's range, with no kit change to lift the grade. Anti-heal and disengage can deny his sustain, especially beyond allied range.",
           "ability_keys": [
             "RMB",
             "Q",
@@ -43233,12 +43235,13 @@
             "R"
           ],
           "evidence": {
-            "winRate": 45.0,
-            "wonGames": 72,
-            "matches": 160,
+            "winRate": 48.203592814371255,
+            "wonGames": 322,
+            "matches": 668,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-10-17T13:19:09-05:00"
-          }
+            "fetched_at": "2026-10-29T14:00:00-05:00"
+          },
+          "rechecked_at": "2026-10-29T20:50:00+00:00"
         },
         {
           "slug": "kira",
@@ -44145,19 +44148,20 @@
           "role": "offlane",
           "tier": "B",
           "why": "Barricade and Coliseum offer a clear catch for midlane or support follow-up; Evade helps him remain active through the next exchange.",
-          "watch": "His 1.17.2 offlane results rose above the role average even though Coliseum was cut, so the grade waits for the kit and the evidence to agree. Coliseum still needs an ally close enough to exploit it.",
+          "watch": "B on 1.17.2: his early offlane lead after the Coliseum cut has settled to about the role average over a larger sample. Barricade and Coliseum remain an easy-to-coordinate catch, but Coliseum still needs an ally close enough to exploit it.",
           "ability_keys": [
             "Q",
             "E",
             "R"
           ],
           "evidence": {
-            "winRate": 53.45821325648415,
-            "wonGames": 371,
-            "matches": 694,
+            "winRate": 50.017427675148134,
+            "wonGames": 1435,
+            "matches": 2869,
             "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
-            "fetched_at": "2026-10-17T13:19:09-05:00"
-          }
+            "fetched_at": "2026-10-29T14:00:00-05:00"
+          },
+          "rechecked_at": "2026-10-29T20:50:00+00:00"
         },
         {
           "slug": "zinx",
@@ -55368,6 +55372,18 @@
         "scope": "One Gold+ grade the owner asked to have rechecked for consistency with the 28 Oct Terra offlane drop (sevarog/offlane; not withheld, so not queued), against the live bundles published 2026-10-28T22:02:39+00:00 (publish run 40776468309, tool 2.58.0; Gold+ collection generated 2026-10-28T14:01:55-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
         "ledger": "docs/rechecks/2026-10-28-2245-ledger.json",
         "result": "1 changed, 0 checked and retained, 0 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-29T20:50:00+00:00",
+        "items": [
+          "grade-moved:countess/jungle",
+          "grade-moved:khaimera/offlane",
+          "grade-moved:zarus/offlane"
+        ],
+        "scope": "Three withheld Gold+ grades queued for moved statistics (countess/jungle, khaimera/offlane, zarus/offlane), against the live bundles published 2026-10-29T19:29:51+00:00 (publish run 40940120628, tool 2.58.0; Gold+ collection generated 2026-10-29T14:04:01-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-29-2033-ledger.json",
+        "result": "1 changed, 2 checked and retained, 0 unresolved"
       }
     ]
   },

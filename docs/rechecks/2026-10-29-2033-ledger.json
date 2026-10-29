@@ -1,0 +1,264 @@
+{
+  "schema": 1,
+  "title": "Scheduled recheck, 29 Oct 2026 20:33 UTC (Countess jungle, Khaimera offlane, Zarus offlane grades)",
+  "reviewed_at": "2026-10-29T20:50:00+00:00",
+  "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+  "scope": "Three withheld Gold+ grades queued for moved statistics (countess/jungle, khaimera/offlane, zarus/offlane), against the live bundles published 2026-10-29T19:29:51+00:00 (publish run 40940120628, tool 2.58.0; Gold+ collection generated 2026-10-29T14:04:01-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
+  "standard": "docs/RECHECK-RUNNER.md with the 2.34 / 27 Sep grade standard as the 1.17.2 strategy review applied it: a grade moves one step at most, a move needs a kit or patch reason plus evidence the same way, a drop without a kit reason needs a 95% interval over at least 500 games to exclude the previous review rate with the games since review agreeing (the rule permits a drop; it does not require one), and a high rate alone never raises a grade. C is the lowest defined grade.",
+  "evidence": {
+    "manifest_published_at": "2026-10-29T19:29:51+00:00",
+    "publish_run": "40940120628",
+    "tool_version": "2.58.0",
+    "collection": "2026-10-29T14:04:01-05:00 (Gold+ bundle generated_at)",
+    "statistics": "Gold+: Pred.gg 1.17.2 (version 169) ranked, ranks 27-36, status ok, jungle fetched 2026-10-29T13:59:58-05:00, offlane 2026-10-29T14:00:00-05:00. Role averages (engine roleBaseline): jungle 50.51% over 70,392, offlane 49.83% over 62,406. Bronze+ contains the Gold+ games (nested).",
+    "official": "Patch_Notes_1.17.2 (dba1f61e07b0...) fetched 2026-10-29T13:59:25-05:00; Patch_Notes_1.17 with Hotfix 1.17.1 (7d2dd627b5a5...) fetched 2026-10-29T13:59:26-05:00; both match article_fingerprints, so no official text changed since the 1.17.2 strategy review.",
+    "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+  },
+  "summary": {
+    "changed": 1,
+    "checked and retained": 2,
+    "unresolved": 0
+  },
+  "entries": [
+    {
+      "kind": "grade",
+      "slug": "countess",
+      "role": "jungle",
+      "queue_id": "grade-moved:countess/jungle",
+      "verdict": "changed",
+      "old_tier": "B",
+      "tier": "C",
+      "reason": "B to C under the drop rule. The 1.17.2 strategy review kept her jungle B on 50.3% over 380 and called it a practiced option on a modest sample near the role average. The Gold+ 1.17.2 jungle line is now 47.2% over 1,391 [44.62, 49.86], which excludes the 50.3% review rate with more than 500 games, and the games since the review (about 46.1% over 1,011) point the same way. No official text changed since the review (both live articles match the packet's fingerprints). The interval sits wholly below the jungle role average (50.51% over 70,392), and the engine's calculated tier for Gold+ is C. Jungle C peers sit at the same level: Feng Mao 47.6% over 3,849, Scarlett 45.5% over 1,449. One step, as the rule allows. The watch text states the new grade and why.",
+      "limitation": "Rate-only evidence; no in-game test. Bronze+ (nested, not independent) is 46.1% over 3,195 [44.41, 47.87], the same picture. Her offlane B (49.3% over 2,103) and midlane C are not queued and were not reviewed in this pass.",
+      "reviewed_at": "2026-10-29T20:50:00+00:00",
+      "evidence": {
+        "winRate": 47.232207045291155,
+        "wonGames": 657,
+        "matches": 1391,
+        "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+        "fetched_at": "2026-10-29T13:59:58-05:00"
+      },
+      "figures": {
+        "current": {
+          "winRate": 47.23,
+          "matches": 1391,
+          "wonGames": 657,
+          "interval95": [
+            44.62,
+            49.86
+          ],
+          "fetched_at": "2026-10-29T13:59:58-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+        },
+        "at_review": {
+          "winRate": 50.26,
+          "matches": 380,
+          "wonGames": 191,
+          "fetched_at": "2026-10-17T13:19:06-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE"
+        },
+        "since_review_estimate": {
+          "winRate": 46.09,
+          "matches": 1011,
+          "wonGames": 466,
+          "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+        },
+        "role_average": {
+          "winRate": 50.51,
+          "matches": 70392,
+          "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 rate for the role over heroes with 100+ games."
+        },
+        "calculated_tier": "C",
+        "bronze_nested": {
+          "winRate": 46.13,
+          "matches": 3195,
+          "wonGames": 1474,
+          "interval95": [
+            44.41,
+            47.87
+          ],
+          "fetched_at": "2026-10-29T14:04:37-05:00"
+        },
+        "interval_excludes_review_rate": true
+      },
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+          "fetched_at": "2026-10-29T13:59:58-05:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=JUNGLE",
+          "fetched_at": "2026-10-29T14:04:37-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-29T13:59:25-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-10-29T13:59:26-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "grade",
+      "slug": "zarus",
+      "role": "offlane",
+      "queue_id": "grade-moved:zarus/offlane",
+      "verdict": "checked and retained",
+      "old_tier": "B",
+      "tier": "B",
+      "reason": "B retained. The engine withheld the grade because his rate moved: the 1.17.2 strategy review cited 53.5% over 694 and kept him at B rather than raising him, because Coliseum and his base physical power were cut while his offlane rate rose. The Gold+ 1.17.2 line is now 50.0% over 2,869 [48.19, 51.85]. The interval excludes the review rate, so the drop rule would permit one step down, but it does not require one: the review's B already discounted the high early rate, and the line now sits at the offlane role average (49.83% over 62,406), which the interval includes. The engine's calculated tier for Gold+ is B. Games since the review run about 48.9% over 2,175, still inside the average's range. No official text changed since the review. This follows the 27 Oct Grim.exe carry precedent (drop permitted, not applied, rate at the role average). The watch text no longer says his results are above average.",
+      "limitation": "Rate-only evidence; no in-game test. This is a judgment call: a C would also be within the rule. Bronze+ (nested, not independent) is 48.1% over 5,455 [46.76, 49.41], slightly below its offlane average of 49.91%, a softer picture than Gold+.",
+      "reviewed_at": "2026-10-29T20:50:00+00:00",
+      "evidence": {
+        "winRate": 50.017427675148134,
+        "wonGames": 1435,
+        "matches": 2869,
+        "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+        "fetched_at": "2026-10-29T14:00:00-05:00"
+      },
+      "figures": {
+        "current": {
+          "winRate": 50.02,
+          "matches": 2869,
+          "wonGames": 1435,
+          "interval95": [
+            48.19,
+            51.85
+          ],
+          "fetched_at": "2026-10-29T14:00:00-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+        },
+        "at_review": {
+          "winRate": 53.46,
+          "matches": 694,
+          "wonGames": 371,
+          "fetched_at": "2026-10-17T13:19:09-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+        },
+        "since_review_estimate": {
+          "winRate": 48.92,
+          "matches": 2175,
+          "wonGames": 1064,
+          "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+        },
+        "role_average": {
+          "winRate": 49.83,
+          "matches": 62406,
+          "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 rate for the role over heroes with 100+ games."
+        },
+        "calculated_tier": "B",
+        "bronze_nested": {
+          "winRate": 48.08,
+          "matches": 5455,
+          "wonGames": 2623,
+          "interval95": [
+            46.76,
+            49.41
+          ],
+          "fetched_at": "2026-10-29T14:04:42-05:00"
+        },
+        "interval_excludes_review_rate": true
+      },
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-29T14:00:00-05:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-29T14:04:42-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-29T13:59:25-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-10-29T13:59:26-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "grade",
+      "slug": "khaimera",
+      "role": "offlane",
+      "queue_id": "grade-moved:khaimera/offlane",
+      "verdict": "checked and retained",
+      "old_tier": "C",
+      "tier": "C",
+      "reason": "C retained. The engine withheld the grade because his rate moved: the 1.17.2 strategy review cited 45.0% over 160, and the Gold+ 1.17.2 offlane line is now 48.2% over 668 [44.44, 51.99]. The move is upward, and no official text changed since the review (both live articles match the packet's fingerprints; the Ambush buff was already weighed at the review), so there is no new kit or patch reason, and a higher rate alone never raises a grade. The interval includes the offlane role average (49.83% over 62,406), so the engine's calculated tier for Gold+ is B; the reviewed grade stays C until a kit reason and the evidence agree. Games since the review run about 49.2% over 508. The watch text no longer calls the sample small and below even; it says his results recovered toward even.",
+      "limitation": "Rate-only evidence; 668 games is still a modest sample with a wide interval. Bronze+ (nested, not independent) is 49.0% over 1,392 [46.37, 51.62], the same picture. A future recheck may raise him if a kit change supports it.",
+      "reviewed_at": "2026-10-29T20:50:00+00:00",
+      "evidence": {
+        "winRate": 48.203592814371255,
+        "wonGames": 322,
+        "matches": 668,
+        "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+        "fetched_at": "2026-10-29T14:00:00-05:00"
+      },
+      "figures": {
+        "current": {
+          "winRate": 48.2,
+          "matches": 668,
+          "wonGames": 322,
+          "interval95": [
+            44.44,
+            51.99
+          ],
+          "fetched_at": "2026-10-29T14:00:00-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+        },
+        "at_review": {
+          "winRate": 45.0,
+          "matches": 160,
+          "wonGames": 72,
+          "fetched_at": "2026-10-17T13:19:09-05:00",
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE"
+        },
+        "since_review_estimate": {
+          "winRate": 49.21,
+          "matches": 508,
+          "wonGames": 250,
+          "note": "Current line minus the review sample; assumes the review sample is contained in the current line."
+        },
+        "role_average": {
+          "winRate": 49.83,
+          "matches": 62406,
+          "note": "Engine roleBaseline: games-weighted Gold+ 1.17.2 rate for the role over heroes with 100+ games."
+        },
+        "calculated_tier": "B",
+        "bronze_nested": {
+          "winRate": 48.99,
+          "matches": 1392,
+          "wonGames": 682,
+          "interval95": [
+            46.37,
+            51.62
+          ],
+          "fetched_at": "2026-10-29T14:04:42-05:00"
+        },
+        "interval_excludes_review_rate": false
+      },
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-29T14:00:00-05:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-29T14:04:42-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-29T13:59:25-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-10-29T13:59:26-05:00"
+        }
+      ]
+    }
+  ]
+}
