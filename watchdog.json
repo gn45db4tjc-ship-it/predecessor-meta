@@ -1,7 +1,11 @@
 {
  "schema": 1,
- "checked_at": "2026-10-30T16:07:13+00:00",
- "open": {},
+ "checked_at": "2026-10-30T19:34:09+00:00",
+ "open": {
+  "publication-quiet": {
+   "first_seen": "2026-10-30T19:34:09+00:00"
+  }
+ },
  "dispatches": [
   "2026-10-24T06:28:09+00:00",
   "2026-10-24T14:54:40+00:00",
@@ -743,6 +747,12 @@
    "at": "2026-10-30T07:28:42+00:00",
    "started_at": "2026-10-18T18:18:18+00:00",
    "hours": 277.2
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-10-30T19:34:09+00:00",
+   "summary": "Last publication 3.5 hours ago."
   }
  ]
 }
