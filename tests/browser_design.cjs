@@ -42,7 +42,10 @@ let preview=null;
    check(await page.evaluate(()=>getComputedStyle(document.querySelector('#progress.failed')||document.querySelector('#progress')).color!=='rgb(255, 138, 154)'),'retained-data notice is amber, red is reserved for hard failures');
    check(await page.evaluate(materialNotice),'named source failure stays visible');
    const reviewedTiers=await tiersReviewed(page);
-   check(await page.locator('.meta-aside .role-priority').count()===(reviewedTiers?1:0),reviewedTiers?'reviewed working pool moved beside the table':'no reviewed working pool for an earlier patch');
+   // The working pool follows the strategy review, not the tiers: a retained Pred.gg sample withholds reviewed tiers while
+   // the review for the live patch still stands (30 Oct 2026), so the pool is expected exactly when one of its heroes is active.
+   const poolActive=await page.evaluate(()=>(B.guidance.pools?.[S.role]||[]).some(s=>E.heroStrategy(s)?.active));
+   check(await page.locator('.meta-aside .role-priority').count()===(poolActive?1:0),poolActive?'reviewed working pool moved beside the table':'no reviewed working pool without an active strategy review');
    // Affordance: hero names are links, chips are flat, the reviewed tier is a button with a text cue.
    check(await page.evaluate(()=>getComputedStyle(document.querySelector('.meta-table .text-button.hero-cell .name')).textDecorationLine.includes('underline')),'hero names carry link styling');
    check(await page.evaluate(()=>[...document.querySelectorAll('.tag')].every(t=>getComputedStyle(t).borderTopWidth==='0px')),'status chips are flat, never bordered');
