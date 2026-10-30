@@ -208,7 +208,7 @@
     "tests/browser_companion.cjs": "9bbec8ef8fc073bd26b7c1c58ed7ebb09f3e382daa31014ddda9a52fdb06536e",
     "tests/browser_companion_accessibility.cjs": "1fa355abd60fdcae72ea95557bb8f237835c897ba9e6190597ae3e65452432e6",
     "tests/browser_companion_simple.cjs": "39c147da434e4cc1b5fb8353a9a910d194940c51281be410045fca1a0b47dfba",
-    "tests/browser_design.cjs": "f058f0cdc3d547ae8b167dff2c36ab0d79cd7492b501edcde7194634b3f6a5ab",
+    "tests/browser_design.cjs": "dcdec22a74a98b8f5f02163c28bf7006fed418bcc99ada39a7ae7cbd98e82496",
     "tests/browser_navigation.cjs": "3c7ecc6e92e3afd2ec1dc7cb35168f8ae605a427e7449ccbd8a526baee6a44a9",
     "tests/browser_offline_cache.cjs": "658ccd1eb62935b0ac117441fd1841f865c1733eec1785854ade498b48bf46d9",
     "tests/browser_patch_support.cjs": "8cbfde32f377fced6e843f772c01feb3d124c3677a301629525fbc14db104358",
