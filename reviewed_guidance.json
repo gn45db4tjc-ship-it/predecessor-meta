@@ -2,7 +2,7 @@
   "patch": "1.17.2",
   "reviewed_at": "2026-10-17T14:50:00-05:00",
   "article_fingerprints": {
-    "1.17.2": "dba1f61e07b05e9c3e87808c5f1f7fd1a202f1fcba15a1f136dff433a1ab401f",
+    "1.17.2": "921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e",
     "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
   },
   "planning_roles": {
@@ -4370,7 +4370,7 @@
             "Q": "Bayle activates the runes on his arm, swinging 3 times to conjure slashes of cursed energy that pierce through all Enemies, dealing 35/50/65/80/95 (+85% physical power)(+55% magical power) physical damage each.\nThe first two slashes are vertical, while the third is horizontal and Knocks Up and Stuns all Enemies it hits for 0.65s.\nIf Bayle hits the same Target with all 3 slashes, they take 5/10/15/20/25 (+18% physical power)(+15% magical power) bonus bleed damage every 0.5s for 3s.",
             "E": "Bayle howls out a battle cry, dealing 50/65/80/95/110 (+30% physical power)(+65% magical power) physical damage around him and Slowing Enemies hit by 30% for 1.25s.\nAdditionally, Bayle is buffed for 5s, gaining 8/12/16/20/24 (+25% magical power) bonus Physical Power and 8/10/12/14/16% Omnivamp.\nWhen the buff ends, Bayle Heals for 10/15/20/25/30% of his damage taken during the duration.",
             "R": "Bayle Slows himself by 60% while he gathers cursed energy, then dashing forward at blinding speed.\nIf Bayle hits an Enemy Hero, he stops dashing and swings his sword in a massive uppercut, throwing them into the air while pummeling them with a barrage of 8 sword strikes, each dealing 30/40/50 (+24% physical power) (+1/1.3/1.6% Target's Max Health) physical damage.\nFinally, Bayle slams the Enemy into the ground, dealing 70/95/120 (+75% physical power) (+3/4/5% Target's Max Health) physical damage in a small area around where they land.",
-            "Passive": "When Bayle drops below 35% of his Maximum Health, he enters Berserk for 7s.\nWhile Berserk, Bayle gains 15.5–91.5% (+4.5% per level, as stated in the official notes) Attack Speed, 4/4.5/5/5.5/6/6.5/7/7.5/8/8.5/9/9.5/10/10.5/11/11.5/12/12.5% (+0.5% per level) Movement Speed, and 40 Tenacity.\nBayle can only enter Berserk once every 20s."
+            "Passive": "When Bayle drops below 35% of his Maximum Health, he enters Berserk for 7s.\nWhile Berserk, Bayle gains 15/19.5/24/28.5/33/37.5/42/46.5/51/55.5/60/64.5/69/73.5/78/82.5/87/91.5% (+4.5% per level) Attack Speed, 4/4.5/5/5.5/6/6.5/7/7.5/8/8.5/9/9.5/10/10.5/11/11.5/12/12.5% (+0.5% per level) Movement Speed, and 40 Tenacity.\nBayle can only enter Berserk once every 20s."
           },
           "items": {
             "Berserker's Axe": {
@@ -4808,7 +4808,7 @@
             "Q": "Bayle activates the runes on his arm, swinging 3 times to conjure slashes of cursed energy that pierce through all Enemies, dealing 35/50/65/80/95 (+85% physical power)(+55% magical power) physical damage each.\nThe first two slashes are vertical, while the third is horizontal and Knocks Up and Stuns all Enemies it hits for 0.65s.\nIf Bayle hits the same Target with all 3 slashes, they take 5/10/15/20/25 (+18% physical power)(+15% magical power) bonus bleed damage every 0.5s for 3s.",
             "E": "Bayle howls out a battle cry, dealing 50/65/80/95/110 (+30% physical power)(+65% magical power) physical damage around him and Slowing Enemies hit by 30% for 1.25s.\nAdditionally, Bayle is buffed for 5s, gaining 8/12/16/20/24 (+25% magical power) bonus Physical Power and 8/10/12/14/16% Omnivamp.\nWhen the buff ends, Bayle Heals for 10/15/20/25/30% of his damage taken during the duration.",
             "R": "Bayle Slows himself by 60% while he gathers cursed energy, then dashing forward at blinding speed.\nIf Bayle hits an Enemy Hero, he stops dashing and swings his sword in a massive uppercut, throwing them into the air while pummeling them with a barrage of 8 sword strikes, each dealing 30/40/50 (+24% physical power) (+1/1.3/1.6% Target's Max Health) physical damage.\nFinally, Bayle slams the Enemy into the ground, dealing 70/95/120 (+75% physical power) (+3/4/5% Target's Max Health) physical damage in a small area around where they land.",
-            "Passive": "When Bayle drops below 35% of his Maximum Health, he enters Berserk for 7s.\nWhile Berserk, Bayle gains 15.5–91.5% (+4.5% per level, as stated in the official notes) Attack Speed, 4/4.5/5/5.5/6/6.5/7/7.5/8/8.5/9/9.5/10/10.5/11/11.5/12/12.5% (+0.5% per level) Movement Speed, and 40 Tenacity.\nBayle can only enter Berserk once every 20s."
+            "Passive": "When Bayle drops below 35% of his Maximum Health, he enters Berserk for 7s.\nWhile Berserk, Bayle gains 15/19.5/24/28.5/33/37.5/42/46.5/51/55.5/60/64.5/69/73.5/78/82.5/87/91.5% (+4.5% per level) Attack Speed, 4/4.5/5/5.5/6/6.5/7/7.5/8/8.5/9/9.5/10/10.5/11/11.5/12/12.5% (+0.5% per level) Movement Speed, and 40 Tenacity.\nBayle can only enter Berserk once every 20s."
           },
           "items": {
             "Berserker's Axe": {
@@ -9989,7 +9989,7 @@
         "review_scope": "1.17.2 patch-targeted build review (17 Oct 2026): supporting mechanics, official 1.17.2 changes and Pred.gg 1.17.2 Gold+ item, crest and loadout samples, checked against the 1.17 plan. Tier, composition and strategy guidance were not reviewed and keep their 1.17 dates.",
         "source_preconditions": {
           "abilities": {
-            "LMB": "Ranged basic attack dealing 53/54.68/56.45/58.31/60.26/62.3/64.43/66.65/68.96/71.36/73.85/76.43/79.1/81.86/84.71/87.65/90.68/93.8 (+67.5% physical power) magical damage.",
+            "LMB": "Ranged basic attack dealing 53/54.68/56.45/58.31/60.26/62.3/64.43/66.65/68.96/71.36/73.85/76.43/79.1/81.86/84.71/87.65/90.68/93.8 (+67.5% physical power) physical damage.",
             "RMB": "Grim.exe activates a shield for 1.5s that blocks the next incoming enemy ability.\nIf the shield successfully blocks an enemy ability, Grim.exe restores 15/20/25/30/35% of his missing mana.",
             "Q": "Fire an empowered shot forward that deals 30/75/120/165/210 (+105% physical power)(+100% magical power) magical damage.\nIn Assault Mode, the shot is Lobbed and displaces Enemies away from the centre of the explosion.",
             "E": "Sentry Mode: Basic Attacks restore 8 mana and grant 6/8.5/11/13.5/16% attack speed for 3s, stacking up to 4 times. Stacks fall off individually.\nAssault Mode: Basic Attacks cost 30 mana, increase to 1650 Range and deal (+10% physical power)(+8% magical power) bonus magical damage on-hit, cleaving for 20/40/60/80/100% damage. This damage can critically strike.",
@@ -15327,7 +15327,7 @@
         "review_scope": "1.17.2 patch-targeted build review (17 Oct 2026): supporting mechanics, official 1.17.2 changes and Pred.gg 1.17.2 Gold+ item, crest and loadout samples, checked against the 1.17 plan. Tier, composition and strategy guidance were not reviewed and keep their 1.17 dates.",
         "source_preconditions": {
           "abilities": {
-            "LMB": "Melee basic attack dealing 60/62.31/64.74/67.3/69.98/72.79/75.72/78.77/81.95/85.25/88.67/92.22/95.89/99.68/103.6/107.64/111.81/116.1 (+75% bonus physical power) physical damage.",
+            "LMB": "Melee basic attack dealing 60/62.31/64.74/67.3/69.98/72.79/75.72/78.77/81.95/85.25/88.67/92.22/95.89/99.68/103.6/107.64/111.81/116.1 (+75% physical power) physical damage.",
             "RMB": "Throw a dagger, dealing 60/90/120/150/180 (+85% physical power) physical damage and applying a 25% Slow for 0.75s.\nMinions and Monsters receive 130 additional damage. \nMax Charges: 2.",
             "Q": "After 1.5s, enter Camouflage, gaining 40% decaying movement speed for 6s. While in this state, nearby Enemy Heroes and Wards reveal Kallari.\nAttacking ends Camouflage instantly.\nPassive: Gain 2 (+75% physical penetration) Health Regeneration when Out of Vision.",
             "E": "Kallari backflips into the sky. After a short duration, she may target an Enemy to dash towards them, dealing 35/55/75/95/115 (+45% physical power) physical damage. \nDeals 2x damage if the Target is affected by Death Mark.",
@@ -19715,10 +19715,10 @@
           "abilities": {
             "LMB": "Ranged basic attack dealing 52/54.73/57.61/60.63/63.8/67.11/70.57/74.18/77.93/81.83/85.88/90.07/94.41/98.9/103.53/108.31/113.23/118.3 (+55% physical power) physical damage.",
             "RMB": "Maco throws a slow-moving gemstone that explodes at its max range, or when detonated early by reactivating the ability.\nWhen the gemstone explodes, it deals 70/95/120/145/170 (+45% magical power) magical damage and Stuns Enemies for 0.5s.\nStun Duration increases up to 1.1/1.15/1.2/1.25/1.3s, based on the distance it travels.",
-            "Q": "Maco lobs a gemstone that explodes in a small area, dealing damage or healing, based on the Target hit.\nIf Maco hits himself or an Ally, they are Healed for 40/60/80/100/120 (+35% magical power) Health in addition to 1/1.5/2/2.5/3% of their Max Health. Allies also gain 8/9/10/11/12% (+3% magical power) Movement Speed for 2.5s.\nIf Maco hits an Enemy, they take 75/105/135/165/195 (+45% magical power) magical damage.",
+            "Q": "Maco lobs a gemstone that explodes in a small area, dealing damage or healing, based on the Target hit.\nIf Maco hits himself or an Ally, they are Healed for 40/60/80/100/120 (+35% magical power) Health in addition to 1/1.5/2/2.5/3% of their Max Health. Allies also gain 8/9/10/11/12 (+3% magical power) Movement Speed for 2.5s.\nIf Maco hits an Enemy, they take 75/105/135/165/195 (+45% magical power) magical damage.",
             "E": "Maco leaps high into the air before slamming back down to the ground with his gemstone, dealing 75/105/135/165/195 (+70% magical power) magical damage to Enemies and Slowing them by 30% (+5% magical power) for 1.5s.\nIf Maco hits an Enemy Hero, he gains a 60/115/170/225/280 (+50% magical power) (+4% health) Shield for 3.5s.\nAfter landing, Maco dashes slightly in the direction he is currently moving.",
             "R": "Maco charges up his gemstone for up to 1s, increasing the range it travels.\nWhen Maco releases the charged gemstone, it barrels forward along the ground, dealing 70/110/150 (+35% magical power) magical damage and Pushing and Stunning all Enemies it hits along with it.\nAt the gemstone's max range, it explodes, dealing 100/160/220 (+50% magical power) magical damage and Stunning all Enemies hit for 0.25-1.4s, based on charge time.",
-            "Passive": "As Maco moves, he gains stacks of Movement Speed up to 10% (+0.6% per level).\nWhen Maco reaches 25 stacks, he gains Mach Speed, which grants him Slow Immunity.\nTaking damage from enemy heroes removes the Mach Speed buffs immediately. When standing still, the buffs remain for 3s before removal."
+            "Passive": "As Maco moves, he gains stacks of Movement Speed up to 10% (+0.6% per level).\nWhen Maco reaches 25 stacks, he gains Mach Speed, which grants him Slow Immunity.\nTaking Damage from Enemy Heroes removes all of the buffs. Standing still for 3s also removes the buffs."
           },
           "items": {
             "Crescelia": {
@@ -22782,7 +22782,7 @@
         "source_preconditions": {
           "abilities": {
             "LMB": "Ranged basic attack dealing 54/57.08/60.33/63.74/67.31/71.05/74.96/79.02/83.26/87.66/92.23/96.96/101.85/106.91/112.14/117.53/123.08/128.8 (+55% physical power) (+15% magical power) physical damage.",
-            "RMB": "Create a Link between yourself and an Ally, granting both Heroes 3/4/5/6/7% increased Physical Power and Magical Power. If reactivated, Phase will Pull the Linked Ally towards her.\nThe Link will turn Pink if any Ally wanders too far out of range and will break if they do not return within 1s.\nAllies that are Immobilized cannot be Pulled.\nMaximum link radius is 1700u. If the linked ally is 2100u away, the link breaks immediately, regardless of the one-second grace window.",
+            "RMB": "Create a Link between yourself and an Ally, granting both Heroes 3/4/5/6/7% increased Physical Power and Magical Power. If reactivated, Phase will Pull the Linked Ally towards her.\nThe Link will turn Pink if any Ally wanders too far out of range and will break if they do not return within 1s.\nAllies that are Immobilized cannot be Pulled.",
             "Q": "Blast a flare of psychic energy around Phase and her Linked Ally, dealing 75/110/145/180/215 (+80% magical power) magical damage and Blinding Enemies that are facing it for 1/1.05/1.1/1.15/1.2s. \nEnemies take 40% damage from a second flare.\nDamaging an Enemy Hero with Psychic Flare reduces Phase's Blink Cooldown to 2.5s.",
             "E": "Channel a beam of energy dealing 80/120/160/200/240 (+90% magical power) magical damage over 2.5s. Each instance of damage applies a stacking 3% Slow that lasts 0.6s.\nUpon reaching 8 stacks the target is Rooted for 1/1.05/1.1/1.15/1.2s.",
             "R": "Phase overcharges herself and her Linked Ally, granting both 35/55/75% attack speed, 40/60/80 ability haste and 35% decaying movement speed for 8s.",
@@ -26258,7 +26258,7 @@
         "review_scope": "1.17.2 patch-targeted build review (17 Oct 2026): supporting mechanics, official 1.17.2 changes and Pred.gg 1.17.2 Gold+ item, crest and loadout samples, checked against the 1.17 plan. Tier, composition and strategy guidance were not reviewed and keep their 1.17 dates.",
         "source_preconditions": {
           "abilities": {
-            "LMB": "Melee basic attack chain dealing 61/63.24/65.6/68.08/70.68/73.4/76.24/79.2/82.28/85.48/88.8/92.24/95.8/99.48/103.28/107.2/111.24/115.4 (+80% physical power) physical damage.\nChain Attack Rate: 2x/2x/1.05x.\nChain Damage: 0.5x/0.5x/1.1x.\nThird Strike: Restores 5 Energy On-Hit. Increased to 10/10/15/20 at Levels 1/6/11/16 against Heroes.\nEmpowered: Equip your Lantern for 1 attack, slamming it forward in a line.",
+            "LMB": "Melee basic attack chain dealing 61/63.45/66.03/68.74/71.59/74.56/77.67/80.91/84.28/87.78/91.41/95.17/99.06/103.09/107.24/111.53/115.95/120.5 (+80% physical power) physical damage.\nChain Attack Rate: 2x/2x/1.05x.\nChain Damage: 0.5x/0.5x/1.1x.\nThird Strike: Restores 5 Energy On-Hit. Increased to 10/15/20 against Heroes (At Levels 1/11/16).\nEmpowered: Equip your Lantern for 1 attack, slamming it forward in a line.",
             "RMB": "Scarlett twirls in her current movement direction, with its speed increasing based on current momentum. \nScarlett then stabs forward 3 times, with each dealing 21/31/41/51/61 (+24/28.5/33/37.5/42% physical power) physical damage. The final stab deals up to 125% bonus damage based on the Target's Missing Health.\nStabs benefit from Lifesteal and can Critically Strike at 50% effectiveness. \nAblaze: Number of Stabs is increased to 4, dealing 15% more damage overall.",
             "Q": "Scarlett channels for a short duration, before swinging her Lantern around her, dealing 50/75/100/125/150 (+60% physical power) physical damage to all Enemies in the area.\nOuter Edge hits deal 25/50/75/100/125 (+100% physical power) additional damage and Slow targets hit by 35/37.5/40/42.5/45% for 1.25s. \nOuter Edge hits on Enemy Heroes or Camp Leaders Empower Scarlett's next Cindara attack for 4s, causing it to now damage all Enemies in a line in front of her, dealing 15 (+12% physical power) (+3/3.5/4/4.5/5% Target's Max Health) bonus damage, and restoring 35/45/55 Energy upon hitting an Enemy Hero or Camp Leader.\nEmpowered Cindara damage is reduced by 50% against Minions and is capped against Monsters.\nAblaze: Empowered Cindara's bonus damage is increased by 1.5x.",
             "E": "Scarlett dashes forward with a decisive, fiery strike that deals 65/85/105/125/145 (+80% physical power) physical damage to all Enemies in her path and receives a 30/80/130/180/230 (+40/45/50/55/60% physical power) Shield for 3s.\nEach time Scarlett hits an Enemy Hero or Camp Leader with First Intent she refreshes her Shield's duration and increases its size by 60%, and restores 50 Energy.",
@@ -26701,7 +26701,7 @@
         ],
         "source_preconditions": {
           "abilities": {
-            "LMB": "Melee basic attack chain dealing 61/63.24/65.6/68.08/70.68/73.4/76.24/79.2/82.28/85.48/88.8/92.24/95.8/99.48/103.28/107.2/111.24/115.4 (+80% physical power) physical damage.\nChain Attack Rate: 2x/2x/1.05x.\nChain Damage: 0.5x/0.5x/1.1x.\nThird Strike: Restores 5 Energy On-Hit. Increased to 10/10/15/20 at Levels 1/6/11/16 against Heroes.\nEmpowered: Equip your Lantern for 1 attack, slamming it forward in a line.",
+            "LMB": "Melee basic attack chain dealing 61/63.45/66.03/68.74/71.59/74.56/77.67/80.91/84.28/87.78/91.41/95.17/99.06/103.09/107.24/111.53/115.95/120.5 (+80% physical power) physical damage.\nChain Attack Rate: 2x/2x/1.05x.\nChain Damage: 0.5x/0.5x/1.1x.\nThird Strike: Restores 5 Energy On-Hit. Increased to 10/15/20 against Heroes (At Levels 1/11/16).\nEmpowered: Equip your Lantern for 1 attack, slamming it forward in a line.",
             "RMB": "Scarlett twirls in her current movement direction, with its speed increasing based on current momentum. \nScarlett then stabs forward 3 times, with each dealing 21/31/41/51/61 (+24/28.5/33/37.5/42% physical power) physical damage. The final stab deals up to 125% bonus damage based on the Target's Missing Health.\nStabs benefit from Lifesteal and can Critically Strike at 50% effectiveness. \nAblaze: Number of Stabs is increased to 4, dealing 15% more damage overall.",
             "Q": "Scarlett channels for a short duration, before swinging her Lantern around her, dealing 50/75/100/125/150 (+60% physical power) physical damage to all Enemies in the area.\nOuter Edge hits deal 25/50/75/100/125 (+100% physical power) additional damage and Slow targets hit by 35/37.5/40/42.5/45% for 1.25s. \nOuter Edge hits on Enemy Heroes or Camp Leaders Empower Scarlett's next Cindara attack for 4s, causing it to now damage all Enemies in a line in front of her, dealing 15 (+12% physical power) (+3/3.5/4/4.5/5% Target's Max Health) bonus damage, and restoring 35/45/55 Energy upon hitting an Enemy Hero or Camp Leader.\nEmpowered Cindara damage is reduced by 50% against Minions and is capped against Monsters.\nAblaze: Empowered Cindara's bonus damage is increased by 1.5x.",
             "E": "Scarlett dashes forward with a decisive, fiery strike that deals 65/85/105/125/145 (+80% physical power) physical damage to all Enemies in her path and receives a 30/80/130/180/230 (+40/45/50/55/60% physical power) Shield for 3s.\nEach time Scarlett hits an Enemy Hero or Camp Leader with First Intent she refreshes her Shield's duration and increases its size by 60%, and restores 50 Energy.",
@@ -31985,7 +31985,7 @@
         "source_preconditions": {
           "abilities": {
             "LMB": "Melee basic attack dealing 67/70.29/73.76/77.4/81.22/85.21/89.38/93.73/98.26/102.96/107.83/112.88/118.11/123.52/129.1/134.86/140.79/146.9 (+100% physical power) physical damage.",
-            "RMB": "Terra becomes Unstoppable and Channels for up to 3.5s before dashing. She deals 27/48/69/90/111 (+40% bonus physical armor) (+40% bonus magical armor) physical damage to all Enemies in her path, stopping if she collides with a Hero. Enemies hit are Knocked Back for 0.25s.\nFor the first 1.25s, dash range and damage increases, dealing up to 81/144/207/270/333 (+120% bonus physical armor) (+120% bonus magical armor) physical damage. \nEmpowered: On Enemy hit, gain a 5/65/125/185/245 (+10/12/14/16/18% health) shield for 3.5s.",
+            "RMB": "Terra becomes Unstoppable and Channels for up to 3.5s before dashing. She deals 27/48/69/90/111 (+40% physical armor) (+40% magical armor) physical damage to all Enemies in her path, stopping if she collides with a Hero. Enemies hit are Knocked Back for 0.25s.\nFor the first 1.25s, dash range and damage increases, dealing up to 81/144/207/270/333 (+120% physical armor) (+120% magical armor) physical damage. \nEmpowered: On Enemy hit, gain a 5/65/125/185/245 (+10/12/14/16/18% health) shield for 3.5s.",
             "Q": "Terra spins her axe, striking all Enemies around her before slashing forward a second time. Each strike deals 50/80/110/140/170 (+35% physical armor)(+35% magical armor) physical damage.\nEnemy Hero hits refund 10% of the cooldown per strike.\nEmpowered: Terra strikes three times, with the third strike dealing an additional (+5/6.25/7.5/8.75/10 Target's Max Health)% damage to all Enemies in front of her.",
             "E": "Throw a spectral axe, dealing 80/120/160/200/240 (+40% physical armor)(+40% magical armor) physical damage to all Enemies in its path.\nEnemies hit by Highland Hurl are Slowed by 40% for 1.25s. and have their Physical Armor reduced by 20/22.5/25/27.5/30% for 4.5s.\nEmpowered: Roots Enemies instead for 1.25s.",
             "R": "Terra’s helmet slams down, Cleansing all debuffs and disabling Enemy Towers within 1650u for 4/4.5/5s. When this occurs, she instantly gains maximum Hersir stacks and Slows all nearby Enemy Units by 60%, decaying over 2s.\nFor the next 8/9/10s, Terra gains 16/30/44 Physical Armor, 16/30/44 Magical Armor and 50/100/150 Tenacity.\nPassive: Gain 6/9/12 Physical Armor and 6/9/12 Magical Armor.",
@@ -32414,7 +32414,7 @@
         "source_preconditions": {
           "abilities": {
             "LMB": "Melee basic attack dealing 67/70.29/73.76/77.4/81.22/85.21/89.38/93.73/98.26/102.96/107.83/112.88/118.11/123.52/129.1/134.86/140.79/146.9 (+100% physical power) physical damage.",
-            "RMB": "Terra becomes Unstoppable and Channels for up to 3.5s before dashing. She deals 27/48/69/90/111 (+40% bonus physical armor) (+40% bonus magical armor) physical damage to all Enemies in her path, stopping if she collides with a Hero. Enemies hit are Knocked Back for 0.25s.\nFor the first 1.25s, dash range and damage increases, dealing up to 81/144/207/270/333 (+120% bonus physical armor) (+120% bonus magical armor) physical damage. \nEmpowered: On Enemy hit, gain a 5/65/125/185/245 (+10/12/14/16/18% health) shield for 3.5s.",
+            "RMB": "Terra becomes Unstoppable and Channels for up to 3.5s before dashing. She deals 27/48/69/90/111 (+40% physical armor) (+40% magical armor) physical damage to all Enemies in her path, stopping if she collides with a Hero. Enemies hit are Knocked Back for 0.25s.\nFor the first 1.25s, dash range and damage increases, dealing up to 81/144/207/270/333 (+120% physical armor) (+120% magical armor) physical damage. \nEmpowered: On Enemy hit, gain a 5/65/125/185/245 (+10/12/14/16/18% health) shield for 3.5s.",
             "Q": "Terra spins her axe, striking all Enemies around her before slashing forward a second time. Each strike deals 50/80/110/140/170 (+35% physical armor)(+35% magical armor) physical damage.\nEnemy Hero hits refund 10% of the cooldown per strike.\nEmpowered: Terra strikes three times, with the third strike dealing an additional (+5/6.25/7.5/8.75/10 Target's Max Health)% damage to all Enemies in front of her.",
             "E": "Throw a spectral axe, dealing 80/120/160/200/240 (+40% physical armor)(+40% magical armor) physical damage to all Enemies in its path.\nEnemies hit by Highland Hurl are Slowed by 40% for 1.25s. and have their Physical Armor reduced by 20/22.5/25/27.5/30% for 4.5s.\nEmpowered: Roots Enemies instead for 1.25s.",
             "R": "Terra’s helmet slams down, Cleansing all debuffs and disabling Enemy Towers within 1650u for 4/4.5/5s. When this occurs, she instantly gains maximum Hersir stacks and Slows all nearby Enemy Units by 60%, decaying over 2s.\nFor the next 8/9/10s, Terra gains 16/30/44 Physical Armor, 16/30/44 Magical Armor and 50/100/150 Tenacity.\nPassive: Gain 6/9/12 Physical Armor and 6/9/12 Magical Armor.",
@@ -39337,7 +39337,7 @@
         "role_note": "Officially listed role, but this dataset has little evidence; the plan is an editorial starting point.",
         "source_preconditions": {
           "abilities": {
-            "LMB": "Ranged basic attack dealing 53/54.68/56.45/58.31/60.26/62.3/64.43/66.65/68.96/71.36/73.85/76.43/79.1/81.86/84.71/87.65/90.68/93.8 (+67.5% physical power) magical damage.",
+            "LMB": "Ranged basic attack dealing 53/54.68/56.45/58.31/60.26/62.3/64.43/66.65/68.96/71.36/73.85/76.43/79.1/81.86/84.71/87.65/90.68/93.8 (+67.5% physical power) physical damage.",
             "RMB": "Grim.exe activates a shield for 1.5s that blocks the next incoming enemy ability.\nIf the shield successfully blocks an enemy ability, Grim.exe restores 15/20/25/30/35% of his missing mana.",
             "Q": "Fire an empowered shot forward that deals 30/75/120/165/210 (+105% physical power)(+100% magical power) magical damage.\nIn Assault Mode, the shot is Lobbed and displaces Enemies away from the centre of the explosion.",
             "E": "Sentry Mode: Basic Attacks restore 8 mana and grant 6/8.5/11/13.5/16% attack speed for 3s, stacking up to 4 times. Stacks fall off individually.\nAssault Mode: Basic Attacks cost 30 mana, increase to 1650 Range and deal (+10% physical power)(+8% magical power) bonus magical damage on-hit, cleaving for 20/40/60/80/100% damage. This damage can critically strike.",
@@ -48250,7 +48250,7 @@
       "scope": "1.17.2 patch-targeted build review (17 Oct 2026) of every hero/role plan, including the 1.17 supplement's Baron Valmont Midlane: supporting mechanics against Pred.gg 1.17.2 (version 169), the official 1.17.2 notes, and Pred.gg 1.17.2 Gold+ item, crest, augment, Eternal and blessing samples. Gold+ is the editorial reference; ranks are not pooled. This does not review tiers, compositions or strategy.",
       "limitations": "About four days of 1.17.2 data: Gold+ slot samples are small and many slots were compared, so no plan part was changed on win rate alone. Item order and the other ranks were not re-reviewed; skill orders were rechecked only for the five plans with a reviewed order (Gideon, Greystone, Serath, Steel, Baron Valmont). Loadout definitions keep their 1.16/1.17 source texts as a fallback; ranks read Pred.gg 1.17.2 definitions directly. No in-game test.",
       "article_fingerprints": {
-        "1.17.2": "dba1f61e07b05e9c3e87808c5f1f7fd1a202f1fcba15a1f136dff433a1ab401f",
+        "1.17.2": "921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e",
         "1.17": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
       },
       "loadout_catalog": {
@@ -55384,6 +55384,73 @@
         "scope": "Three withheld Gold+ grades queued for moved statistics (countess/jungle, khaimera/offlane, zarus/offlane), against the live bundles published 2026-10-29T19:29:51+00:00 (publish run 40940120628, tool 2.58.0; Gold+ collection generated 2026-10-29T14:04:01-05:00 with a fresh Pred.gg 1.17.2 sample). Not a weekly or full review.",
         "ledger": "docs/rechecks/2026-10-29-2033-ledger.json",
         "result": "1 changed, 2 checked and retained, 0 unresolved"
+      },
+      {
+        "kind": "triggered",
+        "reviewed_at": "2026-10-30T21:10:00+00:00",
+        "items": [
+          "plan-mechanics:adele/offlane",
+          "plan-mechanics:adele/support",
+          "plan-mechanics:akeron/jungle",
+          "plan-mechanics:akeron/offlane",
+          "plan-mechanics:aurora/jungle",
+          "plan-mechanics:aurora/offlane",
+          "plan-mechanics:aurora/support",
+          "plan-mechanics:bayle/jungle",
+          "plan-mechanics:bayle/offlane",
+          "plan-mechanics:boris/jungle",
+          "plan-mechanics:countess/jungle",
+          "plan-mechanics:crunch/jungle",
+          "plan-mechanics:crunch/offlane",
+          "plan-mechanics:dekker/support",
+          "plan-mechanics:drongo/carry",
+          "plan-mechanics:eden/carry",
+          "plan-mechanics:feng-mao/jungle",
+          "plan-mechanics:feng-mao/offlane",
+          "plan-mechanics:grim-exe/carry",
+          "plan-mechanics:grim-exe/midlane",
+          "plan-mechanics:grux/jungle",
+          "plan-mechanics:grux/offlane",
+          "plan-mechanics:iggy-scorch/midlane",
+          "plan-mechanics:ikra/midlane",
+          "plan-mechanics:kallari/jungle",
+          "plan-mechanics:khaimera/jungle",
+          "plan-mechanics:khaimera/offlane",
+          "plan-mechanics:kwang/jungle",
+          "plan-mechanics:kwang/offlane",
+          "plan-mechanics:legion/carry",
+          "plan-mechanics:maco/support",
+          "plan-mechanics:mourn/support",
+          "plan-mechanics:muriel/support",
+          "plan-mechanics:phase/support",
+          "plan-mechanics:revenant/carry",
+          "plan-mechanics:riktor/jungle",
+          "plan-mechanics:riktor/offlane",
+          "plan-mechanics:riktor/support",
+          "plan-mechanics:scarlett/jungle",
+          "plan-mechanics:scarlett/offlane",
+          "plan-mechanics:serath/jungle",
+          "plan-mechanics:serath/offlane",
+          "plan-mechanics:sevarog/jungle",
+          "plan-mechanics:shinbi/offlane",
+          "plan-mechanics:skylar/carry",
+          "plan-mechanics:steel/jungle",
+          "plan-mechanics:steel/offlane",
+          "plan-mechanics:steel/support",
+          "plan-mechanics:terra/jungle",
+          "plan-mechanics:terra/offlane",
+          "plan-mechanics:wukong/jungle",
+          "plan-mechanics:yin/jungle",
+          "plan-mechanics:yin/offlane",
+          "plan-mechanics:yurei/jungle",
+          "plan-mechanics:zarus/jungle",
+          "plan-mechanics:zarus/offlane",
+          "plan-mechanics:zinx/offlane",
+          "patch-change:1e29c606fefd88"
+        ],
+        "scope": "The 58 items in the live queue: 57 plans flagged for supporting mechanics and one patch-change item (reviewed packet marked \"needs review\"), against the live bundles published 2026-10-30T19:37:03+00:00 (publish run 41115782226, tool 2.58.0; Gold+ collection generated 2026-10-30T19:30:41+00:00, Pred.gg 169 game data and statistics retained from 14:02-14:26 CDT the same day). Not a weekly or full review.",
+        "ledger": "docs/rechecks/2026-10-30-2033-ledger.json",
+        "result": "1 changed, 57 checked and retained, 0 unresolved"
       }
     ]
   },
