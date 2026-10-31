@@ -1,0 +1,1436 @@
+{
+  "schema": 1,
+  "title": "Scheduled recheck, 30 Oct 2026 20:33 UTC (1.17.2 article pin, 57 plans)",
+  "reviewed_at": "2026-10-30T21:10:00+00:00",
+  "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+  "scope": "The 58 items in the live queue: 57 plans flagged for supporting mechanics and one patch-change item (reviewed packet marked \"needs review\"), against the live bundles published 2026-10-30T19:37:03+00:00 (publish run 41115782226, tool 2.58.0; Gold+ collection generated 2026-10-30T19:30:41+00:00, Pred.gg 169 game data and statistics retained from 14:02-14:26 CDT the same day). Not a weekly or full review.",
+  "standard": "docs/RECHECK-RUNNER.md: a plan whose reasoning still holds is checked and retained, with its precondition updated from the live source where that source changed; official article pins follow the 27 Oct precedent (re-pin only when the changed blocks hold no balance, hotfix or store text).",
+  "evidence": {
+    "manifest_published_at": "2026-10-30T19:37:03+00:00",
+    "publish_run": "41115782226",
+    "tool_version": "2.58.0",
+    "collection": "2026-10-30T19:30:41+00:00 (Gold+ bundle generated_at)",
+    "pred": "Pred.gg 169 game data retained on all six ranks, mechanics fetched 2026-10-30 14:02-14:26 CDT; the 19:30 UTC attempt got no structured responses.",
+    "official": "Patch_Notes_1.17.2 fingerprint 921faae19684... (recomputed from its blocks) fetched 2026-10-30T19:30:17+00:00; Patch_Notes_1.17 with Hotfix 1.17.1 matches 7d2dd627b5a5...; the index lists 1.18 as announced for 3 Nov.",
+    "replay": "All six bundles re-run through predecessor_meta.review_saved_sources with this packet, then engine recheckQueue: every queued plan and the patch-change item clear; the only remaining item is the Official correction review notice, which was not in this run's queue.",
+    "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+  },
+  "summary": {
+    "changed": 1,
+    "checked and retained": 57,
+    "unresolved": 0
+  },
+  "entries": [
+    {
+      "kind": "plan",
+      "slug": "adele",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:adele/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will, Loadout Knell) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will, Loadout Knell"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "adele",
+      "role": "support",
+      "queue_id": "plan-mechanics:adele/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Raiment of Renewal, Item Vanguardian, Item Tainted Charm) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Raiment of Renewal, Item Vanguardian, Item Tainted Charm"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "akeron",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:akeron/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will, Item Raiment of Renewal) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will, Item Raiment of Renewal"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "akeron",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:akeron/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "aurora",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:aurora/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "aurora",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:aurora/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "aurora",
+      "role": "support",
+      "queue_id": "plan-mechanics:aurora/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Tainted Charm, Item Vanguardian, Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Tainted Charm, Item Vanguardian, Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "bayle",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:bayle/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability Passive, Item Legacy, Item Salvation, Loadout Knell) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability Passive flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now lists Berserk's attack speed per level (15/19.5/.../91.5%, +4.5% per level) where the reviewed text, carrying the official 1.16.4 correction, gave the official range (15.5-91.5%). Same scaling and the same 35% threshold; only the level-1 figure differs, by 0.5 points. The plan builds heavy hits rather than stacking attack speed, so its reasoning does not depend on that figure. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "The level-1 attack-speed value (15 vs 15.5) is not settled by official text; the official correction no longer applies because Pred.gg's text changed, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability Passive, Item Legacy, Item Salvation, Loadout Knell"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.Passive"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/bayle/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "bayle",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:bayle/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability Passive, Item Legacy, Item Salvation, Loadout Knell) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability Passive flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now lists Berserk's attack speed per level (15/19.5/.../91.5%, +4.5% per level) where the reviewed text, carrying the official 1.16.4 correction, gave the official range (15.5-91.5%). Same scaling and the same 35% threshold; only the level-1 figure differs, by 0.5 points. The plan builds heavy hits rather than stacking attack speed, so its reasoning does not depend on that figure. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "The level-1 attack-speed value (15 vs 15.5) is not settled by official text; the official correction no longer applies because Pred.gg's text changed, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability Passive, Item Legacy, Item Salvation, Loadout Knell"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.Passive"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/bayle/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "boris",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:boris/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "countess",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:countess/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "crunch",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:crunch/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "crunch",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:crunch/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "dekker",
+      "role": "support",
+      "queue_id": "plan-mechanics:dekker/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Vanguardian) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Vanguardian"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "drongo",
+      "role": "carry",
+      "queue_id": "plan-mechanics:drongo/carry",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability E, Item Legacy, Loadout Bring The Boom) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability E, Item Legacy, Loadout Bring The Boom"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "eden",
+      "role": "carry",
+      "queue_id": "plan-mechanics:eden/carry",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability RMB, Ability Q, Ability Passive) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability RMB, Ability Q, Ability Passive"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "feng-mao",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:feng-mao/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "feng-mao",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:feng-mao/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "grim-exe",
+      "role": "carry",
+      "queue_id": "plan-mechanics:grim-exe/carry",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability LMB) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability LMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now gives the basic attack's 67.5% scaling (the official 1.16.4 value) but writes it as physical damage, while the official 1.16.4 explanation and Pred.gg's own Passive ('basic attacks are modified to deal Magical Damage') both make it magical. The plan's reasoning (physical power and crit scale the converted magical attacks; Caustica for magical armor) rests on the Passive, which is unchanged, so it holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "Pred.gg's LMB line contradicts its own Passive on damage type; the official correction no longer applies because Pred.gg's text changed, so the page shows Pred.gg's wording, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability LMB"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.LMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/grim-exe/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "grim-exe",
+      "role": "midlane",
+      "queue_id": "plan-mechanics:grim-exe/midlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability LMB) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability LMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now gives the basic attack's 67.5% scaling (the official 1.16.4 value) but writes it as physical damage, while the official 1.16.4 explanation and Pred.gg's own Passive ('basic attacks are modified to deal Magical Damage') both make it magical. The plan's reasoning (physical power and crit scale the converted magical attacks; Caustica for magical armor) rests on the Passive, which is unchanged, so it holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "Pred.gg's LMB line contradicts its own Passive on damage type; the official correction no longer applies because Pred.gg's text changed, so the page shows Pred.gg's wording, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability LMB"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.LMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/grim-exe/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "grux",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:grux/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "grux",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:grux/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "iggy-scorch",
+      "role": "midlane",
+      "queue_id": "plan-mechanics:iggy-scorch/midlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "ikra",
+      "role": "midlane",
+      "queue_id": "plan-mechanics:ikra/midlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "kallari",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:kallari/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability LMB) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability LMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now writes the basic attack scaling as +75% physical power; the reviewed text (official 1.16.4 correction) said +75% bonus physical power. Same figure; only the bonus/total wording differs. The plan's items (Malady, Vanquisher, Spear Of Desolation) are chosen for monster clear, execute and ultimate burst, not basic-attack scaling, so its reasoning holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "Whether the 75% scales from bonus or total physical power is not settled by Pred.gg; the official correction says bonus, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability LMB"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.LMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/kallari/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "khaimera",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:khaimera/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability Passive, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability Passive, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "khaimera",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:khaimera/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability Passive, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability Passive, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "kwang",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:kwang/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker, Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker, Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "kwang",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:kwang/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker, Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker, Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "legion",
+      "role": "carry",
+      "queue_id": "plan-mechanics:legion/carry",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "maco",
+      "role": "support",
+      "queue_id": "plan-mechanics:maco/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability Q, Ability Passive, Item Vanguardian) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability Q, Passive flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 drops the % sign from Maco Gift!'s ally movement speed (8/9/10/11/12) and rewords the passive ('Taking Damage from Enemy Heroes removes all of the buffs. Standing still for 3s also removes the buffs'), which says the same as the reviewed official wording. No value, trigger or duration changed; the heal-and-reposition reasoning holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "The missing % is read as a Pred.gg formatting omission (the official text and the previous source give a percentage), and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability Q, Ability Passive, Item Vanguardian"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.Q",
+        "source_preconditions.abilities.Passive"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/maco/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "mourn",
+      "role": "support",
+      "queue_id": "plan-mechanics:mourn/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will, Loadout Knell) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will, Loadout Knell"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "muriel",
+      "role": "support",
+      "queue_id": "plan-mechanics:muriel/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability RMB, Item Vanguardian) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability RMB, Item Vanguardian"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "phase",
+      "role": "support",
+      "queue_id": "plan-mechanics:phase/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability RMB) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability RMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169's Telekinetic Link text no longer carries the reviewed official clarification line (1700u maximum link radius, breaks at 2100u). Nothing in the remaining text contradicts it, and the plan already tells the player to keep the ally within the link's range, so its reasoning holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "The range line now comes only from the official 1.16.4 correction, which no longer applies to Pred.gg's changed text; it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability RMB"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.RMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/phase/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "revenant",
+      "role": "carry",
+      "queue_id": "plan-mechanics:revenant/carry",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "riktor",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:riktor/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will, Item Raiment of Renewal) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will, Item Raiment of Renewal"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "riktor",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:riktor/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "riktor",
+      "role": "support",
+      "queue_id": "plan-mechanics:riktor/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "scarlett",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:scarlett/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability LMB, Ability R, Item Legacy, Item Salvation, Loadout Knell) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability LMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now lists higher per-level basic-attack values (61/63.45/.../120.5 instead of 61/63.24/.../115.4) and writes the Third Strike energy restore as 10/15/20 at levels 1/11/16, which equals the reviewed 10/10/15/20 at 1/6/11/16. The official 1.17.2 Scarlett changes (armor, regen, Ashen Vow and Minueta cooldowns, Minueta crit modifier) do not mention basic-attack damage, so no official text explains the new values. The reasoning (attack weaving with Augmentation and Basilisk in jungle; ability damage with Alternator and Earthshaker in offlane) does not depend on a few percent of basic-attack damage, so it holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "The new per-level values come from Pred.gg alone; no official note confirms them. The official correction for this line no longer applies, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability LMB, Ability R, Item Legacy, Item Salvation, Loadout Knell"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.LMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/scarlett/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "scarlett",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:scarlett/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability LMB, Ability R, Item Salvation, Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability LMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now lists higher per-level basic-attack values (61/63.45/.../120.5 instead of 61/63.24/.../115.4) and writes the Third Strike energy restore as 10/15/20 at levels 1/11/16, which equals the reviewed 10/10/15/20 at 1/6/11/16. The official 1.17.2 Scarlett changes (armor, regen, Ashen Vow and Minueta cooldowns, Minueta crit modifier) do not mention basic-attack damage, so no official text explains the new values. The reasoning (attack weaving with Augmentation and Basilisk in jungle; ability damage with Alternator and Earthshaker in offlane) does not depend on a few percent of basic-attack damage, so it holds. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "The new per-level values come from Pred.gg alone; no official note confirms them. The official correction for this line no longer applies, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability LMB, Ability R, Item Salvation, Item Legacy"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.LMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/scarlett/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "serath",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:serath/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Salvation, Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Salvation, Item Legacy"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "serath",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:serath/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "sevarog",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:sevarog/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will, Item Raiment of Renewal) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will, Item Raiment of Renewal"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "shinbi",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:shinbi/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "skylar",
+      "role": "carry",
+      "queue_id": "plan-mechanics:skylar/carry",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "steel",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:steel/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "steel",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:steel/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Unbroken Will"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "steel",
+      "role": "support",
+      "queue_id": "plan-mechanics:steel/support",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Vanguardian) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Vanguardian"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "terra",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:terra/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability RMB, Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability RMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now writes Highland Hurl's scaling as +40%/+120% physical and magical armor; the reviewed text (official correction) said bonus armor. Same figures. The plans build armor because Terra's abilities scale with it, which holds whether the base is bonus or total armor. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "Bonus vs total armor scaling is not settled by Pred.gg; the official correction says bonus, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability RMB, Item Unbroken Will"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.RMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/terra/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "terra",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:terra/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Ability RMB, Item Unbroken Will) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the pin restored, a replay of all six live bundles leaves only Ability RMB flagged, a Pred.gg kit-text change first seen in the 29 Oct 22:28 UTC collection. Pred.gg 169 now writes Highland Hurl's scaling as +40%/+120% physical and magical armor; the reviewed text (official correction) said bonus armor. Same figures. The plans build armor because Terra's abilities scale with it, which holds whether the base is bonus or total armor. The precondition is set to the current Pred.gg 169 text (identical on all six ranks); no plan part changes.",
+      "limitation": "Bonus vs total armor scaling is not settled by Pred.gg; the official correction says bonus, and it now appears in the Official correction review notice, which a later run handles. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Ability RMB, Item Unbroken Will"
+      ],
+      "text_changed": [
+        "source_preconditions.abilities.RMB"
+      ],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/heroes/terra/hero?versions=169",
+          "fetched_at": "2026-10-30T14:05:41-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "wukong",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:wukong/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "yin",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:yin/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Equinox) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Equinox"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "yin",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:yin/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Equinox) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Equinox"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "yurei",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:yurei/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation, Loadout Knell) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation, Loadout Knell"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "zarus",
+      "role": "jungle",
+      "queue_id": "plan-mechanics:zarus/jungle",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Legacy, Item Salvation) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Legacy, Item Salvation"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "zarus",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:zarus/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item Salvation, Item Legacy) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item Salvation, Item Legacy"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "zinx",
+      "role": "offlane",
+      "queue_id": "plan-mechanics:zinx/offlane",
+      "verdict": "checked and retained",
+      "reason": "The flag (Item World Breaker) came from the 30 Oct bundles, published while the reviewed packet was marked \"needs review\" (see the patch-change entry): the official 1.17.2 article's fingerprint went back to 921faae1..., the version the 17 Oct review read, and no longer matched the pin dba1f61e..., so the packet's official corrections were not applied. Without them, raw source wording (for example Pred.gg's Tenacity shown as 70.0% instead of the reviewed rating) no longer matched the plan's preconditions. With the 1.17.2 pin restored to 921faae1..., a replay of all six live bundles through the publisher's review (review_saved_sources) and the engine's recheck queue shows this plan's preconditions match again on every rank; no plan part or precondition changes. The underlying source values are the same as at the 17 Oct build pass.",
+      "limitation": "Verified by replaying the published bundles locally, not by a new collection; it depends on the next publication applying the restored pin. Only the flagged supporting mechanics were rechecked; item order and statistics were not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Item World Breaker"
+      ],
+      "text_changed": [],
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://pred.gg/items?version=169",
+          "fetched_at": "2026-10-30T14:02:58-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        }
+      ]
+    },
+    {
+      "kind": "mechanics",
+      "section": "article_fingerprints",
+      "key": "1.17.2",
+      "queue_id": "patch-change:1e29c606fefd88",
+      "verdict": "changed",
+      "reason": "The reviewed packet showed \"needs review\" on every rank because the live official 1.17.2 article's fingerprint (921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e) no longer matched the pin dba1f61e07b05e9c3e87808c5f1f7fd1a202f1fcba15a1f136dff433a1ab401f. Recomputing official_article_fingerprint over the 345 live blocks gives 921faae1..., the exact fingerprint of the article the 17 Oct 1.17.2 review and build pass read (ledger 2026-10-17-1247). The 27 Oct re-pin to dba1f61e covered only a related-article card (\"The Road to Paragon\") that has since been removed, so the article is again the reviewed version. Both pins (packet and build pass) now read 921faae1...; Patch_Notes_1.17 with Hotfix 1.17.1 still matches 7d2dd627. A replay of all six live bundles then reports \"reviewed for current patch\". No balance, hotfix or store text changed.",
+      "limitation": "The Patch 1.18 article is now on the official index (announced, release date 3 Nov 2026); it does not affect the 1.17.2 pin, and 1.18 will need its own pass. If the related-article card returns, the pin will need dba1f61e again. Verified by replay, not by a new collection.",
+      "reviewed_at": "2026-10-30T21:10:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-10-30T19:30:17+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes",
+          "fetched_at": "2026-10-30T19:30:14+00:00"
+        }
+      ]
+    }
+  ]
+}
