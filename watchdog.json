@@ -1,9 +1,21 @@
 {
  "schema": 1,
- "checked_at": "2026-11-01T14:31:19+00:00",
- "open": {},
+ "checked_at": "2026-11-01T19:12:26+00:00",
+ "open": {
+  "stats-age": {
+   "first_seen": "2026-11-01T19:12:26+00:00"
+  },
+  "pred-age": {
+   "first_seen": "2026-11-01T19:12:26+00:00"
+  },
+  "publication-quiet": {
+   "first_seen": "2026-11-01T19:12:26+00:00"
+  },
+  "collector-quiet": {
+   "first_seen": "2026-11-01T19:12:26+00:00"
+  }
+ },
  "dispatches": [
-  "2026-10-25T17:51:54+00:00",
   "2026-10-26T15:28:30+00:00",
   "2026-10-26T22:23:08+00:00",
   "2026-10-27T23:03:06+00:00",
@@ -807,6 +819,30 @@
    "at": "2026-11-01T14:31:19+00:00",
    "started_at": "2026-11-01T13:09:46+00:00",
    "hours": 1.4
+  },
+  {
+   "id": "stats-age",
+   "event": "started",
+   "at": "2026-11-01T19:12:26+00:00",
+   "summary": "Statistics older than 24 hours: Gold+ (24 h), Bronze+ (24 h), Silver+ (24 h)."
+  },
+  {
+   "id": "pred-age",
+   "event": "started",
+   "at": "2026-11-01T19:12:26+00:00",
+   "summary": "Pred.gg exact-patch cohort not current for: Gold+, Bronze+, Silver+."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-11-01T19:12:26+00:00",
+   "summary": "Last publication 3.9 hours ago."
+  },
+  {
+   "id": "collector-quiet",
+   "event": "started",
+   "at": "2026-11-01T19:12:26+00:00",
+   "summary": "No Windows collector check-in for 6.1 hours."
   }
  ]
 }
