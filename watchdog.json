@@ -1,11 +1,7 @@
 {
  "schema": 1,
- "checked_at": "2026-11-01T13:09:46+00:00",
- "open": {
-  "publication-quiet": {
-   "first_seen": "2026-11-01T13:09:46+00:00"
-  }
- },
+ "checked_at": "2026-11-01T14:31:19+00:00",
+ "open": {},
  "dispatches": [
   "2026-10-25T17:51:54+00:00",
   "2026-10-26T15:28:30+00:00",
@@ -804,6 +800,13 @@
    "event": "started",
    "at": "2026-11-01T13:09:46+00:00",
    "summary": "Last publication 3.0 hours ago."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "cleared",
+   "at": "2026-11-01T14:31:19+00:00",
+   "started_at": "2026-11-01T13:09:46+00:00",
+   "hours": 1.4
   }
  ]
 }
