@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "checked_at": "2026-11-01T19:53:31+00:00",
+ "checked_at": "2026-11-01T23:05:17+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-11-01T19:12:26+00:00"
@@ -8,8 +8,14 @@
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
   },
+  "publication-quiet": {
+   "first_seen": "2026-11-01T23:05:17+00:00"
+  },
   "collector-quiet": {
    "first_seen": "2026-11-01T19:12:26+00:00"
+  },
+  "queue-overdue": {
+   "first_seen": "2026-11-01T23:05:17+00:00"
   }
  },
  "dispatches": [
@@ -21,7 +27,8 @@
   "2026-10-29T07:39:52+00:00",
   "2026-10-30T01:13:14+00:00",
   "2026-10-30T23:14:15+00:00",
-  "2026-10-31T06:01:14+00:00"
+  "2026-10-31T06:01:14+00:00",
+  "2026-11-01T23:05:17+00:00"
  ],
  "misses": [
   {
@@ -860,6 +867,18 @@
    "at": "2026-11-01T19:53:31+00:00",
    "started_at": "2026-11-01T19:12:26+00:00",
    "hours": 0.7
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-11-01T23:05:17+00:00",
+   "summary": "Last publication 3.2 hours ago."
+  },
+  {
+   "id": "queue-overdue",
+   "event": "started",
+   "at": "2026-11-01T23:05:17+00:00",
+   "summary": "1 recheck queued for over 24 hours."
   }
  ]
 }
