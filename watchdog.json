@@ -1,15 +1,12 @@
 {
  "schema": 1,
- "checked_at": "2026-11-02T11:41:09+00:00",
+ "checked_at": "2026-11-02T17:19:22+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-11-01T19:12:26+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
-  },
-  "publication-quiet": {
-   "first_seen": "2026-11-02T11:41:09+00:00"
   },
   "collector-quiet": {
    "first_seen": "2026-11-01T19:12:26+00:00"
@@ -19,7 +16,6 @@
   }
  },
  "dispatches": [
-  "2026-10-26T15:28:30+00:00",
   "2026-10-26T22:23:08+00:00",
   "2026-10-27T23:03:06+00:00",
   "2026-10-28T07:35:17+00:00",
@@ -906,6 +902,13 @@
    "event": "started",
    "at": "2026-11-02T11:41:09+00:00",
    "summary": "Last publication 5.1 hours ago."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "cleared",
+   "at": "2026-11-02T17:19:22+00:00",
+   "started_at": "2026-11-02T11:41:09+00:00",
+   "hours": 5.6
   }
  ]
 }
