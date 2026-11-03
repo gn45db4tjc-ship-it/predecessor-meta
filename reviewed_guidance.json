@@ -55451,6 +55451,24 @@
         "scope": "The 58 items in the live queue: 57 plans flagged for supporting mechanics and one patch-change item (reviewed packet marked \"needs review\"), against the live bundles published 2026-10-30T19:37:03+00:00 (publish run 41115782226, tool 2.58.0; Gold+ collection generated 2026-10-30T19:30:41+00:00, Pred.gg 169 game data and statistics retained from 14:02-14:26 CDT the same day). Not a weekly or full review.",
         "ledger": "docs/rechecks/2026-10-30-2033-ledger.json",
         "result": "1 changed, 57 checked and retained, 0 unresolved"
+      },
+      {
+        "kind": "weekly",
+        "week": "2026-W44",
+        "reviewed_at": "2026-11-01T20:55:00+00:00",
+        "items": [
+          "mechanics-conflict:official-correction-review",
+          "weekly:2026-W44"
+        ],
+        "scope": "The official correction notice (mechanics-conflict:official-correction-review) and the weekly backstop for 2026-W44, against the live bundles published 2026-11-01T19:52:01+00:00 (publish run 41343453516, tool 2.58.0; collection of 1 Nov 19:50 UTC, in which Pred.gg could not be refreshed on any rank, so every rank keeps its Pred.gg 1.17.2 sample and kit text from 31 Oct about 14:04 CDT). Every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. All 86 reviewed Gold+ grades are withheld only because the Gold+ sample is retained; none has moved statistics against it and none was changed. Not a full review.",
+        "ledger": "docs/rechecks/2026-11-01-2033-ledger.json",
+        "result": "0 changed, 0 checked and retained, 8 unresolved",
+        "held": [
+          {
+            "id": "mechanics-conflict:official-correction-review",
+            "evidence": "01d79fef13f432"
+          }
+        ]
       }
     ]
   },

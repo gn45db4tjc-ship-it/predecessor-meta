@@ -1,0 +1,319 @@
+{
+  "schema": 1,
+  "title": "Scheduled recheck, 1 Nov 2026 20:33 UTC (official correction notice and weekly pass 2026-W44)",
+  "reviewed_at": "2026-11-01T20:55:00+00:00",
+  "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+  "scope": "The official correction notice (mechanics-conflict:official-correction-review) and the weekly backstop for 2026-W44, against the live bundles published 2026-11-01T19:52:01+00:00 (publish run 41343453516, tool 2.58.0; collection of 1 Nov 19:50 UTC, in which Pred.gg could not be refreshed on any rank, so every rank keeps its Pred.gg 1.17.2 sample and kit text from 31 Oct about 14:04 CDT). Every inactive plan on any rank (7, all experimental roles kept unresolved by design) was checked. All 86 reviewed Gold+ grades are withheld only because the Gold+ sample is retained; none has moved statistics against it and none was changed. Not a full review.",
+  "standard": "docs/RECHECK-RUNNER.md: a mechanics notice is resolved only with the official source's own text, otherwise unresolved and held; weekly backstop checks every withheld grade and inactive plan.",
+  "evidence": {
+    "manifest_published_at": "2026-11-01T19:52:01+00:00",
+    "publish_run": "41343453516",
+    "tool_version": "2.58.0",
+    "collection": "2026-11-01T19:50:17+00:00 (Gold+ bundle generated_at)",
+    "statistics": "Gold+: Pred.gg 1.17.2 (version 169) ranked, ranks 27-36, status retained (latest collection failed: 'no structured page responses found'); role rows fetched 2026-10-31T14:04:03-05:00 to 14:04:23-05:00.",
+    "official": "Patch_Notes_1.17.2 (921faae196843c0d...) fetched 2026-11-01T19:49:54+00:00 and Patch_Notes_1.17 with Hotfix 1.17.1 (7d2dd627b5a5...) fetched 2026-11-01T19:49:56+00:00 match the packet's article_fingerprints. PatchNotes_1.18 (722a344d3130...) is published and announced for 3 Nov; patch_check still verifies 1.17.2 as live.",
+    "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+  },
+  "summary": {
+    "changed": 0,
+    "checked and retained": 0,
+    "unresolved": 8
+  },
+  "entries": [
+    {
+      "kind": "mechanics",
+      "section": "packet-corrections",
+      "key": "official-correction-review",
+      "queue_id": "mechanics-conflict:official-correction-review",
+      "verdict": "unresolved",
+      "reason": "\"Correction could not be verified for Argus, Bayle, Countess, Grim Exe, Kallari, Maco, Phase, Scarlett, Terra\" (all six ranks; Diamond+ also names Vital Essence, 1.16.4-review2-123). Eleven 1.16.4 packet corrections (1.16.4-24, -25, -27, -29, -40, -51, -60, -73, -review2-127, -128, -129) no longer find their `before` value because the Pred.gg 1.17.2 kit text (version 169, changed in the 29 Oct collection) differs from it. The differences are of three kinds: (1) the field at the corrected path now holds a different ability's value (Argus ability 2 cooldown reads 3.5 and ability 1 text is the orb; Countess ability 4 cooldown reads 11/10/9/8/7), which is an ability-order difference in the source, not a balance change; (2) Pred.gg's own wording of a value the official note already states (Kallari LMB and Terra ability 1 read \"+75%\" / \"+40%\" without the official \"bonus\"; Phase ability 1 lacks the official 1700u/2100u link-radius line; Maco ability 2 differs only by a stray \"%\"; Bayle passive lists per-level values in place of the official range; Maco passive is reworded); (3) source-only values no official note confirms (Scarlett LMB base damage and hero bonus, Grim.exe LMB scaling and damage type). Rewriting a correction's `before` to Pred.gg's new text would be a source edit, not official text, and the ability-order cases need a code-side path fix that a review may not make. The official articles in the bundle (1.17.2, 1.17 with Hotfix 1.17.1, and the new 1.18 article, not yet live) add nothing that settles these fields. Nothing in the review files changes. Unresolved and held with its queue evidence.",
+      "limitation": "Only official text may resolve it; holding it hides an identical notice until the notice text or any live official article changes (1.18 going live on 3 Nov will change the article set and re-queue it). The ability-order mismatch for Argus and Countess may need a code fix (path by ability index), which is outside a review. Pred.gg kit text is retained from 31 Oct (Pred.gg could not be refreshed on 1 Nov). No in-game test.",
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg",
+          "fetched_at": "2026-10-31T14:07:37-05:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.16.4",
+          "fetched_at": "2026-11-01T19:49:56+00:00",
+          "note": "Correction source as recorded in the packet; the live check fetches only the 1.18, 1.17.2 and 1.17 articles, so this date is the 1 Nov official check, not a new fetch of the 1.16.4 page."
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "akeron",
+      "role": "support",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. Gold+ shows 47.9% over 234 games for support (retained 31 Oct sample), which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 47.863247863247864,
+          "matches": 234,
+          "wonGames": 112,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+          "fetched_at": "2026-10-31T14:04:23-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+          "fetched_at": "2026-10-31T14:04:23-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "ikra",
+      "role": "support",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. Gold+ shows 43.4% over 521 games for support (retained 31 Oct sample), which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 43.37811900191939,
+          "matches": 521,
+          "wonGames": 226,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+          "fetched_at": "2026-10-31T14:04:23-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+          "fetched_at": "2026-10-31T14:04:23-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "maco",
+      "role": "midlane",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. Since the 29 Oct collection the engine also reports changed preconditions (Ability Q, Ability Passive): Pred.gg 169's kit text for these abilities changed, the same change the 30 Oct pass took into the active maco plans. Because this plan's review result is unresolved, the change does not queue it, and updating its precondition text would not make it active. The owner's 1.18 decisions (docs/PATCH-DAY-1.18.md) retire this plan on patch day; until then it stays inactive and out of automatic suggestions, with no part or text change. Gold+ shows 38.9% over 54 games for midlane (retained 31 Oct sample), far too few to establish role strength.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions against every live bundle: changed (Ability Q, Ability Passive), from Pred.gg 169 kit text",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 38.888888888888886,
+          "matches": 54,
+          "wonGames": 21,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+          "fetched_at": "2026-10-31T14:04:14-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+          "fetched_at": "2026-10-31T14:04:14-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "scarlett",
+      "role": "midlane",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. Since the 29 Oct collection the engine also reports changed preconditions (Ability LMB): Pred.gg 169's kit text for these abilities changed, the same change the 30 Oct pass took into the active scarlett plans. Because this plan's review result is unresolved, the change does not queue it, and updating its precondition text would not make it active. The owner's 1.18 decisions (docs/PATCH-DAY-1.18.md) retire this plan on patch day; until then it stays inactive and out of automatic suggestions, with no part or text change. Gold+ shows 55.8% over 43 games for midlane (retained 31 Oct sample), far too few to establish role strength.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions against every live bundle: changed (Ability LMB), from Pred.gg 169 kit text",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 55.81395348837209,
+          "matches": 43,
+          "wonGames": 24,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+          "fetched_at": "2026-10-31T14:04:14-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+          "fetched_at": "2026-10-31T14:04:14-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "the-fey",
+      "role": "carry",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. Gold+ shows 46.3% over 67 games for carry (retained 31 Oct sample), which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 46.26865671641791,
+          "matches": 67,
+          "wonGames": 31,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+          "fetched_at": "2026-10-31T14:04:17-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=CARRY",
+          "fetched_at": "2026-10-31T14:04:17-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "wraith",
+      "role": "support",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. Gold+ shows 50.4% over 839 games for support (retained 31 Oct sample), which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 50.417163289630516,
+          "matches": 839,
+          "wonGames": 423,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+          "fetched_at": "2026-10-31T14:04:23-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=SUPPORT",
+          "fetched_at": "2026-10-31T14:04:23-05:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "wukong",
+      "role": "offlane",
+      "queue_id": "weekly:2026-W44",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. The plan is inactive on all six ranks only because the 1.17.2 build pass (17 Oct) kept it unresolved as an experimental role. No supporting mechanic changed: the engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles (1.17.2, and 1.17 with Hotfix 1.17.1) carry the same fingerprints as the reviewed packet. Gold+ shows 48.6% over 578 games for offlane (retained 31 Oct sample), which cannot establish role strength. The plan stays inactive and out of automatic suggestions; no part or text changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed; the Gold+ sample is retained, not fresh. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported",
+        "Kit and item text from the Pred.gg 1.17.2 definitions (version 169), retained from the 31 Oct collection"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 48.6159169550173,
+          "matches": 578,
+          "wonGames": 281,
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-31T14:04:06-05:00"
+        }
+      },
+      "reviewed_at": "2026-11-01T20:55:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-01T19:49:54+00:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
+          "fetched_at": "2026-11-01T19:49:56+00:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=OFFLANE",
+          "fetched_at": "2026-10-31T14:04:06-05:00"
+        }
+      ]
+    }
+  ]
+}
