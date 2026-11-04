@@ -1,8 +1,12 @@
-# Predecessor Meta - 2.58.0
+# Predecessor Meta - 2.59.0
 
-2.58.0 adds three things and restarts the reviews. After a game, Match lets you log a win or a loss; each hero page then shows your own record with that hero and role, kept on your device only. An item's details now list the starting builds on your rank that use it, reviewed or calculated, each opening its hero. When a new patch empties the daily trend, the hero page says the trend starts after two daily pulls on that patch instead of dropping the line. The scheduled reviewer moves from the owner's PC to a cloud routine every 3 hours ([docs/RECHECK-RUNNER.md](docs/RECHECK-RUNNER.md), "In the cloud"). See [RELEASE-2.58.0.md](RELEASE-2.58.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
+2.59.0 makes patch week easier to trust. When no hero has 100 games yet, phone Meta says so above the list, and no list is numbered unless a tier or an eligible sample backs the order. Hero pages label a small-sample win rate and show the hero's official change notes for the live patch, as written. The 1.18 eternal changes are now mapped, and the watchdog states the reviewer's daily cadence and the real time of a pending retry.
 
 ## Previous release
+
+### 2.58.0
+
+2.58.0 adds three things and restarts the reviews. After a game, Match lets you log a win or a loss; each hero page then shows your own record with that hero and role, kept on your device only. An item's details now list the starting builds on your rank that use it, reviewed or calculated, each opening its hero. When a new patch empties the daily trend, the hero page says the trend starts after two daily pulls on that patch instead of dropping the line. The scheduled reviewer moves from the owner's PC to a cloud routine every 3 hours ([docs/RECHECK-RUNNER.md](docs/RECHECK-RUNNER.md), "In the cloud"). See [RELEASE-2.58.0.md](RELEASE-2.58.0.md). Source version is not proof of installation or public deployment; those use separate approvals and receipts.
 
 ### 2.57.0
 
