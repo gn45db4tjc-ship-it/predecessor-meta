@@ -1,12 +1,15 @@
 {
  "schema": 1,
- "checked_at": "2026-11-04T18:10:16+00:00",
+ "checked_at": "2026-11-04T22:12:44+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-11-04T18:10:16+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
+  },
+  "publication-quiet": {
+   "first_seen": "2026-11-04T22:12:44+00:00"
   },
   "collector-quiet": {
    "first_seen": "2026-11-04T18:10:16+00:00"
@@ -1000,6 +1003,12 @@
    "at": "2026-11-04T18:10:16+00:00",
    "started_at": "2026-11-04T15:46:33+00:00",
    "hours": 2.4
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-11-04T22:12:44+00:00",
+   "summary": "Last publication 4.0 hours ago."
   }
  ]
 }
