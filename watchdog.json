@@ -1,12 +1,15 @@
 {
  "schema": 1,
- "checked_at": "2026-11-04T15:46:33+00:00",
+ "checked_at": "2026-11-04T18:10:16+00:00",
  "open": {
+  "pred-age": {
+   "first_seen": "2026-11-04T18:10:16+00:00"
+  },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
   },
-  "publication-quiet": {
-   "first_seen": "2026-11-04T15:46:33+00:00"
+  "collector-quiet": {
+   "first_seen": "2026-11-04T18:10:16+00:00"
   },
   "queue-overdue": {
    "first_seen": "2026-11-01T23:05:17+00:00"
@@ -21,7 +24,8 @@
   "2026-11-01T23:05:17+00:00",
   "2026-11-02T06:31:20+00:00",
   "2026-11-03T00:02:22+00:00",
-  "2026-11-03T07:03:01+00:00"
+  "2026-11-03T07:03:01+00:00",
+  "2026-11-04T18:10:16+00:00"
  ],
  "misses": [
   {
@@ -977,6 +981,25 @@
    "event": "started",
    "at": "2026-11-04T15:46:33+00:00",
    "summary": "Last publication 4.1 hours ago."
+  },
+  {
+   "id": "pred-age",
+   "event": "started",
+   "at": "2026-11-04T18:10:16+00:00",
+   "summary": "Pred.gg exact-patch cohort not current for: Gold+, Bronze+, Silver+, Platinum+, Diamond+, Paragon+."
+  },
+  {
+   "id": "collector-quiet",
+   "event": "started",
+   "at": "2026-11-04T18:10:16+00:00",
+   "summary": "No Windows collector check-in for 7.0 hours."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "cleared",
+   "at": "2026-11-04T18:10:16+00:00",
+   "started_at": "2026-11-04T15:46:33+00:00",
+   "hours": 2.4
   }
  ]
 }
