@@ -85,7 +85,12 @@ def daily_boundary(now):
 def next_scheduled(manifest):
     retry = manifest.get('required_retry') or {}
     if retry.get('pending') and retry.get('next_at'):
-        return 'Next attempt: a required-source retry at ' + when_text(retry['next_at']) + '.'
+        # The publisher retries only once required_retry_hours have passed since the last full attempt
+        # (static_publish.py), so an attempt after next_at was set moves the real retry later (4 Nov 2026).
+        due, last = utc(retry['next_at']), utc(manifest.get('last_full_attempt_at'))
+        if due and last:
+            due = max(due, last + dt.timedelta(hours=float(CONFIG.get('required_retry_hours', 3))))
+        return 'Next attempt: a required-source retry at ' + when_text(due.isoformat() if due else retry['next_at']) + '.'
     return 'Next scheduled attempt: ' + when_text(manifest.get('next_expected_attempt_at')) + '.'
 
 
@@ -219,7 +224,7 @@ def check(manifest, review_index, now, release=None):
             'Next attempt: when the collector runs again; it checks in at start and every 3 hours.', False))
 
     # 2.47.0: the recheck queue (review/index.json rechecks) lists each item with the date it was first queued; one
-    # waiting over 24 hours is overdue (the scheduled reviewer runs every 3 hours). Older indexes have only packets.
+    # waiting over 24 hours is overdue (the scheduled reviewer runs once a day since 28 Oct 2026). Older indexes have only packets.
     rechecks = (review_index or {}).get('rechecks')
     if isinstance(rechecks, list):
         late = [r for r in rechecks if (hours_since(r.get('first_queued_at'), now) or 0) > LIMITS['queue_overdue_hours']]
@@ -229,7 +234,7 @@ def check(manifest, review_index, now, release=None):
                 '%d recheck%s queued for over 24 hours.' % (len(late), '' if len(late) == 1 else 's'),
                 ['%s: queued %s (%.0f hours ago). %s' % (r.get('id'), when_text(r.get('first_queued_at')),
                                                          hours_since(r.get('first_queued_at'), now), r.get('reason') or '') for r in late],
-                'Next attempt: the scheduled reviewer, every 3 hours (docs/RECHECK-RUNNER.md).', False))
+                'Next attempt: the scheduled reviewer, which runs once a day (docs/RECHECK-RUNNER.md).', False))
         return problems
     # The queue's current state is its newest packet: older packets stay listed as history, superseded by later ones.
     packets = sorted((p for p in (review_index or {}).get('packets') or [] if utc(p.get('generated_at'))),
@@ -242,7 +247,7 @@ def check(manifest, review_index, now, release=None):
             'The current review packet has been due for over 24 hours.',
             ['%s: prepared %s (%.0f hours ago).' % (p.get('id'), when_text(p.get('generated_at')),
                                                    hours_since(p.get('generated_at'), now)) for p in overdue],
-            'Next attempt: the scheduled reviewer, every 3 hours once it is set up (freshness Phase 4).', False))
+            'Next attempt: the scheduled reviewer, which runs once a day (docs/RECHECK-RUNNER.md).', False))
     return problems
 
 

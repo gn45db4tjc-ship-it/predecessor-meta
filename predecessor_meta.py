@@ -69,7 +69,7 @@ from pathlib import Path
 # 1. CONFIG
 # ============================================================================
 
-VERSION = "2.58.0"
+VERSION = "2.59.0"
 TOOL_DIR = Path(__file__).resolve().parent
 DATA_DIR = TOOL_DIR / "data"
 SNAP_DIR = TOOL_DIR / "snapshots"
@@ -1844,9 +1844,15 @@ def attach_official_changes(bundle, official):
     changes = []
     for article in official.get('articles', []):
         if article.get('status') != 'live': continue
-        section, entity, field = '', None, ''
+        section, entity, field, sub = '', None, '', ''
         for tag, text in article.get('blocks', []):
-            if tag == 'h2': section, entity, field = text, None, ''
+            if tag == 'h2': section, entity, field, sub = text, None, '', ''
+            if tag == 'h3':
+                # Leaving an eternal subsection: its last entry must not carry into the next h3 ("Towers:", for example).
+                if 'eternal' in sub.lower() and 'eternal' not in text.lower(): entity = None
+                sub = text
+            # 4 Nov 2026: 1.18 nests "Eternals:" as an h3 under "Gameplay Balance"; its h4 entries name eternals and blessings.
+            eternal = 'eternal' in section.lower() or 'eternal' in sub.lower()
             if tag == 'image':
                 fn = text.split('/')[-1].lower()
                 if 'web_banner_' in fn:
@@ -1859,9 +1865,9 @@ def attach_official_changes(bundle, official):
                     field = ''
             if tag in ('h3','h4'):
                 field = text.rstrip(':')
-                if 'eternal' in section.lower(): entity = known.get(norm_key(field))
+                if eternal: entity = known.get(norm_key(field))
                 elif '[Augment]' in field: entity_field = known.get(norm_key(field.split('[')[0])); field = text.rstrip(':')
-            if tag == 'p' and field == 'Major Blessing' and 'eternal' in section.lower():
+            if tag == 'p' and field == 'Major Blessing' and eternal:
                 # Explicit article naming, not image-based inference. Unknown future names stay unmapped.
                 for eternal in ('Weald', 'Knell', 'Satariel'):
                     if re.search(re.escape(eternal) + r'[’\']s (?:Major|ability)', text):
@@ -1875,7 +1881,7 @@ def attach_official_changes(bundle, official):
                 if not any(w in section.lower() for w in ('balance','system','hotfix')): continue
                 dest = entity
                 if '[Augment]' in field: dest = known.get(norm_key(field.split('[')[0])) or entity
-                if 'eternal' in section.lower() and not dest:
+                if eternal and not dest:
                     dest = known.get(norm_key(field))
                 changes.append({'patch': article['version'], 'kind': dest[0] if dest else 'unmapped', 'key': dest[1] if dest else None,
                                 'name': dest[2] if dest else field or section, 'field': field, 'change': change,

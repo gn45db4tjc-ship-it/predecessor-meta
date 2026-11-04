@@ -273,7 +273,11 @@
     "UI1": "2.55.0 PHONE: when an item icon fails to load, the build tile's position numeral covers the start of the item name (\"5ainted Rounds\")",
     "UI2": "2.55.0: warnings are filled amber chips in the same yellow as the S-tier plate and the reviewed marker, so a warning next to an S grade reads as part of it",
     "UI3": "2.55.0 DESKTOP: a separate Selected rank band sits above the hero plate, and the build head repeats its evidence (a gold 'Reviewed reasoning before rates' chip over a calculated plan, an eyebrow, and a warning-coloured 'Calculated starting point')",
-    "UI4": "2.55.0 PHONE: the hero plate reserves 230 px, pushing the build below the middle of the first screen"
+    "UI4": "2.55.0 PHONE: the hero plate reserves 230 px, pushing the build below the middle of the first screen",
+    "PW1": "4 Nov 2026 PHONE: with no hero at 100 games, the compact Meta hides the eligibility line",
+    "PW2": "4 Nov 2026: rank numerals are drawn on a name-ordered list where no row is eligible",
+    "PW3": "4 Nov 2026: the hero page leads with a small-sample win rate with no small-sample label",
+    "PW4": "4 Nov 2026: hero pages omit the official live-patch change notes for that hero"
   },
   "retired": {
     "A1": "2.36.0: Compose composition search, generation, cancellation and its worker were removed with the Compose screen.",
