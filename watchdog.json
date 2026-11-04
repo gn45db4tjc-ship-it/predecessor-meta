@@ -1,9 +1,12 @@
 {
  "schema": 1,
- "checked_at": "2026-11-04T11:38:41+00:00",
+ "checked_at": "2026-11-04T15:46:33+00:00",
  "open": {
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
+  },
+  "publication-quiet": {
+   "first_seen": "2026-11-04T15:46:33+00:00"
   },
   "queue-overdue": {
    "first_seen": "2026-11-01T23:05:17+00:00"
@@ -968,6 +971,12 @@
    "at": "2026-11-04T11:38:41+00:00",
    "started_at": "2026-11-01T19:12:26+00:00",
    "hours": 64.4
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-11-04T15:46:33+00:00",
+   "summary": "Last publication 4.1 hours ago."
   }
  ]
 }
