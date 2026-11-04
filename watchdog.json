@@ -1,15 +1,12 @@
 {
  "schema": 1,
- "checked_at": "2026-11-03T23:43:00+00:00",
+ "checked_at": "2026-11-04T02:19:21+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-11-01T19:12:26+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
-  },
-  "collector-quiet": {
-   "first_seen": "2026-11-01T19:12:26+00:00"
   },
   "queue-overdue": {
    "first_seen": "2026-11-01T23:05:17+00:00"
@@ -961,6 +958,13 @@
    "at": "2026-11-03T20:03:22+00:00",
    "started_at": "2026-11-03T18:40:18+00:00",
    "hours": 1.4
+  },
+  {
+   "id": "collector-quiet",
+   "event": "cleared",
+   "at": "2026-11-04T02:19:21+00:00",
+   "started_at": "2026-11-01T19:12:26+00:00",
+   "hours": 55.1
   }
  ]
 }
