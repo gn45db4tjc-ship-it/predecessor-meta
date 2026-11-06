@@ -1,12 +1,18 @@
 {
  "schema": 1,
- "checked_at": "2026-11-06T02:39:36+00:00",
+ "checked_at": "2026-11-06T07:24:15+00:00",
  "open": {
+  "stats-age": {
+   "first_seen": "2026-11-06T07:24:15+00:00"
+  },
   "pred-age": {
    "first_seen": "2026-11-04T18:10:16+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
+  },
+  "publication-quiet": {
+   "first_seen": "2026-11-06T07:24:15+00:00"
   },
   "collector-quiet": {
    "first_seen": "2026-11-06T02:39:36+00:00"
@@ -1038,6 +1044,18 @@
    "event": "started",
    "at": "2026-11-06T02:39:36+00:00",
    "summary": "No Windows collector check-in for 7.0 hours."
+  },
+  {
+   "id": "stats-age",
+   "event": "started",
+   "at": "2026-11-06T07:24:15+00:00",
+   "summary": "Statistics older than 24 hours: Paragon+ (29 h)."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-11-06T07:24:15+00:00",
+   "summary": "Last publication 4.8 hours ago."
   }
  ]
 }
