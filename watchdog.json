@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "checked_at": "2026-11-06T07:24:15+00:00",
+ "checked_at": "2026-11-06T23:20:57+00:00",
  "open": {
   "stats-age": {
    "first_seen": "2026-11-06T07:24:15+00:00"
@@ -11,18 +11,11 @@
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
   },
-  "publication-quiet": {
-   "first_seen": "2026-11-06T07:24:15+00:00"
-  },
-  "collector-quiet": {
-   "first_seen": "2026-11-06T02:39:36+00:00"
-  },
   "queue-overdue": {
    "first_seen": "2026-11-01T23:05:17+00:00"
   }
  },
  "dispatches": [
-  "2026-10-30T23:14:15+00:00",
   "2026-10-31T06:01:14+00:00",
   "2026-11-01T23:05:17+00:00",
   "2026-11-02T06:31:20+00:00",
@@ -1056,6 +1049,20 @@
    "event": "started",
    "at": "2026-11-06T07:24:15+00:00",
    "summary": "Last publication 4.8 hours ago."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "cleared",
+   "at": "2026-11-06T23:20:57+00:00",
+   "started_at": "2026-11-06T07:24:15+00:00",
+   "hours": 15.9
+  },
+  {
+   "id": "collector-quiet",
+   "event": "cleared",
+   "at": "2026-11-06T23:20:57+00:00",
+   "started_at": "2026-11-06T02:39:36+00:00",
+   "hours": 20.7
   }
  ]
 }
