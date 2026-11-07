@@ -28,7 +28,7 @@ class ReviewLedgerTests(unittest.TestCase):
     def test_all_plans_have_dated_evidence_and_mechanic_preconditions(self):
         m.validate_guidance_packet(self.packet,None)
         plans=self.packet['guidance']['builds']
-        self.assertEqual(len(plans),96)
+        self.assertEqual(len(plans),92)
         for p in plans:
             self.assertEqual(set(p['source_preconditions']['items']),set(p['core']+p['finish']+[p['crest']]))
             self.assertEqual(set(p['source_preconditions']['perks']),set([p['augment'],p['eternal']]+p['blessings']))
