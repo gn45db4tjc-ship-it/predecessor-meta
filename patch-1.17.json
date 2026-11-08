@@ -207,38 +207,164 @@
   },
   "definitions": {
     "Vein Splitter": {
-      "description": "Arterial Grip’s Blood Tether no longer Grounds targets, but automatically branches to nearby Enemy Targets within 800u of the Primary Target, dealing 80% the damage and applying 100% of the Slow.",
+      "description": "Arterial Grip no longer Grounds but automatically branches to nearby Enemy Targets (800u) near the Primary Target, applying 80% of the Damage and 100% of the Slow.",
       "slot": "HERO_SPECIFIC_1",
       "sources": [
         {
-          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-24T17:35:55-05:00",
-          "official_patch": "1.17",
-          "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c.json",
+          "sha256": "5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "bronze",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T21:57:55-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c.json",
+          "sha256": "a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "silver",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:01:11-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8.json",
+          "sha256": "50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "gold",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T21:54:35-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634.json",
+          "sha256": "cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "platinum",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:04:33-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152.json",
+          "sha256": "2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "diamond",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:07:43-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6.json",
+          "sha256": "51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "paragon",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-04T05:34:11-06:00"
         }
       ]
     },
     "Rupturing Fangs": {
-      "description": "Blades deal 20% less damage, but their damage increases by up to 100% based on the Target's Missing Health.",
+      "description": "Rupture's Blades deal 20% less Damage, but their Damage increases by up to 85% based on the Target's Missing Health.",
       "slot": "HERO_SPECIFIC_1",
       "sources": [
         {
-          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-24T17:35:55-05:00",
-          "official_patch": "1.17",
-          "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c.json",
+          "sha256": "5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "bronze",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T21:57:55-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c.json",
+          "sha256": "a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "silver",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:01:11-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8.json",
+          "sha256": "50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "gold",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T21:54:35-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634.json",
+          "sha256": "cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "platinum",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:04:33-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152.json",
+          "sha256": "2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "diamond",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:07:43-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6.json",
+          "sha256": "51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "paragon",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-04T05:34:11-06:00"
         }
       ]
     },
     "Sanguine Banquet": {
-      "description": "Gain 2% (+0.5% Bonus Mana) Omnivamp. Additionally, Minion Deaths near the Lilith permanently increase Valmont's Maximum Mana by 2, increasing to 30 for Hero Deaths.",
+      "description": "Gain 2% (+0.35% Bonus Mana) Omnivamp. Minions killed by Valmont increase Valmont's Maximum Mana by 2. Hero deaths increase it by 20.",
       "slot": "HERO_SPECIFIC_1",
       "sources": [
         {
-          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-09-24T17:35:55-05:00",
-          "official_patch": "1.17",
-          "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c.json",
+          "sha256": "5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "bronze",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T21:57:55-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c.json",
+          "sha256": "a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "silver",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:01:11-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8.json",
+          "sha256": "50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "gold",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T21:54:35-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634.json",
+          "sha256": "cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "platinum",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:04:33-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152.json",
+          "sha256": "2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "diamond",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-07T22:07:43-06:00"
+        },
+        {
+          "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6.json",
+          "sha256": "51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6",
+          "upstream": "https://statz.gg/predecessor",
+          "bracket": "paragon",
+          "dataset": "1.18",
+          "fetched_at": "2026-11-04T05:34:11-06:00"
         }
       ]
     }
@@ -272,103 +398,103 @@
         "Secondary",
         "Alternate"
       ],
-      "author": "Codex editorial review",
-      "reviewed_at": "2026-10-17T08:58:00-05:00",
-      "patch": "1.17.2",
+      "author": "Claude, 1.18 strategy review",
+      "reviewed_at": "2026-11-08T17:00:00+00:00",
+      "patch": "1.18",
       "why": "Azure Core supports mana and a farming phase; Megacosm rewards repeated ability contact; Dreambinder adds health and a slow to help remain in useful range. This spell-focused opening does not require Lilith to trigger item on-hits. Add penetration against magic armor, ultimate sustain for extended fights, and expensive power last.",
-      "caution": "1.17.2 Gold+ sample: 53.8% over 433 games (16 Oct); treat this as a reasoned starting plan. Mana drain rises throughout Exsanguinate; toggle off between real fights. Anti-heal reduces recovery, crowd control on Valmont breaks the bind, and there is no dash. Buy defense earlier when survival prevents sustained casting.",
+      "caution": "1.18 Gold+ sample: 51.4% over 138 games (7 Nov); treat this as a reasoned starting plan. Mana drain rises throughout Exsanguinate; toggle off between real fights. Anti-heal reduces recovery, crowd control on Valmont breaks the bind, and there is no dash. Buy defense earlier when survival prevents sustained casting.",
       "rune_note": "Sanguine Banquet and Azure Core require actual farming before their mana payoff. Vesh rewards ability contact; Tithe of Death needs a takedown. Phylactery has a 20-second cooldown, so toggling Exsanguinate does not repeatedly grant its shield. Vein Splitter is a group-pressure alternative but removes Ground; Rupturing Fangs trades early damage for finishing power.",
       "sources": [
         {
+          "title": "Official 1.18 Frostbite patch notes (live)",
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+          "fetched_at": "2026-11-08T09:54:45+00:00"
+        },
+        {
           "title": "Official 1.17.2 balance changes (live)",
           "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
-          "fetched_at": "2026-10-16T19:16:10-05:00"
+          "fetched_at": "2026-11-08T09:54:47+00:00"
         },
         {
-          "title": "Official 1.17 balance changes with Hotfix 1.17.1 (live)",
-          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-          "fetched_at": "2026-10-16T19:16:11-05:00"
+          "title": "Pred.gg 1.18 Gold+ role item, crest and loadout samples",
+          "url": "https://pred.gg/heroes/valmont/items?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=MIDLANE",
+          "fetched_at": "2026-11-07T21:52:57-06:00"
         },
         {
-          "title": "Pred.gg 1.17.2 Gold+ role item, crest and loadout samples",
-          "url": "https://pred.gg/heroes/valmont/items?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-          "fetched_at": "2026-10-16T19:19:49-05:00"
+          "title": "Pred.gg public kit (1.18, version 170)",
+          "url": "https://pred.gg/heroes/valmont/hero?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53",
+          "fetched_at": "2026-11-07T15:52:33-06:00"
         },
         {
-          "title": "Pred.gg public kit (1.17.2, version 169)",
-          "url": "https://pred.gg/heroes/valmont/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
-          "fetched_at": "2026-10-16T13:19:36-05:00"
-        },
-        {
-          "title": "Pred.gg public item definitions (1.17.2, version 169)",
-          "url": "https://pred.gg/items?version=169",
-          "fetched_at": "2026-10-16T13:17:42-05:00"
+          "title": "Pred.gg public item definitions (1.18, version 170)",
+          "url": "https://pred.gg/items?version=170",
+          "fetched_at": "2026-11-08T09:55:06+00:00"
         }
       ],
       "patch_review": {
         "result": "checked and retained",
-        "reviewed_at": "2026-10-17T08:58:00-05:00",
-        "reviewer": "Claude, 1.17.2 patch-targeted build pass",
-        "reason": "1.17.2 trimmed Rupture, Hemophagia, Exsanguinate and Sanguine Banquet, and Pred.gg's own text replaced the launch text. The plan never used attack speed or Lilith procs, so its spell-and-mana reasoning holds; the caution now says crowd control on Valmont breaks the bind. Pred.gg 1.17.2 Gold+ midlane: 53.8% over 433 games (collected 16 Oct). The Gold+ 1.17.2 item, crest and loadout samples do not separate the plan's choices from the most-played alternatives by more than chance.",
-        "alternative": "From the 1.17 review: Magnify fourth (1.17 Bronze+ 54.9%) against magic-armour stacking.",
-        "limitation": "Patch-targeted pass: mechanics, official 1.17.2 changes and Gold+ 1.17.2 slot samples were checked; item order, skill order and the other ranks were not re-reviewed. No in-game test.",
+        "reviewed_at": "2026-11-08T17:00:00+00:00",
+        "reviewer": "Claude, 1.18 strategy review",
+        "reason": "1.18 trimmed Exsanguinate's damage and hero healing, Hemophagia's mana return and Sanguine Banquet's omnivamp scaling, and raised Rupture's scaling. The plan never relied on the trimmed numbers for its order: Azure Core and Sanguine Banquet still pay mana back for farming, and Megacosm still rewards repeated Rupture and Exsanguinate hits, so the plan stands. Pred.gg 1.18 Gold+ midlane: 51.4% over 138 games (collected 7 Nov). Watch, in that sample: first item Azure Core 48 games 54.2% vs Entropy 45 games 48.9%; crest Soulbearer 81 games 51.9% vs Epoch 45 games 53.3%; augment Sanguine Banquet 127 games 52.8%; Eternal Vesh 107 games 54.2%; second blessing Phylactery 53 games 54.7% vs Mind Rot 43 games 53.5%. None separates the plan's choices from the alternatives by more than chance.",
+        "alternative": "From the 1.17 review: Magnify fourth against magic-armour stacking. Epoch is the most-played other crest.",
+        "limitation": "Re-reviewed in the 1.18 strategy review (8 Nov 2026), after the 7 Nov build pass held it: mechanics, the official 1.18 changes and Gold+ 1.18 slot samples were checked; item order, skill order and the other ranks were not re-reviewed. Its loadout definitions now cite the six live checksum bundles (Pred.gg 170 text) instead of the official 1.17 article. About four days of 1.18 data; no in-game test.",
         "sources": [
+          {
+            "title": "Official 1.18 Frostbite patch notes (live)",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+            "fetched_at": "2026-11-08T09:54:45+00:00"
+          },
           {
             "title": "Official 1.17.2 balance changes (live)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
-            "fetched_at": "2026-10-16T19:16:10-05:00"
+            "fetched_at": "2026-11-08T09:54:47+00:00"
           },
           {
-            "title": "Official 1.17 balance changes with Hotfix 1.17.1 (live)",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-10-16T19:16:11-05:00"
+            "title": "Pred.gg 1.18 Gold+ role item, crest and loadout samples",
+            "url": "https://pred.gg/heroes/valmont/items?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=MIDLANE",
+            "fetched_at": "2026-11-07T21:52:57-06:00"
           },
           {
-            "title": "Pred.gg 1.17.2 Gold+ role item, crest and loadout samples",
-            "url": "https://pred.gg/heroes/valmont/items?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-            "fetched_at": "2026-10-16T19:19:49-05:00"
+            "title": "Pred.gg public kit (1.18, version 170)",
+            "url": "https://pred.gg/heroes/valmont/hero?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53",
+            "fetched_at": "2026-11-07T15:52:33-06:00"
           },
           {
-            "title": "Pred.gg public kit (1.17.2, version 169)",
-            "url": "https://pred.gg/heroes/valmont/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
-            "fetched_at": "2026-10-16T13:19:36-05:00"
-          },
-          {
-            "title": "Pred.gg public item definitions (1.17.2, version 169)",
-            "url": "https://pred.gg/items?version=169",
-            "fetched_at": "2026-10-16T13:17:42-05:00"
+            "title": "Pred.gg public item definitions (1.18, version 170)",
+            "url": "https://pred.gg/items?version=170",
+            "fetched_at": "2026-11-08T09:55:06+00:00"
           }
         ]
       },
       "source_preconditions": {
         "abilities": {
-          "Passive": "When Valmont deals damage to an Enemy with Crimson Sigil or Bloodbound causes Lilith to strike them, dealing 12/20/28/36/44/23/31/39/47 (Based on Bloodbound Level) (+15% magical power) magical damage.\nThe more attack speed Valmont has, the shorter the delay between strikes is. \nOn Enemy Takedown their soul is consumed by Lilith and you restore 3/3/4/4/5/6/8/10/12/14/17/20/23/26/29/32/35/38-41 Mana (Based on Hero Level).\nConsuming the soul of an Enemy Hero restores 35% Maximum Mana additionally.",
+          "Passive": "When Valmont deals damage to an Enemy with Crimson Sigil or Bloodbound causes Lilith to strike them, dealing 12/20/28/36/44/23/31/39/47 (Based on Bloodbound Level) (+15% magical power) magical damage.\nThe more attack speed Valmont has, the shorter the delay between strikes is. \nOn Enemy Takedown their soul is consumed by Lilith and you restore 3/3/4/4/5/5/6/7/8/10/12/15/18/21/24/27/30/33-41 Mana (Based on Hero Level).\nConsuming the soul of an Enemy Hero restores 35% Maximum Mana additionally.",
           "LMB": "Ranged basic attack dealing 49/51.8/54.75/57.85/61.1/64.5/68.05/71.75/75.6/79.6/83.75/88.05/92.5/97.1/101.85/106.75/111.8/117 (+60% physical power) physical damage.",
-          "Q": "Valmont manifests 5 blood-forged blades above his head. \nOver the next 0.75s, these blades sequentially launch forward.\nEach Blade detonates upon impact, dealing 20/28/36/44/52 (+15% magical power) magical damage in a small area.",
+          "Q": "Valmont manifests 5 blood-forged blades above his head. \nOver the next 0.75s, these blades sequentially launch forward.\nEach Blade detonates upon impact, dealing 20/28/36/44/52 (+16% magical power) magical damage in a small area.",
           "E": "Active: Valmont launches Lilith, dealing 70/90/110/130/150 (+60% magical power) magical damage.\nDamaging an Enemy grants 20/25/30/35/40% attack speed for 4s.\nIncreasing the level of Bloodbound increases the strike damage of Hemophagia by 8 magical damage.",
           "RMB": "Valmont uses his blood to bind an Enemy to him, dealing 80/120/160/200/240 (+60% magical power) magical damage over 3s. \nWhen binding an Enemy, they are grounded and slowed by 25% for 3s.\nValmont steals 10/15/20/25/30% attack speed from the bound Enemy.\nIf Valmont is affected by Crowd Control or the Enemy cuts line of sight or gets far enough away from Valmont, the bind is broken.",
-          "R": "Unleash up to 3 swarms of bats, dealing 40/65/90 (+23% magical power) magical damage.\nUpon hitting the Enemy, bats return to Valmont, restoring 2/4/6 (+2.2% magical power) health.\nWhen hitting Heroes 10x the amount of health is restored instead.\nExsanguinate costs 5 Mana more for every Second it is active."
+          "R": "Unleash up to 3 swarms of bats, dealing 40/62/84 (+20% magical power) magical damage.\nUpon hitting the Enemy, bats return to Valmont, restoring 2/4.25/6.5 (+2.5% magical power) health.\nWhen hitting Heroes 8x the amount of health is restored instead.\nExsanguinate costs 5 Mana more for every Second it is active."
         },
         "items": {
           "Azure Core": {
             "stats": {
-              "Ability haste": "10.0",
               "Magical power": "70.0",
-              "Mana": "450.0"
+              "Mana": "450.0",
+              "Ability haste": "10.0"
             },
             "effects": [
               {
-                "active": false,
-                "condition": "On going below 40% Health:",
-                "cooldown": "90s",
                 "name": "Spirit Shield",
+                "active": false,
+                "cooldown": "90s",
+                "condition": "On going below 40% Health:",
                 "text": "• Gain a 100 (+12% mana) Shield for 5s."
               },
               {
-                "active": false,
-                "condition": "On Killing any Unit:",
-                "cooldown": null,
                 "name": "Font",
+                "active": false,
+                "cooldown": null,
+                "condition": "On Killing any Unit:",
                 "text": "• Gain 5 Max Mana.\n• Camp Leaders grant 15.\n• Stacks up to 400.\n• At 400, gain (+3.5% mana) Magical Power."
               }
             ],
@@ -376,23 +502,23 @@
           },
           "Megacosm": {
             "stats": {
-              "Ability haste": "10.0",
+              "Magical power": "65.0",
               "Health": "250.0",
-              "Magical power": "65.0"
+              "Ability haste": "10.0"
             },
             "effects": [
               {
-                "active": false,
-                "condition": "On dealing Ability Damage:",
-                "cooldown": null,
                 "name": "Disintegrate",
+                "active": false,
+                "cooldown": null,
+                "condition": "On dealing Ability Damage:",
                 "text": "• Deal 2.5% of Target's Max Health as magical damage over 3s.\n• Additional applications refresh the duration."
               },
               {
-                "active": false,
-                "condition": "On dealing Ability Damage to Heroes:",
-                "cooldown": null,
                 "name": "Star Killer",
+                "active": false,
+                "cooldown": null,
+                "condition": "On dealing Ability Damage to Heroes:",
                 "text": "• Deal 6% of Target's Bonus Health as magical damage over 3s."
               }
             ],
@@ -400,22 +526,22 @@
           },
           "Dreambinder": {
             "stats": {
-              "Health": "325.0",
-              "Magical power": "70.0"
+              "Magical power": "70.0",
+              "Health": "325.0"
             },
             "effects": [
               {
-                "active": false,
-                "condition": "On dealing Ability Damage:",
-                "cooldown": null,
                 "name": "Chilling Spells",
+                "active": false,
+                "cooldown": null,
+                "condition": "On dealing Ability Damage:",
                 "text": "• Slows by 30% for 1s.\n• Reduced to 20% for DoT Abilities."
               },
               {
-                "active": false,
-                "condition": "",
-                "cooldown": null,
                 "name": "",
+                "active": false,
+                "cooldown": null,
+                "condition": "",
                 "text": "Restriction: Does not apply with Proc Damage."
               }
             ],
@@ -423,22 +549,22 @@
           },
           "Caustica": {
             "stats": {
-              "Base mana regeneration": "100.0%",
-              "Magical power": "75.0"
+              "Magical power": "75.0",
+              "Base mana regeneration": "100.0%"
             },
             "effects": [
               {
-                "active": false,
-                "condition": "",
-                "cooldown": null,
                 "name": "Magus",
+                "active": false,
+                "cooldown": null,
+                "condition": "",
                 "text": "• Ignore 35% of Magical Armor."
               },
               {
-                "active": false,
-                "condition": "On dealing Ability Damage to a Hero:",
-                "cooldown": null,
                 "name": "Arcane Might",
+                "active": false,
+                "cooldown": null,
+                "condition": "On dealing Ability Damage to a Hero:",
                 "text": "• While they are above 50% Health.\n• For every point of Bonus Magical Armor they possess.\n• Deal 0.2% more magical damage."
               }
             ],
@@ -446,16 +572,16 @@
           },
           "Overseer": {
             "stats": {
-              "Magical lifesteal": "7.0%",
+              "Magical power": "85.0",
               "Magical penetration": "8.0",
-              "Magical power": "85.0"
+              "Magical lifesteal": "7.0%"
             },
             "effects": [
               {
-                "active": false,
-                "condition": "Enhance your Ultimate Ability:",
-                "cooldown": null,
                 "name": "Exalted",
+                "active": false,
+                "cooldown": null,
+                "condition": "Enhance your Ultimate Ability:",
                 "text": "• Deals 15% more damage. \n• Heals you for 25% of the damage dealt to Heroes."
               }
             ],
@@ -467,10 +593,10 @@
             },
             "effects": [
               {
-                "active": false,
-                "condition": "",
-                "cooldown": null,
                 "name": "Eradicate",
+                "active": false,
+                "cooldown": null,
+                "condition": "",
                 "text": "• Increase your Magical Power by 25%."
               }
             ],
@@ -478,16 +604,16 @@
           },
           "Soulbearer": {
             "stats": {
-              "Ability haste": "8.0",
               "Magical power": "30.0",
-              "Mana": "200.0"
+              "Mana": "200.0",
+              "Ability haste": "8.0"
             },
             "effects": [
               {
-                "active": true,
-                "condition": "",
-                "cooldown": "120s",
                 "name": "Anima",
+                "active": true,
+                "cooldown": "120s",
+                "condition": "",
                 "text": "• Gain a 100 (+35 magical power) (+6% mana) Shield for 8s.\n• Gain 20% Magical Lifesteal and 10% Movement Speed for 8s."
               }
             ],
@@ -495,10 +621,10 @@
           }
         },
         "perks": {
-          "Sanguine Banquet": "Gain 2% (+0.4% Bonus Mana) Omnivamp. Minions killed by Valmont increase Valmont's Maximum Mana by 2. Hero deaths increase it by 20.",
-          "Vesh": "Ability Damage dealt to Enemy Heroes deals +7% (+0.4% per Minute) of that Damage as a 3s DoT.",
+          "Sanguine Banquet": "Gain 2% (+0.35% Bonus Mana) Omnivamp. Minions killed by Valmont increase Valmont's Maximum Mana by 2. Hero deaths increase it by 20.",
+          "Vesh": "Ability Damage dealt to Enemy Heroes deals +7% (+0.35% per Minute) of that Damage as a 3s DoT.",
           "Tithe of Death": "Takedowns restore 15% Max Mana and permanently grant 2 Ability Haste. (Max: 30 Ability Haste).",
-          "Phylactery": "Casting your Ultimate grants a 15% Max Mana Shield and 100% Cooldown Progression for 4s. (20s CD)."
+          "Phylactery": "Casting your Ultimate grants a 15% Max Mana Shield and 75% Cooldown Progression for 4s. (20s CD)."
         }
       },
       "item_notes": [
@@ -574,35 +700,34 @@
           "Alternate",
           "Alternate"
         ],
-        "reviewed_at": "2026-10-17T08:58:00-05:00",
-        "patch": "1.17.2",
-        "reason": "Rupture first supplies five area hits for lane farming; Bloodbound second supplies ranged placement and another hit; Arterial Grip third supplies control. Max Rupture at 1/4/5/7/9, Bloodbound at 2/8/10/12/13, then Grip at 3/14/15/17/18; Exsanguinate at 6/11/16. Bloodbound ranks also increase Lilith damage. Grip at level two is the defensive alternative into an early threat. This is a reasoned launch default, not a measured optimal allocation. 1.17.2 recheck (17 Oct 2026): Rupture's damage fell to 20-52 and Exsanguinate's to 40-90, and Pred.gg's own text now describes Bloodbound's rank bonus as +8 Hemophagia strike damage per rank. Rupture's five area hits still lead lane farming and Bloodbound ranks still raise Lilith's damage, so the order stands.",
+        "reviewed_at": "2026-11-08T17:00:00+00:00",
+        "patch": "1.18",
+        "reason": "Rupture first supplies five area hits for lane farming; Bloodbound second supplies ranged placement and another hit; Arterial Grip third supplies control. Max Rupture at 1/4/5/7/9, Bloodbound at 2/8/10/12/13, then Grip at 3/14/15/17/18; Exsanguinate at 6/11/16. Bloodbound ranks also increase Lilith damage. Grip at level two is the defensive alternative into an early threat. This is a reasoned launch default, not a measured optimal allocation. 1.17.2 recheck (17 Oct 2026): Rupture's damage fell to 20-52 and Exsanguinate's to 40-90, and Pred.gg's own text now describes Bloodbound's rank bonus as +8 Hemophagia strike damage per rank. Rupture's five area hits still lead lane farming and Bloodbound ranks still raise Lilith's damage, so the order stands. 1.18 recheck (8 Nov 2026): Rupture's scaling rose to 16% and Exsanguinate's damage fell to 40-84; Rupture's five area hits still lead lane farming and Bloodbound ranks still raise Lilith's damage, so the order stands.",
         "sources": [
           {
-            "title": "Official live 1.17 changes",
-            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-24T17:35:55-05:00",
-            "fingerprint": "7d2dd627b5a592254480bc4dceca47ce4a9579c786e716707094e29246be81b5"
+            "title": "Official 1.18 Frostbite patch notes (live)",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+            "fetched_at": "2026-11-08T09:54:45+00:00"
           },
           {
             "title": "Official 1.17.2 balance changes (live)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
-            "fetched_at": "2026-10-16T19:16:10-05:00"
+            "fetched_at": "2026-11-08T09:54:47+00:00"
           },
           {
-            "title": "Pred.gg public kit (1.17.2, version 169)",
-            "url": "https://pred.gg/heroes/valmont/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
-            "fetched_at": "2026-10-16T13:19:36-05:00"
+            "title": "Pred.gg public kit (1.18, version 170)",
+            "url": "https://pred.gg/heroes/valmont/hero?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53",
+            "fetched_at": "2026-11-07T15:52:33-06:00"
           }
         ],
         "source_abilities": {
-          "Q": "Valmont manifests 5 blood-forged blades above his head. \nOver the next 0.75s, these blades sequentially launch forward.\nEach Blade detonates upon impact, dealing 20/28/36/44/52 (+15% magical power) magical damage in a small area.",
+          "Q": "Valmont manifests 5 blood-forged blades above his head. \nOver the next 0.75s, these blades sequentially launch forward.\nEach Blade detonates upon impact, dealing 20/28/36/44/52 (+16% magical power) magical damage in a small area.",
           "E": "Active: Valmont launches Lilith, dealing 70/90/110/130/150 (+60% magical power) magical damage.\nDamaging an Enemy grants 20/25/30/35/40% attack speed for 4s.\nIncreasing the level of Bloodbound increases the strike damage of Hemophagia by 8 magical damage.",
           "RMB": "Valmont uses his blood to bind an Enemy to him, dealing 80/120/160/200/240 (+60% magical power) magical damage over 3s. \nWhen binding an Enemy, they are grounded and slowed by 25% for 3s.\nValmont steals 10/15/20/25/30% attack speed from the bound Enemy.\nIf Valmont is affected by Crowd Control or the Enemy cuts line of sight or gets far enough away from Valmont, the bind is broken.",
-          "R": "Unleash up to 3 swarms of bats, dealing 40/65/90 (+23% magical power) magical damage.\nUpon hitting the Enemy, bats return to Valmont, restoring 2/4/6 (+2.2% magical power) health.\nWhen hitting Heroes 10x the amount of health is restored instead.\nExsanguinate costs 5 Mana more for every Second it is active."
+          "R": "Unleash up to 3 swarms of bats, dealing 40/62/84 (+20% magical power) magical damage.\nUpon hitting the Enemy, bats return to Valmont, restoring 2/4.25/6.5 (+2.5% magical power) health.\nWhen hitting Heroes 8x the amount of health is restored instead.\nExsanguinate costs 5 Mana more for every Second it is active."
         }
       },
-      "review_scope": "1.17.2 patch-targeted build review (17 Oct 2026): supporting mechanics, official 1.17.2 changes and Pred.gg 1.17.2 Gold+ item, crest and loadout samples, checked against the 1.17 plan. Tier, composition and strategy guidance were not reviewed and keep their 1.17 dates.",
+      "review_scope": "1.18 strategy review (8 Nov 2026): supporting mechanics against Pred.gg 1.18 (version 170) and the official 1.18 and 1.17.2 notes, and Pred.gg 1.18 Gold+ item, crest and loadout samples, checked against the 1.17.2 plan, together with the grade, hero note and counters.",
       "previous_review": {
         "slug": "valmont",
         "role": "midlane",
@@ -632,33 +757,38 @@
           "Alternate"
         ],
         "why": "Azure Core supports mana and a farming phase; Megacosm rewards repeated ability contact; Dreambinder adds health and a slow to help remain in useful range. This spell-focused opening does not require Lilith to trigger item on-hits. Add penetration against magic armor, ultimate sustain for extended fights, and expensive power last.",
-        "caution": "Current-patch sample: 45.5% over 433 1.17 Bronze+ games, with no Gold+ sample; treat this as a reasoned starting plan. Mana drain rises throughout Exsanguinate; toggle off between real fights. Anti-heal reduces recovery, immobilization breaks the tether, and there is no dash. Buy defense earlier when survival prevents sustained casting.",
+        "caution": "1.17.2 Gold+ sample: 53.8% over 433 games (16 Oct); treat this as a reasoned starting plan. Mana drain rises throughout Exsanguinate; toggle off between real fights. Anti-heal reduces recovery, crowd control on Valmont breaks the bind, and there is no dash. Buy defense earlier when survival prevents sustained casting.",
         "sources": [
           {
-            "title": "Official 1.17 balance changes (live; Hotfix 1.17.1 checked 24 Sep)",
+            "title": "Official 1.17.2 balance changes (live)",
+            "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+            "fetched_at": "2026-10-16T19:16:10-05:00"
+          },
+          {
+            "title": "Official 1.17 balance changes with Hotfix 1.17.1 (live)",
             "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17",
-            "fetched_at": "2026-09-23T14:24:24-05:00"
+            "fetched_at": "2026-10-16T19:16:11-05:00"
           },
           {
-            "title": "Statz Gold+ role builds (dataset 1.16; editorial reference, other ranks compared separately)",
-            "url": "https://statz.gg/predecessor/heroes/valmont/build/midlane/gold",
-            "fetched_at": "2026-09-23T14:53:13-05:00"
+            "title": "Pred.gg 1.17.2 Gold+ role item, crest and loadout samples",
+            "url": "https://pred.gg/heroes/valmont/items?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
+            "fetched_at": "2026-10-16T19:19:49-05:00"
           },
           {
-            "title": "Pred.gg public kit and 1.17 ranked Bronze+ role/item samples",
-            "url": "https://pred.gg/heroes/valmont/hero?versions=167&gameMode=RANKED&ranks=21%2C22%2C23%2C24%2C25%2C26%2C27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
-            "fetched_at": "2026-09-23T14:07:47-05:00"
+            "title": "Pred.gg public kit (1.17.2, version 169)",
+            "url": "https://pred.gg/heroes/valmont/hero?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36",
+            "fetched_at": "2026-10-16T13:19:36-05:00"
           },
           {
-            "title": "Pred.gg public item definitions (1.17, version 167)",
-            "url": "https://pred.gg/items?version=167",
-            "fetched_at": "2026-09-23T14:00:19-05:00"
+            "title": "Pred.gg public item definitions (1.17.2, version 169)",
+            "url": "https://pred.gg/items?version=169",
+            "fetched_at": "2026-10-16T13:17:42-05:00"
           }
         ],
-        "patch": "1.17",
-        "reviewed_at": "2026-09-23T15:14:06-05:00",
-        "status": "historical review",
-        "active": false
+        "patch": "1.17.2",
+        "reviewed_at": "2026-10-17T08:58:00-05:00",
+        "active": false,
+        "status": "historical review"
       }
     }
   ],

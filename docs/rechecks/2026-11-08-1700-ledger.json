@@ -3,7 +3,7 @@
  "title": "1.18 strategy review, 8 Nov 2026",
  "reviewed_at": "2026-11-08T17:00:00+00:00",
  "reviewer": "Claude, 1.18 strategy review (owner's go of 8 Nov 2026)",
- "scope": "1.18 strategy review on the owner's go of 8 Nov 2026: tiers, hero notes, counters, build adaptations, compositions and pools moved to 1.18 against Pred.gg Gold+ 1.18 (version 170) and the official 1.18 and 1.17.2 notes; stale 1.16.4 and later corrections retired or rebased; Kaelen's first plan, counterplay and grade. Baron Valmont Midlane stays held on its 1.17.2 review. The official correction notice on Platinum+ (Sanguine Slash) and Diamond+ (Bring The Boom, Vital Essence) is held as on 3 Nov: those ranks still carry older retained Pred.gg descriptions, and the notice stays visible there.",
+ "scope": "1.18 strategy review on the owner's go of 8 Nov 2026: tiers, hero notes, counters, build adaptations, compositions and pools moved to 1.18 against Pred.gg Gold+ 1.18 (version 170) and the official 1.18 and 1.17.2 notes; stale 1.16.4 and later corrections retired or rebased; Kaelen's first plan, counterplay and grade. Baron Valmont Midlane's supplement plan and grade re-reviewed on 1.18 (loadout definitions cited from the live checksum bundles). The official correction notice on Platinum+ (Sanguine Slash) and Diamond+ (Bring The Boom, Vital Essence) is held as on 3 Nov: those ranks still carry older retained Pred.gg descriptions, and the notice stays visible there.",
  "standard": "docs/STRATEGY-REVIEW-1.17.2.md (template), STRATEGY-REVIEW-POLICY.md and docs/RECHECK-RUNNER.md. A grade moves at most one step, with a kit or patch reason and evidence pointing the same way, or under the drop rule (500+ games); a high rate alone never raises a grade.",
  "entries": [
   {
@@ -2592,6 +2592,40 @@
   },
   {
    "kind": "grade",
+   "slug": "valmont",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "old_tier": "B",
+   "tier": "B",
+   "reason": "B on 1.18: 51.4% over 138 Gold+ midlane games (95% interval 43.2 to 59.6; role average 48.1%). 1.18 trimmed Exsanguinate's damage and hero healing, Hemophagia's mana return and Sanguine Banquet's omnivamp scaling, and raised Rupture's scaling; his midlane results still sit above the role average and his 1.17.2 rate lies inside the 1.18 interval, so B stays, and he remains a practiced pick. No dash: crowd control on Valmont, broken line of sight or distance breaks the bind, and Exsanguinate costs more mana each second it stays on.",
+   "limitation": "About four days of Pred.gg Gold+ 1.18 data (collected 7 Nov, ranks 43-53 after the rank reset); no sample reached 500 games, so the drop rule did not apply. The 95% interval describes this sample only.",
+   "reviewed_at": "2026-11-08T17:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=MIDLANE",
+     "fetched_at": "2026-11-07T21:51:44-06:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-08T09:54:45+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-08T09:54:47+00:00"
+    }
+   ],
+   "figures": {
+    "winRate": 51.45,
+    "matches": 138,
+    "interval95": [
+     43.18,
+     59.64
+    ],
+    "role_average": 48.06
+   }
+  },
+  {
+   "kind": "grade",
    "slug": "wraith",
    "role": "carry",
    "verdict": "checked and retained",
@@ -2929,31 +2963,6 @@
     ],
     "role_average": 48.35
    }
-  },
-  {
-   "kind": "grade",
-   "slug": "valmont",
-   "role": "midlane",
-   "verdict": "unresolved",
-   "old_tier": "B",
-   "tier": null,
-   "reason": "Not graded on 1.18: the grade needs a reviewed 1.18 plan, and the supplement plan stays on its 1.17.2 review because the validator accepts official definitions only at Patch_Notes_<version> while the 1.18 article is at PatchNotes_1.18. Owner decision pending (validator change).",
-   "limitation": "The 1.17.2 grade (B) remains in the history; nothing on 1.18 replaces it.",
-   "reviewed_at": "2026-11-08T17:00:00+00:00",
-   "sources": [
-    {
-     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
-     "fetched_at": "2026-11-08T09:54:45+00:00"
-    },
-    {
-     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
-     "fetched_at": "2026-11-08T09:54:47+00:00"
-    },
-    {
-     "url": "https://pred.gg/heroes?versions=169&gameMode=RANKED&ranks=27%2C28%2C29%2C30%2C31%2C32%2C33%2C34%2C35%2C36&role=MIDLANE",
-     "fetched_at": "2026-10-17T13:19:15-05:00"
-    }
-   ]
   },
   {
    "kind": "plan",
@@ -5087,6 +5096,166 @@
     {
      "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=SUPPORT",
      "fetched_at": "2026-11-07T21:51:47-06:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-08T09:54:45+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-08T09:54:47+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "valmont",
+   "role": "midlane",
+   "verdict": "checked and retained",
+   "reason": "1.18 trimmed Exsanguinate's damage and hero healing, Hemophagia's mana return and Sanguine Banquet's omnivamp scaling, and raised Rupture's scaling. The plan never relied on the trimmed numbers for its order: Azure Core and Sanguine Banquet still pay mana back for farming, and Megacosm still rewards repeated Rupture and Exsanguinate hits, so the plan stands. Pred.gg 1.18 Gold+ midlane: 51.4% over 138 games (collected 7 Nov). Watch, in that sample: first item Azure Core 48 games 54.2% vs Entropy 45 games 48.9%; crest Soulbearer 81 games 51.9% vs Epoch 45 games 53.3%; augment Sanguine Banquet 127 games 52.8%; Eternal Vesh 107 games 54.2%; second blessing Phylactery 53 games 54.7% vs Mind Rot 43 games 53.5%. None separates the plan's choices from the alternatives by more than chance.",
+   "limitation": "Re-reviewed in the 1.18 strategy review (8 Nov 2026), after the 7 Nov build pass held it: mechanics, the official 1.18 changes and Gold+ 1.18 slot samples were checked; item order, skill order and the other ranks were not re-reviewed. Its loadout definitions now cite the six live checksum bundles (Pred.gg 170 text) instead of the official 1.17 article. About four days of 1.18 data; no in-game test.",
+   "reviewed_at": "2026-11-08T17:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-08T09:54:45+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-08T09:54:47+00:00"
+    },
+    {
+     "url": "https://pred.gg/heroes/valmont/items?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=MIDLANE",
+     "fetched_at": "2026-11-07T21:52:57-06:00"
+    },
+    {
+     "url": "https://pred.gg/heroes/valmont/hero?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53",
+     "fetched_at": "2026-11-07T15:52:33-06:00"
+    },
+    {
+     "url": "https://pred.gg/items?version=170",
+     "fetched_at": "2026-11-08T09:55:06+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "definitions",
+   "key": "Vein Splitter",
+   "verdict": "changed",
+   "reason": "Restated on the Pred.gg 1.18 (version 170) text carried by the six live checksum bundles, which agree; the official 1.17 article text it replaces predates the 1.17.2 and 1.18 changes to Valmont.",
+   "limitation": "Pred.gg text, not an official definition; the official 1.18 notes are checked separately.",
+   "reviewed_at": "2026-11-08T17:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c.json",
+     "fetched_at": "2026-11-07T21:57:55-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c.json",
+     "fetched_at": "2026-11-07T22:01:11-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8.json",
+     "fetched_at": "2026-11-07T21:54:35-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634.json",
+     "fetched_at": "2026-11-07T22:04:33-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152.json",
+     "fetched_at": "2026-11-07T22:07:43-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6.json",
+     "fetched_at": "2026-11-04T05:34:11-06:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-08T09:54:45+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-08T09:54:47+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "definitions",
+   "key": "Rupturing Fangs",
+   "verdict": "changed",
+   "reason": "Restated on the Pred.gg 1.18 (version 170) text carried by the six live checksum bundles, which agree; the official 1.17 article text it replaces predates the 1.17.2 and 1.18 changes to Valmont.",
+   "limitation": "Pred.gg text, not an official definition; the official 1.18 notes are checked separately.",
+   "reviewed_at": "2026-11-08T17:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c.json",
+     "fetched_at": "2026-11-07T21:57:55-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c.json",
+     "fetched_at": "2026-11-07T22:01:11-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8.json",
+     "fetched_at": "2026-11-07T21:54:35-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634.json",
+     "fetched_at": "2026-11-07T22:04:33-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152.json",
+     "fetched_at": "2026-11-07T22:07:43-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6.json",
+     "fetched_at": "2026-11-04T05:34:11-06:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-08T09:54:45+00:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-08T09:54:47+00:00"
+    }
+   ]
+  },
+  {
+   "kind": "mechanics",
+   "section": "definitions",
+   "key": "Sanguine Banquet",
+   "verdict": "changed",
+   "reason": "Restated on the Pred.gg 1.18 (version 170) text carried by the six live checksum bundles, which agree; the official 1.17 article text it replaces predates the 1.17.2 and 1.18 changes to Valmont.",
+   "limitation": "Pred.gg text, not an official definition; the official 1.18 notes are checked separately.",
+   "reviewed_at": "2026-11-08T17:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-5ca5323216e1a9c4b9288729b1ab65953bc5ff92e695ed4e19a4a9ed1653197c.json",
+     "fetched_at": "2026-11-07T21:57:55-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-a0ace4637407655880b5d4796fffc44b191df5c50392bde311cf3e12161bf02c.json",
+     "fetched_at": "2026-11-07T22:01:11-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-50e1873afb44d362a382e0fa081e58a57522876840c19fc1d4632a66d633c3e8.json",
+     "fetched_at": "2026-11-07T21:54:35-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-cdac6b6dda942951cb6b347c26deb1cf09796e8254ce3c57db65d3610d642634.json",
+     "fetched_at": "2026-11-07T22:04:33-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-2aedeb99a18d9d2c301ae838e9b0e9be31eb21c5ce252dd26fa91f6959bf4152.json",
+     "fetched_at": "2026-11-07T22:07:43-06:00"
+    },
+    {
+     "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-51a8f15d3121d19b471c286c87297978f22465f44a54dc1877626f7825c2aac6.json",
+     "fetched_at": "2026-11-04T05:34:11-06:00"
     },
     {
      "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",

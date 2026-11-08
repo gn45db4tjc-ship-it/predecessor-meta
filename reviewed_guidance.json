@@ -55,7 +55,7 @@
     },
     "notes": [
       "Jungle: Khaimera (sustained pressure) and Aurora (layered magical control) stay the S starting points on 1.18; Khaimera is again the most-played Gold+ jungler, at 57.9% over 242 games. Zarus remains the containment pick for a mid or support to convert, Serath (A) the second-wave diver after 1.18 raised her physical power growth and Chastise damage, and Steel the direct tank catch, now with slightly lower base armor. Rampage stays A as a durable long-range boulder catch. New in 1.18, Kaelen starts at B: Rimeglass, Winter's Pursuit and Frostfall chain slows into roots, and his 48.8% over 289 games sits on the role average. Krix lost some health and Predator its damage in 1.18, which trims the jungle bruiser setup many plans use.",
-      "Mid: The Fey (prepared area control) stays the S starting point. Lt. Belica, Renna, Gideon, Argus, Gadget and Howitzer are the A alternatives; Gideon and Renna are flagged for recheck because their Gold+ 1.18 results fell below their 1.17.2 rates with no kit change, on samples too small for the drop rule. Howitzer has the highest midlane result, but a high rate alone never raises a grade. Morigesh stays B. Baron Valmont's plan is held on its 1.17.2 review, so he has no grade shown on 1.18, after trims to Exsanguinate and Hemophagia. Neon stays C.",
+      "Mid: The Fey (prepared area control) stays the S starting point. Lt. Belica, Renna, Gideon, Argus, Gadget and Howitzer are the A alternatives; Gideon and Renna are flagged for recheck because their Gold+ 1.18 results fell below their 1.17.2 rates with no kit change, on samples too small for the drop rule. Howitzer has the highest midlane result, but a high rate alone never raises a grade. Morigesh stays B. Baron Valmont stays B: 1.18 trimmed Exsanguinate, Hemophagia and Sanguine Banquet, and his plan was re-checked on 1.18. Neon stays C.",
       "Carry: Legion rose to S: 1.18 raised Frag Order's damage and scaling, shortened Saturation Charge's cooldown and strengthened Napalm Zone, and he leads the carries at 55.3% over 275 games. Drongo fell to A: his mid-air Shrapnel Cannon now counts as a dash for effects that answer dashes, and 42.1% over 252 games is clearly below his 1.17.2 rate. Sparrow and Eden stay S; Sparrow is flagged for recheck after her results fell without a kit change. Kira and TwinBlast are the A alternatives; Kira's Nevermore now deals a flat amount by level plus 5% of current health. Revenant, Murdock and Skylar stay B.",
       "Support: choose Mourn for catch plus sustain, Narbash for a grouped fight, Muriel for amplification and protection when initiation already exists, or Steel for a direct opening. Mourn and Narbash stay S. Muriel fell to A: 1.18 trimmed Alacrity's shield and cut Reversal Of Fortune's damage reduction to 20% plus 5% of magical power, and 47.0% over 202 games is clearly below her 1.17.2 rate. Steel stays A on the largest support sample. Phase and Lt. Belica stay A; Riktor, Dekker and Adele stay B. Maco stays C after a mixed 1.18 change.",
       "Offlane: no offlaner holds S on 1.18. Greystone leads the working pool as a lane-pressure option at 53.7% over 190 games. Shinbi supplies magical skirmishing and Kwang a tethered catch. Iggy & Scorch received a targeted offlane nerf (Flame Turret takes 2x melee basic-attack damage, up from 1.7x); his offlane sample is under 100 games, so A stays on its 1.17.2 sample, flagged for recheck. Crunch is flagged after his results fell with no kit change. Grux and Akeron (B) supply frontline. Terra stays C and fell further below the role average. Serath offlane stays C and does not inherit another role's grade.",
@@ -42040,6 +42040,26 @@
           }
         },
         {
+          "slug": "valmont",
+          "role": "midlane",
+          "tier": "B",
+          "why": "Arterial Grip grounds and slows a bound target so Rupture and Bloodbound can land, and Exsanguinate's bats return health, far more when they hit heroes. The grounding bind also stops dashes such as Torn Space.",
+          "watch": "B on 1.18: 51.4% over 138 Gold+ midlane games (95% interval 43.2 to 59.6; role average 48.1%). 1.18 trimmed Exsanguinate's damage and hero healing, Hemophagia's mana return and Sanguine Banquet's omnivamp scaling, and raised Rupture's scaling; his midlane results still sit above the role average and his 1.17.2 rate lies inside the 1.18 interval, so B stays, and he remains a practiced pick. No dash: crowd control on Valmont, broken line of sight or distance breaks the bind, and Exsanguinate costs more mana each second it stays on.",
+          "ability_keys": [
+            "RMB",
+            "Q",
+            "E",
+            "R"
+          ],
+          "evidence": {
+            "winRate": 51.44927536231884,
+            "wonGames": 71,
+            "matches": 138,
+            "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=MIDLANE",
+            "fetched_at": "2026-11-07T21:51:44-06:00"
+          }
+        },
+        {
           "slug": "wraith",
           "role": "carry",
           "tier": "B",
@@ -53708,6 +53728,7 @@
         "reviewed_at": "2026-11-08T17:00:00+00:00",
         "items": [
           "new-hero:kaelen",
+          "new-hero:valmont",
           "patch-change:19237cd8b9bf37",
           "mechanics-conflict:official-correction-review"
         ],
@@ -53721,9 +53742,9 @@
             "evidence": "0cc23657acde26"
           }
         ],
-        "scope": "1.18 strategy review on the owner's go of 8 Nov 2026: tiers, hero notes, counters, build adaptations, compositions and pools moved to 1.18 against Pred.gg Gold+ 1.18 (version 170) and the official 1.18 and 1.17.2 notes; stale 1.16.4 and later corrections retired or rebased; Kaelen's first plan, counterplay and grade. Baron Valmont Midlane stays held on its 1.17.2 review. The official correction notice on Platinum+ (Sanguine Slash) and Diamond+ (Bring The Boom, Vital Essence) is held as on 3 Nov: those ranks still carry older retained Pred.gg descriptions, and the notice stays visible there.",
+        "scope": "1.18 strategy review on the owner's go of 8 Nov 2026: tiers, hero notes, counters, build adaptations, compositions and pools moved to 1.18 against Pred.gg Gold+ 1.18 (version 170) and the official 1.18 and 1.17.2 notes; stale 1.16.4 and later corrections retired or rebased; Kaelen's first plan, counterplay and grade. Baron Valmont Midlane's supplement plan and grade re-reviewed on 1.18 (loadout definitions cited from the live checksum bundles). The official correction notice on Platinum+ (Sanguine Slash) and Diamond+ (Bring The Boom, Vital Essence) is held as on 3 Nov: those ranks still carry older retained Pred.gg descriptions, and the notice stays visible there.",
         "ledger": "docs/rechecks/2026-11-08-1700-ledger.json",
-        "result": "1 changed (Kaelen's new plan), 90 checked and retained, 2 unresolved; 3 grades moved and 1 first grade"
+        "result": "1 changed (Kaelen's new plan), 90 checked and retained, 2 unresolved, plus Baron Valmont's supplement plan checked and retained on 1.18; 3 grades moved and 1 first grade"
       }
     ]
   },
