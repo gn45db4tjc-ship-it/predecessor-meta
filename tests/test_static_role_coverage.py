@@ -13,11 +13,12 @@ class RoleReviewTests(unittest.TestCase):
     def setUp(self):
         self.packet=json.loads((p.base.TOOL_DIR/'reviewed_guidance.json').read_text(encoding='utf8'))
 
-    def test_authored_packet_valid_and_covers_92_unique_roles(self):
+    def test_authored_packet_valid_and_covers_93_unique_roles(self):
         p.base.validate_guidance_packet(self.packet,None)
         plans=self.packet['guidance']['builds']
         # 1.18 build pass (owner's 28 Oct decision): four experimental plans retired, Wraith Support promoted.
-        self.assertEqual(len({(r['slug'],r['role']) for r in plans}),92)
+        # 1.18 strategy review (8 Nov): Kaelen Jungle added.
+        self.assertEqual(len({(r['slug'],r['role']) for r in plans}),93)
         self.assertEqual(sum(bool(r.get('experimental_role')) for r in plans),2)
 
     def test_missing_purchase_or_loadout_precondition_rejected(self):
