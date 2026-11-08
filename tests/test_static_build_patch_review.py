@@ -8,16 +8,17 @@ class BuildPatchReviewTests(unittest.TestCase):
         self.packet=json.loads((Path(m.__file__).parent/'reviewed_guidance.json').read_text(encoding='utf8'))
     def test_build_only_review_does_not_advance_full_strategy_dates(self):
         m.validate_guidance_packet(self.packet,None)
-        # The strategy dates move only with an actual strategy review (the 17 Oct 1.17.2 review), not a build-only pass.
+        # The strategy dates move only with an actual strategy review (the 8 Nov 1.18 review), not a build-only pass.
         # The 1.18 build pass (7 Nov 2026) keeps its own date.
-        self.assertEqual(self.packet['patch'],'1.17.2')
-        self.assertTrue(self.packet['reviewed_at'].startswith('2026-10-17'))
-        self.assertEqual(self.packet['guidance']['maintenance_review']['kind'],'1.17.2 strategy review')
+        self.assertEqual(self.packet['patch'],'1.18')
+        self.assertTrue(self.packet['reviewed_at'].startswith('2026-11-08'))
+        self.assertEqual(self.packet['guidance']['maintenance_review']['kind'],'1.18 strategy review')
         self.assertTrue(self.packet['guidance']['build_patch_review']['reviewed_at'].startswith('2026-11-07'))
         self.assertNotEqual(self.packet['reviewed_at'],self.packet['guidance']['build_patch_review']['reviewed_at'])
         review=self.packet['guidance']['build_patch_review']
-        # Four experimental plans were retired in the 1.18 pass on the owner's 28 Oct decision (docs/PATCH-DAY-1.18.md).
-        self.assertEqual(sum(review['summary'].values()),92)
+        # Four experimental plans were retired in the 1.18 pass on the owner's 28 Oct decision (docs/PATCH-DAY-1.18.md);
+        # the 1.18 strategy review added Kaelen's first plan (8 Nov).
+        self.assertEqual(sum(review['summary'].values()),93)
         self.assertEqual(review['patch'],'1.18')
         # The pass is bound to the live 1.18 and 1.17.2 articles; 1.17 is no longer live.
         self.assertEqual(set(review['article_fingerprints']),{'1.18','1.17.2'})
@@ -59,7 +60,10 @@ class BuildPatchReviewTests(unittest.TestCase):
         self.assertEqual(rows['serath','jungle']['eternal'],'Weald')
         self.assertIn('Aegis Of Agawar',rows['greystone','offlane']['core']);self.assertIn("Giant's Ring",rows['greystone','offlane']['finish'])
         # 1.18 pass: every plan keeps its 1.17.2 review as the previous one, with the 1.17.2 parts and dates.
+        # Kaelen is new in 1.18 and has no previous review.
+        self.assertNotIn('previous_review',rows['kaelen','jungle'])
         for key,r in rows.items():
+            if key==('kaelen','jungle'):continue
             prev=r['previous_review']
             self.assertEqual(prev['patch'],'1.17.2');self.assertFalse(prev['active'])
             self.assertTrue(prev['reviewed_at'].startswith('2026-10-17'))

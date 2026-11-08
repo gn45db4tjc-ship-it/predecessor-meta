@@ -21,8 +21,8 @@ test('Valmont starter and legal skill schedule need no invented observed outcome
  const b=bundle(),e=M.create(b),p=e.plannedBuild('valmont','midlane');assert.equal(p.kind,'reviewed');assert.equal(p.items.length,6);
  assert.equal(e.performance({slug:'valmont',role:'midlane'}),null);assert.equal(e.pair('valmont','steel'),null);
  const k=K.make(b,p);assert.equal(k.kind,'reviewed');assert.equal(k.points.length,18);assert.ok(K.validOrder(k.order));
- // 1.17.2 pass: the caution states the dated Gold+ sample it was reviewed against.
- assert.match(p.caution,/1\.17\.2 Gold\+ sample: [\d.]+% over [\d,]+ games/);assert.match(p.rune_note,/20-second cooldown/);
+ // 1.18 strategy review: the caution states the dated Gold+ sample it was reviewed against.
+ assert.match(p.caution,/1\.18 Gold\+ sample: [\d.]+% over [\d,]+ games/);assert.match(p.rune_note,/20-second cooldown/);
 });
 test('three conditional responses respect bans, filled roles, changed evidence and do not fabricate samples',()=>{
  const b=bundle('1.17'),e=M.create(b);const rows=e.counterIdeas('valmont','midlane');assert.equal(rows.length,3);assert(rows.every(r=>r.active&&!r.observation));

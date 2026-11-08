@@ -42,6 +42,12 @@ class KeptKits(unittest.TestCase):
 
     def test_a_hero_without_a_kit_no_longer_fails_the_rank(self):
         # GRIM.exe has sequence-review rows (the 10 Oct message); Eden has only a meta-review row (the 15:01 'abilities' error).
+        # The 1.16.4 seed is reviewed with its own dated packet (as tests/stage_preview.py stages it): the live packet
+        # names heroes released after the seed (Kaelen, 1.18), which the validator rightly rejects for this bundle.
+        packet = self.tmp / 'reviewed_guidance.json'
+        packet.write_bytes(gzip.decompress((SEED.parent / 'tests' / 'fixtures' / 'reviewed-guidance-2.33.0.json.gz').read_bytes()))
+        previous, m.GUIDANCE_PACKET_OVERRIDE = m.GUIDANCE_PACKET_OVERRIDE, packet
+        self.addCleanup(setattr, m, 'GUIDANCE_PACKET_OVERRIDE', previous)
         for slug in ('grim-exe', 'eden'):
             bundle = copy.deepcopy(self.records)
             expected = copy.deepcopy(bundle['heroes'][slug]['abilities'])
