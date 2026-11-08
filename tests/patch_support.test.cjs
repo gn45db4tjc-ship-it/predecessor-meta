@@ -2,11 +2,13 @@
 const test=require('node:test'),assert=require('node:assert/strict'),data=require('../patch-1.17.json'),packet=require('../reviewed_guidance.json');
 const M=require('../engine'),K=require('../skill_guide');
 // The supplement plan joins the build pass it was reviewed for (1.17.2 since 17 Oct 2026), so the fixture is that
-// patch's: its live articles, and Valmont's kit as the plan's source preconditions recorded it.
+// patch's: its live articles, and Valmont's kit as the plan's source preconditions recorded it. Since the 1.18 build
+// pass (7 Nov 2026) the packet's pass is newer than the plan, so the fixture rebinds the pass to the plan's patch.
 // Valmont's launch context (counters and partners) stays bound to 1.17: bundle('1.17') rebuilds that patch's pass.
 function bundle(patch){
  const heroes=structuredClone(data.heroes),plan=structuredClone(data.plans[0]),launch=patch==='1.17';
- const pass=launch?{...packet.guidance.build_patch_review,patch:'1.17',article_fingerprints:data.article_fingerprints}:packet.guidance.build_patch_review;
+ const current=packet.guidance.build_patch_review;
+ const pass=launch?{...current,patch:'1.17',article_fingerprints:data.article_fingerprints}:current.patch===plan.patch?current:{...current,patch:plan.patch,article_fingerprints:{[plan.patch]:'921faae196843c0d9ddcdedf54dc14ba5dca0bbc65500615f906e229f0cb2e1e'}};
  if(!launch)heroes.valmont.abilities=Object.entries(plan.source_preconditions.abilities).map(([key,text])=>({key,text}));
  for(const row of [...data.hero_context.valmont.counters,...data.hero_context.valmont.partners])for(const [slug,texts] of Object.entries(row.source_abilities))if(!heroes[slug])heroes[slug]={display_name:slug,abilities:Object.entries(texts).map(([key,text])=>({key,text})),roles_order:[row.role],roles:{[row.role]:{status:'unavailable'}}};
  heroes.valmont.patch_context={...structuredClone(data.hero_context.valmont),active:true};

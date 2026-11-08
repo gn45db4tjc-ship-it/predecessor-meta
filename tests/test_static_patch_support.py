@@ -58,7 +58,8 @@ class OfficialPatchSupportTests(unittest.TestCase):
         self.assertEqual(b,{'patch_support':{'active':True}})
     def test_official_definition_requires_exact_patch_fingerprint(self):
         packet=copy.deepcopy(self.packet);definition=packet['guidance']['build_patch_review']['loadout_definitions']['Event Horizon']
-        ref=next(r for r in definition['sources'] if r.get('official_patch'));ref['fingerprint']='0'*64
+        # Since the 1.18 pass no definition cites an official article, so add one with the wrong fingerprint.
+        definition['sources'].append({'official_patch':'1.17.2','fingerprint':'0'*64,'url':m.OFFICIAL_ORIGIN+'/en-US/news/patch-notes/Patch_Notes_1.17.2','fetched_at':'2026-11-06T12:25:01-05:00'})
         with self.assertRaisesRegex(ValueError,'fingerprint'):m.validate_guidance_packet(packet,None)
 
 if __name__=='__main__':unittest.main()
