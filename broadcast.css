@@ -70,6 +70,8 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
 /* ---- Meta table (desktop): rank numerals, tier-tinted rows, the win-rate gauge ---- */
 .meta-table tbody{counter-reset:meta-rank}
 .meta-table tbody tr{--tc:var(--line-strong);--wr-d:0;counter-increment:meta-rank}
+/* 4 Nov 2026 (PW2): a row without a basis for its place (name order, no tier, under 100 games) gets no numeral and is not counted. */
+.meta-table tbody tr.unranked{counter-increment:none}.meta-table tbody tr.unranked td:first-child::before{content:none}
 .meta-table tbody tr:has(.tier-s){--tc:var(--gold)}.meta-table tbody tr:has(.tier-a){--tc:var(--tier-a-fill)}.meta-table tbody tr:has(.tier-b){--tc:var(--tier-b-fill)}.meta-table tbody tr:has(.tier-c){--tc:var(--tier-c-fill)}.meta-table tbody tr:has(.tier-d){--tc:var(--tier-d-fill)}
 .meta-table tbody td:first-child{position:relative;padding-left:calc(var(--s6) + var(--s5));background-image:linear-gradient(100deg,color-mix(in srgb,var(--tc) 24%,transparent),transparent 80%)}
 .meta-table tbody td:first-child::before{content:counter(meta-rank);content:counter(meta-rank) / "";position:absolute;left:var(--s3);top:50%;transform:translateY(-50%) skewX(-10deg);width:34px;text-align:center;font-family:var(--display);font-weight:800;font-size:var(--t-2xl);color:transparent;-webkit-text-stroke:1.2px var(--muted)}
@@ -125,6 +127,7 @@ div.hero-header:not(.mobile-hero-head) h1{font-size:min(var(--t-7xl),22cqi);line
   .mobile-hero-card:has(.tier-s){--tc:var(--gold)}.mobile-hero-card:has(.tier-a){--tc:var(--tier-a-fill)}.mobile-hero-card:has(.tier-b){--tc:var(--tier-b-fill)}.mobile-hero-card:has(.tier-c){--tc:var(--tier-c-fill)}.mobile-hero-card:has(.tier-d){--tc:var(--tier-d-fill)}
   #mobile-all-list{counter-reset:meta-rank}
   #mobile-all-list>.mobile-hero-card{counter-increment:meta-rank;padding-left:calc(var(--s6) + var(--s2))}
+  #mobile-all-list>.mobile-hero-card.unranked{counter-increment:none}#mobile-all-list>.mobile-hero-card.unranked::before{content:none}
   #mobile-all-list>.mobile-hero-card::before{content:counter(meta-rank);content:counter(meta-rank) / "";position:absolute;left:var(--s0-5);top:50%;width:32px;transform:translateY(-50%) skewX(-10deg);text-align:center;font-family:var(--display);font-weight:800;font-size:var(--tr-xl);line-height:1;color:transparent;-webkit-text-stroke:1.2px var(--muted)}
   #mobile-all-list>.mobile-hero-card:nth-child(-n+3)::before{color:var(--brand);-webkit-text-stroke:0}
   .mobile-hero-card .hero-cell .portrait{width:50px;height:50px;border:0;border-radius:0;clip-path:polygon(12% 0,100% 0,88% 100%,0 100%)}

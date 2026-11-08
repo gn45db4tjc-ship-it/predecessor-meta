@@ -2,7 +2,7 @@
 
 The owner's decision of 2 October 2026 (`STRATEGY-REVIEW-POLICY.md`, "Current scheduling decision"): reviews of builds and grades are queued automatically and run by a scheduled agent, and a review PR merges itself when it passes the gate.
 
-- **Runner:** since 2.58.0, a Claude Code cloud routine (`Predecessor Meta rechecks`), every 3 hours, in a cloud environment whose network access allows `gn45db4tjc-ship-it.github.io`. It runs whether or not the owner's PC is on. Follow **In the cloud** below, which replaces the PC-only parts of the steps. Until 12 Oct 2026 the runner was a scheduled task on the owner's machine (`predecessor-meta-rechecks`, now disabled); never run both, since the lock below is a PC file the cloud cannot see.
+- **Runner:** since 2.58.0, a Claude Code cloud routine (`Predecessor Meta rechecks`), once a day at 20:32 UTC since 28 Oct 2026 (every 3 hours before that; the owner may ask for 3-hourly runs in the week after a patch), in a cloud environment whose network access allows `gn45db4tjc-ship-it.github.io`. It runs whether or not the owner's PC is on. Follow **In the cloud** below, which replaces the PC-only parts of the steps. Until 12 Oct 2026 the runner was a scheduled task on the owner's machine (`predecessor-meta-rechecks`, now disabled); never run both, since the lock below is a PC file the cloud cannot see.
 - **Single accountable reviewer:** the runner owns review content. Code changes stay with whoever is assigned the code.
 - **Queue:** `review/index.json` on the live site, field `rechecks` (`review_queue.cjs`, engine `recheckQueue`).
 - **Gate:** `.github/workflows/review-gate.yml` and `review_gate.py`. Never merge yourself.

@@ -4830,6 +4830,79 @@ probes.UI4 = async browser => {
   await context.close();
   verdict('UI4', !seen.plate || seen.plate > 200, seen);
 };
+/* ===== 4 Nov 2026 UX review (docs/UX-REVIEW-2026-11-04.md, PRED-UX-REVIEW-01): the owner asked for every fix. =====
+   On patch day the current Pred.gg sample exists but no hero has 100 games yet. SMALL_SAMPLE simulates that on the seed:
+   every Pred.gg row capped at 60 games, the source fetched now, and the reviewed packet marked "needs review". */
+const SMALL_SAMPLE = () => { const now = new Date().toISOString(); B.sources.pred_scoped = {...B.sources.pred_scoped, fetched_at: now};
+  const cap = x => { const m = Math.min(x.matches || 0, 60); x.wonGames = Math.round((x.wonGames || 0) * m / Math.max(1, x.matches || 1));
+      x.winRate = m ? 100 * x.wonGames / m : null; x.matches = m; x.fetched_at = now; x.interval95 = null; };
+  (B.scoped_statistics.rows || []).forEach(cap);
+  for (const r of Object.values(B.scoped_statistics.roles)) { r.fetched_at = now;
+    for (const x of r.rows) { const m = Math.min(x.matches || 0, 60); x.wonGames = Math.round((x.wonGames || 0) * m / Math.max(1, x.matches || 1));
+      x.winRate = m ? 100 * x.wonGames / m : null; x.matches = m; x.fetched_at = now; x.interval95 = null; } }
+  B.guidance.status = 'needs review'; E = MetaEngine.create(B); };
+const numbered = sel => [...document.querySelectorAll(sel)].filter(el => !/^(none|normal)$/.test(getComputedStyle(el, '::before').content)).length;
+probes.PW1 = async browser => {
+  // Before: with no hero at 100 games, the compact phone Meta put "No jungle hero has 100 or more games in Gold+ yet"
+  // only inside a disclosure that renders for previous, unavailable or saved statistics, so a current but small sample
+  // showed no eligibility line at all.
+  const {context, page} = await quickPhoneReady(browser);
+  const seen = await page.evaluate(small => { (0, eval)('(' + small + ')')(); S.role = 'jungle'; changeRoute('meta');
+    const lines = [...document.querySelectorAll('#main p')].filter(p => /no jungle hero has 100 or more games/i.test(p.innerText) && p.offsetParent && !p.closest('details:not([open])'));
+    return {visible: lines.length, cards: document.querySelectorAll('#mobile-all-list .mobile-hero-card').length}; }, SMALL_SAMPLE.toString());
+  await context.close();
+  verdict('PW1', seen.visible !== 1 || !seen.cards, seen);
+};
+probes.PW2 = async browser => {
+  // Before: rank numerals 1, 2, 3 were drawn on a list in name order where no row was eligible, so the first hero
+  // alphabetically read as the best. A numeral needs a tier or an eligible sample; eligible rows on the seed keep theirs.
+  const seen = {};
+  for (const [kind, opts] of [['phone', null], ['desktop', desktopHero]]) {
+    const {context, page} = kind === 'phone' ? await quickPhoneReady(browser) : await session(browser, opts);
+    if (kind === 'desktop') await guideLoaded(page);
+    const sel = kind === 'phone' ? '#mobile-all-list > .mobile-hero-card' : '.meta-table tbody td:first-child';
+    seen[kind] = await page.evaluate(({small, sel, numbered}) => { const count = (0, eval)('(' + numbered + ')');
+      S.role = 'jungle'; changeRoute('meta'); const before = count(sel);
+      (0, eval)('(' + small + ')')(); render(); return {seedNumbered: before, smallNumbered: count(sel), rows: document.querySelectorAll(sel).length}; },
+      {small: SMALL_SAMPLE.toString(), sel, numbered: numbered.toString()});
+    await context.close();
+  }
+  verdict('PW2', ['phone', 'desktop'].some(k => seen[k].smallNumbered > 0 || seen[k].seedNumbered === 0), seen);
+};
+probes.PW3 = async browser => {
+  // Before: the hero page led with a 37-game win rate in its largest type with no small-sample label, though the Meta
+  // row for the same hero said "small sample".
+  const seen = {};
+  {
+    const {context, page} = await quickPhoneReady(browser);
+    seen.phone = await page.evaluate(async small => { (0, eval)('(' + small + ')')(); openHero('khaimera', 'jungle'); await new Promise(r => setTimeout(r, 300));
+      return document.querySelector('#main .hero-sample')?.innerText || null; }, SMALL_SAMPLE.toString());
+    await context.close();
+  }
+  {
+    const {context, page} = await session(browser, desktopHero); await guideLoaded(page);
+    seen.desktop = await page.evaluate(async small => { (0, eval)('(' + small + ')')(); openHero('khaimera', 'jungle'); await new Promise(r => setTimeout(r, 300));
+      return document.querySelector('#main .hero-header .quick-stats')?.innerText || null; }, SMALL_SAMPLE.toString());
+    await context.close();
+  }
+  verdict('PW3', !/small sample/i.test(seen.phone || '') || !/under 100 games/i.test(seen.desktop || ''), seen);
+};
+probes.PW4 = async browser => {
+  // Before: a hero page showed the reviewed interpretation of an older patch ("Patch 1.17 · what changed for this hero")
+  // but not the official change notes for the live patch, which the engine has (heroPatchChanges). They are shown as
+  // written, closed by default, with no buff or nerf wording.
+  const seen = {};
+  for (const [kind, opts] of [['phone', null], ['desktop', desktopHero]]) {
+    const {context, page} = kind === 'phone' ? await quickPhoneReady(browser) : await session(browser, opts);
+    if (kind === 'desktop') await guideLoaded(page);
+    seen[kind] = await page.evaluate(async () => { const slug = 'argus', expected = E.heroPatchChanges(slug); openHero(slug, E.roles(slug)[0]); await new Promise(r => setTimeout(r, 300));
+      const d = document.querySelector('#main details.hero-official-changes');
+      return {expected: expected?.changes.length || 0, patch: expected?.patch || null, summary: d?.querySelector('summary')?.innerText || null, open: !!d?.open,
+        rows: d ? d.querySelectorAll('li').length : 0, judged: d ? /\b(buff|nerf)/i.test(d.innerText) : null}; });
+    await context.close();
+  }
+  verdict('PW4', ['phone', 'desktop'].some(k => { const s = seen[k]; return !s.expected || !s.summary || !s.summary.includes(s.patch) || s.open || s.rows !== s.expected || s.judged; }), seen);
+};
 (async () => {
   let server = null;
   if (process.env.START_PREVIEW === '1') {
