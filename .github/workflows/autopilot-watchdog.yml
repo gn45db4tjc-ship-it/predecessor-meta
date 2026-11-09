@@ -1,0 +1,30 @@
+# Copy to .github/workflows/autopilot-watchdog.yml in each autopilot repo.
+# It runs the shared watchdog from agent-hq every 30 minutes with this repo's
+# own token, so no extra credentials are needed. agent-hq must allow access
+# from your other repos (Settings > Actions > General > Access).
+name: autopilot-watchdog
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  checks: write
+
+concurrency:
+  group: autopilot-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    # 1-vCPU runner: $0.002 a minute, about $3 a month at this schedule.
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    steps:
+      - uses: gn45db4tjc-ship-it/agent-hq/.github/actions/watchdog@main
+        with:
+          token: ${{ github.token }}
