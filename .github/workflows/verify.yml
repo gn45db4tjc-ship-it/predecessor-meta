@@ -132,3 +132,15 @@ jobs:
       - name: Show app upgrade verdicts
         if: always()
         run: cat qa/app-updates-edge.json || true
+
+  # The check Agent HQ requires on main. It stays a separate job because review-gate.yml looks
+  # for the check named "verify". always() matters: a skipped job would count as passing.
+  tests:
+    needs: verify
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - env:
+          RESULT: ${{ needs.verify.result }}
+        run: test "$RESULT" = success

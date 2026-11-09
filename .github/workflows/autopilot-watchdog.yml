@@ -1,0 +1,36 @@
+# The shared Agent HQ watchdog. This repo is public and agent-hq is private, so
+# GitHub won't run agent-hq's action here. Instead this reads agent-hq with a
+# read-only deploy key and runs the same script with this repo's own token.
+name: autopilot-watchdog
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  checks: write
+
+concurrency:
+  group: autopilot-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: gn45db4tjc-ship-it/agent-hq
+          ref: main
+          path: agent-hq
+          ssh-key: ${{ secrets.AGENT_HQ_READ_KEY }}
+          persist-credentials: false
+      - name: Run the watchdog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 agent-hq/tools/reconciler/reconcile.py --projects agent-hq/projects.toml --repo "$GITHUB_REPOSITORY"

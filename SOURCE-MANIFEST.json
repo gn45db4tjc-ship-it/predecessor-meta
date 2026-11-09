@@ -245,7 +245,7 @@
     "tests/legacy/browser_augment_acceptance.js": "8cf275548de0ca7153effd8a04a80e630e958333c59cfc22a0536bce7c10765a",
     "tests/legacy/browser_correction_acceptance.js": "0fe6007d53ab05b5440cba407074d3e124e30e86331345d95d9150d38216e9c3",
     "tests/legacy/browser_live_acceptance.js": "cc7a77fa78c758b20a94b7ce68318ca0d53f0493d6fc66dbc6e9fad3796345f2",
-    "tests/legacy/browser_meta_acceptance.js": "463414e4255a6e7dca324ef9fb30a3add6b690048e9b7829f79c1cb5e8f3902e",
+    "tests/legacy/browser_meta_acceptance.js": "c9a58ade2bad7eb3918d8bdaf8c48c8fca44d0256a71fb415e44747e2bb32650",
     "tests/legacy/browser_sequences_acceptance.js": "721d38544027ff3b35159c37d64374c6107bd44b0d3da4d99b6d25eb6b2f560b",
     "tests/legacy/browser_strategy_acceptance.js": "22836a1c04d43a5cbde9f3f9a0e8e89cdd223f184ce4bd3a9b5c61db853e07ad",
     "tests/legacy/browser_synthesis_acceptance.js": "845ba6bc5834543813bd3ba479a4c2f34fad7c54e7eb22ba1cfa67d40485dbbc",
