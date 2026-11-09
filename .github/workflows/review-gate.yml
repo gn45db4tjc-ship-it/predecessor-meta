@@ -136,15 +136,24 @@ jobs:
             hold) gh pr edit "$PR" --add-label 'DECISION NEEDED' ;;
             fail) gh pr edit "$PR" --add-label 'gate failed'; exit 1 ;;
           esac
+      - name: Get the token that may write to main
+        id: writer
+        if: steps.gate.outputs.decision == 'merge'
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ vars.AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_KEY }}
       - name: Merge, publish and verify the live site (revert if it does not verify)
         if: steps.gate.outputs.decision == 'merge'
         env:
+          WRITER: ${{ steps.writer.outputs.token }}
           GIT_AUTHOR_NAME: github-actions[bot]
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
-          gh pr merge "$PR" --merge --match-head-commit "$HEAD"
+          # The automation App holds main's bypass (Agent HQ).
+          GH_TOKEN="$WRITER" gh pr merge "$PR" --merge --match-head-commit "$HEAD"
           merge=$(gh pr view "$PR" --json mergeCommit --jq .mergeCommit.oid)
           git fetch origin main
           gh workflow run publish.yml --ref main
@@ -155,7 +164,7 @@ jobs:
           # Revert first, diagnose second.
           git checkout -B "revert-review-$PR" origin/main
           git revert -m 1 --no-edit "$merge"
-          git push origin HEAD:main
+          git -c http.https://github.com/.extraheader= push -q "https://x-access-token:${WRITER}@github.com/${GITHUB_REPOSITORY}" HEAD:main
           gh workflow run publish.yml --ref main
           gh pr comment "$PR" --body "The live site did not carry the merged packet within 30 minutes, so merge $merge was reverted and the site republished. See the review gate run for the diagnosis."
           gh label create freshness-watchdog --force --color b60205 >/dev/null
