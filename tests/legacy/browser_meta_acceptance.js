@@ -36,7 +36,10 @@
  click('[data-route="meta"]');click('[data-meta-role="jungle"]');click('[data-hero="countess"]');click('[data-hero-tab="kit"]');
  const feast=[...document.querySelectorAll('article')].find(a=>a.querySelector('h3')?.textContent==='Feast');
  // Officially reviewed damage: 135/215/285 through 1.16.4; the 1.17 notes fixed a Feast damage bug (135/200/265).
- assert(feast?.innerText.includes('Officially reviewed fields')&&/deals (135\/215\/285|135\/200\/265) /.test(feast.innerText),'Feast displays official damage');
+ // The provenance label appears only while a packet correction is applied to Feast; the 1.18 strategy review (8 Nov 2026)
+ // retired the stale 1.16.4 corrections once the source text matched the official value.
+ const feastIndex=B.heroes.countess?.abilities?.findIndex(a=>a.display_name==='Feast'),feastCorrected=(B.corrections||[]).some(r=>r.path?.[0]==='heroes'&&r.path[1]==='countess'&&r.path[2]==='abilities'&&r.path[3]===feastIndex&&['official correction applied','source already updated'].includes(r.status));
+ assert(feast&&(!feastCorrected||feast.innerText.includes('Officially reviewed fields'))&&/deals (135\/215\/285|135\/200\/265) /.test(feast.innerText),'Feast displays official damage');
  assert(feast.innerText.includes('125 / 105 / 85s'),'Feast retains actual cooldown');
  assert(!feast.innerText.includes('deals 125/105/85'),'Malformed raw Feast damage stays collapsed');
  for(const route of [...document.querySelectorAll('#navigation [data-route]')].map(e=>e.dataset.route)){
