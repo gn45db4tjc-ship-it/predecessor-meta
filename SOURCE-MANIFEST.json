@@ -186,7 +186,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "249514f03de92b9528886c74553113ee1ef389dcd47539e73d9b03aa512190cb",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "d8f86cd0b59b3173ccb2fee8874feba33edba6e4ae97af9e1424d1f1d0792706",
+    "reviewed_guidance.json": "5d8c2466f2c34bf3df70ba51ef65963c2726c3e1ceec81a34c98a88315f623fc",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "53997bdcd062f206293f790b1fe5b8dedc2c473cbf6244b35964e690e9ed2309",
@@ -355,6 +355,8 @@
     "tests/test_static_official_subsections.py": "f522ce428e4b57559b79744ad45af1e48754ed0d0942b48adf7fb1e3caa6d85d",
     "tests/test_static_watchdog_next_attempt.py": "071b2b8405500cd1861708163bd73a6a698abb68ce6d5947a8e64c8a5d1a85d9",
     "docs/rechecks/2026-11-08-1700-ledger.json": "31ee9297d7daa43cbb1fe94ec05aceb6b78111ab54bb36bf43c5880fb2eb5899",
-    "docs/STRATEGY-REVIEW-1.18.md": "173947f790858ce5958d169c191de0e93d2e3de0c37dadbeb1d19eb406ee33a4"
+    "docs/STRATEGY-REVIEW-1.18.md": "173947f790858ce5958d169c191de0e93d2e3de0c37dadbeb1d19eb406ee33a4",
+    "docs/rechecks/2026-11-08-2033-ledger.json": "168516e5b7c0411949b17d4d2aff9504e1ef0782857d12ed32aab088f176d76e",
+    "docs/rechecks/2026-11-08-2033.md": "ac27cf5c3963123926e7b43105288c78fc61958906553e61b02b4d4bf4d697b8"
   }
 }

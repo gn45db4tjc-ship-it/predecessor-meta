@@ -53745,6 +53745,17 @@
         "scope": "1.18 strategy review on the owner's go of 8 Nov 2026: tiers, hero notes, counters, build adaptations, compositions and pools moved to 1.18 against Pred.gg Gold+ 1.18 (version 170) and the official 1.18 and 1.17.2 notes; stale 1.16.4 and later corrections retired or rebased; Kaelen's first plan, counterplay and grade. Baron Valmont Midlane's supplement plan and grade re-reviewed on 1.18 (loadout definitions cited from the live checksum bundles). The official correction notice on Platinum+ (Sanguine Slash) and Diamond+ (Bring The Boom, Vital Essence) is held as on 3 Nov: those ranks still carry older retained Pred.gg descriptions, and the notice stays visible there.",
         "ledger": "docs/rechecks/2026-11-08-1700-ledger.json",
         "result": "1 changed (Kaelen's new plan), 90 checked and retained, 2 unresolved, plus Baron Valmont's supplement plan checked and retained on 1.18; 3 grades moved and 1 first grade"
+      },
+      {
+        "kind": "weekly",
+        "week": "2026-W45",
+        "reviewed_at": "2026-11-08T20:50:00+00:00",
+        "items": [
+          "weekly:2026-W45"
+        ],
+        "scope": "The weekly backstop for 2026-W45 (weekly:2026-W45, the only item in the live queue), against the live bundles published 2026-11-08T19:52:53+00:00 (publish run 42517007556, tool 2.59.0; Gold+ collection 2026-11-08T12:56:03-06:00, Pred.gg 1.18 version 170 fresh on five ranks, Paragon+ retained from 4 Nov). Every inactive plan on any rank was checked: Akeron Support and Wukong Offlane (all ranks, parked by the owner's 1.18 decisions) and Drongo Carry (Diamond+ only). Of 87 reviewed Gold+ grades, 51 are active and 36 are withheld only because their Gold+ 1.18 role sample is under 100 games (5 to 99); none has moved statistics against it, none was rechecked against a new sample and none was changed. Not a full review.",
+        "ledger": "docs/rechecks/2026-11-08-2033-ledger.json",
+        "result": "0 changed, 0 checked and retained, 3 unresolved"
       }
     ]
   },

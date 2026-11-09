@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "title": "Scheduled recheck, 8 Nov 2026 20:33 UTC (weekly pass 2026-W45)",
+  "reviewed_at": "2026-11-08T20:50:00+00:00",
+  "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+  "scope": "The weekly backstop for 2026-W45 (weekly:2026-W45, the only item in the live queue), against the live bundles published 2026-11-08T19:52:53+00:00 (publish run 42517007556, tool 2.59.0; Gold+ collection 2026-11-08T12:56:03-06:00, Pred.gg 1.18 version 170 fresh on five ranks, Paragon+ retained from 4 Nov). Every inactive plan on any rank was checked: Akeron Support and Wukong Offlane (all ranks, parked by the owner's 1.18 decisions) and Drongo Carry (Diamond+ only). Of 87 reviewed Gold+ grades, 51 are active and 36 are withheld only because their Gold+ 1.18 role sample is under 100 games (5 to 99); none has moved statistics against it, none was rechecked against a new sample and none was changed. Not a full review.",
+  "standard": "docs/RECHECK-RUNNER.md: weekly backstop checks every withheld grade and inactive plan; a mechanics difference is resolved only with the official source's own text, otherwise unresolved.",
+  "evidence": {
+    "manifest_published_at": "2026-11-08T19:52:53+00:00",
+    "publish_run": "42517007556",
+    "tool_version": "2.59.0",
+    "collection": "2026-11-08T12:56:03-06:00 (Gold+ bundle generated_at); Diamond+ 2026-11-08T13:09:54-06:00",
+    "statistics": "Gold+: Pred.gg 1.18 (version 170) ranked, ranks 43-53, status ok; role rows fetched 2026-11-08T12:53:03-06:00 to 12:53:10-06:00. Paragon+ Pred.gg retained (collection of 4 Nov).",
+    "official": "PatchNotes_1.18 (722a344d3130...) fetched 2026-11-08T12:52:39-06:00 and Patch_Notes_1.17.2 (921faae19684...) fetched 2026-11-08T12:52:40-06:00 match the packet's article_fingerprints; patch_check verifies 1.18.",
+    "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked)"
+  },
+  "entries": [
+    {
+      "kind": "plan",
+      "slug": "akeron",
+      "role": "support",
+      "queue_id": "weekly:2026-W45",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. Inactive on all six ranks only because the 1.18 build pass (7 Nov) kept it parked on the owner's decision of 28 Oct (docs/PATCH-DAY-1.18.md). The engine reports no changed precondition, missing item or invalid blessing on any rank, and the live official articles carry the packet's fingerprints. Pred.gg 1.18 Gold+ support: 50.0% over 6 games, the same sample size as on 6 Nov, which cannot settle role strength. The plan stays inactive; nothing changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 50.0,
+          "wonGames": 3,
+          "matches": 6,
+          "interval95": [
+            18.76,
+            81.24
+          ],
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=SUPPORT",
+          "fetched_at": "2026-11-08T12:53:10-06:00"
+        }
+      },
+      "reviewed_at": "2026-11-08T20:50:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+          "fetched_at": "2026-11-08T12:52:39-06:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-08T12:52:40-06:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=SUPPORT",
+          "fetched_at": "2026-11-08T12:53:10-06:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "wukong",
+      "role": "offlane",
+      "queue_id": "weekly:2026-W45",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. Inactive on all six ranks only because the 1.18 build pass (7 Nov) kept it parked on the owner's decision of 28 Oct (docs/PATCH-DAY-1.18.md). No changed precondition, missing item or invalid blessing on any rank; official fingerprints unchanged. Pred.gg 1.18 Gold+ offlane: 47.8% over 23 games, too small to settle role strength. The plan stays inactive; nothing changes.",
+      "limitation": "Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities. No in-game test.",
+      "mechanics_checked": [
+        "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 47.82608695652174,
+          "wonGames": 11,
+          "matches": 23,
+          "interval95": [
+            29.24,
+            67.04
+          ],
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=OFFLANE",
+          "fetched_at": "2026-11-08T12:53:05-06:00"
+        }
+      },
+      "reviewed_at": "2026-11-08T20:50:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+          "fetched_at": "2026-11-08T12:52:39-06:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-08T12:52:40-06:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=OFFLANE",
+          "fetched_at": "2026-11-08T12:53:05-06:00"
+        }
+      ]
+    },
+    {
+      "kind": "plan",
+      "slug": "drongo",
+      "role": "carry",
+      "queue_id": "weekly:2026-W45",
+      "verdict": "unresolved",
+      "reason": "Weekly backstop. Active on five ranks; inactive on Diamond+ only, because its Bring The Boom text differs from the plan's precondition. The precondition (and the effective text on Bronze+ to Platinum+ and Paragon+) is the 1.16.4 packet correction 1.16.4-review2-121: 'Rad Rounds deals 50% of its damage to nearby Enemies upon exploding. Rad Rounds explosion radius is 600u.' On those ranks Pred.gg 1.18 (version 170) now reads 'Rad Rounds deals 60% of its damage to nearby Enemies upon exploding.' and the collector keeps the reviewed 50% text over it ('Verified official/reviewed field retained'). On Diamond+ the correction did not apply ('conflict: field unavailable'), so Diamond+ shows Pred.gg's 60% text, the plan waits there and the Official correction review notice names Bring The Boom. So Diamond+ is not carrying older text, as the 8 Nov strategy review described it; it carries the newer Pred.gg value, and the other ranks show the 1.16.4 value. Neither live official article (1.18, 1.17.2) mentions Bring The Boom, so no official text settles 50% versus 60%, and only official text may resolve a correction. The plan's reasoning (splash on Rad Rounds explosions) holds at either value, but changing the precondition would only move the mismatch to the other five ranks. Left unchanged: active on five ranks, waiting on Diamond+.",
+      "limitation": "Pred.gg's 60% is unconfirmed by any official note; the 1.16.4 correction's 50% may be out of date after 1.18. Resolving it needs official text or an owner decision on that correction. Diamond+ carry sample for Drongo: 1 game. No in-game test.",
+      "mechanics_checked": [
+        "Loadout Bring The Boom (Pred.gg 1.18 kit text on all six ranks, packet correction 1.16.4-review2-121)",
+        "Official 1.18 and 1.17.2 Drongo changes (only the 1.17.2 base-stat changes and the 1.18 dash tag)"
+      ],
+      "text_changed": [],
+      "figures": {
+        "gold_plus": {
+          "winRate": 42.06349206349206,
+          "wonGames": 106,
+          "matches": 252,
+          "interval95": [
+            36.13,
+            48.23
+          ],
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=CARRY",
+          "fetched_at": "2026-11-08T12:53:08-06:00"
+        },
+        "diamond_plus": {
+          "winRate": 0.0,
+          "wonGames": 0,
+          "matches": 1,
+          "interval95": [
+            0,
+            79.35
+          ],
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=49%2C50%2C51%2C53&role=CARRY",
+          "fetched_at": "2026-11-08T13:06:36-06:00"
+        }
+      },
+      "reviewed_at": "2026-11-08T20:50:00+00:00",
+      "sources": [
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+          "fetched_at": "2026-11-08T12:52:39-06:00"
+        },
+        {
+          "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+          "fetched_at": "2026-11-08T12:52:40-06:00"
+        },
+        {
+          "url": "https://pred.gg/heroes/drongo/hero?versions=170&gameMode=RANKED&ranks=49%2C50%2C51%2C53",
+          "fetched_at": "2026-11-07T16:08:19-06:00"
+        },
+        {
+          "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=CARRY",
+          "fetched_at": "2026-11-08T12:53:08-06:00"
+        }
+      ]
+    }
+  ]
+}
