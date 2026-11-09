@@ -1,7 +1,6 @@
-# Copy to .github/workflows/autopilot-watchdog.yml in each autopilot repo.
-# It runs the shared watchdog from agent-hq every 30 minutes with this repo's
-# own token, so no extra credentials are needed. agent-hq must allow access
-# from your other repos (Settings > Actions > General > Access).
+# The shared Agent HQ watchdog. This repo is public and agent-hq is private, so
+# GitHub won't run agent-hq's action here. Instead this reads agent-hq with a
+# read-only deploy key and runs the same script with this repo's own token.
 name: autopilot-watchdog
 
 on:
@@ -21,10 +20,17 @@ concurrency:
 
 jobs:
   watchdog:
-    # 1-vCPU runner: $0.002 a minute, about $3 a month at this schedule.
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
-      - uses: gn45db4tjc-ship-it/agent-hq/.github/actions/watchdog@main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          token: ${{ github.token }}
+          repository: gn45db4tjc-ship-it/agent-hq
+          ref: main
+          path: agent-hq
+          ssh-key: ${{ secrets.AGENT_HQ_READ_KEY }}
+          persist-credentials: false
+      - name: Run the watchdog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 agent-hq/tools/reconciler/reconcile.py --projects agent-hq/projects.toml --repo "$GITHUB_REPOSITORY"
