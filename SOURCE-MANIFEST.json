@@ -371,6 +371,9 @@
     "patch_importer.py": "13feb3179215dbcefd12d39ff2631d3a1ec8beb91250073d81d6dda467a73b69",
     "tests/test_static_patch_importer.py": "166512ba03efbabf2c4b153edc357360aa7bd55e1625250ac6b247286ec8fe4a",
     "docs/PATCH-IMPORTER.md": "c2f7e826d4582f0be673edda8c5de4ebdb1c5ae74ff9ea3baeb82e0cc40b9738",
-    ".gitattributes": "1251c2fc8264884f58cb78138db7375d6c3aac6e8787bfca5b7b5718c9433504"
+    ".gitattributes": "1251c2fc8264884f58cb78138db7375d6c3aac6e8787bfca5b7b5718c9433504",
+    ".github/workflows/deployed-smoke.yml": "0867225a84fa820c353dfdd4a52fc7b169fce84cc3a5ed5643835f0fd1fdf858",
+    "tests/browser_deployed_smoke.cjs": "7a15876a07836fc38b0fbe84e85f363bce61c81b18e0aa762f97a09617d8ba66",
+    "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e"
   }
 }
