@@ -10,6 +10,9 @@ from patch_import_io import ImportFailure, OfficialFetcher, ORIGIN, official_url
 
 KNOWN_SECTIONS = {'New Hero', 'New Items', 'Gameplay Balance', 'Systems', 'Hero Balance', 'Items Balance', 'Bug Fixes'}
 SYSTEM_PROSE = {'Ranked News', 'Variant VFX', 'Hero Voice Comms', 'The Void & Daily Deals Changes'}
+# Named exclusions are documented in PATCH-IMPORTER.md; structured lines stay eligible.
+PROSE_TEASERS = {'Daybreak': 'future map teaser, not a current-patch change'}
+COSMETIC_RANK_REWARD = re.compile(r'^(?:Bronze and Silver|Gold|Platinum|Diamond|Paragon): Royal Wukong[.,]')
 EXCLUDED = {'Store News': 'Cosmetic store bundles, not gameplay changes',
             'Triple Battlepass XP Weekend': 'Time-limited promotion, not patch mechanics'}
 
@@ -217,10 +220,13 @@ def parse_article(raw):
             continue
         if tag not in ('blockquote', 'p', 'li'):
             continue
-        if tag == 'p' and not (section.startswith('New Hero:') and sub in ('Abilities', 'Augments')):
-            # Narrative is retained visibly as context, not guessed into structured values.
+        if tag == 'p' and section in SYSTEM_PROSE and sub in PROSE_TEASERS:
+            ignored.append({'section': section, 'reason': PROSE_TEASERS[sub], 'text': text})
+            continue
+        if tag == 'p' and section not in SYSTEM_PROSE and not (section.startswith('New Hero:') and sub in ('Abilities', 'Augments')):
+            # Withheld prose may describe a change; make manual review discoverable.
             if not text.startswith(('Until next time', 'Rei &', '©')):
-                ignored.append({'section': section, 'reason': 'narrative context, not a structured change', 'text': text})
+                ignored.append({'section': section, 'reason': 'prose not emitted; manual change review required', 'text': text})
             continue
         if section in ('Hero Balance', 'Items Balance', 'New Items') and not target:
             unparsed.append({'block': block_no, 'section': section, 'reason': 'target unidentified', 'text': text})
@@ -231,12 +237,20 @@ def parse_article(raw):
             bugfix = section == 'Bug Fixes' or '[Bugfix]' in line or inherited_bugfix
             if '[Bugfix]' in line and line.endswith(':'):
                 inherited_bugfix = True
-            if (line.endswith(':') or
-                    (is_new and re.match(r'(?:Relevant Ability|Type):', line)) or
-                    (section == 'Ranked News' and sub == 'Rank Split Reset')):
-                ignored.append({'section': section, 'reason': 'list header, descriptive metadata or cosmetic reward list', 'text': line})
+            reason = None
+            if line.endswith(':'):
+                reason = 'list header'
+            elif is_new and re.match(r'(?:Relevant Ability|Type):', line):
+                reason = 'descriptive ability/augment metadata'
+            elif section == 'Ranked News' and COSMETIC_RANK_REWARD.match(line):
+                reason = 'cosmetic rank reward list (Royal Wukong)'
+            if reason:
+                ignored.append({'section': section, 'reason': reason, 'text': line})
                 continue
             dest = target or sub or section
+            if tag == 'p' and section in SYSTEM_PROSE:
+                # Prose belongs to the system; its subsection is retained in the label.
+                dest = section
             if section == 'Overclocked Mode':
                 dest = 'Overclocked: ' + (target or sub or 'Mode')
             # Anonymous eternal artwork does not authorize guessing which Eternal owns a blessing.

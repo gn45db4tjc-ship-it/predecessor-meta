@@ -1,5 +1,6 @@
 import csv
 import hashlib
+import json
 import tempfile
 import time
 import unittest
@@ -96,6 +97,25 @@ class IOTests(unittest.TestCase):
             OfficialFetcher(opener).fetch(URL,'page')
         sleep.assert_not_called()
 
+    def test_excessive_crawl_delay_fails_before_sleep_or_page_request(self):
+        now=[0.0]
+        opener=Mock()
+        opener.open.return_value=response('https://www.predecessorgame.com/robots.txt',b'User-agent: *\nDisallow:\nCrawl-delay: 61\n')
+        with patch('patch_import_io.time.monotonic',side_effect=lambda:now[0]), patch('patch_import_io.time.sleep',side_effect=lambda seconds:now.__setitem__(0,now[0]+seconds)) as sleep:
+            with self.assertRaisesRegex(ImportFailure,'crawl-delay exceeds 60 seconds'):
+                OfficialFetcher(opener).fetch(URL,'page')
+        self.assertEqual(opener.open.call_count,1)
+        sleep.assert_not_called()
+
+    def test_sixty_second_crawl_delay_is_honoured(self):
+        now=[0.0]
+        opener=Mock()
+        opener.open.side_effect=[response('https://www.predecessorgame.com/robots.txt',b'User-agent: *\nDisallow:\nCrawl-delay: 60\n'),response(URL,b'page')]
+        with patch('patch_import_io.time.monotonic',side_effect=lambda:now[0]), patch('patch_import_io.time.sleep',side_effect=lambda seconds:now.__setitem__(0,now[0]+seconds)) as sleep:
+            self.assertEqual(OfficialFetcher(opener).fetch(URL,'page'),b'page')
+        sleep.assert_called_once_with(60)
+        self.assertEqual(opener.open.call_count,2)
+
     def test_redirect_handler_refuses_all_redirect_destinations(self):
         from urllib.request import Request
         for code in (301,302,303,307,308):
@@ -163,6 +183,41 @@ class IOTests(unittest.TestCase):
             self.assertEqual(result['added'],[changed]);self.assertEqual(result['removed'],[row])
             (p/'1.18.csv').write_text('tampered')
             with self.assertRaises(ImportFailure):write_import(p,'1.18','Nov 3, 2026',URL,b'b',[changed])
+
+    def test_same_source_updates_changed_rows_then_noops_identical_output(self):
+        old=dict(zip(FIELDS,['Hero','Example','Damage','10','11','Buff','Patch Notes']))
+        added=dict(zip(FIELDS,['Hero','Example','Health','500','550','Buff','Patch Notes']))
+        with tempfile.TemporaryDirectory() as temp:
+            p=Path(temp)
+            first=write_import(p,'1.18','Nov 3, 2026',URL,b'same-html',[old])
+            self.assertEqual(first['status'],'created')
+
+            before_metadata_checks={path.name:(path.read_bytes(),path.stat().st_mtime_ns) for path in (p/'1.18.csv',p/'index.json')}
+            for bad_url,bad_date in ((URL.replace('1.18','1.19'),'Nov 3, 2026'),(URL,'Nov 4, 2026')):
+                with self.subTest(url=bad_url,date=bad_date):
+                    with self.assertRaisesRegex(ImportFailure,'metadata changed without source bytes'):
+                        write_import(p,'1.18',bad_date,bad_url,b'same-html',[old])
+            self.assertEqual(before_metadata_checks,{path.name:(path.read_bytes(),path.stat().st_mtime_ns) for path in (p/'1.18.csv',p/'index.json')})
+
+            updated=write_import(p,'1.18','Nov 3, 2026',URL,b'same-html',[old,added])
+            self.assertEqual(updated['status'],'updated')
+            self.assertEqual(updated['row_count'],2)
+            self.assertEqual(updated['counts'],{'Hero':2})
+            self.assertEqual(updated['added'],[added])
+            self.assertEqual(updated['removed'],[])
+            csv_path=p/'1.18.csv'
+            index_path=p/'index.json'
+            with csv_path.open(encoding='utf-8',newline='') as f:
+                self.assertEqual(list(csv.DictReader(f)),[old,added])
+            index=json.loads(index_path.read_text(encoding='utf-8'))
+            self.assertEqual(index['1.18']['row_count'],2)
+            self.assertEqual(index['1.18']['csv_sha256'],hashlib.sha256(csv_path.read_bytes()).hexdigest())
+
+            before={path.name:(path.read_bytes(),path.stat().st_mtime_ns) for path in (csv_path,index_path)}
+            unchanged=write_import(p,'1.18','Nov 3, 2026',URL,b'same-html',[old,added])
+            self.assertEqual(unchanged['status'],'unchanged')
+            self.assertEqual(unchanged['row_count'],2)
+            self.assertEqual(before,{path.name:(path.read_bytes(),path.stat().st_mtime_ns) for path in (csv_path,index_path)})
 
     def test_invalid_output_refused_without_writes(self):
         with tempfile.TemporaryDirectory() as temp:

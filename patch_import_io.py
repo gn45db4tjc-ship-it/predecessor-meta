@@ -61,6 +61,8 @@ class OfficialFetcher:
         # Measure from completion, including robots itself, to avoid a burst
         # immediately after discovering the site's crawl-delay directive.
         delay = self.robots.crawl_delay(USER_AGENT) if self.robots else None
+        if delay is not None and delay > 60:
+            raise ImportFailure('robots.txt crawl-delay exceeds 60 seconds')
         if delay and self.last_request_finished is not None:
             remaining = delay - (time.monotonic() - self.last_request_finished)
             while remaining > 0:
@@ -150,12 +152,14 @@ def write_import(directory, version, date, url, html, rows):
     if previous and previous.get('sha256') == source_hash:
         if previous.get('url') != url or previous.get('date') != date:
             raise ImportFailure('Source metadata changed without source bytes')
-        return {'status': 'unchanged', 'version': version, 'row_count': previous['row_count']}
     out = io.StringIO(newline='')
     writer = csv.DictWriter(out, fieldnames=FIELDS)
     writer.writeheader()
     writer.writerows(rows)
     data = out.getvalue().encode('utf-8')
+    csv_hash = hashlib.sha256(data).hexdigest()
+    if previous and previous.get('sha256') == source_hash and previous.get('csv_sha256') == csv_hash:
+        return {'status': 'unchanged', 'version': version, 'row_count': previous['row_count']}
     old_rows = []
     if previous:
         old_rows = list(csv.DictReader(io.StringIO(csv_path.read_text(encoding='utf-8'))))
@@ -167,7 +171,7 @@ def write_import(directory, version, date, url, html, rows):
                'added': [dict(zip(FIELDS, r)) for r in (new-old).elements()],
                'removed': [dict(zip(FIELDS, r)) for r in (old-new).elements()]}
     index[version] = {'url': url, 'date': date, 'row_count': len(rows), 'sha256': source_hash,
-                      'csv_sha256': hashlib.sha256(data).hexdigest()}
+                      'csv_sha256': csv_hash}
     root.mkdir(parents=True, exist_ok=True)
     _atomic(csv_path, data)
     _atomic(index_path, (json.dumps(index, indent=2, ensure_ascii=False) + '\n').encode('utf-8'))

@@ -14,6 +14,50 @@ URL='https://www.predecessorgame.com/news/patch-notes/PatchNotes_1.18'
 
 
 class ParserTests(unittest.TestCase):
+    def test_prose_only_system_changes_are_not_dropped(self):
+        rows=parse_article(FIXTURE.read_bytes())['rows']
+        text=' '.join(r['New_Value'] for r in rows)
+        self.assertIn('Daily Deals are leaving the Store',text)
+        self.assertIn('only 100 players can be Paragon',text)
+        self.assertIn('have 5 matches to complete',text)
+        self.assertFalse(any(r['Target']=='Daybreak' for r in rows))
+
+    def test_required_system_paragraphs_are_verbatim(self):
+        rows=parse_article(FIXTURE.read_bytes())['rows']
+        paragraphs=(
+            'With V1.18, Daily Deals are leaving the Store, as The Void takes their place. The Featured tab now shows four featured items instead.',
+            "All players will start the new split in Placements and have 5 matches to complete to get placed (10 if you're new to Ranked or haven't played in a while).",
+            'Paragon should be the ultimate achievement: the rank people recognise the moment they see it in the lobby. From V1.18, only 100 players can be Paragon at any one time.',
+            'V1.18 adds a brand new tier towards the top of the ladder: Master, sitting between Diamond I and Paragon.',
+            'The Void is a brand new personal sale, made just for you. When it opens, you\u2019ll reveal 5 skins picked from the Heroes you play, each with its own discount of up to 70% off.',
+            'A range of our variants this update include brand new, coloured VFX to match - a popular request among many players in the community! These special variants are available for Quantum Zarus, Quantum Twinblast, Quantum Scarlett and Nullfire Quantum Lt. Belica. Variants featuring VFX recolours carry a 200 premium over standard variants.',
+            'You now lose at least 25% less VP when a teammate goes AFK.',
+            "To keep the top of the ladder competitive, Master and Paragon now have VP decay. To be the best of the best, you'll have to fight for your spot. We know you have lives outside of Predecessor, so decay won't drop your VP the moment you stop playing.",
+        )
+        for paragraph in paragraphs:
+            with self.subTest(paragraph=paragraph):
+                matches=[r for r in rows if r['New_Value']==paragraph]
+                self.assertEqual(len(matches),1)
+                self.assertEqual(matches[0]['Old_Value'],'Not stated')
+                self.assertEqual(matches[0]['Change_Type'],'Adjustment')
+
+    def test_reset_heading_does_not_hide_future_changes(self):
+        raw=b'<h1>V9.9 Patch Notes</h1><p>Nov 3, 2026</p><h2>Ranked News</h2><h3>Rank Split Reset</h3><p>Placements now require 7 matches.</p><blockquote>- Health increased from 10 to 20.</blockquote>'
+        result=parse_article(raw)
+        self.assertTrue(any(r['New_Value']=='Placements now require 7 matches.' for r in result['rows']))
+        self.assertTrue(any(r['Old_Value']=='10' and r['New_Value']=='20' for r in result['rows']))
+
+    def test_withheld_prose_and_reward_lists_have_visible_reasons(self):
+        result=parse_article(FIXTURE.read_bytes())
+        teasers=[x for x in result['ignored'] if 'Daybreak' in x.get('text','')]
+        rewards=[x for x in result['ignored'] if ': Royal Wukong' in x.get('text','')]
+        self.assertEqual(len(teasers),2)
+        self.assertTrue(all('teaser' in x['reason'] for x in teasers))
+        self.assertEqual(len(rewards),5)
+        self.assertTrue(all('cosmetic rank reward' in x['reason'] for x in rewards))
+        self.assertFalse(any(': Royal Wukong' in r['New_Value'] for r in result['rows']))
+        self.assertFalse(any(x['reason']=='narrative context, not a structured change' for x in result['ignored']))
+
     def test_no_non_change_prose_rows(self):
         rows=parse_article(FIXTURE.read_bytes())['rows']
         self.assertFalse(any(r['Target']=='Daybreak' for r in rows))
@@ -66,7 +110,7 @@ class ParserTests(unittest.TestCase):
     def test_source_fixture_not_editorial_csv(self):
         result=parse_article(FIXTURE.read_bytes())
         self.assertEqual((result['version'],result['date']),('1.18','Nov 3, 2026'))
-        self.assertEqual(len(result['rows']),272)
+        self.assertEqual(len(result['rows']),286)
         self.assertEqual(len(result['unparsed']),21)
         self.assertTrue(all('Eternal owner' in item['reason'] for item in result['unparsed']))
         rows=result['rows']
@@ -150,7 +194,7 @@ class ParserTests(unittest.TestCase):
         old=b'<blockquote class="quote-border p-px bg-pg-dark-gray"><div class="quote-border-inner p-4">'+text+b'</div></blockquote>'
         self.assertIn(old,raw)
         result=parse_article(raw.replace(old,b'<ul><li>'+text+b'</li></ul>',1))
-        self.assertEqual(len(result['rows']),272)
+        self.assertEqual(len(result['rows']),286)
         self.assertTrue(any(r['Target']=='Iggy & Scorch' and r['New_Value']=='2x' for r in result['rows']))
 
     def test_truncated_official_article_fails(self):
