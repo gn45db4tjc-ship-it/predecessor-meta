@@ -1,0 +1,4565 @@
+{
+  "exact_matching_rows": 63,
+  "reference_rows_not_exactly_emitted": [
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Heart Of Ice [Passive]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Abilities leave Rimeglass for 6s; Enemies on Rimeglass gain Frostbite for 1s (15% Slow, 0.5% Max Health True Damage per 0.5s)",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Pale Twins [Basic Attack]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Melee, 325u Range, 25% Cleave; 65 (+80% Bonus Physical Power) Physical Damage",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - Cooldown & Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "CD: 13/11.75/10.5/9.25/8; Cost: 60/65/70/75/80 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - Spin Damage & Modifiers",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "3.5s spin, 400u Radius; 7.5/10/12.5/15/17.5 (+8%/10%/12%/14%/16% Total Physical Power) (+0.5%/0.825%/1.15%/1.475%/1.8% Max Health) Physical Damage per 0.25s; spawns Rimeglass; Hard CC immune; 60% damage vs Minions, +5 bonus Damage vs Monsters per strike",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - Passive Armors",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "+4/6/8/10/12% total Physical and Magical Armor, increased by 1.5x while on Rimeglass",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Winter's Pursuit [Secondary] - Cooldown & Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "CD: 16/15.5/15/14.5/14s; Cost: 80 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Winter's Pursuit [Secondary] - Dash, Damage & CC",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "1100u dash (stops past first Enemy Hero); 70/95/120/145/170 (+100% Bonus Physical Power) Physical Damage, 25% Slow for 1.2s; with Frostbite: x2 Damage Dealt and 1.2s Root on Enemy Heroes",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Rimefang [Alternate] - Cooldown & Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "CD: 15/14.5/14/13.5/13s; Cost: 50/55/60/65/70 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Rimefang [Alternate] - Effect, Damage & CC",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "0.6s channel, 2250u Rimeglass trail, pierces terrain; (+11%/12%/13%/14%/15% Target's Max Health) Physical Damage, 0.2s Stun, 50% Slow for 1.5s",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate] - Cooldown, Cost & Flight",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "CD: 130/110/90s; Cost: 100 Mana; 1.5s channel, 4s flight (1275 Movement Speed, traverses walls/ledges, immune to damage effects)",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate] - Impact & Frost Storm",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "200/300/400 (+100% Bonus Physical Power) (+6% Bonus Health) Physical Damage, 40% Slow for 1.5s, 1.5s center Root; 8s Frost Storm (continuous Frostbite at 2x Damage)",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Relentless Hunt [Augment]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "+1 Razorstorm strike per 20% Attack Speed owned (up to +10 strikes) and can Critically Strike; Rimeglass no longer grants Armors",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Neverending Chase [Augment]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Pale Twins or Ability hits against Heroes and Camp Leaders reduce Winter's Pursuit Cooldown by 3% on hit",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Last Winter [Augment]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Frostfall grants Allies in Targeting Zone +20% Movement Speed for 3s; on landing, Kaelen gains (+10% Max Health) (+4% Max Health per Enemy Hero hit) Shield for 4s",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Countess",
+      "Ability_or_Stat": "Shadow Slip [Primary] - Same-Frame CC Teleport",
+      "Old_Value": "Could Teleport back to Shadow on the same frame hit by Crowd Control",
+      "New_Value": "Blocked from Teleporting on the same frame hit by Crowd Control (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Eden",
+      "Ability_or_Stat": "Zero Shift [Secondary] - Respawn Ranged Physical Power",
+      "Old_Value": "Did not gain Ranged Stance Bonus Physical Power upon respawning unless toggling Stance",
+      "New_Value": "Gains Ranged Stance Bonus Physical Power upon respawning (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Eden",
+      "Ability_or_Stat": "Descriptions - Melee Stance Movement Speed",
+      "Old_Value": "Did not state faster Movement Speed while in Melee Stance",
+      "New_Value": "States faster Movement Speed while in Melee Stance (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Feng Mao",
+      "Ability_or_Stat": "Earth Shatter - Interrupted Targeting Visual",
+      "Old_Value": "Targeting could briefly persist in the world after being interrupted",
+      "New_Value": "Targeting cleared upon interruption (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Gadget",
+      "Ability_or_Stat": "Sticky Mine - Iggy Molotov Collision",
+      "Old_Value": "Could be blocked by Iggy's Molotov projectile",
+      "New_Value": "No longer blocked by Iggy's Molotov projectile (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "GRIM.exe",
+      "Ability_or_Stat": "Instant Reload [Augment] - GTFO Item-Effect Execute",
+      "Old_Value": "Did not Execute Heroes when GTFO + Item Effect damage dropped target below 5% Health",
+      "New_Value": "Correctly Executes Heroes dropped below 5% Health via Item Effect damage (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "GRIM.exe",
+      "Ability_or_Stat": "Skin Color Swap Collision",
+      "Old_Value": "Swapping Skin Color caused falling through the floor",
+      "New_Value": "Fixed floor collision when swapping Skin Color (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Howitzer",
+      "Ability_or_Stat": "Cannon [Basic Attack] - 2nd Basic Attack Cleave",
+      "Old_Value": "2nd Basic Attack could have 100% Cleave if shot missed",
+      "New_Value": "Fixed unintended 100% Cleave on missed shot (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kallari",
+      "Ability_or_Stat": "Death Mark [Passive] - Interrupted Double Jump Cooldown",
+      "Old_Value": "Double Jump did not go on cooldown if interrupted",
+      "New_Value": "Double Jump goes on cooldown if interrupted (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kira",
+      "Ability_or_Stat": "Nevermore [Passive] - Damage",
+      "Old_Value": "(+7% Target's Current Health)",
+      "New_Value": "15/30/45/60 (Hero Level 1/6/11/16) (+5% Target's Current Health)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kira",
+      "Ability_or_Stat": "Dusk [Primary] - Bonus Physical Power Scaling per Stack",
+      "Old_Value": "12%",
+      "New_Value": "15%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kwang",
+      "Ability_or_Stat": "Surge Of The Heavens - Invisible Electricity VFX",
+      "Old_Value": "Visually radiated Electricity VFX while Invisible",
+      "New_Value": "No longer radiates Electricity VFX while Invisible (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Legion",
+      "Ability_or_Stat": "Press The Advantage [Augment] - Fire Rate",
+      "Old_Value": "12%/16%/20%/24%/28%",
+      "New_Value": "14%/18%/22%/26%/30%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Legion",
+      "Ability_or_Stat": "Heavy Caliber [Augment] - Damage Modifier",
+      "Old_Value": "310%",
+      "New_Value": "300%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Legion",
+      "Ability_or_Stat": "K-75 Storm Rifle [Basic Attack] - Minion Execute",
+      "Old_Value": "Execute Threshold was overly low",
+      "New_Value": "Correctly executes Minions at intended threshold (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "General - BAT",
+      "Old_Value": "1.3",
+      "New_Value": "1.45",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Shatterbloom [Augment] - Healing Magical Power Scaling",
+      "Old_Value": "4%",
+      "New_Value": "4.5%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Ferocious Flight [Augment] - Additional Shield Magical Power Scaling",
+      "Old_Value": "12%",
+      "New_Value": "15%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Ferocious Flight [Augment] - Cooldown Refund",
+      "Old_Value": "1s",
+      "New_Value": "1.5s",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Ferocious Flight [Augment] - Shield Description",
+      "Old_Value": "Stated Shield was 10 higher than intended",
+      "New_Value": "Description corrected to intended Shield value (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Maco Gift! [Primary] - Health Magical Power Scaling",
+      "Old_Value": "35%",
+      "New_Value": "40%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Maco Gift! [Primary] - Ally Heal Takedown Assist",
+      "Old_Value": "Healing Allies did not grant an assist on Takedown",
+      "New_Value": "Grants assist when healed Ally gets a Takedown (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Morigesh",
+      "Ability_or_Stat": "Cursed Infestation [Augment] - Hive Damage",
+      "Old_Value": "+12%",
+      "New_Value": "+10%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Morigesh",
+      "Ability_or_Stat": "Mark - Yurei Skulls Interaction",
+      "Old_Value": "Could damage Yurei's skulls and block selecting intended target",
+      "New_Value": "No longer damages Yurei's skulls or blocks target selection (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Morigesh",
+      "Ability_or_Stat": "Doll Visual - Gold Bones Riktor",
+      "Old_Value": "Displayed extended tentacle on Riktor Doll when using Gold Bones skin",
+      "New_Value": "Fixed extended tentacle visual (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Muriel",
+      "Ability_or_Stat": "Reversal Of Fortune [Ultimate] - Damage Reduction",
+      "Old_Value": "30%",
+      "New_Value": "20% (+5% Magical Power)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Phase",
+      "Ability_or_Stat": "Telekinetic Link - Double Jump During Pull",
+      "Old_Value": "Heroes could Double Jump while being Pulled",
+      "New_Value": "Heroes cannot Double Jump while being Pulled (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Revenant",
+      "Ability_or_Stat": "Nether Realm [Ultimate] - Tower Gold Pickup",
+      "Old_Value": "Could not pick up floor Tower Gold while in Nether Realm",
+      "New_Value": "Can pick up floor Tower Gold while in Nether Realm (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Sevarog",
+      "Ability_or_Stat": "Colossal Blow [Ultimate] - Interrupted Cast Cooldown",
+      "Old_Value": "Did not go on cooldown if cast animation was interrupted",
+      "New_Value": "Correctly goes on cooldown if cast animation is interrupted (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Plasma Barrage [Augment] - Explosion Missing Health Damage",
+      "Old_Value": "6%",
+      "New_Value": "7.5%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Atomised Artillery [Augment] - Time Between Shots",
+      "Old_Value": "0.75s",
+      "New_Value": "0.65s",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Atomised Artillery [Augment] - Ultimate Haste",
+      "Old_Value": "None",
+      "New_Value": "+10 Ultimate Haste",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Air Assault [Secondary] - Missile Damage Bonus Physical Power Scaling",
+      "Old_Value": "20%",
+      "New_Value": "16%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Air Assault [Secondary] - Missile Damage Magical Power Scaling",
+      "Old_Value": "12%",
+      "New_Value": "10%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Hypercharge [Alternate] - Bonus Physical Armor Penetration",
+      "Old_Value": "20%",
+      "New_Value": "25%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Hypercharge [Alternate] - Damage Ramp per Hit",
+      "Old_Value": "1%",
+      "New_Value": "0.75%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Hypercharge [Alternate] - Max Damage Ramp",
+      "Old_Value": "25%",
+      "New_Value": "22.5%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Atomiser [Ultimate] - Channel Camera",
+      "Old_Value": "Channel Camera less synced with Ultimate fire",
+      "New_Value": "Channel Camera removes more in sync with fire of Ultimate (QoL)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Steel",
+      "Ability_or_Stat": "Bull Rush [Primary] - Bonus Health Scaling",
+      "Old_Value": "5%",
+      "New_Value": "6%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Sanguine Banquet [Augment] - Omnivamp Bonus Mana Scaling",
+      "Old_Value": "0.4%",
+      "New_Value": "0.35%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Hemophagia [Passive] - Mana Restore",
+      "Old_Value": "3-38",
+      "New_Value": "3-33",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Rupture [Primary] - Blade Travel",
+      "Old_Value": "Blades could rarely become stuck mid-air",
+      "New_Value": "Blades travel properly to intended target (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Hero Healing",
+      "Old_Value": "20/40/60",
+      "New_Value": "16/34/52",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Hero Healing Magical Power Scaling",
+      "Old_Value": "22%",
+      "New_Value": "20%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Minion Healing Modifier",
+      "Old_Value": "10%",
+      "New_Value": "12.5%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Minion Healing",
+      "Old_Value": "1.8/3.6/5.4",
+      "New_Value": "2/4.25/6.5",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Minion Healing Magical Power Scaling",
+      "Old_Value": "2.2%",
+      "New_Value": "2.5%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Zinx",
+      "Ability_or_Stat": "Neural Regenesis [Ultimate] - Revival Camera",
+      "Old_Value": "Resurrected Hero camera detached and placed in wrong area",
+      "New_Value": "Camera remains properly attached upon revival (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Cost & Recipe",
+      "Old_Value": "None (New Item)",
+      "New_Value": "2350g (Stalwart Gauntlets + Vitality Beads + Essence Ring + 100g)",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Base Stats",
+      "Old_Value": "None (New Item)",
+      "New_Value": "375 Health, 100% Base Health Regen, 100% Base Mana Regen, 10 Ability Haste",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Eye Of The Storm [Passive]",
+      "Old_Value": "None (New Item)",
+      "New_Value": "On Immobilizing Heroes: reduce Current Basic Ability Cooldowns by 20% and gain (+12% Max Health) Shield for 4s (50% effective for Ranged Heroes); 12s Cooldown",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Cost & Recipe",
+      "Old_Value": "None (New Item)",
+      "New_Value": "2900g (Vigorous Amulet + Steel Mail + Tenacious Gem + 250g)",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Base Stats",
+      "Old_Value": "None (New Item)",
+      "New_Value": "325 Health, 55 Physical Armor, 25 Tenacity",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Immovable [Passive 1]",
+      "Old_Value": "None (New Item)",
+      "New_Value": "Upon taking Hero damage: gain (+8% Max Health) Shield for 3.5s; 14-10s Cooldown (Based on Hero Level)",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Swell [Passive 2]",
+      "Old_Value": "None (New Item)",
+      "New_Value": "Upon damaging or taking damage from a Hero (next 3s): gain (+0.6% Base Health), +4 Movement Speed, and +0.5% Size each second; lost once 3s timer expires; stacks infinitely",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Rapid Rapier / Stormbreaker / Lightning Hawk / Omen",
+      "Ability_or_Stat": "Momentum - 100-Stack Trigger",
+      "Old_Value": "Triggered damage effect on the attack that raised stack count to 100",
+      "New_Value": "Requires already being at 100 stacks when launching the attack (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Judgement",
+      "Ability_or_Stat": "Thunder Cleaver - Damage Total Physical Power Scaling",
+      "Old_Value": "30%",
+      "New_Value": "40%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Abyssal Dart",
+      "Ability_or_Stat": "Teleport - Wall Collision",
+      "Old_Value": "Teleport could cause users to become stuck in Walls",
+      "New_Value": "Fixed Wall collision upon Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Stormbreaker",
+      "Ability_or_Stat": "Electric Strike - Spectra Cooldown Interaction",
+      "Old_Value": "Electric Strike did not reduce Cooldown of Spectra's effect",
+      "New_Value": "Electric Strike reduces Cooldown of Spectra's effect (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Infernum",
+      "Ability_or_Stat": "Damage Effect - Malady's Demise Interaction",
+      "Old_Value": "Damage Effect did not trigger Malady's Demise Effect",
+      "New_Value": "Damage Effect triggers Malady's Demise Effect (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Rebirth",
+      "Ability_or_Stat": "Mechanica - Cooldown",
+      "Old_Value": "270",
+      "New_Value": "300",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Rebirth",
+      "Ability_or_Stat": "Mechanica - Revival Camera",
+      "Old_Value": "Resurrected Hero camera detached and placed in wrong area",
+      "New_Value": "Camera remains properly attached upon revival (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Warp Stream",
+      "Ability_or_Stat": "Tele-Blink - Damage Timer",
+      "Old_Value": "2.5s",
+      "New_Value": "2s",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Hexbound Bracers",
+      "Ability_or_Stat": "Hexed Guard - Basic Attack Damage Block",
+      "Old_Value": "5 (+1 per Level)",
+      "New_Value": "8 (+1 per Level)",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Marrow (The Maw)",
+      "Ability_or_Stat": "Bonus Damage Health Threshold",
+      "Old_Value": "40%",
+      "New_Value": "45%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Krix (Major Blessing)",
+      "Ability_or_Stat": "Max Health",
+      "Old_Value": "5%",
+      "New_Value": "4%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Krix (Predator)",
+      "Ability_or_Stat": "Damage Amplification",
+      "Old_Value": "10%",
+      "New_Value": "8%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Krix (Predator)",
+      "Ability_or_Stat": "Movement Speed",
+      "Old_Value": "4%",
+      "New_Value": "3.5%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Krix (Predator)",
+      "Ability_or_Stat": "Duration",
+      "Old_Value": "20s",
+      "New_Value": "15s",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Knell (Patina)",
+      "Ability_or_Stat": "Shield",
+      "Old_Value": "30 (+14 per Level)",
+      "New_Value": "30 (+12 per Level)",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Knell (Fracture)",
+      "Ability_or_Stat": "Damage Amplification",
+      "Old_Value": "4% (+0.2% per Level)",
+      "New_Value": "3.5% (+0.2% per Level)",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Knell (Resonant Repair)",
+      "Ability_or_Stat": "Healing on Immobilized Max Health Healing",
+      "Old_Value": "3%",
+      "New_Value": "3.5%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Vesh (Major Blessing)",
+      "Ability_or_Stat": "Ability Damage",
+      "Old_Value": "7% (+0.4% per Minute)",
+      "New_Value": "7% (+0.35% per Minute)",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Vesh (Lich)",
+      "Ability_or_Stat": "Magical Lifesteal",
+      "Old_Value": "4%/7%/10%/14%",
+      "New_Value": "4%/6%/9%/12%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Vesh (Phylactery)",
+      "Ability_or_Stat": "Cooldown Progression",
+      "Old_Value": "100%",
+      "New_Value": "75%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Xyris (Furor)",
+      "Ability_or_Stat": "Total Attack Speed",
+      "Old_Value": "20%",
+      "New_Value": "17.5%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Xyris (Cull the Weak)",
+      "Ability_or_Stat": "Missing Mana Regen",
+      "Old_Value": "1%",
+      "New_Value": "1.25%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Demiurge (Construct)",
+      "Ability_or_Stat": "Ability Haste per Level",
+      "Old_Value": "1",
+      "New_Value": "0.75",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Demiurge (Memory Leak)",
+      "Ability_or_Stat": "Movement Speed",
+      "Old_Value": "5%",
+      "New_Value": "4%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Demiurge (Memory Leak)",
+      "Ability_or_Stat": "Max Mana",
+      "Old_Value": "500",
+      "New_Value": "400",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Demiurge (Memory Leak)",
+      "Ability_or_Stat": "Mana Gain from Abilities",
+      "Old_Value": "5%",
+      "New_Value": "4%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Aion (Major Blessing)",
+      "Ability_or_Stat": "Gold Based on Ability Damage Dealt",
+      "Old_Value": "6%",
+      "New_Value": "5%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Aion (Philosopher)",
+      "Ability_or_Stat": "Gold Gain",
+      "Old_Value": "4",
+      "New_Value": "3.5",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Aion (Arcane Resonance)",
+      "Ability_or_Stat": "Cooldown Progression",
+      "Old_Value": "0.75%",
+      "New_Value": "0.6%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternal: Aion (Perfection)",
+      "Ability_or_Stat": "Ability Haste While Above 85% Health",
+      "Old_Value": "30",
+      "New_Value": "25",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Attack Chain Minion Execution",
+      "Ability_or_Stat": "Red Healthbar Execute Calculation",
+      "Old_Value": "Based on individual Attack Chain hit damage modifier",
+      "New_Value": "Executes at default damage modifier when Healthbar is red (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Healthbar Status Timers",
+      "Ability_or_Stat": "Status Effect Duration Bar Sync",
+      "Old_Value": "Time Bars could desync from remaining Status Effect duration",
+      "New_Value": "Accurately reflects remaining Status Effect duration (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Towers",
+      "Ability_or_Stat": "Target Switching on Target Death",
+      "Old_Value": "Could sometimes instantly shoot another Target when current Target died",
+      "New_Value": "Resolved instant target-swap firing bug (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Towers",
+      "Ability_or_Stat": "Targeting VFX on Disconnect/Rejoin",
+      "Old_Value": "Targeting VFX could remain in world after disconnect and rejoin",
+      "New_Value": "Cleared properly on reconnect (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Akeron",
+      "Ability_or_Stat": "Web Lash Leap [Secondary]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Drongo",
+      "Ability_or_Stat": "Mid-Air Shrapnel Cannon [Ultimate]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Kwang",
+      "Ability_or_Stat": "Fury Of The Heavens Teleport [Ultimate]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Mourn",
+      "Ability_or_Stat": "Abduct Augment Pull [Alternate]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: N3ON",
+      "Ability_or_Stat": "Erase Vector Recast [Alternate]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: N3ON",
+      "Ability_or_Stat": "Final Thread Recast [Ultimate]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Leap (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Universal Blink",
+      "Ability_or_Stat": "Blink",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Blink + Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Phase",
+      "Ability_or_Stat": "Phase's Blink",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Blink + Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Grux",
+      "Ability_or_Stat": "Grux's Blink, Chieftain's Blink [Augment]",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Blink + Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Movement Tag: Abyssal Dart",
+      "Ability_or_Stat": "Abyssal Dart Reactivation",
+      "Old_Value": "Missing Movement Tag",
+      "New_Value": "Tagged as Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked",
+      "Ability_or_Stat": "Split 5 Reset & Placements",
+      "Old_Value": "Split 5 active",
+      "New_Value": "Split reset; 5 Placement matches (10 for new/returning); Royal Wukong skin at 15 wins",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked",
+      "Ability_or_Stat": "Master Tier Addition",
+      "Old_Value": "Diamond I promoted directly to Paragon",
+      "New_Value": "Master Tier added between Diamond I (promotion game) and Paragon; uncapped VP; +11 / -11 VP per win/loss",
+      "Change_Type": "Rework",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked",
+      "Ability_or_Stat": "Paragon Top 100 Rework",
+      "Old_Value": "Uncapped Paragon population",
+      "New_Value": "Capped at Top 100 players with 200+ Master VP; refreshes every 24h; early loss only on demotion to Diamond",
+      "Change_Type": "Rework",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked",
+      "Ability_or_Stat": "Master & Paragon VP Decay",
+      "Old_Value": "None",
+      "New_Value": "10 banked days on Master promo (+1/match up to 14; -1 at 10:00 UTC; -25 VP/day at 0 banked days; can demote out of Master)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked",
+      "Ability_or_Stat": "Teammate AFK VP Loss Mitigation",
+      "Old_Value": "20%-40% of normal loss (-4 to -7 VP on -18 base)",
+      "New_Value": "5%-25% of normal loss / at least 25% less VP lost (-1 to -4 VP on -18 base)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked",
+      "Ability_or_Stat": "AFK Demotion Penalty Application",
+      "Old_Value": "Applied before demotion",
+      "New_Value": "Applied after demotion so AFK player starts lower rank with less VP",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Store",
+      "Ability_or_Stat": "The Void & Daily Deals",
+      "Old_Value": "Daily Deals (1 item/day)",
+      "New_Value": "Daily Deals removed; replaced by The Void (5 skins, 20%-70% discount, open 2 weeks, Level 10+) and 4 Featured items",
+      "Change_Type": "Rework",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Store",
+      "Ability_or_Stat": "Variant Coloured VFX",
+      "Old_Value": "Standard skin variant VFX",
+      "New_Value": "Coloured VFX variants (+200 premium) for Quantum Zarus, Quantum TwinBlast, Quantum Scarlett, and Nullfire Quantum Lt. Belica",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Audio",
+      "Ability_or_Stat": "Hero Voice Comms",
+      "Old_Value": "Generic comms wheel voice only",
+      "New_Value": "Purchasable Hero Voice Comms packs added for Adele, Akeron, Argus, Bayle, Eden, Ikra, Kaelen, Legion, Maco, Mourn, N3ON, Scarlett, and Valmont",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Recall Channel While Stunned",
+      "Old_Value": "Heroes could begin channeling Recall while Stunned",
+      "New_Value": "Blocked from channeling Recall while Stunned (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Invisibility vs. Spray / Overhead Emote",
+      "Old_Value": "Using a Spray or Overhead Emote while Invisible revealed User",
+      "New_Value": "No longer reveals Invisible User (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Orb Prime Blight HUD Notification",
+      "Old_Value": "Did not display Blight HUD Notification when damaging Heroes",
+      "New_Value": "Displays Blight HUD Notification when damaging Heroes (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Simultaneous Objective Taken HUD Notifications",
+      "Old_Value": "Only played one HUD Notification if triggered simultaneously",
+      "New_Value": "Plays all simultaneous Objective Taken HUD Notifications (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Surrender Widget Scoreboard Timeout",
+      "Old_Value": "Could remain stuck on screen if viewing Scoreboard at timeout",
+      "New_Value": "Closes properly on timeout (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Draft Role-to-Hero Pick SFX",
+      "Old_Value": "Played pick SFX for everyone when first player picked",
+      "New_Value": "Fixed Draft transition pick SFX (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Replay Mode Controller Inputs",
+      "Old_Value": "Pause and Scoreboard Controller Inputs were flipped",
+      "New_Value": "Corrected Controller Input mapping (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Special Loot Cores Opening SFX",
+      "Old_Value": "Did not play SFX accurately when opened",
+      "New_Value": "Plays SFX accurately when opened (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Time-Limited Store Item Timers",
+      "Old_Value": "Did not display Timer on Menu icons",
+      "New_Value": "Displays Timer on Menu icons (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "General Bugfix",
+      "Ability_or_Stat": "Battlepass Upgrade Unclaimed Reward Art",
+      "Old_Value": "Could show placeholder image when purchasing upgrade with unclaimed rewards",
+      "New_Value": "Displays intended reward image (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Recall",
+      "Ability_or_Stat": "Empowered Recall",
+      "Old_Value": "Standard Recall",
+      "New_Value": "Always Empowered Recall",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Giga Jump Pads",
+      "Ability_or_Stat": "Launch Distance",
+      "Old_Value": "Standard Jump Pad launch",
+      "New_Value": "Launches in an arc toward furthest living Tower in lane",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Economy",
+      "Ability_or_Stat": "Minion XP",
+      "Old_Value": "1x",
+      "New_Value": "Increased by 2x",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Economy",
+      "Ability_or_Stat": "Monster XP",
+      "Old_Value": "1x",
+      "New_Value": "Increased by 1.6x",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Economy",
+      "Ability_or_Stat": "Passive Gold Generation",
+      "Old_Value": "2.6",
+      "New_Value": "13",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Economy",
+      "Ability_or_Stat": "Minion Death Gold Sharing",
+      "Old_Value": "Last-hit / standard proximity rules",
+      "New_Value": "Minions grant Gold to all nearby Allies when they die",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Blink Cooldown",
+      "Old_Value": "5m",
+      "New_Value": "2m",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Ability Haste",
+      "Old_Value": "0 bonus",
+      "New_Value": "+400",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Mana / Energy Costs",
+      "Old_Value": "Standard Mana/Energy costs",
+      "New_Value": "Unlimited Mana/Energy (0 cost)",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Critical Strike Damage",
+      "Old_Value": "0% bonus",
+      "New_Value": "+25%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Movement Speed",
+      "Old_Value": "0% bonus",
+      "New_Value": "+12%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Tenacity",
+      "Old_Value": "0 bonus",
+      "New_Value": "+80",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Healing and Shielding Modifier",
+      "Old_Value": "0% penalty",
+      "New_Value": "-50% at match start, scaling to 0% over 16 minutes",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Global Hero Buff",
+      "Ability_or_Stat": "Bonus Attack Speed Multiplier",
+      "Old_Value": "0% bonus multiplier",
+      "New_Value": "+50% for Ranged Heroes, +100% for Melee Heroes",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Renna",
+      "Ability_or_Stat": "Echoes of the Damned - Passive Stack Generation",
+      "Old_Value": "None",
+      "New_Value": "Passively generates 1 stack every 12s",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Renna",
+      "Ability_or_Stat": "Echoes of the Damned - Stack Drop Chance",
+      "Old_Value": "50%",
+      "New_Value": "90% (with focused threshold adjustment)",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Sevarog",
+      "Ability_or_Stat": "Reaper of Souls - Passive Stack Generation",
+      "Old_Value": "None",
+      "New_Value": "Passively generates 1 stack every 10s",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Sevarog",
+      "Ability_or_Stat": "Reaper of Souls - Stacks Required per Tier",
+      "Old_Value": "40",
+      "New_Value": "35",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Crests",
+      "Ability_or_Stat": "Stacking, Evolution & Cooldowns",
+      "Old_Value": "Manual stacking, 100% evolution requirement, standard Cooldowns",
+      "New_Value": "Auto-stacks each second (Non-Support); ~30% fewer stacks (Non-Support) and ~75% fewer stacks (Support); reduced Cooldowns",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Lucky Feather",
+      "Ability_or_Stat": "Bonus Gold",
+      "Old_Value": "5",
+      "New_Value": "6",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Lucky Feather",
+      "Ability_or_Stat": "Hero Bonus Gold",
+      "Old_Value": "40",
+      "New_Value": "50",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Alchemical Rod / Azure Core",
+      "Ability_or_Stat": "Mana per Stack",
+      "Old_Value": "5",
+      "New_Value": "7",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Soul Chalice / Resolution",
+      "Ability_or_Stat": "Mana per Stack",
+      "Old_Value": "5",
+      "New_Value": "7",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Catalytic Drive",
+      "Ability_or_Stat": "Stacks to Evolve",
+      "Old_Value": "20",
+      "New_Value": "10",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Catalytic Drive",
+      "Ability_or_Stat": "Bonus Gold",
+      "Old_Value": "8",
+      "New_Value": "20",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Manta Scythe",
+      "Ability_or_Stat": "Power Gained on Camp Leader Kill",
+      "Old_Value": "0.5",
+      "New_Value": "1",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb of Growth",
+      "Ability_or_Stat": "Max Experience",
+      "Old_Value": "500",
+      "New_Value": "450",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb of Growth",
+      "Ability_or_Stat": "Experience on Kill",
+      "Old_Value": "6",
+      "New_Value": "7",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb of Growth",
+      "Ability_or_Stat": "Experience on Hero Kill",
+      "Old_Value": "50",
+      "New_Value": "45",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Eternal - Nihil",
+      "Ability_or_Stat": "Growing Threat Time",
+      "Old_Value": "15m",
+      "New_Value": "9m",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Eternal - Vesh",
+      "Ability_or_Stat": "Major Blessing Scaling",
+      "Old_Value": "0.4%",
+      "New_Value": "0.75%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Eternal - Vesh",
+      "Ability_or_Stat": "Millennia Scaling",
+      "Old_Value": "0.75%",
+      "New_Value": "1.5%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Eternal - Aion",
+      "Ability_or_Stat": "Philosopher Gold",
+      "Old_Value": "4",
+      "New_Value": "12",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Eternal - Aion",
+      "Ability_or_Stat": "Bottomless Vial Magical Power",
+      "Old_Value": "5",
+      "New_Value": "8",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Melee Minion Damage Reduction",
+      "Old_Value": "50%",
+      "New_Value": "75%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Ranged Minion Damage Reduction",
+      "Old_Value": "40%",
+      "New_Value": "75%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Siege Minion Damage Reduction",
+      "Old_Value": "45%",
+      "New_Value": "75%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Super Minion Damage Reduction",
+      "Old_Value": "50%",
+      "New_Value": "75%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Siege Minions",
+      "Ability_or_Stat": "Health Growth",
+      "Old_Value": "Standard Health Growth",
+      "New_Value": "Increased by 35%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Super Minions",
+      "Ability_or_Stat": "Health Growth",
+      "Old_Value": "Standard Health Growth",
+      "New_Value": "Increased by 35%",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    }
+  ],
+  "source_rows_not_in_reference": [
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Heart Of Ice [Passive] - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Abilities leave behind large patches of Rimeglass for 6s. Enemies that stand on Rimeglass are afflicted with Frostbite for 1s. Affected Enemies are Slowed by 15% and take 0.5% of their Max Health as True Damage per 0.5s.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Pale Twins [Basic Attack] - Range",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "325u",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Pale Twins [Basic Attack] - Cleave",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "25%",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Pale Twins [Basic Attack] - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Melee Basic Attack dealing 65 (+80% Bonus Physical Power) Physical Damage.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - CD",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "13/11.75/10.5/9.25/8",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "60/65/70/75/80 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Kaelen spins his greatswords around him over 3.5s, dealing 7.5/10/12.5/15/17.5 (+8%/10%/12%/14%/16% Total Physical Power) (+0.5%/0.825%/1.15%/1.475%/1.8% Max Health) Physical Damage every 0.25s to all Enemies in a 400u Radius. While Spinning, Kaelen continuously spawns patches of Rimeglass underfoot.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "This ability cannot be interrupted by Hard Crowd Control Effects, meaning Kaelen will continue to spin even while Stunned.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Razorstorm\u2019s Damage is 60% effective against Minions, and deals +5 bonus Damage to Monsters with each strike.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Razorstorm [Primary] - Passive",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Increase total Physical and Magical Armor by 4/6/8/10/12%, increased by 1.5x while on Rimeglass.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Winter\u2019s Pursuit [Secondary] - CD",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "16/15.5/15/14.5/14s",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Winter\u2019s Pursuit [Secondary] - Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "80 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Winter\u2019s Pursuit [Secondary] - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Kaelen dashes forward 1100u, stopping past the first Enemy Hero, dealing 70/95/120/145/170 (+100% Bonus Physical Power) Physical Damage to all units hit and Slowing them by 25% for 1.2s.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Winter\u2019s Pursuit [Secondary]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "If Enemy Unit has Frostbite applied, Damage Dealt is increased by x2 and Enemy Heroes are Rooted instead for 1.2s.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Rimefang [Alternate] - CD",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "15/14.5/14/13.5/13s",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Rimefang [Alternate] - Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "50/55/60/65/70 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Rimefang [Alternate] - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Kaelen channels his blades for 0.6s before releasing a frozen Rimefang\u2019s Spirit, flying forward 2250u whilst creating a trail of Rimeglass underneath it. The Spirit pierces terrain and deals (+11%/12%/13%/14%/15% Target\u2019s Max Health) Physical Damage to all Enemies it passes through, Stunning them for 0.2s and Slowing them by 50% for 1.5s.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate] - CD",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "130/110/90s",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate] - Cost",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "100 Mana",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate] - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Kaelen channels for 1.5s before leaping into the sky for 4s. While in the sky, Kaelen has 1275 Movement Speed, can move over large walls and ledges, and is immune to damage effects.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Kaelen then crashes down at target location after 4s, or upon reactivation, dealing 200/300/400 (+100% Bonus Physical Power)(+6% Bonus Health) Physical Damage to all Enemies at the impact location and Slowing them by 40% for 1.5s. Enemies caught in the center of the damage zone are Rooted for 1.5s.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Frostfall [Ultimate]",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "The impact leaves behind a raging Frost Storm for 8s. Enemies inside the storm are continuously afflicted with Frostbite and take 2x Damage from it.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Relentless Hunt - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Razorstorm now strikes an additional time for every 20% Attack Speed owned, up to +10 strikes and can Critically Strike. Rimeglass no longer grants Armors.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Neverending Chase - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Pale Twins or Ability hits against Heroes and Camp Leaders reduce Winter's Pursuit Cooldown by 3% on hit.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kaelen",
+      "Ability_or_Stat": "Last Winter - Effect",
+      "Old_Value": "None (New Hero)",
+      "New_Value": "Frostfall grants Allies within the Targeting Zone +20% Movement Speed for 3s. Upon landing, Kaelen gains a (+10% Max Health)(+4% Max Health per Enemy Hero hit) Shield for 4s.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Variant VFX",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "A range of our variants this update include brand new, coloured VFX to match - a popular request among many players in the community! These special variants are available for Quantum Zarus, Quantum Twinblast, Quantum Scarlett and Nullfire Quantum Lt. Belica. Variants featuring VFX recolours carry a 200 premium over standard variants.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Hero Voice Comms",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "When you use the comms wheel, your Hero can now speak for you. With a Hero\u2019s Voice Comms pack, every option on the comms wheel, like \u201cAttack Fangtooth\u201d, is spoken in that Hero\u2019s own voice instead of the generic one.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Hero Voice Comms",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Adele, Akeron, Argus, Bayle, Eden, Ikra, Kaelen, Legion, Maco, Mourn, N3ON, Scarlett and Valmont.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Hero Voice Comms",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Buy a pack once and it works with every skin you own for that Hero.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Hero Voice Comms",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Some skins have their own voice. If you own the pack, those skins will speak in the skin\u2019s voice.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "The Void is a brand new personal sale, made just for you. When it opens, you\u2019ll reveal 5 skins picked from the Heroes you play, each with its own discount of up to 70% off.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "Your picks: skins are chosen from the Heroes you\u2019ve played recently, then the ones you\u2019ve played the most. You\u2019ll never be offered a skin you already own.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "Your discounts: every skin gets a discount between 20% and 70%.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "Two weeks to decide: The Void stays open for 2 weeks, with a countdown on the main menu. You\u2019ll get a notification when it opens.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "Don\u2019t own the Hero? You can buy the Hero and the skin together.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "The Void is available to players level 10 and above.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "The Void",
+      "Old_Value": "Not stated",
+      "New_Value": "The Void will start opening during V1.18, in batches, so not everyone will get theirs at the same time. Keep an eye on the main menu, and when it does open: don\u2019t stare too long.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "The Void & Daily Deals Changes",
+      "Ability_or_Stat": "Daily Deals",
+      "Old_Value": "Not stated",
+      "New_Value": "With V1.18, Daily Deals are leaving the Store, as The Void takes their place. The Featured tab now shows four featured items instead.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Core Design",
+      "Ability_or_Stat": "Core Design",
+      "Old_Value": "Not stated",
+      "New_Value": "Abilities have no Mana or Energy costs, so if it\u2019s off cooldown, press it.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Core Design",
+      "Ability_or_Stat": "Core Design",
+      "Old_Value": "Not stated",
+      "New_Value": "Gold and XP generation are massively amplified, pushing builds to their end-game state much faster.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Recall",
+      "Ability_or_Stat": "Recall",
+      "Old_Value": "Not stated",
+      "New_Value": "Recall is always Empowered Recall.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Giga Jump Pads",
+      "Ability_or_Stat": "Giga Jump Pads",
+      "Old_Value": "Not stated",
+      "New_Value": "Stepping on a Jump Pad launches you in an arc towards the furthest living Tower in that lane.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: XP",
+      "Ability_or_Stat": "XP",
+      "Old_Value": "Not stated",
+      "New_Value": "XP from Minions increased by 2x.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: XP",
+      "Ability_or_Stat": "XP",
+      "Old_Value": "Not stated",
+      "New_Value": "XP from Monsters increased by 1.6x.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Gold",
+      "Ability_or_Stat": "Passive Gold Generation",
+      "Old_Value": "2.6",
+      "New_Value": "13",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Gold",
+      "Ability_or_Stat": "Gold",
+      "Old_Value": "Not stated",
+      "New_Value": "Minions now grant Gold to all nearby Allies when they die.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Blink Cooldown",
+      "Old_Value": "5m",
+      "New_Value": "2m",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Ability Haste: +400",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Unlimited Mana/Energy.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Critical Strike Damage: +25%.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Movement Speed: +12%.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Tenacity: +80.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Healing and Shielding: -50% at the start of the match, scaling to 0% over 16 minutes.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Overclocked Global Buff",
+      "Ability_or_Stat": "Overclocked Global Buff",
+      "Old_Value": "Not stated",
+      "New_Value": "Bonus Attack Speed is increased by: 50% for Ranged Heroes, 100% for Melee Heroes.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Renna",
+      "Ability_or_Stat": "Renna",
+      "Old_Value": "Not stated",
+      "New_Value": "Passively generates 1 stack every 12s.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Renna",
+      "Ability_or_Stat": "Stack Drop Chance",
+      "Old_Value": "50%",
+      "New_Value": "90%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Renna",
+      "Ability_or_Stat": "Renna",
+      "Old_Value": "Not stated",
+      "New_Value": "Stack Threshold adjustment is now slightly more focused (more drops when lower, fewer drops when higher).",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Sevarog",
+      "Ability_or_Stat": "Sevarog",
+      "Old_Value": "Not stated",
+      "New_Value": "Passively generates 1 stack every 10s.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Sevarog",
+      "Ability_or_Stat": "Stacks required per Tier",
+      "Old_Value": "40",
+      "New_Value": "35",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Crests",
+      "Ability_or_Stat": "Crests",
+      "Old_Value": "Not stated",
+      "New_Value": "Non-Support Crests now automatically generate stacks each second.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Crests",
+      "Ability_or_Stat": "Crests",
+      "Old_Value": "Not stated",
+      "New_Value": "Stacks required to evolve are reduced by ~30% for all Non-Support Crests.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Crests",
+      "Ability_or_Stat": "Crests",
+      "Old_Value": "Not stated",
+      "New_Value": "Stacks required to evolve are reduced by ~75% for all Support Crests.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Crests",
+      "Ability_or_Stat": "Crests",
+      "Old_Value": "Not stated",
+      "New_Value": "All Crests have reduced Cooldowns.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Lucky Feather",
+      "Ability_or_Stat": "Bonus Gold",
+      "Old_Value": "5",
+      "New_Value": "6",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Lucky Feather",
+      "Ability_or_Stat": "Hero Bonus Gold",
+      "Old_Value": "40",
+      "New_Value": "50",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Alchemical Rod / Azure Core",
+      "Ability_or_Stat": "Mana per Stack",
+      "Old_Value": "5",
+      "New_Value": "7",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Soul Chalice / Resolution",
+      "Ability_or_Stat": "Mana per Stack",
+      "Old_Value": "5",
+      "New_Value": "7",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Catalytic Drive",
+      "Ability_or_Stat": "Stacks to Evolve",
+      "Old_Value": "20",
+      "New_Value": "10",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Catalytic Drive",
+      "Ability_or_Stat": "Bonus Gold",
+      "Old_Value": "8",
+      "New_Value": "20",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Manta Scythe",
+      "Ability_or_Stat": "Power Gained on Camp Leader Kill",
+      "Old_Value": "0.5",
+      "New_Value": "1",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb of Growth",
+      "Ability_or_Stat": "Max Experience",
+      "Old_Value": "500",
+      "New_Value": "450",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb of Growth",
+      "Ability_or_Stat": "Experience on Kill",
+      "Old_Value": "6",
+      "New_Value": "7",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb of Growth",
+      "Ability_or_Stat": "Experience on Hero Kill",
+      "Old_Value": "50",
+      "New_Value": "45",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Nihil",
+      "Ability_or_Stat": "Growing Threat Time",
+      "Old_Value": "15m",
+      "New_Value": "9m",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Vesh",
+      "Ability_or_Stat": "Major Blessing Scaling",
+      "Old_Value": "0.4%",
+      "New_Value": "0.75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Vesh",
+      "Ability_or_Stat": "Millennia Scaling",
+      "Old_Value": "0.75%",
+      "New_Value": "1.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Aion",
+      "Ability_or_Stat": "Philosopher Gold",
+      "Old_Value": "4",
+      "New_Value": "12",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Aion",
+      "Ability_or_Stat": "Bottomless Vial Magical Power",
+      "Old_Value": "5",
+      "New_Value": "8",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Melee Minion Damage Reduction",
+      "Old_Value": "50%",
+      "New_Value": "75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Ranged Minion Damage Reduction",
+      "Old_Value": "40%",
+      "New_Value": "75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Siege Minion Damage Reduction",
+      "Old_Value": "45%",
+      "New_Value": "75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Orb Prime Buff",
+      "Ability_or_Stat": "Super Minion Damage Reduction",
+      "Old_Value": "50%",
+      "New_Value": "75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Siege Minions",
+      "Ability_or_Stat": "Siege Minions",
+      "Old_Value": "Not stated",
+      "New_Value": "Health Growth increased by 35%.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Map/Mode",
+      "Target": "Overclocked: Super Minions",
+      "Ability_or_Stat": "Super Minions",
+      "Old_Value": "Not stated",
+      "New_Value": "Health Growth increased by 35%.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "V1.18: Frostbite brings big changes to the top of the Ranked ladder. There's a brand new tier, Paragon now belongs to the very best of the best, and players who stay in the fight lose much less VP when a teammate goes AFK. For the full story, check out our blog, The Road to Paragon: Ranked in 1.18 and Beyond.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Rank Split Reset",
+      "Old_Value": "Not stated",
+      "New_Value": "Split 5 ends on Tuesday 3rd November with the release of V1.18, so be sure to get your peak Rank this weekend and lock in your end of Split rewards.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Rank Split Reset",
+      "Old_Value": "Not stated",
+      "New_Value": "Finishing Placements will get you the Split 5 Icon and Banner for your peak Rank. If you win 15 games, you will unlock the Royal Wukong skin, with additional variants if your peak Rank was Gold or higher.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Rank Split Reset",
+      "Old_Value": "Not stated",
+      "New_Value": "All players will start the new split in Placements and have 5 matches to complete to get placed (10 if you're new to Ranked or haven't played in a while).",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Introducing Master Tier",
+      "Old_Value": "Not stated",
+      "New_Value": "V1.18 adds a brand new tier towards the top of the ladder: Master, sitting between Diamond I and Paragon.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Introducing Master Tier",
+      "Ability_or_Stat": "Introducing Master Tier",
+      "Old_Value": "Not stated",
+      "New_Value": "Promotion game: when you reach the top of Diamond I, you'll play a promotion game to earn your place in Master.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Introducing Master Tier",
+      "Ability_or_Stat": "Introducing Master Tier",
+      "Old_Value": "Not stated",
+      "New_Value": "No VP cap: once you're in Master, your VP keeps climbing as long as you keep winning.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Introducing Master Tier",
+      "Ability_or_Stat": "Introducing Master Tier",
+      "Old_Value": "Not stated",
+      "New_Value": "Wins and losses in Master are +11 / -11 VP.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Paragon, Reforged",
+      "Old_Value": "Not stated",
+      "New_Value": "Paragon should be the ultimate achievement: the rank people recognise the moment they see it in the lobby. From V1.18, only 100 players can be Paragon at any one time.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Paragon, Reforged",
+      "Ability_or_Stat": "Paragon, Reforged",
+      "Old_Value": "Not stated",
+      "New_Value": "Once you gain 200+ VP in Master, you're eligible for the Top 100. There's no promotion game: earn as much VP as you can to claim your spot.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Paragon, Reforged",
+      "Ability_or_Stat": "Paragon, Reforged",
+      "Old_Value": "Not stated",
+      "New_Value": "The Top 100 refreshes every 24 hours. If you're still in the Top 100 at the refresh, you keep Paragon. If not, you're back in Master.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Paragon, Reforged",
+      "Ability_or_Stat": "Paragon, Reforged",
+      "Old_Value": "Not stated",
+      "New_Value": "The only way to lose Paragon early is to be demoted to Diamond.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Paragon, Reforged",
+      "Ability_or_Stat": "Paragon, Reforged",
+      "Old_Value": "Not stated",
+      "New_Value": "The first time you hit Paragon, you'll get a notification, whether that's on login, on the leaderboard or right after the match that got you there.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "VP Decay in Master and Paragon",
+      "Old_Value": "Not stated",
+      "New_Value": "To keep the top of the ladder competitive, Master and Paragon now have VP decay. To be the best of the best, you'll have to fight for your spot. We know you have lives outside of Predecessor, so decay won't drop your VP the moment you stop playing.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "VP Decay in Master and Paragon",
+      "Ability_or_Stat": "VP Decay in Master and Paragon",
+      "Old_Value": "Not stated",
+      "New_Value": "When you're promoted into Master, your bank is set to 10 days, so you always start Master with at least 10 banked days.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "VP Decay in Master and Paragon",
+      "Ability_or_Stat": "VP Decay in Master and Paragon",
+      "Old_Value": "Not stated",
+      "New_Value": "Each match you play banks a day, up to 14 days.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "VP Decay in Master and Paragon",
+      "Ability_or_Stat": "VP Decay in Master and Paragon",
+      "Old_Value": "Not stated",
+      "New_Value": "Every day at 10:00 UTC, banked days are reduced by 1.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "VP Decay in Master and Paragon",
+      "Ability_or_Stat": "VP Decay in Master and Paragon",
+      "Old_Value": "Not stated",
+      "New_Value": "If your bank is already empty, you lose 25 VP each day instead. Decay can demote you out of Master.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Cracking Down on AFKs",
+      "Old_Value": "Not stated",
+      "New_Value": "Nothing ruins a Ranked game like a teammate going AFK. Starting in V1.18, the players who stay in the fight lose much less VP, and players who go AFK and get demoted feel it more.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Ranked News",
+      "Ability_or_Stat": "Cracking Down on AFKs",
+      "Old_Value": "Not stated",
+      "New_Value": "You now lose at least 25% less VP when a teammate goes AFK.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Cracking Down on AFKs",
+      "Ability_or_Stat": "VP lost in a match with an AFK teammate",
+      "Old_Value": "20%-40%",
+      "New_Value": "5%-25% of a normal loss",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Cracking Down on AFKs",
+      "Ability_or_Stat": "Cracking Down on AFKs",
+      "Old_Value": "Not stated",
+      "New_Value": "For example, a normal -18 loss now costs -1 to -4 VP (previously -4 to -7).",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Cracking Down on AFKs",
+      "Ability_or_Stat": "Cracking Down on AFKs",
+      "Old_Value": "Not stated",
+      "New_Value": "If you go AFK and get demoted, the VP you lose for going AFK is now applied after your demotion, so you start the lower rank with less VP than usual.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Cost",
+      "Old_Value": "None (New Item)",
+      "New_Value": "2350g",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Support",
+      "Old_Value": "None (New Item)",
+      "New_Value": "375 Health",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Support",
+      "Old_Value": "None (New Item)",
+      "New_Value": "100% Base Health Regen",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Support",
+      "Old_Value": "None (New Item)",
+      "New_Value": "100% Base Mana Regen",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Support",
+      "Old_Value": "None (New Item)",
+      "New_Value": "10 Ability Haste",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Recipe",
+      "Old_Value": "None (New Item)",
+      "New_Value": "Stalwart Gauntlets + Vitality Beads + Essence Ring + 100g",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Vortex Stone",
+      "Ability_or_Stat": "Passive Effect - Eye Of The Storm",
+      "Old_Value": "None (New Item)",
+      "New_Value": "On Immobilizing Heroes, reduce your Current Basic Ability Cooldowns by 20%, and gain a (+12% Max Health) Shield for 4s. The Shield is 50% effective for Ranged Heroes - 12s Cooldown.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Cost",
+      "Old_Value": "None (New Item)",
+      "New_Value": "2900g",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Tank",
+      "Old_Value": "None (New Item)",
+      "New_Value": "325 Health",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Tank",
+      "Old_Value": "None (New Item)",
+      "New_Value": "55 Physical Armor",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Tank",
+      "Old_Value": "None (New Item)",
+      "New_Value": "25 Tenacity",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Recipe",
+      "Old_Value": "None (New Item)",
+      "New_Value": "Vigorous Amulet + Steel Mail + Tenacious Gem + 250g",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Passive Effect - Immovable",
+      "Old_Value": "None (New Item)",
+      "New_Value": "Upon taking Hero damage, gain a (+8% Max Health) Shield for 3.5s - 14-10s Cooldown (Based on Hero Level).",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Forticus",
+      "Ability_or_Stat": "Passive Effect 2 - Swell",
+      "Old_Value": "None (New Item)",
+      "New_Value": "Upon damaging a Hero, or being damaged by a Hero, for the next 3s, gain (+0.6% Base Health), +4 Movement Speed, and +0.5% Size each second. All stats are lost once the 3s timer expires. Stacks Infinitely.",
+      "Change_Type": "New",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: The Maw",
+      "Ability_or_Stat": "The Maw - Bonus Damage Health Threshold",
+      "Old_Value": "40%",
+      "New_Value": "45%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Major Blessing",
+      "Ability_or_Stat": "Major Blessing - Max Health",
+      "Old_Value": "5%",
+      "New_Value": "4%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Predator",
+      "Ability_or_Stat": "Predator - Damage Amplification",
+      "Old_Value": "10%",
+      "New_Value": "8%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Predator",
+      "Ability_or_Stat": "Predator - Movement Speed",
+      "Old_Value": "4%",
+      "New_Value": "3.5%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Predator",
+      "Ability_or_Stat": "Predator - Duration",
+      "Old_Value": "20s",
+      "New_Value": "15s",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Patina",
+      "Ability_or_Stat": "Patina - Shield",
+      "Old_Value": "30 (+14 per Level)",
+      "New_Value": "30 (+12 per Level)",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Fracture",
+      "Ability_or_Stat": "Fracture - Damage Amplification",
+      "Old_Value": "4% (+0.2% per Level)",
+      "New_Value": "3.5% (+0.2% per Level)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Resonant Repair",
+      "Ability_or_Stat": "Resonant Repair - Healing on Immobilized Max Health Healing",
+      "Old_Value": "3%",
+      "New_Value": "3.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Major Blessing",
+      "Ability_or_Stat": "Major Blessing - Ability Damage",
+      "Old_Value": "7% (+0.4% per Minute)",
+      "New_Value": "7% (+0.35% per Minute)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Lich",
+      "Ability_or_Stat": "Lich - Magical Lifesteal",
+      "Old_Value": "4%/7%/10%/14%",
+      "New_Value": "4%/6%/9%/12%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Phylactery",
+      "Ability_or_Stat": "Phylactery - Cooldown Progression",
+      "Old_Value": "100%",
+      "New_Value": "75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Furor",
+      "Ability_or_Stat": "Furor - Total Attack Speed",
+      "Old_Value": "20%",
+      "New_Value": "17.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Cull the Weak",
+      "Ability_or_Stat": "Cull the Weak - Missing Mana Regen",
+      "Old_Value": "1%",
+      "New_Value": "1.25%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Construct",
+      "Ability_or_Stat": "Construct - Ability Haste per Level",
+      "Old_Value": "1",
+      "New_Value": "0.75",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Memory Leak",
+      "Ability_or_Stat": "Memory Leak - Movement Speed",
+      "Old_Value": "5%",
+      "New_Value": "4%",
+      "Change_Type": "Nerf",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Memory Leak",
+      "Ability_or_Stat": "Memory Leak - Max Mana",
+      "Old_Value": "500",
+      "New_Value": "400",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Memory Leak",
+      "Ability_or_Stat": "Memory Leak - Mana gain from abilities",
+      "Old_Value": "5%",
+      "New_Value": "4%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Major Blessing",
+      "Ability_or_Stat": "Major Blessing - Gold based on Ability Damage Dealt",
+      "Old_Value": "6%",
+      "New_Value": "5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Philosopher",
+      "Ability_or_Stat": "Philosopher - Gold Gain",
+      "Old_Value": "4",
+      "New_Value": "3.5",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Arcane Resonance",
+      "Ability_or_Stat": "Arcane Resonance - Cooldown Progression",
+      "Old_Value": "0.75%",
+      "New_Value": "0.6%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Eternals: Perfection",
+      "Ability_or_Stat": "Perfection - Ability Haste while above 85% Health",
+      "Old_Value": "30",
+      "New_Value": "25",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Attack Chain Minion Execution",
+      "Ability_or_Stat": "Attack Chain Minion Execution",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Heroes with Variable Damage Attack Chains will now correctly execute Minions at their default damage modifier when the Healthbar is shown as red, rather than it being based on the individual damage of the Attack chain. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Healthbar Status Timers",
+      "Ability_or_Stat": "Healthbar Status Timers",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where the Time Bars above a Hero\u2019s Health would not always accurately reflect the time remaining on a Status Effect. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Towers",
+      "Ability_or_Stat": "Towers",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Towers could sometimes instantly shoot another Target if their current Target dies. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Towers",
+      "Ability_or_Stat": "Towers",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Tower Targeting VFX could remain in the world if a player disconnects and rejoins a Match. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Akeron Web Lash Leap [Secondary] = Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Drongo mid-air Shrapnel Cannon [Ultimate] = Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Kwang Fury Of The Heavens\u2019 Teleport [Ultimate] = Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Mourn\u2019s Abduct Augment Pull [Alternate] = Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "N3on Erase Vector Recast [Alternate] = Dash (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "N3on Final Thread Recast [Ultimate] = Leap (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Blink = Blink + Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Phase\u2019s Blink = Blink + Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Grux\u2019s Blink, Chieftain\u2019s Blink Augment = Blink + Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Dash/Leap/Teleport Abilities",
+      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
+      "Old_Value": "Not stated",
+      "New_Value": "Abyssal Dart Reactivation = Teleport (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Countess",
+      "Ability_or_Stat": "Shadow Slip [Primary]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Countess could Teleport back to her Shadow the same frame she is hit by Crowd Control. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Eden",
+      "Ability_or_Stat": "Zero Shift [Secondary]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Eden would not gain her Ranged Stance Bonus Physical Power upon respawning, unless she toggled Stance. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "GRIM.exe",
+      "Ability_or_Stat": "Instant Reload [Augment]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Now correctly Executes Heroes when GTFO Damages the target below 5% Health from an Item Effect, such as Combustion\u2019s damage. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Howitzer",
+      "Ability_or_Stat": "Cannon [Basic Attack]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Howitzer\u2019s 2nd Basic Attack could have 100% Cleave if he missed his shot. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kallari",
+      "Ability_or_Stat": "Death Mark [Passive]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Kallari\u2019s Double Jump would not go on cooldown if she is interrupted out of it. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kira",
+      "Ability_or_Stat": "Nevermore [Passive]",
+      "Old_Value": "Not stated",
+      "New_Value": "Damage changed from (+7% Target\u2019s Current Health) to 15/30/45/60 (Hero Level 1/6/11/16) (+5% Target\u2019s Current Health).",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Kira",
+      "Ability_or_Stat": "Dusk [Primary] - Bonus Physical Power Scaling per Stack",
+      "Old_Value": "12%",
+      "New_Value": "15%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Legion",
+      "Ability_or_Stat": "Press The Advantage [Augment] - Fire Rate",
+      "Old_Value": "12%/16%/20%/24%/28%",
+      "New_Value": "14%/18%/22%/26%/30%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Legion",
+      "Ability_or_Stat": "Heavy Caliber [Augment] - Damage Modifier",
+      "Old_Value": "310%",
+      "New_Value": "300%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Legion",
+      "Ability_or_Stat": "K-75 Storm Rifle [Basic Attack]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Now correctly executes Minions, rather than his Execute Threshold being overly low. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "General - BAT",
+      "Old_Value": "1.3",
+      "New_Value": "1.45",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Shatterbloom [Augment] - Healing Magical Power Scaling",
+      "Old_Value": "4%",
+      "New_Value": "4.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Ferocious Flight [Augment] - Additional Shield Magical Power Scaling",
+      "Old_Value": "12%",
+      "New_Value": "15%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Ferocious Flight [Augment] - Cooldown refund",
+      "Old_Value": "1s",
+      "New_Value": "1.5s",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Ferocious Flight [Augment]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Description no longer states that the Shield is 10 higher than intended. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Maco Gift! [Primary] - Health Magical Power Scaling",
+      "Old_Value": "35%",
+      "New_Value": "40%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Maco",
+      "Ability_or_Stat": "Maco Gift! [Primary]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where healing Allies would not grant an assist to Maco should they get a Takedown. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Morigesh",
+      "Ability_or_Stat": "Cursed Infestation [Augment] - Hive Damage",
+      "Old_Value": "+12%",
+      "New_Value": "+10%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Muriel",
+      "Ability_or_Stat": "Reversal Of Fortune [Ultimate]",
+      "Old_Value": "Not stated",
+      "New_Value": "Damage Reduction changed from 30% to 20% (+5% Magical Power).",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Revenant",
+      "Ability_or_Stat": "Nether Realm [Ultimate]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Revenant could not pick up Tower Gold while in the Nether Realm. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Sevarog",
+      "Ability_or_Stat": "Colossal Blow [Ultimate]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Now correctly goes on cooldown if its cast animation is interrupted. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Plasma Barrage [Augment] - Explosion Missing Health Damage",
+      "Old_Value": "6%",
+      "New_Value": "7.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Atomised Artillery [Augment] - Time between Shots",
+      "Old_Value": "0.75s",
+      "New_Value": "0.65s",
+      "Change_Type": "Buff",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Atomised Artillery [Augment]",
+      "Old_Value": "Not stated",
+      "New_Value": "Now also grants +10 Ultimate Haste.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Air Assault [Secondary] - Missile Damage Bonus Physical Power Scaling",
+      "Old_Value": "20%",
+      "New_Value": "16%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Air Assault [Secondary] - Missile Damage Magical Power Scaling",
+      "Old_Value": "12%",
+      "New_Value": "10%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Hypercharge [Alternate] - Bonus Physical Armor Penetration",
+      "Old_Value": "20%",
+      "New_Value": "25%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Hypercharge [Alternate] - Damage Ramp per Hit",
+      "Old_Value": "1%",
+      "New_Value": "0.75%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Hypercharge [Alternate] - Max Damage Ramp",
+      "Old_Value": "25%",
+      "New_Value": "22.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Skylar",
+      "Ability_or_Stat": "Atomiser [Ultimate]",
+      "Old_Value": "Not stated",
+      "New_Value": "[QoL] Channel Camera now removes more in sync with the fire of the Ultimate.",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Steel",
+      "Ability_or_Stat": "Bull Rush [Primary] - Bonus Health Scaling",
+      "Old_Value": "5%",
+      "New_Value": "6%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Sanguine Banquet [Augment] - Omnivamp Bonus Mana Scaling",
+      "Old_Value": "0.4%",
+      "New_Value": "0.35%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Hemophagia [Passive] - Mana Restore",
+      "Old_Value": "3-38",
+      "New_Value": "3-33",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Rupture [Primary]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Rupture\u2019s blades could rarely become stuck mid-air and not travel to their intended target. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Hero Healing",
+      "Old_Value": "20/40/60",
+      "New_Value": "16/34/52",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Hero Healing Magical Power Scaling",
+      "Old_Value": "22%",
+      "New_Value": "20%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Minion Healing Modifier",
+      "Old_Value": "10%",
+      "New_Value": "12.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Minion Healing",
+      "Old_Value": "1.8/3.6/5.4",
+      "New_Value": "2/4.25/6.5",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Valmont",
+      "Ability_or_Stat": "Exsanguinate [Ultimate] - Minion Healing Magical Power Scaling",
+      "Old_Value": "2.2%",
+      "New_Value": "2.5%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Hero",
+      "Target": "Zinx",
+      "Ability_or_Stat": "Neural Regenesis [Ultimate]",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where the Hero Resurrected by Zinx\u2019s Ultimate would have their Camera detached and be placed in the wrong area upon revival. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Rapid Rapier",
+      "Ability_or_Stat": "Tier 2",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Momentum Items would trigger their damage effect if the attack that increases stacks increased the stack count to 100. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Judgement",
+      "Ability_or_Stat": "Thunder Cleaver Damage Total Physical Power Scaling",
+      "Old_Value": "30%",
+      "New_Value": "40%",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Stormbreaker",
+      "Ability_or_Stat": "Carry",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Stormbreaker\u2019s Electric Strike would not reduce the Cooldown of Spectra\u2019s effect. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Infernum",
+      "Ability_or_Stat": "Assassin",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where Infernum\u2019s Damage Effect would not trigger Malady\u2019s Demise Effect. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Rebirth",
+      "Ability_or_Stat": "Mechanica Cooldown",
+      "Old_Value": "270",
+      "New_Value": "300",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Rebirth",
+      "Ability_or_Stat": "Fighter",
+      "Old_Value": "Not stated",
+      "New_Value": "[Bugfix] Fixed an issue where the Hero Resurrected by Rebirth\u2019s Effect would have their Camera detached and placed in the wrong area upon revival. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Warp Stream",
+      "Ability_or_Stat": "Tele-Blink Damage Timer",
+      "Old_Value": "2.5s",
+      "New_Value": "2s",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "Item",
+      "Target": "Hexbound Bracers",
+      "Ability_or_Stat": "Hexed Guard Basic Attack Damage Block",
+      "Old_Value": "5 (+1 per Level)",
+      "New_Value": "8 (+1 per Level)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where the Surrender Widget could be stuck on screen if the Player is on the Scoreboard as it times out. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue in Draft where transitioning from Role Pick to Hero Pick would play the \u201cpick\u201d SFX for everyone when the first player picks. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Objective Taken HUD Notifications that trigger at the same time would only play one of them. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Gadget\u2019s Sticky Mine could be blocked by Iggy\u2019s Molotov projectile. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue with Grim.Exe where swapping Skin Color would make him fall through the floor into the depths of hell. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where using a Spray or Overhead Emote while Invisible would reveal the User. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Kwang would visually radiate Electricity VFX when using Surge Of The Heavens and becoming Invisible. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where various Heroes could Double Jump while being Pulled by Phase\u2019s Telekinetic Link. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Orb Prime would not display a Blight HUD Notification when damaging Heroes. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Eden\u2019s Descriptions did not state that she moves faster while in Melee Stance. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Special Loot Cores would not play their SFX correctly when opened. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where various time-limited store items would not display a Timer on their Menu icons. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Morigesh\u2019s Mark could damage Yurei\u2019s skulls, and therefore block her from selecting the intended target. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Users with unclaimed premium Battlepass rewards could be shown a placeholder image when purchasing the upgrade. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Morigesh\u2019s Doll would display an extended tentacle on her Riktor Doll, if he\u2019s using the Gold Bones skin. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Heroes could begin channeling their Recall while Stunned. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Abyssal Dart\u2019s Teleport could cause users to become stuck in various Walls. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue where Feng Mao\u2019s Earth Shatter Targeting could briefly persist in the world after being interrupted. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    },
+    {
+      "Category": "System",
+      "Target": "Bug Fixes",
+      "Ability_or_Stat": "Change",
+      "Old_Value": "Not stated",
+      "New_Value": "Fixed an issue in Replay Mode where the Controller Input for Pause and Scoreboard were flipped. (Bugfix)",
+      "Change_Type": "Adjustment",
+      "Source": "Patch Notes"
+    }
+  ],
+  "source_row_count": 286,
+  "rows": 235,
+  "literal_absent_cells": 166,
+  "affected_rows": 99,
+  "caution": "Not an error count: aggregation, paraphrase and punctuation can produce absences.",
+  "absences": [
+    {
+      "row": 11,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "Abilities leave Rimeglass for 6s; Enemies on Rimeglass gain Frostbite for 1s (15% Slow, 0.5% Max Health True Damage per 0.5s)"
+    },
+    {
+      "row": 12,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "Melee, 325u Range, 25% Cleave; 65 (+80% Bonus Physical Power) Physical Damage"
+    },
+    {
+      "row": 13,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "CD: 13/11.75/10.5/9.25/8; Cost: 60/65/70/75/80 Mana"
+    },
+    {
+      "row": 14,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "3.5s spin, 400u Radius; 7.5/10/12.5/15/17.5 (+8%/10%/12%/14%/16% Total Physical Power) (+0.5%/0.825%/1.15%/1.475%/1.8% Max Health) Physical Damage per 0.25s; spawns Rimeglass; Hard CC immune; 60% damage vs Minions, +5 bonus Damage vs Monsters per strike"
+    },
+    {
+      "row": 15,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "+4/6/8/10/12% total Physical and Magical Armor, increased by 1.5x while on Rimeglass"
+    },
+    {
+      "row": 16,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "CD: 16/15.5/15/14.5/14s; Cost: 80 Mana"
+    },
+    {
+      "row": 17,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "1100u dash (stops past first Enemy Hero); 70/95/120/145/170 (+100% Bonus Physical Power) Physical Damage, 25% Slow for 1.2s; with Frostbite: x2 Damage Dealt and 1.2s Root on Enemy Heroes"
+    },
+    {
+      "row": 18,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "CD: 15/14.5/14/13.5/13s; Cost: 50/55/60/65/70 Mana"
+    },
+    {
+      "row": 19,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "0.6s channel, 2250u Rimeglass trail, pierces terrain; (+11%/12%/13%/14%/15% Target's Max Health) Physical Damage, 0.2s Stun, 50% Slow for 1.5s"
+    },
+    {
+      "row": 20,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "CD: 130/110/90s; Cost: 100 Mana; 1.5s channel, 4s flight (1275 Movement Speed, traverses walls/ledges, immune to damage effects)"
+    },
+    {
+      "row": 21,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "200/300/400 (+100% Bonus Physical Power) (+6% Bonus Health) Physical Damage, 40% Slow for 1.5s, 1.5s center Root; 8s Frost Storm (continuous Frostbite at 2x Damage)"
+    },
+    {
+      "row": 22,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "+1 Razorstorm strike per 20% Attack Speed owned (up to +10 strikes) and can Critically Strike; Rimeglass no longer grants Armors"
+    },
+    {
+      "row": 24,
+      "target": "Kaelen",
+      "field": "New_Value",
+      "value": "Frostfall grants Allies in Targeting Zone +20% Movement Speed for 3s; on landing, Kaelen gains (+10% Max Health) (+4% Max Health per Enemy Hero hit) Shield for 4s"
+    },
+    {
+      "row": 25,
+      "target": "Countess",
+      "field": "Old_Value",
+      "value": "Could Teleport back to Shadow on the same frame hit by Crowd Control"
+    },
+    {
+      "row": 25,
+      "target": "Countess",
+      "field": "New_Value",
+      "value": "Blocked from Teleporting on the same frame hit by Crowd Control"
+    },
+    {
+      "row": 26,
+      "target": "Eden",
+      "field": "Old_Value",
+      "value": "Did not gain Ranged Stance Bonus Physical Power upon respawning unless toggling Stance"
+    },
+    {
+      "row": 26,
+      "target": "Eden",
+      "field": "New_Value",
+      "value": "Gains Ranged Stance Bonus Physical Power upon respawning"
+    },
+    {
+      "row": 27,
+      "target": "Eden",
+      "field": "Old_Value",
+      "value": "Did not state faster Movement Speed while in Melee Stance"
+    },
+    {
+      "row": 27,
+      "target": "Eden",
+      "field": "New_Value",
+      "value": "States faster Movement Speed while in Melee Stance"
+    },
+    {
+      "row": 28,
+      "target": "Feng Mao",
+      "field": "New_Value",
+      "value": "Targeting cleared upon interruption"
+    },
+    {
+      "row": 29,
+      "target": "Gadget",
+      "field": "Old_Value",
+      "value": "Could be blocked by Iggy's Molotov projectile"
+    },
+    {
+      "row": 29,
+      "target": "Gadget",
+      "field": "New_Value",
+      "value": "No longer blocked by Iggy's Molotov projectile"
+    },
+    {
+      "row": 30,
+      "target": "GRIM.exe",
+      "field": "Old_Value",
+      "value": "Did not Execute Heroes when GTFO + Item Effect damage dropped target below 5% Health"
+    },
+    {
+      "row": 30,
+      "target": "GRIM.exe",
+      "field": "New_Value",
+      "value": "Correctly Executes Heroes dropped below 5% Health via Item Effect damage"
+    },
+    {
+      "row": 31,
+      "target": "GRIM.exe",
+      "field": "Old_Value",
+      "value": "Swapping Skin Color caused falling through the floor"
+    },
+    {
+      "row": 31,
+      "target": "GRIM.exe",
+      "field": "New_Value",
+      "value": "Fixed floor collision when swapping Skin Color"
+    },
+    {
+      "row": 32,
+      "target": "Howitzer",
+      "field": "Old_Value",
+      "value": "2nd Basic Attack could have 100% Cleave if shot missed"
+    },
+    {
+      "row": 32,
+      "target": "Howitzer",
+      "field": "New_Value",
+      "value": "Fixed unintended 100% Cleave on missed shot"
+    },
+    {
+      "row": 34,
+      "target": "Kallari",
+      "field": "Old_Value",
+      "value": "Double Jump did not go on cooldown if interrupted"
+    },
+    {
+      "row": 34,
+      "target": "Kallari",
+      "field": "New_Value",
+      "value": "Double Jump goes on cooldown if interrupted"
+    },
+    {
+      "row": 37,
+      "target": "Kira",
+      "field": "Old_Value",
+      "value": "(+7% Target's Current Health)"
+    },
+    {
+      "row": 37,
+      "target": "Kira",
+      "field": "New_Value",
+      "value": "15/30/45/60 (Hero Level 1/6/11/16) (+5% Target's Current Health)"
+    },
+    {
+      "row": 39,
+      "target": "Kwang",
+      "field": "Old_Value",
+      "value": "Visually radiated Electricity VFX while Invisible"
+    },
+    {
+      "row": 39,
+      "target": "Kwang",
+      "field": "New_Value",
+      "value": "No longer radiates Electricity VFX while Invisible"
+    },
+    {
+      "row": 44,
+      "target": "Legion",
+      "field": "Old_Value",
+      "value": "Execute Threshold was overly low"
+    },
+    {
+      "row": 44,
+      "target": "Legion",
+      "field": "New_Value",
+      "value": "Correctly executes Minions at intended threshold"
+    },
+    {
+      "row": 55,
+      "target": "Maco",
+      "field": "Old_Value",
+      "value": "Stated Shield was 10 higher than intended"
+    },
+    {
+      "row": 55,
+      "target": "Maco",
+      "field": "New_Value",
+      "value": "Description corrected to intended Shield value"
+    },
+    {
+      "row": 57,
+      "target": "Maco",
+      "field": "Old_Value",
+      "value": "Healing Allies did not grant an assist on Takedown"
+    },
+    {
+      "row": 57,
+      "target": "Maco",
+      "field": "New_Value",
+      "value": "Grants assist when healed Ally gets a Takedown"
+    },
+    {
+      "row": 64,
+      "target": "Morigesh",
+      "field": "Old_Value",
+      "value": "Could damage Yurei's skulls and block selecting intended target"
+    },
+    {
+      "row": 64,
+      "target": "Morigesh",
+      "field": "New_Value",
+      "value": "No longer damages Yurei's skulls or blocks target selection"
+    },
+    {
+      "row": 65,
+      "target": "Morigesh",
+      "field": "Old_Value",
+      "value": "Displayed extended tentacle on Riktor Doll when using Gold Bones skin"
+    },
+    {
+      "row": 65,
+      "target": "Morigesh",
+      "field": "New_Value",
+      "value": "Fixed extended tentacle visual"
+    },
+    {
+      "row": 69,
+      "target": "Phase",
+      "field": "New_Value",
+      "value": "Heroes cannot Double Jump while being Pulled"
+    },
+    {
+      "row": 70,
+      "target": "Revenant",
+      "field": "Old_Value",
+      "value": "Could not pick up floor Tower Gold while in Nether Realm"
+    },
+    {
+      "row": 70,
+      "target": "Revenant",
+      "field": "New_Value",
+      "value": "Can pick up floor Tower Gold while in Nether Realm"
+    },
+    {
+      "row": 73,
+      "target": "Sevarog",
+      "field": "Old_Value",
+      "value": "Did not go on cooldown if cast animation was interrupted"
+    },
+    {
+      "row": 73,
+      "target": "Sevarog",
+      "field": "New_Value",
+      "value": "Correctly goes on cooldown if cast animation is interrupted"
+    },
+    {
+      "row": 76,
+      "target": "Skylar",
+      "field": "Old_Value",
+      "value": "None"
+    },
+    {
+      "row": 86,
+      "target": "Skylar",
+      "field": "Old_Value",
+      "value": "Channel Camera less synced with Ultimate fire"
+    },
+    {
+      "row": 86,
+      "target": "Skylar",
+      "field": "New_Value",
+      "value": "Channel Camera removes more in sync with fire of Ultimate (QoL)"
+    },
+    {
+      "row": 93,
+      "target": "Valmont",
+      "field": "Old_Value",
+      "value": "Blades could rarely become stuck mid-air"
+    },
+    {
+      "row": 93,
+      "target": "Valmont",
+      "field": "New_Value",
+      "value": "Blades travel properly to intended target"
+    },
+    {
+      "row": 101,
+      "target": "Zinx",
+      "field": "Old_Value",
+      "value": "Resurrected Hero camera detached and placed in wrong area"
+    },
+    {
+      "row": 101,
+      "target": "Zinx",
+      "field": "New_Value",
+      "value": "Camera remains properly attached upon revival"
+    },
+    {
+      "row": 102,
+      "target": "Vortex Stone",
+      "field": "New_Value",
+      "value": "2350g (Stalwart Gauntlets + Vitality Beads + Essence Ring + 100g)"
+    },
+    {
+      "row": 103,
+      "target": "Vortex Stone",
+      "field": "New_Value",
+      "value": "375 Health, 100% Base Health Regen, 100% Base Mana Regen, 10 Ability Haste"
+    },
+    {
+      "row": 104,
+      "target": "Vortex Stone",
+      "field": "New_Value",
+      "value": "On Immobilizing Heroes: reduce Current Basic Ability Cooldowns by 20% and gain (+12% Max Health) Shield for 4s (50% effective for Ranged Heroes); 12s Cooldown"
+    },
+    {
+      "row": 105,
+      "target": "Forticus",
+      "field": "New_Value",
+      "value": "2900g (Vigorous Amulet + Steel Mail + Tenacious Gem + 250g)"
+    },
+    {
+      "row": 106,
+      "target": "Forticus",
+      "field": "New_Value",
+      "value": "325 Health, 55 Physical Armor, 25 Tenacity"
+    },
+    {
+      "row": 107,
+      "target": "Forticus",
+      "field": "New_Value",
+      "value": "Upon taking Hero damage: gain (+8% Max Health) Shield for 3.5s; 14-10s Cooldown (Based on Hero Level)"
+    },
+    {
+      "row": 108,
+      "target": "Forticus",
+      "field": "New_Value",
+      "value": "Upon damaging or taking damage from a Hero (next 3s): gain (+0.6% Base Health), +4 Movement Speed, and +0.5% Size each second; lost once 3s timer expires; stacks infinitely"
+    },
+    {
+      "row": 109,
+      "target": "Rapid Rapier / Stormbreaker / Lightning Hawk / Omen",
+      "field": "Old_Value",
+      "value": "Triggered damage effect on the attack that raised stack count to 100"
+    },
+    {
+      "row": 109,
+      "target": "Rapid Rapier / Stormbreaker / Lightning Hawk / Omen",
+      "field": "New_Value",
+      "value": "Requires already being at 100 stacks when launching the attack"
+    },
+    {
+      "row": 112,
+      "target": "Abyssal Dart",
+      "field": "Old_Value",
+      "value": "Teleport could cause users to become stuck in Walls"
+    },
+    {
+      "row": 112,
+      "target": "Abyssal Dart",
+      "field": "New_Value",
+      "value": "Fixed Wall collision upon Teleport"
+    },
+    {
+      "row": 114,
+      "target": "Stormbreaker",
+      "field": "Old_Value",
+      "value": "Electric Strike did not reduce Cooldown of Spectra's effect"
+    },
+    {
+      "row": 114,
+      "target": "Stormbreaker",
+      "field": "New_Value",
+      "value": "Electric Strike reduces Cooldown of Spectra's effect"
+    },
+    {
+      "row": 115,
+      "target": "Infernum",
+      "field": "Old_Value",
+      "value": "Damage Effect did not trigger Malady's Demise Effect"
+    },
+    {
+      "row": 115,
+      "target": "Infernum",
+      "field": "New_Value",
+      "value": "Damage Effect triggers Malady's Demise Effect"
+    },
+    {
+      "row": 119,
+      "target": "Rebirth",
+      "field": "Old_Value",
+      "value": "Resurrected Hero camera detached and placed in wrong area"
+    },
+    {
+      "row": 119,
+      "target": "Rebirth",
+      "field": "New_Value",
+      "value": "Camera remains properly attached upon revival"
+    },
+    {
+      "row": 145,
+      "target": "Attack Chain Minion Execution",
+      "field": "Old_Value",
+      "value": "Based on individual Attack Chain hit damage modifier"
+    },
+    {
+      "row": 145,
+      "target": "Attack Chain Minion Execution",
+      "field": "New_Value",
+      "value": "Executes at default damage modifier when Healthbar is red"
+    },
+    {
+      "row": 146,
+      "target": "Healthbar Status Timers",
+      "field": "Old_Value",
+      "value": "Time Bars could desync from remaining Status Effect duration"
+    },
+    {
+      "row": 146,
+      "target": "Healthbar Status Timers",
+      "field": "New_Value",
+      "value": "Accurately reflects remaining Status Effect duration"
+    },
+    {
+      "row": 147,
+      "target": "Towers",
+      "field": "Old_Value",
+      "value": "Could sometimes instantly shoot another Target when current Target died"
+    },
+    {
+      "row": 147,
+      "target": "Towers",
+      "field": "New_Value",
+      "value": "Resolved instant target-swap firing bug"
+    },
+    {
+      "row": 148,
+      "target": "Towers",
+      "field": "Old_Value",
+      "value": "Targeting VFX could remain in world after disconnect and rejoin"
+    },
+    {
+      "row": 148,
+      "target": "Towers",
+      "field": "New_Value",
+      "value": "Cleared properly on reconnect"
+    },
+    {
+      "row": 149,
+      "target": "Movement Tag: Akeron",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 149,
+      "target": "Movement Tag: Akeron",
+      "field": "New_Value",
+      "value": "Tagged as Dash"
+    },
+    {
+      "row": 150,
+      "target": "Movement Tag: Drongo",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 150,
+      "target": "Movement Tag: Drongo",
+      "field": "New_Value",
+      "value": "Tagged as Dash"
+    },
+    {
+      "row": 151,
+      "target": "Movement Tag: Kwang",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 151,
+      "target": "Movement Tag: Kwang",
+      "field": "New_Value",
+      "value": "Tagged as Teleport"
+    },
+    {
+      "row": 152,
+      "target": "Movement Tag: Mourn",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 152,
+      "target": "Movement Tag: Mourn",
+      "field": "New_Value",
+      "value": "Tagged as Dash"
+    },
+    {
+      "row": 153,
+      "target": "Movement Tag: N3ON",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 153,
+      "target": "Movement Tag: N3ON",
+      "field": "New_Value",
+      "value": "Tagged as Dash"
+    },
+    {
+      "row": 154,
+      "target": "Movement Tag: N3ON",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 154,
+      "target": "Movement Tag: N3ON",
+      "field": "New_Value",
+      "value": "Tagged as Leap"
+    },
+    {
+      "row": 155,
+      "target": "Movement Tag: Universal Blink",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 155,
+      "target": "Movement Tag: Universal Blink",
+      "field": "New_Value",
+      "value": "Tagged as Blink + Teleport"
+    },
+    {
+      "row": 156,
+      "target": "Movement Tag: Phase",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 156,
+      "target": "Movement Tag: Phase",
+      "field": "New_Value",
+      "value": "Tagged as Blink + Teleport"
+    },
+    {
+      "row": 157,
+      "target": "Movement Tag: Grux",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 157,
+      "target": "Movement Tag: Grux",
+      "field": "New_Value",
+      "value": "Tagged as Blink + Teleport"
+    },
+    {
+      "row": 158,
+      "target": "Movement Tag: Abyssal Dart",
+      "field": "Old_Value",
+      "value": "Missing Movement Tag"
+    },
+    {
+      "row": 158,
+      "target": "Movement Tag: Abyssal Dart",
+      "field": "New_Value",
+      "value": "Tagged as Teleport"
+    },
+    {
+      "row": 159,
+      "target": "Ranked",
+      "field": "Old_Value",
+      "value": "Split 5 active"
+    },
+    {
+      "row": 159,
+      "target": "Ranked",
+      "field": "New_Value",
+      "value": "Split reset; 5 Placement matches (10 for new/returning); Royal Wukong skin at 15 wins"
+    },
+    {
+      "row": 160,
+      "target": "Ranked",
+      "field": "Old_Value",
+      "value": "Diamond I promoted directly to Paragon"
+    },
+    {
+      "row": 160,
+      "target": "Ranked",
+      "field": "New_Value",
+      "value": "Master Tier added between Diamond I (promotion game) and Paragon; uncapped VP; +11 / -11 VP per win/loss"
+    },
+    {
+      "row": 161,
+      "target": "Ranked",
+      "field": "Old_Value",
+      "value": "Uncapped Paragon population"
+    },
+    {
+      "row": 161,
+      "target": "Ranked",
+      "field": "New_Value",
+      "value": "Capped at Top 100 players with 200+ Master VP; refreshes every 24h; early loss only on demotion to Diamond"
+    },
+    {
+      "row": 162,
+      "target": "Ranked",
+      "field": "Old_Value",
+      "value": "None"
+    },
+    {
+      "row": 162,
+      "target": "Ranked",
+      "field": "New_Value",
+      "value": "10 banked days on Master promo (+1/match up to 14; -1 at 10:00 UTC; -25 VP/day at 0 banked days; can demote out of Master)"
+    },
+    {
+      "row": 163,
+      "target": "Ranked",
+      "field": "Old_Value",
+      "value": "20%-40% of normal loss (-4 to -7 VP on -18 base)"
+    },
+    {
+      "row": 163,
+      "target": "Ranked",
+      "field": "New_Value",
+      "value": "5%-25% of normal loss / at least 25% less VP lost (-1 to -4 VP on -18 base)"
+    },
+    {
+      "row": 164,
+      "target": "Ranked",
+      "field": "Old_Value",
+      "value": "Applied before demotion"
+    },
+    {
+      "row": 164,
+      "target": "Ranked",
+      "field": "New_Value",
+      "value": "Applied after demotion so AFK player starts lower rank with less VP"
+    },
+    {
+      "row": 165,
+      "target": "Store",
+      "field": "Old_Value",
+      "value": "Daily Deals (1 item/day)"
+    },
+    {
+      "row": 165,
+      "target": "Store",
+      "field": "New_Value",
+      "value": "Daily Deals removed; replaced by The Void (5 skins, 20%-70% discount, open 2 weeks, Level 10+) and 4 Featured items"
+    },
+    {
+      "row": 166,
+      "target": "Store",
+      "field": "Old_Value",
+      "value": "Standard skin variant VFX"
+    },
+    {
+      "row": 166,
+      "target": "Store",
+      "field": "New_Value",
+      "value": "Coloured VFX variants (+200 premium) for Quantum Zarus, Quantum TwinBlast, Quantum Scarlett, and Nullfire Quantum Lt. Belica"
+    },
+    {
+      "row": 167,
+      "target": "Audio",
+      "field": "Old_Value",
+      "value": "Generic comms wheel voice only"
+    },
+    {
+      "row": 167,
+      "target": "Audio",
+      "field": "New_Value",
+      "value": "Purchasable Hero Voice Comms packs added for Adele, Akeron, Argus, Bayle, Eden, Ikra, Kaelen, Legion, Maco, Mourn, N3ON, Scarlett, and Valmont"
+    },
+    {
+      "row": 168,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Heroes could begin channeling Recall while Stunned"
+    },
+    {
+      "row": 168,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Blocked from channeling Recall while Stunned"
+    },
+    {
+      "row": 169,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Using a Spray or Overhead Emote while Invisible revealed User"
+    },
+    {
+      "row": 169,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "No longer reveals Invisible User"
+    },
+    {
+      "row": 170,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Did not display Blight HUD Notification when damaging Heroes"
+    },
+    {
+      "row": 170,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Displays Blight HUD Notification when damaging Heroes"
+    },
+    {
+      "row": 171,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Only played one HUD Notification if triggered simultaneously"
+    },
+    {
+      "row": 171,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Plays all simultaneous Objective Taken HUD Notifications"
+    },
+    {
+      "row": 172,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Could remain stuck on screen if viewing Scoreboard at timeout"
+    },
+    {
+      "row": 172,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Closes properly on timeout"
+    },
+    {
+      "row": 173,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Played pick SFX for everyone when first player picked"
+    },
+    {
+      "row": 173,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Fixed Draft transition pick SFX"
+    },
+    {
+      "row": 174,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Pause and Scoreboard Controller Inputs were flipped"
+    },
+    {
+      "row": 174,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Corrected Controller Input mapping"
+    },
+    {
+      "row": 175,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Did not play SFX accurately when opened"
+    },
+    {
+      "row": 175,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Plays SFX accurately when opened"
+    },
+    {
+      "row": 176,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Did not display Timer on Menu icons"
+    },
+    {
+      "row": 176,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Displays Timer on Menu icons"
+    },
+    {
+      "row": 177,
+      "target": "General Bugfix",
+      "field": "Old_Value",
+      "value": "Could show placeholder image when purchasing upgrade with unclaimed rewards"
+    },
+    {
+      "row": 177,
+      "target": "General Bugfix",
+      "field": "New_Value",
+      "value": "Displays intended reward image"
+    },
+    {
+      "row": 178,
+      "target": "Overclocked: Recall",
+      "field": "Old_Value",
+      "value": "Standard Recall"
+    },
+    {
+      "row": 178,
+      "target": "Overclocked: Recall",
+      "field": "New_Value",
+      "value": "Always Empowered Recall"
+    },
+    {
+      "row": 179,
+      "target": "Overclocked: Giga Jump Pads",
+      "field": "Old_Value",
+      "value": "Standard Jump Pad launch"
+    },
+    {
+      "row": 179,
+      "target": "Overclocked: Giga Jump Pads",
+      "field": "New_Value",
+      "value": "Launches in an arc toward furthest living Tower in lane"
+    },
+    {
+      "row": 180,
+      "target": "Overclocked: Economy",
+      "field": "New_Value",
+      "value": "Increased by 2x"
+    },
+    {
+      "row": 181,
+      "target": "Overclocked: Economy",
+      "field": "New_Value",
+      "value": "Increased by 1.6x"
+    },
+    {
+      "row": 183,
+      "target": "Overclocked: Economy",
+      "field": "Old_Value",
+      "value": "Last-hit / standard proximity rules"
+    },
+    {
+      "row": 183,
+      "target": "Overclocked: Economy",
+      "field": "New_Value",
+      "value": "Minions grant Gold to all nearby Allies when they die"
+    },
+    {
+      "row": 190,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "0 bonus"
+    },
+    {
+      "row": 191,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "Standard Mana/Energy costs"
+    },
+    {
+      "row": 191,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "New_Value",
+      "value": "Unlimited Mana/Energy (0 cost)"
+    },
+    {
+      "row": 192,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "0% bonus"
+    },
+    {
+      "row": 193,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "0% bonus"
+    },
+    {
+      "row": 194,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "0 bonus"
+    },
+    {
+      "row": 195,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "0% penalty"
+    },
+    {
+      "row": 195,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "New_Value",
+      "value": "-50% at match start, scaling to 0% over 16 minutes"
+    },
+    {
+      "row": 196,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "Old_Value",
+      "value": "0% bonus multiplier"
+    },
+    {
+      "row": 196,
+      "target": "Overclocked: Global Hero Buff",
+      "field": "New_Value",
+      "value": "+50% for Ranged Heroes, +100% for Melee Heroes"
+    },
+    {
+      "row": 197,
+      "target": "Overclocked: Renna",
+      "field": "Old_Value",
+      "value": "None"
+    },
+    {
+      "row": 198,
+      "target": "Overclocked: Renna",
+      "field": "New_Value",
+      "value": "90% (with focused threshold adjustment)"
+    },
+    {
+      "row": 199,
+      "target": "Overclocked: Sevarog",
+      "field": "Old_Value",
+      "value": "None"
+    },
+    {
+      "row": 201,
+      "target": "Overclocked: Crests",
+      "field": "Old_Value",
+      "value": "Manual stacking, 100% evolution requirement, standard Cooldowns"
+    },
+    {
+      "row": 201,
+      "target": "Overclocked: Crests",
+      "field": "New_Value",
+      "value": "Auto-stacks each second (Non-Support); ~30% fewer stacks (Non-Support) and ~75% fewer stacks (Support); reduced Cooldowns"
+    },
+    {
+      "row": 234,
+      "target": "Overclocked: Siege Minions",
+      "field": "Old_Value",
+      "value": "Standard Health Growth"
+    },
+    {
+      "row": 234,
+      "target": "Overclocked: Siege Minions",
+      "field": "New_Value",
+      "value": "Increased by 35%"
+    },
+    {
+      "row": 235,
+      "target": "Overclocked: Super Minions",
+      "field": "Old_Value",
+      "value": "Standard Health Growth"
+    },
+    {
+      "row": 235,
+      "target": "Overclocked: Super Minions",
+      "field": "New_Value",
+      "value": "Increased by 35%"
+    }
+  ]
+}

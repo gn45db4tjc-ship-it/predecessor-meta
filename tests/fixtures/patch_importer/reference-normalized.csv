@@ -1,0 +1,236 @@
+Category,Target,Ability_or_Stat,Old_Value,New_Value,Change_Type,Source
+Hero,Kaelen,Health,None (New Hero),695 (+131 per Level),New,Patch Notes
+Hero,Kaelen,Health Regen,None (New Hero),2.3 (+0.25 per Level),New,Patch Notes
+Hero,Kaelen,Mana,None (New Hero),310 (+60 per Level),New,Patch Notes
+Hero,Kaelen,Mana Regen,None (New Hero),1.4 (+0.2 per Level),New,Patch Notes
+Hero,Kaelen,Attack Speed,None (New Hero),135 (+2.2 per Level),New,Patch Notes
+Hero,Kaelen,Physical Armor,None (New Hero),36 (+4.8 per Level),New,Patch Notes
+Hero,Kaelen,Magical Armor,None (New Hero),31 (+1.7 per Level),New,Patch Notes
+Hero,Kaelen,Physical Power,None (New Hero),65 (+5.2 per Level),New,Patch Notes
+Hero,Kaelen,Movement Speed,None (New Hero),700,New,Patch Notes
+Hero,Kaelen,BAT,None (New Hero),1.5,New,Patch Notes
+Hero,Kaelen,Heart Of Ice [Passive],None (New Hero),"Abilities leave Rimeglass for 6s; Enemies on Rimeglass gain Frostbite for 1s (15% Slow, 0.5% Max Health True Damage per 0.5s)",New,Patch Notes
+Hero,Kaelen,Pale Twins [Basic Attack],None (New Hero),"Melee, 325u Range, 25% Cleave; 65 (+80% Bonus Physical Power) Physical Damage",New,Patch Notes
+Hero,Kaelen,Razorstorm [Primary] - Cooldown & Cost,None (New Hero),CD: 13/11.75/10.5/9.25/8; Cost: 60/65/70/75/80 Mana,New,Patch Notes
+Hero,Kaelen,Razorstorm [Primary] - Spin Damage & Modifiers,None (New Hero),"3.5s spin, 400u Radius; 7.5/10/12.5/15/17.5 (+8%/10%/12%/14%/16% Total Physical Power) (+0.5%/0.825%/1.15%/1.475%/1.8% Max Health) Physical Damage per 0.25s; spawns Rimeglass; Hard CC immune; 60% damage vs Minions, +5 bonus Damage vs Monsters per strike",New,Patch Notes
+Hero,Kaelen,Razorstorm [Primary] - Passive Armors,None (New Hero),"+4/6/8/10/12% total Physical and Magical Armor, increased by 1.5x while on Rimeglass",New,Patch Notes
+Hero,Kaelen,Winter's Pursuit [Secondary] - Cooldown & Cost,None (New Hero),CD: 16/15.5/15/14.5/14s; Cost: 80 Mana,New,Patch Notes
+Hero,Kaelen,"Winter's Pursuit [Secondary] - Dash, Damage & CC",None (New Hero),"1100u dash (stops past first Enemy Hero); 70/95/120/145/170 (+100% Bonus Physical Power) Physical Damage, 25% Slow for 1.2s; with Frostbite: x2 Damage Dealt and 1.2s Root on Enemy Heroes",New,Patch Notes
+Hero,Kaelen,Rimefang [Alternate] - Cooldown & Cost,None (New Hero),CD: 15/14.5/14/13.5/13s; Cost: 50/55/60/65/70 Mana,New,Patch Notes
+Hero,Kaelen,"Rimefang [Alternate] - Effect, Damage & CC",None (New Hero),"0.6s channel, 2250u Rimeglass trail, pierces terrain; (+11%/12%/13%/14%/15% Target's Max Health) Physical Damage, 0.2s Stun, 50% Slow for 1.5s",New,Patch Notes
+Hero,Kaelen,"Frostfall [Ultimate] - Cooldown, Cost & Flight",None (New Hero),"CD: 130/110/90s; Cost: 100 Mana; 1.5s channel, 4s flight (1275 Movement Speed, traverses walls/ledges, immune to damage effects)",New,Patch Notes
+Hero,Kaelen,Frostfall [Ultimate] - Impact & Frost Storm,None (New Hero),"200/300/400 (+100% Bonus Physical Power) (+6% Bonus Health) Physical Damage, 40% Slow for 1.5s, 1.5s center Root; 8s Frost Storm (continuous Frostbite at 2x Damage)",New,Patch Notes
+Hero,Kaelen,Relentless Hunt [Augment],None (New Hero),+1 Razorstorm strike per 20% Attack Speed owned (up to +10 strikes) and can Critically Strike; Rimeglass no longer grants Armors,New,Patch Notes
+Hero,Kaelen,Neverending Chase [Augment],None (New Hero),Pale Twins or Ability hits against Heroes and Camp Leaders reduce Winter's Pursuit Cooldown by 3% on hit,New,Patch Notes
+Hero,Kaelen,Last Winter [Augment],None (New Hero),"Frostfall grants Allies in Targeting Zone +20% Movement Speed for 3s; on landing, Kaelen gains (+10% Max Health) (+4% Max Health per Enemy Hero hit) Shield for 4s",New,Patch Notes
+Hero,Countess,Shadow Slip [Primary] - Same-Frame CC Teleport,Could Teleport back to Shadow on the same frame hit by Crowd Control,Blocked from Teleporting on the same frame hit by Crowd Control (Bugfix),Adjustment,Patch Notes
+Hero,Eden,Zero Shift [Secondary] - Respawn Ranged Physical Power,Did not gain Ranged Stance Bonus Physical Power upon respawning unless toggling Stance,Gains Ranged Stance Bonus Physical Power upon respawning (Bugfix),Adjustment,Patch Notes
+Hero,Eden,Descriptions - Melee Stance Movement Speed,Did not state faster Movement Speed while in Melee Stance,States faster Movement Speed while in Melee Stance (Bugfix),Adjustment,Patch Notes
+Hero,Feng Mao,Earth Shatter - Interrupted Targeting Visual,Targeting could briefly persist in the world after being interrupted,Targeting cleared upon interruption (Bugfix),Adjustment,Patch Notes
+Hero,Gadget,Sticky Mine - Iggy Molotov Collision,Could be blocked by Iggy's Molotov projectile,No longer blocked by Iggy's Molotov projectile (Bugfix),Adjustment,Patch Notes
+Hero,GRIM.exe,Instant Reload [Augment] - GTFO Item-Effect Execute,Did not Execute Heroes when GTFO + Item Effect damage dropped target below 5% Health,Correctly Executes Heroes dropped below 5% Health via Item Effect damage (Bugfix),Adjustment,Patch Notes
+Hero,GRIM.exe,Skin Color Swap Collision,Swapping Skin Color caused falling through the floor,Fixed floor collision when swapping Skin Color (Bugfix),Adjustment,Patch Notes
+Hero,Howitzer,Cannon [Basic Attack] - 2nd Basic Attack Cleave,2nd Basic Attack could have 100% Cleave if shot missed,Fixed unintended 100% Cleave on missed shot (Bugfix),Adjustment,Patch Notes
+Hero,Iggy & Scorch,Flame Turret [Primary] - Melee Basic Attack Damage Taken Modifier,1.7x,2x,Nerf,Patch Notes
+Hero,Kallari,Death Mark [Passive] - Interrupted Double Jump Cooldown,Double Jump did not go on cooldown if interrupted,Double Jump goes on cooldown if interrupted (Bugfix),Adjustment,Patch Notes
+Hero,Kallari,Crippling Dagger [Alternate] - Bonus Physical Power Scaling,85%,90%,Buff,Patch Notes
+Hero,Kallari,Crippling Dagger [Alternate] - Slow,25%,30%,Buff,Patch Notes
+Hero,Kira,Nevermore [Passive] - Damage,(+7% Target's Current Health),15/30/45/60 (Hero Level 1/6/11/16) (+5% Target's Current Health),Adjustment,Patch Notes
+Hero,Kira,Dusk [Primary] - Bonus Physical Power Scaling per Stack,12%,15%,Buff,Patch Notes
+Hero,Kwang,Surge Of The Heavens - Invisible Electricity VFX,Visually radiated Electricity VFX while Invisible,No longer radiates Electricity VFX while Invisible (Bugfix),Adjustment,Patch Notes
+Hero,Legion,Press The Advantage [Augment] - Fire Rate,12%/16%/20%/24%/28%,14%/18%/22%/26%/30%,Buff,Patch Notes
+Hero,Legion,Napalm Zone [Augment] - Damage,5,7,Buff,Patch Notes
+Hero,Legion,Napalm Zone [Augment] - Bonus Physical Power Scaling,6%,7%,Buff,Patch Notes
+Hero,Legion,Heavy Caliber [Augment] - Damage Modifier,310%,300%,Nerf,Patch Notes
+Hero,Legion,K-75 Storm Rifle [Basic Attack] - Minion Execute,Execute Threshold was overly low,Correctly executes Minions at intended threshold (Bugfix),Adjustment,Patch Notes
+Hero,Legion,Saturation Charge [Primary] - Cooldown,19/18/17/16/15,18/17/16/15/14,Buff,Patch Notes
+Hero,Legion,Frag Order [Alternate] - Damage,70/110/150/190/230,80/120/160/200/240,Buff,Patch Notes
+Hero,Legion,Frag Order [Alternate] - Bonus Physical Power Scaling,60%/65%/70%/75%/80%,65%/70%/75%/80%/85%,Buff,Patch Notes
+Hero,Legion,Frag Order [Alternate] - Magical Power Scaling,40%,60%,Buff,Patch Notes
+Hero,Maco,General - Health Regen,1.6,1.3,Nerf,Patch Notes
+Hero,Maco,General - Attack Speed,115,125,Buff,Patch Notes
+Hero,Maco,General - BAT,1.3,1.45,Nerf,Patch Notes
+Hero,Maco,Shatterbloom [Augment] - Healing Magical Power Scaling,4%,4.5%,Buff,Patch Notes
+Hero,Maco,Ferocious Flight [Augment] - Additional Shield Magical Power Scaling,12%,15%,Buff,Patch Notes
+Hero,Maco,Ferocious Flight [Augment] - Cooldown Refund,1s,1.5s,Buff,Patch Notes
+Hero,Maco,Ferocious Flight [Augment] - Shield Description,Stated Shield was 10 higher than intended,Description corrected to intended Shield value (Bugfix),Adjustment,Patch Notes
+Hero,Maco,Maco Gift! [Primary] - Health Magical Power Scaling,35%,40%,Buff,Patch Notes
+Hero,Maco,Maco Gift! [Primary] - Ally Heal Takedown Assist,Healing Allies did not grant an assist on Takedown,Grants assist when healed Ally gets a Takedown (Bugfix),Adjustment,Patch Notes
+Hero,Maco,Maco Fly! [Secondary] - Shield,60/115/170/225/280,60/110/160/210/260,Nerf,Patch Notes
+Hero,Maco,Maco Fly! [Secondary] - Shield Magical Power Scaling,50%,60%,Buff,Patch Notes
+Hero,Maco,Maco Sparkle! [Alternate] - Stun Duration,1.1/1.15/1.2/1.25/1.3s,1/1.05/1.1/1.15/1.2s,Nerf,Patch Notes
+Hero,Maco,Maco Sparkle! [Alternate] - Minimum Stun Duration,0.5s,0.35s,Nerf,Patch Notes
+Hero,Morigesh,Cursed Infestation [Augment] - Hive Damage,+12%,+10%,Nerf,Patch Notes
+Hero,Morigesh,General - Movement Speed,675,670,Nerf,Patch Notes
+Hero,Morigesh,Mark - Yurei Skulls Interaction,Could damage Yurei's skulls and block selecting intended target,No longer damages Yurei's skulls or blocks target selection (Bugfix),Adjustment,Patch Notes
+Hero,Morigesh,Doll Visual - Gold Bones Riktor,Displayed extended tentacle on Riktor Doll when using Gold Bones skin,Fixed extended tentacle visual (Bugfix),Adjustment,Patch Notes
+Hero,Muriel,Alacrity [Secondary] - Shield,80/120/160/200/240,80/115/150/185/220,Nerf,Patch Notes
+Hero,Muriel,Alacrity [Secondary] - Magical Power Scaling,50%,60%,Buff,Patch Notes
+Hero,Muriel,Reversal Of Fortune [Ultimate] - Damage Reduction,30%,20% (+5% Magical Power),Adjustment,Patch Notes
+Hero,Phase,Telekinetic Link - Double Jump During Pull,Heroes could Double Jump while being Pulled,Heroes cannot Double Jump while being Pulled (Bugfix),Adjustment,Patch Notes
+Hero,Revenant,Nether Realm [Ultimate] - Tower Gold Pickup,Could not pick up floor Tower Gold while in Nether Realm,Can pick up floor Tower Gold while in Nether Realm (Bugfix),Adjustment,Patch Notes
+Hero,Serath,General - Physical Power Growth,2.6,3.3,Buff,Patch Notes
+Hero,Serath,Chastise [Alternate] - Damage,80/105/130/155/180,80/110/140/170/200,Buff,Patch Notes
+Hero,Sevarog,Colossal Blow [Ultimate] - Interrupted Cast Cooldown,Did not go on cooldown if cast animation was interrupted,Correctly goes on cooldown if cast animation is interrupted (Bugfix),Adjustment,Patch Notes
+Hero,Skylar,Plasma Barrage [Augment] - Explosion Missing Health Damage,6%,7.5%,Buff,Patch Notes
+Hero,Skylar,Atomised Artillery [Augment] - Time Between Shots,0.75s,0.65s,Buff,Patch Notes
+Hero,Skylar,Atomised Artillery [Augment] - Ultimate Haste,None,+10 Ultimate Haste,Buff,Patch Notes
+Hero,Skylar,General - Mana,280,290,Buff,Patch Notes
+Hero,Skylar,Plasma Grenade [Primary] - Slow,40%/45%/50%/55%/60%,45%/50%/55%/60%/65%,Buff,Patch Notes
+Hero,Skylar,Air Assault [Secondary] - Missile Damage Bonus Physical Power Scaling,20%,16%,Nerf,Patch Notes
+Hero,Skylar,Air Assault [Secondary] - Missile Damage Magical Power Scaling,12%,10%,Nerf,Patch Notes
+Hero,Skylar,Air Assault [Secondary] - Cooldown,24/22/20/18/16,21/19.75/18.5/17.25/16,Buff,Patch Notes
+Hero,Skylar,Hypercharge [Alternate] - Bonus Physical Armor Penetration,20%,25%,Buff,Patch Notes
+Hero,Skylar,Hypercharge [Alternate] - Damage Ramp per Hit,1%,0.75%,Nerf,Patch Notes
+Hero,Skylar,Hypercharge [Alternate] - Max Damage Ramp Stacks,25,30,Adjustment,Patch Notes
+Hero,Skylar,Hypercharge [Alternate] - Max Damage Ramp,25%,22.5%,Nerf,Patch Notes
+Hero,Skylar,Atomiser [Ultimate] - Channel Camera,Channel Camera less synced with Ultimate fire,Channel Camera removes more in sync with fire of Ultimate (QoL),Adjustment,Patch Notes
+Hero,Steel,General - Physical Armor,38,35,Nerf,Patch Notes
+Hero,Steel,General - Health Regen,2,1.8,Nerf,Patch Notes
+Hero,Steel,Bull Rush [Primary] - Bonus Health Scaling,5%,6%,Buff,Patch Notes
+Hero,Valmont,Sanguine Banquet [Augment] - Omnivamp Bonus Mana Scaling,0.4%,0.35%,Nerf,Patch Notes
+Hero,Valmont,Hemophagia [Passive] - Mana Restore,3-38,3-33,Nerf,Patch Notes
+Hero,Valmont,Rupture [Primary] - Magical Power Scaling,15%,16%,Buff,Patch Notes
+Hero,Valmont,Rupture [Primary] - Blade Travel,Blades could rarely become stuck mid-air,Blades travel properly to intended target (Bugfix),Adjustment,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Damage,40/65/90,40/62/84,Nerf,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Damage Magical Power Scaling,23%,20%,Nerf,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Hero Healing,20/40/60,16/34/52,Nerf,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Hero Healing Magical Power Scaling,22%,20%,Nerf,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Minion Healing Modifier,10%,12.5%,Buff,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Minion Healing,1.8/3.6/5.4,2/4.25/6.5,Buff,Patch Notes
+Hero,Valmont,Exsanguinate [Ultimate] - Minion Healing Magical Power Scaling,2.2%,2.5%,Buff,Patch Notes
+Hero,Zinx,Neural Regenesis [Ultimate] - Revival Camera,Resurrected Hero camera detached and placed in wrong area,Camera remains properly attached upon revival (Bugfix),Adjustment,Patch Notes
+Item,Vortex Stone,Cost & Recipe,None (New Item),2350g (Stalwart Gauntlets + Vitality Beads + Essence Ring + 100g),New,Patch Notes
+Item,Vortex Stone,Base Stats,None (New Item),"375 Health, 100% Base Health Regen, 100% Base Mana Regen, 10 Ability Haste",New,Patch Notes
+Item,Vortex Stone,Eye Of The Storm [Passive],None (New Item),On Immobilizing Heroes: reduce Current Basic Ability Cooldowns by 20% and gain (+12% Max Health) Shield for 4s (50% effective for Ranged Heroes); 12s Cooldown,New,Patch Notes
+Item,Forticus,Cost & Recipe,None (New Item),2900g (Vigorous Amulet + Steel Mail + Tenacious Gem + 250g),New,Patch Notes
+Item,Forticus,Base Stats,None (New Item),"325 Health, 55 Physical Armor, 25 Tenacity",New,Patch Notes
+Item,Forticus,Immovable [Passive 1],None (New Item),Upon taking Hero damage: gain (+8% Max Health) Shield for 3.5s; 14-10s Cooldown (Based on Hero Level),New,Patch Notes
+Item,Forticus,Swell [Passive 2],None (New Item),"Upon damaging or taking damage from a Hero (next 3s): gain (+0.6% Base Health), +4 Movement Speed, and +0.5% Size each second; lost once 3s timer expires; stacks infinitely",New,Patch Notes
+Item,Rapid Rapier / Stormbreaker / Lightning Hawk / Omen,Momentum - 100-Stack Trigger,Triggered damage effect on the attack that raised stack count to 100,Requires already being at 100 stacks when launching the attack (Bugfix),Adjustment,Patch Notes
+Item,Stalwart Gauntlets,Price,1150,1000,Buff,Patch Notes
+Item,Judgement,Thunder Cleaver - Damage Total Physical Power Scaling,30%,40%,Buff,Patch Notes
+Item,Abyssal Dart,Teleport - Wall Collision,Teleport could cause users to become stuck in Walls,Fixed Wall collision upon Teleport (Bugfix),Adjustment,Patch Notes
+Item,Solaris,Ability Haste,15,10,Nerf,Patch Notes
+Item,Stormbreaker,Electric Strike - Spectra Cooldown Interaction,Electric Strike did not reduce Cooldown of Spectra's effect,Electric Strike reduces Cooldown of Spectra's effect (Bugfix),Adjustment,Patch Notes
+Item,Infernum,Damage Effect - Malady's Demise Interaction,Damage Effect did not trigger Malady's Demise Effect,Damage Effect triggers Malady's Demise Effect (Bugfix),Adjustment,Patch Notes
+Item,Penumbra,Cost,2900,2850,Buff,Patch Notes
+Item,Penumbra,Physical Penetration,8,9,Buff,Patch Notes
+Item,Rebirth,Mechanica - Cooldown,270,300,Nerf,Patch Notes
+Item,Rebirth,Mechanica - Revival Camera,Resurrected Hero camera detached and placed in wrong area,Camera remains properly attached upon revival (Bugfix),Adjustment,Patch Notes
+Item,Magnify,Omnivamp,10%,8%,Nerf,Patch Notes
+Item,Timewarp,Base Mana Regen,150%,125%,Nerf,Patch Notes
+Item,Warp Stream,Tele-Blink - Damage Timer,2.5s,2s,Buff,Patch Notes
+Item,Hexbound Bracers,Hexed Guard - Basic Attack Damage Block,5 (+1 per Level),8 (+1 per Level),Buff,Patch Notes
+System,Eternal: Marrow (The Maw),Bonus Damage Health Threshold,40%,45%,Buff,Patch Notes
+System,Eternal: Krix (Major Blessing),Max Health,5%,4%,Nerf,Patch Notes
+System,Eternal: Krix (Predator),Damage Amplification,10%,8%,Nerf,Patch Notes
+System,Eternal: Krix (Predator),Movement Speed,4%,3.5%,Nerf,Patch Notes
+System,Eternal: Krix (Predator),Duration,20s,15s,Nerf,Patch Notes
+System,Eternal: Knell (Patina),Shield,30 (+14 per Level),30 (+12 per Level),Nerf,Patch Notes
+System,Eternal: Knell (Fracture),Damage Amplification,4% (+0.2% per Level),3.5% (+0.2% per Level),Nerf,Patch Notes
+System,Eternal: Knell (Resonant Repair),Healing on Immobilized Max Health Healing,3%,3.5%,Buff,Patch Notes
+System,Eternal: Vesh (Major Blessing),Ability Damage,7% (+0.4% per Minute),7% (+0.35% per Minute),Nerf,Patch Notes
+System,Eternal: Vesh (Lich),Magical Lifesteal,4%/7%/10%/14%,4%/6%/9%/12%,Nerf,Patch Notes
+System,Eternal: Vesh (Phylactery),Cooldown Progression,100%,75%,Nerf,Patch Notes
+System,Eternal: Xyris (Furor),Total Attack Speed,20%,17.5%,Nerf,Patch Notes
+System,Eternal: Xyris (Cull the Weak),Missing Mana Regen,1%,1.25%,Buff,Patch Notes
+System,Eternal: Demiurge (Construct),Ability Haste per Level,1,0.75,Nerf,Patch Notes
+System,Eternal: Demiurge (Memory Leak),Movement Speed,5%,4%,Nerf,Patch Notes
+System,Eternal: Demiurge (Memory Leak),Max Mana,500,400,Nerf,Patch Notes
+System,Eternal: Demiurge (Memory Leak),Mana Gain from Abilities,5%,4%,Nerf,Patch Notes
+System,Eternal: Aion (Major Blessing),Gold Based on Ability Damage Dealt,6%,5%,Nerf,Patch Notes
+System,Eternal: Aion (Philosopher),Gold Gain,4,3.5,Nerf,Patch Notes
+System,Eternal: Aion (Arcane Resonance),Cooldown Progression,0.75%,0.6%,Nerf,Patch Notes
+System,Eternal: Aion (Perfection),Ability Haste While Above 85% Health,30,25,Nerf,Patch Notes
+System,Attack Chain Minion Execution,Red Healthbar Execute Calculation,Based on individual Attack Chain hit damage modifier,Executes at default damage modifier when Healthbar is red (Bugfix),Adjustment,Patch Notes
+System,Healthbar Status Timers,Status Effect Duration Bar Sync,Time Bars could desync from remaining Status Effect duration,Accurately reflects remaining Status Effect duration (Bugfix),Adjustment,Patch Notes
+System,Towers,Target Switching on Target Death,Could sometimes instantly shoot another Target when current Target died,Resolved instant target-swap firing bug (Bugfix),Adjustment,Patch Notes
+System,Towers,Targeting VFX on Disconnect/Rejoin,Targeting VFX could remain in world after disconnect and rejoin,Cleared properly on reconnect (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Akeron,Web Lash Leap [Secondary],Missing Movement Tag,Tagged as Dash (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Drongo,Mid-Air Shrapnel Cannon [Ultimate],Missing Movement Tag,Tagged as Dash (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Kwang,Fury Of The Heavens Teleport [Ultimate],Missing Movement Tag,Tagged as Teleport (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Mourn,Abduct Augment Pull [Alternate],Missing Movement Tag,Tagged as Dash (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: N3ON,Erase Vector Recast [Alternate],Missing Movement Tag,Tagged as Dash (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: N3ON,Final Thread Recast [Ultimate],Missing Movement Tag,Tagged as Leap (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Universal Blink,Blink,Missing Movement Tag,Tagged as Blink + Teleport (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Phase,Phase's Blink,Missing Movement Tag,Tagged as Blink + Teleport (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Grux,"Grux's Blink, Chieftain's Blink [Augment]",Missing Movement Tag,Tagged as Blink + Teleport (Bugfix),Adjustment,Patch Notes
+System,Movement Tag: Abyssal Dart,Abyssal Dart Reactivation,Missing Movement Tag,Tagged as Teleport (Bugfix),Adjustment,Patch Notes
+System,Ranked,Split 5 Reset & Placements,Split 5 active,Split reset; 5 Placement matches (10 for new/returning); Royal Wukong skin at 15 wins,Adjustment,Patch Notes
+System,Ranked,Master Tier Addition,Diamond I promoted directly to Paragon,Master Tier added between Diamond I (promotion game) and Paragon; uncapped VP; +11 / -11 VP per win/loss,Rework,Patch Notes
+System,Ranked,Paragon Top 100 Rework,Uncapped Paragon population,Capped at Top 100 players with 200+ Master VP; refreshes every 24h; early loss only on demotion to Diamond,Rework,Patch Notes
+System,Ranked,Master & Paragon VP Decay,None,10 banked days on Master promo (+1/match up to 14; -1 at 10:00 UTC; -25 VP/day at 0 banked days; can demote out of Master),Adjustment,Patch Notes
+System,Ranked,Teammate AFK VP Loss Mitigation,20%-40% of normal loss (-4 to -7 VP on -18 base),5%-25% of normal loss / at least 25% less VP lost (-1 to -4 VP on -18 base),Adjustment,Patch Notes
+System,Ranked,AFK Demotion Penalty Application,Applied before demotion,Applied after demotion so AFK player starts lower rank with less VP,Adjustment,Patch Notes
+System,Store,The Void & Daily Deals,Daily Deals (1 item/day),"Daily Deals removed; replaced by The Void (5 skins, 20%-70% discount, open 2 weeks, Level 10+) and 4 Featured items",Rework,Patch Notes
+System,Store,Variant Coloured VFX,Standard skin variant VFX,"Coloured VFX variants (+200 premium) for Quantum Zarus, Quantum TwinBlast, Quantum Scarlett, and Nullfire Quantum Lt. Belica",Adjustment,Patch Notes
+System,Audio,Hero Voice Comms,Generic comms wheel voice only,"Purchasable Hero Voice Comms packs added for Adele, Akeron, Argus, Bayle, Eden, Ikra, Kaelen, Legion, Maco, Mourn, N3ON, Scarlett, and Valmont",Adjustment,Patch Notes
+System,General Bugfix,Recall Channel While Stunned,Heroes could begin channeling Recall while Stunned,Blocked from channeling Recall while Stunned (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Invisibility vs. Spray / Overhead Emote,Using a Spray or Overhead Emote while Invisible revealed User,No longer reveals Invisible User (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Orb Prime Blight HUD Notification,Did not display Blight HUD Notification when damaging Heroes,Displays Blight HUD Notification when damaging Heroes (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Simultaneous Objective Taken HUD Notifications,Only played one HUD Notification if triggered simultaneously,Plays all simultaneous Objective Taken HUD Notifications (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Surrender Widget Scoreboard Timeout,Could remain stuck on screen if viewing Scoreboard at timeout,Closes properly on timeout (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Draft Role-to-Hero Pick SFX,Played pick SFX for everyone when first player picked,Fixed Draft transition pick SFX (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Replay Mode Controller Inputs,Pause and Scoreboard Controller Inputs were flipped,Corrected Controller Input mapping (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Special Loot Cores Opening SFX,Did not play SFX accurately when opened,Plays SFX accurately when opened (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Time-Limited Store Item Timers,Did not display Timer on Menu icons,Displays Timer on Menu icons (Bugfix),Adjustment,Patch Notes
+System,General Bugfix,Battlepass Upgrade Unclaimed Reward Art,Could show placeholder image when purchasing upgrade with unclaimed rewards,Displays intended reward image (Bugfix),Adjustment,Patch Notes
+Map/Mode,Overclocked: Recall,Empowered Recall,Standard Recall,Always Empowered Recall,Adjustment,Patch Notes
+Map/Mode,Overclocked: Giga Jump Pads,Launch Distance,Standard Jump Pad launch,Launches in an arc toward furthest living Tower in lane,Adjustment,Patch Notes
+Map/Mode,Overclocked: Economy,Minion XP,1x,Increased by 2x,Buff,Patch Notes
+Map/Mode,Overclocked: Economy,Monster XP,1x,Increased by 1.6x,Buff,Patch Notes
+Map/Mode,Overclocked: Economy,Passive Gold Generation,2.6,13,Buff,Patch Notes
+Map/Mode,Overclocked: Economy,Minion Death Gold Sharing,Last-hit / standard proximity rules,Minions grant Gold to all nearby Allies when they die,Buff,Patch Notes
+Map/Mode,Overclocked: Explosive Flowers,Spawn Time,4m,20s,Adjustment,Patch Notes
+Map/Mode,Overclocked: Explosive Flowers,Respawn Time,2m 30s,1m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Arcshot Gateway,Portal Activation Time,8m,5m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Arcshot Gateway,Portal Cooldown,3m-2m (based on game time),1m,Adjustment,Patch Notes
+Map/Mode,Overclocked: World Shift,Trigger Time,14m,7m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Blink Cooldown,5m,2m,Buff,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Ability Haste,0 bonus,+400,Buff,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Mana / Energy Costs,Standard Mana/Energy costs,Unlimited Mana/Energy (0 cost),Buff,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Critical Strike Damage,0% bonus,+25%,Buff,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Movement Speed,0% bonus,+12%,Buff,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Tenacity,0 bonus,+80,Buff,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Healing and Shielding Modifier,0% penalty,"-50% at match start, scaling to 0% over 16 minutes",Nerf,Patch Notes
+Map/Mode,Overclocked: Global Hero Buff,Bonus Attack Speed Multiplier,0% bonus multiplier,"+50% for Ranged Heroes, +100% for Melee Heroes",Buff,Patch Notes
+Map/Mode,Overclocked: Renna,Echoes of the Damned - Passive Stack Generation,None,Passively generates 1 stack every 12s,Buff,Patch Notes
+Map/Mode,Overclocked: Renna,Echoes of the Damned - Stack Drop Chance,50%,90% (with focused threshold adjustment),Buff,Patch Notes
+Map/Mode,Overclocked: Sevarog,Reaper of Souls - Passive Stack Generation,None,Passively generates 1 stack every 10s,Buff,Patch Notes
+Map/Mode,Overclocked: Sevarog,Reaper of Souls - Stacks Required per Tier,40,35,Buff,Patch Notes
+Map/Mode,Overclocked: Crests,"Stacking, Evolution & Cooldowns","Manual stacking, 100% evolution requirement, standard Cooldowns",Auto-stacks each second (Non-Support); ~30% fewer stacks (Non-Support) and ~75% fewer stacks (Support); reduced Cooldowns,Buff,Patch Notes
+Map/Mode,Overclocked: Lucky Feather,Bonus Gold,5,6,Buff,Patch Notes
+Map/Mode,Overclocked: Lucky Feather,Hero Bonus Gold,40,50,Buff,Patch Notes
+Map/Mode,Overclocked: Alchemical Rod / Azure Core,Mana per Stack,5,7,Buff,Patch Notes
+Map/Mode,Overclocked: Soul Chalice / Resolution,Mana per Stack,5,7,Buff,Patch Notes
+Map/Mode,Overclocked: Catalytic Drive,Stacks to Evolve,20,10,Buff,Patch Notes
+Map/Mode,Overclocked: Catalytic Drive,Bonus Gold,8,20,Buff,Patch Notes
+Map/Mode,Overclocked: Manta Scythe,Power Gained on Camp Leader Kill,0.5,1,Buff,Patch Notes
+Map/Mode,Overclocked: Orb of Growth,Max Experience,500,450,Nerf,Patch Notes
+Map/Mode,Overclocked: Orb of Growth,Experience on Kill,6,7,Buff,Patch Notes
+Map/Mode,Overclocked: Orb of Growth,Experience on Hero Kill,50,45,Nerf,Patch Notes
+Map/Mode,Overclocked: Eternal - Nihil,Growing Threat Time,15m,9m,Buff,Patch Notes
+Map/Mode,Overclocked: Eternal - Vesh,Major Blessing Scaling,0.4%,0.75%,Buff,Patch Notes
+Map/Mode,Overclocked: Eternal - Vesh,Millennia Scaling,0.75%,1.5%,Buff,Patch Notes
+Map/Mode,Overclocked: Eternal - Aion,Philosopher Gold,4,12,Buff,Patch Notes
+Map/Mode,Overclocked: Eternal - Aion,Bottomless Vial Magical Power,5,8,Buff,Patch Notes
+Map/Mode,Overclocked: River Buffs,Spawn Time,3m,2m,Adjustment,Patch Notes
+Map/Mode,Overclocked: River Buffs,Enhance Time,17m,8m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Seedling,Spawn Time,4m,3m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Seedling,Respawn Time,4m,3m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Genesis Core,Seedling Replacement Time,15m,8m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Genesis Core,Respawn Time,6m,3m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Fangtooth,Spawn Time,5m,3m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Fangtooth,Respawn Time,4m 45s,3m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Mini Orb,Spawn Time,7m,4m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Mini Orb,Respawn Time,6m,3m 30s,Adjustment,Patch Notes
+Map/Mode,Overclocked: Orb Prime,Mini Orb Replacement Time,20m,10m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Orb Prime,Respawn Time,6m,3m 30s,Adjustment,Patch Notes
+Map/Mode,Overclocked: Orb Prime Buff,Melee Minion Damage Reduction,50%,75%,Buff,Patch Notes
+Map/Mode,Overclocked: Orb Prime Buff,Ranged Minion Damage Reduction,40%,75%,Buff,Patch Notes
+Map/Mode,Overclocked: Orb Prime Buff,Siege Minion Damage Reduction,45%,75%,Buff,Patch Notes
+Map/Mode,Overclocked: Orb Prime Buff,Super Minion Damage Reduction,50%,75%,Buff,Patch Notes
+Map/Mode,Overclocked: Empowered Red/Blue Buffs,Empower Time,20m,10m,Adjustment,Patch Notes
+Map/Mode,Overclocked: Siege Minions,Health Growth,Standard Health Growth,Increased by 35%,Buff,Patch Notes
+Map/Mode,Overclocked: Super Minions,Health Growth,Standard Health Growth,Increased by 35%,Buff,Patch Notes

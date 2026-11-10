@@ -1,0 +1,2 @@
+# Preserve official fixture and reference bytes for SHA-256 validation on Windows.
+/tests/fixtures/patch_importer/* -text
