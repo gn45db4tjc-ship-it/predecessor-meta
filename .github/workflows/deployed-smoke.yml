@@ -1,0 +1,58 @@
+name: Deployed browser smoke check
+
+# Read-only. Opens the live GitHub Pages site in a real browser after each successful publication (or on manual
+# dispatch) to verify that the page, manifest, scripts, stylesheets and data bundles return 200, the shell boots
+# cleanly without page or console errors, release versions agree with the service worker cache, and the mobile layout
+# has no horizontal scroll. A failure only fails this run; it never touches the site, main, data-updates or
+# automation-state.
+on:
+  workflow_run:
+    workflows: ['Daily data and patch-aware publication']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deployed-smoke
+  cancel-in-progress: true
+
+jobs:
+  deployed-smoke:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Install pinned verification tooling (no browser download)
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+      - name: Wait up to 10 minutes for the deployed manifest version
+        env:
+          SITE_URL: https://gn45db4tjc-ship-it.github.io/predecessor-meta/
+          WAIT_TIMEOUT_SECONDS: '600'
+          WAIT_INTERVAL_SECONDS: '15'
+        run: node tests/browser_deployed_smoke.cjs --wait-for-manifest
+      - name: Check the deployed site in a browser
+        env:
+          SITE_URL: https://gn45db4tjc-ship-it.github.io/predecessor-meta/
+          BROWSER_CHANNEL: chrome
+        run: node tests/browser_deployed_smoke.cjs
+      - name: Keep the deployed smoke report and screenshot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: deployed-smoke
+          path: qa/deployed-smoke.*
+          if-no-files-found: ignore
+          retention-days: 14
