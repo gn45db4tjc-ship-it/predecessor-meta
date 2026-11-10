@@ -6,6 +6,8 @@ const path = require('node:path');
 
 const {
   DEFAULT_SITE_URL,
+  DEPLOY_JOB_NAME,
+  DEPLOY_STEP_NAME,
   readRepoVersion,
   expectedShellCacheName,
   parseShellCacheFromSwSource,
@@ -18,6 +20,7 @@ const {
   evaluateVersionAgreementCheck,
   evaluateMobileLayoutCheck,
   buildSmokeReport,
+  evaluateDeployGate,
   isManifestVersionReady,
   waitForDeployedManifest
 } = require('./browser_deployed_smoke.cjs');
@@ -94,7 +97,181 @@ test('evaluateVersionAgreementCheck verifies page, manifest, and service worker 
   assert.match(mismatchCheck.reason, /predecessor-meta-shell-v2-59-0/);
 });
 
-test('isManifestVersionReady and waitForDeployedManifest poll offline until version matches or changes', async () => {
+test('evaluateDeployGate handles deploy step success (real run 42737247875), skipped deploy step, and missing deploy job', () => {
+  assert.equal(DEPLOY_JOB_NAME, 'deploy');
+  assert.equal(DEPLOY_STEP_NAME, 'Publish available-source updates and visible failure status');
+
+  // Case 1: Built from real publication run 42737247875, where the run and deploy job concluded "failure"
+  // because "Report source failures after preserving the working site" exited 1 after deploying to Pages.
+  const realRun42737247875 = {
+    total_count: 3,
+    jobs: [
+      {
+        id: 129569375522,
+        run_id: 42737247875,
+        workflow_name: 'Daily data and patch-aware publication',
+        head_branch: 'main',
+        head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+        status: 'completed',
+        conclusion: 'success',
+        started_at: '2026-11-10T01:38:50Z',
+        completed_at: '2026-11-10T01:42:12Z',
+        name: 'build',
+        steps: [
+          {
+            name: 'Collect only when due; render public bundles separately',
+            status: 'completed',
+            conclusion: 'success',
+            number: 9,
+            started_at: '2026-11-10T01:41:25Z',
+            completed_at: '2026-11-10T01:42:04Z'
+          }
+        ]
+      },
+      {
+        id: 129570702410,
+        run_id: 42737247875,
+        workflow_name: 'Daily data and patch-aware publication',
+        head_branch: 'main',
+        head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+        status: 'completed',
+        conclusion: 'failure',
+        started_at: '2026-11-10T01:42:17Z',
+        completed_at: '2026-11-10T01:42:27Z',
+        name: 'deploy',
+        steps: [
+          {
+            name: 'Set up job',
+            status: 'completed',
+            conclusion: 'success',
+            number: 1,
+            started_at: '2026-11-10T01:42:18Z',
+            completed_at: '2026-11-10T01:42:19Z'
+          },
+          {
+            name: 'Publish available-source updates and visible failure status',
+            status: 'completed',
+            conclusion: 'success',
+            number: 2,
+            started_at: '2026-11-10T01:42:19Z',
+            completed_at: '2026-11-10T01:42:25Z'
+          },
+          {
+            name: 'Report source failures after preserving the working site',
+            status: 'completed',
+            conclusion: 'failure',
+            number: 3,
+            started_at: '2026-11-10T01:42:25Z',
+            completed_at: '2026-11-10T01:42:25Z'
+          },
+          {
+            name: 'Show the known collection pause without repeated failure alerts',
+            status: 'completed',
+            conclusion: 'skipped',
+            number: 4,
+            started_at: '2026-11-10T01:42:25Z',
+            completed_at: '2026-11-10T01:42:25Z'
+          },
+          {
+            name: 'Complete job',
+            status: 'completed',
+            conclusion: 'success',
+            number: 5,
+            started_at: '2026-11-10T01:42:25Z',
+            completed_at: '2026-11-10T01:42:25Z'
+          }
+        ]
+      },
+      {
+        id: 129570801458,
+        run_id: 42737247875,
+        workflow_name: 'Daily data and patch-aware publication',
+        head_branch: 'main',
+        head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+        status: 'completed',
+        conclusion: 'success',
+        started_at: '2026-11-10T01:42:30Z',
+        completed_at: '2026-11-10T01:42:33Z',
+        name: 'watchdog',
+        steps: []
+      }
+    ]
+  };
+
+  const deployedGate = evaluateDeployGate(realRun42737247875);
+  assert.equal(deployedGate.decision, 'run');
+  assert.equal(deployedGate.deployed, true);
+  assert.equal(deployedGate.runId, '42737247875');
+  assert.equal(deployedGate.headSha, 'fda1ae265c720fcd26e5e136bbdbcb78776eb408');
+  assert.equal(deployedGate.deployedAt, '2026-11-10T01:42:25Z');
+  assert.equal(deployedGate.stepConclusion, 'success');
+
+  // Case 2: Deploy step skipped (the deploy job's `if: needs.build.outputs.publishable == 'true'` was false)
+  const skippedDeployPayload = {
+    total_count: 2,
+    jobs: [
+      {
+        id: 129569375522,
+        run_id: 42737247876,
+        head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+        name: 'build',
+        status: 'completed',
+        conclusion: 'success',
+        steps: []
+      },
+      {
+        id: 129570702411,
+        run_id: 42737247876,
+        head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+        name: 'deploy',
+        status: 'completed',
+        conclusion: 'skipped',
+        steps: [
+          {
+            name: 'Publish available-source updates and visible failure status',
+            status: 'completed',
+            conclusion: 'skipped',
+            number: 1,
+            started_at: null,
+            completed_at: null
+          }
+        ]
+      }
+    ]
+  };
+
+  const skippedGate = evaluateDeployGate(skippedDeployPayload);
+  assert.equal(skippedGate.decision, 'skip');
+  assert.equal(skippedGate.deployed, false);
+  assert.equal(skippedGate.runId, '42737247876');
+  assert.equal(skippedGate.deployedAt, null);
+  assert.equal(skippedGate.summary, 'no deployment in run 42737247876, nothing to check');
+
+  // Case 3: Deploy job missing altogether
+  const missingDeployJobPayload = {
+    total_count: 1,
+    jobs: [
+      {
+        id: 129569375522,
+        run_id: 42737247877,
+        head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+        name: 'build',
+        status: 'completed',
+        conclusion: 'failure',
+        steps: []
+      }
+    ]
+  };
+
+  const missingGate = evaluateDeployGate(missingDeployJobPayload);
+  assert.equal(missingGate.decision, 'skip');
+  assert.equal(missingGate.deployed, false);
+  assert.equal(missingGate.runId, '42737247877');
+  assert.equal(missingGate.deployedAt, null);
+  assert.equal(missingGate.summary, 'no deployment in run 42737247877, nothing to check');
+});
+
+test('isManifestVersionReady and waitForDeployedManifest poll offline from deploy finish time until version matches or changes', async () => {
   assert.equal(
     isManifestVersionReady({ app: { version: '2.59.0' } }, { expectedVersion: '2.59.0' }).ready,
     true
@@ -114,7 +291,9 @@ test('isManifestVersionReady and waitForDeployedManifest poll offline until vers
     true
   );
 
-  let clock = 1000;
+  const deployFinishIso = '2026-11-10T01:42:25Z';
+  const deployFinishMs = Date.parse(deployFinishIso);
+  let clock = deployFinishMs + 5000;
   const responses = [
     { ok: true, status: 200, text: JSON.stringify({ app: { version: '2.58.0' } }) },
     { ok: true, status: 200, text: JSON.stringify({ app: { version: '2.58.0' } }) },
@@ -124,6 +303,8 @@ test('isManifestVersionReady and waitForDeployedManifest poll offline until vers
   const result = await waitForDeployedManifest({
     siteUrl: DEFAULT_SITE_URL,
     expectedVersion: '2.59.0',
+    headSha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+    deployFinishedAt: deployFinishIso,
     timeoutMs: 60000,
     intervalMs: 5000,
     nowFn: () => clock,
@@ -133,7 +314,9 @@ test('isManifestVersionReady and waitForDeployedManifest poll offline until vers
   assert.equal(result.ok, true);
   assert.equal(result.version, '2.59.0');
   assert.equal(result.attempts, 3);
-  assert.equal(result.elapsedMs, 10000);
+  assert.equal(result.elapsedMs, 15000);
+  assert.equal(result.headSha, 'fda1ae265c720fcd26e5e136bbdbcb78776eb408');
+  assert.equal(result.deployFinishedAt, deployFinishIso);
 
   let timeoutClock = 0;
   await assert.rejects(
@@ -246,13 +429,19 @@ test('console/page error, boot/data, mobile layout, and buildSmokeReport produce
       manifest: '2.59.0',
       serviceWorkerCache: 'predecessor-meta-shell-v2-59-0'
     },
-    screenshot: 'qa/deployed-smoke.png'
+    screenshot: 'qa/deployed-smoke.png',
+    headSha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+    deployFinishedAt: '2026-11-10T01:42:25Z'
   });
   assert.equal(report.suite, 'deployed-smoke');
   assert.equal(report.status, 'pass');
   assert.equal(report.passed, true);
   assert.deepEqual(report.summary, { total: 3, passed: 3, failed: 0 });
   assert.equal(report.screenshot, 'qa/deployed-smoke.png');
+  assert.deepEqual(report.deployment, {
+    head_sha: 'fda1ae265c720fcd26e5e136bbdbcb78776eb408',
+    deploy_finished_at: '2026-11-10T01:42:25Z'
+  });
   for (const item of report.checks) {
     assert.ok(item.id);
     assert.ok(item.status === 'pass' || item.status === 'fail');
@@ -261,7 +450,7 @@ test('console/page error, boot/data, mobile layout, and buildSmokeReport produce
   }
 });
 
-test('deployed-smoke.yml workflow is read-only, pinned, and triggered by publication or dispatch only', () => {
+test('deployed-smoke.yml workflow uses deploy-step gate job, read-only permissions, and pinned SHAs', () => {
   const workflowText = fs.readFileSync(
     path.join(ROOT, '.github', 'workflows', 'deployed-smoke.yml'),
     'utf8'
@@ -272,13 +461,31 @@ test('deployed-smoke.yml workflow is read-only, pinned, and triggered by publica
   );
   assert.match(workflowText, /workflow_run:/);
   assert.match(workflowText, /workflows:\s*\['Daily data and patch-aware publication'\]/);
+  assert.match(workflowText, /types:\s*\[completed\]/);
   assert.match(workflowText, /workflow_dispatch:/);
+  assert.doesNotMatch(workflowText, /workflow_run\.conclusion/);
+  assert.doesNotMatch(workflowText, /\bdeployment_status\b/);
+  assert.doesNotMatch(workflowText, /\bpage_build\b/);
   assert.doesNotMatch(workflowText, /\bschedule:/);
   assert.doesNotMatch(workflowText, /\bcron:/);
-  assert.match(workflowText, /permissions:\s*\r?\n\s*contents:\s*read/);
+  assert.match(workflowText, /permissions:\s*\r?\n\s*contents:\s*read\s*\r?\n\s*actions:\s*read/);
   assert.doesNotMatch(workflowText, /write/);
   assert.match(workflowText, /persist-credentials:\s*false/);
   assert.doesNotMatch(workflowText, /secrets\./);
+  assert.match(workflowText, /\bgate:/);
+  assert.match(workflowText, /if:\s*github\.event_name\s*!=\s*'workflow_dispatch'/);
+  assert.match(
+    workflowText,
+    /gh api repos\/\$\{\{\s*github\.repository\s*\}\}\/actions\/runs\/\$\{\{\s*github\.event\.workflow_run\.id\s*\}\}\/jobs/
+  );
+  assert.match(workflowText, /--check-deploy-gate/);
+  assert.match(workflowText, /needs:\s*gate/);
+  assert.match(
+    workflowText,
+    /if:\s*\$\{\{\s*!cancelled\(\)\s*&&\s*\(github\.event_name\s*==\s*'workflow_dispatch'\s*\|\|\s*needs\.gate\.outputs\.deployed\s*==\s*'true'\)\s*\}\}/
+  );
+  assert.match(workflowText, /DEPLOY_HEAD_SHA:\s*\$\{\{\s*needs\.gate\.outputs\.head_sha\s*\}\}/);
+  assert.match(workflowText, /DEPLOY_FINISHED_AT:\s*\$\{\{\s*needs\.gate\.outputs\.deployed_at\s*\}\}/);
   assert.match(workflowText, /--wait-for-manifest/);
   assert.match(workflowText, /WAIT_TIMEOUT_SECONDS:\s*'600'/);
   assert.match(workflowText, /path:\s*qa\/deployed-smoke\.\*/);
@@ -288,7 +495,7 @@ test('deployed-smoke.yml workflow is read-only, pinned, and triggered by publica
     .split(/\r?\n/)
     .filter(line => line.includes('uses:'))
     .map(line => line.split('uses:')[1].trim());
-  assert.equal(usesLines.length, 4);
+  assert.equal(usesLines.length, 6);
   for (const use of usesLines) {
     assert.match(use, /@[0-9a-f]{40}\b/);
     assert.ok(liveCheckText.includes(use), 'Action SHA must match live-check.yml: ' + use);

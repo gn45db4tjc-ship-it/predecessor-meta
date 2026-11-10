@@ -18,6 +18,8 @@ const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_SITE_URL = 'https://gn45db4tjc-ship-it.github.io/predecessor-meta/';
 const PUBLIC_PAGES_ORIGIN = 'https://gn45db4tjc-ship-it.github.io';
 const PUBLIC_PAGES_PREFIX = '/predecessor-meta/';
+const DEPLOY_JOB_NAME = 'deploy';
+const DEPLOY_STEP_NAME = 'Publish available-source updates and visible failure status';
 const EXPECTED_ROLES = ['jungle', 'offlane', 'midlane', 'carry', 'support'];
 const EXPECTED_MOBILE_DESTINATIONS = ['meta', 'match', 'more'];
 const MIME_TYPES = {
@@ -396,12 +398,12 @@ function evaluateMobileLayoutCheck(info) {
   };
 }
 
-function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot }) {
+function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot, headSha, deployFinishedAt }) {
   const list = Array.isArray(checks) ? checks : [];
   const passedCount = list.filter(c => c && c.status === 'pass' && c.passed === true).length;
   const failedCount = list.length - passedCount;
   const allPassed = list.length > 0 && failedCount === 0;
-  return {
+  const report = {
     suite: 'deployed-smoke',
     site_url: siteUrl,
     checked_at: checkedAt || new Date().toISOString(),
@@ -419,6 +421,56 @@ function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot }) {
     },
     screenshot: screenshot || 'qa/deployed-smoke.png',
     checks: list
+  };
+  if (headSha || deployFinishedAt) {
+    report.deployment = {
+      head_sha: headSha || null,
+      deploy_finished_at: deployFinishedAt || null
+    };
+  }
+  return report;
+}
+
+function evaluateDeployGate(jobsPayload, options = {}) {
+  const jobs = Array.isArray(jobsPayload?.jobs) ? jobsPayload.jobs : [];
+  const inferredRunId = jobs.find(j => j && j.run_id !== undefined && j.run_id !== null)?.run_id;
+  const runId = String(options.runId ?? inferredRunId ?? 'unknown');
+  const fallbackHeadSha = options.headSha || jobs.find(j => j && j.head_sha)?.head_sha || null;
+  const deployJob = jobs.find(j => j && j.name === DEPLOY_JOB_NAME);
+  if (!deployJob) {
+    return {
+      decision: 'skip',
+      deployed: false,
+      runId,
+      headSha: fallbackHeadSha,
+      deployedAt: null,
+      stepConclusion: null,
+      summary: 'no deployment in run ' + runId + ', nothing to check'
+    };
+  }
+  const steps = Array.isArray(deployJob.steps) ? deployJob.steps : [];
+  const deployStep = steps.find(s => s && s.name === DEPLOY_STEP_NAME);
+  const headSha = deployJob.head_sha || fallbackHeadSha;
+  if (deployStep && deployStep.conclusion === 'success') {
+    const deployedAt = deployStep.completed_at || deployJob.completed_at || null;
+    return {
+      decision: 'run',
+      deployed: true,
+      runId,
+      headSha,
+      deployedAt,
+      stepConclusion: 'success',
+      summary: 'deployment succeeded in run ' + runId + (deployedAt ? ' at ' + deployedAt : '')
+    };
+  }
+  return {
+    decision: 'skip',
+    deployed: false,
+    runId,
+    headSha,
+    deployedAt: null,
+    stepConclusion: deployStep?.conclusion || deployJob.conclusion || null,
+    summary: 'no deployment in run ' + runId + ', nothing to check'
   };
 }
 
@@ -479,6 +531,10 @@ async function waitForDeployedManifest(options = {}) {
   const expectedVersion = options.expectedVersion !== undefined
     ? options.expectedVersion
     : (process.env.EXPECTED_VERSION || readRepoVersion());
+  const headSha = options.headSha !== undefined ? options.headSha : (process.env.DEPLOY_HEAD_SHA || null);
+  const deployFinishedAt = options.deployFinishedAt !== undefined
+    ? options.deployFinishedAt
+    : (process.env.DEPLOY_FINISHED_AT || null);
   const timeoutMs = Number(options.timeoutMs ?? (Number(process.env.WAIT_TIMEOUT_SECONDS || 600) * 1000));
   const intervalMs = Number(options.intervalMs ?? (Number(process.env.WAIT_INTERVAL_SECONDS || 15) * 1000));
   const fetchFn = options.fetchFn || fetchUrl;
@@ -486,7 +542,11 @@ async function waitForDeployedManifest(options = {}) {
   const nowFn = options.nowFn || (() => Date.now());
 
   const manifestBaseUrl = new URL('manifest.json', siteUrl).toString();
-  const startTime = nowFn();
+  const nowMs = nowFn();
+  const parsedDeployMs = deployFinishedAt ? Date.parse(deployFinishedAt) : NaN;
+  const startTime = (Number.isFinite(parsedDeployMs) && parsedDeployMs <= nowMs && (nowMs - parsedDeployMs) < timeoutMs)
+    ? parsedDeployMs
+    : nowMs;
   let initialVersion = options.initialVersion || process.env.PREVIOUS_VERSION || null;
   let attempts = 0;
   let lastReason = 'No manifest response yet';
@@ -513,6 +573,8 @@ async function waitForDeployedManifest(options = {}) {
             version: check.version,
             attempts,
             elapsedMs: nowFn() - startTime,
+            headSha,
+            deployFinishedAt,
             reason: check.reason,
             manifest
           };
@@ -948,7 +1010,9 @@ async function runDeployedSmoke(options = {}) {
       manifest: versionInfo.manifestVersion || null,
       serviceWorkerCache: matchedCache
     },
-    screenshot: 'qa/deployed-smoke.png'
+    screenshot: 'qa/deployed-smoke.png',
+    headSha: options.headSha ?? process.env.DEPLOY_HEAD_SHA ?? null,
+    deployFinishedAt: options.deployFinishedAt ?? process.env.DEPLOY_FINISHED_AT ?? null
   });
 
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
@@ -956,6 +1020,33 @@ async function runDeployedSmoke(options = {}) {
 }
 
 async function main(argv = process.argv.slice(2)) {
+  const gateIdx = argv.indexOf('--check-deploy-gate');
+  if (gateIdx !== -1) {
+    const fileArg = argv[gateIdx + 1];
+    if (!fileArg) {
+      throw new Error('--check-deploy-gate requires a path to a jobs JSON file');
+    }
+    const payload = JSON.parse(fs.readFileSync(path.resolve(fileArg), 'utf8'));
+    const gate = evaluateDeployGate(payload, {
+      runId: process.env.WORKFLOW_RUN_ID,
+      headSha: process.env.WORKFLOW_RUN_HEAD_SHA
+    });
+    if (process.env.GITHUB_OUTPUT) {
+      const lines = [
+        'decision=' + gate.decision,
+        'deployed=' + String(gate.deployed),
+        'head_sha=' + (gate.headSha || ''),
+        'deployed_at=' + (gate.deployedAt || '')
+      ];
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, lines.join('\n') + '\n', 'utf8');
+    }
+    if (process.env.GITHUB_STEP_SUMMARY) {
+      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, gate.summary + '\n', 'utf8');
+    }
+    console.log(gate.summary);
+    return 0;
+  }
+
   if (argv.includes('--wait-for-manifest') || process.env.WAIT_FOR_MANIFEST === '1') {
     const result = await waitForDeployedManifest();
     console.log(JSON.stringify({
@@ -964,6 +1055,8 @@ async function main(argv = process.argv.slice(2)) {
       version: result.version,
       attempts: result.attempts,
       elapsed_ms: result.elapsedMs,
+      head_sha: result.headSha,
+      deploy_finished_at: result.deployFinishedAt,
       reason: result.reason
     }));
     return 0;
@@ -996,6 +1089,8 @@ if (require.main === module) {
 
 module.exports = {
   DEFAULT_SITE_URL,
+  DEPLOY_JOB_NAME,
+  DEPLOY_STEP_NAME,
   EXPECTED_ROLES,
   EXPECTED_MOBILE_DESTINATIONS,
   readRepoVersion,
@@ -1010,6 +1105,7 @@ module.exports = {
   evaluateVersionAgreementCheck,
   evaluateMobileLayoutCheck,
   buildSmokeReport,
+  evaluateDeployGate,
   isManifestVersionReady,
   waitForDeployedManifest,
   runDeployedSmoke
