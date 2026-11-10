@@ -1,10 +1,9 @@
 name: Deployed browser smoke check
 
 # Read-only. Opens the live GitHub Pages site in a real browser after each publication run that deployed to Pages (or
-# on manual dispatch) to verify that the page, manifest, scripts, stylesheets and data bundles return 200, the shell
-# boots cleanly without page or console errors, release versions agree with the service worker cache, and the mobile
-# layout has no horizontal scroll. A failure only fails this run; it never touches the site, main, data-updates or
-# automation-state.
+# on manual dispatch) to verify that the page, manifest, sw.js and data bundles return 200, the shell boots cleanly
+# without page or console errors, release versions agree with the service worker cache, and the mobile layout has no
+# horizontal scroll. A failure only fails this run; it never touches the site, main, data-updates or automation-state.
 on:
   workflow_run:
     workflows: ['Daily data and patch-aware publication']
@@ -32,6 +31,9 @@ jobs:
       deployed: ${{ steps.check.outputs.deployed }}
       head_sha: ${{ steps.check.outputs.head_sha }}
       deployed_at: ${{ steps.check.outputs.deployed_at }}
+      expected_run_id: ${{ steps.artifact.outputs.expected_run_id }}
+      expected_published_at: ${{ steps.artifact.outputs.expected_published_at }}
+      expected_version: ${{ steps.artifact.outputs.expected_version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -48,6 +50,17 @@ jobs:
         run: |
           gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs > qa-trigger-jobs.json
           node tests/browser_deployed_smoke.cjs --check-deploy-gate qa-trigger-jobs.json
+      - name: Read the published manifest from the triggering run's github-pages artifact
+        id: artifact
+        if: steps.check.outputs.deployed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          gh run download "${{ github.event.workflow_run.id }}" -n github-pages -D qa-pages-artifact
+          tar -xf qa-pages-artifact/artifact.tar -C qa-pages-artifact ./manifest.json 2>/dev/null || tar -xf qa-pages-artifact/artifact.tar -C qa-pages-artifact manifest.json
+          node tests/browser_deployed_smoke.cjs --check-deploy-gate qa-trigger-jobs.json --artifact-manifest qa-pages-artifact/manifest.json
 
   deployed-smoke:
     needs: gate
@@ -71,11 +84,14 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: npm ci --no-audit --no-fund
-      - name: Wait up to 10 minutes for the deployed manifest version
+      - name: Wait up to 10 minutes for the deployed manifest
         env:
           SITE_URL: https://gn45db4tjc-ship-it.github.io/predecessor-meta/
           DEPLOY_HEAD_SHA: ${{ needs.gate.outputs.head_sha }}
           DEPLOY_FINISHED_AT: ${{ needs.gate.outputs.deployed_at }}
+          EXPECTED_RUN_ID: ${{ needs.gate.outputs.expected_run_id }}
+          EXPECTED_PUBLISHED_AT: ${{ needs.gate.outputs.expected_published_at }}
+          EXPECTED_VERSION: ${{ needs.gate.outputs.expected_version }}
           WAIT_TIMEOUT_SECONDS: '600'
           WAIT_INTERVAL_SECONDS: '15'
         run: node tests/browser_deployed_smoke.cjs --wait-for-manifest

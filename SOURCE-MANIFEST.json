@@ -357,6 +357,9 @@
     "docs/rechecks/2026-11-08-1700-ledger.json": "31ee9297d7daa43cbb1fe94ec05aceb6b78111ab54bb36bf43c5880fb2eb5899",
     "docs/STRATEGY-REVIEW-1.18.md": "173947f790858ce5958d169c191de0e93d2e3de0c37dadbeb1d19eb406ee33a4",
     "docs/rechecks/2026-11-08-2033-ledger.json": "168516e5b7c0411949b17d4d2aff9504e1ef0782857d12ed32aab088f176d76e",
-    "docs/rechecks/2026-11-08-2033.md": "ac27cf5c3963123926e7b43105288c78fc61958906553e61b02b4d4bf4d697b8"
+    "docs/rechecks/2026-11-08-2033.md": "ac27cf5c3963123926e7b43105288c78fc61958906553e61b02b4d4bf4d697b8",
+    ".github/workflows/deployed-smoke.yml": "0867225a84fa820c353dfdd4a52fc7b169fce84cc3a5ed5643835f0fd1fdf858",
+    "tests/browser_deployed_smoke.cjs": "7a15876a07836fc38b0fbe84e85f363bce61c81b18e0aa762f97a09617d8ba66",
+    "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e"
   }
 }

@@ -8,6 +8,7 @@
  * Usage:
  *   node tests/browser_deployed_smoke.cjs
  *   node tests/browser_deployed_smoke.cjs --wait-for-manifest
+ *   node tests/browser_deployed_smoke.cjs --check-deploy-gate <jobs.json> [--artifact-manifest <manifest.json>]
  */
 const fs = require('node:fs');
 const path = require('node:path');
@@ -22,6 +23,13 @@ const DEPLOY_JOB_NAME = 'deploy';
 const DEPLOY_STEP_NAME = 'Publish available-source updates and visible failure status';
 const EXPECTED_ROLES = ['jungle', 'offlane', 'midlane', 'carry', 'support'];
 const EXPECTED_MOBILE_DESTINATIONS = ['meta', 'match', 'more'];
+const REQUIRED_CHECK_IDS = [
+  'network_assets_200',
+  'no_page_or_console_errors',
+  'boot_and_real_data',
+  'release_version_agreement',
+  'mobile_390x844_layout_and_navigation'
+];
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -118,6 +126,9 @@ function classifySameOriginAsset(requestUrl, resourceType, siteUrl) {
   if (pathname.endsWith('/manifest.json')) {
     return 'manifest';
   }
+  if (pathname.endsWith('/sw.js')) {
+    return 'sw';
+  }
   if (pathname.includes('/bundles/') || (pathname.endsWith('.json') && !pathname.endsWith('/manifest.json'))) {
     return 'bundle';
   }
@@ -136,6 +147,8 @@ function evaluateNetworkCheck(info) {
     pageStatus,
     manifestStatus,
     manifestUrl,
+    swStatus,
+    swUrl,
     assets = [],
     nonGetRequests = []
   } = info || {};
@@ -149,6 +162,12 @@ function evaluateNetworkCheck(info) {
   if (manifestStatus !== 200) {
     reasons.push('Manifest ' + (manifestUrl || 'manifest.json') + ' returned HTTP ' + (manifestStatus ?? 'ERR') + ' (expected 200)');
   }
+  const effectiveSwStatus = swStatus !== undefined
+    ? swStatus
+    : (assets.find(a => (a.kind === 'sw' || a.kind === 'script') && String(a.url || '').includes('sw.js'))?.status ?? 200);
+  if (effectiveSwStatus !== 200) {
+    reasons.push('Service worker ' + (swUrl || 'sw.js') + ' returned HTTP ' + (effectiveSwStatus ?? 'ERR') + ' (expected 200)');
+  }
   const badAssets = assets.filter(a => a.status !== 200 || a.failed);
   if (badAssets.length > 0) {
     const desc = badAssets
@@ -157,29 +176,25 @@ function evaluateNetworkCheck(info) {
       .join('; ');
     reasons.push(badAssets.length + ' same-origin asset(s) did not return 200: ' + desc);
   }
-  const scripts = assets.filter(a => a.kind === 'script' && a.status === 200 && !a.failed);
-  const stylesheets = assets.filter(a => a.kind === 'stylesheet' && a.status === 200 && !a.failed);
   const bundles = assets.filter(a => a.kind === 'bundle' && a.status === 200 && !a.failed);
   if (bundles.length === 0) {
     reasons.push('No same-origin data bundle returned HTTP 200');
   }
   const passed = reasons.length === 0;
   const reason = passed
-    ? 'Page (200), manifest (200), and all ' + assets.length + ' same-origin script/stylesheet/bundle request(s) (' +
-      scripts.length + ' script(s), ' + stylesheets.length + ' stylesheet(s), ' + bundles.length +
-      ' data bundle(s)) returned HTTP 200 via GET.'
+    ? 'Page (200), manifest (200), sw.js (200), and all ' + bundles.length +
+      ' same-origin data bundle(s) returned HTTP 200 via GET.'
     : reasons.join('; ');
   return {
     id: 'network_assets_200',
-    name: 'Page, manifest, and same-origin scripts, stylesheets, and data bundles return 200',
+    name: 'Page, manifest, sw.js, and same-origin data bundles return 200',
     status: passed ? 'pass' : 'fail',
     passed,
     reason,
     details: {
       page_status: pageStatus ?? null,
       manifest_status: manifestStatus ?? null,
-      script_count: scripts.length,
-      stylesheet_count: stylesheets.length,
+      sw_status: effectiveSwStatus ?? null,
       bundle_count: bundles.length,
       failed_assets: badAssets,
       non_get_requests: nonGetRequests
@@ -291,6 +306,7 @@ function evaluateVersionAgreementCheck(info) {
     appStateVersion,
     manifestVersion,
     cacheKeys = [],
+    swStatus,
     swSourceCacheName
   } = info || {};
   const reasons = [];
@@ -312,6 +328,12 @@ function evaluateVersionAgreementCheck(info) {
   }
   if (metaTagVersion && manifestVersion && metaTagVersion !== manifestVersion) {
     reasons.push('meta[name="predecessor-app-version"] (' + metaTagVersion + ') !== manifest app.version (' + manifestVersion + ')');
+  }
+  if (swStatus !== undefined && swStatus !== 200) {
+    reasons.push('Deployed sw.js returned HTTP ' + (swStatus ?? 'ERR') + ' (expected 200)');
+  }
+  if (!swSourceCacheName) {
+    reasons.push('Deployed sw.js did not return a parseable SHELL_CACHE name');
   }
   const targetVersion = manifestVersion || pageVersion || visibleVersion;
   const expectedCache = targetVersion ? expectedShellCacheName(targetVersion) : null;
@@ -346,6 +368,7 @@ function evaluateVersionAgreementCheck(info) {
       app_state_version: appStateVersion || null,
       manifest_version: manifestVersion || null,
       expected_shell_cache: expectedCache,
+      sw_status: swStatus ?? (swSourceCacheName ? 200 : null),
       sw_source_shell_cache: swSourceCacheName || null,
       browser_shell_caches: shellCaches,
       cache_keys: cacheKeys
@@ -398,21 +421,32 @@ function evaluateMobileLayoutCheck(info) {
   };
 }
 
-function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot, headSha, deployFinishedAt }) {
+function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot, headSha, deployFinishedAt, error }) {
   const list = Array.isArray(checks) ? checks : [];
+  const passedById = new Set(
+    list.filter(c => c && c.status === 'pass' && c.passed === true).map(c => c.id)
+  );
+  const missingCheckIds = REQUIRED_CHECK_IDS.filter(id => !list.some(c => c && c.id === id));
   const passedCount = list.filter(c => c && c.status === 'pass' && c.passed === true).length;
   const failedCount = list.length - passedCount;
-  const allPassed = list.length > 0 && failedCount === 0;
+  const hasError = Boolean(error);
+  const allRequiredPassed = !hasError &&
+    list.length === REQUIRED_CHECK_IDS.length &&
+    missingCheckIds.length === 0 &&
+    REQUIRED_CHECK_IDS.every(id => passedById.has(id)) &&
+    failedCount === 0;
+  const status = hasError ? 'error' : (allRequiredPassed ? 'pass' : 'fail');
   const report = {
     suite: 'deployed-smoke',
     site_url: siteUrl,
     checked_at: checkedAt || new Date().toISOString(),
-    status: allPassed ? 'pass' : 'fail',
-    passed: allPassed,
+    status,
+    passed: allRequiredPassed,
     summary: {
       total: list.length,
       passed: passedCount,
-      failed: failedCount
+      failed: failedCount,
+      ...(missingCheckIds.length > 0 ? { missing_checks: missingCheckIds } : {})
     },
     version: {
       page: version?.page || null,
@@ -422,6 +456,10 @@ function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot, hea
     screenshot: screenshot || 'qa/deployed-smoke.png',
     checks: list
   };
+  if (hasError) {
+    report.reason = String(error);
+    report.error = String(error);
+  }
   if (headSha || deployFinishedAt) {
     report.deployment = {
       head_sha: headSha || null,
@@ -444,6 +482,9 @@ function evaluateDeployGate(jobsPayload, options = {}) {
       runId,
       headSha: fallbackHeadSha,
       deployedAt: null,
+      expectedRunId: null,
+      expectedPublishedAt: null,
+      expectedVersion: null,
       stepConclusion: null,
       summary: 'no deployment in run ' + runId + ', nothing to check'
     };
@@ -453,14 +494,32 @@ function evaluateDeployGate(jobsPayload, options = {}) {
   const headSha = deployJob.head_sha || fallbackHeadSha;
   if (deployStep && deployStep.conclusion === 'success') {
     const deployedAt = deployStep.completed_at || deployJob.completed_at || null;
+    const artifactManifest = options.artifactManifest || null;
+    const expectedRunId = artifactManifest && artifactManifest.run_id !== undefined && artifactManifest.run_id !== null
+      ? String(artifactManifest.run_id).trim()
+      : null;
+    const expectedPublishedAt = artifactManifest && typeof artifactManifest.published_at === 'string' && artifactManifest.published_at.trim()
+      ? artifactManifest.published_at.trim()
+      : null;
+    const expectedVersion = artifactManifest ? extractManifestVersion(artifactManifest) : null;
+    if (options.requireArtifactManifest && (!expectedRunId || !expectedPublishedAt)) {
+      throw new Error(
+        'Artifact manifest.json for run ' + runId + ' is missing run_id or published_at'
+      );
+    }
     return {
       decision: 'run',
       deployed: true,
       runId,
       headSha,
       deployedAt,
+      expectedRunId,
+      expectedPublishedAt,
+      expectedVersion,
       stepConclusion: 'success',
-      summary: 'deployment succeeded in run ' + runId + (deployedAt ? ' at ' + deployedAt : '')
+      summary: 'deployment succeeded in run ' + runId +
+        (deployedAt ? ' at ' + deployedAt : '') +
+        (expectedPublishedAt ? ' (artifact published_at ' + expectedPublishedAt + ')' : '')
     };
   }
   return {
@@ -469,13 +528,70 @@ function evaluateDeployGate(jobsPayload, options = {}) {
     runId,
     headSha,
     deployedAt: null,
+    expectedRunId: null,
+    expectedPublishedAt: null,
+    expectedVersion: null,
     stepConclusion: deployStep?.conclusion || deployJob.conclusion || null,
     summary: 'no deployment in run ' + runId + ', nothing to check'
   };
 }
 
-function isManifestVersionReady(manifest, { expectedVersion = null, initialVersion = null } = {}) {
+function isManifestVersionReady(
+  manifest,
+  {
+    expectedVersion = null,
+    initialVersion = null,
+    expectedRunId = null,
+    expectedPublishedAt = null
+  } = {}
+) {
   const deployedVersion = extractManifestVersion(manifest);
+  const deployedRunId = manifest && manifest.run_id !== undefined && manifest.run_id !== null
+    ? String(manifest.run_id).trim()
+    : null;
+  const deployedPublishedAt = manifest && typeof manifest.published_at === 'string' && manifest.published_at.trim()
+    ? manifest.published_at.trim()
+    : null;
+
+  const hasArtifactExpectation = expectedRunId !== null || expectedPublishedAt !== null;
+  if (hasArtifactExpectation) {
+    if (!expectedRunId || !expectedPublishedAt) {
+      return {
+        ready: false,
+        version: deployedVersion,
+        runId: deployedRunId,
+        publishedAt: deployedPublishedAt,
+        reason: 'Artifact target requires both expectedRunId and expectedPublishedAt'
+      };
+    }
+    const runMatches = deployedRunId === String(expectedRunId).trim();
+    const publishedMatches = deployedPublishedAt === String(expectedPublishedAt).trim();
+    const versionMatches = !expectedVersion || deployedVersion === expectedVersion;
+    if (runMatches && publishedMatches && versionMatches) {
+      return {
+        ready: true,
+        version: deployedVersion,
+        runId: deployedRunId,
+        publishedAt: deployedPublishedAt,
+        reason: 'Deployed manifest matches artifact run_id=' + expectedRunId +
+          ' and published_at=' + expectedPublishedAt +
+          (deployedVersion ? ' (version ' + deployedVersion + ')' : '')
+      };
+    }
+    return {
+      ready: false,
+      version: deployedVersion,
+      runId: deployedRunId,
+      publishedAt: deployedPublishedAt,
+      reason: 'Deployed manifest has run_id=' + (deployedRunId || 'null') +
+        ', published_at=' + (deployedPublishedAt || 'null') +
+        (deployedVersion ? ', version=' + deployedVersion : '') +
+        ' (waiting for artifact run_id=' + expectedRunId +
+        ', published_at=' + expectedPublishedAt +
+        (expectedVersion ? ', version=' + expectedVersion : '') + ')'
+    };
+  }
+
   if (!deployedVersion) {
     return { ready: false, version: null, reason: 'Manifest has no app.version' };
   }
@@ -532,21 +648,62 @@ async function waitForDeployedManifest(options = {}) {
     ? options.expectedVersion
     : (process.env.EXPECTED_VERSION || readRepoVersion());
   const headSha = options.headSha !== undefined ? options.headSha : (process.env.DEPLOY_HEAD_SHA || null);
-  const deployFinishedAt = options.deployFinishedAt !== undefined
+  const hasExplicitDeployFinishOption = Object.prototype.hasOwnProperty.call(options, 'deployFinishedAt');
+  const rawDeployFinishedAt = hasExplicitDeployFinishOption
     ? options.deployFinishedAt
     : (process.env.DEPLOY_FINISHED_AT || null);
+  const expectedRunId = options.expectedRunId !== undefined
+    ? (options.expectedRunId || null)
+    : (process.env.EXPECTED_RUN_ID || null);
+  const expectedPublishedAt = options.expectedPublishedAt !== undefined
+    ? (options.expectedPublishedAt || null)
+    : (process.env.EXPECTED_PUBLISHED_AT || null);
   const timeoutMs = Number(options.timeoutMs ?? (Number(process.env.WAIT_TIMEOUT_SECONDS || 600) * 1000));
   const intervalMs = Number(options.intervalMs ?? (Number(process.env.WAIT_INTERVAL_SECONDS || 15) * 1000));
   const fetchFn = options.fetchFn || fetchUrl;
   const sleepFn = options.sleepFn || (ms => new Promise(resolve => setTimeout(resolve, ms)));
   const nowFn = options.nowFn || (() => Date.now());
 
-  const manifestBaseUrl = new URL('manifest.json', siteUrl).toString();
+  if ((expectedRunId && !expectedPublishedAt) || (!expectedRunId && expectedPublishedAt)) {
+    throw new Error(
+      'Publication manifest wait requires both EXPECTED_RUN_ID and EXPECTED_PUBLISHED_AT from the github-pages artifact'
+    );
+  }
+
+  const requiresDeployClock = Boolean(
+    options.requireDeployTarget ||
+    hasExplicitDeployFinishOption ||
+    rawDeployFinishedAt !== null ||
+    expectedRunId ||
+    expectedPublishedAt
+  );
+
   const nowMs = nowFn();
-  const parsedDeployMs = deployFinishedAt ? Date.parse(deployFinishedAt) : NaN;
-  const startTime = (Number.isFinite(parsedDeployMs) && parsedDeployMs <= nowMs && (nowMs - parsedDeployMs) < timeoutMs)
-    ? parsedDeployMs
-    : nowMs;
+  let startTime = nowMs;
+  if (requiresDeployClock) {
+    if (typeof rawDeployFinishedAt !== 'string' || !rawDeployFinishedAt.trim()) {
+      throw new Error('Invalid deploy finish time: DEPLOY_FINISHED_AT is missing');
+    }
+    const parsedDeployMs = Date.parse(rawDeployFinishedAt);
+    if (!Number.isFinite(parsedDeployMs)) {
+      throw new Error('Invalid deploy finish time "' + rawDeployFinishedAt + '": unparseable timestamp');
+    }
+    if (parsedDeployMs > nowMs) {
+      throw new Error(
+        'Invalid deploy finish time "' + rawDeployFinishedAt + '": timestamp is in the future (now=' +
+        new Date(nowMs).toISOString() + ')'
+      );
+    }
+    if ((nowMs - parsedDeployMs) >= timeoutMs) {
+      throw new Error(
+        'Deploy finish time "' + rawDeployFinishedAt + '" is already older than the ' +
+        Math.round(timeoutMs / 1000) + 's timeout (elapsed ' + Math.round((nowMs - parsedDeployMs) / 1000) + 's)'
+      );
+    }
+    startTime = parsedDeployMs;
+  }
+
+  const manifestBaseUrl = new URL('manifest.json', siteUrl).toString();
   let initialVersion = options.initialVersion || process.env.PREVIOUS_VERSION || null;
   let attempts = 0;
   let lastReason = 'No manifest response yet';
@@ -564,17 +721,24 @@ async function waitForDeployedManifest(options = {}) {
         if (ver && !initialVersion) {
           initialVersion = ver;
         }
-        const check = isManifestVersionReady(manifest, { expectedVersion, initialVersion });
+        const check = isManifestVersionReady(manifest, {
+          expectedVersion,
+          initialVersion,
+          expectedRunId,
+          expectedPublishedAt
+        });
         lastVersion = check.version;
         lastReason = check.reason;
         if (check.ready) {
           return {
             ok: true,
             version: check.version,
+            runId: check.runId ?? manifest?.run_id ?? null,
+            publishedAt: check.publishedAt ?? manifest?.published_at ?? null,
             attempts,
             elapsedMs: nowFn() - startTime,
             headSha,
-            deployFinishedAt,
+            deployFinishedAt: rawDeployFinishedAt,
             reason: check.reason,
             manifest
           };
@@ -617,13 +781,27 @@ function startLocalPreviewServer(siteUrl, previewDir) {
       return;
     }
     const reqUrl = new URL(req.url, parsed.origin);
-    let relPath = decodeURIComponent(reqUrl.pathname);
+    let relPath;
+    try {
+      relPath = decodeURIComponent(reqUrl.pathname);
+    } catch (_) {
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Bad request: malformed percent escape');
+      return;
+    }
     if (parsed.pathname !== '/' && relPath.startsWith(parsed.pathname)) {
       relPath = relPath.slice(parsed.pathname.length);
     }
     relPath = relPath.replace(/^\/+/, '') || 'index.html';
     const filePath = path.resolve(rootDir, relPath);
-    if (!filePath.startsWith(rootDir) || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    const relToRoot = path.relative(rootDir, filePath);
+    if (
+      !relToRoot ||
+      relToRoot.startsWith('..') ||
+      path.isAbsolute(relToRoot) ||
+      !fs.existsSync(filePath) ||
+      !fs.statSync(filePath).isFile()
+    ) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('Not found');
       return;
@@ -642,68 +820,92 @@ function startLocalPreviewServer(siteUrl, previewDir) {
 }
 
 async function runDeployedSmoke(options = {}) {
-  const siteUrl = resolveSiteUrl(options.siteUrl || process.env.SITE_URL || process.env.PREVIEW_URL || DEFAULT_SITE_URL);
+  const rawSiteUrl = options.siteUrl || process.env.SITE_URL || process.env.PREVIEW_URL || DEFAULT_SITE_URL;
   const qaDir = path.resolve(options.qaDir || path.join(ROOT, 'qa'));
   const reportPath = path.join(qaDir, 'deployed-smoke.json');
   const screenshotPath = path.join(qaDir, 'deployed-smoke.png');
   fs.mkdirSync(qaDir, { recursive: true });
 
-  const playwright = require(process.env.PLAYWRIGHT_PATH || 'playwright');
-  const engineName = (process.env.BROWSER_ENGINE || 'chromium').toLowerCase();
-  const browserType = playwright[engineName];
-  if (!browserType) {
-    throw new Error('Unknown BROWSER_ENGINE: ' + engineName);
-  }
-  const channel = process.env.BROWSER_CHANNEL || (process.env.CI ? 'chrome' : 'msedge');
-  const launchOptions = engineName === 'webkit' ? { headless: true } : { channel, headless: true };
-
+  const headSha = options.headSha ?? process.env.DEPLOY_HEAD_SHA ?? null;
+  const deployFinishedAt = options.deployFinishedAt ?? process.env.DEPLOY_FINISHED_AT ?? null;
+  let siteUrl = rawSiteUrl;
   let previewServer = null;
-  if (process.env.START_PREVIEW === '1') {
-    const previewDir = path.resolve(ROOT, process.env.PREVIEW_DIR || path.join('qa', 'static-preview'));
-    previewServer = await startLocalPreviewServer(siteUrl, previewDir);
-  }
-
-  const manifestUrl = new URL('manifest.json', siteUrl).toString();
-  const swUrl = new URL('sw.js', siteUrl).toString();
-  const manifestProbe = await fetchUrl(manifestUrl + (manifestUrl.includes('?') ? '&' : '?') + 'smoke=' + Date.now());
-  let manifestJson = null;
-  if (manifestProbe.status === 200 && manifestProbe.text) {
-    try {
-      manifestJson = JSON.parse(manifestProbe.text);
-    } catch (_) {}
-  }
-  const manifestVersion = extractManifestVersion(manifestJson);
-
-  const swProbe = await fetchUrl(swUrl + (swUrl.includes('?') ? '&' : '?') + 'smoke=' + Date.now());
-  const swSourceCacheName = swProbe.status === 200 ? parseShellCacheFromSwSource(swProbe.text) : null;
-
-  const browser = await browserType.launch(launchOptions);
-  const pageErrors = [];
-  const consoleErrors = [];
-  const nonGetRequests = [];
-  const trackedAssetsByUrl = new Map();
-  let pageStatus = null;
-  let manifestObservedStatus = manifestProbe.status;
-  let bootInfo = { booted: false, bootError: 'Did not run boot check' };
+  let browser = null;
   let versionInfo = {
     pageVersion: null,
     metaTagVersion: null,
     sidebarVersion: null,
     appStateVersion: null,
-    manifestVersion,
+    manifestVersion: null,
     cacheKeys: [],
-    swSourceCacheName
-  };
-  let mobileInfo = {
-    innerWidth: 0,
-    innerHeight: 0,
-    docScrollWidth: 0,
-    bodyScrollWidth: 0,
-    navVisible: false,
-    destinations: []
+    swStatus: null,
+    swSourceCacheName: null
   };
 
   try {
+    siteUrl = resolveSiteUrl(rawSiteUrl);
+    const fetchFn = options.fetchFn || fetchUrl;
+
+    if (options.startPreview || process.env.START_PREVIEW === '1') {
+      const previewDir = path.resolve(ROOT, options.previewDir || process.env.PREVIEW_DIR || path.join('qa', 'static-preview'));
+      previewServer = await startLocalPreviewServer(siteUrl, previewDir);
+    }
+
+    let browserType = options.browserType;
+    const engineName = (options.browserEngine || process.env.BROWSER_ENGINE || 'chromium').toLowerCase();
+    if (!browserType) {
+      const playwright = require(process.env.PLAYWRIGHT_PATH || 'playwright');
+      browserType = playwright[engineName];
+      if (!browserType) {
+        throw new Error('Unknown BROWSER_ENGINE: ' + engineName);
+      }
+    }
+    const channel = process.env.BROWSER_CHANNEL || (process.env.CI ? 'chrome' : 'msedge');
+    const launchOptions = engineName === 'webkit' ? { headless: true } : { channel, headless: true };
+
+    const manifestUrl = new URL('manifest.json', siteUrl).toString();
+    const swUrl = new URL('sw.js', siteUrl).toString();
+    const manifestProbe = await fetchFn(manifestUrl + (manifestUrl.includes('?') ? '&' : '?') + 'smoke=' + Date.now());
+    let manifestJson = null;
+    if (manifestProbe.status === 200 && manifestProbe.text) {
+      try {
+        manifestJson = JSON.parse(manifestProbe.text);
+      } catch (_) {}
+    }
+    const manifestVersion = extractManifestVersion(manifestJson);
+
+    const swProbe = await fetchFn(swUrl + (swUrl.includes('?') ? '&' : '?') + 'smoke=' + Date.now());
+    const swStatus = swProbe.status;
+    const swSourceCacheName = swStatus === 200 ? parseShellCacheFromSwSource(swProbe.text) : null;
+
+    versionInfo = {
+      pageVersion: null,
+      metaTagVersion: null,
+      sidebarVersion: null,
+      appStateVersion: null,
+      manifestVersion,
+      cacheKeys: [],
+      swStatus,
+      swSourceCacheName
+    };
+
+    browser = await browserType.launch(launchOptions);
+    const pageErrors = [];
+    const consoleErrors = [];
+    const nonGetRequests = [];
+    const trackedAssetsByUrl = new Map();
+    let pageStatus = null;
+    let manifestObservedStatus = manifestProbe.status;
+    let bootInfo = { booted: false, bootError: 'Did not run boot check' };
+    let mobileInfo = {
+      innerWidth: 0,
+      innerHeight: 0,
+      docScrollWidth: 0,
+      bodyScrollWidth: 0,
+      navVisible: false,
+      destinations: []
+    };
+
     const context = await browser.newContext({
       viewport: { width: 1440, height: 900 },
       serviceWorkers: 'allow'
@@ -737,7 +939,7 @@ async function runDeployedSmoke(options = {}) {
         manifestObservedStatus = res.status();
         return;
       }
-      if (kind === 'script' || kind === 'stylesheet' || kind === 'bundle') {
+      if (kind === 'sw' || kind === 'script' || kind === 'stylesheet' || kind === 'bundle') {
         trackedAssetsByUrl.set(url, {
           kind,
           url,
@@ -750,7 +952,7 @@ async function runDeployedSmoke(options = {}) {
       const url = req.url();
       const kind = classifySameOriginAsset(url, req.resourceType(), siteUrl);
       if (!kind) return;
-      if (kind === 'script' || kind === 'stylesheet' || kind === 'bundle') {
+      if (kind === 'sw' || kind === 'script' || kind === 'stylesheet' || kind === 'bundle') {
         trackedAssetsByUrl.set(url, {
           kind,
           url,
@@ -786,7 +988,6 @@ async function runDeployedSmoke(options = {}) {
         bootInfo.bootError = 'Timed out waiting for bundle boot: ' + String(err.message || err).split('\n')[0];
       }
 
-      // Wait briefly for the service worker to finish activating and populating its shell cache.
       try {
         await page.waitForFunction(
           async () => {
@@ -830,7 +1031,6 @@ async function runDeployedSmoke(options = {}) {
           }
         }
 
-        // Also verify hero build recommendation rendering by opening a hero briefly if available.
         let buildItemCount = 0;
         if (booted && typeof openHero === 'function' && typeof setPrimaryDestination === 'function') {
           const firstSlug = firstRow?.querySelector('[data-hero]')?.getAttribute('data-hero') || 'steel';
@@ -878,7 +1078,7 @@ async function runDeployedSmoke(options = {}) {
         };
       });
 
-      versionInfo = await page.evaluate(async ({ manifestVersion, swSourceCacheName }) => {
+      versionInfo = await page.evaluate(async ({ manifestVersion, swStatus, swSourceCacheName }) => {
         const pageVersion = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG?.tool_version) || null;
         const metaEl = document.querySelector('meta[name="predecessor-app-version"]');
         const metaTagVersion = metaEl ? metaEl.getAttribute('content')?.trim() : null;
@@ -898,12 +1098,12 @@ async function runDeployedSmoke(options = {}) {
           appStateVersion,
           manifestVersion,
           cacheKeys,
+          swStatus,
           swSourceCacheName
         };
-      }, { manifestVersion, swSourceCacheName });
+      }, { manifestVersion, swStatus, swSourceCacheName });
     }
 
-    // Check 5: At 390 x 844 the page has no horizontal scroll, and the main navigation is visible.
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 
@@ -961,82 +1161,131 @@ async function runDeployedSmoke(options = {}) {
       };
     });
 
-    // Capture one full-page screenshot to qa/deployed-smoke.png
     await page.screenshot({ path: screenshotPath, fullPage: true });
     await context.close();
+
+    const effectiveManifestStatus =
+      manifestObservedStatus !== null && manifestObservedStatus !== undefined
+        ? manifestObservedStatus
+        : manifestProbe.status;
+
+    const checks = [
+      evaluateNetworkCheck({
+        siteUrl,
+        pageStatus,
+        manifestStatus: effectiveManifestStatus,
+        manifestUrl,
+        swStatus,
+        swUrl,
+        assets: [...trackedAssetsByUrl.values()],
+        nonGetRequests
+      }),
+      evaluateConsoleAndPageErrorCheck({
+        pageErrors,
+        consoleErrors
+      }),
+      evaluateBootAndDataCheck(bootInfo),
+      evaluateVersionAgreementCheck(versionInfo),
+      evaluateMobileLayoutCheck(mobileInfo)
+    ];
+
+    const expectedCache = versionInfo.manifestVersion
+      ? expectedShellCacheName(versionInfo.manifestVersion)
+      : null;
+    const matchedCache = expectedCache && versionInfo.cacheKeys.includes(expectedCache)
+      ? expectedCache
+      : (versionInfo.cacheKeys.find(k => k.startsWith('predecessor-meta-shell-v')) || versionInfo.swSourceCacheName || null);
+
+    const report = buildSmokeReport({
+      siteUrl,
+      checkedAt: new Date().toISOString(),
+      checks,
+      version: {
+        page: versionInfo.pageVersion || versionInfo.sidebarVersion || versionInfo.metaTagVersion || null,
+        manifest: versionInfo.manifestVersion || null,
+        serviceWorkerCache: matchedCache
+      },
+      screenshot: 'qa/deployed-smoke.png',
+      headSha,
+      deployFinishedAt
+    });
+
+    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
+    return report;
+  } catch (fatalError) {
+    const reason = String(fatalError && fatalError.message ? fatalError.message : fatalError);
+    const errorReport = buildSmokeReport({
+      siteUrl,
+      checkedAt: new Date().toISOString(),
+      checks: [
+        {
+          id: 'fatal_execution_error',
+          name: 'Browser smoke suite execution',
+          status: 'error',
+          passed: false,
+          reason
+        }
+      ],
+      version: {
+        page: versionInfo.pageVersion || null,
+        manifest: versionInfo.manifestVersion || null,
+        serviceWorkerCache: versionInfo.swSourceCacheName || null
+      },
+      screenshot: 'qa/deployed-smoke.png',
+      headSha,
+      deployFinishedAt,
+      error: reason
+    });
+    fs.writeFileSync(reportPath, JSON.stringify(errorReport, null, 2) + '\n', 'utf8');
+    throw fatalError;
   } finally {
-    await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (_) {}
+    }
     if (previewServer) {
       await new Promise(resolve => previewServer.close(resolve));
     }
   }
-
-  const effectiveManifestStatus =
-    manifestObservedStatus !== null && manifestObservedStatus !== undefined
-      ? manifestObservedStatus
-      : manifestProbe.status;
-
-  const checks = [
-    evaluateNetworkCheck({
-      siteUrl,
-      pageStatus,
-      manifestStatus: effectiveManifestStatus,
-      manifestUrl,
-      assets: [...trackedAssetsByUrl.values()],
-      nonGetRequests
-    }),
-    evaluateConsoleAndPageErrorCheck({
-      pageErrors,
-      consoleErrors
-    }),
-    evaluateBootAndDataCheck(bootInfo),
-    evaluateVersionAgreementCheck(versionInfo),
-    evaluateMobileLayoutCheck(mobileInfo)
-  ];
-
-  const expectedCache = versionInfo.manifestVersion
-    ? expectedShellCacheName(versionInfo.manifestVersion)
-    : null;
-  const matchedCache = expectedCache && versionInfo.cacheKeys.includes(expectedCache)
-    ? expectedCache
-    : (versionInfo.cacheKeys.find(k => k.startsWith('predecessor-meta-shell-v')) || versionInfo.swSourceCacheName || null);
-
-  const report = buildSmokeReport({
-    siteUrl,
-    checkedAt: new Date().toISOString(),
-    checks,
-    version: {
-      page: versionInfo.pageVersion || versionInfo.sidebarVersion || versionInfo.metaTagVersion || null,
-      manifest: versionInfo.manifestVersion || null,
-      serviceWorkerCache: matchedCache
-    },
-    screenshot: 'qa/deployed-smoke.png',
-    headSha: options.headSha ?? process.env.DEPLOY_HEAD_SHA ?? null,
-    deployFinishedAt: options.deployFinishedAt ?? process.env.DEPLOY_FINISHED_AT ?? null
-  });
-
-  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
-  return report;
 }
 
 async function main(argv = process.argv.slice(2)) {
   const gateIdx = argv.indexOf('--check-deploy-gate');
   if (gateIdx !== -1) {
     const fileArg = argv[gateIdx + 1];
-    if (!fileArg) {
+    if (!fileArg || fileArg.startsWith('--')) {
       throw new Error('--check-deploy-gate requires a path to a jobs JSON file');
     }
-    const payload = JSON.parse(fs.readFileSync(path.resolve(fileArg), 'utf8'));
+    const rawJobs = fs.readFileSync(path.resolve(fileArg), 'utf8').replace(/^\uFEFF/, '');
+    const payload = JSON.parse(rawJobs);
+
+    const manifestIdx = argv.indexOf('--artifact-manifest');
+    let artifactManifest = null;
+    if (manifestIdx !== -1) {
+      const manifestArg = argv[manifestIdx + 1];
+      if (!manifestArg || manifestArg.startsWith('--')) {
+        throw new Error('--artifact-manifest requires a path to a manifest.json file');
+      }
+      const rawManifest = fs.readFileSync(path.resolve(manifestArg), 'utf8').replace(/^\uFEFF/, '');
+      artifactManifest = JSON.parse(rawManifest);
+    }
+
     const gate = evaluateDeployGate(payload, {
       runId: process.env.WORKFLOW_RUN_ID,
-      headSha: process.env.WORKFLOW_RUN_HEAD_SHA
+      headSha: process.env.WORKFLOW_RUN_HEAD_SHA,
+      artifactManifest,
+      requireArtifactManifest: manifestIdx !== -1
     });
     if (process.env.GITHUB_OUTPUT) {
       const lines = [
         'decision=' + gate.decision,
         'deployed=' + String(gate.deployed),
         'head_sha=' + (gate.headSha || ''),
-        'deployed_at=' + (gate.deployedAt || '')
+        'deployed_at=' + (gate.deployedAt || ''),
+        'expected_run_id=' + (gate.expectedRunId || ''),
+        'expected_published_at=' + (gate.expectedPublishedAt || ''),
+        'expected_version=' + (gate.expectedVersion || '')
       ];
       fs.appendFileSync(process.env.GITHUB_OUTPUT, lines.join('\n') + '\n', 'utf8');
     }
@@ -1053,6 +1302,8 @@ async function main(argv = process.argv.slice(2)) {
       action: 'wait-for-manifest',
       ok: result.ok,
       version: result.version,
+      run_id: result.runId,
+      published_at: result.publishedAt,
       attempts: result.attempts,
       elapsed_ms: result.elapsedMs,
       head_sha: result.headSha,
@@ -1093,6 +1344,7 @@ module.exports = {
   DEPLOY_STEP_NAME,
   EXPECTED_ROLES,
   EXPECTED_MOBILE_DESTINATIONS,
+  REQUIRED_CHECK_IDS,
   readRepoVersion,
   expectedShellCacheName,
   parseShellCacheFromSwSource,
@@ -1108,5 +1360,7 @@ module.exports = {
   evaluateDeployGate,
   isManifestVersionReady,
   waitForDeployedManifest,
-  runDeployedSmoke
+  startLocalPreviewServer,
+  runDeployedSmoke,
+  main
 };
