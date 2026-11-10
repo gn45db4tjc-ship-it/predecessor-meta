@@ -1,0 +1,16 @@
+User-Agent: Mozilla/5.0 (compatible; patch-importer-fixture)
+
+URL: https://www.predecessorgame.com/robots.txt
+HTTP status: 200
+Fetched (UTC): 2026-11-10T05:35:55Z
+Bytes: 80
+SHA-256: d5f35244f130bb2e0ca6c36bd27b6e3d5359f626bd1c589b6ed799a5c23012f7
+Robots verdict: ALLOWED. "User-Agent: *" with an empty "Disallow:" line, so /news/patch-notes/ is not disallowed.
+
+URL: https://www.predecessorgame.com/news/patch-notes/PatchNotes_1.18
+HTTP status: 200
+Fetched (UTC): 2026-11-10T05:36:04Z
+Bytes: 337235
+SHA-256: ec44ca7c898a505bddca1bc4b9a1a9562b88d1ee8143c47f0cd46f18d255e499
+Contains "V1.18: Frostbite": yes
+Contains "Kaelen": yes
