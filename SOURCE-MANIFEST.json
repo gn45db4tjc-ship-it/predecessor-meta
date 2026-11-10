@@ -357,6 +357,19 @@
     "docs/rechecks/2026-11-08-1700-ledger.json": "31ee9297d7daa43cbb1fe94ec05aceb6b78111ab54bb36bf43c5880fb2eb5899",
     "docs/STRATEGY-REVIEW-1.18.md": "173947f790858ce5958d169c191de0e93d2e3de0c37dadbeb1d19eb406ee33a4",
     "docs/rechecks/2026-11-08-2033-ledger.json": "168516e5b7c0411949b17d4d2aff9504e1ef0782857d12ed32aab088f176d76e",
-    "docs/rechecks/2026-11-08-2033.md": "ac27cf5c3963123926e7b43105288c78fc61958906553e61b02b4d4bf4d697b8"
+    "docs/rechecks/2026-11-08-2033.md": "ac27cf5c3963123926e7b43105288c78fc61958906553e61b02b4d4bf4d697b8",
+    "patch_import_io.py": "cd6627aeb64d88d06990de061be9ce407ae4608b51e4f300127a5c925686bb1c",
+    "tests/test_static_patch_import_io.py": "48d61ae86cbe07f96c792e541469d39a4f93646ee785221a98e5038dfbd002ba",
+    "tests/audit_patch_reference.py": "5bd4f983ff8aeb2ff620d3d2726ee282864c1724dd39406faff423af4f837f65",
+    "tests/fixtures/patch_importer/fetch-log.txt": "52af23ad173c6de74472657e37d43580f927f3437a8b04bfbc721a36e850b78f",
+    "tests/fixtures/patch_importer/PatchNotes_1.18.html": "ec44ca7c898a505bddca1bc4b9a1a9562b88d1ee8143c47f0cd46f18d255e499",
+    "tests/fixtures/patch_importer/reference-normalized.csv": "daeaf9dab86c400a6d659d89ec88d3bc9a6261f36e92ffe6d3ba6114f93e0751",
+    "tests/fixtures/patch_importer/reference-original.csv": "d4857fab0539081aa0a1467de11e2210f8708a5414f748504bcb4d307e9f6b4b",
+    "tests/fixtures/patch_importer/robots.txt": "d5f35244f130bb2e0ca6c36bd27b6e3d5359f626bd1c589b6ed799a5c23012f7",
+    "docs/PATCH-IMPORTER-RECONCILIATION.md": "9d5af21811321ed57c0273b60e58c210045139d17a696e8d68e8ed49220af048",
+    "docs/PATCH-IMPORTER-LITERAL-AUDIT.json": "a2298433da6c542c85443143e995ebf3dcce33a90e25598f0438fca0e3f8f00b",
+    "patch_importer.py": "cb14717d973208fb87937d6166dfa8be93308a375edb149acd0c849dc6a781ec",
+    "tests/test_static_patch_importer.py": "b546570a9bbf3a06e20b4eb446d09af669666b98f1c4fd642b80487d9b641917",
+    "docs/PATCH-IMPORTER.md": "dc2463b3aeb151d9de2053258bc7d5042acfa772014be7ee9cb5c071d9f11b65"
   }
 }
