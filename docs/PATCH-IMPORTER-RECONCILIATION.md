@@ -1,6 +1,6 @@
 # Patch importer input reconciliation (PRED-M2 candidate)
 
-Status: CLI implemented, source-authoritative extraction; 21 unresolved Eternal owner labels remain reported, never guessed. No PR or formal review yet.
+Status: CLI implemented, source-authoritative extraction; 21 unresolved Eternal owner labels remain reported, never guessed. PR #213 / Issue #212. Muse reviewed 3f829c5; this fix round addresses F1-F6 without guessing Eternal owners.
 Base: fda1ae265c720fcd26e5e136bbdbcb78776eb408. No PRED-M1 files changed.
 
 ## Verified inputs
@@ -10,7 +10,7 @@ Provided locally by Will on 10 Nov 2026; no network fetch was attempted after th
 - Official HTML SHA-256: ec44ca7c898a505bddca1bc4b9a1a9562b88d1ee8143c47f0cd46f18d255e499
 - robots.txt SHA-256: d5f35244f130bb2e0ca6c36bd27b6e3d5359f626bd1c589b6ed799a5c23012f7
 - Original CSV SHA-256: d4857fab0539081aa0a1467de11e2210f8708a5414f748504bcb4d307e9f6b4b
-- Brief SHA-256: 868e9ad884aeeea9f5b9b27bf67a617c5e8f9511eeb3cf3b80be141564c23930
+- Brief SHA-256: 868e9ad884aeeea9f5b9b27bf67a617c5e8f9511eeb3cf3b80be141564c20930
 
 HTML and robots hashes match the provided fetch log. CSV/brief hashes were computed locally; no separate checksum manifest was supplied to this builder for those two files. Source date shown: Nov 3, 2026. CSV: 235 data rows (Hero 101, Item 22, System 54, Map/Mode 58).
 
@@ -36,8 +36,12 @@ Recommended decision: official HTML is authoritative; reference is a coverage/re
 
 CLI in patch_importer.py, storage/fetch in patch_import_io.py. See PATCH-IMPORTER.md for invocation, exit codes and limits.
 
-302 rows: Hero 111, Item 28, System 99, Map/Mode 64. Exact full-row comparison against the New-normalized reference: 63 match, 172 reference rows not emitted verbatim, 239 source rows not in the reference. Every mismatch is present in PATCH-IMPORTER-LITERAL-AUDIT.json. Source line splitting, source wording, not-stated old values, conservative classifications and section-level labels explain those differences. No expected-output lookup is used by the runtime. Mutation tests demonstrate changed source values flow through.
+272 rows: Hero 104, Item 28, System 76, Map/Mode 64. Exact full-row comparison against the New-normalized reference: 63 match, 172 reference rows not emitted verbatim, 209 source rows not in the reference. Every mismatch is present in PATCH-IMPORTER-LITERAL-AUDIT.json. Source line splitting, source wording, not-stated old values, conservative classifications and section-level labels explain those differences. No expected-output lookup is used by the runtime. Mutation tests demonstrate changed source values flow through.
 
 Known partial result: 21 Eternal rows have explicit blessing/section labels but their image assets do not identify an owner. The importer reports each unresolved owner and exits 2 rather than claiming complete extraction. It does not use the curated CSV as authority to invent those owners.
 
-18 focused offline tests pass. Final full Python suite: 505 tests passed, 1 skipped (62.715s). Node suite: 425 tests passed. Syntax compilation passed for both modules. Original files preserved, no live fetch attempted, no site/workflow/gate edits and no formal checks posted.
+Original-head evidence: 18 focused tests, full Python 505 tests (1 skipped), Node 425 tests. See the PR fix-round evidence for current-head results. Syntax compilation passed for both modules. Original files preserved, no live fetch attempted, no site/workflow/gate edits and no formal checks posted.
+
+## Muse fix round 1
+
+Prose, list headers, augment metadata and cosmetic rank-reward lists are retained in ignored context, not emitted as changes (30 rows removed). New Hero and New Items are optional; their absence appears in absent_optional_sections without forcing partial status. Other expected-section warnings are unchanged. Crawl-delay is honored between requests, including after robots. target_sources lists filename/quoted-introduction attribution for human inspection; it is not independent identity proof. Publication date still uses the first displayed date-shaped string; future layout changes need review. Rework remains an allowed output vocabulary but is not inferred from editorial descriptions. Audit freshness, classification, Map/Mode mapping, fake-fetch CLI, independent visible-text fidelity and fetch failure boundaries now have regression coverage. Eternal prose-group attribution is deliberately deferred; the current parser reports 21 unresolved owners, not a claim that the HTML could never identify them.

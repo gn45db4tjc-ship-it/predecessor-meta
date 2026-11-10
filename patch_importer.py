@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 from patch_import_io import ImportFailure, OfficialFetcher, ORIGIN, official_url, write_import
 
-EXPECTED = {'New Hero', 'New Items', 'Gameplay Balance', 'Systems', 'Hero Balance', 'Items Balance', 'Bug Fixes'}
+KNOWN_SECTIONS = {'New Hero', 'New Items', 'Gameplay Balance', 'Systems', 'Hero Balance', 'Items Balance', 'Bug Fixes'}
 SYSTEM_PROSE = {'Ranked News', 'Variant VFX', 'Hero Voice Comms', 'The Void & Daily Deals Changes'}
 EXCLUDED = {'Store News': 'Cosmetic store bundles, not gameplay changes',
             'Triple Battlepass XP Weekend': 'Time-limited promotion, not patch mechanics'}
@@ -153,6 +153,7 @@ def parse_article(raw):
     if not date:
         raise ImportFailure('Missing displayed publication date')
     rows, uncertain, unparsed, ignored, evidence = [], [], [], [], []
+    target_sources = []
     section = sub = field = target = ''
     category = None
     seen = set()
@@ -190,6 +191,8 @@ def parse_article(raw):
             if section in ('Hero Balance', 'Items Balance'):
                 target = banner_name(text) or ''
                 field = ''
+                if target:
+                    target_sources.append({'target': target, 'method': 'banner filename', 'source': text})
             elif section == 'New Items':
                 target = ''
             continue
@@ -208,12 +211,13 @@ def parse_article(raw):
             m = re.search(r'we have [“\"]([^”\"]+)[”\"]', text)
             if m:
                 target = m[1]
+                target_sources.append({'target': target, 'method': 'quoted introduction', 'source': text})
         if tag in ('unhandled', 'table'):
             unparsed.append({'block': block_no, 'section': section, 'reason': 'unhandled HTML content', 'text': text})
             continue
         if tag not in ('blockquote', 'p', 'li'):
             continue
-        if tag == 'p' and section not in SYSTEM_PROSE and not (section.startswith('New Hero:') and sub in ('Abilities', 'Augments')):
+        if tag == 'p' and not (section.startswith('New Hero:') and sub in ('Abilities', 'Augments')):
             # Narrative is retained visibly as context, not guessed into structured values.
             if not text.startswith(('Until next time', 'Rei &', '©')):
                 ignored.append({'section': section, 'reason': 'narrative context, not a structured change', 'text': text})
@@ -227,6 +231,11 @@ def parse_article(raw):
             bugfix = section == 'Bug Fixes' or '[Bugfix]' in line or inherited_bugfix
             if '[Bugfix]' in line and line.endswith(':'):
                 inherited_bugfix = True
+            if (line.endswith(':') or
+                    (is_new and re.match(r'(?:Relevant Ability|Type):', line)) or
+                    (section == 'Ranked News' and sub == 'Rank Split Reset')):
+                ignored.append({'section': section, 'reason': 'list header, descriptive metadata or cosmetic reward list', 'text': line})
+                continue
             dest = target or sub or section
             if section == 'Overclocked Mode':
                 dest = 'Overclocked: ' + (target or sub or 'Mode')
@@ -257,12 +266,13 @@ def parse_article(raw):
             evidence.append({'row': len(rows), 'block': block_no, 'section': section, 'source_text': line})
             if kind == 'Adjustment' and not bugfix:
                 uncertain.append({'row': len(rows), 'target': dest, 'reason': 'direction or old value not mechanically established', 'source_text': line})
-    missing = sorted(EXPECTED - seen)
+    missing = sorted((KNOWN_SECTIONS - {'New Hero', 'New Items'}) - seen)
     unparsed.extend({'section': name, 'reason': 'expected section missing'} for name in missing)
     if not rows:
         raise ImportFailure('No structured changes parsed; empty/broken page')
     return {'version': version[1], 'date': date[0], 'rows': rows, 'uncertain': uncertain,
-            'unparsed': unparsed, 'ignored': ignored, 'evidence': evidence}
+            'unparsed': unparsed, 'ignored': ignored, 'evidence': evidence,
+            'absent_optional_sections': sorted({'New Hero', 'New Items'} - seen), 'target_sources': target_sources}
 
 
 def main(argv=None):
@@ -297,7 +307,8 @@ def main(argv=None):
         summary = write_import(args.output_dir, parsed['version'], parsed['date'], url, raw, parsed['rows'])
         from collections import Counter
         summary.update({'counts': dict(Counter(r['Category'] for r in parsed['rows'])), 'date': parsed['date'], 'uncertain': parsed['uncertain'], 'unparsed': parsed['unparsed'],
-                        'ignored': parsed['ignored'], 'evidence': parsed['evidence']})
+                        'ignored': parsed['ignored'], 'evidence': parsed['evidence'],
+                        'absent_optional_sections': parsed['absent_optional_sections'], 'target_sources': parsed['target_sources']})
         print(json.dumps(summary, ensure_ascii=True, indent=2))
         # Partial extraction is visible to scripts as well as humans.
         return 2 if parsed['unparsed'] else 0

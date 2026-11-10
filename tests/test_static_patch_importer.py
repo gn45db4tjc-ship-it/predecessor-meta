@@ -1,21 +1,72 @@
 import contextlib
 import io
 import json
+import re
+from html.parser import HTMLParser
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from patch_importer import parse_article, latest_url, main, ImportFailure
+from patch_importer import parse_article, latest_url, main, ImportFailure, classification
 
 FIXTURE=Path(__file__).parent/'fixtures'/'patch_importer'/'PatchNotes_1.18.html'
 URL='https://www.predecessorgame.com/news/patch-notes/PatchNotes_1.18'
 
 
 class ParserTests(unittest.TestCase):
+    def test_no_non_change_prose_rows(self):
+        rows=parse_article(FIXTURE.read_bytes())['rows']
+        self.assertFalse(any(r['Target']=='Daybreak' for r in rows))
+        self.assertFalse(any(r['New_Value'].rstrip().endswith(':') or r['New_Value'].endswith(': (Bugfix)') for r in rows))
+        self.assertFalse(any(r['Ability_or_Stat'].endswith('- Relevant Ability') for r in rows))
+        self.assertFalse(any(r['Ability_or_Stat'].endswith('- Type') for r in rows))
+        self.assertFalse(any(r['Target']=='Rank Split Reset' for r in rows))
+        result=parse_article(FIXTURE.read_bytes())
+        self.assertTrue(any('Daybreak' in x.get('text','') for x in result['ignored']))
+        self.assertTrue(any('Relevant Ability:' in x.get('text','') for x in result['ignored']))
+
+    def test_optional_sections_absent_is_not_partial(self):
+        raw=b'<h1>V9.9 Patch Notes</h1><p>Nov 3, 2026</p><h2>Systems</h2><h3>Towers</h3><blockquote>- Health increased from 10 to 20.</blockquote><h2>Bug Fixes</h2><blockquote>- Fixed a crash.</blockquote>'
+        result=parse_article(raw)
+        missing={x.get('section') for x in result['unparsed'] if x['reason']=='expected section missing'}
+        self.assertFalse({'New Hero','New Items'} & missing)
+        self.assertEqual(result['absent_optional_sections'],['New Hero','New Items'])
+
+    def test_checked_in_literal_audit_matches_fresh_audit(self):
+        import runpy
+        audit=runpy.run_path(str(Path(__file__).with_name('audit_patch_reference.py')))['audit']
+        checked=json.loads((Path(__file__).parents[1]/'docs'/'PATCH-IMPORTER-LITERAL-AUDIT.json').read_text(encoding='utf-8'))
+        self.assertEqual(audit(),checked)
+
+    def test_classification_table_and_unknown(self):
+        for stat in ('Health','Damage','Movement Speed'):
+            self.assertEqual(classification(stat,'increased'),'Buff')
+            self.assertEqual(classification(stat,'decreased'),'Nerf')
+        for stat in ('Cooldown','Price','Cost','Melee Basic Attack Damage Taken Modifier'):
+            self.assertEqual(classification(stat,'increased'),'Nerf')
+            self.assertEqual(classification(stat,'decreased'),'Buff')
+        self.assertEqual(classification('Unfamiliar stat','increased'),'Adjustment')
+
+    def test_overclocked_and_attribution_summary(self):
+        result=parse_article(FIXTURE.read_bytes())
+        rows=[r for r in result['rows'] if r['Category']=='Map/Mode']
+        self.assertEqual(len(rows),64)
+        self.assertTrue(all(r['Target'].startswith('Overclocked: ') for r in rows))
+        self.assertTrue(any(x['target']=='Iggy & Scorch' and x['method']=='banner filename' for x in result['target_sources']))
+        # No editorial Rework label is inferred from a descriptive paragraph.
+        self.assertFalse(any(r['Change_Type']=='Rework' for r in result['rows']))
+
+    def test_cli_url_with_fake_fetcher(self):
+        with tempfile.TemporaryDirectory() as temp, patch('patch_importer.OfficialFetcher') as factory:
+            factory.return_value.fetch.return_value=FIXTURE.read_bytes()
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(['--url',URL,'--output-dir',temp]),2)
+            factory.return_value.fetch.assert_called_once_with(URL,'page')
+
     def test_source_fixture_not_editorial_csv(self):
         result=parse_article(FIXTURE.read_bytes())
         self.assertEqual((result['version'],result['date']),('1.18','Nov 3, 2026'))
-        self.assertEqual(len(result['rows']),302)
+        self.assertEqual(len(result['rows']),272)
         self.assertEqual(len(result['unparsed']),21)
         self.assertTrue(all('Eternal owner' in item['reason'] for item in result['unparsed']))
         rows=result['rows']
@@ -39,6 +90,26 @@ class ParserTests(unittest.TestCase):
             self.assertIn(row['New_Value'].removesuffix(' (Bugfix)'),source)
             if row['Old_Value'] not in ('Not stated','None (New Hero)','None (New Item)'):
                 self.assertIn(row['Old_Value'],source)
+
+    def test_values_occur_in_independent_visible_text(self):
+        class Text(HTMLParser):
+            def __init__(self):
+                super().__init__(); self.parts=[]; self.skip=0
+            def handle_starttag(self,tag,attrs):
+                if tag in ('script','style'): self.skip+=1
+                elif tag=='br': self.parts.append(' ')
+            def handle_endtag(self,tag):
+                if tag in ('script','style'): self.skip-=1
+                elif tag in ('p','blockquote','li','div'): self.parts.append(' ')
+            def handle_data(self,data):
+                if not self.skip: self.parts.append(data)
+        text=Text(); text.feed(FIXTURE.read_text(encoding='utf8'))
+        visible=re.sub(r'\s+',' ',''.join(text.parts))
+        for row in parse_article(FIXTURE.read_bytes())['rows']:
+            for key in ('Old_Value','New_Value'):
+                value=row[key].removesuffix(' (Bugfix)')
+                if value=='Not stated' or value.startswith('None (New'): continue
+                self.assertIn(re.sub(r'\s+',' ',value),visible)
 
     def test_changed_source_changes_result_not_lookup(self):
         raw=FIXTURE.read_bytes().replace(b'695 (+131 per Level)',b'696 (+131 per Level)')
@@ -79,7 +150,7 @@ class ParserTests(unittest.TestCase):
         old=b'<blockquote class="quote-border p-px bg-pg-dark-gray"><div class="quote-border-inner p-4">'+text+b'</div></blockquote>'
         self.assertIn(old,raw)
         result=parse_article(raw.replace(old,b'<ul><li>'+text+b'</li></ul>',1))
-        self.assertEqual(len(result['rows']),302)
+        self.assertEqual(len(result['rows']),272)
         self.assertTrue(any(r['Target']=='Iggy & Scorch' and r['New_Value']=='2x' for r in result['rows']))
 
     def test_truncated_official_article_fails(self):

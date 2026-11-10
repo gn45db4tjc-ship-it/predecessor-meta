@@ -6,6 +6,7 @@ import json
 import os
 import re
 import tempfile
+import time
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import urlsplit
@@ -51,11 +52,20 @@ class OfficialFetcher:
         self.opener = opener or build_opener(NoRedirect())
         self.used = set()
         self.robots = None
+        self.last_request_finished = None
 
     def _request(self, url, kind):
         if kind in self.used:
             raise ImportFailure('Request budget exhausted: ' + kind)
         self.used.add(kind)
+        # Measure from completion, including robots itself, to avoid a burst
+        # immediately after discovering the site's crawl-delay directive.
+        delay = self.robots.crawl_delay(USER_AGENT) if self.robots else None
+        if delay and self.last_request_finished is not None:
+            remaining = delay - (time.monotonic() - self.last_request_finished)
+            while remaining > 0:
+                time.sleep(remaining)
+                remaining = delay - (time.monotonic() - self.last_request_finished)
         try:
             with self.opener.open(Request(url, headers={'User-Agent': USER_AGENT}), timeout=30) as response:
                 if response.status != 200 or response.geturl() != url:
@@ -66,6 +76,8 @@ class OfficialFetcher:
                 return body
         except (HTTPError, OSError) as exc:
             raise ImportFailure('Official source request failed') from exc
+        finally:
+            self.last_request_finished = time.monotonic()
 
     def fetch(self, url, kind):
         if kind not in ('listing', 'page'):

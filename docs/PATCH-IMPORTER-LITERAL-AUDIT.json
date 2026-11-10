@@ -1563,15 +1563,6 @@
     {
       "Category": "Hero",
       "Target": "Kaelen",
-      "Ability_or_Stat": "Pale Twins [Basic Attack] - Type",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Melee",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
       "Ability_or_Stat": "Pale Twins [Basic Attack] - Range",
       "Old_Value": "None (New Hero)",
       "New_Value": "325u",
@@ -1761,45 +1752,9 @@
     {
       "Category": "Hero",
       "Target": "Kaelen",
-      "Ability_or_Stat": "Relentless Hunt - Relevant Ability",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Razorstorm [Primary]",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
-      "Ability_or_Stat": "Relentless Hunt - Type",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Enhanced Ability",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
       "Ability_or_Stat": "Relentless Hunt - Effect",
       "Old_Value": "None (New Hero)",
       "New_Value": "Razorstorm now strikes an additional time for every 20% Attack Speed owned, up to +10 strikes and can Critically Strike. Rimeglass no longer grants Armors.",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
-      "Ability_or_Stat": "Neverending Chase - Relevant Ability",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Winter\u2019s Pursuit [Secondary]",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
-      "Ability_or_Stat": "Neverending Chase - Type",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Reduced Cooldowns",
       "Change_Type": "New",
       "Source": "Patch Notes"
     },
@@ -1815,55 +1770,10 @@
     {
       "Category": "Hero",
       "Target": "Kaelen",
-      "Ability_or_Stat": "Last Winter - Relevant Ability",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Frostfall [Ultimate]",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
-      "Ability_or_Stat": "Last Winter - Type",
-      "Old_Value": "None (New Hero)",
-      "New_Value": "Utility",
-      "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "Hero",
-      "Target": "Kaelen",
       "Ability_or_Stat": "Last Winter - Effect",
       "Old_Value": "None (New Hero)",
       "New_Value": "Frostfall grants Allies within the Targeting Zone +20% Movement Speed for 3s. Upon landing, Kaelen gains a (+10% Max Health)(+4% Max Health per Enemy Hero hit) Shield for 4s.",
       "Change_Type": "New",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Variant VFX",
-      "Ability_or_Stat": "Change",
-      "Old_Value": "Not stated",
-      "New_Value": "A range of our variants this update include brand new, coloured VFX to match - a popular request among many players in the community! These special variants are available for Quantum Zarus, Quantum Twinblast, Quantum Scarlett and Nullfire Quantum Lt. Belica. Variants featuring VFX recolours carry a 200 premium over standard variants.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Hero Voice Comms",
-      "Ability_or_Stat": "Change",
-      "Old_Value": "Not stated",
-      "New_Value": "When you use the comms wheel, your Hero can now speak for you. With a Hero\u2019s Voice Comms pack, every option on the comms wheel, like \u201cAttack Fangtooth\u201d, is spoken in that Hero\u2019s own voice instead of the generic one.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Hero Voice Comms",
-      "Ability_or_Stat": "Change",
-      "Old_Value": "Not stated",
-      "New_Value": "Voice Comms packs are available for the following Heroes:",
-      "Change_Type": "Adjustment",
       "Source": "Patch Notes"
     },
     {
@@ -1890,15 +1800,6 @@
       "Ability_or_Stat": "Change",
       "Old_Value": "Not stated",
       "New_Value": "Some skins have their own voice. If you own the pack, those skins will speak in the skin\u2019s voice.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "The Void & Daily Deals Changes",
-      "Ability_or_Stat": "The Void",
-      "Old_Value": "Not stated",
-      "New_Value": "The Void is a brand new personal sale, made just for you. When it opens, you\u2019ll reveal 5 skins picked from the Heroes you play, each with its own discount of up to 70% off.",
       "Change_Type": "Adjustment",
       "Source": "Patch Notes"
     },
@@ -1944,24 +1845,6 @@
       "Ability_or_Stat": "The Void",
       "Old_Value": "Not stated",
       "New_Value": "The Void is available to players level 10 and above.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "The Void & Daily Deals Changes",
-      "Ability_or_Stat": "The Void",
-      "Old_Value": "Not stated",
-      "New_Value": "The Void will start opening during V1.18, in batches, so not everyone will get theirs at the same time. Keep an eye on the main menu, and when it does open: don\u2019t stare too long.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "The Void & Daily Deals Changes",
-      "Ability_or_Stat": "Daily Deals",
-      "Old_Value": "Not stated",
-      "New_Value": "With V1.18, Daily Deals are leaving the Store, as The Void takes their place. The Featured tab now shows four featured items instead.",
       "Change_Type": "Adjustment",
       "Source": "Patch Notes"
     },
@@ -2381,96 +2264,6 @@
     },
     {
       "Category": "System",
-      "Target": "Ranked News",
-      "Ability_or_Stat": "Change",
-      "Old_Value": "Not stated",
-      "New_Value": "V1.18: Frostbite brings big changes to the top of the Ranked ladder. There's a brand new tier, Paragon now belongs to the very best of the best, and players who stay in the fight lose much less VP when a teammate goes AFK. For the full story, check out our blog, The Road to Paragon: Ranked in 1.18 and Beyond.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Split 5 ends on Tuesday 3rd November with the release of V1.18, so be sure to get your peak Rank this weekend and lock in your end of Split rewards.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Finishing Placements will get you the Split 5 Icon and Banner for your peak Rank. If you win 15 games, you will unlock the Royal Wukong skin, with additional variants if your peak Rank was Gold or higher.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Bronze and Silver: Royal Wukong.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Gold: Royal Wukong, plus the Gold variant.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Platinum: Royal Wukong, plus the Gold and Platinum variants.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Diamond: Royal Wukong, plus the Gold, Platinum and Diamond variants.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "Paragon: Royal Wukong, plus all variants (Gold, Platinum, Diamond and Paragon).",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Rank Split Reset",
-      "Ability_or_Stat": "Rank Split Reset",
-      "Old_Value": "Not stated",
-      "New_Value": "All players will start the new split in Placements and have 5 matches to complete to get placed (10 if you're new to Ranked or haven't played in a while).",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Introducing Master Tier",
-      "Ability_or_Stat": "Introducing Master Tier",
-      "Old_Value": "Not stated",
-      "New_Value": "V1.18 adds a brand new tier towards the top of the ladder: Master, sitting between Diamond I and Paragon.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
       "Target": "Introducing Master Tier",
       "Ability_or_Stat": "Introducing Master Tier",
       "Old_Value": "Not stated",
@@ -2493,15 +2286,6 @@
       "Ability_or_Stat": "Introducing Master Tier",
       "Old_Value": "Not stated",
       "New_Value": "Wins and losses in Master are +11 / -11 VP.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Paragon, Reforged",
-      "Ability_or_Stat": "Paragon, Reforged",
-      "Old_Value": "Not stated",
-      "New_Value": "Paragon should be the ultimate achievement: the rank people recognise the moment they see it in the lobby. From V1.18, only 100 players can be Paragon at any one time.",
       "Change_Type": "Adjustment",
       "Source": "Patch Notes"
     },
@@ -2546,15 +2330,6 @@
       "Target": "VP Decay in Master and Paragon",
       "Ability_or_Stat": "VP Decay in Master and Paragon",
       "Old_Value": "Not stated",
-      "New_Value": "To keep the top of the ladder competitive, Master and Paragon now have VP decay. To be the best of the best, you'll have to fight for your spot. We know you have lives outside of Predecessor, so decay won't drop your VP the moment you stop playing.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "VP Decay in Master and Paragon",
-      "Ability_or_Stat": "VP Decay in Master and Paragon",
-      "Old_Value": "Not stated",
       "New_Value": "When you're promoted into Master, your bank is set to 10 days, so you always start Master with at least 10 banked days.",
       "Change_Type": "Adjustment",
       "Source": "Patch Notes"
@@ -2589,24 +2364,6 @@
     {
       "Category": "System",
       "Target": "Cracking Down on AFKs",
-      "Ability_or_Stat": "Cracking Down on AFKs",
-      "Old_Value": "Not stated",
-      "New_Value": "Nothing ruins a Ranked game like a teammate going AFK. Starting in V1.18, the players who stay in the fight lose much less VP, and players who go AFK and get demoted feel it more.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Cracking Down on AFKs",
-      "Ability_or_Stat": "Cracking Down on AFKs",
-      "Old_Value": "Not stated",
-      "New_Value": "You now lose at least 25% less VP when a teammate goes AFK.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Cracking Down on AFKs",
       "Ability_or_Stat": "VP lost in a match with an AFK teammate",
       "Old_Value": "20%-40%",
       "New_Value": "5%-25% of a normal loss",
@@ -2628,24 +2385,6 @@
       "Ability_or_Stat": "Cracking Down on AFKs",
       "Old_Value": "Not stated",
       "New_Value": "If you go AFK and get demoted, the VP you lose for going AFK is now applied after your demotion, so you start the lower rank with less VP than usual.",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Daybreak",
-      "Ability_or_Stat": "Daybreak",
-      "Old_Value": "Not stated",
-      "New_Value": "We know many of you are very excited to hear more about our new map, Daybreak! It's all still full speed ahead here, our team are working on set dressing right now to make sure the map feels epic and immersive. We're seeing a lot of positive feedback from testers, and we're really excited to get it into your hands!",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Daybreak",
-      "Ability_or_Stat": "Daybreak",
-      "Old_Value": "Not stated",
-      "New_Value": "We're aiming to launch Daybreak early next year, so keep an eye out for more news (and some screenshots) soon.",
       "Change_Type": "Adjustment",
       "Source": "Patch Notes"
     },
@@ -2997,15 +2736,6 @@
       "Ability_or_Stat": "Towers",
       "Old_Value": "Not stated",
       "New_Value": "[Bugfix] Fixed an issue where Tower Targeting VFX could remain in the world if a player disconnects and rejoins a Match. (Bugfix)",
-      "Change_Type": "Adjustment",
-      "Source": "Patch Notes"
-    },
-    {
-      "Category": "System",
-      "Target": "Dash/Leap/Teleport Abilities",
-      "Ability_or_Stat": "Dash/Leap/Teleport Abilities",
-      "Old_Value": "Not stated",
-      "New_Value": "[Bugfix] Fixed various abilities to now be correctly tagged as Dashes, Leaps, Blinks or Teleports: (Bugfix)",
       "Change_Type": "Adjustment",
       "Source": "Patch Notes"
     },
@@ -3703,7 +3433,7 @@
       "Source": "Patch Notes"
     }
   ],
-  "source_row_count": 302,
+  "source_row_count": 272,
   "rows": 235,
   "literal_absent_cells": 166,
   "affected_rows": 99,
