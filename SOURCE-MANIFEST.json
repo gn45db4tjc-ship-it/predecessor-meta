@@ -177,7 +177,7 @@
     "patch_support.py": "b1575a9a1d9793125c7f3d10a95faae3f8d55bd3d252e3bbf16a5c8b72150676",
     "pred_api.py": "238cd4193841f8e2203523723f82b4732fb0d803b88abb21a9d254bedc9e0816",
     "pred_api_queries.json": "d51514f3167e1be2faf57d3e7412a4df5f21df0eb03a7f2f4794aebce788f43a",
-    "predecessor_meta.py": "3bf3695179d78875ebffbe66eedc687e02a75a8a3601469ae810f2cb82d20eb9",
+    "predecessor_meta.py": "d52f8ac09b5b2e8e539bbb70340f1e58a2f5ebe0cad68ec2f1a978d83a31c4b2",
     "projection.py": "d15579f676d26e5c171a077fc975ec1a281771623351ad39d0c4c19992ecbae4",
     "projection_client.js": "b6954734ae53ddf5d242d8f5155dd5f2c8a292b291ccf5b208bc9b22ebad2426",
     "public-seed-gold.json.gz": "281f22d572cb6b7f4071b368b1b64e5c605cd577907a0ea65d76442add6840b8",
@@ -371,9 +371,17 @@
     "patch_importer.py": "13feb3179215dbcefd12d39ff2631d3a1ec8beb91250073d81d6dda467a73b69",
     "tests/test_static_patch_importer.py": "166512ba03efbabf2c4b153edc357360aa7bd55e1625250ac6b247286ec8fe4a",
     "docs/PATCH-IMPORTER.md": "c2f7e826d4582f0be673edda8c5de4ebdb1c5ae74ff9ea3baeb82e0cc40b9738",
-    ".gitattributes": "1251c2fc8264884f58cb78138db7375d6c3aac6e8787bfca5b7b5718c9433504",
+    ".gitattributes": "e1b6cbc4f9d99dbf0ab6dbee765e81939635644207ebab4c267673a065a49c24",
     ".github/workflows/deployed-smoke.yml": "0867225a84fa820c353dfdd4a52fc7b169fce84cc3a5ed5643835f0fd1fdf858",
     "tests/browser_deployed_smoke.cjs": "7a15876a07836fc38b0fbe84e85f363bce61c81b18e0aa762f97a09617d8ba66",
-    "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e"
+    "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e",
+    "tests/test_static_statz_parser.py": "8b2cf3f19aa1541497d34ce78236c554e8ea80494cb64fddebca3520266676bf",
+    "tests/fixtures/statz/hero-kaelen-jungle-gold.html": "b1432dbb9d8c7910fc738d8c8a3e36f0b5dea88f8432ad188a353ef0078ba8fc",
+    "tests/fixtures/statz/tierlist-bronze.html": "e3b26da29ec08c66b76fc1bd84ca3e9dc1aec5f131bd221af385873476ea20d8",
+    "tests/fixtures/statz/tierlist-diamond.html": "5b28446188b377e117f72972e3a0f63364000263417a299584358ca11f876d82",
+    "tests/fixtures/statz/tierlist-gold.html": "4cec8ac6a6314490cc28b627d95b4bb296a92c6ae3e0d42adb5382c8696280cc",
+    "tests/fixtures/statz/tierlist-paragon.html": "ac4cb4891ed65512c15a02183fe87b16bdc5ac93b7e7da3620bb9b2ca11af481",
+    "tests/fixtures/statz/tierlist-platinum.html": "a11920be1983a7bf75146b8b57e0ffd4a5625b245ca47e20529a380c34b60178",
+    "tests/fixtures/statz/tierlist-silver.html": "58ee74845962f3162c65e0230082c8a92ff76198bf0e96f88928612fc14308b5"
   }
 }
