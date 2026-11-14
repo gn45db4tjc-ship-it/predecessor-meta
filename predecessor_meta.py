@@ -262,30 +262,34 @@ class StatzParseError(Exception):
     pass
 
 
+STATZ_MAX_HTML_CHARS = 8 * 1024 * 1024
 PATCH_RX = re.compile(r"Patch\s+(\d+\.\d+(?:\.\d+)?)")
 EXPECTED_TIERLIST_HEADERS = ["rank", "role", "hero", "tier", "win rate", "pick rate", "matches"]
-HERO_TABLE_RX = re.compile(
-    r'<table\b[^>]*\bid=["\']?heroTable["\']?[^>]*>(.*?)</table>',
-    re.S | re.I,
-)
-THEAD_RX = re.compile(r"<thead\b[^>]*>(.*?)</thead>", re.S | re.I)
-TH_RX = re.compile(r"<th\b[^>]*>(.*?)</th>", re.S | re.I)
-TBODY_RX = re.compile(r"<tbody\b[^>]*>(.*?)</tbody>", re.S | re.I)
-TBODY_ROW_RX = re.compile(r"<tr\b[^>]*>(.*?)</tr>", re.S | re.I)
-ROW_RX = re.compile(
-    r'<tr\b[^>]*\bclass=["\']?[^"\'>]*\bstats-table-row\b[^"\'>]*["\']?[^>]*>(.*?)</tr>',
-    re.S | re.I,
-)
-TD_PAIR_RX = re.compile(r"<td\b([^>]*)>(.*?)</td>", re.S | re.I)
-BRACKET_LABEL_RX = re.compile(r'id=["\']?rankDropdownToggle["\']?[^>]*>\s*<span\b[^>]*>([^<]*)</span>', re.S | re.I)
-TIERLIST_OPTION_RX = re.compile(
-    r'href=["\']?(?:https?://statz\.gg)?/predecessor/hero-tier-list/([a-z0-9-]+)["\']?(?:\s[^>]*)?>([^<]*)<',
+STATZ_VOID_TAGS = frozenset({
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+})
+STATZ_DROPDOWN_DISALLOWED_TAGS = frozenset({
+    "article", "aside", "body", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6",
+    "head", "header", "html", "main", "nav", "p", "script", "section", "style",
+    "table", "tbody", "td", "tfoot", "th", "thead", "title", "tr",
+})
+STATZ_TABLE_TAGS = frozenset({"table", "thead", "tbody", "tfoot", "tr", "th", "td"})
+STATZ_RAW_TABLE_TAG_RX = re.compile(r"<\s*/?\s*(?:table|thead|tbody|tfoot|tr|td|th)\b", re.I)
+STATZ_TIERLIST_OPT_HREF_RX = re.compile(
+    r"^(?:https?://statz\.gg)?/predecessor/hero-tier-list/([a-z0-9-]+)/?$",
     re.I,
 )
-HERO_OPTION_RX = re.compile(
-    r'href=["\']?(?:https?://statz\.gg)?/predecessor/heroes/[a-z0-9-]+/build/[a-z]+/([a-z0-9-]+)["\']?(?:\s[^>]*)?>([^<]*)<',
+STATZ_HERO_OPT_HREF_RX = re.compile(
+    r"^(?:https?://statz\.gg)?/predecessor/heroes/[a-z0-9-]+/build/[a-z]+/([a-z0-9-]+)/?$",
     re.I,
 )
+STATZ_BUILD_HREF_RX = re.compile(
+    r"^(?:https?://statz\.gg)?(/predecessor/heroes/([a-z0-9-]+)/build/([a-z]+))(?:/([a-z0-9-]+))?/?$",
+    re.I,
+)
+STATZ_HERO_IMG_RX = re.compile(r"(?:^|/)hero-image-data/([^\s/?#\"'>]+)$")
+STATZ_TIER_CLASS_RX = re.compile(r"^tier-[a-z0-9+-]+$", re.I)
 
 
 def statz_tierlist_url(bracket):
@@ -298,13 +302,23 @@ def statz_hero_url(slug, role, bracket):
 
 def statz_script_var(html, name):
     """Return (found, value) for a `var NAME = <json>;` block embedded in a statz page."""
-    m = re.search(r"var %s\s*=\s*(null|\{.*?\}|\[.*?\]);\s*(?:\r?\n|</script>)" % re.escape(name), html, re.S)
-    if not m:
-        return False, None
-    raw = m.group(1)
-    if raw == "null":
-        return True, None
-    return True, json.loads(raw)
+    decl_rx = re.compile(r"\bvar\s+%s\s*=\s*" % re.escape(name))
+    decoder = json.JSONDecoder()
+    for m in decl_rx.finditer(html):
+        pos = m.end()
+        if html.startswith("null", pos):
+            end = pos + 4
+            val = None
+        elif pos < len(html) and html[pos] in "{[":
+            try:
+                val, end = decoder.raw_decode(html, pos)
+            except json.JSONDecodeError:
+                continue
+        else:
+            continue
+        if re.match(r"\s*;\s*(?:\r?\n|</script>|$)", html[end:], re.I):
+            return True, val
+    return False, None
 
 
 def statz_role_normalize(lane):
@@ -331,8 +345,373 @@ def _int(s):
     return int(str(htmllib.unescape(str(s))).strip().replace(",", ""))
 
 
-def _statz_check_bracket_options(context, html, bracket_label, options, bracket=None, require_label_for_bracket=False):
-    if re.search(r'\bid=["\']?(?:rankDropdownOptions|rankDropdownMenu)["\']?(?=[\s>])', html, re.I) and not options:
+class _StatzDropdownParser(HTMLParser):
+    """Linear-time HTMLParser extracting and validating only the #rankDropdown* container."""
+
+    def __init__(self, context, option_href_rx):
+        super().__init__(convert_charrefs=True)
+        self.context = context
+        self.option_href_rx = option_href_rx
+        self.stack = []
+        self.wrap_seen = 0
+        self.toggle_seen = 0
+        self.toggle_span_seen = 0
+        self.menu_seen = 0
+        self.options_seen = 0
+        self.in_wrap = 0
+        self.in_toggle = 0
+        self.in_toggle_span = 0
+        self.in_menu = 0
+        self.in_options = 0
+        self.in_option_a = False
+        self._toggle_parts = []
+        self._opt_seg = None
+        self._opt_parts = []
+        self.bracket_label = None
+        self.options = []
+
+    def _in_strict_container(self):
+        return bool(self.in_wrap or self.in_toggle or self.in_menu or self.in_options)
+
+    def _push(self, tag, marker=None):
+        if tag in STATZ_VOID_TAGS:
+            return
+        eff = marker if marker is not None else ("strict_inner" if self._in_strict_container() else None)
+        self.stack.append((tag, eff))
+
+    @staticmethod
+    def _attr_map(attrs):
+        d = {}
+        for k, v in attrs:
+            k_low = k.lower()
+            if k_low not in d:
+                d[k_low] = v
+        el_id_low = (d.get("id") or "").strip().lower()
+        classes = {c.lower() for c in (d.get("class") or "").split()}
+        return d, el_id_low, classes
+
+    def _on_pop_marker(self, tag, marker):
+        if marker == "rank_dropdown_wrap":
+            self.in_wrap -= 1
+        elif marker == "toggle":
+            self.in_toggle -= 1
+            if self.toggle_span_seen:
+                self.bracket_label = re.sub(r"\s+", " ", "".join(self._toggle_parts)).strip()
+        elif marker == "toggle_span":
+            self.in_toggle_span -= 1
+        elif marker == "menu":
+            self.in_menu -= 1
+        elif marker == "options":
+            self.in_options -= 1
+        elif marker == "option_a":
+            self.in_option_a = False
+            lbl = re.sub(r"\s+", " ", "".join(self._opt_parts)).strip()
+            if not lbl:
+                raise StatzParseError("%s: empty option label inside rankDropdownOptions" % self.context)
+            if any(seg == self._opt_seg for seg, _ in self.options):
+                raise StatzParseError("%s: duplicate bracket option %r inside rankDropdownOptions"
+                                      % (self.context, self._opt_seg))
+            self.options.append((self._opt_seg, lbl))
+            self._opt_seg = None
+            self._opt_parts = []
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        d, el_id_low, classes = self._attr_map(attrs)
+        if self._in_strict_container() and tag in STATZ_DROPDOWN_DISALLOWED_TAGS:
+            raise StatzParseError("%s: unexpected <%s> inside rank dropdown container" % (self.context, tag))
+        marker = None
+        if "rank-dropdown" in classes and not self._in_strict_container():
+            self.wrap_seen += 1
+            if self.wrap_seen > 1:
+                raise StatzParseError("%s: multiple rank-dropdown containers on page" % self.context)
+            self.in_wrap += 1
+            marker = "rank_dropdown_wrap"
+        elif el_id_low == "rankdropdowntoggle":
+            if tag in STATZ_VOID_TAGS or self.in_toggle or self.in_menu or self.in_options:
+                raise StatzParseError("%s: invalid rankDropdownToggle placement" % self.context)
+            self.toggle_seen += 1
+            if self.toggle_seen > 1:
+                raise StatzParseError("%s: multiple rankDropdownToggle elements on page" % self.context)
+            self.in_toggle += 1
+            marker = "toggle"
+        elif el_id_low == "rankdropdownmenu":
+            if tag in STATZ_VOID_TAGS or self.in_toggle or self.in_menu or self.in_options:
+                raise StatzParseError("%s: invalid rankDropdownMenu placement" % self.context)
+            self.menu_seen += 1
+            if self.menu_seen > 1:
+                raise StatzParseError("%s: multiple rankDropdownMenu elements on page" % self.context)
+            self.in_menu += 1
+            marker = "menu"
+        elif el_id_low == "rankdropdownoptions":
+            if tag in STATZ_VOID_TAGS or self.in_toggle or self.in_options:
+                raise StatzParseError("%s: invalid rankDropdownOptions placement" % self.context)
+            if self.menu_seen and not self.in_menu:
+                raise StatzParseError("%s: rankDropdownOptions outside rankDropdownMenu" % self.context)
+            self.options_seen += 1
+            if self.options_seen > 1:
+                raise StatzParseError("%s: multiple rankDropdownOptions elements on page" % self.context)
+            self.in_options += 1
+            marker = "options"
+        elif self.in_toggle:
+            if tag == "span" and not self.in_toggle_span:
+                self.toggle_span_seen += 1
+                if self.toggle_span_seen > 1:
+                    raise StatzParseError("%s: multiple <span> labels inside rankDropdownToggle" % self.context)
+                self.in_toggle_span += 1
+                marker = "toggle_span"
+            elif tag not in STATZ_VOID_TAGS:
+                raise StatzParseError("%s: unexpected <%s> inside rankDropdownToggle" % (self.context, tag))
+        elif self.in_options:
+            if tag == "a":
+                if self.in_option_a:
+                    raise StatzParseError("%s: nested <a> inside rankDropdownOptions" % self.context)
+                href = (d.get("href") or "").strip()
+                m = self.option_href_rx.fullmatch(href)
+                if not m:
+                    raise StatzParseError("%s: unexpected option link %r inside rankDropdownOptions"
+                                          % (self.context, href))
+                self.in_option_a = True
+                self._opt_seg = m.group(1).lower()
+                self._opt_parts = []
+                marker = "option_a"
+            elif tag not in ("div", "span", "ul", "li", "img"):
+                raise StatzParseError("%s: unexpected <%s> inside rankDropdownOptions" % (self.context, tag))
+        elif self.in_menu:
+            raise StatzParseError("%s: unexpected <%s> inside rankDropdownMenu outside rankDropdownOptions"
+                                  % (self.context, tag))
+        self._push(tag, marker)
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        if tag in STATZ_VOID_TAGS:
+            return
+        if self.stack and self.stack[-1][1] is not None:
+            open_tag, marker = self.stack[-1]
+            if open_tag != tag:
+                raise StatzParseError("%s: unexpected </%s> while <%s> (%s) is still open"
+                                      % (self.context, tag, open_tag, marker))
+            self.stack.pop()
+            self._on_pop_marker(open_tag, marker)
+            return
+        for idx in range(len(self.stack) - 1, -1, -1):
+            if self.stack[idx][0] == tag:
+                for open_tag, marker in self.stack[idx:]:
+                    if marker is not None:
+                        raise StatzParseError("%s: unterminated <%s> (%s)" % (self.context, open_tag, marker))
+                del self.stack[idx:]
+                return
+        if self._in_strict_container():
+            raise StatzParseError("%s: unmatched </%s> inside container" % (self.context, tag))
+
+    def handle_data(self, data):
+        if self.in_toggle_span:
+            self._toggle_parts.append(data)
+        elif self.in_toggle and data.strip():
+            raise StatzParseError("%s: unconsumed text inside rankDropdownToggle" % self.context)
+        elif self.in_option_a:
+            self._opt_parts.append(data)
+        elif self.in_options and data.strip():
+            raise StatzParseError("%s: unconsumed text inside rankDropdownOptions" % self.context)
+        elif self.in_menu and data.strip():
+            raise StatzParseError("%s: unconsumed text inside rankDropdownMenu" % self.context)
+
+    def parse(self, html):
+        if len(html) > STATZ_MAX_HTML_CHARS:
+            raise StatzParseError("%s: HTML exceeds maximum supported size (%d chars)"
+                                  % (self.context, STATZ_MAX_HTML_CHARS))
+        self.feed(html)
+        if self.rawdata:
+            if any(m is not None for _, m in self.stack) or (not self.cdata_elem and self.rawdata.lstrip().startswith("<")):
+                raise StatzParseError("%s: unterminated HTML tag at end of document" % self.context)
+        self.close()
+        for open_tag, marker in reversed(self.stack):
+            if marker is not None:
+                raise StatzParseError("%s: unterminated <%s> (%s)" % (self.context, open_tag, marker))
+        return self
+
+
+class _StatzTierlistParser(_StatzDropdownParser):
+    """Linear-time HTMLParser for statz.gg tier-list pages (#rankDropdown* and #heroTable)."""
+
+    def __init__(self):
+        super().__init__("tier list", STATZ_TIERLIST_OPT_HREF_RX)
+        self.in_title = 0
+        self._title_parts = []
+        self.table_seen = 0
+        self.in_table = False
+        self.thead_count = 0
+        self.in_thead = False
+        self.thead_tr_count = 0
+        self.in_thead_tr = False
+        self.in_th = False
+        self._th_parts = []
+        self.headers = []
+        self.tbody_count = 0
+        self.in_tbody = False
+        self._cur_tbody_rows = 0
+        self.tbody_row_counts = []
+        self.in_tbody_tr = False
+        self.in_td = False
+        self.in_cell_a = False
+        self._cur_row = None
+        self._cur_cell = None
+        self.table_rows = []
+
+    def _in_strict_container(self):
+        return super()._in_strict_container() or self.in_table
+
+    def _on_pop_marker(self, tag, marker):
+        if marker == "title":
+            self.in_title -= 1
+        elif marker == "table":
+            self.in_table = False
+        elif marker == "thead":
+            if self.thead_tr_count != 1:
+                raise StatzParseError("tier list: <thead> must contain exactly 1 header row")
+            self.in_thead = False
+        elif marker == "thead_tr":
+            self.in_thead_tr = False
+        elif marker == "th":
+            self.in_th = False
+            self.headers.append(re.sub(r"\s+", " ", "".join(self._th_parts)).strip().lower())
+            self._th_parts = []
+        elif marker == "tbody":
+            self.in_tbody = False
+            self.tbody_row_counts.append(self._cur_tbody_rows)
+        elif marker == "tbody_tr":
+            self.in_tbody_tr = False
+            self._cur_tbody_rows += 1
+            self.table_rows.append(self._cur_row)
+            self._cur_row = None
+        elif marker == "td":
+            self.in_td = False
+            self._cur_row.append(self._cur_cell)
+            self._cur_cell = None
+        elif marker == "cell_a":
+            self.in_cell_a = False
+        else:
+            super()._on_pop_marker(tag, marker)
+
+    def handle_starttag(self, tag, attrs):
+        tag_low = tag.lower()
+        d, el_id_low, classes = self._attr_map(attrs)
+        if not self.in_table and not super()._in_strict_container():
+            if tag_low == "title":
+                self.in_title += 1
+                self._push(tag_low, "title")
+                return
+            if tag_low == "table" and el_id_low == "herotable":
+                if self.table_seen >= 1:
+                    raise StatzParseError("tier list: multiple #heroTable tables on page")
+                self.table_seen += 1
+                self.in_table = True
+                self._push(tag_low, "table")
+                return
+            if tag_low in STATZ_TABLE_TAGS:
+                raise StatzParseError("tier list: unexpected <%s> outside #heroTable" % tag_low)
+            super().handle_starttag(tag, attrs)
+            return
+        if super()._in_strict_container():
+            super().handle_starttag(tag, attrs)
+            return
+        if not self.in_thead and not self.in_tbody:
+            if tag_low == "thead":
+                if self.thead_count >= 1 or self.tbody_count >= 1:
+                    raise StatzParseError("tier list: unexpected <thead> in #heroTable")
+                self.thead_count += 1
+                self.in_thead = True
+                self._push(tag_low, "thead")
+            elif tag_low == "tbody":
+                if self.thead_count != 1:
+                    raise StatzParseError("tier list: #heroTable is missing a complete <thead> before <tbody>")
+                self.tbody_count += 1
+                self._cur_tbody_rows = 0
+                self.in_tbody = True
+                self._push(tag_low, "tbody")
+            else:
+                raise StatzParseError("tier list: unexpected <%s> inside #heroTable" % tag_low)
+        elif self.in_thead:
+            if not self.in_thead_tr:
+                if tag_low != "tr":
+                    raise StatzParseError("tier list: unexpected <%s> inside <thead>" % tag_low)
+                if self.thead_tr_count >= 1:
+                    raise StatzParseError("tier list: multiple header rows inside <thead>")
+                self.thead_tr_count += 1
+                self.in_thead_tr = True
+                self._push(tag_low, "thead_tr")
+            elif not self.in_th:
+                if tag_low != "th":
+                    raise StatzParseError("tier list: unexpected <%s> inside <thead> header row" % tag_low)
+                self.in_th = True
+                self._th_parts = []
+                self._push(tag_low, "th")
+            else:
+                if tag_low in STATZ_TABLE_TAGS:
+                    raise StatzParseError("tier list: unterminated <th> before <%s> in <thead>" % tag_low)
+                self._push(tag_low, "strict_inner")
+        else:
+            if not self.in_tbody_tr:
+                if tag_low != "tr":
+                    raise StatzParseError("tier list: unexpected <%s> inside <tbody>" % tag_low)
+                if "stats-table-row" not in classes:
+                    raise StatzParseError("tier list row did not match the expected layout: <tr> missing stats-table-row class")
+                self.in_tbody_tr = True
+                self._cur_row = []
+                self._push(tag_low, "tbody_tr")
+            elif not self.in_td:
+                if tag_low != "td":
+                    raise StatzParseError("tier list: unexpected <%s> inside <tr>" % tag_low)
+                self.in_td = True
+                self._cur_cell = {
+                    "classes": set(classes),
+                    "links": [],
+                    "imgs": [],
+                    "other_tags": [],
+                    "text_parts": [],
+                    "outside_link_text_parts": [],
+                }
+                self._push(tag_low, "td")
+            else:
+                if tag_low in STATZ_TABLE_TAGS:
+                    raise StatzParseError("tier list: unterminated <td> before <%s> in row" % tag_low)
+                self._cur_cell["classes"].update(classes)
+                if tag_low == "a":
+                    if self.in_cell_a:
+                        raise StatzParseError("tier list: nested <a> inside cell")
+                    self.in_cell_a = True
+                    self._cur_cell["links"].append({"href": (d.get("href") or "").strip(), "text_parts": []})
+                    self._push(tag_low, "cell_a")
+                elif tag_low == "img":
+                    self._cur_cell["imgs"].append({"src": (d.get("src") or "").strip(), "alt": d.get("alt")})
+                else:
+                    self._cur_cell["other_tags"].append(tag_low)
+                    self._push(tag_low, "strict_inner")
+
+    def handle_data(self, data):
+        if not self.cdata_elem and STATZ_RAW_TABLE_TAG_RX.search(data):
+            raise StatzParseError("tier list: malformed table tag in HTML")
+        if self.in_title:
+            self._title_parts.append(data)
+        if self.in_table:
+            if self.in_th:
+                self._th_parts.append(data)
+            elif self.in_td:
+                self._cur_cell["text_parts"].append(data)
+                if self.in_cell_a:
+                    self._cur_cell["links"][-1]["text_parts"].append(data)
+                else:
+                    self._cur_cell["outside_link_text_parts"].append(data)
+            elif data.strip():
+                raise StatzParseError("tier list: unconsumed text %r inside #heroTable" % data.strip()[:80])
+        else:
+            super().handle_data(data)
+
+
+def _statz_check_bracket_options(context, dp, bracket=None, require_label_for_bracket=False, require_dropdown=True):
+    bracket_label = dp.bracket_label
+    options = dp.options
+    if (dp.options_seen or dp.menu_seen or dp.wrap_seen) and not options:
         raise StatzParseError("%s: rankDropdownOptions found on page, but 0 bracket options parsed" % context)
     offered = [seg.lower() for seg, _ in options]
     req_seg = str(bracket).strip().lower() if bracket is not None else None
@@ -344,77 +723,86 @@ def _statz_check_bracket_options(context, html, bracket_label, options, bracket=
         if req_seg is None and page_seg and page_seg not in offered:
             raise StatzParseError("%s: bracket %r (%s) no longer exists on statz.gg (offered: %s)"
                                   % (context, page_seg, bracket_label, ", ".join(offered)))
-    if (offered or re.search(r'\bid=["\']?rankDropdownToggle["\']?(?=[\s>])', html, re.I)) and not page_seg:
+    if (offered or dp.toggle_seen) and not page_seg:
         raise StatzParseError("%s: missing rank bracket label on page" % context)
     if req_seg is not None and (require_label_for_bracket or page_seg) and page_seg != req_seg:
         raise StatzParseError("%s: rank bracket %r did not match requested %r" % (context, bracket_label, req_seg))
+    if require_dropdown and (not dp.options_seen or not options or not page_seg):
+        raise StatzParseError("%s: missing rankDropdownOptions container on page" % context)
+
+
+def _statz_cell_text(cell):
+    return re.sub(r"\s+", " ", "".join(cell["text_parts"])).strip()
 
 
 def statz_parse_tierlist(html, bracket=None):
-    title = re.search(r"<title\b[^>]*>(.*?)</title>", html, re.S | re.I)
-    pm = PATCH_RX.search(title.group(1) if title else "") or PATCH_RX.search(html)
+    parser = _StatzTierlistParser().parse(html)
+    title_text = "".join(parser._title_parts)
+    pm = PATCH_RX.search(title_text) or PATCH_RX.search(html)
     if not pm:
         raise StatzParseError("tier list: no 'Patch X.Y' label found on the page")
     patch = pm.group(1)
-    bm = BRACKET_LABEL_RX.search(html)
-    bracket_label = htmllib.unescape(bm.group(1)).strip() if bm else None
-    options = [(seg.lower(), htmllib.unescape(lbl).strip())
-               for seg, lbl in TIERLIST_OPTION_RX.findall(html)]
-    _statz_check_bracket_options("tier list", html, bracket_label, options, bracket=bracket, require_label_for_bracket=True)
-    table_m = HERO_TABLE_RX.search(html)
-    if table_m is not None:
-        table_html = table_m.group(1)
-        thead_m = THEAD_RX.search(table_html)
-        if thead_m is not None:
-            headers = [
-                re.sub(r"\s+", " ", htmllib.unescape(re.sub(r"<[^>]+>", "", th))).strip().lower()
-                for th in TH_RX.findall(thead_m.group(1))
-            ]
-            if headers != EXPECTED_TIERLIST_HEADERS:
-                raise StatzParseError("tier list table headers did not match expected layout: %r" % (headers,))
-        tbody_m = TBODY_RX.search(table_html)
-        if tbody_m is None:
-            raise StatzParseError("tier list: heroTable found without <tbody> (page layout may have changed)")
-        tbody_html = tbody_m.group(1)
-        raw_rows = TBODY_ROW_RX.findall(tbody_html)
-        if not raw_rows and re.search(r"<td\b", tbody_html, re.I):
-            raise StatzParseError("tier list: heroTable tbody contains cells outside <tr> rows")
-    else:
-        if re.search(r'\bid=["\']?heroTable["\']?(?=[\s>])', html, re.I):
-            raise StatzParseError("tier list: heroTable found without closing </table> (page layout may have changed)")
-        raw_rows = ROW_RX.findall(html)
+    bracket_label = parser.bracket_label
+    options = parser.options
+    _statz_check_bracket_options(
+        "tier list", parser, bracket=bracket, require_label_for_bracket=True, require_dropdown=True
+    )
+    if parser.table_seen != 1:
+        raise StatzParseError("tier list: missing #heroTable table (page layout may have changed)")
+    if parser.thead_count != 1:
+        raise StatzParseError("tier list: #heroTable is missing <thead> (page layout may have changed)")
+    if parser.headers != EXPECTED_TIERLIST_HEADERS:
+        raise StatzParseError("tier list table headers did not match expected layout: %r" % (parser.headers,))
+    if parser.tbody_count < 1:
+        raise StatzParseError("tier list: #heroTable found without <tbody> (page layout may have changed)")
+    if len(parser.tbody_row_counts) > 1 and any(c == 0 for c in parser.tbody_row_counts):
+        raise StatzParseError("tier list: empty <tbody> section in multi-body #heroTable")
     rows = []
-    for raw in raw_rows:
-        td_pairs = TD_PAIR_RX.findall(raw)
-        tds = [body.strip() for _, body in td_pairs]
-        link = (
-            re.search(r'href=["\']?(?:https?://statz\.gg)?(/predecessor/heroes/([a-z0-9-]+)/build/([a-z]+))(?=["\'\s>/])', tds[2], re.I)
-            if len(tds) == 7
-            else None
-        )
-        has_tier_class = (
-            bool(re.search(r"\btier-[a-z0-9+-]+\b", td_pairs[3][0], re.I) or re.search(r"\btier-[a-z0-9+-]+\b", tds[3], re.I))
-            if len(tds) == 7
-            else False
-        )
-        if not (len(tds) == 7 and link and has_tier_class):
-            raise StatzParseError("tier list row did not match the expected layout: " + re.sub(r"\s+", " ", raw)[:240])
-        img = re.search(r'hero-image-data/([^\s>"\']+)', tds[2])
-        name = re.search(r"_display_name\s*/?>\s*([^<\n]+)", tds[2])
-        tier_label = htmllib.unescape(re.sub(r"<[^>]+>", "", tds[3])).strip()
+    for cells in parser.table_rows:
+        if len(cells) != 7:
+            raise StatzParseError("tier list row did not match the expected layout: expected 7 cells, got %d"
+                                  % len(cells))
+        if (
+            any(cells[i]["links"] or cells[i]["imgs"] or cells[i]["other_tags"] for i in (0, 3, 4, 5, 6))
+            or cells[1]["links"]
+            or cells[1]["other_tags"]
+            or len(cells[1]["imgs"]) > 1
+            or len(cells[2]["links"]) != 1
+            or len(cells[2]["imgs"]) > 1
+            or cells[2]["other_tags"]
+            or "".join(cells[2]["outside_link_text_parts"]).strip()
+        ):
+            raise StatzParseError("tier list row did not match the expected layout: unexpected or unconsumed cell content")
+        link_info = cells[2]["links"][0]
+        link = STATZ_BUILD_HREF_RX.fullmatch(link_info["href"])
+        has_tier_class = any(STATZ_TIER_CLASS_RX.fullmatch(c) for c in cells[3]["classes"])
+        if not (link and has_tier_class):
+            raise StatzParseError("tier list row did not match the expected layout: invalid build link or tier cell")
+        role = statz_role_normalize(link.group(3))
+        role_cell_text = _statz_cell_text(cells[1])
+        if role_cell_text and statz_role_normalize(role_cell_text) != role:
+            raise StatzParseError("tier list row role text %r disagrees with build link role %r" % (role_cell_text, role))
+        if cells[1]["imgs"]:
+            role_alt = (cells[1]["imgs"][0].get("alt") or "").strip()
+            if role_alt and statz_role_normalize(role_alt) != role:
+                raise StatzParseError("tier list row role icon %r disagrees with build link role %r" % (role_alt, role))
+        image = None
+        if cells[2]["imgs"]:
+            img_src = cells[2]["imgs"][0]["src"]
+            img_m = STATZ_HERO_IMG_RX.search(img_src)
+            if not img_m:
+                raise StatzParseError("tier list row hero image %r did not match expected layout" % img_src)
+            image = img_m.group(1)
+        tier_label = _statz_cell_text(cells[3])
         if tier_label not in TIER_ORDER:
             raise StatzParseError("tier list row has unexpected tier label %r" % tier_label)
-        role = statz_role_normalize(link.group(3))
-        role_alt = re.search(r'alt=["\']?([A-Za-z]+)(?=["\'\s/>])', tds[1])
-        if role_alt and statz_role_normalize(role_alt.group(1)) != role:
-            raise StatzParseError("tier list row role icon %r disagrees with build link role %r" % (role_alt.group(1), role))
-        cell_name = htmllib.unescape(re.sub(r"<[^>]+>", "", tds[2])).strip()
-        display_name = (htmllib.unescape(name.group(1)).strip() if name else "") or cell_name or link.group(2)
+        link_name = re.sub(r"\s+", " ", "".join(link_info["text_parts"])).strip()
+        display_name = link_name or link.group(2)
         try:
-            rank_num = _int(tds[0])
-            win_rate = _pct(tds[4])
-            pick_rate = _pct(tds[5])
-            matches = _int(tds[6])
+            rank_num = _int(_statz_cell_text(cells[0]))
+            win_rate = _pct(_statz_cell_text(cells[4]))
+            pick_rate = _pct(_statz_cell_text(cells[5]))
+            matches = _int(_statz_cell_text(cells[6]))
         except ValueError as exc:
             raise StatzParseError("tier list row numeric cell did not match expected layout: %s" % exc) from exc
         if rank_num <= 0:
@@ -424,7 +812,7 @@ def statz_parse_tierlist(html, bracket=None):
             "role": role,
             "build_path": link.group(1),
             "display_name": display_name,
-            "image": htmllib.unescape(img.group(1)) if img else None,
+            "image": image,
             "rank": rank_num,
             "tier": tier_label,
             "winRate": win_rate,
@@ -447,14 +835,18 @@ def statz_parse_tierlist(html, bracket=None):
 
 
 def statz_parse_hero_page(html, slug, role, bracket=None):
-    bm = BRACKET_LABEL_RX.search(html)
-    bracket_label = htmllib.unescape(bm.group(1)).strip() if bm else None
-    hero_options = [(seg.lower(), htmllib.unescape(lbl).strip()) for seg, lbl in HERO_OPTION_RX.findall(html)]
-    _statz_check_bracket_options("%s/%s" % (slug, role), html, bracket_label, hero_options,
-                                 bracket=bracket, require_label_for_bracket=False)
+    context = "%s/%s" % (slug, role)
+    dp = _StatzDropdownParser(context, STATZ_HERO_OPT_HREF_RX).parse(html)
+    bracket_label = dp.bracket_label
+    hero_options = dp.options
+    _statz_check_bracket_options(
+        context, dp, bracket=bracket, require_label_for_bracket=False, require_dropdown=False
+    )
     found, ls = statz_script_var(html, "laneStats")
     if not found or ls is None:
-        raise StatzParseError("%s/%s: %s" % (slug, role, "laneStats is null: no data" if found else "var laneStats was not found"))
+        raise StatzParseError("%s: %s" % (context, "laneStats is null: no data" if found else "var laneStats was not found"))
+    if not dp.options_seen or not hero_options or not bracket_label:
+        raise StatzParseError("%s: missing rankDropdownOptions container on page" % context)
     if not isinstance(ls, dict) or ls.get("hero") != slug or statz_role_normalize(ls.get("lane")) != role:
         raise StatzParseError("%s/%s: hero or role identity mismatch" % (slug, role))
     if not isinstance(ls.get("heroLanes"), dict) or not isinstance(ls.get("builds_by_perk"), list) or not ls["builds_by_perk"]:
@@ -504,7 +896,7 @@ def statz_parse_hero_page(html, slug, role, bracket=None):
 def statz_harvest_image_names(html):
     out = {"heroes": set(), "items": set(), "perks": set()}
     for kind, folder in (("heroes", "hero-image-data"), ("items", "item-images"), ("perks", "perk-images")):
-        for fn in re.findall(r"/images/predecessor/%s/([^\s\"'>$]+\.webp)" % folder, html):
+        for fn in re.findall(r"/images/predecessor/%s/([^\s\"'>$/?#]{1,200}\.webp)" % folder, html):
             out[kind].add(htmllib.unescape(fn))
     return out
 

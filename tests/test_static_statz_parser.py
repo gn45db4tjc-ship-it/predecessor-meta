@@ -8,7 +8,9 @@ integrity guard. Network access is blocked throughout.
 import hashlib
 import json
 from pathlib import Path
+import re
 import tempfile
+import time
 import unittest
 from unittest import mock
 import urllib.request
@@ -299,7 +301,7 @@ class StatzParserTests(unittest.TestCase):
                 "gold",
             )
 
-        eight_col_row = _synthetic_tierlist_html(include_table=False).replace(
+        eight_col_row = _synthetic_tierlist_html().replace(
             "<td class=\"stats-table-data\">1,182</td>",
             "<td class=\"stats-table-data\">4.20%</td><td class=\"stats-table-data\">1,182</td>",
         )
@@ -337,10 +339,248 @@ class StatzParserTests(unittest.TestCase):
 
         # 11. Duplicate (slug, role) rows
         single_row = _synthetic_tierlist_html()
-        row_chunk = pm.ROW_RX.search(single_row).group(0)
+        row_chunk = re.search(r'<tr class="stats-table-row">.*?</tr>', single_row, re.S).group(0)
         dup_html = _synthetic_tierlist_html(rows_html=[row_chunk, row_chunk.replace(">1<", ">2<", 1)])
         with self.assertRaisesRegex(pm.StatzParseError, "duplicate hero/role rows"):
             pm.statz_parse_tierlist(dup_html, "gold")
+
+    def test_f1_multi_tbody_tables_parse_every_body_and_reject_unconsumed_content(self):
+        gold_html = (STATZ_FIXTURES / "tierlist-gold.html").read_text(encoding="utf-8")
+        expected = pm.statz_parse_tierlist(gold_html, "gold")
+        self.assertEqual(len(expected["rows"]), 74)
+
+        tbody_idx = gold_html.index("<tbody>")
+        two_body_gold = gold_html[:tbody_idx] + gold_html[tbody_idx:].replace("</tr>", "</tr></tbody><tbody>", 1)
+        for parsed in (pm.statz_parse_tierlist(two_body_gold, "gold"), pm.statz_parse_tierlist(two_body_gold)):
+            self.assertEqual(len(parsed["rows"]), 74)
+            self.assertEqual(parsed["rows"], expected["rows"])
+
+        second_tbody_idx = two_body_gold.index("<tbody>", tbody_idx + len("<tbody>"))
+        three_body_gold = (
+            two_body_gold[:second_tbody_idx]
+            + two_body_gold[second_tbody_idx:].replace("</tr>", "</tr></tbody><tbody>", 1)
+        )
+        self.assertEqual(pm.statz_parse_tierlist(three_body_gold, "gold")["rows"], expected["rows"])
+
+        single_html = _synthetic_tierlist_html()
+        valid_row = re.search(r'<tr class="stats-table-row">.*?</tr>', single_html, re.S).group(0)
+        dup_second_body = single_html.replace(
+            "</tbody>",
+            f"</tbody><tbody>{valid_row.replace('>1<', '>2<', 1)}</tbody>",
+            1,
+        )
+        with self.assertRaisesRegex(pm.StatzParseError, "duplicate hero/role rows"):
+            pm.statz_parse_tierlist(dup_second_body, "gold")
+
+        bad_second_body = single_html.replace(
+            "</tbody>",
+            '</tbody><tbody><tr class="stats-table-row"><td class="stats-table-data">2</td></tr></tbody>',
+            1,
+        )
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_tierlist(bad_second_body, "gold")
+
+        empty_second_body = single_html.replace("</tbody>", "</tbody><tbody></tbody>", 1)
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_tierlist(empty_second_body, "gold")
+
+        # Unconsumed row/cell content cases that must fail loudly instead of silently dropping content
+        unconsumed_cases = [
+            # Unterminated second <tr> inside <tbody>
+            single_html.replace("</tbody>", '<tr class="stats-table-row"><td class="stats-table-data">2</td></tbody>', 1),
+            # Stray <td> inside <tbody> after a valid row
+            single_html.replace("</tbody>", '<td class="stats-table-data">999</td></tbody>', 1),
+            # Stray text inside <tbody> outside <tr>
+            single_html.replace("</tbody>", "unconsumed row text</tbody>", 1),
+            # Unterminated 8th <td> inside <tr>
+            single_html.replace("</tr>\n            \n</tbody>", '<td class="stats-table-data">extra</tr></tbody>', 1)
+            if "</tr>\n            \n</tbody>" in single_html
+            else re.sub(r"</tr>(\s*</tbody>)", r'<td class="stats-table-data">extra</tr>\1', single_html, count=1),
+            # Stray text inside <tr> outside <td>
+            re.sub(r"</tr>(\s*</tbody>)", r"stray cell text</tr>\1", single_html, count=1),
+            # Extra text outside <a> inside the hero <td>
+            single_html.replace("</a>", "</a> stray hero text", 1),
+            # Premature </table> leaving trailing rows unconsumed outside #heroTable
+            two_body_gold.replace("</tbody><tbody>", "</tbody></table><tbody>", 1),
+            # Row without stats-table-row class inside <tbody>
+            single_html.replace(
+                "</tbody>",
+                '<tr><td class="stats-table-data">2</td></tr></tbody>',
+                1,
+            ),
+        ]
+        for bad_html in unconsumed_cases:
+            with self.assertRaises(pm.StatzParseError):
+                pm.statz_parse_tierlist(bad_html, "gold")
+
+    def test_f2_adversarial_malformed_html_finishes_in_bounded_linear_time(self):
+        gold_html = (STATZ_FIXTURES / "tierlist-gold.html").read_text(encoding="utf-8")
+        prefix = gold_html[: gold_html.index("<tbody>") + len("<tbody>")]
+
+        adversarial_tierlists = [
+            _synthetic_tierlist_html(include_table=False, rows_html=["<tr class=stats-table-row" + (" " * 64_000)]),
+            _synthetic_tierlist_html(include_table=False, rows_html=["<tr class=stats-table-row" + (" " * 128_000)]),
+            "<tr class=stats-table-row" + (" " * 262_144),
+            _synthetic_tierlist_html(include_table=False, rows_html=['<tr class="stats-table-row' + (" " * 128_000)]),
+            prefix + "<tr class=stats-table-row" + (" " * 128_000),
+        ]
+        t_batch = time.perf_counter()
+        for payload in adversarial_tierlists:
+            t0 = time.perf_counter()
+            with self.assertRaises(pm.StatzParseError):
+                pm.statz_parse_tierlist(payload, "gold")
+            elapsed = time.perf_counter() - t0
+            self.assertLess(elapsed, 0.25, f"Adversarial tier-list payload ({len(payload)} chars) took {elapsed:.3f}s")
+        self.assertLess(time.perf_counter() - t_batch, 0.5)
+
+        hero_adv = (
+            '<html><body><div class="rank-dropdown"><div id="rankDropdownToggle"><span>Gold+</span></div>'
+            '<div id="rankDropdownMenu"><div id="rankDropdownOptions">'
+            '<a href="/predecessor/heroes/kaelen/build/jungle/gold">Gold+</a></div></div></div>'
+            '<script>' + ("var laneStats = {" * 4_000) + "</script></body></html>"
+        )
+        t0 = time.perf_counter()
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_hero_page(hero_adv, "kaelen", "jungle", "gold")
+        self.assertLess(time.perf_counter() - t0, 0.25)
+
+        oversized = "a" * (pm.STATZ_MAX_HTML_CHARS + 1)
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum supported size"):
+            pm.statz_parse_tierlist(oversized, "gold")
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum supported size"):
+            pm.statz_parse_hero_page(oversized, "kaelen", "jungle", "gold")
+
+    def test_f3_requires_single_complete_seven_column_thead(self):
+        gold_html = (STATZ_FIXTURES / "tierlist-gold.html").read_text(encoding="utf-8")
+        no_thead_gold = re.sub(r"<thead\b.*?</thead>", "", gold_html, count=1, flags=re.S | re.I)
+        self.assertNotEqual(no_thead_gold, gold_html)
+        for call in (
+            lambda: pm.statz_parse_tierlist(no_thead_gold, "gold"),
+            lambda: pm.statz_parse_tierlist(no_thead_gold),
+        ):
+            with self.assertRaises(pm.StatzParseError):
+                call()
+
+        base = _synthetic_tierlist_html()
+        header_error_cases = [
+            # Unterminated <thead> before <tbody>
+            gold_html.replace("</thead>", "", 1),
+            # Truncated mid-<thead> at EOF
+            gold_html[: gold_html.index("</thead>")],
+            # Unterminated header <tr> inside <thead>
+            base.replace("</tr></thead>", "</thead>", 1),
+            # Unterminated <th> inside <thead>
+            base.replace("<th>Rank</th>", "<th>Rank", 1),
+            # Empty <thead>
+            re.sub(r"<thead\b.*?</thead>", "<thead></thead>", base, count=1, flags=re.S),
+            # Duplicate <thead>
+            base.replace("</thead>", "</thead><thead><tr><th>Rank</th></tr></thead>", 1),
+            # 7 headers split across 2 <tr> rows inside <thead>
+            base.replace("<th>Tier</th>", "<th>Tier</th></tr><tr>", 1),
+            # Missing 7th header column
+            _synthetic_tierlist_html(headers=("Rank", "Role", "Hero", "Tier", "Win Rate", "Pick Rate")),
+            # Missing #heroTable wrapper (no implicit headerless legacy fallback)
+            _synthetic_tierlist_html(include_table=False),
+            # Unterminated #heroTable
+            base.replace("</table>", "", 1),
+        ]
+        for bad_html in header_error_cases:
+            with self.assertRaises(pm.StatzParseError):
+                pm.statz_parse_tierlist(bad_html, "gold")
+
+    def test_f4_dropdown_options_read_only_dropdown_container_on_tierlist_and_hero_pages(self):
+        # 1. Tier-list: empty #rankDropdownOptions + matching footer link must still fail as 0 options parsed
+        empty_opts_with_footer = _synthetic_tierlist_html(options=()).replace(
+            "</body>",
+            '<footer><a href=/predecessor/hero-tier-list/gold>Gold+</a></footer></body>',
+            1,
+        )
+        with self.assertRaisesRegex(pm.StatzParseError, "0 bracket options parsed"):
+            pm.statz_parse_tierlist(empty_opts_with_footer, "gold")
+
+        # 2. Tier-list: stale paragon link outside #rankDropdownOptions must not make paragon look offered
+        paragon_html = (STATZ_FIXTURES / "tierlist-paragon.html").read_text(encoding="utf-8")
+        stale_paragon_tierlist = paragon_html.replace(
+            "</body>",
+            '<nav><a href="/predecessor/hero-tier-list/paragon">Paragon+</a></nav>'
+            '<footer><a href=https://statz.gg/predecessor/hero-tier-list/paragon>Paragon+</a></footer></body>',
+            1,
+        )
+        for call in (
+            lambda: pm.statz_parse_tierlist(stale_paragon_tierlist, "paragon"),
+            lambda: pm.statz_parse_tierlist(stale_paragon_tierlist),
+        ):
+            with self.assertRaisesRegex(pm.StatzParseError, "no longer exists on statz.gg"):
+                call()
+
+        # 3. Tier-list: unrelated links outside #rankDropdownOptions are excluded from parsed bracket_options
+        scoped_tierlist = _synthetic_tierlist_html(options=(("bronze", "Bronze+"), ("gold", "Gold+"))).replace(
+            "</body>",
+            '<footer><a href=/predecessor/hero-tier-list/silver>Silver+</a>'
+            '<a href=/predecessor/hero-tier-list/paragon>Paragon+</a></footer></body>',
+            1,
+        )
+        parsed_scoped = pm.statz_parse_tierlist(scoped_tierlist, "gold")
+        self.assertEqual(parsed_scoped["bracket_options"], [("bronze", "Bronze+"), ("gold", "Gold+")])
+        with self.assertRaisesRegex(pm.StatzParseError, "no longer exists on statz.gg"):
+            pm.statz_parse_tierlist(scoped_tierlist.replace("<span>Gold+</span>", "<span>Silver+</span>", 1), "silver")
+
+        # 4. Tier-list: unterminated or removed #rankDropdownOptions cannot bleed into footer or bypass guard
+        unterminated_opts = empty_opts_with_footer.replace('<div id="rankDropdownOptions"></div>', '<div id="rankDropdownOptions">', 1)
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_tierlist(unterminated_opts, "gold")
+        no_dropdown_with_footer = _synthetic_tierlist_html(include_dropdown=False).replace(
+            "</body>",
+            '<footer><a href=/predecessor/hero-tier-list/gold>Gold+</a></footer></body>',
+            1,
+        )
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_tierlist(no_dropdown_with_footer)
+
+        # 5. Hero build page: empty #rankDropdownOptions + matching footer link must fail as 0 options parsed
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+        hero_empty_opts = re.sub(
+            r'(<div id="rankDropdownOptions">).*?(</div>\s*</div>\s*</div>)',
+            r"\1\2",
+            hero_html,
+            count=1,
+            flags=re.S,
+        )
+        self.assertNotEqual(hero_empty_opts, hero_html)
+        hero_empty_with_footer = hero_empty_opts.replace(
+            "</body>",
+            '<footer><a href=/predecessor/heroes/kaelen/build/jungle/gold>Gold+</a></footer></body>',
+            1,
+        )
+        with self.assertRaisesRegex(pm.StatzParseError, "0 bracket options parsed"):
+            pm.statz_parse_hero_page(hero_empty_with_footer, "kaelen", "jungle", "gold")
+
+        # 6. Hero build page: stale paragon link outside #rankDropdownOptions must not make paragon look offered
+        hero_stale_paragon = hero_html.replace(
+            "</body>",
+            '<footer><a href=/predecessor/heroes/kaelen/build/jungle/paragon>Paragon+</a></footer></body>',
+            1,
+        )
+        with self.assertRaisesRegex(pm.StatzParseError, "no longer exists on statz.gg"):
+            pm.statz_parse_hero_page(hero_stale_paragon, "kaelen", "jungle", "paragon")
+
+        # 7. Hero build page: unterminated or stripped dropdown container fails loudly
+        hero_unterminated_opts = hero_empty_with_footer.replace(
+            '<div id="rankDropdownOptions"></div>',
+            '<div id="rankDropdownOptions">',
+            1,
+        )
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_hero_page(hero_unterminated_opts, "kaelen", "jungle", "gold")
+        hero_no_dropdown = re.sub(
+            r'<div class="rank-dropdown">.*?</div>\s*</div>\s*</div>\s*</div>',
+            "",
+            hero_html,
+            count=1,
+            flags=re.S,
+        )
+        with self.assertRaises(pm.StatzParseError):
+            pm.statz_parse_hero_page(hero_no_dropdown, "kaelen", "jungle", "gold")
 
     def test_statz_fixtures_and_parser_hashes_match_source_manifest(self):
         manifest = json.loads((ROOT / "SOURCE-MANIFEST.json").read_text(encoding="utf-8"))
