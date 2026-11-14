@@ -226,6 +226,45 @@ let preview=null;
    await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();localStorage.removeItem('predecessor-theme');});
    report.runs.push(run);await context.close();
   }
+  // ---- PRED-M3 (#214): retained Pred.gg sample older than 30h falls back to Statz Meta while keeping the active working pool in .meta-aside.
+  {
+   const viewport={width:1920,height:1080,scale:1,scenario:'statz-working-pool'};
+   const context=await browser.newContext({viewport:{width:1920,height:1080},deviceScaleFactor:1}),page=await context.newPage();
+   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+   await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>!!B&&!latestStatus.busy,{timeout:60000});
+   await page.evaluate(()=>{S.locks=[];S.enemies=[];S.bans=[];S.me='';S.liveContexts={};save();});
+   if(await page.locator('#bracket').inputValue()!=='gold'){await page.locator('#bracket').selectOption('gold');await page.waitForFunction(()=>B&&!latestStatus.busy&&B.bracket.segment==='gold');}
+   const run={viewport,checks:[],errors};const check=(v,label)=>{assert(v,label+' @statz-working-pool');run.checks.push(label);};
+   const route=async r=>{await goToScreen(page,r);await page.evaluate(()=>window.scrollTo(0,0));};
+   await route('meta');
+   await page.evaluate(()=>{
+    const stalePredAt=new Date(Date.now()-31*3600000).toISOString(),freshStatzAt=new Date(Date.now()-2*3600000).toISOString();
+    const livePatch=B.guidance?.strategic_review?.patch||B.official?.live?.version||'1.18';
+    const statzPatch=typeof B.patch==='string'&&(B.patch===livePatch||String(livePatch).startsWith(B.patch+'.'))?B.patch:livePatch;
+    B.patch=statzPatch;
+    B.official={...B.official,status:'verified',live:{...B.official?.live,version:livePatch}};
+    delete B.recommendation_context;
+    if(B.guidance){B.guidance.patch=livePatch;B.guidance.status='reviewed for current patch';}
+    B.sources={...B.sources,
+     pred_scoped:{...B.sources?.pred_scoped,status:'retained',fetched_at:stalePredAt},
+     statz_tierlist:{...B.sources?.statz_tierlist,status:B.sources?.statz_tierlist?.status==='retained'?'retained':'ok',fetched_at:freshStatzAt},
+     statz_hero_pages:{...B.sources?.statz_hero_pages,status:'ok',fetched_at:freshStatzAt}};
+    B.scoped_statistics={...B.scoped_statistics,status:'retained',patch:livePatch,bracket:'gold',bracket_label:'Gold+'};
+    E=MetaEngine.create(B);S.statSource='auto';S.route='meta';render();
+   });
+   check(await page.evaluate(()=>effectiveStatSource()==='statz'),'retained Pred.gg older than 30h routes Meta to Statz view');
+   const poolActive=await page.evaluate(()=>(B.guidance.pools?.[S.role]||[]).some(s=>E.heroStrategy(s)?.active));
+   check(poolActive,'Gold+ strategy review remains active when Pred.gg sample expires');
+   check(await page.locator('.meta-aside .role-priority').count()===1,'Statz Meta view renders .meta-aside .role-priority when pool is active');
+   check(await page.evaluate(()=>{const t=document.querySelector('.meta-layout .table-panel')?.getBoundingClientRect(),a=document.querySelector('.meta-layout > aside.meta-aside')?.getBoundingClientRect();return !!t&&!!a&&a.left>=t.right-1&&a.width>=280;}),'Statz Meta .meta-aside sits beside the table inside .meta-layout');
+   const firstRow=await page.evaluate(()=>document.querySelector('.meta-table tbody tr').getBoundingClientRect().top+scrollY);
+   check(firstRow<=520,'Statz Meta first data row stays within the first screen (y='+Math.round(firstRow)+')');
+   await page.evaluate(()=>{B.official={...B.official,status:'verified',live:{...B.official?.live,version:'99.0'}};E=MetaEngine.create(B);render();});
+   check(await page.evaluate(()=>!(B.guidance.pools?.[S.role]||[]).some(s=>E.heroStrategy(s)?.active)),'unreviewed live patch deactivates strategy pool');
+   check(await page.locator('.meta-aside .role-priority').count()===0&&await page.locator('.meta-aside').count()===0,'Statz Meta view omits .meta-aside when strategy review is inactive');
+   check(errors.length===0,'no page JavaScript errors');
+   report.runs.push(run);await context.close();
+  }
   fs.mkdirSync(path.join(root,'qa'),{recursive:true});
   fs.writeFileSync(path.join(root,'qa','edge-design-acceptance.json'),JSON.stringify(report,null,2));
   console.log(JSON.stringify({engine:report.engine,runs:report.runs.map(r=>({viewport:r.viewport,checks:r.checks.length}))}));
