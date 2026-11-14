@@ -249,8 +249,12 @@ def http_get(url, timeout=REQUEST_TIMEOUT, retries=0):
 #       - heroLanes.teamMatesStats lists ONLY teammates the hero wins with (every entry >= ~51% in the
 #         2026-09-07 sample, sorted by win rate). It is a censored "best teammates" list, not a full sample.
 #       - lane_counters / strong_against are capped at 8 entries each per build variant.
-#   * Bracket is a URL path segment (bronze/silver/gold/platinum/diamond/paragon), meaning "that rank and above".
+#   * Bracket is a URL path segment (bronze/silver/gold/platinum/diamond/paragon in the app), meaning "that rank and above".
 #     No segment == gold. laneStats.ranked reports the bracket ("Gold").
+#   * Verified 2026-11-13 (Patch 1.18, after Master tier was added between Diamond I and Paragon):
+#     statz.gg #rankDropdownOptions offers bronze/silver/gold/platinum/diamond/master and no longer lists paragon;
+#     /predecessor/hero-tier-list/paragon returns HTTP 200 with #rankDropdownToggle "Paragon+" and an empty <tbody>.
+#     Unlisted brackets must fail loudly and are never mapped to a neighbouring bracket.
 #   * Image names: hero portraits are harvested from the tier list; perk and item icons follow
 #     display_name.replace(' ', '-') + '.webp' (verified on every harvested example).
 
@@ -259,9 +263,29 @@ class StatzParseError(Exception):
 
 
 PATCH_RX = re.compile(r"Patch\s+(\d+\.\d+(?:\.\d+)?)")
-ROW_RX = re.compile(r'<tr class="stats-table-row">(.*?)</tr>', re.S)
-TD_RX = re.compile(r'<td class="stats-table-data([^"]*)">(.*?)</td>', re.S)
-BRACKET_LABEL_RX = re.compile(r'id="rankDropdownToggle"[^>]*>\s*<span>([^<]*)</span>', re.S)
+EXPECTED_TIERLIST_HEADERS = ["rank", "role", "hero", "tier", "win rate", "pick rate", "matches"]
+HERO_TABLE_RX = re.compile(
+    r'<table\b[^>]*\bid=["\']?heroTable["\']?[^>]*>(.*?)</table>',
+    re.S | re.I,
+)
+THEAD_RX = re.compile(r"<thead\b[^>]*>(.*?)</thead>", re.S | re.I)
+TH_RX = re.compile(r"<th\b[^>]*>(.*?)</th>", re.S | re.I)
+TBODY_RX = re.compile(r"<tbody\b[^>]*>(.*?)</tbody>", re.S | re.I)
+TBODY_ROW_RX = re.compile(r"<tr\b[^>]*>(.*?)</tr>", re.S | re.I)
+ROW_RX = re.compile(
+    r'<tr\b[^>]*\bclass=["\']?[^"\'>]*\bstats-table-row\b[^"\'>]*["\']?[^>]*>(.*?)</tr>',
+    re.S | re.I,
+)
+TD_PAIR_RX = re.compile(r"<td\b([^>]*)>(.*?)</td>", re.S | re.I)
+BRACKET_LABEL_RX = re.compile(r'id=["\']?rankDropdownToggle["\']?[^>]*>\s*<span\b[^>]*>([^<]*)</span>', re.S | re.I)
+TIERLIST_OPTION_RX = re.compile(
+    r'href=["\']?(?:https?://statz\.gg)?/predecessor/hero-tier-list/([a-z0-9-]+)["\']?(?:\s[^>]*)?>([^<]*)<',
+    re.I,
+)
+HERO_OPTION_RX = re.compile(
+    r'href=["\']?(?:https?://statz\.gg)?/predecessor/heroes/[a-z0-9-]+/build/[a-z]+/([a-z0-9-]+)["\']?(?:\s[^>]*)?>([^<]*)<',
+    re.I,
+)
 
 
 def statz_tierlist_url(bracket):
@@ -274,7 +298,7 @@ def statz_hero_url(slug, role, bracket):
 
 def statz_script_var(html, name):
     """Return (found, value) for a `var NAME = <json>;` block embedded in a statz page."""
-    m = re.search(r"var %s = (null|\{.*?\}|\[.*?\]);\s*\n" % re.escape(name), html, re.S)
+    m = re.search(r"var %s\s*=\s*(null|\{.*?\}|\[.*?\]);\s*(?:\r?\n|</script>)" % re.escape(name), html, re.S)
     if not m:
         return False, None
     raw = m.group(1)
@@ -297,49 +321,124 @@ def statz_image_name(display_name):
 
 
 def _pct(s):
-    return float(htmllib.unescape(s).strip().rstrip("%"))
+    txt = htmllib.unescape(str(s)).strip()
+    if not txt.endswith("%"):
+        raise ValueError("expected percentage ending in '%%', got %r" % (s,))
+    return float(txt[:-1].strip())
 
 
 def _int(s):
     return int(str(htmllib.unescape(str(s))).strip().replace(",", ""))
 
 
-def statz_parse_tierlist(html):
-    title = re.search(r"<title>(.*?)</title>", html, re.S)
+def _statz_check_bracket_options(context, html, bracket_label, options, bracket=None, require_label_for_bracket=False):
+    if re.search(r'\bid=["\']?(?:rankDropdownOptions|rankDropdownMenu)["\']?(?=[\s>])', html, re.I) and not options:
+        raise StatzParseError("%s: rankDropdownOptions found on page, but 0 bracket options parsed" % context)
+    offered = [seg.lower() for seg, _ in options]
+    req_seg = str(bracket).strip().lower() if bracket is not None else None
+    page_seg = bracket_label.lower().rstrip("+").strip() if bracket_label else None
+    if offered:
+        if req_seg is not None and req_seg not in offered:
+            raise StatzParseError("%s: bracket %r no longer exists on statz.gg (offered: %s)"
+                                  % (context, req_seg, ", ".join(offered)))
+        if req_seg is None and page_seg and page_seg not in offered:
+            raise StatzParseError("%s: bracket %r (%s) no longer exists on statz.gg (offered: %s)"
+                                  % (context, page_seg, bracket_label, ", ".join(offered)))
+    if (offered or re.search(r'\bid=["\']?rankDropdownToggle["\']?(?=[\s>])', html, re.I)) and not page_seg:
+        raise StatzParseError("%s: missing rank bracket label on page" % context)
+    if req_seg is not None and (require_label_for_bracket or page_seg) and page_seg != req_seg:
+        raise StatzParseError("%s: rank bracket %r did not match requested %r" % (context, bracket_label, req_seg))
+
+
+def statz_parse_tierlist(html, bracket=None):
+    title = re.search(r"<title\b[^>]*>(.*?)</title>", html, re.S | re.I)
     pm = PATCH_RX.search(title.group(1) if title else "") or PATCH_RX.search(html)
     if not pm:
         raise StatzParseError("tier list: no 'Patch X.Y' label found on the page")
     patch = pm.group(1)
     bm = BRACKET_LABEL_RX.search(html)
-    bracket_label = bm.group(1).strip() if bm else None
-    options = [(seg, htmllib.unescape(lbl).strip())
-               for seg, lbl in re.findall(r"href=/predecessor/hero-tier-list/([a-z]+)>([^<]*)<", html)]
+    bracket_label = htmllib.unescape(bm.group(1)).strip() if bm else None
+    options = [(seg.lower(), htmllib.unescape(lbl).strip())
+               for seg, lbl in TIERLIST_OPTION_RX.findall(html)]
+    _statz_check_bracket_options("tier list", html, bracket_label, options, bracket=bracket, require_label_for_bracket=True)
+    table_m = HERO_TABLE_RX.search(html)
+    if table_m is not None:
+        table_html = table_m.group(1)
+        thead_m = THEAD_RX.search(table_html)
+        if thead_m is not None:
+            headers = [
+                re.sub(r"\s+", " ", htmllib.unescape(re.sub(r"<[^>]+>", "", th))).strip().lower()
+                for th in TH_RX.findall(thead_m.group(1))
+            ]
+            if headers != EXPECTED_TIERLIST_HEADERS:
+                raise StatzParseError("tier list table headers did not match expected layout: %r" % (headers,))
+        tbody_m = TBODY_RX.search(table_html)
+        if tbody_m is None:
+            raise StatzParseError("tier list: heroTable found without <tbody> (page layout may have changed)")
+        tbody_html = tbody_m.group(1)
+        raw_rows = TBODY_ROW_RX.findall(tbody_html)
+        if not raw_rows and re.search(r"<td\b", tbody_html, re.I):
+            raise StatzParseError("tier list: heroTable tbody contains cells outside <tr> rows")
+    else:
+        if re.search(r'\bid=["\']?heroTable["\']?(?=[\s>])', html, re.I):
+            raise StatzParseError("tier list: heroTable found without closing </table> (page layout may have changed)")
+        raw_rows = ROW_RX.findall(html)
     rows = []
-    for raw in ROW_RX.findall(html):
-        link = re.search(r'href=["\']?(/predecessor/heroes/([a-z0-9-]+)/build/([a-z]+))' , raw)
-        img = re.search(r'hero-image-data/([^\s>"]+)', raw)
-        tier = re.search(r'tier-[a-z]+">([^<]*)<', raw)
-        name = re.search(r"_display_name\s*/>\s*([^<\n]+)", raw)
-        tds = [t[1].strip() for t in TD_RX.findall(raw)]
-        if not (link and tier and len(tds) >= 7):
+    for raw in raw_rows:
+        td_pairs = TD_PAIR_RX.findall(raw)
+        tds = [body.strip() for _, body in td_pairs]
+        link = (
+            re.search(r'href=["\']?(?:https?://statz\.gg)?(/predecessor/heroes/([a-z0-9-]+)/build/([a-z]+))(?=["\'\s>/])', tds[2], re.I)
+            if len(tds) == 7
+            else None
+        )
+        has_tier_class = (
+            bool(re.search(r"\btier-[a-z0-9+-]+\b", td_pairs[3][0], re.I) or re.search(r"\btier-[a-z0-9+-]+\b", tds[3], re.I))
+            if len(tds) == 7
+            else False
+        )
+        if not (len(tds) == 7 and link and has_tier_class):
             raise StatzParseError("tier list row did not match the expected layout: " + re.sub(r"\s+", " ", raw)[:240])
+        img = re.search(r'hero-image-data/([^\s>"\']+)', tds[2])
+        name = re.search(r"_display_name\s*/?>\s*([^<\n]+)", tds[2])
+        tier_label = htmllib.unescape(re.sub(r"<[^>]+>", "", tds[3])).strip()
+        if tier_label not in TIER_ORDER:
+            raise StatzParseError("tier list row has unexpected tier label %r" % tier_label)
+        role = statz_role_normalize(link.group(3))
+        role_alt = re.search(r'alt=["\']?([A-Za-z]+)(?=["\'\s/>])', tds[1])
+        if role_alt and statz_role_normalize(role_alt.group(1)) != role:
+            raise StatzParseError("tier list row role icon %r disagrees with build link role %r" % (role_alt.group(1), role))
+        cell_name = htmllib.unescape(re.sub(r"<[^>]+>", "", tds[2])).strip()
+        display_name = (htmllib.unescape(name.group(1)).strip() if name else "") or cell_name or link.group(2)
+        try:
+            rank_num = _int(tds[0])
+            win_rate = _pct(tds[4])
+            pick_rate = _pct(tds[5])
+            matches = _int(tds[6])
+        except ValueError as exc:
+            raise StatzParseError("tier list row numeric cell did not match expected layout: %s" % exc) from exc
+        if rank_num <= 0:
+            raise StatzParseError("tier list row has invalid rank %r" % rank_num)
         rows.append({
-            "slug": link.group(2),
-            "role": statz_role_normalize(link.group(3)),
+            "slug": link.group(2).lower(),
+            "role": role,
             "build_path": link.group(1),
-            "display_name": htmllib.unescape(name.group(1)).strip() if name else link.group(2),
+            "display_name": display_name,
             "image": htmllib.unescape(img.group(1)) if img else None,
-            "rank": _int(tds[0]),
-            "tier": htmllib.unescape(tier.group(1)).strip(),
-            "winRate": _pct(tds[-3]),
-            "pickRate": _pct(tds[-2]),
-            "matches": _int(tds[-1]),
+            "rank": rank_num,
+            "tier": tier_label,
+            "winRate": win_rate,
+            "pickRate": pick_rate,
+            "matches": matches,
         })
     if not rows:
         raise StatzParseError("tier list: 0 rows parsed (page layout may have changed)")
     for row in rows:
         for key in ("winRate", "pickRate"):
-            checked_number(row[key], key, 0, 100)
+            try:
+                checked_number(row[key], key, 0, 100)
+            except ValueError as exc:
+                raise StatzParseError("tier list row %s" % exc) from exc
         if row["matches"] <= 0:
             raise StatzParseError("tier row has zero or invalid matches")
     if len({(r["slug"], r["role"]) for r in rows}) != len(rows):
@@ -348,6 +447,11 @@ def statz_parse_tierlist(html):
 
 
 def statz_parse_hero_page(html, slug, role, bracket=None):
+    bm = BRACKET_LABEL_RX.search(html)
+    bracket_label = htmllib.unescape(bm.group(1)).strip() if bm else None
+    hero_options = [(seg.lower(), htmllib.unescape(lbl).strip()) for seg, lbl in HERO_OPTION_RX.findall(html)]
+    _statz_check_bracket_options("%s/%s" % (slug, role), html, bracket_label, hero_options,
+                                 bracket=bracket, require_label_for_bracket=False)
     found, ls = statz_script_var(html, "laneStats")
     if not found or ls is None:
         raise StatzParseError("%s/%s: %s" % (slug, role, "laneStats is null: no data" if found else "var laneStats was not found"))
@@ -358,6 +462,8 @@ def statz_parse_hero_page(html, slug, role, bracket=None):
     actual_bracket = str(ls.get("ranked") or "").lower()
     if actual_bracket not in BRACKETS or (bracket and actual_bracket != bracket):
         raise StatzParseError("%s/%s: requested %s, page reports bracket %r" % (slug, role, bracket, ls.get("ranked")))
+    if bracket_label and bracket_label.lower().rstrip("+").strip() != actual_bracket:
+        raise StatzParseError("%s/%s: dropdown label %r disagrees with laneStats bracket %r" % (slug, role, bracket_label, ls.get("ranked")))
     if str(ls["heroLanes"].get("ranked") or "").lower() != actual_bracket:
         raise StatzParseError("hero-wide and role data disagree on rank bracket")
     pm = PATCH_RX.search(html)
@@ -391,8 +497,7 @@ def statz_parse_hero_page(html, slug, role, bracket=None):
                 if not isinstance(description,str) or not description.strip():
                     raise StatzParseError(name + '.' + str(key) + ': missing description')
         d[name] = value
-    bm = BRACKET_LABEL_RX.search(html)
-    d["bracket_label"] = bm.group(1).strip() if bm else None
+    d["bracket_label"] = bracket_label
     return d
 
 
@@ -3628,7 +3733,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         if fixture_dir:
             raw = (Path(fixture_dir) / 'tierlist.html').read_text(encoding='utf-8'); sec = 0
         else: raw, _, sec = http_get(statz_tierlist_url(bracket))
-        parsed = statz_parse_tierlist(raw)
+        parsed = statz_parse_tierlist(raw, bracket)
         if parsed.get('bracket_label', '').lower().rstrip('+') != bracket:
             raise ValueError('Statz tier list: rank bracket did not match requested ' + bracket)
         return parsed, {'fetched_at':iso(now_utc()), 'secs':sec, 'offline':bool(fixture_dir)}
