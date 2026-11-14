@@ -300,8 +300,9 @@
         Number.isFinite(Date.parse(s.statz_tierlist.fetched_at))&&Number.isFinite(Date.parse(s.statz_hero_pages.fetched_at));
       if(available&&compatible)return {source:'statz',label:'Statz '+(bundle.patch||'dataset unavailable')+' · '+(bundle.bracket?.label||'bracket unavailable'),patch:bundle.patch,
         fetched_at:s?.statz_hero_pages?.fetched_at,note:'Broader source dataset: its exact match window and game-mode coverage are unconfirmed. Pred.gg is unavailable or retained; these rates are not isolated to the latest balance patch.'+statzGapNote(s.statz_hero_pages)};
+      const disc=s?.statz_tierlist?.status==='discontinued'||s?.statz_hero_pages?.status==='discontinued',after=s?.statz_tierlist?.discontinued_after_patch||s?.statz_hero_pages?.discontinued_after_patch||'1.18';
       return {source:null,label:'Role statistics unavailable',patch:null,fetched_at:null,
-        note:'No eligible role-statistics source matches this publication. Saved observations remain inspectable; they do not rank current recommendations.'};
+        note:disc?'statz.gg stopped publishing Paragon+ after Patch '+after+'; Pred.gg is unavailable or retained. '+(s?.statz_hero_pages?.fetched_at?'Statz figures here are from '+s.statz_hero_pages.fetched_at+' and are not current; they do not rank current recommendations.':'No Statz figures are published for Paragon+ after Patch '+after+'.'):'No eligible role-statistics source matches this publication. Saved observations remain inspectable; they do not rank current recommendations.'};
     }
     // One definition of evidence age for every route. Saved advice stays usable with its original date;
     // statistics outside the aging window are labelled as saved and never presented as current rankings.
@@ -313,8 +314,8 @@
     function statzGap() {const s=bundle?.sources?.statz_hero_pages;return s?.status!=='ok'&&statzPagesUsable(s)?{requested:s.coverage.requested,ok:s.coverage.ok,failed:s.coverage.failed}:null;}
     function sourceCurrency(source,now=Date.now()) {
       const at=Date.parse(source?.fetched_at),age=(now-at)/3600000;
-      if(!source||(!['ok','partial','retained'].includes(source.status)&&!statzPagesUsable(source))||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
-      const state=source.status==='retained'?'retained':age<=EVIDENCE_HOURS.current?'current':age<=EVIDENCE_HOURS.aging?'aging':'stale';
+      if(!source||(!['ok','partial','retained','discontinued'].includes(source.status)&&!statzPagesUsable(source))||!Number.isFinite(at)||at>now+FUTURE_TOLERANCE_MS)return {state:'unavailable',fetched_at:source?.fetched_at||null,age_hours:null};
+      const state=['retained','discontinued'].includes(source.status)?'retained':age<=EVIDENCE_HOURS.current?'current':age<=EVIDENCE_HOURS.aging?'aging':'stale';
       return {state,fetched_at:source.fetched_at,age_hours:Math.max(0,Math.round(age*100)/100)};
     }
     function performancePolicy({now=Date.now()}={}) {
@@ -411,11 +412,12 @@
       if(current.source)return {...current,inspection_only:false};
       const s=bundle?.sources,validDate=v=>Number.isFinite(Date.parse(v))&&Date.parse(v)<=now+FUTURE_TOLERANCE_MS;
       const pages=s?.statz_hero_pages,tiers=s?.statz_tierlist;
-      if((statzPagesUsable(pages)||pages?.status==='retained')&&['ok','retained'].includes(tiers?.status)&&
+      if((statzPagesUsable(pages)||['retained','discontinued'].includes(pages?.status))&&['ok','retained','discontinued'].includes(tiers?.status)&&
           validDate(pages.fetched_at)&&validDate(tiers.fetched_at)&&/^\d+(\.\d+)+$/.test(bundle?.patch||'')) {
+        const disc=pages?.status==='discontinued'||tiers?.status==='discontinued',after=pages?.discontinued_after_patch||tiers?.discontinued_after_patch||'1.18';
         return {source:'statz',patch:bundle.patch,fetched_at:pages.fetched_at,currency:sourceCurrency(pages,now).state,
           label:'Statz '+bundle.patch+' · '+(bundle.bracket?.label||'bracket unavailable'),saved:true,inspection_only:true,
-          note:'Current-patch role statistics are unavailable. Showing the previous Statz dataset '+bundle.patch+' with its original samples and collection dates. These observations do not rank current recommendations; the exact match window and game-mode coverage are unconfirmed.'};
+          note:disc?'statz.gg stopped publishing Paragon+ after Patch '+after+'; Statz figures here are from '+pages.fetched_at+' and are not current. These observations do not rank current recommendations.':'Current-patch role statistics are unavailable. Showing the previous Statz dataset '+bundle.patch+' with its original samples and collection dates. These observations do not rank current recommendations; the exact match window and game-mode coverage are unconfirmed.'};
       }
       return {...current,inspection_only:false};
     }
@@ -449,7 +451,7 @@
           reason:missingRole?'Due to lack of eligible data for this hero and role, no role rate is filled in. Previous guidance remains available separately.':p.note},
         {area:'Pair statistics',patch:bundle?.patch,fetched_at:bundle?.sources?.statz_hero_pages?.fetched_at,
           state:bundle?.pairs?.length||Object.keys(pairMap).length?'fallback':'unavailable',
-          reason:'Statz pair samples are a broader dataset, not verified latest-balance-patch statistics. Gaps and sample sizes remain separate; no current-patch pair rate is inferred.'},
+          reason:bundle?.sources?.statz_hero_pages?.status==='discontinued'?'statz.gg stopped publishing Paragon+ after Patch '+(bundle.sources.statz_hero_pages.discontinued_after_patch||'1.18')+'; '+(bundle.sources.statz_hero_pages.fetched_at?'Statz pair figures here are from '+bundle.sources.statz_hero_pages.fetched_at+' and are not current.':'no Statz pair figures are published for Paragon+ after Patch '+(bundle.sources.statz_hero_pages.discontinued_after_patch||'1.18')+'.'):'Statz pair samples are a broader dataset, not verified latest-balance-patch statistics. Gaps and sample sizes remain separate; no current-patch pair rate is inferred.'},
         {area:review?.patch_review?'Written build guidance':'Written guidance',patch:review?.patch||g.patch,reviewed_at:review?.reviewed_at||g.reviewed_at,
           state:currentGuidance?'current':g.patch?'fallback':'unavailable',
           reason:currentGuidance?(review?.patch_review?'This starting build was reviewed against the live patch. Current-patch outcome samples remain unavailable; tiers and team advice have separate review dates.':'Reviewed for the live patch; individual plans still require their supporting mechanics to match.'):mechanicsChanged?'Supporting mechanics changed or are unavailable. Previous advice is inspection-only; affected choices are not activated.':!verificationCurrent()?'Live patch verification is unavailable. Previous guidance is dated reference only.':due.due?'Current strategy review is unavailable or due. Previous guidance is retained with its original patch and review date. '+due.reasons.map(r=>r.startsWith('The scheduled review date')?'The scheduled strategy review is overdue.':r).join(' '):'Due to lack of a verified current plan in this area, use the dated previous guidance as a fallback, not a newly reviewed recommendation.'}
@@ -579,7 +581,7 @@
           retained:bundle.scoped_statistics.status==='retained'||bundle.scoped_statistics.roles?.[pick.role]?.status==='retained'}:null;
       }
       if(selected!=='statz')return null;
-      const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.playedGames)&&r.playedGames>0?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch,fetched_at:r.fetched_at||bundle.sources?.statz_hero_pages?.fetched_at,broad_dataset:true,retained:bundle.sources?.statz_hero_pages?.status==='retained'}:null;
+      const r=heroes[pick.slug]?.roles?.[pick.role];return r?.status==='ok'&&finite(r.winRate)&&r.winRate>=0&&r.winRate<=100&&Number.isInteger(r.playedGames)&&r.playedGames>0?{wr:r.winRate,played:r.playedGames,tier:r.tier,url:r.url,source:'Statz',patch:bundle.patch,fetched_at:r.fetched_at||bundle.sources?.statz_hero_pages?.fetched_at,broad_dataset:true,retained:['retained','discontinued'].includes(bundle.sources?.statz_hero_pages?.status)}:null;
     }
     // 2.45.0 (freshness Phase 3): a tier for every hero and role in every rank, calculated from that rank's own current
     // sample (docs/CALCULATED-TIERS.md). Always 'Calculated', never reviewed, and never written into meta_review.
@@ -703,7 +705,7 @@
           for(const ob of [...(b.lane_counters||[]),...(b.strong_against||[])]) {
             if(ob.name!==c.opponent.slug || seen.has(ob.name) || !finite(ob.winRate)||!finite(ob.playedGames)) continue;
             seen.add(ob.name); results.push({wr:c.inverted?100-ob.winRate:ob.winRate,played:ob.playedGames,variant:i,augment:b.perk,eternal:b.eternal,
-              inverted:c.inverted,calculated:c.inverted,source:'Statz',patch:bundle.patch,retained:bundle.sources?.statz_hero_pages?.status==='retained',owner:c.owner.slug,ownerRole:c.owner.role,enemyRole:enemy.role||null,url:stats.url,fetched_at:stats.fetched_at,
+              inverted:c.inverted,calculated:c.inverted,source:'Statz',patch:bundle.patch,retained:['retained','discontinued'].includes(bundle.sources?.statz_hero_pages?.status),owner:c.owner.slug,ownerRole:c.owner.role,enemyRole:enemy.role||null,url:stats.url,fetched_at:stats.fetched_at,
               label:c.inverted?'Calculated inversion of enemy-role build observation':'Observed on allied-role build page',
               limitation:'Statz does not identify the opponent role in this row. Do not treat this as a verified role-vs-role sample.'});
           }
@@ -711,7 +713,7 @@
       }
       if(!results.length) {
         for(const ob of [...(heroes[ally.slug].general_strong_against||[]),...(heroes[ally.slug].general_counters||[])]) {
-          if(ob.slug===enemy.slug && finite(ob.wr)&&finite(ob.played)) results.push({...ob,calculated:false,inverted:false,source:'Statz',patch:bundle.patch,retained:bundle.sources?.statz_hero_pages?.status==='retained',label:'Hero-wide observation; roles unspecified',url:heroes[ally.slug].hero_wide_url,fetched_at:heroes[ally.slug].hero_wide_fetched_at,limitation:'Selected enemy role has no matching lane sample.'});
+          if(ob.slug===enemy.slug && finite(ob.wr)&&finite(ob.played)) results.push({...ob,calculated:false,inverted:false,source:'Statz',patch:bundle.patch,retained:['retained','discontinued'].includes(bundle.sources?.statz_hero_pages?.status),label:'Hero-wide observation; roles unspecified',url:heroes[ally.slug].hero_wide_url,fetched_at:heroes[ally.slug].hero_wide_fetched_at,limitation:'Selected enemy role has no matching lane sample.'});
         }
       }
       return results;

@@ -14,7 +14,7 @@ import urllib.request
 from pathlib import Path
 
 DEFAULT_BASE = 'https://gn45db4tjc-ship-it.github.io/predecessor-meta/'
-RANKS = ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'paragon')
+RANKS = ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'paragon')
 
 
 def fetch(url, attempts=4, wait=30):

@@ -215,7 +215,7 @@ def older_sources(previous, incoming):
         before = (previous.get('sources') or {}).get(key) or {}
         after = (incoming.get('sources') or {}).get(key) or {}
         status = str(before.get('status') or '')
-        if not (status in ('ok', 'retained') or status.startswith('partial')):
+        if not (status in ('ok', 'retained', 'discontinued') or status.startswith('partial')):
             continue   # a published source that holds no data (failed, unavailable) has no date to protect
         try:
             if before.get('fetched_at') and (not after.get('fetched_at') or utc_time(after['fetched_at']) < utc_time(before['fetched_at'])):
@@ -229,7 +229,7 @@ def validate_public_bundle(bundle, bracket):
     validate_collector(bundle)
     if bracket not in base.BRACKETS or bundle.get('bracket', {}).get('segment') != bracket:
         raise ValueError('Published bundle has the wrong rank bracket')
-    if not isinstance(bundle.get('heroes'), dict) or not bundle['heroes'] or not isinstance(bundle.get('tier_list'), list) or not bundle['tier_list']:
+    if not isinstance(bundle.get('heroes'), dict) or not bundle['heroes'] or not isinstance(bundle.get('tier_list'), list) or (not bundle['tier_list'] and not base.bundle_statz_discontinued(bundle)):
         raise ValueError('Published bundle is missing heroes or tier rows')
     utc_time(bundle['generated_at'])
     good, reason = base.bundle_is_complete(bundle)
@@ -510,7 +510,7 @@ def optional_pred_only(attempt, bundle):
     """Nonfatal missing optional source, never a claim of complete/fresh Pred data."""
     errors = attempt.get('errors', [])
     return bool(CONFIG.get('pred_optional') and attempt.get('status') == 'partial'
-                and bundle and base.bundle_has_fresh_statz(bundle) and errors
+                and bundle and (base.bundle_has_fresh_statz(bundle) or base.bundle_has_discontinued_statz_update(bundle)) and errors
                 and all(re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')) for e in errors))
 
 
@@ -635,22 +635,34 @@ def render_site(folder, out, state):
                          patch=bundle.get('official', {}).get('live', {}).get('version'),
                          source_signature=live_signature(bundle.get('official', {})), status='available',
                          collection_status='complete' if base.bundle_is_complete(bundle)[0] else 'partial',
-                         source_dates={k: {'status': v.get('status'), 'fetched_at': v.get('fetched_at')}
+                         source_dates={k: ({'status': v.get('status'), 'fetched_at': v.get('fetched_at')}
+                                           | ({'discontinued_after_patch': v['discontinued_after_patch']} if v.get('discontinued_after_patch') else {}))
                                        for k, v in bundle.get('sources', {}).items()})
             entry['collector'] = bundle.get('collector') or {'host': 'unrecorded', 'note': 'Collected before provenance was recorded (2.24.0 or earlier).'}
             statz = bundle.get('sources', {}).get('statz_hero_pages', {})
-            core = source_age_state(statz.get('fetched_at'), now)
-            coverage = statz.get('coverage') if isinstance(statz.get('coverage'), dict) else {}
-            gaps = bool(coverage.get('usable') and coverage.get('failed'))
-            core.update(updated_at=statz.get('fetched_at'), source='Statz hero pages',
-                        status='available' if statz.get('status') in ('ok','retained') or gaps else 'unavailable')
-            if gaps:
-                # Fresh statistics with named gaps: the failed roles are listed, never filled in.
-                core['coverage'] = {key: coverage.get(key) for key in ('requested', 'ok', 'failed')}
-                entry['failed_roles'] = [{'slug': page.get('slug'), 'role': page.get('role')}
-                                         for page in bundle.get('failed_pages') or []]
-            if core['status'] == 'unavailable': core['state'] = 'Unavailable'
-            core['retained'] = statz.get('status') == 'retained'
+            if statz.get('status') == 'discontinued':
+                core = {
+                    'state': 'Discontinued',
+                    'age_hours': source_age_state(statz.get('fetched_at'), now).get('age_hours'),
+                    'updated_at': statz.get('fetched_at'),
+                    'source': 'Statz hero pages',
+                    'status': 'discontinued',
+                    'discontinued_after_patch': statz.get('discontinued_after_patch') or base.statz_discontinued_after(bracket) or '1.18',
+                    'retained': bool(statz.get('fetched_at')),
+                }
+            else:
+                core = source_age_state(statz.get('fetched_at'), now)
+                coverage = statz.get('coverage') if isinstance(statz.get('coverage'), dict) else {}
+                gaps = bool(coverage.get('usable') and coverage.get('failed'))
+                core.update(updated_at=statz.get('fetched_at'), source='Statz hero pages',
+                            status='available' if statz.get('status') in ('ok','retained') or gaps else 'unavailable')
+                if gaps:
+                    # Fresh statistics with named gaps: the failed roles are listed, never filled in.
+                    core['coverage'] = {key: coverage.get(key) for key in ('requested', 'ok', 'failed')}
+                    entry['failed_roles'] = [{'slug': page.get('slug'), 'role': page.get('role')}
+                                             for page in bundle.get('failed_pages') or []]
+                if core['status'] == 'unavailable': core['state'] = 'Unavailable'
+                core['retained'] = statz.get('status') == 'retained'
             entry['health'] = {'core_statistics': core,
                 'mechanics': {'status': bundle.get('sources', {}).get('omeda_heroes', {}).get('status', 'unavailable'),
                               'updated_at': bundle.get('sources', {}).get('omeda_heroes', {}).get('fetched_at')},
@@ -774,12 +786,12 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                     sources, kept = bundle.get('sources') or {}, bundle.get('retained_sources') or {}
                     origin = {name: (kept.get(name) or {}).get('collector') or 'unrecorded'
                               for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')), ('omeda', ('omeda_heroes',)))
-                              if any((sources.get(k) or {}).get('status') == 'retained' for k in keys)}
+                              if any((sources.get(k) or {}).get('status') == 'retained' or (name == 'statz' and (sources.get(k) or {}).get('status') == 'discontinued' and (sources.get(k) or {}).get('fetched_at')) for k in keys)}
                     if origin:
                         bundle['collector']['retained_from'] = {k: (v if v in COLLECTOR_HOSTS else 'unrecorded') for k, v in origin.items()}
                     complete, why = base.bundle_is_complete(bundle)
                     pages = (bundle.get('sources') or {}).get('statz_hero_pages') or {}
-                    if not complete and pages.get('failed') and not any(e.get('severity') == 'error' and str(e.get('source', '')).startswith('statz.gg hero pages') for e in bundle.get('errors', [])):
+                    if not complete and pages.get('failed') and pages.get('status') != 'discontinued' and not any(e.get('severity') == 'error' and str(e.get('source', '')).startswith('statz.gg hero pages') for e in bundle.get('errors', [])):
                         # A tolerated gap is still a required-source failure: it is named, retried and reported the
                         # same way whether or not Pred.gg is also unavailable, while the collected roles publish.
                         bundle.setdefault('errors', []).append({'source': 'statz.gg hero pages', 'severity': 'error',

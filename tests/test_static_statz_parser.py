@@ -137,6 +137,24 @@ class StatzParserTests(unittest.TestCase):
         self.assertEqual(by_pair[("iggy-scorch", "offlane")]["display_name"], "Iggy & Scorch")
         self.assertEqual(by_pair[("kaelen", "support")]["tier"], "S+")
 
+        # Live Master+ tier list captured 14 Nov 2026 (Split 6): verified Master+ header/dropdown/table shell with 0 rows
+        # while statz.gg awaits Master+ sample size. Must report Master+ cleanly and never borrow Paragon or Diamond rows.
+        master_html = (STATZ_FIXTURES / "tierlist-master.html").read_text(encoding="utf-8")
+        for parsed_master in (pm.statz_parse_tierlist(master_html, "master"), pm.statz_parse_tierlist(master_html)):
+            self.assertEqual(parsed_master["patch"], "1.18")
+            self.assertEqual(parsed_master["bracket_label"], "Master+")
+            self.assertEqual(parsed_master["bracket_options"], EXPECTED_118_OPTIONS)
+            self.assertEqual(parsed_master["rows"], [])
+
+        # Populated Master+ tier list rows always parse as Master+ and never relabel as Paragon+.
+        populated_master = pm.statz_parse_tierlist(
+            _synthetic_tierlist_html(toggle_label="Master+", options=EXPECTED_118_OPTIONS),
+            "master",
+        )
+        self.assertEqual(populated_master["bracket_label"], "Master+")
+        self.assertEqual(len(populated_master["rows"]), 1)
+        self.assertEqual(populated_master["rows"][0]["slug"], "kaelen")
+
     def test_captured_paragon_tierlist_fails_loudly_without_neighbour_fallback(self):
         paragon_html = (STATZ_FIXTURES / "tierlist-paragon.html").read_text(encoding="utf-8")
         for call in (
@@ -160,21 +178,90 @@ class StatzParserTests(unittest.TestCase):
             self.assertIn("paragon", str(ctx.exception))
             self.assertIn("no longer exists on statz.gg", str(ctx.exception))
 
-    def test_collect_bundle_offline_records_explicit_missing_bracket_error_for_paragon(self):
+    def test_collect_bundle_offline_records_discontinued_status_for_paragon_and_master_never_borrows_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             fix = Path(tmp)
+            data_dir = fix / "data"
             (fix / "tierlist.html").write_bytes((STATZ_FIXTURES / "tierlist-paragon.html").read_bytes())
             (fix / "omeda_heroes.json").write_text(
                 json.dumps([{"id": 1, "slug": "kaelen", "display_name": "Kaelen", "roles": ["Jungle"], "abilities": [], "classes": []}]),
                 encoding="utf-8",
             )
             (fix / "omeda_items.json").write_text("[]", encoding="utf-8")
-            with mock.patch.object(pm, "GUIDANCE_PACKET_OVERRIDE", str(fix / "empty-guidance.json")):
+            with mock.patch.object(pm, "GUIDANCE_PACKET_OVERRIDE", str(fix / "empty-guidance.json")), mock.patch.object(
+                pm, "DATA_DIR", data_dir
+            ), mock.patch.object(pm, "LATEST_BUNDLE", data_dir / "latest_bundle.json"):
                 bundle = pm.collect_bundle({"bracket": "paragon", "concurrency": 1}, fixture_dir=fix)
             self.assertEqual(bundle["tier_list"], [])
-            self.assertEqual(bundle["sources"]["statz_tierlist"]["status"], "failed")
-            self.assertIn("bracket 'paragon' no longer exists on statz.gg", bundle["sources"]["statz_tierlist"]["error"])
             self.assertEqual(bundle["bracket"]["segment"], "paragon")
+            self.assertEqual(bundle["bracket"]["label"], "Paragon+")
+            self.assertTrue(pm.bundle_statz_discontinued(bundle))
+            for skey in ("statz_tierlist", "statz_hero_pages"):
+                self.assertEqual(bundle["sources"][skey]["status"], "discontinued")
+                self.assertEqual(bundle["sources"][skey]["discontinued_after_patch"], "1.18")
+                self.assertIsNone(bundle["sources"][skey]["error"])
+            statz_notices = [e for e in bundle["errors"] if e["source"] == "statz.gg tier list"]
+            self.assertEqual(len(statz_notices), 1)
+            self.assertEqual(statz_notices[0]["severity"], "warning")
+            self.assertIn("stopped publishing Paragon+ after Patch 1.18", statz_notices[0]["detail"])
+            self.assertFalse(any(e["severity"] == "error" and "statz" in e["source"].lower() for e in bundle["errors"]))
+
+            # Historical pre-discontinuation Paragon+ Statz bundle on disk keeps its original date and rows under 'discontinued'.
+            data_dir.mkdir(parents=True, exist_ok=True)
+            historical = {
+                "schema": 3,
+                "generated_at": "2026-10-20T12:05:00+00:00",
+                "patch": "1.18",
+                "bracket": {"segment": "paragon", "label": "Paragon+"},
+                "tier_list": [{"slug": "kaelen", "role": "jungle", "tier": "A", "winRate": 54.0, "pickRate": 9.0, "matches": 140}],
+                "heroes": {
+                    "kaelen": {
+                        "slug": "kaelen",
+                        "display_name": "Kaelen",
+                        "roles": {
+                            "jungle": {
+                                "status": "ok",
+                                "tier": "A",
+                                "winRate": 54.0,
+                                "pickRate": 9.0,
+                                "playedGames": 140,
+                                "fetched_at": "2026-10-20T12:00:00+00:00",
+                                "builds": [],
+                            }
+                        },
+                    }
+                },
+                "items": {},
+                "perks": {},
+                "pairs": {},
+                "sources": {
+                    "statz_tierlist": {"status": "ok", "fetched_at": "2026-10-20T12:00:00+00:00"},
+                    "statz_hero_pages": {"status": "ok", "fetched_at": "2026-10-20T12:00:00+00:00"},
+                },
+            }
+            (data_dir / "last_successful_paragon.json").write_text(json.dumps(historical), encoding="utf-8")
+            with mock.patch.object(pm, "GUIDANCE_PACKET_OVERRIDE", str(fix / "empty-guidance.json")), mock.patch.object(
+                pm, "DATA_DIR", data_dir
+            ), mock.patch.object(pm, "LATEST_BUNDLE", data_dir / "latest_bundle.json"):
+                retained_paragon = pm.collect_bundle({"bracket": "paragon", "concurrency": 1}, fixture_dir=fix)
+            self.assertEqual(retained_paragon["patch"], "1.18")
+            self.assertEqual(len(retained_paragon["tier_list"]), 1)
+            self.assertEqual(retained_paragon["sources"]["statz_tierlist"]["status"], "discontinued")
+            self.assertEqual(retained_paragon["sources"]["statz_tierlist"]["fetched_at"], "2026-10-20T12:00:00+00:00")
+            self.assertEqual(retained_paragon["sources"]["statz_hero_pages"]["status"], "discontinued")
+            self.assertEqual(retained_paragon["sources"]["statz_hero_pages"]["fetched_at"], "2026-10-20T12:00:00+00:00")
+
+            # Master+ with 0 Statz rows keeps Master+ identity and never borrows Paragon+ or Diamond+ Statz rows.
+            (fix / "tierlist.html").write_bytes((STATZ_FIXTURES / "tierlist-master.html").read_bytes())
+            with mock.patch.object(pm, "GUIDANCE_PACKET_OVERRIDE", str(fix / "empty-guidance.json")), mock.patch.object(
+                pm, "DATA_DIR", data_dir
+            ), mock.patch.object(pm, "LATEST_BUNDLE", data_dir / "latest_bundle.json"):
+                master_bundle = pm.collect_bundle({"bracket": "master", "concurrency": 1}, fixture_dir=fix)
+            self.assertEqual(master_bundle["bracket"]["segment"], "master")
+            self.assertEqual(master_bundle["bracket"]["label"], "Master+")
+            self.assertEqual(master_bundle["tier_list"], [])
+            self.assertEqual(master_bundle["sources"]["statz_tierlist"]["status"], "failed")
+            self.assertIn("0 rows", master_bundle["sources"]["statz_tierlist"]["error"])
 
     def test_captured_hero_build_page_parses_and_enforces_bracket_and_identity_guards(self):
         hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
@@ -202,6 +289,26 @@ class StatzParserTests(unittest.TestCase):
             pm.statz_parse_hero_page(hero_html, "grux", "jungle", "gold")
         with self.assertRaises(pm.StatzParseError):
             pm.statz_parse_hero_page(hero_html, "kaelen", "support", "gold")
+
+        # Live Master+ hero build page captured 14 Nov 2026 (Split 6 Low Sample Size): verifies Master+ dropdown and
+        # explicit null-laneStats error, and rejects Paragon+ or Gold+ requests.
+        master_hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-master.html").read_text(encoding="utf-8")
+        with self.assertRaisesRegex(pm.StatzParseError, "laneStats is null: no data"):
+            pm.statz_parse_hero_page(master_hero_html, "kaelen", "jungle", "master")
+        with self.assertRaisesRegex(pm.StatzParseError, "no longer exists on statz.gg"):
+            pm.statz_parse_hero_page(master_hero_html, "kaelen", "jungle", "paragon")
+        with self.assertRaisesRegex(pm.StatzParseError, "did not match requested 'gold'"):
+            pm.statz_parse_hero_page(master_hero_html, "kaelen", "jungle", "gold")
+
+        # Populated Master+ hero page parses cleanly as Master+ when laneStats is present.
+        populated_master_hero = (
+            hero_html.replace("<span>Gold+</span>", "<span>Master+</span>", 1)
+            .replace('ranked:"Gold"', 'ranked:"Master"')
+            .replace('"ranked":"Gold"', '"ranked":"Master"')
+        )
+        parsed_master_hero = pm.statz_parse_hero_page(populated_master_hero, "kaelen", "jungle", "master")
+        self.assertEqual(parsed_master_hero["bracket_label"], "Master+")
+        self.assertEqual(parsed_master_hero["laneStats"]["ranked"], "Master")
 
     def test_legacy_pre_118_paragon_layout_and_quoted_attribute_variants_parse(self):
         legacy_options = (
@@ -286,9 +393,14 @@ class StatzParserTests(unittest.TestCase):
         with self.assertRaisesRegex(pm.StatzParseError, "0 bracket options parsed"):
             pm.statz_parse_tierlist(broken_dropdown, "gold")
 
-        # 5. Offered bracket with empty tbody (0 rows)
-        with self.assertRaisesRegex(pm.StatzParseError, "0 rows parsed"):
-            pm.statz_parse_tierlist(_synthetic_tierlist_html(rows_html=[]), "gold")
+        # 5. Offered bracket with intact empty tbody returns rows == [], while missing table or unparsed tbody fails closed
+        empty_verified = pm.statz_parse_tierlist(_synthetic_tierlist_html(rows_html=[]), "gold")
+        self.assertEqual(empty_verified["rows"], [])
+        self.assertEqual(empty_verified["bracket_label"], "Gold+")
+        with self.assertRaisesRegex(pm.StatzParseError, "missing #heroTable table"):
+            pm.statz_parse_tierlist(_synthetic_tierlist_html(rows_html=[], include_table=False), "gold")
+        with self.assertRaisesRegex(pm.StatzParseError, "unexpected <div> inside <tbody>"):
+            pm.statz_parse_tierlist(_synthetic_tierlist_html(rows_html=['<div class="changed">row</div>']), "gold")
 
         # 6. Malformed row (< 7 cells, or extra 8th column such as Ban Rate, or changed thead headers)
         short_row = '<tr class="stats-table-row"><td class="stats-table-data">1</td><td class="stats-table-data">2</td></tr>'
@@ -949,8 +1061,10 @@ class StatzParserTests(unittest.TestCase):
             "tests/fixtures/statz/tierlist-gold.html",
             "tests/fixtures/statz/tierlist-platinum.html",
             "tests/fixtures/statz/tierlist-diamond.html",
+            "tests/fixtures/statz/tierlist-master.html",
             "tests/fixtures/statz/tierlist-paragon.html",
             "tests/fixtures/statz/hero-kaelen-jungle-gold.html",
+            "tests/fixtures/statz/hero-kaelen-jungle-master.html",
         ]
         for rel in expected_fixtures:
             raw = (ROOT / rel).read_bytes()

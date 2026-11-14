@@ -8,7 +8,7 @@ if (APP_CONFIG.mode === 'static') {
   const originalRender = render;
   const originalAlerts = alerts;
   const oldDataView = dataView;
-  const allowed = ['gold', 'bronze', 'silver', 'platinum', 'diamond', 'paragon'];
+  const allowed = ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'paragon'];
   const baseURL = new URL('.', location.href);
 
   function installedApp() {
@@ -334,7 +334,7 @@ if (APP_CONFIG.mode === 'static') {
         // signature is unknown, so it is treated as possibly out of date, never as current.
         const bundle = await (await data.match(other)).json(), digest = other.match(/-([a-f0-9]{64})\.json$/)[1];
         cohorts[key] = {label: value.label, status: 'available', sha256: digest, url: 'bundles/' + key + '-' + digest + '.json', generated_at: bundle.generated_at, source_signature: 'unverified-saved-copy', saved_copy: true,
-          source_dates: Object.fromEntries(Object.entries(bundle.sources || {}).map(([k, v]) => [k, {status: v?.status, fetched_at: v?.fetched_at}]))};
+          source_dates: Object.fromEntries(Object.entries(bundle.sources || {}).map(([k, v]) => [k, {status: v?.status, fetched_at: v?.fetched_at, ...(v?.discontinued_after_patch ? {discontinued_after_patch: v.discontinued_after_patch} : {})}]))};
       } catch { cohorts[key] = value; }
     }
     if (overtaken()) return 'superseded';

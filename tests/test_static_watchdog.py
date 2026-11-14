@@ -10,7 +10,7 @@ import unittest
 import watchdog
 
 NOW = dt.datetime(2026, 10, 3, 18, 41, tzinfo=dt.timezone.utc)
-RANKS = ('gold', 'bronze', 'silver', 'platinum', 'diamond', 'paragon')
+RANKS = ('gold', 'bronze', 'silver', 'platinum', 'diamond', 'master', 'paragon')
 
 
 def iso(hours_ago):
@@ -56,6 +56,22 @@ class Checks(unittest.TestCase):
         self.assertNotIn('Gold+', p['summary'])
         self.assertTrue(any('31' in d for d in p['details']))
         self.assertTrue(p['next_attempt'])
+
+    def test_discontinued_paragon_statz_does_not_trigger_stats_age_while_master_does(self):
+        m = manifest()
+        m['cohorts']['paragon']['health']['core_statistics'] = {
+            'state': 'Discontinued', 'status': 'discontinued',
+            'discontinued_after_patch': '1.18', 'updated_at': iso(400), 'source': 'Statz hero pages'
+        }
+        m['cohorts']['paragon']['source_dates']['statz_hero_pages'] = {
+            'status': 'discontinued', 'discontinued_after_patch': '1.18', 'fetched_at': iso(400)
+        }
+        self.assertEqual(watchdog.check(m, {'packets': []}, NOW), [])
+        m['cohorts']['master']['health']['core_statistics']['updated_at'] = iso(31)
+        problems = watchdog.check(m, {'packets': []}, NOW)
+        self.assertEqual(ids(problems), ['stats-age'])
+        self.assertIn('Master+', problems[0]['summary'])
+        self.assertNotIn('Paragon+', problems[0]['summary'])
 
     def test_exactly_at_the_limit_is_not_a_miss(self):
         self.assertEqual(watchdog.check(manifest(age=24.0, pred_age=24.0), {'packets': []}, NOW), [])

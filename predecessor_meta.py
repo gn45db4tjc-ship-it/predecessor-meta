@@ -108,7 +108,12 @@ OMEDA_BASE = "https://omeda.city"
 # 2.43.0: the public website, read for its app version so the Windows app can say when it is behind (a notice only).
 PUBLIC_SITE = "https://gn45db4tjc-ship-it.github.io/predecessor-meta/"
 WEBSITE_CHECK_SECONDS = 6 * 3600
-BRACKETS = ["bronze", "silver", "gold", "platinum", "diamond", "paragon"]
+BRACKETS = ["bronze", "silver", "gold", "platinum", "diamond", "master", "paragon"]
+STATZ_DISCONTINUED_AFTER = {"paragon": "1.18"}
+
+
+def statz_discontinued_after(bracket):
+    return STATZ_DISCONTINUED_AFTER.get(str(bracket or "").strip().lower())
 
 # Internal role vocabulary. Jungle first because that is the user's main role.
 ROLES = ["jungle", "offlane", "midlane", "carry", "support"]
@@ -249,7 +254,7 @@ def http_get(url, timeout=REQUEST_TIMEOUT, retries=0):
 #       - heroLanes.teamMatesStats lists ONLY teammates the hero wins with (every entry >= ~51% in the
 #         2026-09-07 sample, sorted by win rate). It is a censored "best teammates" list, not a full sample.
 #       - lane_counters / strong_against are capped at 8 entries each per build variant.
-#   * Bracket is a URL path segment (bronze/silver/gold/platinum/diamond/paragon in the app), meaning "that rank and above".
+#   * Bracket is a URL path segment (bronze/silver/gold/platinum/diamond/master/paragon in the app), meaning "that rank and above".
 #     No segment == gold. laneStats.ranked reports the bracket ("Gold").
 #   * Verified 2026-11-13 (Patch 1.18, after Master tier was added between Diamond I and Paragon):
 #     statz.gg #rankDropdownOptions offers bronze/silver/gold/platinum/diamond/master and no longer lists paragon;
@@ -910,6 +915,11 @@ def statz_parse_tierlist(html, bracket=None):
         raise StatzParseError("tier list: #heroTable found without <tbody> (page layout may have changed)")
     if len(parser.tbody_row_counts) > 1 and any(c == 0 for c in parser.tbody_row_counts):
         raise StatzParseError("tier list: empty <tbody> section in multi-body #heroTable")
+    empty_verified_table = (
+        parser.tbody_count == 1
+        and parser.tbody_row_counts == [0]
+        and bool(options and bracket_label)
+    )
     rows = []
     for cells in parser.table_rows:
         if len(cells) != 7:
@@ -972,7 +982,7 @@ def statz_parse_tierlist(html, bracket=None):
             "pickRate": pick_rate,
             "matches": matches,
         })
-    if not rows:
+    if not rows and not empty_verified_table:
         raise StatzParseError("tier list: 0 rows parsed (page layout may have changed)")
     for row in rows:
         for key in ("winRate", "pickRate"):
@@ -1794,16 +1804,44 @@ def load_bundle(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def bundle_statz_discontinued(b):
+    if not isinstance(b, dict):
+        return False
+    bracket = (b.get("bracket") or {}).get("segment")
+    after = statz_discontinued_after(bracket)
+    if not after:
+        return False
+    sources = b.get("sources") or {}
+    tier = sources.get("statz_tierlist") or {}
+    pages = sources.get("statz_hero_pages") or {}
+    if not (
+        tier.get("status") == "discontinued"
+        and pages.get("status") == "discontinued"
+        and tier.get("discontinued_after_patch") == after
+        and pages.get("discontinued_after_patch") == after
+    ):
+        return False
+    for src in (tier, pages):
+        if src.get("fetched_at") is not None and timestamp_age(src.get("fetched_at")) is None:
+            return False
+    if b.get("tier_list") and any(timestamp_age(src.get("fetched_at")) is None for src in (tier, pages)):
+        return False
+    return True
+
+
 def bundle_is_complete(b):
     """A cached bundle may be reused only if nothing in it is missing, blocked, offline or conflicting."""
     try:
         if b.get("schema") != 3:
             return False, "bundle schema needs an upgrade"
-        if b["sources"].get("statz_tierlist",{}).get("status")!="ok":
-            return False, "Statz tier list was not refreshed"
-        src = b["sources"]["statz_hero_pages"]
-        if src.get("status") != "ok" or src.get("offline"):
-            return False, "hero pages were %s" % (src.get("status") or "incomplete")
+        if b.get("offline"):
+            return False, "bundle was collected offline"
+        if not bundle_statz_discontinued(b):
+            if b["sources"].get("statz_tierlist",{}).get("status")!="ok":
+                return False, "Statz tier list was not refreshed"
+            src = b["sources"]["statz_hero_pages"]
+            if src.get("status") != "ok" or src.get("offline"):
+                return False, "hero pages were %s" % (src.get("status") or "incomplete")
         if b["sources"]["omeda_heroes"].get("status") != "ok":
             return False, "omeda.city kit data was missing"
         if b.get("failed_pages") or b.get("patch_conflicts"):
@@ -3109,8 +3147,10 @@ def pred_cohort(catalog, official_version, bracket, hotfixes=()):
     current=[r for r in catalog.get('ratings',[]) if r.get('endTime') is None and r.get('ranks')]
     rating=max(current,key=lambda x:x.get('startTime','')) if current else None
     if not rating: raise ValueError('Pred.gg: active rank system unavailable')
-    tiers=['bronze','silver','gold','platinum','diamond','paragon']
+    tiers=list(BRACKETS)
     if bracket not in tiers: raise ValueError('Pred.gg: unsupported rank bracket')
+    if not any(str(r.get('tierName','')).lower()==bracket for r in rating['ranks']):
+        raise ValueError('Pred.gg: selected rank IDs unavailable')
     ranks=sorted({r['id'] for r in rating['ranks'] if str(r.get('tierName','')).lower() in tiers[tiers.index(bracket):]},key=int)
     if not ranks: raise ValueError('Pred.gg: selected rank IDs unavailable')
     ids=sorted({str(v['id']) for v in included},key=int);fixes=[v['name'].lstrip('v') for v in included if v is not version]
@@ -3799,10 +3839,12 @@ def source_records_before_review(bundle):
     return b
 
 
-def retained_statz_bundle(bracket):
+def retained_statz_bundle(bracket, include_discontinued=False):
     """Only a successful, same-bracket Statz collection can supply retained observations."""
     candidates=[]
-    for path in (DATA_DIR/('last_successful_'+bracket+'.json'),LATEST_BUNDLE):
+    paths=(DATA_DIR/('last_successful_'+bracket+'.json'), DATA_DIR/('last_available_'+bracket+'.json'), LATEST_BUNDLE) if include_discontinued else (DATA_DIR/('last_successful_'+bracket+'.json'), LATEST_BUNDLE)
+    allowed_statuses=('ok','retained','discontinued') if include_discontinued else ('ok',)
+    for path in paths:
         try:
             b=load_bundle(path)
             if not isinstance(b,dict):continue
@@ -3810,7 +3852,7 @@ def retained_statz_bundle(bracket):
             if b.get('schema')!=3 or (b.get('bracket') or {}).get('segment')!=bracket or not b.get('patch'):continue
             if not b.get('tier_list') or b.get('failed_pages') or b.get('patch_conflicts'):continue
             if not bundle_rows_valid(b):continue
-            if any(sources.get(k,{}).get('status')!='ok' or not sources[k].get('fetched_at') for k in ('statz_tierlist','statz_hero_pages')):continue
+            if any(sources.get(k,{}).get('status') not in allowed_statuses or not sources[k].get('fetched_at') for k in ('statz_tierlist','statz_hero_pages')):continue
             age=timestamp_age(sources['statz_tierlist']['fetched_at'])
             if age is not None:candidates.append((age,b))
         except Exception:continue   # a damaged saved file is skipped
@@ -3818,6 +3860,80 @@ def retained_statz_bundle(bracket):
         try:return source_records_before_review(candidate)
         except (KeyError,IndexError,TypeError,ValueError) as e:log('Retained Statz audit unavailable: '+str(e))
     return None
+
+
+def attach_discontinued_statz(bundle, old, discontinued_after, attempt_at):
+    """Mark Statz as discontinued after a given patch, preserving any prior historical Statz observations with their original dates."""
+    bracket = (bundle.get('bracket') or {}).get('segment') or 'paragon'
+    label = bracket.capitalize() + '+'
+    bundle['errors'] = [e for e in bundle['errors'] if not str(e.get('source', '')).startswith('statz.gg')]
+    offline = bool(bundle.get('offline'))
+    for kind in ('statz_tierlist', 'statz_hero_pages'):
+        source = copy.deepcopy(old['sources'][kind]) if old else bundle['sources'][kind]
+        if not old:
+            source['fetched_at'] = None
+        source.update(
+            status='discontinued',
+            discontinued_after_patch=discontinued_after,
+            error=None,
+            offline=offline,
+            attempted_at=attempt_at,
+            note=(
+                'statz.gg stopped publishing %s after Patch %s; Statz figures from %s are preserved for historical reference and are not current.'
+                % (label, discontinued_after, old['sources'][kind]['fetched_at'])
+                if old else
+                'statz.gg stopped publishing %s after Patch %s; no Statz observations are collected for %s.'
+                % (label, discontinued_after, label)
+            ),
+        )
+        bundle['sources'][kind] = source
+    bundle['errors'].append({
+        'source': 'statz.gg tier list',
+        'severity': 'warning',
+        'detail': (
+            'statz.gg stopped publishing %s after Patch %s; Statz collection for %s was skipped as discontinued.'
+            % (label, discontinued_after, bracket)
+            + (' Showing historical Statz observations from %s (not current).' % old['sources']['statz_tierlist']['fetched_at']
+               if old else ' No historical Statz observations are stored for this bracket.')
+        ),
+    })
+    if not old:
+        bundle['bracket']['label'] = label
+        bundle['bracket']['note'] = (
+            'statz.gg stopped publishing %s after Patch %s; no Statz figures are published for %s after Patch %s.'
+            % (label, discontinued_after, label, discontinued_after)
+        )
+        return
+    for field in ('patch', 'bracket', 'tier_list', 'pairs', 'pairs_meta', 'pool_ratio', 'pool_note', 'matchup_note', 'image_index'):
+        if field in old:
+            bundle[field] = copy.deepcopy(old[field])
+    bundle['bracket']['label'] = bundle['bracket'].get('label') or label
+    bundle['bracket']['note'] = (
+        'statz.gg stopped publishing %s after Patch %s; Statz figures here are from %s and are not current.'
+        % (label, discontinued_after, old['sources']['statz_tierlist']['fetched_at'])
+    )
+    fields = ('statz_roles', 'tier_roles', 'roles', 'hero_wide', 'hero_wide_url', 'hero_wide_fetched_at',
+              '_teammates_raw', 'general_strong_against', 'general_counters', 'lane_previews', 'statz_abilities', 'partners_listed', 'image')
+    for slug, h in old['heroes'].items():
+        target = bundle['heroes'].setdefault(slug, {'slug': slug, 'display_name': h['display_name'], 'roles': {}, 'roles_order': []})
+        for key in fields:
+            if key in h:
+                target[key] = copy.deepcopy(h[key])
+        target['roles_order'] = [r for r in ROLES if r in set(target.get('roles_order', [])) | set(h.get('statz_roles', []))]
+    for kind in ('items', 'perks'):
+        for key, value in old[kind].items():
+            if not value.get('source') or 'statz' in str(value.get('source')).lower():
+                bundle[kind][key] = copy.deepcopy(value)
+    prior_statz = ((old.get('retained_sources') or {}).get('statz') or {}).get('collector')
+    bundle.setdefault('retained_sources', {})['statz'] = {
+        'collector': prior_statz or (old.get('collector') or {}).get('host') or 'unrecorded',
+        'patch': old['patch'],
+        'bracket': old['bracket']['segment'],
+        'tier_fetched_at': old['sources']['statz_tierlist']['fetched_at'],
+        'hero_pages_fetched_at': old['sources']['statz_hero_pages']['fetched_at'],
+        'attempted_at': attempt_at,
+        'discontinued_after_patch': discontinued_after,
+    }
 
 
 def attach_retained_statz(bundle,old,error,attempt_at):
@@ -3891,10 +4007,14 @@ def validate_bundle_rows(b):
         if source.get('status') == 'ok' and timestamp_age(source.get('fetched_at')) is None:
             raise ValueError('source %s is marked ok without a usable fetch date' % key)
     rows, heroes = b.get('tier_list'), b.get('heroes')
-    if not isinstance(rows, list) or not rows:
-        raise ValueError('tier list is empty')
     if not isinstance(heroes, dict) or not heroes:
         raise ValueError('hero roster is empty')
+    if not isinstance(rows, list):
+        raise ValueError('tier list is empty')
+    if not rows:
+        if bundle_statz_discontinued(b):
+            return True
+        raise ValueError('tier list is empty')
     seen = set()
     # A failed hero page is tolerated only when the collection declares it; its role stays failed.
     declared = {(p.get('slug'), p.get('role')) for p in (b.get('failed_pages') or []) if isinstance(p, dict)}
@@ -4039,11 +4159,44 @@ def primary_rows_valid(b):
         return False
 
 
+def bundle_has_discontinued_statz_update(b):
+    """Validate an independent update for a bracket whose Statz feed was discontinued (Paragon+ after 1.18)."""
+    try:
+        if b.get('schema') != 3 or b.get('offline') or not bundle_statz_discontinued(b):
+            return False
+        if b.get('bracket', {}).get('segment') not in BRACKETS:
+            return False
+        if b.get('official', {}).get('status') != 'verified':
+            return False
+        if b.get('patch_conflicts') or b.get('failed_pages'):
+            return False
+        for key in ('omeda_heroes', 'omeda_items'):
+            source = b['sources'][key]
+            age = timestamp_age(source.get('fetched_at'))
+            if key == 'omeda_heroes' and source.get('status') == 'retained' and not source.get('offline') and age is not None:
+                continue
+            if source.get('status') != 'ok' or source.get('offline') or age is None:
+                return False
+            generated = dt.datetime.fromisoformat(b['generated_at'])
+            fetched = dt.datetime.fromisoformat(source['fetched_at'])
+            if generated.tzinfo is None or fetched.tzinfo is None or not 0 <= (generated - fetched).total_seconds() <= 3600:
+                return False
+        validate_bundle_rows(b)
+        return True
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
 def bundle_is_publishable(b):
     """Partial publications remain labelled and separate from the last full success.
 
-    Every branch validates rows: a complete collection, a Pred.gg-primary update, and a fresh Statz update."""
-    return (bundle_is_complete(b)[0] and bundle_rows_valid(b)) or (bundle_has_current_primary(b) and primary_rows_valid(b)) or bundle_has_fresh_statz(b)
+    Every branch validates rows: a complete collection, a Pred.gg-primary update, a fresh Statz update, or a discontinued-Statz update."""
+    return (
+        (bundle_is_complete(b)[0] and bundle_rows_valid(b))
+        or (bundle_has_current_primary(b) and primary_rows_valid(b))
+        or bundle_has_fresh_statz(b)
+        or bundle_has_discontinued_statz_update(b)
+    )
 
 
 def previous_pred_definitions(bundle, previous):
@@ -4308,7 +4461,12 @@ def keep_previous_kits(bundle, bracket):
 def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     started = time.perf_counter(); bracket = settings['bracket']; ABORT.clear()
     tier_error=None; retained=None; tier_attempt=iso(now_utc())
-    progress('Loading Statz tier list and Omeda kits; official verification follows…')
+    discontinued_after = statz_discontinued_after(bracket)
+    if discontinued_after:
+        disc_msg = 'statz.gg discontinued %s+ after Patch %s; skipping Statz collection for %s.' % (bracket.capitalize(), discontinued_after, bracket)
+        log(disc_msg); progress(disc_msg)
+    else:
+        progress('Loading Statz tier list and Omeda kits; official verification follows…')
     def get_tier():
         if fixture_dir:
             raw = (Path(fixture_dir) / 'tierlist.html').read_text(encoding='utf-8'); sec = 0
@@ -4316,27 +4474,37 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         parsed = statz_parse_tierlist(raw, bracket)
         if parsed.get('bracket_label', '').lower().rstrip('+') != bracket:
             raise ValueError('Statz tier list: rank bracket did not match requested ' + bracket)
+        if not parsed['rows']:
+            raise StatzParseError('Statz tier list for %s has 0 rows (low sample size on statz.gg)' % bracket)
         return parsed, {'fetched_at':iso(now_utc()), 'secs':sec, 'offline':bool(fixture_dir)}
     omeda_meta = {'fetched_at':iso(now_utc())}
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as ex:
-        ft = ex.submit(get_tier)
+        ft = ex.submit(get_tier) if not discontinued_after else None
         fh = ex.submit(omeda_fetch_heroes) if not fixture_dir else None
         fi = ex.submit(omeda_fetch_items) if not fixture_dir else None
-        # Tier rows determine the only allowed hero-page URLs.
-        try: tier, tier_meta = ft.result()
-        except Exception as e:
-            tier_error=type(e).__name__+': '+str(e)
-            retained=retained_statz_bundle(bracket) if not fixture_dir else None
-            tier={'rows':copy.deepcopy(retained['tier_list']) if retained else [],
-                'patch':retained['patch'] if retained else None,
-                'bracket_label':retained['bracket']['label'] if retained else None}
-            tier_meta={'fetched_at':None,'secs':None}
-            progress('Statz tier list unavailable; continuing official, Omeda and Pred.gg checks…')
-        targets = [(r['slug'],r['role'],r['build_path']) for r in tier['rows']] if not tier_error else []
-        progress('Loading %d Statz hero/role pages; other panels stay usable…' % len(targets))
+        if discontinued_after:
+            retained = retained_statz_bundle(bracket, include_discontinued=True)
+            tier = {'rows': [],
+                    'patch': retained['patch'] if retained else None,
+                    'bracket_label': retained['bracket']['label'] if retained else bracket.capitalize() + '+'}
+            tier_meta = {'fetched_at': None, 'secs': None, 'offline': bool(fixture_dir)}
+            targets = []
+        else:
+            # Tier rows determine the only allowed hero-page URLs.
+            try: tier, tier_meta = ft.result()
+            except Exception as e:
+                tier_error=type(e).__name__+': '+str(e)
+                retained=retained_statz_bundle(bracket) if not fixture_dir else None
+                tier={'rows':copy.deepcopy(retained['tier_list']) if retained else [],
+                    'patch':retained['patch'] if retained else None,
+                    'bracket_label':retained['bracket']['label'] if retained else bracket.capitalize() + '+'}
+                tier_meta={'fetched_at':None,'secs':None}
+                progress('Statz tier list unavailable; continuing official, Omeda and Pred.gg checks…')
+            targets = [(r['slug'],r['role'],r['build_path']) for r in tier['rows']] if not tier_error else []
+            progress('Loading %d Statz hero/role pages; other panels stay usable…' % len(targets))
         pullstart = time.perf_counter()
         pages = statz_pull_hero_pages(targets, bracket, settings['concurrency'], Path(fixture_dir) if fixture_dir else None) if targets else {}
-        pull = {'fetched_at':iso(now_utc()), 'secs':round(time.perf_counter()-pullstart,2), 'offline':bool(fixture_dir)}
+        pull = {'fetched_at': None if discontinued_after else iso(now_utc()), 'secs':round(time.perf_counter()-pullstart,2), 'offline':bool(fixture_dir)}
         if fixture_dir:
             kits=json.loads((Path(fixture_dir)/'omeda_heroes.json').read_text(encoding='utf-8'))
             omitems=json.loads((Path(fixture_dir)/'omeda_items.json').read_text(encoding='utf-8'))
@@ -4369,7 +4537,8 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
             bundle['heroes'][o['slug']]={'slug':o['slug'],'display_name':o['display_name'],'omeda':{'id':o['id'],'image':o.get('image'),'roles':roles},
                 'roles_order':roles,'roles':{r:{'status':'unavailable','error':'No Statz sample in this bracket.'} for r in roles},
                 'abilities':copy.deepcopy(o.get('abilities',[])),'classes':o.get('classes',[]),'statz_roles':[], 'tier_roles':[]}
-    if tier_error:attach_retained_statz(bundle,retained,tier_error,tier_attempt)
+    if discontinued_after:attach_discontinued_statz(bundle,retained,discontinued_after,tier_attempt)
+    elif tier_error:attach_retained_statz(bundle,retained,tier_error,tier_attempt)
     if omeda_meta.get('heroes_retained'):
         # Like the Statz and Pred.gg partitions, retained omeda.city kits name who fetched them (2.53.2).
         bundle.setdefault('retained_sources',{})['omeda']={'collector':omeda_meta['heroes_retained']['collector'],
@@ -4390,7 +4559,9 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})
     bundle['timings']={'cold_refresh_secs':round(time.perf_counter()-started,2),'hero_pages_secs':pull['secs']}
     if not fixture_dir:
-        if not tier_error:
+        if discontinued_after:
+            bundle['changes']={'status':'unavailable','reason':'statz.gg stopped publishing %s+ after Patch %s; no new Statz snapshot was written.'%(bracket.capitalize(),discontinued_after)}
+        elif not tier_error:
             _, snap=write_snapshot(tier,bracket,now_utc()); bundle['changes']=compute_changes(snap,bracket)
         else:bundle['changes']={'status':'unavailable','reason':'No new Statz tier collection; no Statz snapshot was written.'}
         attach_scoped_history(bundle)
@@ -4976,7 +5147,7 @@ class AppState:
                 b['cache']={'used':False}
                 rows_failed=False
                 if complete:
-                    save_bundle(b,bundle_path(b['patch'],b['bracket']['segment']))
+                    save_bundle(b,bundle_path(b.get('patch') or ((b.get('official') or {}).get('live') or {}).get('version') or 'unknown',b['bracket']['segment']))
                     save_bundle(b,DATA_DIR/('last_successful_'+b['bracket']['segment']+'.json'),False)
                 else:
                     rows_failed=bundle_is_complete(b)[0] or not primary_rows_valid(b)
@@ -5223,7 +5394,8 @@ def validate_guidance_packet(packet,bundle):
             if review['result']=='unresolved' and not review.get('limitation'):raise ValueError('Unresolved plan needs an explicit limitation')
             results[review['result']]+=1
             rows=review.get('rank_samples',[])
-            if len(rows)!=len(BRACKETS) or {r.get('bracket') for r in rows}!=set(BRACKETS):raise ValueError('Review references must keep all six brackets separate')
+            brackets_seen={r.get('bracket') for r in rows}
+            if len(rows)!=len(brackets_seen) or brackets_seen not in (set(BRACKETS), set(BRACKETS)-{'master'}):raise ValueError('Review references must keep all six brackets separate')
             for row in rows:
                 if row.get('status')=='unavailable':continue
                 n=_games(row.get('matches'));w=_games(row.get('wonGames'));rate=row.get('winRate')
@@ -5308,7 +5480,7 @@ def validate_guidance_packet(packet,bundle):
             if not isinstance(r['reason'],str) or not r['reason'] or not isinstance(r['source'],str) or not r['source'].startswith('https://pred.gg/heroes/'+slug+'/hero'):raise ValueError('Damage review requires reasoning and the exact hero source')
     meta=packet['guidance'].get('meta_review')
     if meta is not None:
-        if not isinstance(meta,dict) or meta.get('patch')!=packet['patch'] or meta.get('bracket') not in ('bronze','silver','gold','platinum','diamond','paragon') or not meta.get('bracket_label') or meta.get('mode')!='RANKED':raise ValueError('Meta review requires an exact patch and ranked bracket')
+        if not isinstance(meta,dict) or meta.get('patch')!=packet['patch'] or meta.get('bracket') not in BRACKETS or not meta.get('bracket_label') or meta.get('mode')!='RANKED':raise ValueError('Meta review requires an exact patch and ranked bracket')
         if not meta.get('reviewed_at') or not meta.get('author') or not meta.get('method') or set(meta.get('tier_definitions',{}))!={'S','A','B','C'}:raise ValueError('Meta review requires its author, date, method and grade definitions')
         entries=meta.get('entries');seen=set();plans={(x.get('slug'),x.get('role')) for x in packet['guidance'].get('builds',[])}
         # A new hero's reviewed plan can live in the dated patch supplement for the same patch (Valmont, 1.17).

@@ -3,7 +3,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright'),asser
 const url=process.env.PREVIEW_URL||'http://127.0.0.1:12969/';
 (async()=>{const engine=process.env.BROWSER_ENGINE||'edge',browser=await(engine==='webkit'?webkit.launch({headless:true}):chromium.launch({channel:'msedge',headless:true}));const report={engine,roles:[],errors:[]};try{
  for(const width of [390,1440]){const context=await browser.newContext({viewport:{width,height:900},acceptDownloads:true}),page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));await page.goto(url);await page.waitForFunction(()=>!!B&&!latestStatus.busy);
-  for(const bracket of ['bronze','silver','gold','platinum','diamond','paragon']){
+  for(const bracket of ['bronze','silver','gold','platinum','diamond','master','paragon']){
    await page.selectOption('#bracket',bracket);await page.waitForFunction(b=>B?.bracket?.segment===b&&!latestStatus.busy,bracket);await page.evaluate(()=>changeRoute('meta'));
    for(const role of ['jungle','offlane','midlane','carry','support']){
     await page.locator(`[${width<700?'data-mobile-role':'data-meta-role'}="${role}"]`).click();

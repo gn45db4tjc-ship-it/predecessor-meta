@@ -55,7 +55,7 @@ class DailyCloudTests(unittest.TestCase):
              patch.object(p.base,'now_utc',return_value=NOW), \
              patch.object(p.base,'collect_bundle',side_effect=collect) as fetch:
             m=p.run(self.root,self.root/'site')
-            self.assertEqual(fetch.call_count,6)
+            self.assertEqual(fetch.call_count,7)
             self.assertEqual(m['collection_host'],'cloud')
             self.assertEqual(m['source_pauses'],{})
             self.assertEqual(m['optional_sources']['pred']['mode'],'public_pages_only')
@@ -64,7 +64,7 @@ class DailyCloudTests(unittest.TestCase):
                 self.assertEqual(r['source_dates']['statz_tierlist']['fetched_at'],NOW.isoformat())
                 self.assertIsNone(r['source_dates']['pred_scoped']['fetched_at'])
             p.run(self.root,self.root/'site')
-            self.assertEqual(fetch.call_count,6)
+            self.assertEqual(fetch.call_count,7)
         state=p.read_json(self.root/'publication.json')
         self.assertEqual(state['last_completed_signature'],p.live_signature(official()))
 

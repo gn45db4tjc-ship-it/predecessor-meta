@@ -151,8 +151,11 @@ def check(manifest, review_index, now, release=None):
         if not cohort or rank in missing:
             continue
         core = (cohort.get('health') or {}).get('core_statistics') or {}
+        statz_date = ((cohort.get('source_dates') or {}).get('statz_hero_pages') or {})
+        if core.get('status') == 'discontinued' or statz_date.get('status') == 'discontinued':
+            continue
         source = core.get('source') or 'core statistics'
-        updated = core.get('updated_at') or ((cohort.get('source_dates') or {}).get('statz_hero_pages') or {}).get('fetched_at')
+        updated = core.get('updated_at') or statz_date.get('fetched_at')
         age = hours_since(updated, now)
         if age is None or age > LIMITS['stats_hours']:
             late.append('%s (%s)' % (label(rank, cohort), 'no date' if age is None else '%.0f h' % age))

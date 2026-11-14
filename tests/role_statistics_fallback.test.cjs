@@ -15,10 +15,10 @@ test('no sample stays missing; invalid, future-dated, failed and conflicting row
  }
  assert.equal(Meta.create(fixture()).displayPerformance({slug:'hero',role:'support'},{now:NOW}),null);
 });
-test('six brackets keep their own observations and fetch dates',()=>{
- for(const [i,rank] of ['bronze','silver','gold','platinum','diamond','paragon'].entries()){
-  const b=fixture();b.bracket={segment:rank,label:rank+'+'};b.heroes.hero.roles.jungle.winRate=45+i;
-  const e=Meta.create(b);assert.equal(e.displayPerformance({slug:'hero',role:'jungle'},{now:NOW}).wr,45+i);assert.match(e.displayPerformancePolicy({now:NOW}).label,new RegExp(rank));
+test('seven brackets keep their own observations and fetch dates',()=>{
+ for(const [i,rank] of ['bronze','silver','gold','platinum','diamond','master','paragon'].entries()){
+  const b=fixture();b.bracket={segment:rank,label:rank[0].toUpperCase()+rank.slice(1)+'+'};b.heroes.hero.roles.jungle.winRate=45+i;
+  const e=Meta.create(b);assert.equal(e.displayPerformance({slug:'hero',role:'jungle'},{now:NOW}).wr,45+i);assert.match(e.displayPerformancePolicy({now:NOW}).label,new RegExp(rank,'i'));
  }
 });
 test('fresh current source takes priority; missing exact-cohort rows never borrow fallback samples',()=>{
@@ -30,4 +30,26 @@ test('fresh current source takes priority; missing exact-cohort rows never borro
 test('retained or withheld observations are labelled, never revived as current advice',()=>{
  const b=fixture();b.sources.statz_hero_pages.status='retained';b.sources.statz_tierlist.status='retained';b.recommendation_context={status:'withheld',reason:'New official content'};
  const e=Meta.create(b);assert.equal(e.displayPerformancePolicy({now:NOW}).inspection_only,true);assert.equal(e.displayPerformance({slug:'hero',role:'jungle'},{now:NOW}).retained,true);assert.equal(e.performance({slug:'hero',role:'jungle'}),null);
+});
+test('discontinued Paragon+ Statz observations stay dated and inspection-only while Pred.gg Paragon+ stays current',()=>{
+ const b=fixture();b.patch='1.18';b.official.live.version='1.18';b.bracket={segment:'paragon',label:'Paragon+'};b.heroes.hero.roles.jungle.patch='1.18';
+ b.sources.statz_tierlist={status:'discontinued',discontinued_after_patch:'1.18',fetched_at:AT};
+ b.sources.statz_hero_pages={status:'discontinued',discontinued_after_patch:'1.18',fetched_at:AT};
+ const e=Meta.create(b),dp=e.displayPerformancePolicy({now:NOW}),perf=e.displayPerformance({slug:'hero',role:'jungle'},{now:NOW});
+ assert.equal(e.performance({slug:'hero',role:'jungle'}),null);
+ assert.equal(e.performancePolicy({now:NOW}).source,null);
+ assert.match(e.performancePolicy({now:NOW}).note,/statz\.gg stopped publishing Paragon\+ after Patch 1\.18/);
+ assert.equal(dp.source,'statz');assert.equal(dp.inspection_only,true);assert.equal(dp.saved,true);
+ assert.match(dp.note,/statz\.gg stopped publishing Paragon\+ after Patch 1\.18; Statz figures here are from 2026-09-22T02:13:43Z and are not current\./);
+ assert.equal(perf.retained,true);assert.equal(perf.inspection_only,true);
+ assert.match(e.freshnessAreas({now:NOW})[1].reason,/statz\.gg stopped publishing Paragon\+ after Patch 1\.18/);
+ // When Pred.gg is available for Paragon+, Pred.gg leads as current without mapping Paragon to Master or Diamond.
+ b.scoped_statistics={status:'ok',patch:'1.18',bracket:'paragon',bracket_label:'Paragon+',roles:{jungle:{rows:[{slug:'hero',role:'jungle',winRate:54.2,matches:120,fetched_at:AT,url:'https://pred.gg/heroes/hero'}]}}};
+ b.sources.pred_scoped={status:'ok',fetched_at:AT};
+ const withPred=Meta.create(b);
+ assert.equal(withPred.performancePolicy({now:NOW}).source,'pred');
+ assert.equal(withPred.performancePolicy({now:NOW}).saved,false);
+ assert.match(withPred.performancePolicy({now:NOW}).label,/Paragon\+ Ranked/);
+ assert.equal(withPred.displayPerformance({slug:'hero',role:'jungle'},{now:NOW}).source,'Pred.gg');
+ assert.equal(withPred.displayPerformance({slug:'hero',role:'jungle'},{now:NOW}).inspection_only,false);
 });
