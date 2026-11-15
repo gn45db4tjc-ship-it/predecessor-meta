@@ -319,8 +319,9 @@ def statz_script_var(html, name):
     scanned = 0
     term_m = None
     term_is_script_close = False
-    region_start = 0
-    region = ""
+    chunk_start = 0
+    chunk_end = 0
+    chunk = ""
     for m in decl_rx.finditer(html):
         pos = m.end()
         if html.startswith("null", pos):
@@ -334,42 +335,72 @@ def statz_script_var(html, name):
             term_m = STATZ_SCRIPT_SEMI_RX.search(html, pos)
             if term_m is None:
                 return False, None
-            region_start = pos
-            region = html[region_start : term_m.end()]
             term_is_script_close = (
                 term_m.end() - term_m.start() >= 9
                 and html[term_m.end() - 9 : term_m.end()].lower() == "</script>"
             )
+            chunk_start = pos
+            chunk_end = min(term_m.start(), chunk_start + 8_192)
+            chunk = html[chunk_start:chunk_end]
+        elif pos - chunk_start >= 4_096 or pos >= chunk_end:
+            chunk_start = pos
+            chunk_end = min(term_m.start(), chunk_start + 8_192)
+            chunk = html[chunk_start:chunk_end]
+        region_start = chunk_start
+        region_limit = chunk_end
+        region = chunk
         local_pos = pos - region_start
         try:
-            val, local_end = decoder.raw_decode(region, local_pos)
-            end = region_start + local_end
-            scanned += max(1, local_end - local_pos)
+            while True:
+                try:
+                    val, local_end = decoder.raw_decode(region, local_pos)
+                    end = region_start + local_end
+                    scanned += max(1, local_end - local_pos)
+                    break
+                except json.JSONDecodeError as exc:
+                    if region_limit < term_m.start() and (
+                        exc.pos >= len(region) - 16 or exc.msg.startswith("Unterminated string")
+                    ):
+                        scanned += max(1, len(region) - local_pos)
+                        if scanned > scan_budget:
+                            raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
+                        next_span = max(65_536, (region_limit - pos) * 8)
+                        region_start = pos
+                        local_pos = 0
+                        region_limit = min(term_m.start(), pos + next_span)
+                        region = html[region_start:region_limit]
+                        continue
+                    raise
         except json.JSONDecodeError as exc:
-            scanned += max(1, exc.pos)
+            scanned += max(1, exc.pos - local_pos)
             while term_is_script_close and exc.msg.startswith("Unterminated string"):
                 next_term = STATZ_SCRIPT_SEMI_RX.search(html, term_m.end())
                 if next_term is None:
                     break
                 term_m = next_term
                 region_start = pos
-                region = html[region_start : term_m.end()]
+                region_limit = term_m.start()
+                region = html[region_start:region_limit]
                 term_is_script_close = (
                     term_m.end() - term_m.start() >= 9
                     and html[term_m.end() - 9 : term_m.end()].lower() == "</script>"
                 )
+                chunk_start = pos
+                chunk_end = min(term_m.start(), chunk_start + 8_192)
+                chunk = html[chunk_start:chunk_end]
                 scanned += max(1, len(region))
                 if scanned > scan_budget:
                     raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
+                retry_pos = 0
                 try:
-                    val, local_end = decoder.raw_decode(region, 0)
+                    val, local_end = decoder.raw_decode(region, retry_pos)
                     end = region_start + local_end
                     if STATZ_SCRIPT_VAR_TERM_RX.match(html, end):
                         return True, val
                     break
                 except json.JSONDecodeError as exc2:
                     exc = exc2
-                    scanned += max(1, exc.pos)
+                    scanned += max(1, exc.pos - retry_pos)
                     if scanned > scan_budget:
                         raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
                 except RecursionError as exc2:

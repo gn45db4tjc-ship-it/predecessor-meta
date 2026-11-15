@@ -669,8 +669,7 @@ class StatzParserTests(unittest.TestCase):
 
         polyglot_with_semi = polyglot_no_semi + ";\n"
         t0 = time.perf_counter()
-        with self.assertRaisesRegex(pm.StatzParseError, "exceeded JSON scan budget"):
-            pm.statz_script_var(polyglot_with_semi, "laneStats")
+        self.assertEqual(pm.statz_script_var(polyglot_with_semi, "laneStats"), (False, None))
         self.assertLess(time.perf_counter() - t0, 0.2)
 
         self.assertLess(time.perf_counter() - t_start, 1.0)
@@ -823,8 +822,7 @@ class StatzParserTests(unittest.TestCase):
         # rescanning term_m.group(0).lower() on every candidate)
         semi_tail_payload = "<script>" + ("var laneStats = {x " * 5_000) + ";" + (" " * 3_500_000) + "\n</script>"
         t0 = time.perf_counter()
-        with self.assertRaisesRegex(pm.StatzParseError, "exceeded JSON scan budget"):
-            pm.statz_script_var(semi_tail_payload, "laneStats")
+        self.assertEqual(pm.statz_script_var(semi_tail_payload, "laneStats"), (False, None))
         self.assertLess(time.perf_counter() - t0, 0.5)
 
         # 2k rejected <script> blocks with ';</script>' followed by a valid declaration (51f6286
@@ -890,6 +888,57 @@ class StatzParserTests(unittest.TestCase):
             ValueError, r"^kaelen/jungle\.extra(?:\[0\]){951}\.pickRate: out of range \(105\)$"
         ):
             pm.validate_metrics({"extra": deep_root}, "kaelen/jungle")
+
+    def test_q1_shared_region_rejected_candidates_charge_relative_offsets(self):
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+
+        # Codex Q1 reproduction: closed JS comment with 2,000 non-JSON candidates sharing a region
+        prefix = "<script>/*" + ("var\tlaneStats = {x:1};void 0;" * 2000) + "*/\n</script>"
+        html = hero_html.replace("<body>", "<body>" + prefix, 1)
+        t0 = time.perf_counter()
+        parsed = pm.statz_parse_hero_page(html, "kaelen", "jungle", "gold")
+        self.assertLess(time.perf_counter() - t0, 0.5)
+        self.assertEqual(parsed["patch"], "1.18")
+        self.assertEqual(parsed["bracket_label"], "Gold+")
+        self.assertEqual(parsed["laneStats"]["ranked"], "Gold")
+        self.assertEqual(parsed["laneStats"]["hero"], "kaelen")
+        self.assertEqual(parsed["laneStats"]["lane"].lower(), "jungle")
+        self.assertEqual(parsed["laneStats"]["playedGames"], 1182)
+
+        # Helper-only equivalents: rejected non-JSON JS objects sharing a terminator before valid JSON
+        comment_js = "/*" + ("var\tlaneStats = {x:1};void 0;" * 2000) + '*/var laneStats = {"ok": 1};\n'
+        self.assertEqual(pm.statz_script_var(comment_js, "laneStats"), (True, {"ok": 1}))
+
+        inline_js = ("var laneStats = {x: 1}; void 0; " * 2000) + 'var laneStats = {"ok": 1};\n'
+        self.assertEqual(pm.statz_script_var(inline_js, "laneStats"), (True, {"ok": 1}))
+
+        # 50k rejected candidates sharing a region run in bounded linear time (< 0.5s; unwindowed JSONDecodeError took ~20s)
+        comment_50k = "/*" + ("var\tlaneStats = {x:1};void 0;" * 50_000) + '*/var laneStats = {"ok": 50};\n'
+        t0 = time.perf_counter()
+        self.assertEqual(pm.statz_script_var(comment_50k, "laneStats"), (True, {"ok": 50}))
+        self.assertLess(time.perf_counter() - t0, 0.5)
+
+        # Extension retry (;</script> inside string) after shared-region rejected candidates (local_pos > 0)
+        retry_ok_js = (
+            "<script>/*"
+            + ("var\tlaneStats = {x:1};void 0;" * 2000)
+            + '*/var laneStats = {"note": "a;</script>b", "ok": 2};\n</script>'
+        )
+        self.assertEqual(
+            pm.statz_script_var(retry_ok_js, "laneStats"),
+            (True, {"note": "a;</script>b", "ok": 2}),
+        )
+
+        # Extension retry decodes from 0 and still enforces overall scan_budget when retry work is excessive
+        retry_over_budget_js = (
+            "<script>/* var laneStats = {x:1}; "
+            + ("p" * 80_000)
+            + ' */var laneStats = ["a;</script>'
+            + (("x" * 60_000 + ";</script>") * 9)
+            + '"];\n</script>'
+        )
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeded JSON scan budget"):
+            pm.statz_script_var(retry_over_budget_js, "laneStats")
 
     def test_statz_fixtures_and_parser_hashes_match_source_manifest(self):
         manifest = json.loads((ROOT / "SOURCE-MANIFEST.json").read_text(encoding="utf-8"))
