@@ -75,7 +75,7 @@ function trimRemovedScreens(code,suite){
     check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no overflow '+route);
    }
    await page.locator('#compare-bracket').selectOption('gold');await page.waitForSelector('#comparison-output table');
-   check((await page.locator('#comparison-output').textContent()).includes('gold'),'separate published comparison');
+   check((await page.locator('#comparison-output').textContent()).includes('Gold+'),'separate published comparison');
    // Browsers cap address updates and then throw (WebKit: SecurityError past 100 per 10 seconds). Simulate that cap in
    // every engine across the three callers (route, hero, hero tab): the view must still change, with no uncaught error
    // and no error toast. Handlers can be async, so count unhandled rejections too and keep the cap until they settle.
