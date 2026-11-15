@@ -186,7 +186,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "249514f03de92b9528886c74553113ee1ef389dcd47539e73d9b03aa512190cb",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "5d8c2466f2c34bf3df70ba51ef65963c2726c3e1ceec81a34c98a88315f623fc",
+    "reviewed_guidance.json": "0fae50cdde1f6de6fa28a6577a21a521eb1d725fcddc96a4a5339d57f4e83aee",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "53997bdcd062f206293f790b1fe5b8dedc2c473cbf6244b35964e690e9ed2309",
@@ -374,6 +374,8 @@
     ".gitattributes": "1251c2fc8264884f58cb78138db7375d6c3aac6e8787bfca5b7b5718c9433504",
     ".github/workflows/deployed-smoke.yml": "0867225a84fa820c353dfdd4a52fc7b169fce84cc3a5ed5643835f0fd1fdf858",
     "tests/browser_deployed_smoke.cjs": "7a15876a07836fc38b0fbe84e85f363bce61c81b18e0aa762f97a09617d8ba66",
-    "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e"
+    "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e",
+    "docs/rechecks/2026-11-15-2040-ledger.json": "25ea8924acca901182f011cff8f35e5f799b54688d3ab4580bfe282951c3f527",
+    "docs/rechecks/2026-11-15-2040.md": "87168f5054584ef1068df4b08fc7680285497fcf1ef4036a5c192e44e5c90bc7"
   }
 }
