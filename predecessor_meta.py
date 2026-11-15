@@ -264,7 +264,9 @@ class StatzParseError(Exception):
 
 STATZ_MAX_HTML_CHARS = 8 * 1024 * 1024
 STATZ_MAX_STRICT_DEPTH = 256
+STATZ_MAX_DROPDOWN_OPTIONS = 64
 PATCH_RX = re.compile(r"Patch\s+(\d+\.\d+(?:\.\d+)?)")
+STATZ_WS_RX = re.compile(r"\s+")
 EXPECTED_TIERLIST_HEADERS = ["rank", "role", "hero", "tier", "win rate", "pick rate", "matches"]
 STATZ_VOID_TAGS = frozenset({
     "area", "base", "br", "col", "embed", "hr", "img", "input",
@@ -294,6 +296,11 @@ STATZ_BUILD_HREF_RX = re.compile(
 )
 STATZ_HERO_IMG_RX = re.compile(r"(?:^|/)hero-image-data/([^\s/?#\"'>]+)$")
 STATZ_TIER_CLASS_RX = re.compile(r"^tier-[a-z0-9+-]+$", re.I)
+STATZ_IMAGE_HARVEST_RXS = (
+    ("heroes", re.compile(r"/images/predecessor/hero-image-data/([^\s\"'>$/?#]{1,200}\.webp)")),
+    ("items", re.compile(r"/images/predecessor/item-images/([^\s\"'>$/?#]{1,200}\.webp)")),
+    ("perks", re.compile(r"/images/predecessor/perk-images/([^\s\"'>$/?#]{1,200}\.webp)")),
+)
 
 
 def statz_tierlist_url(bracket):
@@ -311,6 +318,7 @@ def statz_script_var(html, name):
     scan_budget = max(len(html) * 4, 262_144)
     scanned = 0
     term_m = None
+    term_is_script_close = False
     region_start = 0
     region = ""
     for m in decl_rx.finditer(html):
@@ -328,6 +336,10 @@ def statz_script_var(html, name):
                 return False, None
             region_start = pos
             region = html[region_start : term_m.end()]
+            term_is_script_close = (
+                term_m.end() - term_m.start() >= 9
+                and html[term_m.end() - 9 : term_m.end()].lower() == "</script>"
+            )
         local_pos = pos - region_start
         try:
             val, local_end = decoder.raw_decode(region, local_pos)
@@ -335,19 +347,42 @@ def statz_script_var(html, name):
             scanned += max(1, local_end - local_pos)
         except json.JSONDecodeError as exc:
             scanned += max(1, exc.pos)
-            if "</script>" in term_m.group(0).lower():
+            while term_is_script_close and exc.msg.startswith("Unterminated string"):
+                next_term = STATZ_SCRIPT_SEMI_RX.search(html, term_m.end())
+                if next_term is None:
+                    break
+                term_m = next_term
+                region_start = pos
+                region = html[region_start : term_m.end()]
+                term_is_script_close = (
+                    term_m.end() - term_m.start() >= 9
+                    and html[term_m.end() - 9 : term_m.end()].lower() == "</script>"
+                )
+                scanned += max(1, len(region))
+                if scanned > scan_budget:
+                    raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
                 try:
-                    val, end = decoder.raw_decode(html, pos)
-                    scanned += max(1, end - pos)
+                    val, local_end = decoder.raw_decode(region, 0)
+                    end = region_start + local_end
                     if STATZ_SCRIPT_VAR_TERM_RX.match(html, end):
                         return True, val
-                except (json.JSONDecodeError, RecursionError) as exc2:
-                    scanned += max(1, getattr(exc2, "pos", len(html)))
+                    break
+                except json.JSONDecodeError as exc2:
+                    exc = exc2
+                    scanned += max(1, exc.pos)
+                    if scanned > scan_budget:
+                        raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
+                except RecursionError as exc2:
+                    raise StatzParseError("script variable %r exceeded JSON nesting limit" % name) from exc2
+                except ValueError as exc2:
+                    raise StatzParseError("script variable %r contains invalid numeric literal: %s" % (name, exc2)) from exc2
             if scanned > scan_budget:
                 raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
             continue
         except RecursionError as exc:
             raise StatzParseError("script variable %r exceeded JSON nesting limit" % name) from exc
+        except ValueError as exc:
+            raise StatzParseError("script variable %r contains invalid numeric literal: %s" % (name, exc)) from exc
         if scanned > scan_budget:
             raise StatzParseError("script variable %r exceeded JSON scan budget" % name)
         if STATZ_SCRIPT_VAR_TERM_RX.match(html, end):
@@ -403,6 +438,7 @@ class _StatzDropdownParser(HTMLParser):
         self._opt_parts = []
         self.bracket_label = None
         self.options = []
+        self._seen_option_segs = set()
 
     def reset(self):
         self._raw_pos = 0
@@ -418,7 +454,7 @@ class _StatzDropdownParser(HTMLParser):
 
     def _check_raw_starttag(self):
         start_text = self.get_starttag_text() or ""
-        if "<" in start_text[1:]:
+        if start_text.find("<", 1) != -1:
             unquoted = STATZ_QUOTED_ATTR_RX.sub("", start_text[1:])
             if "<" in unquoted:
                 return unquoted
@@ -455,7 +491,7 @@ class _StatzDropdownParser(HTMLParser):
         elif marker == "toggle":
             self.in_toggle -= 1
             if self.toggle_span_seen:
-                self.bracket_label = re.sub(r"\s+", " ", "".join(self._toggle_parts)).strip()
+                self.bracket_label = STATZ_WS_RX.sub(" ", "".join(self._toggle_parts)).strip()
         elif marker == "toggle_span":
             self.in_toggle_span -= 1
         elif marker == "menu":
@@ -464,20 +500,21 @@ class _StatzDropdownParser(HTMLParser):
             self.in_options -= 1
         elif marker == "option_a":
             self.in_option_a = False
-            lbl = re.sub(r"\s+", " ", "".join(self._opt_parts)).strip()
+            lbl = STATZ_WS_RX.sub(" ", "".join(self._opt_parts)).strip()
             if not lbl:
                 raise StatzParseError("%s: empty option label inside rankDropdownOptions" % self.context)
-            if any(seg == self._opt_seg for seg, _ in self.options):
+            if self._opt_seg in self._seen_option_segs:
                 raise StatzParseError("%s: duplicate bracket option %r inside rankDropdownOptions"
                                       % (self.context, self._opt_seg))
+            if len(self.options) >= STATZ_MAX_DROPDOWN_OPTIONS:
+                raise StatzParseError("%s: rankDropdownOptions exceeds maximum option count (%d)"
+                                      % (self.context, STATZ_MAX_DROPDOWN_OPTIONS))
+            self._seen_option_segs.add(self._opt_seg)
             self.options.append((self._opt_seg, lbl))
             self._opt_seg = None
             self._opt_parts = []
 
-    def handle_starttag(self, tag, attrs):
-        tag = tag.lower()
-        unquoted = self._check_raw_starttag()
-        d, el_id_low, classes = self._attr_map(attrs)
+    def _handle_dropdown_starttag(self, tag, unquoted, d, el_id_low, classes):
         if self._in_strict_container() and tag in STATZ_DROPDOWN_DISALLOWED_TAGS:
             raise StatzParseError("%s: unexpected <%s> inside rank dropdown container" % (self.context, tag))
         marker = None
@@ -543,6 +580,12 @@ class _StatzDropdownParser(HTMLParser):
         if unquoted is not None and (self._in_strict_container() or marker is not None):
             raise StatzParseError("%s: malformed HTML tag inside rank dropdown container" % self.context)
         self._push(tag, marker)
+
+    def handle_starttag(self, tag, attrs):
+        tag_low = tag.lower()
+        unquoted = self._check_raw_starttag()
+        d, el_id_low, classes = self._attr_map(attrs)
+        self._handle_dropdown_starttag(tag_low, unquoted, d, el_id_low, classes)
 
     def handle_endtag(self, tag):
         tag = tag.lower()
@@ -629,7 +672,7 @@ class _StatzTierlistParser(_StatzDropdownParser):
             self.in_thead_tr = False
         elif marker == "th":
             self.in_th = False
-            self.headers.append(re.sub(r"\s+", " ", "".join(self._th_parts)).strip().lower())
+            self.headers.append(STATZ_WS_RX.sub(" ", "".join(self._th_parts)).strip().lower())
             self._th_parts = []
         elif marker == "tbody":
             self.in_tbody = False
@@ -670,10 +713,10 @@ class _StatzTierlistParser(_StatzDropdownParser):
                 return
             if tag_low in STATZ_TABLE_TAGS:
                 raise StatzParseError("tier list: unexpected <%s> outside #heroTable" % tag_low)
-            super().handle_starttag(tag, attrs)
+            self._handle_dropdown_starttag(tag_low, unquoted, d, el_id_low, classes)
             return
         if super()._in_strict_container():
-            super().handle_starttag(tag, attrs)
+            self._handle_dropdown_starttag(tag_low, unquoted, d, el_id_low, classes)
             return
         if not self.in_thead and not self.in_tbody:
             if tag_low == "thead":
@@ -792,15 +835,16 @@ def _statz_check_bracket_options(context, dp, bracket=None, require_label_for_br
     if (dp.options_seen or dp.menu_seen or dp.wrap_seen) and not options:
         raise StatzParseError("%s: rankDropdownOptions found on page, but 0 bracket options parsed" % context)
     offered = [seg.lower() for seg, _ in options]
+    offered_set = set(offered)
     req_seg = str(bracket).strip().lower() if bracket is not None else None
     page_seg = bracket_label.lower().rstrip("+").strip() if bracket_label else None
     if offered:
-        if req_seg is not None and req_seg not in offered:
+        if req_seg is not None and req_seg not in offered_set:
             raise StatzParseError("%s: bracket %r no longer exists on statz.gg (offered: %s)"
-                                  % (context, req_seg, ", ".join(offered)))
-        if req_seg is None and page_seg and page_seg not in offered:
+                                  % (context, req_seg, ", ".join(offered[:64])))
+        if req_seg is None and page_seg and page_seg not in offered_set:
             raise StatzParseError("%s: bracket %r (%s) no longer exists on statz.gg (offered: %s)"
-                                  % (context, page_seg, bracket_label, ", ".join(offered)))
+                                  % (context, page_seg, bracket_label, ", ".join(offered[:64])))
     if (offered or dp.toggle_seen) and not page_seg:
         raise StatzParseError("%s: missing rank bracket label on page" % context)
     if req_seg is not None and (require_label_for_bracket or page_seg) and page_seg != req_seg:
@@ -810,7 +854,7 @@ def _statz_check_bracket_options(context, dp, bracket=None, require_label_for_br
 
 
 def _statz_cell_text(cell):
-    return re.sub(r"\s+", " ", "".join(cell["text_parts"])).strip()
+    return STATZ_WS_RX.sub(" ", "".join(cell["text_parts"])).strip()
 
 
 def statz_parse_tierlist(html, bracket=None):
@@ -830,7 +874,7 @@ def statz_parse_tierlist(html, bracket=None):
     if parser.thead_count != 1:
         raise StatzParseError("tier list: #heroTable is missing <thead> (page layout may have changed)")
     if parser.headers != EXPECTED_TIERLIST_HEADERS:
-        raise StatzParseError("tier list table headers did not match expected layout: %r" % (parser.headers,))
+        raise StatzParseError("tier list table headers did not match expected layout: %r" % (parser.headers[:16],))
     if parser.tbody_count < 1:
         raise StatzParseError("tier list: #heroTable found without <tbody> (page layout may have changed)")
     if len(parser.tbody_row_counts) > 1 and any(c == 0 for c in parser.tbody_row_counts):
@@ -874,7 +918,7 @@ def statz_parse_tierlist(html, bracket=None):
         tier_label = _statz_cell_text(cells[3])
         if tier_label not in TIER_ORDER:
             raise StatzParseError("tier list row has unexpected tier label %r" % tier_label)
-        link_name = re.sub(r"\s+", " ", "".join(link_info["text_parts"])).strip()
+        link_name = STATZ_WS_RX.sub(" ", "".join(link_info["text_parts"])).strip()
         display_name = link_name or link.group(2)
         try:
             rank_num = _int(_statz_cell_text(cells[0]))
@@ -973,8 +1017,8 @@ def statz_parse_hero_page(html, slug, role, bracket=None):
 
 def statz_harvest_image_names(html):
     out = {"heroes": set(), "items": set(), "perks": set()}
-    for kind, folder in (("heroes", "hero-image-data"), ("items", "item-images"), ("perks", "perk-images")):
-        for fn in re.findall(r"/images/predecessor/%s/([^\s\"'>$/?#]{1,200}\.webp)" % folder, html):
+    for kind, rx in STATZ_IMAGE_HARVEST_RXS:
+        for fn in set(rx.findall(html)):
             out[kind].add(htmllib.unescape(fn))
     return out
 
@@ -2075,19 +2119,54 @@ def validate_observation(obj, field):
     return n, w, wr
 
 
+def _format_metric_path(root, path):
+    if not path:
+        return root
+    return root + "".join(("." + str(k)) if is_dict else ("[%d]" % k) for is_dict, k in path)
+
+
 def validate_metrics(obj, field):
+    path = []
+
+    def check_dict(d):
+        if "playedGames" in d or "wonGames" in d or "winRate" in d:
+            try:
+                validate_observation(d, "")
+            except ValueError:
+                validate_observation(d, _format_metric_path(field, path))
+        for key in ("pickRate", "banRate"):
+            if key in d:
+                try:
+                    checked_number(d[key], "", 0, 100)
+                except ValueError:
+                    checked_number(d[key], _format_metric_path(field, path) + "." + key, 0, 100)
+
     if isinstance(obj, dict):
-        observation = any(k in obj for k in ('playedGames', 'wonGames', 'winRate'))
-        if observation:
-            validate_observation(obj, field)
-        for key in ('pickRate', 'banRate'):
-            if key in obj:
-                checked_number(obj[key], field + '.' + key, 0, 100)
-        for key, value in obj.items():
-            if key == 'banGames': _games(value)
-            if isinstance(value, (list, dict)): validate_metrics(value, field + '.' + key)
+        check_dict(obj)
+        iters = [(True, iter(obj.items()))]
     elif isinstance(obj, list):
-        for i, value in enumerate(obj): validate_metrics(value, '%s[%d]' % (field, i))
+        iters = [(False, enumerate(obj))]
+    else:
+        return
+
+    while iters:
+        is_dict, it = iters[-1]
+        try:
+            key, value = next(it)
+        except StopIteration:
+            iters.pop()
+            if path:
+                path.pop()
+            continue
+        if is_dict and key == "banGames":
+            _games(value)
+        if isinstance(value, dict):
+            path.append((is_dict, key))
+            check_dict(value)
+            iters.append((True, iter(value.items())))
+        elif isinstance(value, list):
+            path.append((is_dict, key))
+            iters.append((False, enumerate(value)))
 
 
 def wilson(wins, games):

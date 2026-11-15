@@ -743,6 +743,154 @@ class StatzParserTests(unittest.TestCase):
 
         self.assertLess(time.perf_counter() - t_start, 1.0)
 
+    def test_n1_dropdown_options_use_set_and_cap_excessive_option_counts(self):
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+        hero_empty_opts = re.sub(
+            r'(<div id="rankDropdownOptions">).*?(</div>\s*</div>\s*</div>)',
+            r"\1\2",
+            hero_html,
+            count=1,
+            flags=re.S,
+        )
+        self.assertNotEqual(hero_empty_opts, hero_html)
+
+        def hero_with_options(opts):
+            links = "".join(
+                f'<div class="rank-option"><a href=/predecessor/heroes/kaelen/build/jungle/{seg}>{lbl}</a></div>'
+                for seg, lbl in opts
+            )
+            return hero_empty_opts.replace(
+                '<div id="rankDropdownOptions"></div>',
+                f'<div id="rankDropdownOptions">{links}</div>',
+                1,
+            )
+
+        # Up to STATZ_MAX_DROPDOWN_OPTIONS (64) distinct options parse cleanly and preserve order
+        opts_64 = tuple((f"r{i}", f"R{i}+") for i in range(pm.STATZ_MAX_DROPDOWN_OPTIONS - 1)) + (("gold", "Gold+"),)
+        parsed_tier_64 = pm.statz_parse_tierlist(_synthetic_tierlist_html(options=opts_64), "gold")
+        self.assertEqual(parsed_tier_64["bracket_options"], list(opts_64))
+        parsed_hero_64 = pm.statz_parse_hero_page(hero_with_options(opts_64), "kaelen", "jungle", "gold")
+        self.assertEqual(parsed_hero_64["bracket_label"], "Gold+")
+
+        # Duplicate options still fail loudly on both paths
+        dup_opts = (("bronze", "Bronze+"), ("gold", "Gold+"), ("bronze", "Bronze+"))
+        with self.assertRaisesRegex(pm.StatzParseError, "duplicate bracket option"):
+            pm.statz_parse_tierlist(_synthetic_tierlist_html(options=dup_opts), "gold")
+        with self.assertRaisesRegex(pm.StatzParseError, "duplicate bracket option"):
+            pm.statz_parse_hero_page(hero_with_options(dup_opts), "kaelen", "jungle", "gold")
+
+        # 65 distinct options fail loudly with the explicit count error on both paths
+        opts_65 = tuple((f"r{i}", f"R{i}+") for i in range(pm.STATZ_MAX_DROPDOWN_OPTIONS)) + (("gold", "Gold+"),)
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum option count"):
+            pm.statz_parse_tierlist(_synthetic_tierlist_html(options=opts_65), "gold")
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum option count"):
+            pm.statz_parse_hero_page(hero_with_options(opts_65), "kaelen", "jungle", "gold")
+
+        # 16k distinct options: prebuild inputs, then time-bound both default cap rejection (< 1.0s)
+        # and full O(n) set-backed parsing (< 1.0s) on both tier-list and hero-page paths
+        opts_16k = tuple((f"r{i}", f"R{i}+") for i in range(16_000)) + (("gold", "Gold+"),)
+        tier_16k_html = _synthetic_tierlist_html(options=opts_16k)
+        hero_16k_html = hero_with_options(opts_16k)
+
+        t0 = time.perf_counter()
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum option count"):
+            pm.statz_parse_tierlist(tier_16k_html, "gold")
+        self.assertLess(time.perf_counter() - t0, 1.0)
+
+        t0 = time.perf_counter()
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum option count"):
+            pm.statz_parse_hero_page(hero_16k_html, "kaelen", "jungle", "gold")
+        self.assertLess(time.perf_counter() - t0, 1.0)
+
+        with mock.patch.object(pm, "STATZ_MAX_DROPDOWN_OPTIONS", 20_000):
+            t0 = time.perf_counter()
+            parsed_tier_16k = pm.statz_parse_tierlist(tier_16k_html, "gold")
+            self.assertLess(time.perf_counter() - t0, 1.0)
+            self.assertEqual(len(parsed_tier_16k["bracket_options"]), 16_001)
+            self.assertEqual(parsed_tier_16k["bracket_options"][0], ("r0", "R0+"))
+            self.assertEqual(parsed_tier_16k["bracket_options"][-1], ("gold", "Gold+"))
+            self.assertEqual(len(parsed_tier_16k["rows"]), 1)
+
+            t0 = time.perf_counter()
+            parsed_hero_16k = pm.statz_parse_hero_page(hero_16k_html, "kaelen", "jungle", "gold")
+            self.assertLess(time.perf_counter() - t0, 1.0)
+            self.assertEqual(parsed_hero_16k["laneStats"]["playedGames"], 1182)
+
+    def test_sweep_s1_script_var_long_semicolon_tail_and_multi_script_blocks_are_bounded(self):
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+
+        # 5k rejected candidates before a 3.5M-space semicolon tail (51f6286 timed out > 3.5 s
+        # rescanning term_m.group(0).lower() on every candidate)
+        semi_tail_payload = "<script>" + ("var laneStats = {x " * 5_000) + ";" + (" " * 3_500_000) + "\n</script>"
+        t0 = time.perf_counter()
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeded JSON scan budget"):
+            pm.statz_script_var(semi_tail_payload, "laneStats")
+        self.assertLess(time.perf_counter() - t0, 0.5)
+
+        # 2k rejected <script> blocks with ';</script>' followed by a valid declaration (51f6286
+        # scanned html from index 0 on every candidate and falsely tripped JSON scan budget)
+        multi_script_prefix = "<script>var laneStats = {x;</script>\n" * 2_000
+        t0 = time.perf_counter()
+        self.assertEqual(
+            pm.statz_script_var(multi_script_prefix + '<script>var laneStats = {"ok": 1};\n</script>', "laneStats"),
+            (True, {"ok": 1}),
+        )
+        self.assertLess(time.perf_counter() - t0, 0.5)
+
+        prefixed_hero = hero_html.replace("<body>", "<body>" + multi_script_prefix, 1)
+        t0 = time.perf_counter()
+        parsed_hero = pm.statz_parse_hero_page(prefixed_hero, "kaelen", "jungle", "gold")
+        self.assertLess(time.perf_counter() - t0, 0.5)
+        self.assertEqual(parsed_hero["laneStats"]["playedGames"], 1182)
+
+        # Valid JSON string containing literal ';</script>' still decodes cleanly
+        self.assertEqual(
+            pm.statz_script_var('var laneStats = {"note": "a;</script>b", "ok": 2};\n', "laneStats"),
+            (True, {"note": "a;</script>b", "ok": 2}),
+        )
+
+        # >4300-digit integer literal raises StatzParseError rather than raw ValueError
+        oversized_int_js = "var laneStats = [" + ("9" * 5_000) + "];\n"
+        t0 = time.perf_counter()
+        with self.assertRaisesRegex(pm.StatzParseError, "invalid numeric literal"):
+            pm.statz_script_var(oversized_int_js, "laneStats")
+        self.assertLess(time.perf_counter() - t0, 0.25)
+
+    def test_sweep_s2_validate_metrics_avoids_quadratic_path_copying_and_deep_recursion(self):
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+
+        # 600k-char key + 120k empty sublists (~960 KB JSON; 51f6286 copied 72 GB of path strings > 1.0 s)
+        wide_payload = {"x" * 600_000: [[] for _ in range(120_000)]}
+        t0 = time.perf_counter()
+        pm.validate_metrics(wide_payload, "kaelen/jungle")
+        self.assertLess(time.perf_counter() - t0, 0.5)
+
+        # Full hero-page parse with a 300k-char extra key + 60k empty sublists in laneStats
+        extra_json = json.dumps({"x" * 300_000: [[] for _ in range(60_000)]})[1:]
+        hero_with_wide_ls = hero_html.replace("var laneStats = {", "var laneStats = {" + extra_json[:-1] + ",", 1)
+        self.assertNotEqual(hero_with_wide_ls, hero_html)
+        t0 = time.perf_counter()
+        parsed = pm.statz_parse_hero_page(hero_with_wide_ls, "kaelen", "jungle", "gold")
+        self.assertLess(time.perf_counter() - t0, 0.75)
+        self.assertEqual(parsed["laneStats"]["playedGames"], 1182)
+
+        # 950-level nested list/dict validates iteratively without RecursionError and formats exact path on error
+        deep_root = []
+        cur = deep_root
+        for _ in range(950):
+            nxt = []
+            cur.append(nxt)
+            cur = nxt
+        t0 = time.perf_counter()
+        pm.validate_metrics({"extra": deep_root}, "kaelen/jungle")
+        self.assertLess(time.perf_counter() - t0, 0.25)
+
+        cur.append({"pickRate": 105})
+        with self.assertRaisesRegex(
+            ValueError, r"^kaelen/jungle\.extra(?:\[0\]){951}\.pickRate: out of range \(105\)$"
+        ):
+            pm.validate_metrics({"extra": deep_root}, "kaelen/jungle")
+
     def test_statz_fixtures_and_parser_hashes_match_source_manifest(self):
         manifest = json.loads((ROOT / "SOURCE-MANIFEST.json").read_text(encoding="utf-8"))
         files = manifest["files"]
