@@ -582,6 +582,167 @@ class StatzParserTests(unittest.TestCase):
         with self.assertRaises(pm.StatzParseError):
             pm.statz_parse_hero_page(hero_no_dropdown, "kaelen", "jungle", "gold")
 
+    def test_r1_raw_table_tag_regex_has_no_quadratic_whitespace_overlap(self):
+        gold_html = (STATZ_FIXTURES / "tierlist-gold.html").read_text(encoding="utf-8")
+        expected = pm.statz_parse_tierlist(gold_html, "gold")
+        t_start = time.perf_counter()
+
+        # Direct regex check at 40k spaces (old <\s*/?\s* took ~3.7 s; must finish well under 1 s)
+        t0 = time.perf_counter()
+        self.assertIsNone(pm.STATZ_RAW_TABLE_TAG_RX.search("<" + (" " * 40_000) + "x"))
+        self.assertIsNone(pm.STATZ_RAW_TABLE_TAG_RX.search("<" + (" " * 32_000) + "/" + (" " * 32_000) + "x"))
+        self.assertLess(time.perf_counter() - t0, 0.25)
+
+        # Full-page parses with 40k/64k spaces after both entity &lt; and raw < (old took > 2.8 s at 36k)
+        for snippet in (
+            "<p>&lt;" + (" " * 40_000) + "x</p>",
+            "<p><" + (" " * 64_000) + "x</p>",
+            "<p><" + (" " * 32_000) + "/" + (" " * 32_000) + "x</p>",
+        ):
+            payload = gold_html.replace("<body>", "<body>" + snippet, 1)
+            t0 = time.perf_counter()
+            parsed = pm.statz_parse_tierlist(payload, "gold")
+            self.assertLess(time.perf_counter() - t0, 0.5)
+            self.assertEqual(parsed["rows"], expected["rows"])
+
+        self.assertLess(time.perf_counter() - t_start, 1.0)
+
+    def test_r2_unmatched_closing_tags_and_outer_nesting_run_in_linear_time(self):
+        gold_html = (STATZ_FIXTURES / "tierlist-gold.html").read_text(encoding="utf-8")
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+        expected = pm.statz_parse_tierlist(gold_html, "gold")
+        t_start = time.perf_counter()
+
+        # 16k open <div> + 16k unmatched </x> (old code exceeded 4 s at 16k and took > 3.1 s at 10k)
+        outer_noise = ("<div>" * 16_000) + ("</x>" * 16_000)
+        t0 = time.perf_counter()
+        parsed_gold = pm.statz_parse_tierlist(gold_html.replace("<body>", "<body>" + outer_noise, 1), "gold")
+        self.assertLess(time.perf_counter() - t0, 0.5)
+        self.assertEqual(parsed_gold["rows"], expected["rows"])
+
+        t0 = time.perf_counter()
+        parsed_hero = pm.statz_parse_hero_page(
+            hero_html.replace("<body>", "<body>" + outer_noise, 1), "kaelen", "jungle", "gold"
+        )
+        self.assertLess(time.perf_counter() - t0, 0.5)
+        self.assertEqual(parsed_hero["laneStats"]["hero"], "kaelen")
+
+        # Excessive nesting inside strict containers fails loudly in bounded time
+        deep_span_open = "<span>" * (pm.STATZ_MAX_STRICT_DEPTH + 10)
+        deep_span_close = "</span>" * (pm.STATZ_MAX_STRICT_DEPTH + 10)
+        deep_dropdown = _synthetic_tierlist_html().replace(
+            '<div id="rankDropdownOptions">',
+            f'<div id="rankDropdownOptions">{deep_span_open}{deep_span_close}',
+            1,
+        )
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeds maximum depth"):
+            pm.statz_parse_tierlist(deep_dropdown, "gold")
+
+        self.assertLess(time.perf_counter() - t_start, 1.0)
+
+    def test_r3_statz_script_var_many_rejected_candidates_runs_without_suffix_slicing(self):
+        hero_html = (STATZ_FIXTURES / "hero-kaelen-jungle-gold.html").read_text(encoding="utf-8")
+        t_start = time.perf_counter()
+
+        # 60k rejected declarations (old html[end:] slicing took > 5.0 s at 50k)
+        many_rejected = "var laneStats = null;void 0;\n" * 60_000
+        t0 = time.perf_counter()
+        self.assertEqual(pm.statz_script_var(many_rejected, "laneStats"), (False, None))
+        self.assertLess(time.perf_counter() - t0, 0.4)
+
+        # Full hero-page parse prefixed with 50k rejected declarations
+        prefixed_hero = hero_html.replace(
+            "<body>",
+            "<body><script>\n" + ("var laneStats = null;void 0;\n" * 50_000) + "</script>",
+            1,
+        )
+        t0 = time.perf_counter()
+        parsed = pm.statz_parse_hero_page(prefixed_hero, "kaelen", "jungle", "gold")
+        self.assertLess(time.perf_counter() - t0, 0.5)
+        self.assertEqual(parsed["laneStats"]["playedGames"], 1182)
+
+        # Adversarial single-line repeated malformed candidates bounded by scan budget / fast semi check
+        polyglot_no_semi = 'var laneStats = [' + ('"var laneStats = [", ",", ' * 20_000) + "BAD"
+        t0 = time.perf_counter()
+        self.assertEqual(pm.statz_script_var(polyglot_no_semi, "laneStats"), (False, None))
+        self.assertLess(time.perf_counter() - t0, 0.2)
+
+        polyglot_with_semi = polyglot_no_semi + ";\n"
+        t0 = time.perf_counter()
+        with self.assertRaisesRegex(pm.StatzParseError, "exceeded JSON scan budget"):
+            pm.statz_script_var(polyglot_with_semi, "laneStats")
+        self.assertLess(time.perf_counter() - t0, 0.2)
+
+        self.assertLess(time.perf_counter() - t_start, 1.0)
+
+    def test_r4_escaped_literal_table_text_is_not_treated_as_malformed_markup(self):
+        gold_html = (STATZ_FIXTURES / "tierlist-gold.html").read_text(encoding="utf-8")
+        expected = pm.statz_parse_tierlist(gold_html, "gold")
+        t_start = time.perf_counter()
+
+        benign_snippets = [
+            "<p>Documentation: &lt;tr&gt;</p>",
+            "<p>&lt;table id=&quot;heroTable&quot;&gt;&lt;tbody&gt;&lt;td&gt;1&lt;/td&gt;&lt;/tbody&gt;&lt;/table&gt;</p>",
+            "<p>&#60;tr&#62; &#x3c;td&#x3e;1&#x3c;/td&#x3e; &#60;/tr&#62;</p>",
+            "<!-- <tr><td>commented row</td></tr> -->",
+            '<script>var template = "<tr class=\\"stats-table-row\\"><td>1</td></tr>";</script>',
+            '<div data-template="<tr><td>quoted attribute</td></tr>"></div>',
+        ]
+        for snippet in benign_snippets:
+            parsed = pm.statz_parse_tierlist(gold_html.replace("<body>", "<body>" + snippet, 1), "gold")
+            self.assertEqual(parsed["rows"], expected["rows"], snippet)
+
+        # Genuine raw malformed table markup outside #heroTable still fails loudly
+        malformed_raw_snippets = [
+            "<p>< tr></p>",
+            "<p></ tr></p>",
+            "<p>< /tr></p>",
+            '<div <tr class="stats-table-row">></div>',
+            "<p></tr></p>",
+            "<p></table></p>",
+        ]
+        for bad_snippet in malformed_raw_snippets:
+            with self.assertRaises(pm.StatzParseError, msg=bad_snippet):
+                pm.statz_parse_tierlist(gold_html.replace("<body>", "<body>" + bad_snippet, 1), "gold")
+
+        self.assertLess(time.perf_counter() - t_start, 1.0)
+
+    def test_r5_numeric_and_percentage_cells_decode_entities_once(self):
+        t_start = time.perf_counter()
+        base_html = _synthetic_tierlist_html()
+
+        # Double-encoded percentage and numeric cells render literal entity text and must fail loudly
+        double_encoded_cases = [
+            base_html.replace("58.12%", "58.12&amp;#37;"),
+            base_html.replace("58.12%", "58.12&#38;#37;"),
+            base_html.replace("13.59%", "13.59&amp;#x25;"),
+            base_html.replace(">1<", ">&amp;#49;<", 1),
+            base_html.replace("1,182", "1&amp;#44;182"),
+            base_html.replace("1,182", "1,18&amp;#50;"),
+        ]
+        for bad_html in double_encoded_cases:
+            with self.assertRaisesRegex(pm.StatzParseError, "numeric cell did not match expected layout"):
+                pm.statz_parse_tierlist(bad_html, "gold")
+
+        # Ordinary single-encoded entities decode once and succeed
+        single_encoded = (
+            base_html.replace(">1<", ">&#49;<", 1)
+            .replace("Kaelen\n", "Iggy &amp; Scorch\n", 1)
+            .replace("58.12%", "58.12&#37;")
+            .replace("13.59%", "13.59&#x25;")
+            .replace("1,182", "1&#44;182")
+        )
+        parsed = pm.statz_parse_tierlist(single_encoded, "gold")
+        row = parsed["rows"][0]
+        self.assertEqual(row["rank"], 1)
+        self.assertEqual(row["display_name"], "Iggy & Scorch")
+        self.assertEqual(row["tier"], "S+")
+        self.assertEqual(row["winRate"], 58.12)
+        self.assertEqual(row["pickRate"], 13.59)
+        self.assertEqual(row["matches"], 1182)
+
+        self.assertLess(time.perf_counter() - t_start, 1.0)
+
     def test_statz_fixtures_and_parser_hashes_match_source_manifest(self):
         manifest = json.loads((ROOT / "SOURCE-MANIFEST.json").read_text(encoding="utf-8"))
         files = manifest["files"]

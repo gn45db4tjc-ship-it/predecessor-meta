@@ -263,6 +263,7 @@ class StatzParseError(Exception):
 
 
 STATZ_MAX_HTML_CHARS = 8 * 1024 * 1024
+STATZ_MAX_STRICT_DEPTH = 256
 PATCH_RX = re.compile(r"Patch\s+(\d+\.\d+(?:\.\d+)?)")
 EXPECTED_TIERLIST_HEADERS = ["rank", "role", "hero", "tier", "win rate", "pick rate", "matches"]
 STATZ_VOID_TAGS = frozenset({
@@ -275,7 +276,10 @@ STATZ_DROPDOWN_DISALLOWED_TAGS = frozenset({
     "table", "tbody", "td", "tfoot", "th", "thead", "title", "tr",
 })
 STATZ_TABLE_TAGS = frozenset({"table", "thead", "tbody", "tfoot", "tr", "th", "td"})
-STATZ_RAW_TABLE_TAG_RX = re.compile(r"<\s*/?\s*(?:table|thead|tbody|tfoot|tr|td|th)\b", re.I)
+STATZ_RAW_TABLE_TAG_RX = re.compile(r"<(?:\s*/)?\s*(?:table|thead|tbody|tfoot|tr|td|th)\b", re.I)
+STATZ_QUOTED_ATTR_RX = re.compile(r"'[^']*'|\"[^\"]*\"")
+STATZ_SCRIPT_VAR_TERM_RX = re.compile(r"\s*;[ \t\f\v]*(?:\r?\n|</script>|$)", re.I)
+STATZ_SCRIPT_SEMI_RX = re.compile(r";[ \t\f\v]*(?:\r?\n|</script>|$)", re.I)
 STATZ_TIERLIST_OPT_HREF_RX = re.compile(
     r"^(?:https?://statz\.gg)?/predecessor/hero-tier-list/([a-z0-9-]+)/?$",
     re.I,
@@ -304,19 +308,49 @@ def statz_script_var(html, name):
     """Return (found, value) for a `var NAME = <json>;` block embedded in a statz page."""
     decl_rx = re.compile(r"\bvar\s+%s\s*=\s*" % re.escape(name))
     decoder = json.JSONDecoder()
+    scan_budget = max(len(html) * 4, 262_144)
+    scanned = 0
+    term_m = None
+    region_start = 0
+    region = ""
     for m in decl_rx.finditer(html):
         pos = m.end()
         if html.startswith("null", pos):
             end = pos + 4
-            val = None
-        elif pos < len(html) and html[pos] in "{[":
-            try:
-                val, end = decoder.raw_decode(html, pos)
-            except json.JSONDecodeError:
-                continue
-        else:
+            if STATZ_SCRIPT_VAR_TERM_RX.match(html, end):
+                return True, None
             continue
-        if re.match(r"\s*;\s*(?:\r?\n|</script>|$)", html[end:], re.I):
+        if pos >= len(html) or html[pos] not in "{[":
+            continue
+        if term_m is None or pos > term_m.start():
+            term_m = STATZ_SCRIPT_SEMI_RX.search(html, pos)
+            if term_m is None:
+                return False, None
+            region_start = pos
+            region = html[region_start : term_m.end()]
+        local_pos = pos - region_start
+        try:
+            val, local_end = decoder.raw_decode(region, local_pos)
+            end = region_start + local_end
+            scanned += max(1, local_end - local_pos)
+        except json.JSONDecodeError as exc:
+            scanned += max(1, exc.pos)
+            if "</script>" in term_m.group(0).lower():
+                try:
+                    val, end = decoder.raw_decode(html, pos)
+                    scanned += max(1, end - pos)
+                    if STATZ_SCRIPT_VAR_TERM_RX.match(html, end):
+                        return True, val
+                except (json.JSONDecodeError, RecursionError) as exc2:
+                    scanned += max(1, getattr(exc2, "pos", len(html)))
+            if scanned > scan_budget:
+                raise StatzParseError("script variable %r exceeded JSON scan budget" % name) from exc
+            continue
+        except RecursionError as exc:
+            raise StatzParseError("script variable %r exceeded JSON nesting limit" % name) from exc
+        if scanned > scan_budget:
+            raise StatzParseError("script variable %r exceeded JSON scan budget" % name)
+        if STATZ_SCRIPT_VAR_TERM_RX.match(html, end):
             return True, val
     return False, None
 
@@ -335,14 +369,14 @@ def statz_image_name(display_name):
 
 
 def _pct(s):
-    txt = htmllib.unescape(str(s)).strip()
+    txt = str(s).strip()
     if not txt.endswith("%"):
         raise ValueError("expected percentage ending in '%%', got %r" % (s,))
     return float(txt[:-1].strip())
 
 
 def _int(s):
-    return int(str(htmllib.unescape(str(s))).strip().replace(",", ""))
+    return int(str(s).strip().replace(",", ""))
 
 
 class _StatzDropdownParser(HTMLParser):
@@ -370,6 +404,26 @@ class _StatzDropdownParser(HTMLParser):
         self.bracket_label = None
         self.options = []
 
+    def reset(self):
+        self._raw_pos = 0
+        super().reset()
+
+    def goahead(self, end):
+        self._raw_pos = 0
+        return super().goahead(end)
+
+    def updatepos(self, i, j):
+        self._raw_pos = j
+        return super().updatepos(i, j)
+
+    def _check_raw_starttag(self):
+        start_text = self.get_starttag_text() or ""
+        if "<" in start_text[1:]:
+            unquoted = STATZ_QUOTED_ATTR_RX.sub("", start_text[1:])
+            if "<" in unquoted:
+                return unquoted
+        return None
+
     def _in_strict_container(self):
         return bool(self.in_wrap or self.in_toggle or self.in_menu or self.in_options)
 
@@ -377,6 +431,11 @@ class _StatzDropdownParser(HTMLParser):
         if tag in STATZ_VOID_TAGS:
             return
         eff = marker if marker is not None else ("strict_inner" if self._in_strict_container() else None)
+        if eff is None:
+            return
+        if len(self.stack) >= STATZ_MAX_STRICT_DEPTH:
+            raise StatzParseError("%s: HTML nesting inside container exceeds maximum depth (%d)"
+                                  % (self.context, STATZ_MAX_STRICT_DEPTH))
         self.stack.append((tag, eff))
 
     @staticmethod
@@ -417,6 +476,7 @@ class _StatzDropdownParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
+        unquoted = self._check_raw_starttag()
         d, el_id_low, classes = self._attr_map(attrs)
         if self._in_strict_container() and tag in STATZ_DROPDOWN_DISALLOWED_TAGS:
             raise StatzParseError("%s: unexpected <%s> inside rank dropdown container" % (self.context, tag))
@@ -480,13 +540,15 @@ class _StatzDropdownParser(HTMLParser):
         elif self.in_menu:
             raise StatzParseError("%s: unexpected <%s> inside rankDropdownMenu outside rankDropdownOptions"
                                   % (self.context, tag))
+        if unquoted is not None and (self._in_strict_container() or marker is not None):
+            raise StatzParseError("%s: malformed HTML tag inside rank dropdown container" % self.context)
         self._push(tag, marker)
 
     def handle_endtag(self, tag):
         tag = tag.lower()
         if tag in STATZ_VOID_TAGS:
             return
-        if self.stack and self.stack[-1][1] is not None:
+        if self.stack:
             open_tag, marker = self.stack[-1]
             if open_tag != tag:
                 raise StatzParseError("%s: unexpected </%s> while <%s> (%s) is still open"
@@ -494,13 +556,6 @@ class _StatzDropdownParser(HTMLParser):
             self.stack.pop()
             self._on_pop_marker(open_tag, marker)
             return
-        for idx in range(len(self.stack) - 1, -1, -1):
-            if self.stack[idx][0] == tag:
-                for open_tag, marker in self.stack[idx:]:
-                    if marker is not None:
-                        raise StatzParseError("%s: unterminated <%s> (%s)" % (self.context, open_tag, marker))
-                del self.stack[idx:]
-                return
         if self._in_strict_container():
             raise StatzParseError("%s: unmatched </%s> inside container" % (self.context, tag))
 
@@ -522,12 +577,12 @@ class _StatzDropdownParser(HTMLParser):
                                   % (self.context, STATZ_MAX_HTML_CHARS))
         self.feed(html)
         if self.rawdata:
-            if any(m is not None for _, m in self.stack) or (not self.cdata_elem and self.rawdata.lstrip().startswith("<")):
+            if self.stack or (not self.cdata_elem and self.rawdata.lstrip().startswith("<")):
                 raise StatzParseError("%s: unterminated HTML tag at end of document" % self.context)
         self.close()
-        for open_tag, marker in reversed(self.stack):
-            if marker is not None:
-                raise StatzParseError("%s: unterminated <%s> (%s)" % (self.context, open_tag, marker))
+        if self.stack:
+            open_tag, marker = self.stack[-1]
+            raise StatzParseError("%s: unterminated <%s> (%s)" % (self.context, open_tag, marker))
         return self
 
 
@@ -595,6 +650,11 @@ class _StatzTierlistParser(_StatzDropdownParser):
 
     def handle_starttag(self, tag, attrs):
         tag_low = tag.lower()
+        unquoted = self._check_raw_starttag()
+        if unquoted is not None and (
+            self.in_table or tag_low in STATZ_TABLE_TAGS or STATZ_RAW_TABLE_TAG_RX.search(unquoted)
+        ):
+            raise StatzParseError("tier list: malformed table tag in HTML")
         d, el_id_low, classes = self._attr_map(attrs)
         if not self.in_table and not super()._in_strict_container():
             if tag_low == "title":
@@ -688,8 +748,26 @@ class _StatzTierlistParser(_StatzDropdownParser):
                     self._cur_cell["other_tags"].append(tag_low)
                     self._push(tag_low, "strict_inner")
 
+    def handle_endtag(self, tag):
+        tag_low = tag.lower()
+        if not self.in_table and not super()._in_strict_container() and tag_low in STATZ_TABLE_TAGS:
+            raise StatzParseError("tier list: unexpected </%s> outside #heroTable" % tag_low)
+        super().handle_endtag(tag)
+
+    def handle_comment(self, data):
+        if (
+            not self.cdata_elem
+            and not self.rawdata.startswith("<!--", self._raw_pos)
+            and STATZ_RAW_TABLE_TAG_RX.match(self.rawdata, self._raw_pos)
+        ):
+            raise StatzParseError("tier list: malformed table tag in HTML")
+
     def handle_data(self, data):
-        if not self.cdata_elem and STATZ_RAW_TABLE_TAG_RX.search(data):
+        if (
+            not self.cdata_elem
+            and self.rawdata.startswith("<", self._raw_pos)
+            and STATZ_RAW_TABLE_TAG_RX.match(self.rawdata, self._raw_pos)
+        ):
             raise StatzParseError("tier list: malformed table tag in HTML")
         if self.in_title:
             self._title_parts.append(data)
