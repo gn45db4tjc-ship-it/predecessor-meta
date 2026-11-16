@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "checked_at": "2026-11-16T00:28:29+00:00",
+ "checked_at": "2026-11-16T18:25:31+00:00",
  "open": {
   "rank-missing": {
    "first_seen": "2026-11-16T00:28:29+00:00"
@@ -13,6 +13,9 @@
   },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
+  },
+  "queue-overdue": {
+   "first_seen": "2026-11-16T18:25:31+00:00"
   }
  },
  "dispatches": [],
@@ -1145,6 +1148,12 @@
    "event": "started",
    "at": "2026-11-16T00:28:29+00:00",
    "summary": "No available publication for Master+."
+  },
+  {
+   "id": "queue-overdue",
+   "event": "started",
+   "at": "2026-11-16T18:25:31+00:00",
+   "summary": "1 recheck queued for over 24 hours."
   }
  ]
 }
