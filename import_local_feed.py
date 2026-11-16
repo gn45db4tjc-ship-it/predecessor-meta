@@ -19,7 +19,7 @@ def import_feed(feed, state_folder):
     previous=state.get('local_collector',{}).get('checked_at')
     if previous and p.utc_time(previous)>p.utc_time(receipt['checked_at']):
         return {'status':'older receipt ignored'}
-    results={};attempts={}
+    results={};attempts={};same_bundle=set()
     for bracket in p.CONFIG['brackets']:
         source=(receipt.get('attempts') or {}).get(bracket,{})
         attempts[bracket]={k:source.get(k) for k in ('status','at','seconds')}
@@ -46,6 +46,8 @@ def import_feed(feed, state_folder):
                 raise ValueError('A Windows feed cannot carry a bundle that claims cloud collection')
             old=p.load_publication(state_folder,bracket)
             older=p.older_sources(old,bundle) if old else []
+            if old and p.utc_time(old['generated_at'])==p.utc_time(bundle['generated_at']):
+                same_bundle.add(bracket)
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
                 results[bracket]='retained newer or identical bundle'
             elif older:
@@ -54,6 +56,7 @@ def import_feed(feed, state_folder):
             else:
                 p.retain_publication(bundle,state_folder)
                 results[bracket]='imported'
+                same_bundle.add(bracket)
         except Exception as error:
             results[bracket]='failed'
             attempts[bracket].update(status='failed')
@@ -67,14 +70,19 @@ def import_feed(feed, state_folder):
     incoming_at=receipt.get('last_full_attempt_at')
     existing_at=state.get('last_full_attempt_at')
     newer_attempt=bool(imported and incoming_at and (not existing_at or p.utc_time(incoming_at)>p.utc_time(existing_at)))
+    # Only an imported or failed upload replaces a different, older attempt. The receipt's own attempt also replaces
+    # an equal-time attempt once its bundle is the published one: the same receipt read earlier without its bundle
+    # (publish.yml skipped master.json until #225) must not keep that failure after the bundle arrives (#228).
     for bracket,attempt in attempts.items():
-        if results.get(bracket) not in ('imported','failed'):continue
+        result=results.get(bracket)
         current=state.setdefault('attempts',{}).get(bracket,{})
         stamp=attempt.get('at');current_stamp=current.get('at')
-        # An import of the bracket's bundle also replaces an equal-time attempt: the same receipt seen earlier
-        # without its bundle (a failed copy) must not keep that failure after the bundle arrives.
-        if not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp)
-                or (results.get(bracket)=='imported' and p.utc_time(stamp)==p.utc_time(current_stamp)))):
+        same_time=bool(stamp and current_stamp and p.utc_time(stamp)==p.utc_time(current_stamp))
+        if result in ('imported','failed'):
+            replace=not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp)))
+        else:
+            replace=False
+        if replace or (same_time and bracket in same_bundle):
             state['attempts'][bracket]=attempt
     if newer_attempt:
         state['last_full_attempt_at']=incoming_at
