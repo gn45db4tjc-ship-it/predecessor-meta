@@ -208,6 +208,29 @@ class ImportNeverRegresses(unittest.TestCase):
         self.assertEqual(state['attempts']['gold'], cloud_attempt)
         self.assertEqual(state['last_full_attempt_at'], cloud_attempt['at'])
 
+    def test_a_bundle_imported_after_a_failed_copy_clears_that_receipts_failure(self):
+        # PRED-M7 (#224): publish.yml once skipped master.json, so the same receipt was first read without its bundle
+        # and then, after the fix, with it. The second import must replace the same-time "Bundle missing" failure.
+        pc = complete(minutes=180, fetched=170, collector={'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'})
+        p.retain_publication(pc, self.windows)
+        at = (NOW + dt.timedelta(minutes=181)).isoformat()
+        windows_attempt = {'status': 'partial', 'at': at, 'seconds': 20.0, 'errors': [{'source': 'Pred.gg game data', 'severity': 'error', 'detail': 'unit-test fixture'}]}
+        p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()), 'last_full_attempt_at': at,
+                                                         'attempts': {'gold': windows_attempt}})
+        updater.export_feed(self.windows, self.windows / 'feed')
+        bundle, held = self.windows / 'feed' / 'gold.json', self.windows / 'held-gold.json'
+        bundle.rename(held)
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'failed')
+            first = p.read_json(self.cloud / 'publication.json')['attempts']['gold']
+            self.assertEqual(first['status'], 'failed')
+            self.assertTrue(any(e['source'] == 'Local collector gold' for e in first['errors']))
+            held.rename(bundle)
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'imported')
+        state = p.read_json(self.cloud / 'publication.json')
+        self.assertEqual(state['attempts']['gold'], windows_attempt)
+        self.assertEqual(state['last_full_attempt_at'], at)
+
     def test_a_published_source_that_holds_no_data_never_vetoes_an_upload(self):
         published = complete(minutes=60, fetched=60)
         published['sources']['pred_game_data'] = {'status': 'failed', 'fetched_at': (NOW + dt.timedelta(minutes=60)).isoformat()}

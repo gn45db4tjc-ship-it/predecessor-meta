@@ -71,7 +71,10 @@ def import_feed(feed, state_folder):
         if results.get(bracket) not in ('imported','failed'):continue
         current=state.setdefault('attempts',{}).get(bracket,{})
         stamp=attempt.get('at');current_stamp=current.get('at')
-        if not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp))):
+        # An import of the bracket's bundle also replaces an equal-time attempt: the same receipt seen earlier
+        # without its bundle (a failed copy) must not keep that failure after the bundle arrives.
+        if not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp)
+                or (results.get(bracket)=='imported' and p.utc_time(stamp)==p.utc_time(current_stamp)))):
             state['attempts'][bracket]=attempt
     if newer_attempt:
         state['last_full_attempt_at']=incoming_at
