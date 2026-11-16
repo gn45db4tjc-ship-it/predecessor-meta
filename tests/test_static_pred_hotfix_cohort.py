@@ -72,6 +72,35 @@ class HotfixCohort(unittest.TestCase):
         self.assertTrue(m.scoped_history_compatible(old, {'cohort': cohort}))
         self.assertFalse(m.scoped_history_compatible(old, {'cohort': cohort}, True))
 
+    def test_split6_master_cohort_and_split5_missing_master_guard(self):
+        # Split 5 has no Master tier: requesting 'master' must fail closed rather than substituting Paragon.
+        with self.assertRaisesRegex(ValueError, 'selected rank IDs unavailable'):
+            m.pred_cohort(CATALOG, '1.17', 'master', ['1.17.1'])
+
+        split6 = {
+            'NewestVersion': {'id': '180', 'name': '1.18'},
+            'versions': [{'id': '180', 'name': '1.18', 'releaseDate': '2026-11-11T10:00:00Z'}],
+            'ratings': [{
+                'name': 'Season 1 - Split 6',
+                'startTime': '2026-11-11',
+                'endTime': None,
+                'ranks': [
+                    {'id': '40', 'tierName': 'Bronze'},
+                    {'id': '43', 'tierName': 'Silver'},
+                    {'id': '46', 'tierName': 'Gold'},
+                    {'id': '49', 'tierName': 'Platinum'},
+                    {'id': '50', 'tierName': 'Diamond'},
+                    {'id': '52', 'tierName': 'Master'},
+                    {'id': '53', 'tierName': 'Master'},
+                    {'id': '54', 'tierName': 'Paragon'},
+                ],
+            }],
+        }
+        master = m.pred_cohort(split6, '1.18', 'master', [])
+        self.assertEqual((master['bracket'], master['bracket_label'], master['ranks']), ('master', 'Master+', ['52', '53', '54']))
+        paragon = m.pred_cohort(split6, '1.18', 'paragon', [])
+        self.assertEqual((paragon['bracket'], paragon['bracket_label'], paragon['ranks']), ('paragon', 'Paragon+', ['54']))
+
 
 if __name__ == '__main__':
     unittest.main()

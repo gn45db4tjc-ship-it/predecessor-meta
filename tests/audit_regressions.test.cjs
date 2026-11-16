@@ -49,7 +49,7 @@ test('I guard: saved observations stay available with their original values and 
 const crypto = require('node:crypto');
 const SW = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
 const SITE = 'https://example.test/predecessor-meta/';
-const BRACKETS = ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'paragon'];
+const BRACKETS = ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'paragon'];
 const digest = text => crypto.createHash('sha256').update(text).digest('hex');
 const bundleBody = (bracket, note = '') => JSON.stringify({schema: 3, bracket: {segment: bracket}, generated_at: '2026-09-14T17:20:20-05:00', sources: {statz_tierlist: {status: 'ok', fetched_at: '2026-09-14T17:19:00-05:00'}}, note});
 const bundleURL = (bracket, body) => SITE + 'bundles/' + bracket + '-' + digest(body) + '.json';
