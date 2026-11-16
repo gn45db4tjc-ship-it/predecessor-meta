@@ -166,3 +166,12 @@ Reviewer reservations, kept but worth an early recheck (nothing queues them auto
 - Platinum+ (Sanguine Slash) and Diamond+ (Bring The Boom, Vital Essence) still carry older retained Pred.gg descriptions, so the "Official correction review" notice stays visible there (held, as on 3 Nov) until a full Pred.gg collection on those ranks.
 - Pred.gg 170 lists Tenacity as a percentage that disagrees with the official rating; it is not used for item choice.
 - No in-game test. Other ranks show the engine's calculated tiers; reviewed grades describe Gold+ only.
+
+## Owner decision, 16 Nov 2026: Bring The Boom at 60%
+
+Correction `1.16.4-review2-121` (Drongo's Bring The Boom) is rebased onto Pred.gg 170's wording, on the owner's request in the project thread ("update drongo"). Pred.gg 1.18 says Rad Rounds deals 60% of its damage to nearby enemies; the correction had kept the 1.16.4 tooltip's 50%. No official 1.18 or 1.17.2 article mentions Bring The Boom, so the 60% rests on Pred.gg alone. The official 1.16.4 change the correction cites, the 600u explosion radius, still holds and is kept as the second line.
+
+- The correction's `before` is now Pred.gg's 60% text and its `after` adds the radius line; the source and `changes` (500u to 600u) are unchanged.
+- Drongo Carry's plan precondition, the capability review's augment text and the build pass's loadout definition read the same 60% text. The definition cites the Gold+ live bundle (radius line) and the Diamond+ live bundle (60%) of 16 Nov.
+- Rendered against the six live bundles of 16 Nov, every rank shows the 60% text with the radius, and Drongo Carry is active on all six, including Diamond+, where it had waited since 8 Nov.
+- This also settles the Diamond+ "Bring The Boom" item left unresolved in the W45 and W46 rechecks.
