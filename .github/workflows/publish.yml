@@ -60,7 +60,7 @@ jobs:
           if git ls-remote --exit-code --heads origin data-updates > /dev/null; then
             git fetch --depth=1 origin data-updates
             mkdir -p collected-data
-            for file in collector.json gold.json bronze.json silver.json platinum.json diamond.json paragon.json; do
+            for file in collector.json gold.json bronze.json silver.json platinum.json diamond.json master.json paragon.json; do
               if git cat-file -e "FETCH_HEAD:$file" 2>/dev/null; then
                 git show "FETCH_HEAD:$file" > "collected-data/$file"
               fi
