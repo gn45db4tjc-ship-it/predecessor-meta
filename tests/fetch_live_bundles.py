@@ -1,8 +1,10 @@
-"""Download the six rank bundles the live site currently publishes, for the nightly live-data browser check.
+"""Download the rank bundles the live site currently publishes, for the nightly live-data browser check.
 
     python -B tests/fetch_live_bundles.py qa/live-bundles
 
 Read-only. Every bundle must match the sha256 in the live manifest; a mismatch or a missing cohort fails loudly.
+A rank the manifest lists but has never published (no bundle url yet, as Master+ was in November 2026 before its first
+successful collection) is skipped and named in the output; the default rank must always be published.
 A Pages deploy can briefly serve a new manifest before its bundles, so each fetch is retried a few times.
 """
 import argparse
@@ -15,6 +17,18 @@ from pathlib import Path
 
 DEFAULT_BASE = 'https://gn45db4tjc-ship-it.github.io/predecessor-meta/'
 RANKS = ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'paragon')
+REQUIRED = 'gold'
+
+
+def published_ranks(cohorts):
+    """Ranks to download, and ranks listed but not yet published. A rank absent from the manifest is an error."""
+    absent = [rank for rank in RANKS if rank not in cohorts]
+    if absent:
+        raise SystemExit('Live manifest has no cohort for: ' + ', '.join(absent))
+    unpublished = [rank for rank in RANKS if not cohorts[rank].get('url')]
+    if REQUIRED in unpublished:
+        raise SystemExit('Live manifest has no published bundle for the default rank: ' + REQUIRED)
+    return [rank for rank in RANKS if rank not in unpublished], unpublished
 
 
 def fetch(url, attempts=4, wait=30):
@@ -38,11 +52,9 @@ def main():
     for attempt in range(1, 4):
         manifest = json.loads(fetch(args.base + 'manifest.json'))
         cohorts = manifest.get('cohorts') or {}
-        missing = [rank for rank in RANKS if rank not in cohorts or not cohorts[rank].get('url')]
-        if missing:
-            raise SystemExit('Live manifest has no published bundle for: ' + ', '.join(missing))
+        ranks, unpublished = published_ranks(cohorts)
         problems = []
-        for rank in RANKS:
+        for rank in ranks:
             cohort = cohorts[rank]
             url = cohort['url'] if cohort['url'].startswith('http') else args.base + cohort['url']
             raw = fetch(url)
@@ -53,7 +65,7 @@ def main():
             (args.output / (rank + '.json')).write_bytes(raw)
         if not problems:
             print(json.dumps({'app': manifest.get('app'), 'published_at': manifest.get('published_at'),
-                              'run_id': manifest.get('run_id'), 'ranks': list(RANKS)}))
+                              'run_id': manifest.get('run_id'), 'ranks': ranks, 'not_yet_published': unpublished}))
             return
         if attempt == 3:
             raise SystemExit('Live bundles do not match their manifest: ' + '; '.join(problems))
