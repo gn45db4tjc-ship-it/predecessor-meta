@@ -6,6 +6,14 @@ from pathlib import Path
 import static_publish as p
 
 
+def readable_time(stamp):
+    """An attempt or collection time as a UTC datetime, or None when it is missing or unreadable."""
+    try:
+        return p.utc_time(stamp) if stamp else None
+    except (TypeError, ValueError):
+        return None
+
+
 def dated_statz(bundle, key):
     """True when the bundle's own Statz source carries a readable fetch date (an observation, not only a stop)."""
     stamp=((bundle.get('sources') or {}).get(key) or {}).get('fetched_at')
@@ -19,8 +27,12 @@ def keeps_statz_sample(published, bundle):
     """The upload's frozen Statz sample is from the published sample's patch and is no smaller: as many tier rows
     and as many hero pages. A first discontinuation may move a Statz date back within that patch, never further."""
     def pages(b):
-        ok=(((b.get('sources') or {}).get('statz_hero_pages') or {}).get('coverage') or {}).get('ok')
-        return ok if type(ok) is int else None
+        # The derived coverage count when publication stamped one, else the source record's own count.
+        record=(b.get('sources') or {}).get('statz_hero_pages') or {}
+        for ok in ((record.get('coverage') or {}).get('ok'),record.get('ok')):
+            if type(ok) is int:
+                return ok
+        return None
     if not bundle.get('patch') or bundle.get('patch')!=published.get('patch'):
         return False
     if len(bundle.get('tier_list') or [])<len(published.get('tier_list') or []):
@@ -123,7 +135,9 @@ def import_feed(feed, state_folder):
     imported=[b for b,r in results.items() if r=='imported']
     incoming_at=receipt.get('last_full_attempt_at')
     existing_at=state.get('last_full_attempt_at')
-    newer_attempt=bool(imported and incoming_at and (not existing_at or p.utc_time(incoming_at)>p.utc_time(existing_at)))
+    # An unreadable time never advances the clock, and an unreadable stored time never blocks a readable newer one.
+    incoming_time,existing_time=readable_time(incoming_at),readable_time(existing_at)
+    newer_attempt=bool(imported and incoming_time and (not existing_time or incoming_time>existing_time))
     # Only an imported or failed upload replaces a different, older attempt. The receipt's own attempt also replaces
     # an equal-time attempt once its bundle is the published one: the same receipt read earlier without its bundle
     # (publish.yml skipped master.json until #225) must not keep that failure after the bundle arrives (#228).
@@ -131,14 +145,11 @@ def import_feed(feed, state_folder):
         result=results.get(bracket)
         current=state.setdefault('attempts',{}).get(bracket,{})
         stamp=attempt.get('at');current_stamp=current.get('at')
-        same_time=False
-        if bracket in same_bundle and stamp and current_stamp:
-            try:
-                same_time=p.utc_time(stamp)==p.utc_time(current_stamp)
-            except (TypeError, ValueError):
-                same_time=False   # an unreadable attempt time never matches and never stops the other brackets
+        # An unreadable attempt time never matches, never counts as newer, and never stops the other brackets.
+        stamp_time,current_time=readable_time(stamp),readable_time(current_stamp)
+        same_time=bool(bracket in same_bundle and stamp_time and current_time and stamp_time==current_time)
         if result in ('imported','failed'):
-            replace=not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp)))
+            replace=not current or bool(stamp_time and (not current_time or stamp_time>current_time))
         else:
             replace=False
         if replace or same_time:

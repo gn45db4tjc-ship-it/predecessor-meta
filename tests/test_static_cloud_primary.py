@@ -256,8 +256,9 @@ class ImportNeverRegresses(unittest.TestCase):
         b['bracket'] = {'segment': 'paragon', 'label': 'Paragon+'}
         if discontinued_at is not None:
             for key in ('statz_tierlist', 'statz_hero_pages'):
-                b['sources'][key] = {'status': 'discontinued', 'fetched_at': discontinued_at,
-                                     'discontinued_after_patch': p.base.STATZ_DISCONTINUED_AFTER['paragon']}
+                # As attach_discontinued_statz does: the frozen source record keeps its counts and takes the stop.
+                b['sources'][key] = dict(b['sources'][key], status='discontinued', fetched_at=discontinued_at,
+                                         discontinued_after_patch=p.base.STATZ_DISCONTINUED_AFTER['paragon'])
             b['errors'] = [{'source': 'Pred.gg game data', 'severity': 'error', 'detail': 'unit-test fixture'}]
         return b
 
@@ -391,12 +392,19 @@ class ImportNeverRegresses(unittest.TestCase):
             'no patch': lambda b: b.pop('patch'),
             'fewer tier rows': lambda b: b.update(tier_list=b['tier_list'][:-1]),
             'fewer hero pages': lambda b: b['sources']['statz_hero_pages'].update(coverage={'ok': 0, 'requested': 1, 'failed': 1}),
-            'hero pages unknown': lambda b: b['sources']['statz_hero_pages'].pop('coverage'),
+            'hero pages unknown': lambda b: [b['sources']['statz_hero_pages'].pop(k) for k in ('coverage', 'ok')],
         }
         for name, change in cases.items():
             with self.subTest(name):
                 b = incoming(); change(b)
                 self.assertEqual(refusing_sources(keys, stored, b), keys)
+        # Without a coverage record, the source record's own page count is compared (Muse on a5c076a).
+        bare = dict(stored, sources=dict(stored['sources'], statz_hero_pages={k: v for k, v in stored['sources']['statz_hero_pages'].items() if k != 'coverage'}))
+        self.assertEqual(bare['sources']['statz_hero_pages']['ok'], 1)
+        fewer = incoming(); fewer['sources']['statz_hero_pages'].pop('coverage'); fewer['sources']['statz_hero_pages']['ok'] = 0
+        self.assertEqual(refusing_sources(keys, bare, fewer), keys)
+        same = incoming(); same['sources']['statz_hero_pages'].pop('coverage')
+        self.assertEqual(refusing_sources(keys, bare, same), [])
         # End to end: a frozen sample from another patch is refused and the published sample stays.
         b = incoming(); b['patch'] = '1.1'
         if p.base.bundle_is_publishable(b):
@@ -428,15 +436,46 @@ class ImportNeverRegresses(unittest.TestCase):
             self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
         self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], cloud_attempt)
 
+    def test_an_unreadable_time_on_the_import_path_never_raises_or_wins(self):
+        # Muse on a5c076a: the imported and failed path and the collection clock read times too. An unreadable stored
+        # time gives way to a readable newer one; an unreadable incoming time never replaces anything or moves the clock.
+        def run(stored_at, stored_clock, incoming_at, incoming_clock):
+            folder = Path(self.tmp.name) / ('case-' + str(len(list(Path(self.tmp.name).glob('case-*')))))
+            self.windows, self.cloud = folder / 'windows', folder / 'cloud'
+            p.retain_publication(complete(minutes=0, fetched=0), self.cloud)
+            p.write_json(self.cloud / 'publication.json', {'attempts': {'gold': {'status': 'failed', 'at': stored_at, 'errors': []}},
+                                                         'last_full_attempt_at': stored_clock})
+            p.retain_publication(complete(minutes=180, fetched=170, collector={'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'}), self.windows)
+            attempt = {'status': 'ok', 'at': incoming_at, 'seconds': 9.0, 'errors': []}
+            p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()), 'last_full_attempt_at': incoming_clock,
+                                                             'attempts': {'gold': attempt}})
+            updater.export_feed(self.windows, self.windows / 'feed')
+            with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+                self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'imported')
+            return p.read_json(self.cloud / 'publication.json'), attempt
+        later = (NOW + dt.timedelta(minutes=181)).isoformat()
+        state, attempt = run('not a time', 'not a time', later, later)
+        self.assertEqual(state['attempts']['gold'], attempt)
+        self.assertEqual(state['last_full_attempt_at'], later)
+        state, _ = run(NOW.isoformat(), NOW.isoformat(), 'not a time', 'not a time')
+        self.assertEqual(state['attempts']['gold']['at'], NOW.isoformat())
+        self.assertEqual(state['last_full_attempt_at'], NOW.isoformat())
+
     def test_a_review_replayed_copy_of_the_receipts_bundle_still_counts_as_its_own(self):
         # Muse on bb3c60b: publication may store a review-replayed copy (new guidance, corrections, notices) of the
         # receipt's bundle. What the collection observed is unchanged, so its stale same-time failure still clears.
         with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
             pc, attempt = self.stale_receipt()
-            replayed = dict(pc, errors=[{'source': 'Official correction review', 'severity': 'warning', 'detail': 'replayed by a later guidance release'}])
+            # The real replay, as render_site runs it, with the reviewed packet's enrichment stubbed as in
+            # test_static_publication_guidance (the synthetic fixture has no reviewed-packet evidence).
+            def enrich(out, official):
+                out['guidance'] = {'builds': ['reviewed'], 'meta_review': {'entries': ['rechecked']}}
+            own = p.validate_publication_bundle(dict(pc, guidance_fingerprint='an-older-packet'), 'gold')
+            with patch.object(p.base, 'enrich_bundle', side_effect=enrich), patch.object(p.base, 'apply_pred_game_data'):
+                replayed = p.base.review_saved_sources(own)
+            self.assertIsNot(replayed, own)
+            self.assertNotEqual(replayed['guidance'], own.get('guidance'))
             p.retain_publication(replayed, self.cloud)
-            stored = p.load_publication(self.cloud, 'gold')
-            self.assertNotEqual(stored['errors'], p.validate_publication_bundle(pc, 'gold')['errors'])
             self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
         self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], attempt)
 
