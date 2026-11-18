@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 import static_publish as p
 import local_updater as updater
-from import_local_feed import import_feed
+from import_local_feed import import_feed, refusing_sources
 from test_static_publish import NOW, official
 from test_static_independent_sources import partial
 
@@ -303,6 +303,103 @@ class ImportNeverRegresses(unittest.TestCase):
         result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
         self.assertIn('older than published', result)
         self.assertIn('statz_hero_pages', result)
+
+    def test_a_discontinuation_without_its_own_dated_statz_never_erases_the_published_sample(self):
+        # VERIFY-3 R1: a collector with no Statz history marks Statz discontinued with no date and no tier rows.
+        # Accepting it would replace a dated, published sample with nothing, so it is refused and the sample stays.
+        published = self.paragon(minutes=60, fetched=60)
+        p.retain_publication(published, self.cloud)
+        before = p.load_publication(self.cloud, 'paragon')
+        self.assertTrue(before['tier_list'])
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        for key in ('statz_tierlist', 'statz_hero_pages'):
+            incoming['sources'][key]['fetched_at'] = None
+        incoming['tier_list'] = []
+        result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertIn('older than published', result)
+        self.assertIn('statz_tierlist', result)
+        self.assertIn('statz_hero_pages', result)
+        kept = p.load_publication(self.cloud, 'paragon')
+        self.assertEqual(kept['generated_at'], before['generated_at'])
+        self.assertEqual(kept['tier_list'], before['tier_list'])
+        for key in ('statz_tierlist', 'statz_hero_pages'):
+            self.assertEqual(kept['sources'][key]['fetched_at'], published['sources'][key]['fetched_at'])
+            self.assertEqual(kept['sources'][key]['status'], 'ok')
+
+    def test_a_dated_discontinuation_without_tier_rows_never_erases_published_rows(self):
+        # VERIFY-3 R1: a dated stop that brings no tier rows still never replaces published rows with none.
+        p.retain_publication(self.paragon(minutes=60, fetched=60), self.cloud)
+        before = p.load_publication(self.cloud, 'paragon')
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        incoming['tier_list'] = []
+        result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertIn('older than published', result)
+        self.assertEqual(p.load_publication(self.cloud, 'paragon')['tier_list'], before['tier_list'])
+
+    def test_an_unrelated_bundle_with_the_same_timestamp_never_replaces_the_cloud_attempt(self):
+        # VERIFY-3 R2: two different collections can share generated_at and attempt time. Only the receipt's own
+        # bundle may clear its equal-time attempt; a collision keeps the cloud bundle, its attempt and its clock.
+        cloud_bundle = complete(minutes=180, fetched=170, collector={'host': 'cloud', 'run_id': '7', 'run_attempt': '1', 'tool_version': '2.25.0'})
+        p.retain_publication(cloud_bundle, self.cloud)
+        at = (NOW + dt.timedelta(minutes=181)).isoformat()
+        cloud_attempt = {'status': 'ok', 'at': at, 'seconds': 40.0, 'errors': []}
+        p.write_json(self.cloud / 'publication.json', {'attempts': {'gold': cloud_attempt}, 'last_full_attempt_at': at, 'last_full_seconds': 40.0})
+        pc = complete(minutes=180, fetched=170, collector={'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'})
+        self.assertEqual(pc['generated_at'], cloud_bundle['generated_at'])
+        p.retain_publication(pc, self.windows)
+        pc_attempt = {'status': 'partial', 'at': at, 'seconds': 20.0, 'errors': [{'source': 'Pred.gg game data', 'severity': 'error', 'detail': 'unit-test fixture'}]}
+        p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()), 'last_full_attempt_at': at,
+                                                         'attempts': {'gold': pc_attempt}})
+        updater.export_feed(self.windows, self.windows / 'feed')
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
+        self.assertEqual(p.load_publication(self.cloud, 'gold')['collector']['host'], 'cloud')
+        state = p.read_json(self.cloud / 'publication.json')
+        self.assertEqual(state['attempts']['gold'], cloud_attempt)
+        self.assertEqual(state['last_full_attempt_at'], at)
+        self.assertEqual(state['last_full_seconds'], 40.0)
+
+    def test_an_older_omeda_source_still_refuses_a_first_statz_discontinuation(self):
+        # VERIFY-3 R3: the exemption names only the two Statz sources; an older Omeda date still refuses the upload.
+        published = self.paragon(minutes=60, fetched=60)
+        p.retain_publication(published, self.cloud)
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        incoming['sources']['omeda_heroes'] = {'status': 'retained', 'fetched_at': NOW.isoformat(), 'offline': False}   # older than the published 60-minute fetch
+        result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertEqual(result, 'retained published bundle: imported omeda_heroes older than published')
+        kept = p.load_publication(self.cloud, 'paragon')
+        self.assertEqual(kept['sources']['omeda_heroes']['fetched_at'], published['sources']['omeda_heroes']['fetched_at'])
+        self.assertEqual(kept['sources']['statz_tierlist']['status'], 'ok')
+
+    def test_the_statz_exemption_is_decided_for_each_statz_source(self):
+        # VERIFY-3 R4. A publication with only the tier list discontinued never validates, so it cannot be stored;
+        # the per-source rule is checked directly on that mix, then end to end on the mixes a publication can hold.
+        mixed = self.paragon(minutes=60, fetched=60)
+        mixed['sources']['statz_tierlist'].update(status='discontinued', discontinued_after_patch=p.base.STATZ_DISCONTINUED_AFTER['paragon'])
+        self.assertFalse(p.base.bundle_is_publishable(mixed))
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        older = p.older_sources(mixed, incoming)
+        self.assertEqual(sorted(k for k in older if k.startswith('statz_')), ['statz_hero_pages', 'statz_tierlist'])
+        self.assertEqual(refusing_sources(older, mixed, incoming), ['statz_tierlist'])
+        # Published Statz active: the tier list date matches, only the hero pages are older, and the upload imports.
+        published = self.paragon(minutes=60, fetched=60)
+        tier_date = published['sources']['statz_tierlist']['fetched_at']
+        p.retain_publication(published, self.cloud)
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        incoming['sources']['statz_tierlist']['fetched_at'] = tier_date
+        result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertEqual(result, 'imported')
+        now_published = p.load_publication(self.cloud, 'paragon')
+        self.assertEqual(now_published['sources']['statz_tierlist']['fetched_at'], tier_date)
+        self.assertEqual(now_published['sources']['statz_hero_pages']['status'], 'discontinued')
+        self.assertEqual(now_published['sources']['statz_hero_pages']['fetched_at'], NOW.isoformat())
+        # Published Statz now discontinued: a later upload whose hero pages alone go back is refused for them alone.
+        later = self.paragon(minutes=900, fetched=900, discontinued_at=NOW.isoformat())
+        later['sources']['statz_tierlist']['fetched_at'] = tier_date
+        later['sources']['statz_hero_pages']['fetched_at'] = (NOW - dt.timedelta(minutes=30)).isoformat()
+        result, _ = self.paragon_feed(later, (NOW + dt.timedelta(minutes=901)).isoformat())
+        self.assertEqual(result, 'retained published bundle: imported statz_hero_pages older than published')
+        self.assertEqual(p.load_publication(self.cloud, 'paragon')['generated_at'], now_published['generated_at'])
 
     def test_a_published_source_that_holds_no_data_never_vetoes_an_upload(self):
         published = complete(minutes=60, fetched=60)

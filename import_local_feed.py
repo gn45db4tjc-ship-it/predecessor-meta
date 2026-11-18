@@ -6,6 +6,33 @@ from pathlib import Path
 import static_publish as p
 
 
+def dated_statz(bundle, key):
+    """True when the bundle's own Statz source carries a readable fetch date (an observation, not only a stop)."""
+    stamp=((bundle.get('sources') or {}).get(key) or {}).get('fetched_at')
+    try:
+        return bool(stamp) and bool(p.utc_time(stamp))
+    except (TypeError, ValueError):
+        return False
+
+
+def refusing_sources(older, published, bundle):
+    """The older sources that still refuse an upload which first marks Statz discontinued, decided per source:
+    a Statz source is exempt only while its published copy is not discontinued, the upload carries its own dated
+    observation, and the upload keeps tier rows wherever tier rows are published."""
+    return [key for key in older if not (key in ('statz_tierlist','statz_hero_pages')
+            and ((published.get('sources') or {}).get(key) or {}).get('status')!='discontinued'
+            and dated_statz(bundle,key) and (bundle.get('tier_list') or not published.get('tier_list')))]
+
+
+def same_content(published, bundle):
+    """True only when the published bundle is this receipt's own: equal content, not merely an equal generated_at.
+    Two different collections can share a timestamp (VERIFY-3 R2); only the receipt's own bundle may clear its
+    equal-time attempt. Both sides are compared after the same publication validation."""
+    def digest(b):
+        return hashlib.sha256(json.dumps(b, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode('utf8')).hexdigest()
+    return digest(published)==digest(bundle)
+
+
 def import_feed(feed, state_folder):
     feed=Path(feed);state_folder=Path(state_folder)
     receipt_path=feed/'collector.json'
@@ -51,10 +78,11 @@ def import_feed(feed, state_folder):
                 # discontinued carries the collector's last Statz date, which can be older than a Statz sample
                 # published before the stop (Paragon+: 4 Nov 11:30Z against 5 Nov 02:52Z). That upload records the
                 # newer fact that the source ended, so its older Statz date alone never refuses it; once published as
-                # discontinued, the rule applies again. Every other source keeps the rule.
-                older=[key for key in older if not (key in ('statz_tierlist','statz_hero_pages')
-                       and ((old.get('sources') or {}).get(key) or {}).get('status')!='discontinued')]
-            if old and p.utc_time(old['generated_at'])==p.utc_time(bundle['generated_at']):
+                # discontinued, the rule applies again. Every other source keeps the rule, and so does a
+                # discontinuation that carries no dated Statz observation of its own (or no tier rows where some are
+                # published): accepting it would erase the published sample, so it is refused (VERIFY-3 R1).
+                older=refusing_sources(older,old,bundle)
+            if old and p.utc_time(old['generated_at'])==p.utc_time(bundle['generated_at']) and same_content(old,bundle):
                 same_bundle.add(bracket)
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
                 results[bracket]='retained newer or identical bundle'
