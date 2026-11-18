@@ -250,6 +250,60 @@ class ImportNeverRegresses(unittest.TestCase):
             import_feed(self.windows / 'feed', self.cloud)
             self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], other)
 
+    def paragon(self, minutes, fetched, discontinued_at=None):
+        """A synthetic Paragon+ bundle; with discontinued_at, Statz is discontinued with its last date there."""
+        b = complete(minutes=minutes, fetched=fetched)
+        b['bracket'] = {'segment': 'paragon', 'label': 'Paragon+'}
+        if discontinued_at is not None:
+            for key in ('statz_tierlist', 'statz_hero_pages'):
+                b['sources'][key] = {'status': 'discontinued', 'fetched_at': discontinued_at,
+                                     'discontinued_after_patch': p.base.STATZ_DISCONTINUED_AFTER['paragon']}
+            b['errors'] = [{'source': 'Pred.gg game data', 'severity': 'error', 'detail': 'unit-test fixture'}]
+        return b
+
+    def paragon_feed(self, incoming, at):
+        p.retain_publication(incoming, self.windows)
+        attempt = {'status': 'partial', 'at': at, 'seconds': 3.0, 'errors': incoming['errors']}
+        p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()), 'last_full_attempt_at': at,
+                                                         'attempts': {'paragon': attempt}})
+        updater.export_feed(self.windows, self.windows / 'feed')
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['paragon'])):
+            return import_feed(self.windows / 'feed', self.cloud)['results']['paragon'], attempt
+
+    def test_the_upload_that_first_marks_statz_discontinued_is_not_refused_for_its_older_statz_date(self):
+        # PRED-M8 (#232): Paragon+'s last published Statz sample (5 Nov) was newer than the collector's last Statz date
+        # (4 Nov) when Statz stopped, so every later upload was refused and an 8 Nov failure kept every run red.
+        p.retain_publication(self.paragon(minutes=60, fetched=60), self.cloud)
+        stale = {'status': 'failed', 'at': (NOW + dt.timedelta(minutes=90)).isoformat(), 'errors': [{'source': 'statz.gg tier list', 'severity': 'error', 'detail': 'unit-test fixture'}]}
+        p.write_json(self.cloud / 'publication.json', {'attempts': {'paragon': stale}})
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        result, attempt = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertEqual(result, 'imported')
+        published = p.load_publication(self.cloud, 'paragon')
+        self.assertEqual(published['sources']['statz_hero_pages']['status'], 'discontinued')
+        self.assertEqual(published['sources']['statz_hero_pages']['fetched_at'], NOW.isoformat(), 'the date is the source\'s own, never moved')
+        state = p.read_json(self.cloud / 'publication.json')
+        self.assertEqual(state['attempts']['paragon'], attempt)
+        self.assertTrue(p.attempt_satisfied(state['attempts']['paragon'], published))
+
+    def test_a_discontinued_statz_exemption_never_lets_another_source_go_backwards(self):
+        published = self.paragon(minutes=60, fetched=60)
+        p.retain_publication(published, self.cloud)
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        incoming['sources']['pred_scoped'] = {'status': 'retained', 'fetched_at': NOW.isoformat()}   # older than the published 60-minute fetch
+        result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertIn('older than published', result)
+        self.assertIn('pred_scoped', result)
+        self.assertNotIn('statz_', result)
+        self.assertEqual(p.load_publication(self.cloud, 'paragon')['sources']['statz_hero_pages']['status'], 'ok')
+
+    def test_once_statz_is_published_as_discontinued_its_date_never_moves_back(self):
+        p.retain_publication(self.paragon(minutes=60, fetched=60, discontinued_at=(NOW + dt.timedelta(minutes=30)).isoformat()), self.cloud)
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        result, _ = self.paragon_feed(incoming, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertIn('older than published', result)
+        self.assertIn('statz_hero_pages', result)
+
     def test_a_published_source_that_holds_no_data_never_vetoes_an_upload(self):
         published = complete(minutes=60, fetched=60)
         published['sources']['pred_game_data'] = {'status': 'failed', 'fetched_at': (NOW + dt.timedelta(minutes=60)).isoformat()}

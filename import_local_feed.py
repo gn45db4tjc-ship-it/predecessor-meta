@@ -46,6 +46,14 @@ def import_feed(feed, state_folder):
                 raise ValueError('A Windows feed cannot carry a bundle that claims cloud collection')
             old=p.load_publication(state_folder,bracket)
             older=p.older_sources(old,bundle) if old else []
+            if older and p.base.bundle_statz_discontinued(bundle):
+                # PRED-M8 (#232): when Statz stops a bracket (Paragon+ after 1.18), the upload that first marks it
+                # discontinued carries the collector's last Statz date, which can be older than a Statz sample
+                # published before the stop (Paragon+: 4 Nov 11:30Z against 5 Nov 02:52Z). That upload records the
+                # newer fact that the source ended, so its older Statz date alone never refuses it; once published as
+                # discontinued, the rule applies again. Every other source keeps the rule.
+                older=[key for key in older if not (key in ('statz_tierlist','statz_hero_pages')
+                       and ((old.get('sources') or {}).get(key) or {}).get('status')!='discontinued')]
             if old and p.utc_time(old['generated_at'])==p.utc_time(bundle['generated_at']):
                 same_bundle.add(bracket)
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
