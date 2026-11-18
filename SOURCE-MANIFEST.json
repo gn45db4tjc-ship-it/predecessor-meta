@@ -186,7 +186,7 @@
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
     "review_gate.py": "249514f03de92b9528886c74553113ee1ef389dcd47539e73d9b03aa512190cb",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
-    "reviewed_guidance.json": "b7e0d2f3c13a4fb240f54d9d8e8abaff66c615574ce09f83643d72f4c5e03718",
+    "reviewed_guidance.json": "df357d39adb4718adbb889f3711b8dc3205d11b660a0948e9f77dea75f9e87e3",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "02cb80eb3245af2ffe311238e865bc0123c8a9c461393d13eb93e02b5439fa61",
@@ -388,6 +388,8 @@
     "tests/fixtures/statz/tierlist-silver.html": "58ee74845962f3162c65e0230082c8a92ff76198bf0e96f88928612fc14308b5",
     "tests/statz_working_pool.test.cjs": "40d112bf922e61cf7077221d5b9d49cd12dbd813d7f7a0fb4f0e6d3c523100fd",
     "tests/test_static_fetch_live_bundles.py": "c2f83d65c9a48ed6fd7a6b7b9b80791be98fe774fd0d396306ddc582ac37a866",
-    "tests/test_static_collector_import.py": "9195e3fa9da6d11baf376d578fb4b2d65bcb508ebc524eb0292127a3ee263164"
+    "tests/test_static_collector_import.py": "9195e3fa9da6d11baf376d578fb4b2d65bcb508ebc524eb0292127a3ee263164",
+    "docs/rechecks/2026-11-15-2040-ledger.json": "25ea8924acca901182f011cff8f35e5f799b54688d3ab4580bfe282951c3f527",
+    "docs/rechecks/2026-11-15-2040.md": "87168f5054584ef1068df4b08fc7680285497fcf1ef4036a5c192e44e5c90bc7"
   }
 }
