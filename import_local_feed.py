@@ -15,21 +15,39 @@ def dated_statz(bundle, key):
         return False
 
 
+def keeps_statz_sample(published, bundle):
+    """The upload's frozen Statz sample is from the published sample's patch and is no smaller: as many tier rows
+    and as many hero pages. A first discontinuation may move a Statz date back within that patch, never further."""
+    def pages(b):
+        ok=(((b.get('sources') or {}).get('statz_hero_pages') or {}).get('coverage') or {}).get('ok')
+        return ok if type(ok) is int else None
+    if not bundle.get('patch') or bundle.get('patch')!=published.get('patch'):
+        return False
+    if len(bundle.get('tier_list') or [])<len(published.get('tier_list') or []):
+        return False
+    return pages(published) is None or (pages(bundle) is not None and pages(bundle)>=pages(published))
+
+
 def refusing_sources(older, published, bundle):
     """The older sources that still refuse an upload which first marks Statz discontinued, decided per source:
     a Statz source is exempt only while its published copy is not discontinued, the upload carries its own dated
-    observation, and the upload keeps tier rows wherever tier rows are published."""
+    observation, and its frozen sample keeps the published sample's patch, tier rows and hero pages."""
+    keeps=keeps_statz_sample(published,bundle)
     return [key for key in older if not (key in ('statz_tierlist','statz_hero_pages')
             and ((published.get('sources') or {}).get(key) or {}).get('status')!='discontinued'
-            and dated_statz(bundle,key) and (bundle.get('tier_list') or not published.get('tier_list')))]
+            and dated_statz(bundle,key) and keeps)]
 
 
 def same_content(published, bundle):
-    """True only when the published bundle is this receipt's own: equal content, not merely an equal generated_at.
-    Two different collections can share a timestamp (VERIFY-3 R2); only the receipt's own bundle may clear its
-    equal-time attempt. Both sides are compared after the same publication validation."""
+    """True only when the published bundle is this receipt's own collection, not merely one with an equal
+    generated_at: two different collections can share a timestamp (VERIFY-3 R2). The comparison covers what a
+    collection observed (bracket, collector, every source record, tier rows), which a publication's review replay
+    never changes (review_saved_sources rewrites guidance, corrections and notices, so a whole-bundle digest of a
+    replayed copy would never match its receipt)."""
     def digest(b):
-        return hashlib.sha256(json.dumps(b, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode('utf8')).hexdigest()
+        observed={'bracket':(b.get('bracket') or {}).get('segment'),'generated_at':b.get('generated_at'),
+                  'collector':b.get('collector'),'sources':b.get('sources'),'tier_list':b.get('tier_list')}
+        return hashlib.sha256(json.dumps(observed, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode('utf8')).hexdigest()
     return digest(published)==digest(bundle)
 
 
@@ -113,12 +131,17 @@ def import_feed(feed, state_folder):
         result=results.get(bracket)
         current=state.setdefault('attempts',{}).get(bracket,{})
         stamp=attempt.get('at');current_stamp=current.get('at')
-        same_time=bool(stamp and current_stamp and p.utc_time(stamp)==p.utc_time(current_stamp))
+        same_time=False
+        if bracket in same_bundle and stamp and current_stamp:
+            try:
+                same_time=p.utc_time(stamp)==p.utc_time(current_stamp)
+            except (TypeError, ValueError):
+                same_time=False   # an unreadable attempt time never matches and never stops the other brackets
         if result in ('imported','failed'):
             replace=not current or (stamp and (not current_stamp or p.utc_time(stamp)>p.utc_time(current_stamp)))
         else:
             replace=False
-        if replace or (same_time and bracket in same_bundle):
+        if replace or same_time:
             state['attempts'][bracket]=attempt
     if newer_attempt:
         state['last_full_attempt_at']=incoming_at

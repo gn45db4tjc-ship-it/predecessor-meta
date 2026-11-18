@@ -359,6 +359,87 @@ class ImportNeverRegresses(unittest.TestCase):
         self.assertEqual(state['last_full_attempt_at'], at)
         self.assertEqual(state['last_full_seconds'], 40.0)
 
+    def test_an_undated_discontinuation_is_refused_even_when_it_keeps_tier_rows(self):
+        # Muse on bb3c60b: the undated case is refused for its missing date alone, not only for missing rows. Such a
+        # bundle also fails publication validation, so the rule is checked directly as well as end to end.
+        published = self.paragon(minutes=60, fetched=60)
+        p.retain_publication(published, self.cloud)
+        stored = p.load_publication(self.cloud, 'paragon')
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+        self.assertTrue(incoming['tier_list'])
+        self.assertEqual(refusing_sources(['statz_tierlist', 'statz_hero_pages'], stored, incoming), [])
+        incoming['sources']['statz_hero_pages']['fetched_at'] = None
+        self.assertEqual(refusing_sources(['statz_tierlist', 'statz_hero_pages'], stored, incoming), ['statz_hero_pages'])
+        incoming['sources']['statz_tierlist']['fetched_at'] = 'not a time'
+        self.assertEqual(refusing_sources(['statz_tierlist', 'statz_hero_pages'], stored, incoming), ['statz_tierlist', 'statz_hero_pages'])
+
+    def test_a_first_discontinuation_never_rolls_back_past_the_published_sample(self):
+        # Muse on bb3c60b (disputed): an older Statz date is accepted only for a frozen sample of the published
+        # sample's patch with no fewer tier rows and no fewer hero pages; anything else keeps the refusal.
+        published = self.paragon(minutes=60, fetched=60)
+        published['sources']['statz_hero_pages'].update(coverage={'ok': 1, 'requested': 1, 'failed': 0, 'conflicting': 0})
+        p.retain_publication(published, self.cloud)
+        stored = p.load_publication(self.cloud, 'paragon')
+        keys = ['statz_tierlist', 'statz_hero_pages']
+        def incoming():
+            b = self.paragon(minutes=600, fetched=600, discontinued_at=NOW.isoformat())
+            b['sources']['statz_hero_pages']['coverage'] = {'ok': 1, 'requested': 1, 'failed': 0, 'conflicting': 0}
+            return b
+        self.assertEqual(refusing_sources(keys, stored, incoming()), [], 'the same frozen sample is accepted')
+        cases = {
+            'another patch': lambda b: b.update(patch='1.1'),
+            'no patch': lambda b: b.pop('patch'),
+            'fewer tier rows': lambda b: b.update(tier_list=b['tier_list'][:-1]),
+            'fewer hero pages': lambda b: b['sources']['statz_hero_pages'].update(coverage={'ok': 0, 'requested': 1, 'failed': 1}),
+            'hero pages unknown': lambda b: b['sources']['statz_hero_pages'].pop('coverage'),
+        }
+        for name, change in cases.items():
+            with self.subTest(name):
+                b = incoming(); change(b)
+                self.assertEqual(refusing_sources(keys, stored, b), keys)
+        # End to end: a frozen sample from another patch is refused and the published sample stays.
+        b = incoming(); b['patch'] = '1.1'
+        if p.base.bundle_is_publishable(b):
+            result, _ = self.paragon_feed(b, (NOW + dt.timedelta(minutes=601)).isoformat())
+            self.assertIn('statz_tierlist', result)
+            self.assertEqual(p.load_publication(self.cloud, 'paragon')['sources']['statz_tierlist']['status'], 'ok')
+
+    def test_an_unreadable_attempt_time_never_stops_the_import(self):
+        # Muse on bb3c60b: attempt times are compared only for a bracket whose published bundle is the receipt's
+        # own, and an unreadable one never matches; it never raises for the other brackets.
+        p.retain_publication(complete(minutes=60, fetched=60), self.cloud)
+        cloud_attempt = {'status': 'ok', 'at': 'not a time', 'errors': []}
+        p.write_json(self.cloud / 'publication.json', {'attempts': {'gold': cloud_attempt}})
+        pc = complete(minutes=180, fetched=0)
+        p.retain_publication(pc, self.windows)
+        p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()),
+                                                         'attempts': {'gold': {'status': 'partial', 'at': 'also not a time', 'errors': []}}})
+        updater.export_feed(self.windows, self.windows / 'feed')
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            self.assertIn('older than published', import_feed(self.windows / 'feed', self.cloud)['results']['gold'])
+        self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], cloud_attempt)
+        # The receipt's own bundle is published, so its attempt time is compared: an unreadable stored time never matches.
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            self.cloud = Path(self.tmp.name) / 'cloud-own'
+            pc_own, _ = self.stale_receipt()
+            p.retain_publication(pc_own, self.cloud)
+            state = p.read_json(self.cloud / 'publication.json'); state['attempts']['gold'] = dict(cloud_attempt)
+            p.write_json(self.cloud / 'publication.json', state)
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
+        self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], cloud_attempt)
+
+    def test_a_review_replayed_copy_of_the_receipts_bundle_still_counts_as_its_own(self):
+        # Muse on bb3c60b: publication may store a review-replayed copy (new guidance, corrections, notices) of the
+        # receipt's bundle. What the collection observed is unchanged, so its stale same-time failure still clears.
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            pc, attempt = self.stale_receipt()
+            replayed = dict(pc, errors=[{'source': 'Official correction review', 'severity': 'warning', 'detail': 'replayed by a later guidance release'}])
+            p.retain_publication(replayed, self.cloud)
+            stored = p.load_publication(self.cloud, 'gold')
+            self.assertNotEqual(stored['errors'], p.validate_publication_bundle(pc, 'gold')['errors'])
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
+        self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], attempt)
+
     def test_an_older_omeda_source_still_refuses_a_first_statz_discontinuation(self):
         # VERIFY-3 R3: the exemption names only the two Statz sources; an older Omeda date still refuses the upload.
         published = self.paragon(minutes=60, fetched=60)
