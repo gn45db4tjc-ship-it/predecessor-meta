@@ -1,6 +1,6 @@
 {
-  "last_full_attempt_at": "2026-11-16T12:19:09-06:00",
-  "maintenance_day": "2026-11-17",
+  "last_full_attempt_at": "2026-11-17T12:20:11-06:00",
+  "maintenance_day": "2026-11-18",
   "patch_check_status": "verified",
   "brackets": {
     "gold": "partial",
@@ -9,6 +9,6 @@
     "platinum": "partial",
     "diamond": "partial",
     "paragon": "failed",
-    "master": "failed"
+    "master": "partial"
   }
 }
