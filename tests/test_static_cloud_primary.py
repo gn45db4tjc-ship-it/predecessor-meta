@@ -244,7 +244,7 @@ class ImportNeverRegresses(unittest.TestCase):
         failed = p.read_json(self.cloud / 'publication.json')['attempts']['gold']
         self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'imported')
         self.assertEqual(p.read_import_record(self.cloud, 'gold')['generated_at'], pc['generated_at'])
-        self.assertEqual(p.read_import_record(self.cloud, 'gold')['content'], p.bundle_digest(p.load_publication(self.cloud, 'gold')))
+        self.assertEqual(p.read_import_record(self.cloud, 'gold')['contents'], [p.bundle_digest(p.load_publication(self.cloud, 'gold'))])
         state = p.read_json(self.cloud / 'publication.json')
         state['attempts']['gold'] = failed
         p.write_json(self.cloud / 'publication.json', state)
@@ -287,12 +287,13 @@ class ImportNeverRegresses(unittest.TestCase):
 
     def test_own_import_needs_the_recorded_file_date_and_collector(self):
         pub = {'generated_at': NOW.isoformat(), 'collector': {'host': 'windows'}}
-        record = {'sha256': 'a' * 64, 'generated_at': NOW.isoformat(), 'collector': {'host': 'windows'}, 'content': p.bundle_digest(pub)}
+        record = {'sha256': 'a' * 64, 'generated_at': NOW.isoformat(), 'collector': {'host': 'windows'}, 'contents': [p.bundle_digest(pub)]}
         row = {'sha256': 'a' * 64}
         self.assertTrue(own_import(record, pub, row))
         # The recorded content must be the published content (VERIFY-8): same file, date and collector are not enough.
         self.assertFalse(own_import(record, dict(pub, scoped_statistics={'rows': [{'matches': 123}]}), row))
-        self.assertFalse(own_import(dict(record, content=None), pub, row))
+        self.assertFalse(own_import(dict(record, contents=None), pub, row))
+        self.assertFalse(own_import(dict(record, contents=[]), pub, row))
         self.assertFalse(own_import(dict(record, sha256='b' * 64), pub, row))
         self.assertFalse(own_import(dict(record, generated_at=(NOW + dt.timedelta(seconds=1)).isoformat()), pub, row))
         self.assertFalse(own_import(dict(record, collector={'host': 'local'}), pub, row))
@@ -637,9 +638,71 @@ class ImportNeverRegresses(unittest.TestCase):
             stored = p.load_publication(self.cloud, 'gold')
             self.assertEqual(stored['guidance'], replayed['guidance'], 'publication stored the replayed copy')
             self.assertNotEqual(p.bundle_digest(stored), p.bundle_digest(own))
-            self.assertEqual(p.read_import_record(self.cloud, 'gold')['content'], p.bundle_digest(stored))
+            self.assertEqual(p.read_import_record(self.cloud, 'gold')['contents'], [p.bundle_digest(stored)])
             self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
         self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], attempt)
+
+    def replay_stubs(self):
+        def enrich(out, official):
+            out['guidance'] = {'builds': ['reviewed'], 'meta_review': {'entries': ['rechecked']}}
+        return (patch.object(p.base, 'enrich_bundle', side_effect=enrich), patch.object(p.base, 'apply_pred_game_data'),
+                patch.object(p.base, 'guidance_fingerprint', return_value='a-newer-packet'))
+
+    def render(self):
+        stubs = self.replay_stubs()
+        with stubs[0], stubs[1], stubs[2]:
+            return p.render_site(self.cloud, Path(tempfile.mkdtemp(dir=self.tmp.name)), {'patch_check': p.patch_summary(official())})
+
+    def test_a_replay_whose_record_cannot_be_written_is_not_stored(self):
+        # VERIFY-9: when the import record cannot name the replay, publication goes on with the replay unstored, so the
+        # stored copy and the record never part; the next publication stores it and the receipt still owns its bundle.
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            pc, attempt = self.imported_then_stale()
+            own = p.load_publication(self.cloud, 'gold')
+            with patch.object(p, 'write_import_record', side_effect=PermissionError('locked')):
+                manifest = self.render()
+            self.assertEqual(manifest['cohorts']['gold']['status'], 'available')
+            self.assertEqual(p.bundle_digest(p.load_publication(self.cloud, 'gold')), p.bundle_digest(own), 'the replay was not stored')
+            self.assertEqual(p.read_import_record(self.cloud, 'gold')['contents'], [p.bundle_digest(own)])
+            # The record keeps both copies when only its last write fails; either names this collection.
+            calls = []
+            write = p.write_import_record
+            def second_write_fails(*args):
+                calls.append(args)
+                if len(calls) == 2:
+                    raise PermissionError('locked')
+                return write(*args)
+            with patch.object(p, 'write_import_record', side_effect=second_write_fails):
+                self.render()
+            stored = p.load_publication(self.cloud, 'gold')
+            self.assertNotEqual(p.bundle_digest(stored), p.bundle_digest(own), 'the next publication stored the replay')
+            self.assertEqual(p.read_import_record(self.cloud, 'gold')['contents'], [p.bundle_digest(own), p.bundle_digest(stored)])
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
+        self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], attempt)
+
+    def test_an_import_record_that_cannot_be_written_stores_nothing(self):
+        # VERIFY-9: the record is written before the bundle is stored. When it cannot be written the bracket fails
+        # whole: nothing is stored, an equal-time attempt stays, the clock stays, and the next read imports normally.
+        p.retain_publication(complete(minutes=60, fetched=60), self.cloud)
+        published = p.load_publication(self.cloud, 'gold')
+        pc = complete(minutes=180, fetched=170, collector={'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'})
+        p.retain_publication(pc, self.windows)
+        at = (NOW + dt.timedelta(minutes=181)).isoformat()
+        p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()), 'last_full_attempt_at': at,
+                                                         'attempts': {'gold': {'status': 'partial', 'at': at, 'errors': []}}})
+        updater.export_feed(self.windows, self.windows / 'feed')
+        cloud_attempt = {'status': 'ok', 'at': at, 'errors': []}
+        p.write_json(self.cloud / 'publication.json', {'attempts': {'gold': cloud_attempt}, 'last_full_attempt_at': NOW.isoformat()})
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            with patch.object(p, 'write_import_record', side_effect=PermissionError('locked')):
+                self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'failed')
+            self.assertEqual(p.bundle_digest(p.load_publication(self.cloud, 'gold')), p.bundle_digest(published))
+            state = p.read_json(self.cloud / 'publication.json')
+            self.assertEqual(state['attempts']['gold'], cloud_attempt)
+            self.assertEqual(state['last_full_attempt_at'], NOW.isoformat())
+            self.assertIsNone(p.read_import_record(self.cloud, 'gold'))
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'imported')
+        self.assertEqual(p.read_import_record(self.cloud, 'gold')['contents'], [p.bundle_digest(p.load_publication(self.cloud, 'gold'))])
 
     def test_an_older_omeda_source_still_refuses_a_first_statz_discontinuation(self):
         # VERIFY-3 R3: the exemption names only the two Statz sources; an older Omeda date still refuses the upload.

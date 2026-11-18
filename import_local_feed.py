@@ -67,17 +67,17 @@ def first_discontinuation_refusals(older, published, bundle):
 def own_import(record, published, row):
     """True only when the published bundle is the one this importer stored from this very receipt file.
 
-    import_feed records each bundle it stores (static_publish.import_record_path): the receipt's sha256 of the file,
-    its generated_at and collector, and the sha256 of the stored content. The published bundle is the receipt's own
-    only when the record names this receipt file and the published content is the recorded content. A review replay
-    at publication carries the record to its new copy (static_publish.carry_import_record), so a replayed copy still
-    counts. A bundle stored any other way (restored from a seed, the collector copy or the live site, or imported
-    before PRED-M8) has other content or no record, so it never counts, whatever fields it shares (VERIFY-3 R2,
-    VERIFY-6, VERIFY-8)."""
-    if not isinstance(record,dict) or not published or not row.get('sha256') or not record.get('content'):
+    Before it stores a bundle, import_feed records it (static_publish.import_record_path): the receipt's sha256 of the
+    file, its generated_at and collector, and the sha256 of the content it is about to store. The published bundle is
+    the receipt's own only when the record names this receipt file and the published content is a recorded content.
+    A review replay at publication adds its copy's content before storing it (static_publish.store_review_replay), so
+    a replayed copy still counts. A bundle stored any other way with other content, or with no record, never counts,
+    whatever fields it shares (VERIFY-3 R2, VERIFY-6, VERIFY-8). A record that could not be written leaves the
+    bundle unstored (VERIFY-9)."""
+    if not isinstance(record,dict) or not published or not row.get('sha256') or not isinstance(record.get('contents'),list):
         return False
     return (record.get('sha256')==row.get('sha256') and record.get('generated_at')==published.get('generated_at')
-            and record.get('collector')==published.get('collector') and record.get('content')==p.bundle_digest(published))
+            and record.get('collector')==published.get('collector') and p.bundle_digest(published) in record['contents'])
 
 
 def import_feed(feed, state_folder):
@@ -144,14 +144,14 @@ def import_feed(feed, state_folder):
                 # A newer assembly date never makes an older source fresh: published source dates only move forward.
                 results[bracket]='retained published bundle: imported '+', '.join(older)+' older than published'
             else:
-                stored=p.retain_publication(bundle,state_folder)
+                # The record is written before the bundle is stored: if it cannot be written, nothing is stored and
+                # the bracket fails as a whole, so a stored bundle never lacks its record (VERIFY-9).
+                p.write_import_record(state_folder,bracket,{'sha256':row.get('sha256'),
+                    'generated_at':bundle['generated_at'],'collector':bundle.get('collector'),
+                    'contents':[p.bundle_digest(p.stored_form(bundle))]})
+                p.retain_publication(bundle,state_folder)
                 results[bracket]='imported'
                 same_bundle.add(bracket)
-                loaded=p.load_publication(state_folder,bracket)
-                if loaded is not None and p.bundle_digest(loaded)==p.bundle_digest(stored):
-                    p.write_import_record(state_folder,bracket,{'sha256':row.get('sha256'),
-                        'generated_at':bundle['generated_at'],'collector':bundle.get('collector'),
-                        'content':p.bundle_digest(loaded)})
         except Exception as error:
             results[bracket]='failed'
             attempts[bracket].update(status='failed')

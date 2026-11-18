@@ -324,6 +324,14 @@ def bundle_digest(bundle):
     return hashlib.sha256(json.dumps(bundle, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf8')).hexdigest()
 
 
+def stored_form(bundle):
+    """The bundle exactly as load_publication returns it once retain_publication has stored it, without storing it."""
+    bracket = bundle.get('bracket', {}).get('segment')
+    validate = validate_public_bundle if base.bundle_is_complete(bundle)[0] else validate_publication_bundle
+    clean = validate(bundle, bracket)
+    return validate(json.loads(json.dumps(clean, ensure_ascii=False, separators=(',', ':'))), bracket)
+
+
 def import_record_path(folder, bracket):
     return Path(folder) / 'import-records' / (str(bracket) + '.json')
 
@@ -334,7 +342,7 @@ def read_import_record(folder, bracket):
         record = read_json(import_record_path(folder, bracket))
     except (OSError, ValueError):
         return None
-    return record if isinstance(record, dict) else None
+    return record if isinstance(record, dict) and isinstance(record.get('contents'), list) else None
 
 
 def write_import_record(folder, bracket, record):
@@ -343,20 +351,32 @@ def write_import_record(folder, bracket, record):
     write_json(path, record)
 
 
-def carry_import_record(folder, bracket, before, written):
-    """A review replay stores a new copy of the same collection. The importer's record of that collection follows the
-    copy, so the receipt it came from still finds its own bundle published (#228). The record moves only when it named
-    the replayed bundle's exact content and the stored copy is the one publication now loads; any other write leaves
-    the record naming content that is no longer published, so it never matches again (VERIFY-8)."""
+def store_review_replay(folder, bracket, before, reviewed):
+    """Store a review replay of a published bundle and return what publication now holds (#228, VERIFY-8, VERIFY-9).
+
+    When the local importer's record names the replayed bundle's content, the record first names the replay's content
+    too, and only then is the replay stored, so the receipt still finds its own bundle published whichever copy is
+    stored. If that record cannot be written, the replay is published this run without being stored and is made again
+    at the next publication, so the record never falls behind the stored copy. After the replay is stored, the record
+    keeps only the stored content; a failure there leaves both contents, which still name only this collection."""
     record = read_import_record(folder, bracket)
-    if not record or not before or not written or record.get('content') != bundle_digest(before):
-        return
-    if written.get('generated_at') != before.get('generated_at') or written.get('collector') != before.get('collector'):
-        return
-    loaded = load_publication(folder, bracket)
-    if loaded is None or bundle_digest(loaded) != bundle_digest(written):
-        return
-    write_import_record(folder, bracket, dict(record, content=bundle_digest(loaded)))
+    if record and bundle_digest(before) in record['contents'] and reviewed.get('generated_at') == before.get('generated_at') \
+            and reviewed.get('collector') == before.get('collector'):
+        replay = bundle_digest(stored_form(reviewed))
+        try:
+            write_import_record(folder, bracket, dict(record, contents=[bundle_digest(before), replay]))
+        except OSError as error:
+            base.log('Review replay not stored for ' + str(bracket) + ' (import record not written): ' + str(error)[:200])
+            return stored_form(reviewed)
+        stored = retain_publication(reviewed, folder)
+        try:
+            loaded = load_publication(folder, bracket)
+            if loaded is not None and bundle_digest(loaded) == replay:
+                write_import_record(folder, bracket, dict(record, contents=[replay]))
+        except OSError as error:
+            base.log('Import record kept both copies for ' + str(bracket) + ': ' + str(error)[:200])
+        return stored
+    return retain_publication(reviewed, folder)
 
 
 def load_publication(folder, bracket):
@@ -642,8 +662,7 @@ def render_site(folder, out, state):
             if reviewed is not bundle:
                 # Store the audited replay once; a guidance release never advances
                 # the original collection or source fetch dates.
-                before, bundle = bundle, retain_publication(reviewed, folder)
-                carry_import_record(folder, bracket, before, bundle)
+                bundle = store_review_replay(folder, bracket, bundle, reviewed)
             # 2.53.0: the phone's Meta screen leads with Pred.gg's latest movement; a bundle collected before 2.53.0
             # gets the same small digest here (its observations and dates are unchanged).
             bundle = base.with_scoped_movement(bundle)
