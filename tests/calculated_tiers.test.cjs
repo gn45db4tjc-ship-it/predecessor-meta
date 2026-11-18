@@ -89,8 +89,8 @@ test('a retained Pred.gg sample is never ranked as current', () => {
   assert.equal(M.create(alone).calculatedTier('strong', 'jungle').tier, null);
 });
 
-test('all six ranks calculate from their own sample and name their own rank', () => {
-  for (const [bracket, label] of [['bronze', 'Bronze+'], ['silver', 'Silver+'], ['gold', 'Gold+'], ['platinum', 'Platinum+'], ['diamond', 'Diamond+'], ['paragon', 'Paragon+']]) {
+test('all seven ranks calculate from their own sample and name their own rank', () => {
+  for (const [bracket, label] of [['bronze', 'Bronze+'], ['silver', 'Silver+'], ['gold', 'Gold+'], ['platinum', 'Platinum+'], ['diamond', 'Diamond+'], ['master', 'Master+'], ['paragon', 'Paragon+']]) {
     const t = M.create(bundle(rows, {bracket, label})).calculatedTier('strong', 'jungle');
     assert.equal(t.rank, label); assert.equal(t.tier, 'S'); assert.equal(t.played, 4000);
   }

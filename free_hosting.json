@@ -16,6 +16,7 @@
     "silver",
     "platinum",
     "diamond",
+    "master",
     "paragon"
   ],
   "default_bracket": "gold",

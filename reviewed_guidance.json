@@ -8360,7 +8360,7 @@
             }
           },
           "perks": {
-            "Bring The Boom": "Rad Rounds deals 50% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
+            "Bring The Boom": "Rad Rounds deals 60% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
             "Weald": "Damaging an Enemy Hero below 30% Health fires 4 (+1 per 30% Bonus Attack Speed) Projectiles, each dealing 7 (+1 per Level) True Damage and applying On-Hit effects at 20% Effectiveness (10s CD per Hero).",
             "Forage": "Gain 3 additional Gold and 3 additional XP per Minion or Monster Kill.",
             "Taproot": "Basic Attacks restore 1 (+6% Bonus Physical Power) Health On-Hit."
@@ -43373,7 +43373,7 @@
         "augment": "Bring The Boom",
         "ability_key": "E",
         "ability_text": "Irradiate Drongo's basic attacks, granting him 20/22.5/25/27.5/30% Attack Speed for 4s. During this window, shots Irradiate Enemies for 1.5s, the timer refreshing with each hit. \nAfter Irradiate expires, the target erupts, dealing 8/15/22/29/36 (+22% physical power) physical damage to them for the first stack, and 8/15/22/29/36 (+22% physical power) for subsequent stacks. Applies an additional stack of Wastelander per Irradiate stack.\nIf Drongo damages irradiated targets with Old Rusty or Shrapnel Cannon, they erupt immediately.\nThe cooldown begins on activation.",
-        "augment_description": "Rad Rounds deals 50% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
+        "augment_description": "Rad Rounds deals 60% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
         "patch": "1.18",
         "remove": [],
         "add": [],
@@ -47061,57 +47061,25 @@
           ]
         },
         "Bring The Boom": {
-          "description": "Rad Rounds deals 50% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
+          "description": "Rad Rounds deals 60% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
           "slot": "HERO_SPECIFIC_1",
           "hero": "Drongo",
           "sources": [
             {
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d.json",
-              "sha256": "e5a44270becb60f49b11a88e898ee36d219aca152a5453bcde5bfe7f73a98b8d",
+              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/gold-d4645195a2e727b3afc6153c5f34e71a248fc9e0384551cb400b2fcc9ab0f389.json",
+              "sha256": "d4645195a2e727b3afc6153c5f34e71a248fc9e0384551cb400b2fcc9ab0f389",
               "upstream": "https://statz.gg/predecessor",
               "bracket": "gold",
-              "dataset": "1.16",
-              "fetched_at": "2026-09-22T02:13:53+00:00"
+              "dataset": "1.18",
+              "fetched_at": "2026-11-16T12:19:30-06:00"
             },
             {
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/bronze-f84f81aebd858b44d9dd3e04da2b90854a4a89d297f8899df5c7c815ce78572c.json",
-              "sha256": "f84f81aebd858b44d9dd3e04da2b90854a4a89d297f8899df5c7c815ce78572c",
-              "upstream": "https://statz.gg/predecessor",
-              "bracket": "bronze",
-              "dataset": "1.16",
-              "fetched_at": "2026-09-22T02:14:12+00:00"
-            },
-            {
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/silver-76d902d465322297dbad94dd1cd167e6decc62afb8fa8ee825116819b3d74c7e.json",
-              "sha256": "76d902d465322297dbad94dd1cd167e6decc62afb8fa8ee825116819b3d74c7e",
-              "upstream": "https://statz.gg/predecessor",
-              "bracket": "silver",
-              "dataset": "1.16",
-              "fetched_at": "2026-09-22T02:14:30+00:00"
-            },
-            {
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/platinum-602f306368e370e45eb4088350adb8b23123163af924764c722ef6596dfea3c4.json",
-              "sha256": "602f306368e370e45eb4088350adb8b23123163af924764c722ef6596dfea3c4",
-              "upstream": "https://statz.gg/predecessor",
-              "bracket": "platinum",
-              "dataset": "1.16",
-              "fetched_at": "2026-09-22T02:14:46+00:00"
-            },
-            {
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-6b1bc3d3d7b49a34ab163d767dd7239166c8399a99828d7a660e6863fc3065db.json",
-              "sha256": "6b1bc3d3d7b49a34ab163d767dd7239166c8399a99828d7a660e6863fc3065db",
+              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/diamond-69ce1d10900dab89a43a2c97ee83ad505c085c23565e9b31091d94f0d5bc2c7d.json",
+              "sha256": "69ce1d10900dab89a43a2c97ee83ad505c085c23565e9b31091d94f0d5bc2c7d",
               "upstream": "https://statz.gg/predecessor",
               "bracket": "diamond",
-              "dataset": "1.16",
-              "fetched_at": "2026-09-22T02:15:01+00:00"
-            },
-            {
-              "url": "https://gn45db4tjc-ship-it.github.io/predecessor-meta/bundles/paragon-b927eb64da232dbeff41bb2491f406c6e986b0a89f059f10e6d6d7a157589376.json",
-              "sha256": "b927eb64da232dbeff41bb2491f406c6e986b0a89f059f10e6d6d7a157589376",
-              "upstream": "https://statz.gg/predecessor",
-              "bracket": "paragon",
-              "dataset": "1.16",
-              "fetched_at": "2026-09-22T02:15:19+00:00"
+              "dataset": "1.18",
+              "fetched_at": "2026-11-16T12:20:47-06:00"
             }
           ]
         },
@@ -55263,8 +55231,8 @@
         "bring-the-boom",
         "description"
       ],
-      "before": "Rad Rounds deals 50% of its damage to nearby Enemies upon exploding.",
-      "after": "Rad Rounds deals 50% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
+      "before": "Rad Rounds deals 60% of its damage to nearby Enemies upon exploding.",
+      "after": "Rad Rounds deals 60% of its damage to nearby Enemies upon exploding.\nRad Rounds explosion radius is 600u.",
       "changes": [
         "Rad Rounds Explosion Radius increased from 500u to 600u."
       ]

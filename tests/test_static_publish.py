@@ -325,5 +325,74 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(manifest['last_verified_patch_check'],previous)
         output.assert_any_call('source_failed',True)
 
+    def test_master_publishes_and_discontinued_paragon_statz_never_blocks_other_brackets(self):
+        self.assertEqual(s.CONFIG['brackets'], ['gold', 'bronze', 'silver', 'platinum', 'diamond', 'master', 'paragon'])
+        old_statz_at = (NOW - dt.timedelta(days=20)).isoformat()
+
+        def paragon_bundle(with_pred=True, with_old_statz=True):
+            b = {
+                'schema': 3,
+                'generated_at': NOW.isoformat(),
+                'patch': '1.18' if with_old_statz else None,
+                'bracket': {'segment': 'paragon', 'label': 'Paragon+'},
+                'heroes': {'unit-test-fixture': {'display_name': 'Synthetic fixture', 'roles': (
+                    {'jungle': {'status': 'ok', 'winRate': 52.0, 'pickRate': 8.0, 'playedGames': 150, 'fetched_at': old_statz_at}}
+                    if with_old_statz else {}
+                )}},
+                'tier_list': [{'slug': 'unit-test-fixture', 'role': 'jungle', 'winRate': 52.0, 'pickRate': 8.0, 'matches': 150}] if with_old_statz else [],
+                'official': official('1.19'),
+                'errors': [{'source': 'Statz Paragon+', 'severity': 'warning',
+                            'detail': 'statz.gg stopped publishing Paragon+ after Patch 1.18; Statz collection was skipped for paragon.'}],
+                'pairs': {},
+                'sources': {
+                    'statz_tierlist': {'status': 'discontinued', 'discontinued_after_patch': '1.18', 'fetched_at': old_statz_at if with_old_statz else None},
+                    'statz_hero_pages': {'status': 'discontinued', 'discontinued_after_patch': '1.18', 'fetched_at': old_statz_at if with_old_statz else None},
+                    'omeda_heroes': {'status': 'ok', 'fetched_at': NOW.isoformat()},
+                    'omeda_items': {'status': 'ok', 'fetched_at': NOW.isoformat()},
+                    'pred_scoped': {'status': 'ok' if with_pred else 'failed', 'fetched_at': NOW.isoformat() if with_pred else None},
+                },
+            }
+            if with_pred:
+                b['scoped_statistics'] = {
+                    'status': 'ok', 'patch': '1.19', 'bracket': 'paragon', 'bracket_label': 'Paragon+',
+                    'rows': [{'slug': 'unit-test-fixture', 'role': 'jungle', 'winRate': 53.0, 'matches': 120}],
+                    'roles': {'jungle': {'status': 'ok', 'fetched_at': NOW.isoformat(), 'rows': [{'slug': 'unit-test-fixture', 'role': 'jungle', 'winRate': 53.0, 'matches': 120}]}},
+                }
+            else:
+                b['errors'].append({'source': 'Pred.gg', 'severity': 'error', 'detail': 'HTTP 403'})
+            return b
+
+        master_b = bundle('master')
+        master_b['official'] = official('1.19')
+        config = dict(s.CONFIG, brackets=['gold', 'master', 'paragon'], cloud_collection_paused_reason=None)
+        with patch.object(s, 'CONFIG', config), patch.object(s.base, 'now_utc', return_value=NOW), patch.object(
+            s.base, 'fetch_official', return_value=official('1.19')
+        ), patch.object(s.base, 'collect_bundle', side_effect=[bundle('gold'), master_b, paragon_bundle(with_pred=False, with_old_statz=True)]):
+            manifest = s.run(self.state, self.out)
+
+        self.assertEqual(manifest['cohorts']['gold']['status'], 'available')
+        self.assertEqual(manifest['cohorts']['master']['status'], 'available')
+        self.assertEqual(manifest['cohorts']['master']['label'], 'Master+')
+        self.assertEqual(manifest['cohorts']['paragon']['status'], 'available')
+        self.assertEqual(manifest['cohorts']['paragon']['health']['core_statistics']['status'], 'discontinued')
+        self.assertEqual(manifest['cohorts']['paragon']['health']['core_statistics']['discontinued_after_patch'], '1.18')
+        self.assertEqual(manifest['cohorts']['paragon']['source_dates']['statz_tierlist']['fetched_at'], old_statz_at)
+        self.assertFalse(manifest['required_retry']['pending'])
+
+        # Even with 0 historical Statz rows on disk, Paragon+ with Pred.gg publishes cleanly without Statz rows.
+        next_day = NOW + dt.timedelta(days=1)
+        with patch.object(s, 'CONFIG', dict(config, brackets=['paragon'])), patch.object(
+            s.base, 'now_utc', return_value=next_day
+        ), patch.object(s.base, 'fetch_official', return_value=official('1.19')), patch.object(
+            s.base, 'collect_bundle', return_value=paragon_bundle(with_pred=True, with_old_statz=False)
+        ):
+            # Clear prior saved paragon bundle so we test pure Pred.gg + empty discontinued Statz
+            for sub in ('bundles', 'partial-bundles'):
+                (self.state / sub / 'paragon.json.gz').unlink(missing_ok=True)
+            manifest2 = s.run(self.state, self.out)
+        self.assertEqual(manifest2['cohorts']['paragon']['status'], 'available')
+        self.assertEqual(manifest2['cohorts']['paragon']['collection_status'], 'complete')
+        self.assertEqual(manifest2['cohorts']['paragon']['health']['core_statistics']['status'], 'discontinued')
+
 
 if __name__=='__main__': unittest.main()
