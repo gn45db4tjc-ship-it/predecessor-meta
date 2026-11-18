@@ -474,12 +474,20 @@ class ImportNeverRegresses(unittest.TestCase):
         self.assertEqual(refusing_sources(keys, bare, fewer), keys)
         same = incoming(); same['sources']['statz_hero_pages'].pop('coverage')
         self.assertEqual(refusing_sources(keys, bare, same), [])
+        # A published sample with no hero-page count cannot be shown to be no larger, so it keeps the refusal (Muse on 2533773).
+        unknown = dict(stored, sources=dict(stored['sources'], statz_hero_pages={k: v for k, v in stored['sources']['statz_hero_pages'].items() if k not in ('coverage', 'ok')}))
+        self.assertEqual(refusing_sources(keys, unknown, incoming()), keys)
+        # A fetch date that is not readable text never counts as the upload's own observation (Muse on 2533773).
+        for stamp in (1730000000, {'at': NOW.isoformat()}, ['x'], '2026-11-04T11:30:00+99:00', '9999-12-31T23:59:59-23:59'):
+            with self.subTest(stamp=stamp):
+                b = incoming(); b['sources']['statz_hero_pages']['fetched_at'] = stamp
+                self.assertEqual(refusing_sources(keys, stored, b), ['statz_hero_pages'])
         # End to end: a frozen sample from another patch is refused and the published sample stays.
         b = incoming(); b['patch'] = '1.1'
-        if p.base.bundle_is_publishable(b):
-            result, _ = self.paragon_feed(b, (NOW + dt.timedelta(minutes=601)).isoformat())
-            self.assertIn('statz_tierlist', result)
-            self.assertEqual(p.load_publication(self.cloud, 'paragon')['sources']['statz_tierlist']['status'], 'ok')
+        self.assertTrue(p.base.bundle_is_publishable(b))
+        result, _ = self.paragon_feed(b, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertIn('statz_tierlist', result)
+        self.assertEqual(p.load_publication(self.cloud, 'paragon')['sources']['statz_tierlist']['status'], 'ok')
 
     def test_an_unreadable_attempt_time_never_stops_the_import(self):
         # Muse on bb3c60b: attempt times are compared only for a bracket whose published bundle is the receipt's

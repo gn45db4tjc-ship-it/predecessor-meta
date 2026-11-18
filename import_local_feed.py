@@ -19,16 +19,13 @@ def readable_time(stamp):
 
 def dated_statz(bundle, key):
     """True when the bundle's own Statz source carries a readable fetch date (an observation, not only a stop)."""
-    stamp=((bundle.get('sources') or {}).get(key) or {}).get('fetched_at')
-    try:
-        return bool(stamp) and bool(p.utc_time(stamp))
-    except (TypeError, ValueError):
-        return False
+    return readable_time(((bundle.get('sources') or {}).get(key) or {}).get('fetched_at')) is not None
 
 
 def keeps_statz_sample(published, bundle):
     """The upload's frozen Statz sample is from the published sample's patch and is no smaller: as many tier rows
-    and as many hero pages. A first discontinuation may move a Statz date back within that patch, never further."""
+    and as many hero pages. A first discontinuation may move a Statz date back within that patch, never further.
+    When either hero-page count is unknown the sample cannot be shown to be no smaller, so it is not kept."""
     def pages(b):
         # The derived coverage count when publication stamped one, else the source record's own count.
         record=(b.get('sources') or {}).get('statz_hero_pages') or {}
@@ -40,7 +37,7 @@ def keeps_statz_sample(published, bundle):
         return False
     if len(bundle.get('tier_list') or [])<len(published.get('tier_list') or []):
         return False
-    return pages(published) is None or (pages(bundle) is not None and pages(bundle)>=pages(published))
+    return pages(published) is not None and pages(bundle) is not None and pages(bundle)>=pages(published)
 
 
 def refusing_sources(older, published, bundle):
