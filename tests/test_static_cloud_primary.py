@@ -4,6 +4,8 @@ Each bundle records who actually collected it, the manifest reports that fact pe
 feed can never move published source dates backwards or pass itself off as a cloud run.
 Every number below is a synthetic fixture."""
 import datetime as dt
+import gzip
+import json
 import os
 import tempfile
 import unittest
@@ -12,7 +14,7 @@ from unittest.mock import patch
 
 import static_publish as p
 import local_updater as updater
-from import_local_feed import import_feed, own_import, readable_time, refusing_sources
+from import_local_feed import first_discontinuation_refusals, import_feed, own_import, readable_time, refusing_sources
 from test_static_publish import NOW, official
 from test_static_independent_sources import partial
 
@@ -241,19 +243,16 @@ class ImportNeverRegresses(unittest.TestCase):
         pc, attempt = self.stale_receipt()
         failed = p.read_json(self.cloud / 'publication.json')['attempts']['gold']
         self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'imported')
+        self.assertEqual(p.read_import_record(self.cloud, 'gold')['generated_at'], pc['generated_at'])
+        self.assertEqual(p.read_import_record(self.cloud, 'gold')['content'], p.bundle_digest(p.load_publication(self.cloud, 'gold')))
         state = p.read_json(self.cloud / 'publication.json')
-        self.assertEqual(state['imported_bundles']['gold']['generated_at'], pc['generated_at'])
         state['attempts']['gold'] = failed
         p.write_json(self.cloud / 'publication.json', state)
         return pc, attempt
 
-    def imported_then_stale_record(self, pc):
-        """Restore a true record of the receipt's file (as its import wrote it) beside whatever is now published."""
-        receipt = p.read_json(self.windows / 'feed' / 'collector.json')
-        state = p.read_json(self.cloud / 'publication.json')
-        state['imported_bundles']['gold'] = {'sha256': receipt['bundles']['gold']['sha256'], 'generated_at': pc['generated_at'],
-                                             'collector': p.validate_publication_bundle(pc, 'gold').get('collector')}
-        p.write_json(self.cloud / 'publication.json', state)
+    def imported_then_stale_record(self, record):
+        """Put back a true record of the receipt's import (as its import wrote it) beside whatever is now published."""
+        p.write_import_record(self.cloud, 'gold', record)
 
     def test_a_stale_failure_beside_its_published_bundle_clears_on_the_next_read(self):
         # #228: reading the same receipt again finds its own imported bundle published and replaces only that
@@ -288,9 +287,12 @@ class ImportNeverRegresses(unittest.TestCase):
 
     def test_own_import_needs_the_recorded_file_date_and_collector(self):
         pub = {'generated_at': NOW.isoformat(), 'collector': {'host': 'windows'}}
-        record = {'sha256': 'a' * 64, 'generated_at': NOW.isoformat(), 'collector': {'host': 'windows'}}
+        record = {'sha256': 'a' * 64, 'generated_at': NOW.isoformat(), 'collector': {'host': 'windows'}, 'content': p.bundle_digest(pub)}
         row = {'sha256': 'a' * 64}
         self.assertTrue(own_import(record, pub, row))
+        # The recorded content must be the published content (VERIFY-8): same file, date and collector are not enough.
+        self.assertFalse(own_import(record, dict(pub, scoped_statistics={'rows': [{'matches': 123}]}), row))
+        self.assertFalse(own_import(dict(record, content=None), pub, row))
         self.assertFalse(own_import(dict(record, sha256='b' * 64), pub, row))
         self.assertFalse(own_import(dict(record, generated_at=(NOW + dt.timedelta(seconds=1)).isoformat()), pub, row))
         self.assertFalse(own_import(dict(record, collector={'host': 'local'}), pub, row))
@@ -304,20 +306,68 @@ class ImportNeverRegresses(unittest.TestCase):
         with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
             pc, attempt = self.imported_then_stale()
             failed = p.read_json(self.cloud / 'publication.json')['attempts']['gold']
-            state = p.read_json(self.cloud / 'publication.json')
-            state['imported_bundles']['gold']['sha256'] = '0' * 64
-            p.write_json(self.cloud / 'publication.json', state)
+            record = p.read_import_record(self.cloud, 'gold')
+            p.write_import_record(self.cloud, 'gold', dict(record, sha256='0' * 64))
             self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
             self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], failed)
             # A published bundle whose collector differs from the record is not the recorded import either.
             pc_other = complete(minutes=180, fetched=170, collector={'host': 'local', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'})
             pc_other['scoped_statistics']['rows'][0]['matches'] = 123
             p.retain_publication(pc_other, self.cloud)
-            state = p.read_json(self.cloud / 'publication.json'); state['imported_bundles']['gold']['sha256'] = None
-            p.write_json(self.cloud / 'publication.json', state)
-            self.imported_then_stale_record(pc)
+            self.imported_then_stale_record(record)
             import_feed(self.windows / 'feed', self.cloud)
             self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], failed)
+
+    def test_a_surviving_record_never_names_a_bundle_restored_another_way(self):
+        # VERIFY-8 (Muse F4 on d70d17e): the stored bundle is lost, publication.json and the importer's record survive,
+        # and the committed seed restores a different collection with the same date and collector (123 scoped matches
+        # instead of 200). The record names other content, so the same-time failure and the clock stay as they were.
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            pc, attempt = self.imported_then_stale()
+            state = p.read_json(self.cloud / 'publication.json'); state['last_full_attempt_at'] = NOW.isoformat()
+            p.write_json(self.cloud / 'publication.json', state)
+            failed = state['attempts']['gold']
+            for stored in ('bundles', 'partial-bundles'):
+                (self.cloud / stored / 'gold.json.gz').unlink(missing_ok=True)
+            other = complete(minutes=180, fetched=170, collector={'host': 'windows', 'run_id': None, 'run_attempt': None, 'tool_version': '2.25.0'})
+            other['scoped_statistics']['rows'][0]['matches'] = 123
+            seed = Path(self.tmp.name) / 'seed-gold.json.gz'
+            seed.write_bytes(gzip.compress(json.dumps(other).encode('utf8')))
+            self.assertTrue(p.import_public_seed(seed, self.cloud))
+            restored = p.load_publication(self.cloud, 'gold')
+            self.assertEqual((restored['generated_at'], restored['collector']), (pc['generated_at'], p.validate_publication_bundle(pc, 'gold')['collector']))
+            self.assertIsNotNone(p.read_import_record(self.cloud, 'gold'), 'the record of the first import survived')
+            self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
+            state = p.read_json(self.cloud / 'publication.json')
+            self.assertEqual(state['attempts']['gold'], failed)
+            self.assertEqual(state['last_full_attempt_at'], NOW.isoformat())
+            self.assertEqual(p.load_publication(self.cloud, 'gold')['scoped_statistics']['rows'][0]['matches'], 123)
+
+    def test_an_unreadable_saved_receipt_time_never_blocks_a_valid_receipt(self):
+        # VERIFY-8 (Muse F6 on d70d17e): the saved check time of the last receipt is read like every other time, so a
+        # damaged one never stops a valid receipt; a receipt whose own check time is unreadable is refused as invalid.
+        pc = complete(minutes=180, fetched=170)
+        p.retain_publication(pc, self.windows)
+        at = (NOW + dt.timedelta(minutes=181)).isoformat()
+        p.write_json(self.windows / 'publication.json', {'patch_check': p.patch_summary(official()), 'last_full_attempt_at': at,
+                                                         'attempts': {'gold': {'status': 'ok', 'at': at, 'errors': []}}})
+        updater.export_feed(self.windows, self.windows / 'feed')
+        receipt_path = self.windows / 'feed' / 'collector.json'
+        receipt = p.read_json(receipt_path)
+        with patch.object(p, 'CONFIG', dict(p.CONFIG, brackets=['gold'])):
+            for saved in (12345, {'at': 'x'}, ['x'], 'not a time', '9999-12-31T23:59:59-23:59', '0001-01-01T00:00:00+23:59'):
+                with self.subTest(saved=saved):
+                    cloud = Path(tempfile.mkdtemp(dir=self.tmp.name))
+                    p.write_json(cloud / 'publication.json', {'attempts': {}, 'local_collector': {'checked_at': saved}})
+                    self.assertEqual(import_feed(self.windows / 'feed', cloud)['results']['gold'], 'imported')
+            cloud = Path(tempfile.mkdtemp(dir=self.tmp.name))
+            p.write_json(cloud / 'publication.json', {'attempts': {}, 'local_collector': 'not a record'})
+            self.assertEqual(import_feed(self.windows / 'feed', cloud)['results']['gold'], 'imported')
+            for incoming in (None, 12345, {'at': 'x'}, 'not a time', '9999-12-31T23:59:59-23:59'):
+                with self.subTest(incoming=incoming):
+                    p.write_json(receipt_path, dict(receipt, checked_at=incoming))
+                    with self.assertRaisesRegex(ValueError, 'receipt time is unreadable'):
+                        import_feed(self.windows / 'feed', self.cloud)
 
     def paragon(self, minutes, fetched, discontinued_at=None):
         """A synthetic Paragon+ bundle; with discontinued_at, Statz is discontinued with its last date there."""
@@ -355,6 +405,28 @@ class ImportNeverRegresses(unittest.TestCase):
         state = p.read_json(self.cloud / 'publication.json')
         self.assertEqual(state['attempts']['paragon'], attempt)
         self.assertTrue(p.attempt_satisfied(state['attempts']['paragon'], published))
+
+    def test_a_first_discontinuation_with_an_unchanged_statz_date_never_drops_published_rows(self):
+        # VERIFY-8 (R1): with the Statz date unchanged nothing is older, but a first discontinuation is still held to
+        # the same bound, so it never replaces published tier rows with fewer.
+        published = self.paragon(minutes=60, fetched=60)
+        p.retain_publication(published, self.cloud)
+        stored = p.load_publication(self.cloud, 'paragon')
+        same_date = stored['sources']['statz_tierlist']['fetched_at']
+        self.assertEqual(same_date, stored['sources']['statz_hero_pages']['fetched_at'])
+        incoming = self.paragon(minutes=600, fetched=600, discontinued_at=same_date)
+        keys = ['statz_tierlist', 'statz_hero_pages']
+        self.assertEqual(first_discontinuation_refusals([], stored, incoming), [])
+        fewer = self.paragon(minutes=600, fetched=600, discontinued_at=same_date); fewer['tier_list'] = fewer['tier_list'][:-1]
+        self.assertEqual(first_discontinuation_refusals([], stored, fewer), keys)
+        # Once Statz is published as discontinued, an unchanged date is not a first discontinuation.
+        settled = dict(stored, sources={k: (dict(v, status='discontinued') if k in keys else v) for k, v in stored['sources'].items()})
+        self.assertEqual(first_discontinuation_refusals([], settled, fewer), [])
+        result, _ = self.paragon_feed(fewer, (NOW + dt.timedelta(minutes=601)).isoformat())
+        self.assertIn('statz_tierlist', result)
+        kept = p.load_publication(self.cloud, 'paragon')
+        self.assertEqual(len(kept['tier_list']), len(stored['tier_list']))
+        self.assertEqual(kept['sources']['statz_tierlist']['status'], 'ok')
 
     def test_a_discontinued_statz_exemption_never_lets_another_source_go_backwards(self):
         published = self.paragon(minutes=60, fetched=60)
@@ -554,12 +626,18 @@ class ImportNeverRegresses(unittest.TestCase):
             # test_static_publication_guidance (the synthetic fixture has no reviewed-packet evidence).
             def enrich(out, official):
                 out['guidance'] = {'builds': ['reviewed'], 'meta_review': {'entries': ['rechecked']}}
-            own = dict(p.load_publication(self.cloud, 'gold'), guidance_fingerprint='an-older-packet')
-            with patch.object(p.base, 'enrich_bundle', side_effect=enrich), patch.object(p.base, 'apply_pred_game_data'):
+            own = p.load_publication(self.cloud, 'gold')
+            with patch.object(p.base, 'enrich_bundle', side_effect=enrich), patch.object(p.base, 'apply_pred_game_data'), \
+                    patch.object(p.base, 'guidance_fingerprint', return_value='a-newer-packet'):
                 replayed = p.base.review_saved_sources(own)
-            self.assertIsNot(replayed, own)
-            self.assertNotEqual(replayed['guidance'], own.get('guidance'))
-            p.retain_publication(replayed, self.cloud)
+                self.assertIsNot(replayed, own)
+                self.assertNotEqual(replayed['guidance'], own.get('guidance'))
+                # render_site stores the replay and carries the importer's record to it (VERIFY-8).
+                p.render_site(self.cloud, Path(self.tmp.name) / 'site', {'patch_check': p.patch_summary(official())})
+            stored = p.load_publication(self.cloud, 'gold')
+            self.assertEqual(stored['guidance'], replayed['guidance'], 'publication stored the replayed copy')
+            self.assertNotEqual(p.bundle_digest(stored), p.bundle_digest(own))
+            self.assertEqual(p.read_import_record(self.cloud, 'gold')['content'], p.bundle_digest(stored))
             self.assertEqual(import_feed(self.windows / 'feed', self.cloud)['results']['gold'], 'retained newer or identical bundle')
         self.assertEqual(p.read_json(self.cloud / 'publication.json')['attempts']['gold'], attempt)
 
@@ -576,8 +654,9 @@ class ImportNeverRegresses(unittest.TestCase):
         self.assertEqual(kept['sources']['statz_tierlist']['status'], 'ok')
 
     def test_the_statz_exemption_is_decided_for_each_statz_source(self):
-        # VERIFY-3 R4. A publication with only the tier list discontinued never validates, so it cannot be stored;
-        # the per-source rule is checked directly on that mix, then end to end on the mixes a publication can hold.
+        # VERIFY-3 R4. This Statz-primary fixture with only the tier list discontinued does not validate, so it cannot
+        # be stored (a Pred.gg-primary bundle can hold that mix, VERIFY-8); the per-source rule is checked directly on
+        # it, then end to end on the mixes this publication can hold.
         mixed = self.paragon(minutes=60, fetched=60)
         mixed['sources']['statz_tierlist'].update(status='discontinued', discontinued_after_patch=p.base.STATZ_DISCONTINUED_AFTER['paragon'])
         self.assertFalse(p.base.bundle_is_publishable(mixed))

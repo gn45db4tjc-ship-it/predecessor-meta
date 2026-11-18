@@ -50,18 +50,34 @@ def refusing_sources(older, published, bundle):
             and dated_statz(bundle,key) and keeps)]
 
 
-def own_import(record, published, row):
-    """True only when the published bundle is the one this importer took from this very receipt file.
+def first_discontinuation_refusals(older, published, bundle):
+    """The sources that refuse an upload marking Statz discontinued. The older ones are decided by refusing_sources.
+    A Statz source with the same date as its published, not yet discontinued copy is checked by the same bound,
+    so a first discontinuation never erases published Statz rows by keeping their date (VERIFY-8, R1)."""
+    candidates=list(older)
+    for key in ('statz_tierlist','statz_hero_pages'):
+        theirs=((published.get('sources') or {}).get(key) or {})
+        mine=((bundle.get('sources') or {}).get(key) or {})
+        same=readable_time(mine.get('fetched_at')) is not None and readable_time(mine.get('fetched_at'))==readable_time(theirs.get('fetched_at'))
+        if key not in candidates and same and theirs.get('status')!='discontinued':
+            candidates.append(key)
+    return refusing_sources(candidates,published,bundle)
 
-    import_feed records each bundle it imports (the receipt's sha256 of the file, its generated_at and collector).
-    The published bundle is the receipt's own when that record names this receipt file's sha256 and the published
-    bundle still has the recorded generated_at and collector. A review replay at publication keeps both, so a
-    replayed copy still counts; a different collection never does, whatever fields it shares (VERIFY-3 R2,
-    VERIFY-6). Without a record (a bundle imported before PRED-M8, or restored from the live site) nothing matches."""
-    if not isinstance(record,dict) or not published or not row.get('sha256'):
+
+def own_import(record, published, row):
+    """True only when the published bundle is the one this importer stored from this very receipt file.
+
+    import_feed records each bundle it stores (static_publish.import_record_path): the receipt's sha256 of the file,
+    its generated_at and collector, and the sha256 of the stored content. The published bundle is the receipt's own
+    only when the record names this receipt file and the published content is the recorded content. A review replay
+    at publication carries the record to its new copy (static_publish.carry_import_record), so a replayed copy still
+    counts. A bundle stored any other way (restored from a seed, the collector copy or the live site, or imported
+    before PRED-M8) has other content or no record, so it never counts, whatever fields it shares (VERIFY-3 R2,
+    VERIFY-6, VERIFY-8)."""
+    if not isinstance(record,dict) or not published or not row.get('sha256') or not record.get('content'):
         return False
     return (record.get('sha256')==row.get('sha256') and record.get('generated_at')==published.get('generated_at')
-            and record.get('collector')==published.get('collector'))
+            and record.get('collector')==published.get('collector') and record.get('content')==p.bundle_digest(published))
 
 
 def import_feed(feed, state_folder):
@@ -72,10 +88,15 @@ def import_feed(feed, state_folder):
     receipt=json.loads(receipt_path.read_text(encoding='utf8'))
     if receipt.get('schema')!=1 or not isinstance(receipt.get('bundles'),dict):
         raise ValueError('Local collector receipt schema changed')
-    p.utc_time(receipt['checked_at'])
+    checked=readable_time(receipt.get('checked_at'))
+    if not checked:
+        # A receipt without a readable check time is invalid, refused like a changed schema.
+        raise ValueError('Local collector receipt time is unreadable')
     state=p.read_json(state_folder/'publication.json',{'schema':1,'attempts':{}})
-    previous=state.get('local_collector',{}).get('checked_at')
-    if previous and p.utc_time(previous)>p.utc_time(receipt['checked_at']):
+    previous=state.get('local_collector')
+    previous=readable_time(previous.get('checked_at')) if isinstance(previous,dict) else None
+    # An unreadable saved check time never blocks a valid receipt (VERIFY-8).
+    if previous and previous>checked:
         return {'status':'older receipt ignored'}
     results={};attempts={};same_bundle=set()
     for bracket in p.CONFIG['brackets']:
@@ -104,17 +125,18 @@ def import_feed(feed, state_folder):
                 raise ValueError('A Windows feed cannot carry a bundle that claims cloud collection')
             old=p.load_publication(state_folder,bracket)
             older=p.older_sources(old,bundle) if old else []
-            if older and p.base.bundle_statz_discontinued(bundle):
+            if old and p.base.bundle_statz_discontinued(bundle):
                 # PRED-M8 (#232): when Statz stops a bracket (Paragon+ after 1.18), the upload that first marks it
                 # discontinued carries the collector's last Statz date, which can be older than a Statz sample
                 # published before the stop (Paragon+: 4 Nov 11:30Z against 5 Nov 02:52Z). That upload records the
                 # newer fact that the source ended, so its older Statz date alone never refuses it; once published as
                 # discontinued, the rule applies again. Every other source keeps the rule, and so does a
                 # discontinuation that carries no dated Statz observation of its own (or no tier rows where some are
-                # published): accepting it would erase the published sample, so it is refused (VERIFY-3 R1).
-                older=refusing_sources(older,old,bundle)
+                # published): accepting it would erase the published sample, so it is refused (VERIFY-3 R1). The same
+                # bound holds when the Statz date is unchanged (VERIFY-8).
+                older=first_discontinuation_refusals(older,old,bundle)
             if old and p.utc_time(old['generated_at'])==p.utc_time(bundle['generated_at']) and own_import(
-                    (state.get('imported_bundles') or {}).get(bracket),old,row):
+                    p.read_import_record(state_folder,bracket),old,row):
                 same_bundle.add(bracket)
             if old and p.utc_time(old['generated_at'])>=p.utc_time(bundle['generated_at']):
                 results[bracket]='retained newer or identical bundle'
@@ -122,11 +144,14 @@ def import_feed(feed, state_folder):
                 # A newer assembly date never makes an older source fresh: published source dates only move forward.
                 results[bracket]='retained published bundle: imported '+', '.join(older)+' older than published'
             else:
-                p.retain_publication(bundle,state_folder)
+                stored=p.retain_publication(bundle,state_folder)
                 results[bracket]='imported'
                 same_bundle.add(bracket)
-                state.setdefault('imported_bundles',{})[bracket]={'sha256':row.get('sha256'),
-                    'generated_at':bundle['generated_at'],'collector':bundle.get('collector')}
+                loaded=p.load_publication(state_folder,bracket)
+                if loaded is not None and p.bundle_digest(loaded)==p.bundle_digest(stored):
+                    p.write_import_record(state_folder,bracket,{'sha256':row.get('sha256'),
+                        'generated_at':bundle['generated_at'],'collector':bundle.get('collector'),
+                        'content':p.bundle_digest(loaded)})
         except Exception as error:
             results[bracket]='failed'
             attempts[bracket].update(status='failed')
