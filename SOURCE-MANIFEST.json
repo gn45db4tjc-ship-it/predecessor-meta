@@ -386,7 +386,7 @@
     "tests/fixtures/statz/tierlist-paragon.html": "ac4cb4891ed65512c15a02183fe87b16bdc5ac93b7e7da3620bb9b2ca11af481",
     "tests/fixtures/statz/tierlist-platinum.html": "a11920be1983a7bf75146b8b57e0ffd4a5625b245ca47e20529a380c34b60178",
     "tests/fixtures/statz/tierlist-silver.html": "58ee74845962f3162c65e0230082c8a92ff76198bf0e96f88928612fc14308b5",
-    "tests/statz_working_pool.test.cjs": "40d112bf922e61cf7077221d5b9d49cd12dbd813d7f7a0fb4f0e6d3c523100fd",
+    "tests/statz_working_pool.test.cjs": "2e053dfbfa6968fe4359665091fc089a5273d5a34489581127df367cf89a0eda",
     "tests/test_static_fetch_live_bundles.py": "c2f83d65c9a48ed6fd7a6b7b9b80791be98fe774fd0d396306ddc582ac37a866",
     "tests/test_static_collector_import.py": "9195e3fa9da6d11baf376d578fb4b2d65bcb508ebc524eb0292127a3ee263164",
     "docs/rechecks/2026-11-15-2040-ledger.json": "25ea8924acca901182f011cff8f35e5f799b54688d3ab4580bfe282951c3f527",
