@@ -1,0 +1,104 @@
+{
+ "schema": 1,
+ "title": "Scheduled recheck, 22 Nov 2026 21:32 UTC (weekly pass 2026-W47)",
+ "reviewed_at": "2026-11-22T22:00:00+00:00",
+ "reviewer": "Claude, scheduled recheck runner (Predecessor Meta rechecks, cloud routine)",
+ "scope": "The weekly backstop for 2026-W47 (weekly:2026-W47, the only item in the live queue), against the live bundles published 2026-11-22T21:28:36+00:00 (publish run 45072017904, tool 2.59.0; collection 2026-11-22 about 12:24-12:26 CST). Pred.gg could not be refreshed in that collection ('Pred.gg: no structured page responses found'), so Bronze+ to Paragon+ keep their Pred.gg 1.18 (version 170) samples of 11 Nov, labelled retained, and the new Master+ rank has no Pred.gg sample or definitions at all. Every inactive plan on any rank was checked: Akeron Support and Wukong Offlane (all seven ranks, parked by the owner's 1.18 decisions) and, on Master+ only, the other 92 plans, which wait there because Master+ has no Pred.gg mechanics to compare their preconditions with. Drongo Carry is active on every rank since PR #227. All 87 reviewed Gold+ grades are withheld (Gold+: 'Retained sample; refresh required to reassess this tier'; other ranks: 'Review covers a different cohort'); none has moved statistics against it, so none was rechecked or changed. Not a full review.",
+ "standard": "docs/RECHECK-RUNNER.md: weekly backstop checks every withheld grade and inactive plan; a mechanics difference is resolved only with the official source's own text, otherwise unresolved.",
+ "evidence": {
+  "manifest_published_at": "2026-11-22T21:28:36+00:00",
+  "publish_run": "45072017904",
+  "tool_version": "2.59.0",
+  "collection": "2026-11-22T12:24:55-06:00 (Gold+ bundle generated_at); Pred.gg attempted 2026-11-22T12:24:52-06:00 and failed ('no structured page responses found')",
+  "statistics": "Pred.gg retained on Bronze+ to Paragon+: Gold+ 1.18 (version 170) role rows fetched 2026-11-11T19:38:10-06:00 to 19:38:17-06:00, Paragon+ 2026-11-11T19:54:58-06:00 to 19:55:05-06:00. Master+ has no Pred.gg data (pred_scoped and pred_game_data failed, nothing to retain). Statz hero pages current except Paragon+ (discontinued after 1.18).",
+  "official": "PatchNotes_1.18 (722a344d3130...) fetched 2026-11-22T12:24:31-06:00 and Patch_Notes_1.17.2 (921faae19684...) fetched 2026-11-22T12:24:33-06:00 match the packet's article fingerprints; patch_check verifies 1.18. Patch_Notes_1.18.2 is announced for 2026-11-24, not live.",
+  "bundles": "qa/live-bundles via tests/fetch_live_bundles.py (sha256-checked), seven ranks"
+ },
+ "notes": [
+  "Master+ (added by PRED-M5, #219): all 92 reviewed plans other than the two parked ones are inactive there with 'supporting mechanics changed; needs review', because that rank has no Pred.gg definitions and its item and ability text comes from the omeda.city fallback, which stopped updating before 1.17. Rewriting the plans' preconditions to that older text would be wrong, and the other six ranks show the 1.18 text unchanged, so no plan was edited. This is a collector coverage matter (a first Pred.gg collection for Master+), not a review one; the plans become comparable there once Pred.gg is collected for Master+."
+ ],
+ "entries": [
+  {
+   "kind": "plan",
+   "slug": "akeron",
+   "role": "support",
+   "queue_id": "weekly:2026-W47",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. Inactive on all seven ranks only because the 1.18 build pass (7 Nov) kept it parked on the owner's decision of 28 Oct (docs/PATCH-DAY-1.18.md). The engine reports no changed precondition, missing item or invalid blessing on Bronze+ to Paragon+, and the live official articles carry the packet's fingerprints. Pred.gg 1.18 Gold+ support: 50.0% over 6 games, the retained collection of 11 Nov (Pred.gg could not be refreshed on 22 Nov), which cannot settle role strength. The plan stays inactive; nothing changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. Role strength was not re-reviewed. No in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 50.0,
+     "wonGames": 3,
+     "matches": 6,
+     "interval95": [
+      18.76,
+      81.24
+     ],
+     "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=SUPPORT",
+     "fetched_at": "2026-11-11T19:38:17-06:00"
+    }
+   },
+   "reviewed_at": "2026-11-22T22:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-22T12:24:31-06:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-22T12:24:33-06:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=SUPPORT",
+     "fetched_at": "2026-11-11T19:38:17-06:00"
+    }
+   ]
+  },
+  {
+   "kind": "plan",
+   "slug": "wukong",
+   "role": "offlane",
+   "queue_id": "weekly:2026-W47",
+   "verdict": "unresolved",
+   "reason": "Weekly backstop. Inactive on all seven ranks only because the 1.18 build pass (7 Nov) kept it parked on the owner's decision of 28 Oct (docs/PATCH-DAY-1.18.md). No changed precondition, missing item or invalid blessing on Bronze+ to Paragon+; official fingerprints unchanged. Pred.gg 1.18 Gold+ offlane: 47.8% over 23 games, the retained collection of 11 Nov (Pred.gg could not be refreshed on 22 Nov), too small to settle role strength. The plan stays inactive; nothing changes.",
+   "limitation": "Experimental role; kept out of automatic suggestions. The skill schedule stays unavailable because of six-rank spirit abilities. No in-game test.",
+   "mechanics_checked": [
+    "Plan source preconditions (abilities, items, perks) against every live bundle: no change reported"
+   ],
+   "text_changed": [],
+   "figures": {
+    "gold_plus": {
+     "winRate": 47.82608695652174,
+     "wonGames": 11,
+     "matches": 23,
+     "interval95": [
+      29.24,
+      67.04
+     ],
+     "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=OFFLANE",
+     "fetched_at": "2026-11-11T19:38:12-06:00"
+    }
+   },
+   "reviewed_at": "2026-11-22T22:00:00+00:00",
+   "sources": [
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/PatchNotes_1.18",
+     "fetched_at": "2026-11-22T12:24:31-06:00"
+    },
+    {
+     "url": "https://www.predecessorgame.com/en-US/news/patch-notes/Patch_Notes_1.17.2",
+     "fetched_at": "2026-11-22T12:24:33-06:00"
+    },
+    {
+     "url": "https://pred.gg/heroes?versions=170&gameMode=RANKED&ranks=43%2C44%2C45%2C46%2C47%2C48%2C49%2C50%2C51%2C53&role=OFFLANE",
+     "fetched_at": "2026-11-11T19:38:12-06:00"
+    }
+   ]
+  }
+ ]
+}
