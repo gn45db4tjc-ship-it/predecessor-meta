@@ -1,12 +1,15 @@
 {
  "schema": 1,
- "checked_at": "2026-11-25T01:05:30+00:00",
+ "checked_at": "2026-11-25T09:33:11+00:00",
  "open": {
   "pred-age": {
    "first_seen": "2026-11-04T18:10:16+00:00"
   },
   "attempt-failed": {
    "first_seen": "2026-11-01T19:53:31+00:00"
+  },
+  "publication-quiet": {
+   "first_seen": "2026-11-25T09:33:11+00:00"
   },
   "queue-overdue": {
    "first_seen": "2026-11-23T18:33:14+00:00"
@@ -15,7 +18,8 @@
  "dispatches": [
   "2026-11-24T00:34:04+00:00",
   "2026-11-24T09:31:37+00:00",
-  "2026-11-25T01:05:30+00:00"
+  "2026-11-25T01:05:30+00:00",
+  "2026-11-25T09:33:11+00:00"
  ],
  "misses": [
   {
@@ -1179,6 +1183,12 @@
    "event": "started",
    "at": "2026-11-23T18:33:14+00:00",
    "summary": "1 recheck queued for over 24 hours."
+  },
+  {
+   "id": "publication-quiet",
+   "event": "started",
+   "at": "2026-11-25T09:33:11+00:00",
+   "summary": "Last publication 3.0 hours ago."
   }
  ]
 }
