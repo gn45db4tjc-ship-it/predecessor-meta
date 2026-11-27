@@ -3275,6 +3275,7 @@ def attach_scoped_statistics(bundle,progress=lambda s:None,fetch=None,pages=None
     except Exception as e:scoped['errors'].append({'source':'Pred.gg current-patch statistics','severity':'error','detail':str(e)})
     scoped['records']=records;scoped['seconds']=round(time.perf_counter()-t,2)
     bundle.setdefault('errors',[]).extend(scoped['errors'])
+    if pages is not None:note_pred_api_health(bundle,getattr(pages,'fetch',None))
     bundle.setdefault('sources',{})['pred_scoped']={'url':PRED_BASE+'/heroes','status':scoped['status'],'fetched_at':records[-1]['fetched_at'] if records else None,'secs':scoped['seconds']}
     # The original Statz data are intact. Its selective, wider sample never inherits this cohort.
     bundle['sampling_policy']={'default_performance_source':'Pred.gg','pair_source':'Statz','pair_patch':bundle.get('patch'),
@@ -3363,7 +3364,7 @@ def pred_source_fetch(environ=None):
     if not pred_api_configured(env) or not pred_api_approved():return None
     # A refusal is remembered for these credentials, so later runs do not ask again until the credentials change.
     fingerprint=pred_api_fingerprint(env);stop=DATA_DIR/'pred-api-denied.json'
-    failed=[];token=[]
+    failed=[];details=[];token=[]
     def public(url):
         # The API is not answering this run: the public pages, unless their own access stop holds (audit #239 F9).
         blocked=getattr(fetch,'public_blocked',None)
@@ -3376,13 +3377,15 @@ def pred_source_fetch(environ=None):
                 if not token:token.append(pred_api.token_for_run(env))
                 return pred_api.page_fetch(url,token=token[0])
             except pred_api.PredApiUnauthorized as e:
-                failed.append(type(e).__name__)
+                failed.append(type(e).__name__);details.append(type(e).__name__+': '+str(e)[:160])
                 try:atomic_write(stop,json.dumps({'at':iso(now_utc()),'fingerprint':fingerprint,'reason':str(e)[:200]}))
                 except OSError:pass
             except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
-                failed.append(type(e).__name__)
+                failed.append(type(e).__name__);details.append(type(e).__name__+': '+str(e)[:160])
         return public(url)
     fetch.api_failed=failed
+    # The failure's message (an HTTP status such as 401, never a credential or token) for the bundle's diagnostics.
+    fetch.api_details=details
     try:
         if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:
             failed.append('denied earlier for these credentials')
@@ -3396,9 +3399,17 @@ def pred_api_health(fetch):
     """A redacted note on the authorized API for the bundle's errors, or None (audit #239 F8): a healthy public fallback
     used to hide a refused or failing API. Only the failure's type is recorded, never a credential or token."""
     failed=getattr(fetch,'api_failed',None)
-    if not failed:return None
+    if not isinstance(failed,list) or not failed:return None
+    details=getattr(fetch,'api_details',None)
+    named=str((details if isinstance(details,list) and details else failed)[0])
     return {'source':'Pred.gg API','severity':'warning',
-            'detail':'The authorized Pred.gg API was not used ('+failed[0]+'); Pred.gg data came from the public pages where they answered.'}
+            'detail':'The authorized Pred.gg API was not used ('+named+'); Pred.gg data came from the public pages where they answered.'}
+
+
+def note_pred_api_health(bundle,fetch):
+    """Add the API's health note to the bundle's errors once, as soon as the Pred.gg collection that met it ends."""
+    note=pred_api_health(fetch)
+    if note and note not in bundle.setdefault('errors',[]):bundle['errors'].append(note)
 
 
 # 2.53.3: a dropped Pred.gg request is tried again after these waits (seconds). On 11 Oct 2026 one SSL EOF on the first
@@ -4616,7 +4627,7 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         keep_previous_pred_roles(bundle,previous_pred)
         attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)
-        if pred_api_health(api_fetch):bundle['errors'].append(pred_api_health(api_fetch))
+        note_pred_api_health(bundle,api_fetch)
         retain_pred_partition(bundle, previous_pred)
         patch_support.apply(bundle, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})

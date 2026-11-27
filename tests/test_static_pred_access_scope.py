@@ -105,5 +105,28 @@ class PerTransportStop(unittest.TestCase):
         self.assertIn('Public access stopped', pages.paused_reason)
 
 
+
+class ApiFailureNamedInStatus(unittest.TestCase):
+    """Codex repro of audit #239 case 8: an expired token's HTTP 401 must show in the collection status, by name."""
+
+    def test_a_401_shows_in_the_bundle_errors_once_and_without_the_token(self):
+        token = 'expired-token-not-real'
+
+        def expired(body, headers, **kw):
+            raise urllib.error.HTTPError(pred_api.API_URL, 401, 'Unauthorized', {}, None)
+        bundle = {'errors': [], 'sources': {}}
+        with patch.object(m, 'pred_api_approved', return_value=True), tempfile.TemporaryDirectory() as d, \
+                patch.object(m, 'DATA_DIR', Path(d)), patch.object(pred_api, '_post', expired), patch.object(m, 'http_get', return_value=PAGE):
+            fetch = m.pred_source_fetch({'PRED_API_TOKEN': token})
+            pages = m.PredPages(cache_dir=Path(d) / 'pages', fetch=fetch)
+            fetch('https://pred.gg/heroes')                     # the API answers 401; the public page answers
+            m.attach_scoped_statistics(bundle, pages=pages)
+            m.note_pred_api_health(bundle, fetch)               # collect_bundle adds it again; it stays one entry
+        notes = [e for e in bundle['errors'] if e.get('source') == 'Pred.gg API']
+        self.assertEqual(len(notes), 1)
+        self.assertIn('HTTP 401', notes[0]['detail'])
+        self.assertNotIn(token, json.dumps(bundle))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -71,5 +71,21 @@ class Rejection(unittest.TestCase):
         self.assertNotIn('local_receipt_rejected', sp.load_state(self.state))
 
 
+
+class RejectionIsAnnotated(unittest.TestCase):
+    """Codex repro of audit #239 case 3: the refused receipt shows as a warning on the Actions run."""
+
+    def test_the_cli_prints_a_github_warning_and_exits_0(self):
+        with tempfile.TemporaryDirectory() as d:
+            folder, state = Path(d) / 'feed', Path(d) / 'state'
+            folder.mkdir(); state.mkdir()
+            (folder / 'collector.json').write_text(json.dumps({'schema': 1, 'checked_at': '2026-11-27T08:00:00+00:00', 'bundles': []}), encoding='utf8')
+            done = subprocess.run([sys.executable, '-B', str(ROOT / 'import_local_feed.py'), str(folder), '--state-dir', str(state)],
+                                  capture_output=True, text=True, timeout=60)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn('::warning::Windows collector receipt rejected', done.stdout)
+        self.assertEqual(json.loads(done.stdout.splitlines()[-1])['status'], 'rejected')
+
+
 if __name__ == '__main__':
     unittest.main()

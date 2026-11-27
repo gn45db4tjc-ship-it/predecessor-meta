@@ -166,7 +166,7 @@
     "docs/strategy-review-2.34-ledger.json": "00057fc097d251f0b0df6beefe16fe2fcd8ed0ba9915742971cbb22aaeb8c790",
     "engine.js": "aa45107daf969c66419c381f1f7cde8e35a8074cf5d362a4337dd88a5f203e0b",
     "free_hosting.json": "b3d82f376451eea7b6993b273616b8b82e1a80040916d1104dce74aa0a36d05c",
-    "import_local_feed.py": "9d7633f263dcf90f0da5c7f98b64c620143648a3b38d539576f8f69774e46ade",
+    "import_local_feed.py": "ff4900ed398832d7bb7604b5831b5f4380f435351e2d04b58fa8aa8aa4b45e98",
     "local_updater.py": "20a91d4b740af01a60b02402e0696c261a4abe80c5d8d79dcfb2e45ff8ce1ec8",
     "mobile.css": "d9b1c66154e261606ab297051ba44a50f322e0e5223500420528f582c1f8dfa4",
     "mobile.js": "19870be466ed69a493b9492668c9b41d9a156d8098184a8785dd893139d48484",
@@ -177,7 +177,7 @@
     "patch_support.py": "b1575a9a1d9793125c7f3d10a95faae3f8d55bd3d252e3bbf16a5c8b72150676",
     "pred_api.py": "a7715f742c212ba5654a4fa56b9f734f0af7a0c1f5620160142c8768cd7b4922",
     "pred_api_queries.json": "d51514f3167e1be2faf57d3e7412a4df5f21df0eb03a7f2f4794aebce788f43a",
-    "predecessor_meta.py": "e6b12e85b4cebdd9ae0246ab49eea5a24c4e90d2c208ccb3c6d02476f89124a0",
+    "predecessor_meta.py": "b14a619143f194690a69e127cebbadb296702f25d0c38d14584c7bd02896f26e",
     "projection.py": "d15579f676d26e5c171a077fc975ec1a281771623351ad39d0c4c19992ecbae4",
     "projection_client.js": "b6954734ae53ddf5d242d8f5155dd5f2c8a292b291ccf5b208bc9b22ebad2426",
     "public-seed-gold.json.gz": "281f22d572cb6b7f4071b368b1b64e5c605cd577907a0ea65d76442add6840b8",
@@ -396,8 +396,8 @@
     "tests/offline_commit_order.test.cjs": "3a7a4773e483f96b4a1956b5b7e5fcd4a4e936d48482c6712e97cab2355d288d",
     "tests/test_static_official_year.py": "0d74a3eeccc3cdc226b58859f58fc7aaad33528445b20c009d7465f9a32e8594",
     "tests/test_static_omeda_items.py": "9adce697c8cfc83f29dd4d8a33c4c767b930ac93283990e5896cd8361a724429",
-    "tests/test_static_pred_access_scope.py": "29c583144bc3e7becebf7b09b41539e17b7542d4535a34bf2e4a014db18f21be",
-    "tests/test_static_receipt_rejection.py": "d99dc748eb711c1d5e45b925551b9f2d33dc8a01c0b116206ca2bd878c3843f2",
+    "tests/test_static_pred_access_scope.py": "0ef346b9303acceb00d767c129ed1875974e543dd7600e39922e8696d2163966",
+    "tests/test_static_receipt_rejection.py": "669a4a682c58fa35bf4c98dbf513f17dd2e3c7937942291cd0c43cdfdccdb5c0",
     "tests/test_static_state_recovery.py": "965bec3c3a8fade97de94008ec33d3f02e09dcc66f386c98918de5de9ceb6515",
     "tests/test_static_watchdog_audit.py": "6572143ba93fe0f9989b5a915c9f4abe83da25a58469ee89d02e2efca99f0136"
   }

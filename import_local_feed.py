@@ -237,4 +237,8 @@ if __name__=='__main__':
     parser.add_argument('feed',type=Path)
     parser.add_argument('--state-dir',type=Path,default=p.ROOT/'.cloud-state')
     args=parser.parse_args()
-    print(json.dumps(import_feed(args.feed,args.state_dir)))
+    result=import_feed(args.feed,args.state_dir)
+    if result.get('status')=='rejected':
+        # A GitHub warning annotation, so a refused Windows receipt is visible on the run (the cloud path continues).
+        print('::warning::Windows collector receipt rejected; the cloud publisher continues: '+result['reason'])
+    print(json.dumps(result))
