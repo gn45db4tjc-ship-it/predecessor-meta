@@ -10,6 +10,9 @@ import copy
 import hashlib
 import io
 import json
+import os
+import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -182,11 +185,117 @@ class Wait(Fixture):
 
 class LiveVerification(unittest.TestCase):
     def test_every_rank_must_carry_the_merged_packet_and_its_grades(self):
-        ranks = {r: {'fingerprint': 'abc', 'tiers': {'adele/offlane': 'B'}} for r in ('gold', 'silver')}
+        ranks = {r: {'fingerprint': 'abc', 'tiers': {'adele/offlane': 'B'}} for r in gate.RANKS}
         self.assertEqual(gate.verified(ranks, 'abc', {'adele/offlane': 'B'}), [])
         ranks['silver']['fingerprint'] = 'old'
         self.assertIn('silver', ' '.join(gate.verified(ranks, 'abc', {})))
         self.assertIn('adele/offlane', ' '.join(gate.verified({'gold': {'fingerprint': 'abc', 'tiers': {'adele/offlane': 'C'}}}, 'abc', {'adele/offlane': 'B'})))
+
+    def test_a_manifest_with_missing_ranks_is_never_verified(self):
+        # PRED-M10 audit: an empty or partial manifest used to verify, since only the ranks it listed were checked.
+        self.assertIn('gold is missing', ' '.join(gate.verified({}, 'abc', {})))
+        ranks = {r: {'fingerprint': 'abc', 'tiers': {}} for r in gate.RANKS if r != 'paragon'}
+        self.assertEqual(gate.verified(ranks, 'abc', {}), ['paragon is missing from the live manifest'])
+
+    def test_the_gate_knows_every_published_rank(self):
+        import predecessor_meta
+        self.assertEqual(list(gate.RANKS), predecessor_meta.BRACKETS)
+
+
+SHIM = r"""#!/usr/bin/env python3
+import os, subprocess, sys
+name, args = os.path.basename(sys.argv[0]), sys.argv[1:]
+scene = os.environ['SCENE'].split(',')
+with open(os.environ['CALLS'], 'a') as log:
+    log.write(name + ' ' + ' '.join(args) + '\n')
+line = ' '.join(args)
+if name == 'sleep':
+    sys.exit(0)
+if name == 'gh':
+    if args[:1] == ['api'] and '.base.ref' in line:
+        print('main ' + os.environ['HEAD'])
+    elif args[:1] == ['api'] and 'select(.merged)' in line:
+        print('' if 'no-merge-sha' in scene else 'merge111')
+    elif args[:1] == ['api'] and 'compare/' in line:
+        print('0')
+    elif args[:2] == ['workflow', 'run']:
+        runs = open(os.environ['CALLS']).read().count('gh workflow run')
+        sys.exit(1 if 'publish-fails' in scene or ('first-publish-fails' in scene and runs == 1) else 0)
+    sys.exit(0)
+if name == 'git':
+    if args[:2] == ['rev-parse', 'origin/main']:
+        print('main000')
+    elif args[:2] == ['rev-parse', 'HEAD']:
+        print('revert222')
+    elif 'push' in args:
+        sys.exit(1 if 'push-fails' in scene else 0)
+    sys.exit(0)
+if name == 'python':
+    if '-c' in args:
+        sys.exit(subprocess.call([sys.executable] + args))
+    if 'decide' in args:
+        open('gate-now.json', 'w').write('{"decision": "merge"}')
+        sys.exit(0)
+    if 'verify-live' in args:
+        sha = args[args.index('--merge') + 1]
+        sys.exit(0 if (sha == 'merge111' and 'merge-verifies' in scene) or (sha == 'revert222' and 'revert-verifies' in scene) else 1)
+sys.exit(0)
+"""
+
+
+@unittest.skipIf(os.name == 'nt' or not shutil.which('bash'), 'runs the workflow step under bash')
+class MergeStepOutcomes(unittest.TestCase):
+    """The merge step itself, run under bash -e with gh, git and python stubbed: after the merge, every path ends in a
+    verified site, a confirmed revert or an issue for the owner (PRED-M10 audit: a failed publish used to stop the
+    step with main merged, unverified and not reverted)."""
+
+    def run_step(self, *scene):
+        text = (ROOT / '.github' / 'workflows' / 'review-gate.yml').read_text(encoding='utf-8')
+        body = text.split('- name: Merge, publish and verify', 1)[1].split('run: |\n', 1)[1]
+        script = '\n'.join(line[10:] for line in body.splitlines())
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / 'bin').mkdir()
+            (root / 'bin' / 'shim').write_bytes(SHIM.replace(chr(13), '').encode('utf-8'))
+            (root / 'bin' / 'shim').chmod(0o755)
+            for name in ('gh', 'git', 'python', 'sleep'):
+                (root / 'bin' / name).symlink_to(root / 'bin' / 'shim')
+            (root / 'step.sh').write_text(script, encoding='utf-8')
+            env = dict(os.environ, PATH=str(root / 'bin') + os.pathsep + os.environ['PATH'], SCENE=','.join(scene),
+                       CALLS=str(root / 'calls'), PR='7', HEAD='head999', GITHUB_REPOSITORY='o/r', WRITER='token',
+                       GITHUB_SERVER_URL='https://github.com', GITHUB_RUN_ID='1')
+            code = subprocess.run(['bash', '-e', str(root / 'step.sh')], cwd=temp, env=env, capture_output=True).returncode
+            return code, (root / 'calls').read_text(encoding='utf-8')
+
+    def test_a_verified_merge_ends_green_without_a_revert(self):
+        code, calls = self.run_step('merge-verifies')
+        self.assertEqual(code, 0); self.assertNotIn('revert -m 1', calls); self.assertNotIn('issue create', calls)
+
+    def test_a_failed_publish_is_reverted_and_the_revert_confirmed(self):
+        code, calls = self.run_step('first-publish-fails', 'revert-verifies')
+        self.assertEqual(code, 1)
+        self.assertIn('git revert -m 1 --no-edit merge111', calls); self.assertIn('HEAD:main', calls)
+        self.assertIn('verify-live --merge revert222', calls); self.assertIn('Review gate reverted PR #7', calls)
+
+    def test_a_failed_verification_is_reverted_and_the_revert_confirmed(self):
+        code, calls = self.run_step('revert-verifies')
+        self.assertEqual(code, 1)
+        self.assertIn('verify-live --merge merge111', calls); self.assertIn('git revert -m 1 --no-edit merge111', calls)
+        self.assertIn('Review gate reverted PR #7', calls)
+
+    def test_a_revert_that_does_not_show_live_opens_an_issue(self):
+        code, calls = self.run_step('publish-fails')
+        self.assertEqual(code, 1); self.assertIn('revert of merge111 not confirmed live', calls)
+
+    def test_a_revert_that_cannot_be_pushed_opens_an_issue(self):
+        code, calls = self.run_step('push-fails')
+        self.assertEqual(code, 1); self.assertIn('merge merge111 NOT reverted', calls)
+        self.assertNotIn('verify-live --merge revert222', calls)
+
+    def test_an_unreadable_merge_commit_opens_an_issue(self):
+        code, calls = self.run_step('no-merge-sha')
+        self.assertEqual(code, 1); self.assertIn('merged, not verified or reverted', calls)
+        self.assertNotIn('workflow run', calls)
 
 
 class ManifestRefresh(unittest.TestCase):

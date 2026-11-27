@@ -39,6 +39,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SITE = 'https://gn45db4tjc-ship-it.github.io/predecessor-meta/'
+# Every rank the site publishes (predecessor_meta.BRACKETS). The live check needs all of them: a manifest that lists
+# fewer ranks, or none, is incomplete data, never a pass.
+RANKS = ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'paragon')
 ALLOWED = (r'reviewed_guidance\.json', r'patch-[0-9.]+\.json', r'docs/rechecks/[0-9A-Za-z._-]+\.(json|md)', r'SOURCE-MANIFEST\.json')
 HOLD_FILES = {'predecessor_meta.py': 'the validator would change', 'STRATEGY-REVIEW-POLICY.md': 'the review policy would change'}
 ORDER = {'S': 0, 'A': 1, 'B': 2, 'C': 3}
@@ -317,7 +320,8 @@ def live_state(site=SITE):
 
 def verified(ranks, expected_fp, expected_tiers):
     """Problems with the live site against the merged packet: every rank carries it, and the gold grades match."""
-    problems = ['%s carries %s, not %s' % (r, s['fingerprint'], expected_fp) for r, s in ranks.items() if s['fingerprint'] != expected_fp]
+    problems = ['%s is missing from the live manifest' % r for r in RANKS if r not in ranks]
+    problems += ['%s carries %s, not %s' % (r, s['fingerprint'], expected_fp) for r, s in ranks.items() if s['fingerprint'] != expected_fp]
     gold = (ranks.get('gold') or {}).get('tiers') or {}
     problems += ['gold %s is %s, not %s' % (k, gold.get(k), t) for k, t in expected_tiers.items() if gold.get(k) != t]
     return problems

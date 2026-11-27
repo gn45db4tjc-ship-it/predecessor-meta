@@ -90,7 +90,7 @@ jobs:
   decide:
     needs: checks
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 150   # an hour for CI, 30 minutes to verify a merge, 30 more to confirm its revert
     permissions:
       contents: write        # merge, and revert if the live site does not verify
       pull-requests: write   # comments and labels
@@ -179,20 +179,37 @@ jobs:
             exit 1
           fi
           GH_TOKEN="$WRITER" gh pr merge "$PR" --admin --merge --match-head-commit "$HEAD"
-          merge=$(gh pr view "$PR" --json mergeCommit --jq .mergeCommit.oid)
-          git fetch origin main
-          gh workflow run publish.yml --ref main
-          if python -B review_gate.py verify-live --merge "$merge" --changes gate.json; then
+          # From here main holds the merge, so no failure may end the step early: each one leads to a revert, and a
+          # merge that is neither verified nor confirmed reverted on the live site opens an issue for the owner.
+          set +e
+          alarm() {
+            gh label create freshness-watchdog --force --color b60205 >/dev/null
+            gh issue create --label freshness-watchdog --title "Review gate: $1 (PR #$PR)" \
+              --body "$2 Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            exit 1
+          }
+          merge=
+          for attempt in 1 2 3 4 5; do
+            merge=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq 'select(.merged) | .merge_commit_sha')
+            [ -n "$merge" ] && break
+            sleep 10
+          done
+          [ -n "$merge" ] || alarm 'merged, not verified or reverted' "PR #$PR was merged, but the gate could not read its merge commit, so it neither verified nor reverted it. Check the live site and revert the merge by hand if it is wrong."
+          git fetch -q origin main
+          if gh workflow run publish.yml --ref main && python -B review_gate.py verify-live --merge "$merge" --changes gate.json; then
             gh pr comment "$PR" --body "Merged as $merge, published, and verified live: every rank carries the merged packet and the changed Gold+ grades match."
             exit 0
           fi
           # Revert first, diagnose second.
-          git checkout -B "revert-review-$PR" origin/main
-          git revert -m 1 --no-edit "$merge"
-          git -c http.https://github.com/.extraheader= push -q "https://x-access-token:${WRITER}@github.com/${GITHUB_REPOSITORY}" HEAD:main
-          gh workflow run publish.yml --ref main
-          gh pr comment "$PR" --body "The live site did not carry the merged packet within 30 minutes, so merge $merge was reverted and the site republished. See the review gate run for the diagnosis."
-          gh label create freshness-watchdog --force --color b60205 >/dev/null
-          gh issue create --label freshness-watchdog --title "Review gate reverted PR #$PR" \
-            --body "Merge $merge did not verify on the live site within 30 minutes and was reverted. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          exit 1
+          git fetch -q origin main && git checkout -B "revert-review-$PR" origin/main && git revert -m 1 --no-edit "$merge" &&
+            git -c http.https://github.com/.extraheader= push -q "https://x-access-token:${WRITER}@github.com/${GITHUB_REPOSITORY}" HEAD:main ||
+            alarm "merge $merge NOT reverted" "Merge $merge was not published and verified live within 30 minutes, and its revert failed. main still holds it: revert it by hand."
+          revert=$(git rev-parse HEAD)
+          gh pr comment "$PR" --body "The merged packet was not published and verified live within 30 minutes, so merge $merge was reverted as $revert. See the review gate run for the diagnosis."
+          if gh workflow run publish.yml --ref main && python -B review_gate.py verify-live --merge "$revert"; then
+            gh label create freshness-watchdog --force --color b60205 >/dev/null
+            gh issue create --label freshness-watchdog --title "Review gate reverted PR #$PR" \
+              --body "Merge $merge did not verify on the live site within 30 minutes and was reverted as $revert; the live site carries the reverted packet again. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            exit 1
+          fi
+          alarm "revert of $merge not confirmed live" "Merge $merge did not verify and was reverted as $revert on main, but the live site did not carry the reverted packet within 30 minutes. Check publish.yml and the live site."
