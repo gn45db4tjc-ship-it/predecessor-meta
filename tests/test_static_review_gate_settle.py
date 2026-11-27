@@ -35,6 +35,9 @@ class FakeOps:
         self.clock = now
         self.next_issue = 50
         self.alarm_ok = True
+        self.close_ok = True
+        self.git_tiers = {'legion/carry': 'S'}   # what git says the merge changed
+        self.revert_on_main = None                # what git says main holds
 
     def now(self):
         return self.clock
@@ -51,10 +54,17 @@ class FakeOps:
         self.calls.append('merged?')
         return self.merged_info
 
+    def tiers(self, merge):
+        return dict(self.git_tiers)
+
+    def find_revert(self, merge):
+        return self.revert_on_main
+
     def revert(self, merge, pr):
         self.calls.append(('revert', merge))
         if isinstance(self.revert_result, Exception):
             raise self.revert_result
+        self.revert_on_main = self.revert_result
         return self.revert_result
 
     def comment(self, pr, text):
@@ -74,7 +84,10 @@ class FakeOps:
 
     def close(self, record):
         self.save(record)
-        self.closed.append(record['issue'])
+        self.calls.append(('close', self.close_ok))
+        if self.close_ok:
+            self.closed.append(record['issue'])
+        return self.close_ok
 
     def open_records(self):
         return [json.loads(json.dumps(r)) for i, r in self.records.items() if i not in self.closed]
@@ -253,6 +266,83 @@ class Resume(unittest.TestCase):
         self.assertEqual(gate.parse_record(gate.record_body(r)), r)
         self.assertIsNone(gate.parse_record('an ordinary issue'))
         self.assertIsNone(gate.parse_record(gate.PENDING_MARK + '\n```json\n{"pr": "7"}\n```'))
+
+
+class FinishedButOpen(unittest.TestCase):
+    """Codex review of PR #243 at 965b8f6: a record whose close failed after it finished is only closed again."""
+
+    def test_a_verified_record_whose_close_failed_is_closed_later_and_never_abandoned(self):
+        for stage, merged in (('verified', MERGED), ('not-merged', None)):
+            ops = FakeOps(merged=merged, verify_results=[[]])
+            ops.close_ok = False
+            self.assertEqual(gate.settle(record(), ops), stage)
+            self.assertEqual(ops.closed, [])
+            for n in range(gate.RESUME_LIMIT + 3):
+                ops.clock += dt.timedelta(hours=3)
+                self.assertEqual(gate.resume(ops), {'7': stage}, (stage, n))
+            self.assertEqual(ops.alarms(), [])
+            self.assertEqual(ops.records[50]['attempts'], 0)
+            work = [c for c in ops.calls if c == 'dispatch' or c[0] in ('verify', 'revert')]
+            self.assertEqual(len(work), 2 if stage == 'verified' else 0)   # the first run's dispatch and verify only
+            ops.close_ok = True
+            ops.clock += dt.timedelta(hours=3)
+            self.assertEqual(gate.resume(ops), {'7': stage})
+            self.assertEqual(ops.open_records(), [])
+
+    def test_the_real_close_reports_a_failed_patch(self):
+        ops = gate.GateOps()
+        failed = subprocess.CompletedProcess([], 1, stdout='', stderr='boom')
+        with unittest.mock.patch.object(ops, 'save'), unittest.mock.patch.object(ops, 'gh', return_value=failed), \
+                unittest.mock.patch.object(gate.time, 'sleep'):
+            self.assertFalse(ops.close({'issue': 5}))
+
+
+class EditedRecordBody(unittest.TestCase):
+    """Codex security review of PR #243 at 965b8f6: anyone with Write access can edit the record's body, so the body
+    never decides a revert alone. The merge comes from GitHub, the grades from git, the revert from git, and a revert
+    follows only a live check this run made."""
+
+    def test_an_edited_reverting_stage_rechecks_live_and_does_not_revert_a_good_merge(self):
+        ops = FakeOps(merged=MERGED, verify_results=[[]])
+        forged = record('reverting', merge='merge111', expected_tiers={'kira/carry': 'D'}, expected_ranks=['gold', 'nonsense'])
+        self.assertEqual(gate.settle(forged, ops), 'verified')
+        self.assertIn(('verify', 'merge111', {'legion/carry': 'S'}, ['gold']), ops.calls)
+        self.assertFalse([c for c in ops.calls if c[0] == 'revert'])
+
+    def test_an_edited_reverting_stage_reverts_only_when_the_live_check_fails(self):
+        ops = FakeOps(merged=MERGED, verify_results=[['gold carries old'], []])
+        self.assertEqual(gate.settle(record('reverting', merge='merge111'), ops), 'revert-confirmed')
+        calls = [c for c in ops.calls if c[0] in ('verify', 'revert')]
+        self.assertEqual([c[0] for c in calls], ['verify', 'revert', 'verify'])
+
+    def test_an_edited_revert_commit_is_ignored_for_the_one_git_shows(self):
+        ops = FakeOps(merged=MERGED, verify_results=[[]])
+        ops.revert_on_main = 'gitrevert'
+        self.assertEqual(gate.settle(record('reverted', merge='merge111', revert='forged'), ops), 'revert-confirmed')
+        self.assertIn(('verify', 'gitrevert', {}, ['gold', 'silver']), ops.calls)
+        self.assertFalse([c for c in ops.calls if c[0] == 'revert'])
+
+    def test_a_reverted_stage_with_no_revert_on_main_checks_the_merge_first(self):
+        ops = FakeOps(merged=MERGED, verify_results=[[]])
+        self.assertEqual(gate.settle(record('reverted', merge='merge111', revert='forged'), ops), 'verified')
+        self.assertFalse([c for c in ops.calls if c[0] == 'revert'])
+
+    def test_a_revert_already_on_main_is_confirmed_not_repeated(self):
+        ops = FakeOps(merged=MERGED, verify_results=[[]])
+        ops.revert_on_main = 'revert222'
+        self.assertEqual(gate.settle(record('reverting', merge='merge111'), ops), 'revert-confirmed')
+        self.assertFalse([c for c in ops.calls if c[0] == 'revert'])
+
+    def test_merged_tiers_reads_the_grades_from_git(self):
+        packets = {'m^1': {'grades': [{'hero': 'legion', 'role': 'carry', 'tier': 'A'}]},
+                   'm': {'grades': [{'hero': 'legion', 'role': 'carry', 'tier': 'S'}, {'hero': 'kira', 'role': 'mid', 'tier': 'B'}]}}
+        with unittest.mock.patch.object(gate, 'show_json', side_effect=lambda sha, path: packets[sha]), \
+                unittest.mock.patch.object(gate, 'entries', side_effect=lambda packet, key: {(g['hero'], g['role']): g for g in packet[key]}):
+            self.assertEqual(gate.merged_tiers('m'), {'legion/carry': 'S', 'kira/mid': 'B'})
+
+    def test_ranks_are_kept_to_known_names(self):
+        self.assertEqual(gate.trusted_ranks(['gold', 'x', 'silver']), ['gold', 'silver'])
+        self.assertIsNone(gate.trusted_ranks('gold'))
 
 
 @unittest.skipUnless(shutil.which('git'), 'needs git')

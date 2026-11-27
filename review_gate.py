@@ -70,6 +70,8 @@ MERGED_WITHIN_MINUTES = 20   # a merge long after the record was written was not
 # Only issues the workflow's own GITHUB_TOKEN opened are records: a person with Triage access can open and label an
 # issue, but not as this account, and cannot edit its body (Codex security review of PR #243).
 RECORD_AUTHOR = 'github-actions[bot]'
+# Stages after which nothing is left but closing the record (and, for some, telling the owner).
+FINISHED = ('verified', 'not-merged', 'revert-confirmed', 'abandoned', 'refused')
 
 
 def zoned(value):
@@ -535,6 +537,21 @@ class GateOps:
         self.fetch_main()
         return verify_live(sha, tiers, required)
 
+    def tiers(self, merge):
+        """The gold grades `merge` changed, read from git against its first parent, never from the record body."""
+        self.fetch_main()
+        try:
+            return merged_tiers(merge)
+        except (subprocess.CalledProcessError, OSError, ValueError):
+            return {}   # the fingerprint of an unreadable merge fails verification anyway
+
+    def find_revert(self, merge):
+        """The revert of `merge` on main, read from git (never from the record body), or None."""
+        self.fetch_main()
+        found = subprocess.run(['git', 'log', 'origin/main', '--format=%H', '-n', '1', '--grep', 'This reverts commit %s' % merge],
+                               cwd=ROOT, capture_output=True, text=True)
+        return found.stdout.strip() or None
+
     def merged(self, pr):
         data = json.loads(self.gh('api', 'repos/%s/pulls/%s' % (self.repo, pr)).stdout)
         if not data.get('merged'):
@@ -574,8 +591,15 @@ class GateOps:
         return record
 
     def close(self, record):
+        """True only when GitHub closed the issue. A record left open keeps its finished stage, and the next resume
+        only retries the close (Codex review of PR #243)."""
         self.save(record)
-        self.gh('api', '-X', 'PATCH', 'repos/%s/issues/%s' % (self.repo, record['issue']), '-f', 'state=closed')
+        for attempt in range(3):
+            if not self.gh('api', '-X', 'PATCH', 'repos/%s/issues/%s' % (self.repo, record['issue']), '-f', 'state=closed',
+                           check=False).returncode:
+                return True
+            time.sleep(10)
+        return False
 
     def open_records(self):
         issues = json.loads(self.gh('api', 'repos/%s/issues?labels=%s&state=open&per_page=100' % (self.repo, PENDING_LABEL)).stdout)
@@ -590,6 +614,17 @@ class GateOps:
                 record['created_at'] = issue.get('created_at')
                 records.append(record)
         return records
+
+
+def merged_tiers(merge):
+    """The gold grades a merge changed (its packet against its first parent's), as evaluate() records them."""
+    base, head = entries(show_json(merge + '^1', 'reviewed_guidance.json'), 'grades'), entries(show_json(merge, 'reviewed_guidance.json'), 'grades')
+    return {'%s/%s' % k: e.get('tier') for k, e in head.items() if base.get(k) != e}
+
+
+def trusted_ranks(value):
+    """The recorded pre-merge ranks, kept to known rank names. None (unreadable before the merge) requires every rank."""
+    return sorted(r for r in value if r in RANKS) if isinstance(value, list) else None
 
 
 def new_record(pr, head, changes, run_url, now=None):
@@ -645,6 +680,10 @@ def settle(record, ops):
     if record['stage'] in ('revert-confirmed', 'abandoned', 'refused'):
         # Finished, but the owner's notice was not delivered: send it, and close only once it is.
         return finish_with_notice(record, ops)
+    if record['stage'] in ('verified', 'not-merged'):
+        # Finished, but the close did not reach GitHub: close it, and redo nothing (Codex review of PR #243).
+        ops.close(record)
+        return record['stage']
     if record['stage'] not in ('merging', 'merged', 'reverting', 'reverted'):
         return record['stage']
     merged = ops.merged(pr)
@@ -662,14 +701,25 @@ def settle(record, ops):
                                        MERGED_WITHIN_MINUTES)}
         record['stage'] = 'refused'
         return finish_with_notice(record, ops)
+    # The issue body can be edited by anyone with Write access (Codex security review of PR #243), so nothing in it
+    # decides a revert on its own: the merge commit comes from GitHub, the expected grades from git, the ranks are
+    # kept to known names, and a revert happens only after this run has seen the live site fail to verify.
+    record['merge'] = merged['sha']
+    record['expected_tiers'] = ops.tiers(record['merge'])
+    record['expected_ranks'] = trusted_ranks(record.get('expected_ranks'))
+    if record['stage'] in ('reverting', 'reverted'):
+        # Whether main holds a revert is read from git. Without one, the merge is checked live again first.
+        record['revert'] = ops.find_revert(record['merge'])
+        record['stage'] = 'reverted' if record['revert'] else 'merged'
+        ops.save(record)
     if record['stage'] == 'merging':
-        record['merge'], record['stage'] = merged['sha'], 'merged'
+        record['stage'] = 'merged'
         ops.save(record)
     if record['stage'] == 'merged':
         dispatched = ops.dispatch_publish()
         # Verify even when the dispatch failed: the hourly publication may still carry the merge. A failure
         # leads to the revert, never to an early exit with main merged and unverified.
-        problems = ops.verify(record['merge'], record.get('expected_tiers') or {}, record.get('expected_ranks'))
+        problems = ops.verify(record['merge'], record['expected_tiers'], record['expected_ranks'])
         if not problems:
             ops.comment(pr, 'Merged as %s, published, and verified live: every rank carries the merged packet and the '
                             'changed Gold+ grades match.' % record['merge'])
@@ -697,7 +747,7 @@ def settle(record, ops):
     if record['stage'] == 'reverted':
         ops.dispatch_publish()
         # Confirm the reverted packet on every rank that was live before the merge; the merged grades are not expected.
-        problems = ops.verify(record['revert'], {}, record.get('expected_ranks'))
+        problems = ops.verify(record['revert'], {}, record['expected_ranks'])
         if not problems:
             record['stage'] = 'revert-confirmed'
             record['notice'] = {'key': 'reverted', 'title': 'Review gate reverted PR #%s' % pr,
@@ -738,8 +788,13 @@ def resume(ops, now=None):
     """Continue each stopped pending record; after RESUME_LIMIT tries it is handed to the owner and closed."""
     outcomes = {}
     for record in due_records(ops.open_records(), now or ops.now()):
+        if record.get('stage') in FINISHED:
+            # Only a close or a notice is left: retried every time, never counted toward giving up.
+            settle(record, ops)
+            outcomes[str(record['pr'])] = record['stage']
+            continue
         record['attempts'] = int(record.get('attempts') or 0) + 1
-        if record['attempts'] > RESUME_LIMIT and record.get('stage') not in ('revert-confirmed', 'abandoned', 'refused'):
+        if record['attempts'] > RESUME_LIMIT:
             stage = record.get('stage')
             record['stage'] = 'abandoned'
             record['notice'] = {'key': 'abandoned', 'title': 'Review gate: gave up on PR #%s at stage %s' % (record['pr'], stage),
