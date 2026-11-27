@@ -3343,9 +3343,12 @@ def pred_api_approved():
 
 
 def pred_api_fingerprint(environ):
-    """A short hash naming which credentials a denial applies to; the credentials themselves are never stored."""
+    """A short hash naming which credentials a denial applies to; the credentials themselves are never stored. It covers
+    the client secret as well as the client ID (audit #239 F8), so rotating the secret under the same ID is a new
+    credential generation and is tried again, not held back by the old denial."""
     value=lambda k:environ.get(k,'').strip()
-    return hashlib.sha256(('pred-api:'+(value('PRED_API_TOKEN') or value('PRED_API_CLIENT_ID'))).encode('utf8')).hexdigest()[:16]
+    named=value('PRED_API_TOKEN') or (value('PRED_API_CLIENT_ID')+'\n'+value('PRED_API_CLIENT_SECRET'))
+    return hashlib.sha256(('pred-api:'+named).encode('utf8')).hexdigest()[:16]
 
 
 def pred_source_fetch(environ=None):
@@ -3360,12 +3363,13 @@ def pred_source_fetch(environ=None):
     if not pred_api_configured(env) or not pred_api_approved():return None
     # A refusal is remembered for these credentials, so later runs do not ask again until the credentials change.
     fingerprint=pred_api_fingerprint(env);stop=DATA_DIR/'pred-api-denied.json'
-    try:
-        if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:return None
-    except (OSError,ValueError,AttributeError):pass
-    try:import pred_api
-    except ImportError:return None
     failed=[];token=[]
+    def public(url):
+        # The API is not answering this run: the public pages, unless their own access stop holds (audit #239 F9).
+        blocked=getattr(fetch,'public_blocked',None)
+        reason=blocked() if blocked else None
+        if reason:raise FetchError('Pred.gg collection paused: '+reason+' The authorized API failed this run ('+failed[0]+'); no public request was sent.')
+        return http_get(url)
     def fetch(url):
         if not failed:
             try:
@@ -3377,9 +3381,24 @@ def pred_source_fetch(environ=None):
                 except OSError:pass
             except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
                 failed.append(type(e).__name__)
-        return http_get(url)
+        return public(url)
     fetch.api_failed=failed
+    try:
+        if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:
+            failed.append('denied earlier for these credentials')
+    except (OSError,ValueError,AttributeError):pass
+    try:import pred_api
+    except ImportError:return None
     return fetch
+
+
+def pred_api_health(fetch):
+    """A redacted note on the authorized API for the bundle's errors, or None (audit #239 F8): a healthy public fallback
+    used to hide a refused or failing API. Only the failure's type is recorded, never a credential or token."""
+    failed=getattr(fetch,'api_failed',None)
+    if not failed:return None
+    return {'source':'Pred.gg API','severity':'warning',
+            'detail':'The authorized Pred.gg API was not used ('+failed[0]+'); Pred.gg data came from the public pages where they answered.'}
 
 
 # 2.53.3: a dropped Pred.gg request is tried again after these waits (seconds). On 11 Oct 2026 one SSL EOF on the first
@@ -3396,14 +3415,21 @@ class PredPages:
         self.force=force; self.root=Path(cache_dir or DATA_DIR/'pred_pages'); self.fetch=fetch or http_get
         self.paused_reason=paused_reason; self.sleep=sleep or time.sleep; self.failed_in_a_row=0
         self.lock=threading.Lock(); self.blocked=threading.Event(); self.memory={}; self.records=[]; self.next_start=0
-        self.access_file=self.root/'public-access.json'
+        self.access_file=self.root/'public-access.json'; self.public_stop=None
         if self.access_file.exists():
             try:
                 access=json.loads(self.access_file.read_text(encoding='utf-8'))
                 if access.get('status')=='blocked':
-                    self.paused_reason='Public access stopped at '+access['checked_at']+': '+access['reason']
-            except (ValueError,KeyError,TypeError):
-                self.paused_reason='Public access state is invalid; review it before requesting this source again.'
+                    self.public_stop='Public access stopped at '+access['checked_at']+': '+access['reason']
+            except (ValueError,KeyError,TypeError,AttributeError):
+                self.public_stop='Public access state is invalid; review it before requesting this source again.'
+        # A public-page stop belongs to the public pages (audit #239 F9): an approved API client (pred_source_fetch) is
+        # still asked, and its fallback to the pages honours the stop. Without the API the stop pauses every request.
+        self.api=isinstance(getattr(self.fetch,'api_failed',None),list)
+        if self.api:
+            self.fetch.public_blocked=lambda:self.public_stop or ('Pred.gg stopped after source block' if self.blocked.is_set() else None)
+        elif self.public_stop and not self.paused_reason:
+            self.paused_reason=self.public_stop
     def fetch_retrying(self,url):
         """self.fetch, tried again after PRED_RETRY_WAITS on a network error or HTTP 5xx (2.53.3). A source block, an
         access answer or any other 4xx is raised at once, and nothing is retried once access has stopped."""
@@ -3433,6 +3459,8 @@ class PredPages:
             raise ValueError('Pred.gg accepts public game pages only; API and authentication routes are disabled')
         if self.paused_reason:
             raise FetchError('Pred.gg collection paused: '+self.paused_reason+' No request was sent.')
+        if self.api and self.public_stop and self.fetch.api_failed:
+            raise FetchError('Pred.gg collection paused: '+self.public_stop+' The authorized API failed this run; no request was sent.')
         # Locks reserve a unique URL and start time. Futures prevent duplicate concurrent fetches.
         with self.lock:
             future=self.memory.get(url)
@@ -4582,11 +4610,13 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         previous_pred=previous_pred_bundle(bracket)
         progress('Checking current-patch Pred.gg community guides…')
         attach_community_builds(bundle,previous_guides_bundle(bracket))
-        pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=pred_source_fetch(),
+        api_fetch=pred_source_fetch()
+        pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=api_fetch,
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         keep_previous_pred_roles(bundle,previous_pred)
         attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)
+        if pred_api_health(api_fetch):bundle['errors'].append(pred_api_health(api_fetch))
         retain_pred_partition(bundle, previous_pred)
         patch_support.apply(bundle, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})

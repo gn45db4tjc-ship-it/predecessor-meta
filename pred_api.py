@@ -136,7 +136,14 @@ def graphql(query, variables=None, *, token=None, post=None):
     headers = {'Content-Type': 'application/json', 'User-Agent': USER_AGENT}
     if token:
         headers['Authorization'] = 'Bearer ' + token  # The scheme pred.gg's own client sends to /gql (checked 27 Sep 2026).
-    status, raw = (post or _post)(json.dumps({'query': query, 'variables': variables or {}}).encode('utf-8'), headers)
+    try:
+        status, raw = (post or _post)(json.dumps({'query': query, 'variables': variables or {}}).encode('utf-8'), headers)
+    except urllib.error.HTTPError as error:
+        status, raw = error.code, b''
+    if status in (401, 403):
+        # An expired or revoked token is a refusal, remembered like refused credentials (audit #239 F8), not an
+        # outage that every later adapter asks again.
+        raise PredApiUnauthorized('Pred.gg API refused the access token (HTTP ' + str(status) + ')')
     if status != 200:
         raise PredApiError('Pred.gg API returned HTTP ' + str(status))
     payload = json.loads(raw)
