@@ -228,6 +228,10 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn('validate-live', checks); self.assertIn('browser_static.cjs', checks); self.assertIn('browser_design.cjs', checks)
         self.assertIn('select(.name == "verify")', decide)                # CI must be green
         self.assertIn('--match-head-commit "$HEAD"', decide)
+        merge = decide.index('gh pr merge')
+        self.assertIn('gh pr merge "$PR" --admin --merge', decide)       # gh's pre-check refuses the App's bypass without it
+        guard = decide.index('compare/main...$HEAD')                       # the bypass skips the up-to-date rule, so the gate keeps it
+        self.assertLess(guard, merge); self.assertIn('if [ "$behind" != 0 ]', decide[guard:merge])
         self.assertIn('gh workflow run publish.yml --ref main', decide)
         self.assertIn('verify-live --merge "$merge"', decide)
         self.assertIn('git revert -m 1 --no-edit "$merge"', decide)

@@ -152,8 +152,17 @@ jobs:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
-          # The automation App holds main's bypass (Agent HQ).
-          GH_TOKEN="$WRITER" gh pr merge "$PR" --merge --match-head-commit "$HEAD"
+          # The automation App is main's only "always" bypass actor (Agent HQ ruleset autopilot-main). main requires
+          # muse-review and independent-verify, which never report on review PRs, so gh's own pre-check calls the PR
+          # blocked ("the base branch policy prohibits the merge"); --admin skips that pre-check only, and GitHub then
+          # applies the App's bypass. CI ("verify") already passed on this head above. The bypass would also skip the
+          # ruleset's up-to-date rule, so the PR must not be behind main.
+          behind=$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$HEAD" --jq .behind_by)
+          if [ "$behind" != 0 ]; then
+            gh pr comment "$PR" --body "Not merged: this review PR is $behind commit(s) behind main. Update the branch and the gate decides again."
+            exit 1
+          fi
+          GH_TOKEN="$WRITER" gh pr merge "$PR" --admin --merge --match-head-commit "$HEAD"
           merge=$(gh pr view "$PR" --json mergeCommit --jq .mergeCommit.oid)
           git fetch origin main
           gh workflow run publish.yml --ref main
