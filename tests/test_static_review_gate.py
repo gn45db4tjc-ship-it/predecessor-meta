@@ -197,6 +197,48 @@ class LiveVerification(unittest.TestCase):
         ranks = {r: {'fingerprint': 'abc', 'tiers': {}} for r in gate.RANKS if r != 'paragon'}
         self.assertEqual(gate.verified(ranks, 'abc', {}), ['paragon is missing from the live manifest'])
 
+    def site(self, bundles, **override):
+        """A fake live site: a manifest whose entries declare each bundle's real sha256, then any overrides."""
+        files, cohorts = {}, {}
+        for rank, bundle in bundles.items():
+            raw = json.dumps(bundle).encode('utf8')
+            files[gate.SITE + 'data/%s.json' % rank] = raw
+            cohorts[rank] = {'url': 'data/%s.json' % rank, 'sha256': hashlib.sha256(raw).hexdigest()}
+        for rank, entry in override.items():
+            cohorts[rank] = entry
+        files[gate.SITE + 'manifest.json'] = json.dumps({'cohorts': cohorts}).encode('utf8')
+        return lambda url: files[url]
+
+    def bundles(self, fingerprint='abc'):
+        return {r: {'guidance_fingerprint': fingerprint, 'guidance': {'meta_review': {'entries': [
+            {'slug': 'adele', 'role': 'offlane', 'tier': 'B'}]}}} for r in gate.RANKS}
+
+    def test_a_live_site_whose_bundles_match_their_digests_verifies(self):
+        ranks = gate.live_state(fetch=self.site(self.bundles()))
+        self.assertEqual(gate.verified(ranks, 'abc', {'adele/offlane': 'B'}), [])
+
+    def test_a_bundle_that_does_not_match_its_declared_digest_is_never_verified(self):
+        # PRED-M11 F1: the bundle bytes were never compared with the manifest's sha256.
+        fetch = self.site(self.bundles())
+        served = lambda url: (b'{"guidance_fingerprint": "abc"} ' if url.endswith('silver.json') else fetch(url))
+        problems = gate.verified(gate.live_state(fetch=served), 'abc', {})
+        self.assertEqual(len(problems), 1); self.assertIn('silver bundle sha256', problems[0])
+
+    def test_a_rank_entry_without_a_usable_url_or_digest_is_never_verified(self):
+        bundles = self.bundles()
+        cases = {'bronze': {'url': 'data/bronze.json'}, 'silver': {'url': 'data/silver.json', 'sha256': 'ABC'},
+                 'platinum': {'sha256': '0' * 64}, 'diamond': 'data/diamond.json',
+                 'master': {'url': 'https://example.com/master.json', 'sha256': '0' * 64}}
+        problems = ' '.join(gate.verified(gate.live_state(fetch=self.site(bundles, **cases)), 'abc', {}))
+        for rank in cases:
+            self.assertIn(rank, problems)
+        self.assertNotIn('gold', problems); self.assertNotIn('paragon', problems)
+
+    def test_a_manifest_that_is_not_a_publication_is_never_verified(self):
+        for body in (b'<html>', b'[]', b'{"cohorts": []}', b'{}'):
+            with self.assertRaises(gate.LiveManifestError):
+                gate.live_state(fetch=lambda url, body=body: body)
+
     def test_the_gate_knows_every_published_rank(self):
         import predecessor_meta
         self.assertEqual(list(gate.RANKS), predecessor_meta.BRACKETS)

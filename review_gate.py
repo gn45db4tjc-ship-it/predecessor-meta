@@ -34,6 +34,7 @@ import re
 import subprocess
 import sys
 import time
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -290,11 +291,15 @@ def nightly_conclusions():
     return [r.get('conclusion') for r in json.loads(out)]
 
 
-def fetch_json(url):
+def fetch_bytes(url):
     request = urllib.request.Request(url + ('&' if '?' in url else '?') + 'gate=%d' % time.time(),
                                      headers={'User-Agent': 'predecessor-meta-review-gate', 'Cache-Control': 'no-cache'})
     with urllib.request.urlopen(request, timeout=60) as response:
-        return json.loads(response.read())
+        return response.read()
+
+
+def fetch_json(url):
+    return json.loads(fetch_bytes(url))
 
 
 def fingerprint(sha):
@@ -307,21 +312,60 @@ def fingerprint(sha):
     return digest.hexdigest()[:16]
 
 
-def live_state(site=SITE):
-    manifest = fetch_json(site + 'manifest.json')
-    ranks = {}
-    for rank, cohort in (manifest.get('cohorts') or {}).items():
-        bundle = fetch_json(site + cohort['url']) if cohort.get('url') else {}
-        tiers = {'%s/%s' % (e['slug'], e['role']): e.get('tier')
-                 for e in ((bundle.get('guidance') or {}).get('meta_review') or {}).get('entries') or []}
-        ranks[rank] = {'fingerprint': bundle.get('guidance_fingerprint'), 'tiers': tiers}
-    return ranks
+class LiveManifestError(ValueError):
+    """The live manifest itself cannot be read as a publication: no rank on it can be trusted."""
+
+
+def live_rank(site, rank, cohort, fetch):
+    """One manifest entry: its bundle's packet fingerprint and gold tiers, or why it can't be trusted.
+    The bundle must be on this site and its bytes must match the sha256 the manifest declares (PRED-M11 F1)."""
+    if not isinstance(cohort, dict):
+        return {'problem': '%s entry is not an object' % rank}
+    url, declared = cohort.get('url'), cohort.get('sha256')
+    if not isinstance(url, str) or not url:
+        return {'problem': '%s has no published bundle' % rank}
+    if not isinstance(declared, str) or not re.fullmatch(r'[0-9a-f]{64}', declared):
+        return {'problem': '%s declares no valid sha256' % rank}
+    target = urllib.parse.urljoin(site, url)
+    if not target.startswith(site):
+        return {'problem': '%s bundle is not on %s' % (rank, site)}
+    raw = fetch(target)
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest != declared:
+        return {'problem': '%s bundle sha256 %s does not match the manifest %s' % (rank, digest[:12], declared[:12])}
+    try:
+        bundle = json.loads(raw)
+    except ValueError:
+        return {'problem': '%s bundle is not JSON' % rank}
+    if not isinstance(bundle, dict):
+        return {'problem': '%s bundle is not an object' % rank}
+    review = (bundle.get('guidance') or {}).get('meta_review') if isinstance(bundle.get('guidance'), dict) else None
+    entries = (review or {}).get('entries') if isinstance(review, dict) else None
+    tiers = {'%s/%s' % (e.get('slug'), e.get('role')): e.get('tier')
+             for e in (entries if isinstance(entries, list) else []) if isinstance(e, dict)}
+    return {'fingerprint': bundle.get('guidance_fingerprint'), 'tiers': tiers}
+
+
+def live_state(site=SITE, fetch=None):
+    """Every rank the live manifest lists. A network error propagates (OSError) so verify-live retries;
+    a manifest that is not a publication raises LiveManifestError, which verify-live also retries until its deadline."""
+    fetch = fetch or fetch_bytes
+    try:
+        manifest = json.loads(fetch(site + 'manifest.json'))
+    except ValueError as error:
+        raise LiveManifestError('manifest.json is not JSON: %s' % error) from error
+    cohorts = manifest.get('cohorts') if isinstance(manifest, dict) else None
+    if not isinstance(cohorts, dict):
+        raise LiveManifestError('manifest.json has no cohorts object')
+    return {rank: live_rank(site, rank, cohort, fetch) for rank, cohort in cohorts.items()}
 
 
 def verified(ranks, expected_fp, expected_tiers):
     """Problems with the live site against the merged packet: every rank carries it, and the gold grades match."""
     problems = ['%s is missing from the live manifest' % r for r in RANKS if r not in ranks]
-    problems += ['%s carries %s, not %s' % (r, s['fingerprint'], expected_fp) for r, s in ranks.items() if s['fingerprint'] != expected_fp]
+    problems += [s['problem'] for r, s in ranks.items() if s.get('problem')]
+    problems += ['%s carries %s, not %s' % (r, s.get('fingerprint'), expected_fp) for r, s in ranks.items()
+                 if not s.get('problem') and s.get('fingerprint') != expected_fp]
     gold = (ranks.get('gold') or {}).get('tiers') or {}
     problems += ['gold %s is %s, not %s' % (k, gold.get(k), t) for k, t in expected_tiers.items() if gold.get(k) != t]
     return problems
@@ -387,6 +431,8 @@ def main(argv=None):
                 problems = verified(live_state(), expected_fp, tiers)
             except OSError as error:
                 problems = ['live site unreadable: %s' % error]
+            except LiveManifestError as error:
+                problems = ['live manifest invalid: %s' % error]
             if not problems:
                 print('Live site carries packet %s on every rank; %d changed gold grades match.' % (expected_fp, len(tiers)))
                 return 0
