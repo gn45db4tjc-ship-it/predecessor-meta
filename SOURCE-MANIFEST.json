@@ -10,7 +10,7 @@
     ".github/workflows/data-arrived.yml": "48eb80eef0a1854cf109995f04c6c134b015fd5ea926681778fee3ff67c974ec",
     ".github/workflows/live-check.yml": "b5367d48bdf23d10a5bd2e07977420b63855cda598c3878530b4504e6de04639",
     ".github/workflows/publish.yml": "dfba05b8fc5c3453f52789f66545f5a53fb7de05cd3a4449d9907bc5999d40f8",
-    ".github/workflows/review-gate.yml": "4d4cf412fafbe1cc3061843575059b3f11dfb3cfd61f0b1e40019d18e0c1794d",
+    ".github/workflows/review-gate.yml": "cc80314103c55c2fcf7ae071e911273e09af589db5b19f6b8eae13a9c860d785",
     ".github/workflows/verify.yml": "946aee7a9d405ba33b1b11ac3e5cd5486bb2ebc7edcbf6425c3f1f1e404bceb4",
     ".github/workflows/watchdog.yml": "8796dbd0e76b74d55e9cedc3a19bc46a240857d6df79efa471e2243a6ab86374",
     ".gitignore": "aae7a38f8f8aaddaee3c301fb0ee88f0d1644ee3ed15c5220e993c328d5ffe5b",
@@ -184,7 +184,7 @@
     "publication_activity.py": "fa71f08db1cf77c4361c17bb4c06dee58557771a0425c02854e98b79c3e1d9ad",
     "rank_view.js": "b67ffe5b5cd98e8d45788353830347dd460edba66d37d9eb28ea2216de249464",
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
-    "review_gate.py": "24d817aa45a21350774afbd5dfd67a4bf789fc37c4379b2235778c5c620f5a18",
+    "review_gate.py": "3cccb6a0204a610fbdde174bd9f2c54e93f1b541f1e91b563ea760005d7ccd6f",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
     "reviewed_guidance.json": "81865d87a5261cc3f03b520d38ca31291dba3dd12d8cf69a55644addbde76dc2",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
@@ -313,7 +313,7 @@
     "tests/test_static_release_contract.py": "37f29d515ac1997605b22569fdca036c53d2c2b9adffecfdc7b6bfd2fbadd7d2",
     "tests/test_static_replay_planning_roles.py": "f0d6984788e72002b37fc0b1b72e811e2ea8e0a25ebbd17c4eeb5c9779f1fb4c",
     "tests/test_static_restore_live.py": "79c530521404b9ec412b28f309953b5799d7b90d2968c018ba28788ddf302284",
-    "tests/test_static_review_gate.py": "c9f5ff46fcf38c28421f769a313c9ee511064879c1b1357614e1295318de9ab1",
+    "tests/test_static_review_gate.py": "526389256f0ba11ed6c9364f094e91cff5f757817a7548605abdb76e31965688",
     "tests/test_static_role_coverage.py": "76b012f145c9b1620bf775c135ce01a07c3a9255115a85a4621aa3ed3a6fc77f",
     "tests/test_static_scoped_movement.py": "541e3f242ec17fde939873e9080c4ba0ff6e6fb76515cbf4f969acfbe4d3a7ba",
     "tests/test_static_stage_packet.py": "135e2ae2dc51aeac170e5d3845112e9d6f67e6dc926ed7a9a49d5d847fc6921a",
@@ -373,8 +373,8 @@
     "tests/test_static_patch_importer.py": "166512ba03efbabf2c4b153edc357360aa7bd55e1625250ac6b247286ec8fe4a",
     "docs/PATCH-IMPORTER.md": "c2f7e826d4582f0be673edda8c5de4ebdb1c5ae74ff9ea3baeb82e0cc40b9738",
     ".gitattributes": "e1b6cbc4f9d99dbf0ab6dbee765e81939635644207ebab4c267673a065a49c24",
-    ".github/workflows/deployed-smoke.yml": "0867225a84fa820c353dfdd4a52fc7b169fce84cc3a5ed5643835f0fd1fdf858",
-    "tests/browser_deployed_smoke.cjs": "7a15876a07836fc38b0fbe84e85f363bce61c81b18e0aa762f97a09617d8ba66",
+    ".github/workflows/deployed-smoke.yml": "2d8a958e55e08280c43dfc08a0b007ab80b977374c99cd08c93bc510e2a7d789",
+    "tests/browser_deployed_smoke.cjs": "0f5a67bad6aad7cb5b503d00a4d9be1de3438db8becc0135d58873186a1d49ad",
     "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e",
     "tests/test_static_statz_parser.py": "4576a83ad9e0493047da04984fcebdd64720e629f1ea40969eed45d199159fb4",
     "tests/fixtures/statz/hero-kaelen-jungle-gold.html": "b1432dbb9d8c7910fc738d8c8a3e36f0b5dea88f8432ad188a353ef0078ba8fc",
@@ -392,6 +392,8 @@
     "docs/rechecks/2026-11-15-2040-ledger.json": "25ea8924acca901182f011cff8f35e5f799b54688d3ab4580bfe282951c3f527",
     "docs/rechecks/2026-11-15-2040.md": "87168f5054584ef1068df4b08fc7680285497fcf1ef4036a5c192e44e5c90bc7",
     "docs/rechecks/2026-11-22-2132-ledger.json": "cfcfad4be1fbf72c17e7d978c843dc5d463968ba6ada272320184b12a99c8df1",
-    "docs/rechecks/2026-11-22-2132.md": "443d1c0143103558a080049acf67b0e18d7ffb7a03254476d7ff173326abedab"
+    "docs/rechecks/2026-11-22-2132.md": "443d1c0143103558a080049acf67b0e18d7ffb7a03254476d7ff173326abedab",
+    "tests/deployed_smoke_identity.test.cjs": "580ceb9c07068b7ded441f9e2463ee7a33bebd6bf4ae599ee12ef762e5850983",
+    "tests/test_static_review_gate_settle.py": "d7a71d01a84079158bd556210f4aab206d42d2312799342f17dccb988904a5fb"
   }
 }

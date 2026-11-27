@@ -6,16 +6,22 @@ name: Review gate
 # validators and live-data browser suites. review_gate.py decides: merge, hold for the owner (DECISION NEEDED), wait
 # (auto-merge off) or fail. After a merge it publishes and verifies the live site within 30 minutes, and reverts the
 # merge if that fails. The rules: STRATEGY-REVIEW-POLICY.md, "Current scheduling decision".
+# Audit #239 F2: before the merge the gate writes a durable pending record (an issue labelled review-gate-pending), and
+# review_gate.py settle finishes from it. If the decide job stops first (cancelled, timed out, runner lost), the
+# scheduled resume job finishes the record once that job's time limit has certainly passed.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, labeled]
+  schedule:
+    - cron: '53 */2 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: review-gate-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: review-gate-${{ github.event.pull_request.number || 'resume' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request_target' }}
 
 jobs:
   scope:
@@ -178,38 +184,50 @@ jobs:
             gh pr comment "$PR" --body "Not merged: this review PR is $behind commit(s) behind main. Update the branch and the gate decides again."
             exit 1
           fi
+          # The durable pending record comes first: from here on a stopped run is finished by the resume job.
+          python -B review_gate.py record --pr "$PR" --head "$HEAD" --changes gate-now.json
           GH_TOKEN="$WRITER" gh pr merge "$PR" --admin --merge --match-head-commit "$HEAD"
-          # From here main holds the merge, so no failure may end the step early: each one leads to a revert, and a
-          # merge that is neither verified nor confirmed reverted on the live site opens an issue for the owner.
-          set +e
-          alarm() {
-            gh label create freshness-watchdog --force --color b60205 >/dev/null
-            gh issue create --label freshness-watchdog --title "Review gate: $1 (PR #$PR)" \
-              --body "$2 Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            exit 1
-          }
-          merge=
-          for attempt in 1 2 3 4 5; do
-            merge=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq 'select(.merged) | .merge_commit_sha')
-            [ -n "$merge" ] && break
-            sleep 10
-          done
-          [ -n "$merge" ] || alarm 'merged, not verified or reverted' "PR #$PR was merged, but the gate could not read its merge commit, so it neither verified nor reverted it. Check the live site and revert the merge by hand if it is wrong."
-          git fetch -q origin main
-          if gh workflow run publish.yml --ref main && python -B review_gate.py verify-live --merge "$merge" --changes gate.json; then
-            gh pr comment "$PR" --body "Merged as $merge, published, and verified live: every rank carries the merged packet and the changed Gold+ grades match."
-            exit 0
-          fi
-          # Revert first, diagnose second.
-          git fetch -q origin main && git checkout -B "revert-review-$PR" origin/main && git revert -m 1 --no-edit "$merge" &&
-            git -c http.https://github.com/.extraheader= push -q "https://x-access-token:${WRITER}@github.com/${GITHUB_REPOSITORY}" HEAD:main ||
-            alarm "merge $merge NOT reverted" "Merge $merge was not published and verified live within 30 minutes, and its revert failed. main still holds it: revert it by hand."
-          revert=$(git rev-parse HEAD)
-          gh pr comment "$PR" --body "The merged packet was not published and verified live within 30 minutes, so merge $merge was reverted as $revert. See the review gate run for the diagnosis."
-          if gh workflow run publish.yml --ref main && python -B review_gate.py verify-live --merge "$revert"; then
-            gh label create freshness-watchdog --force --color b60205 >/dev/null
-            gh issue create --label freshness-watchdog --title "Review gate reverted PR #$PR" \
-              --body "Merge $merge did not verify on the live site within 30 minutes and was reverted as $revert; the live site carries the reverted packet again. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            exit 1
-          fi
-          alarm "revert of $merge not confirmed live" "Merge $merge did not verify and was reverted as $revert on main, but the live site did not carry the reverted packet within 30 minutes. Check publish.yml and the live site."
+          # Publish and verify every rank that was live before the merge (gate-now.json expected_ranks); otherwise
+          # revert on the newest main, publish again and confirm the revert is live. Each stage is saved to the record,
+          # and a merge that is neither verified nor confirmed reverted opens an issue for the owner.
+          python -B review_gate.py settle --pr "$PR"
+
+  resume:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write        # push a revert
+      pull-requests: write   # comments
+      issues: write          # the pending records and alarms
+      actions: write         # dispatch publish.yml
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - name: Any pending merge whose own run stopped?
+        id: pending
+        run: python -B review_gate.py pending
+      - name: Get the token that may write to main
+        id: writer
+        if: steps.pending.outputs.count != '0'
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        with:
+          app-id: ${{ vars.AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_KEY }}
+      - name: Finish the pending merges
+        if: steps.pending.outputs.count != '0'
+        env:
+          WRITER: ${{ steps.writer.outputs.token }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: python -B review_gate.py resume

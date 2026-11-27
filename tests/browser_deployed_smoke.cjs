@@ -469,6 +469,54 @@ function buildSmokeReport({ siteUrl, checkedAt, checks, version, screenshot, hea
   return report;
 }
 
+// Audit #239 F17: the wait step saw the intended Pages artifact, but the browser may load a different one (a later
+// publish, or a CDN edge still serving an older copy). The browser step checks the expected publication identity
+// itself, before and after the browser run, and reports a superseded deployment instead of attributing the result to
+// the triggering run. With no expected identity (a manual run) it records only what was served.
+function manifestIdentity(manifest) {
+  if (!manifest || typeof manifest !== 'object') return { run_id: null, published_at: null };
+  const runId = manifest.run_id !== undefined && manifest.run_id !== null ? String(manifest.run_id).trim() : '';
+  const publishedAt = typeof manifest.published_at === 'string' ? manifest.published_at.trim() : '';
+  return { run_id: runId || null, published_at: publishedAt || null };
+}
+
+function evaluatePublicationIdentity({ expectedRunId = null, expectedPublishedAt = null, before = null, after = null } = {}) {
+  const expected = {
+    run_id: expectedRunId ? String(expectedRunId).trim() : null,
+    published_at: expectedPublishedAt ? String(expectedPublishedAt).trim() : null
+  };
+  const served = { before: manifestIdentity(before), after: manifestIdentity(after) };
+  if (!expected.run_id && !expected.published_at) {
+    return { expected: null, served, superseded: false, reason: 'No expected publication was given; recorded what the site served.' };
+  }
+  if (!expected.run_id || !expected.published_at) {
+    return { expected, served, superseded: true, reason: 'The expected publication needs both run_id and published_at.' };
+  }
+  const same = id => id.run_id === expected.run_id && id.published_at === expected.published_at;
+  const wrong = [['before', served.before], ['after', served.after]].filter(([, id]) => !same(id));
+  if (wrong.length === 0) {
+    return { expected, served, superseded: false, reason: 'The site served run ' + expected.run_id + ' (published ' + expected.published_at + ') before and after the browser check.' };
+  }
+  return {
+    expected,
+    served,
+    superseded: true,
+    reason: 'Superseded deployment: expected run ' + expected.run_id + ' (published ' + expected.published_at + '), but ' +
+      wrong.map(([when, id]) => when + ' the browser check the site served run ' + (id.run_id || 'null') + ' (published ' + (id.published_at || 'null') + ')').join(', and ') +
+      '. This result does not verify the triggering deployment.'
+  };
+}
+
+function applyPublicationIdentity(report, publication) {
+  report.publication = publication;
+  if (publication.superseded) {
+    report.status = 'superseded';
+    report.passed = false;
+    report.reason = publication.reason;
+  }
+  return report;
+}
+
 function evaluateDeployGate(jobsPayload, options = {}) {
   const jobs = Array.isArray(jobsPayload?.jobs) ? jobsPayload.jobs : [];
   const inferredRunId = jobs.find(j => j && j.run_id !== undefined && j.run_id !== null)?.run_id;
@@ -828,6 +876,8 @@ async function runDeployedSmoke(options = {}) {
 
   const headSha = options.headSha ?? process.env.DEPLOY_HEAD_SHA ?? null;
   const deployFinishedAt = options.deployFinishedAt ?? process.env.DEPLOY_FINISHED_AT ?? null;
+  const expectedRunId = options.expectedRunId ?? (process.env.EXPECTED_RUN_ID || null);
+  const expectedPublishedAt = options.expectedPublishedAt ?? (process.env.EXPECTED_PUBLISHED_AT || null);
   let siteUrl = rawSiteUrl;
   let previewServer = null;
   let browser = null;
@@ -1196,6 +1246,13 @@ async function runDeployedSmoke(options = {}) {
       ? expectedCache
       : (versionInfo.cacheKeys.find(k => k.startsWith('predecessor-meta-shell-v')) || versionInfo.swSourceCacheName || null);
 
+    // Read the manifest again after the browser run, so a publication that changed during it is caught (F17).
+    let finalManifestJson = null;
+    try {
+      const finalProbe = await fetchFn(manifestUrl + (manifestUrl.includes('?') ? '&' : '?') + 'smoke-final=' + Date.now());
+      if (finalProbe.status === 200 && finalProbe.text) finalManifestJson = JSON.parse(finalProbe.text);
+    } catch (_) {}
+
     const report = buildSmokeReport({
       siteUrl,
       checkedAt: new Date().toISOString(),
@@ -1209,6 +1266,12 @@ async function runDeployedSmoke(options = {}) {
       headSha,
       deployFinishedAt
     });
+    applyPublicationIdentity(report, evaluatePublicationIdentity({
+      expectedRunId,
+      expectedPublishedAt,
+      before: manifestJson,
+      after: finalManifestJson
+    }));
 
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
     return report;
@@ -1323,8 +1386,10 @@ async function main(argv = process.argv.slice(2)) {
     status: report.status,
     summary: report.summary,
     version: report.version,
+    publication: report.publication || null,
     screenshot: report.screenshot
   }));
+  if (report.status === 'superseded') console.log('SUPERSEDED [publication_identity] ' + report.reason);
   return report.passed ? 0 : 1;
 }
 
@@ -1357,6 +1422,9 @@ module.exports = {
   evaluateVersionAgreementCheck,
   evaluateMobileLayoutCheck,
   buildSmokeReport,
+  manifestIdentity,
+  evaluatePublicationIdentity,
+  applyPublicationIdentity,
   evaluateDeployGate,
   isManifestVersionReady,
   waitForDeployedManifest,
