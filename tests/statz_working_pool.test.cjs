@@ -211,7 +211,11 @@ test('PRED-M3: Statz Meta view omits .meta-aside when no working-pool hero has a
 test('PRED-M3: SOURCE-MANIFEST.json records current SHA-256 digests for modified and added PRED-M3 files', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'SOURCE-MANIFEST.json'), 'utf8'));
   for (const relPath of ['ui.js', 'tests/browser_design.cjs', 'tests/statz_working_pool.test.cjs']) {
-    const digest = crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, relPath))).digest('hex');
-    assert.equal(manifest.files[relPath], digest, 'SOURCE-MANIFEST.json hash mismatch for ' + relPath);
+    // #230: a Windows checkout (core.autocrlf) may rewrite an LF blob as CRLF. Accept the bytes as checked out or
+    // with CRLF folded to LF; ui.js is committed with mixed line endings, so its raw bytes must still match.
+    const raw = fs.readFileSync(path.join(ROOT, relPath));
+    const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+    const digests = [sha(raw), sha(Buffer.from(raw.toString('utf8').replace(/\r\n/g, '\n'), 'utf8'))];
+    assert.ok(digests.includes(manifest.files[relPath]), 'SOURCE-MANIFEST.json hash mismatch for ' + relPath);
   }
 });
