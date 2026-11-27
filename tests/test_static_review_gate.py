@@ -233,10 +233,10 @@ class WorkflowContract(unittest.TestCase):
         guard = decide.index('compare/main...$HEAD')                       # the bypass skips the up-to-date rule, so the gate keeps it
         self.assertLess(guard, merge); self.assertIn('if [ "$behind" != 0 ]', decide[guard:merge])
         target = decide.index('.base.ref + " " + .head.sha')                # a retargeted base cannot slip code past scope
-        rescope = decide.index('review_gate.py scope --base "$(git rev-parse origin/main)" --head "$HEAD"')
-        self.assertLess(target, rescope); self.assertLess(rescope, merge)
+        redecide = decide.index('review_gate.py decide --base "$(git rev-parse origin/main)" --head "$HEAD" --out gate-now.json')
+        self.assertLess(target, redecide); self.assertLess(redecide, merge)   # the whole decision, not only scope
         self.assertIn('if [ "$target" != "main $HEAD" ]', decide[target:merge])
-        self.assertIn("'Only review files changed: '*) ;;", decide[rescope:merge])   # holds fail here too
+        self.assertIn('if [ "$now" != merge ]', decide[redecide:merge])
         self.assertIn('gh workflow run publish.yml --ref main', decide)
         self.assertIn('verify-live --merge "$merge"', decide)
         self.assertIn('git revert -m 1 --no-edit "$merge"', decide)

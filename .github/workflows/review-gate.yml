@@ -157,20 +157,22 @@ jobs:
           # blocked ("the base branch policy prohibits the merge"); --admin skips that pre-check only, and GitHub then
           # applies the App's bypass. CI ("verify") already passed on this head above. The bypass would also skip the
           # ruleset's up-to-date rule, so the PR must not be behind main.
-          # The scope job checked BASE...HEAD for the base the PR had then, and a PR's base can be changed without
-          # rerunning this workflow. So right before the merge: the PR still targets main at the same head, and against
-          # main as it is now the head adds review files only (no other file, and no file held for the owner).
+          # The scope job and the decision read BASE...HEAD for the base the PR had then, and a PR's base can be
+          # changed without rerunning this workflow. So right before the merge: the PR still targets main at the same
+          # head, and the whole decision (scope, holds, ledgers, grade moves), run again against main as it is now,
+          # is still merge.
           target=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq '.base.ref + " " + .head.sha')
           if [ "$target" != "main $HEAD" ]; then
             gh pr comment "$PR" --body "Not merged: this review PR no longer targets main at the head the gate checked ($target)."
             exit 1
           fi
           git fetch -q origin main
-          rescope=$(python -B review_gate.py scope --base "$(git rev-parse origin/main)" --head "$HEAD") || rescope="failed: $rescope"
-          case "$rescope" in
-            'Only review files changed: '*) ;;
-            *) gh pr comment "$PR" --body "Not merged: against main as it is now, this PR changes more than review files. $rescope"; exit 1 ;;
-          esac
+          GITHUB_OUTPUT= python -B review_gate.py decide --base "$(git rev-parse origin/main)" --head "$HEAD" --out gate-now.json >/dev/null
+          now=$(python -B -c 'import json; print(json.load(open("gate-now.json"))["decision"])')
+          if [ "$now" != merge ]; then
+            gh pr comment "$PR" --body "Not merged: decided again against main as it is now, the gate says $now, not merge."
+            exit 1
+          fi
           behind=$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$HEAD" --jq .behind_by)
           if [ "$behind" != 0 ]; then
             gh pr comment "$PR" --body "Not merged: this review PR is $behind commit(s) behind main. Update the branch and the gate decides again."
