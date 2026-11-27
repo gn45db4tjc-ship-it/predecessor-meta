@@ -144,7 +144,10 @@ class LocalUpdaterTests(unittest.TestCase):
         self.assertFalse(any(a[0]=='push' for a in calls))
 
     def test_missing_receipt_does_not_import_anything(self):
-        with self.assertRaises(ValueError):import_feed(self.feed,self.root/'cloud')
+        # Since PRED-M11 (audit #239 F3) a missing receipt is refused and recorded, so the cloud run continues.
+        result=import_feed(self.feed,self.root/'cloud')
+        self.assertEqual(result['status'],'rejected')
+        import static_publish as sp;self.assertIsNone(sp.load_publication(self.root/'cloud','gold'))
 
 
 if __name__=='__main__':unittest.main()
