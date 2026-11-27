@@ -291,6 +291,16 @@ if (APP_CONFIG.mode === 'static') {
       return {saved, worker};
     } catch { return null; }
   }
+  // True when `incoming` was published before the saved copy's publication (both dated); equal or undated is not older.
+  const olderPublication = (incoming, saved) => { const a = Date.parse(incoming?.published_at), b = Date.parse(saved?.published_at); return Number.isFinite(a) && Number.isFinite(b) && a < b; };
+  // Whether the site serves exactly this publication now (asked fresh, past every cache); false when it cannot be read.
+  async function liveServes(manifestURL, manifest) {
+    try {
+      const response = await fetch(manifestURL + (manifestURL.includes('?') ? '&' : '?') + 'commit=' + Date.now(), {cache: 'no-store', credentials: 'same-origin'});
+      if (!response.ok || response.headers.get('X-Predecessor-Cache') === 'offline') return false;
+      return (await response.json())?.published_at === manifest.published_at;
+    } catch { return false; }
+  }
   async function commitPublication(manifest, bracket, entry, loaded) {
     if (!globalThis.caches || connectionLost) return;
     // One commit at a time across every open tab, so no tab writes a manifest from an outdated view of what is saved.
@@ -311,6 +321,10 @@ if (APP_CONFIG.mode === 'static') {
     if (overtaken()) return 'superseded';
     const data = await caches.open(DATA_CACHE), manifestURL = siteURL(APP_CONFIG.manifest);
     if (overtaken()) return 'superseded';
+    let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
+    // PRED-M11 (audit #239 F16): another tab may have saved a newer publication while this one waited for the lock.
+    // An older one never overwrites it, unless the site itself now serves this older publication (a verified rollback).
+    if (olderPublication(manifest, previous) && !(await liveServes(manifestURL, manifest))) return 'superseded';
     // The bytes are stored at the address they were loaded from (the core, or the full bundle); the address
     // contains the checksum, so a copy already saved there holds these exact bytes.
     const target = loaded?.bytes && publicationBytes(entry, loaded.url) ? siteURL(loaded.url) : null;
@@ -318,7 +332,6 @@ if (APP_CONFIG.mode === 'static') {
     const saved = new Set((await data.keys()).map(key => key.url));
     const bundleURL = [target, entry.projection?.core?.url && siteURL(entry.projection.core.url), siteURL(entry.url)].find(url => url && saved.has(url));
     if (!bundleURL) return false;   // nothing verified is saved for this bracket, so there is nothing to describe
-    let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
     const has = value => value?.status === 'available' && /^[a-f0-9]{64}$/.test(value.sha256 || '') && typeof value.url === 'string' && (saved.has(savedURL(value)) || saved.has(siteURL(value.url)));
     const cohorts = {};
     for (const [key, value] of Object.entries(manifest.cohorts)) {

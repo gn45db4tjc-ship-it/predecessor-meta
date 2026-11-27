@@ -99,9 +99,22 @@ function localRequest(request) {
 
 // 2.52.0: the response goes to the page at once; its copy is saved in the background, kept alive by the fetch
 // event (keep). Awaiting the write first made a slow return visit wait for the whole page to be stored.
-function rememberShell(request, response, keep = null) {
+// PRED-M11 (audit #239 F15): a page answer replaces the offline app document only when it is the app: HTML that
+// carries the published app's version marker. A maintenance or error page served with HTTP 200 is shown, never saved
+// over the last good shell, so a later offline launch still opens the app with its verified data.
+const APP_MARKER = /<meta name="predecessor-app-version" content="[^"]+">/;
+function appDocument(text, response) {
+  return /text\/html/i.test(response.headers.get('Content-Type') || 'text/html') && APP_MARKER.test(text);
+}
+
+function rememberShell(request, response, keep = null, document = false) {
   if (response.ok) {
-    const copy = response.clone(), save = caches.open(SHELL_CACHE).then(cache => cache.put(request, copy)).catch(error => console.warn('Shell copy not saved:', error));
+    const copy = response.clone();
+    const save = (document
+      ? copy.text().then(text => appDocument(text, copy)
+        ? caches.open(SHELL_CACHE).then(cache => cache.put(request, new Response(text, {status: copy.status, statusText: copy.statusText, headers: copy.headers})))
+        : console.warn('Shell copy not saved: the page is not the app document.'))
+      : caches.open(SHELL_CACHE).then(cache => cache.put(request, copy))).catch(error => console.warn('Shell copy not saved:', error));
     if (keep) keep(save);
   }
   return response;
@@ -118,7 +131,7 @@ async function networkFirst(request, {data = false, fallback = null, keep = null
   try {
     const response = await fetch(new Request(request, {cache: 'no-store'}));
     if (!response.ok) { refused = response; throw new Error('Publication unavailable'); }
-    return data ? response : rememberShell(request, response, keep);   // data is stored by the page, after verification
+    return data ? response : rememberShell(request, response, keep, true);   // data is stored by the page, after verification
   } catch (error) {
     // Before serving the saved manifest, make sure it describes bundles that are actually saved (a backstop for
     // browsers without Web Locks, where two tabs could commit at the same moment).
