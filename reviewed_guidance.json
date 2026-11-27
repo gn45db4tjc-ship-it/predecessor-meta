@@ -53735,6 +53735,17 @@
         "scope": "The weekly backstop for 2026-W46 (weekly:2026-W46, the only item in the live queue), against the live bundles published 2026-11-15T19:52:50+00:00 (publish run 43754682402, tool 2.59.0; collection 2026-11-15T13:48:38-06:00, cloud host). Pred.gg could not be refreshed in that collection ('Pred.gg newest version differs from the verified official live patch and its verified hotfixes'), so every rank keeps its Pred.gg 1.18 (version 170) sample, labelled retained: Bronze+ to Diamond+ from 11 Nov about 19:38-19:52 CST, Paragon+ from 4 Nov. Every inactive plan on any rank was checked: Akeron Support and Wukong Offlane (all ranks, parked by the owner's 1.18 decisions) and Drongo Carry (Diamond+ only). All 87 reviewed Gold+ grades are withheld on every rank because the sample is retained ('Retained sample; refresh required to reassess this tier'); none has moved statistics against it, a retained sample is not a new sample to recheck a grade against, so none was rechecked or changed. Not a full review.",
         "ledger": "docs/rechecks/2026-11-15-2040-ledger.json",
         "result": "0 changed, 0 checked and retained, 3 unresolved"
+      },
+      {
+        "kind": "weekly",
+        "week": "2026-W47",
+        "reviewed_at": "2026-11-22T22:00:00+00:00",
+        "items": [
+          "weekly:2026-W47"
+        ],
+        "scope": "The weekly backstop for 2026-W47 (weekly:2026-W47, the only item in the live queue), against the live bundles published 2026-11-22T21:28:36+00:00 (publish run 45072017904, tool 2.59.0; collection 2026-11-22 about 12:24-12:26 CST). Pred.gg could not be refreshed in that collection ('Pred.gg: no structured page responses found'), so Bronze+ to Paragon+ keep their Pred.gg 1.18 (version 170) samples of 11 Nov, labelled retained, and the new Master+ rank has no Pred.gg sample or definitions at all. Every inactive plan on any rank was checked: Akeron Support and Wukong Offlane (all seven ranks, parked by the owner's 1.18 decisions) and, on Master+ only, the other 92 plans, which wait there because Master+ has no Pred.gg mechanics to compare their preconditions with. Drongo Carry is active on every rank since PR #227. All 87 reviewed Gold+ grades are withheld (Gold+: 'Retained sample; refresh required to reassess this tier'; other ranks: 'Review covers a different cohort'); none has moved statistics against it, so none was rechecked or changed. Not a full review.",
+        "ledger": "docs/rechecks/2026-11-22-2132-ledger.json",
+        "result": "0 changed, 0 checked and retained, 2 unresolved"
       }
     ]
   },
