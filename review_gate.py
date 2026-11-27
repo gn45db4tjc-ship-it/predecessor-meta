@@ -67,6 +67,9 @@ PENDING_MARK = '<!-- review-gate-pending -->'
 RESUME_AFTER_MINUTES = 160
 RESUME_LIMIT = 3
 MERGED_WITHIN_MINUTES = 20   # a merge long after the record was written was not the gate's
+# Only issues the workflow's own GITHUB_TOKEN opened are records: a person with Triage access can open and label an
+# issue, but not as this account, and cannot edit its body (Codex security review of PR #243).
+RECORD_AUTHOR = 'github-actions[bot]'
 
 
 def zoned(value):
@@ -566,9 +569,13 @@ class GateOps:
         issues = json.loads(self.gh('api', 'repos/%s/issues?labels=%s&state=open&per_page=100' % (self.repo, PENDING_LABEL)).stdout)
         records = []
         for issue in issues:
+            if (issue.get('user') or {}).get('login') != RECORD_AUTHOR or issue.get('pull_request'):
+                continue
             record = parse_record(issue.get('body'))
             if record is not None:
                 record['issue'] = issue['number']
+                # The time comes from GitHub, never from the body.
+                record['created_at'] = issue.get('created_at')
                 records.append(record)
         return records
 
@@ -609,24 +616,41 @@ def alarm_once(record, ops, key, title, body):
     return False
 
 
+def bound(record, merged):
+    """The record matches what GitHub says about its PR: merged at the recorded head, soon after the record was
+    written, and (once known) as the recorded merge commit. Anything else is never verified, reverted or pushed."""
+    created, at = parse_time(record.get('created_at')), parse_time((merged or {}).get('at'))
+    return bool(merged and merged.get('sha') and merged.get('head') == record.get('head') and created and at
+                and dt.timedelta(0) <= at - created <= dt.timedelta(minutes=MERGED_WITHIN_MINUTES)
+                and (record.get('merge') is None or record.get('merge') == merged.get('sha')))
+
+
 def settle(record, ops):
     """Finish a pending merge from its recorded stage (audit #239 F2): merging -> merged -> verified, or
     merged -> reverting -> reverted -> revert-confirmed. Each stage is saved before the next starts, so a run that
     stops anywhere leaves a record a later resume continues from. Returns the stage it ended on."""
     pr = record['pr']
-    if record['stage'] in ('revert-confirmed', 'abandoned'):
+    if record['stage'] in ('revert-confirmed', 'abandoned', 'refused'):
         # Finished, but the owner's notice was not delivered: send it, and close only once it is.
         return finish_with_notice(record, ops)
-    if record['stage'] == 'merging':
-        merged = ops.merged(pr)
-        created = parse_time(record.get('created_at'))
-        at = parse_time((merged or {}).get('at'))
-        if not merged or merged.get('head') != record.get('head') or not merged.get('sha') or \
-                created is None or at is None or at - created > dt.timedelta(minutes=MERGED_WITHIN_MINUTES):
+    if record['stage'] not in ('merging', 'merged', 'reverting', 'reverted'):
+        return record['stage']
+    merged = ops.merged(pr)
+    if not bound(record, merged):
+        if record['stage'] == 'merging':
             # Never merged by this gate: nothing to verify or revert.
             record['stage'] = 'not-merged'
             ops.close(record)
             return record['stage']
+        # A later stage that GitHub does not back is refused outright: no verify, revert or push.
+        record['notice'] = {'key': 'unbound', 'title': 'Review gate: refused a pending record for PR #%s' % pr,
+                            'body': 'Issue #%s claims stage %s with merge %s, but GitHub does not show PR #%s merged at head %s '
+                                    'as that commit within %d minutes of the record. Nothing was verified, reverted or pushed.'
+                                    % (record.get('issue'), record['stage'], record.get('merge'), pr, record.get('head'),
+                                       MERGED_WITHIN_MINUTES)}
+        record['stage'] = 'refused'
+        return finish_with_notice(record, ops)
+    if record['stage'] == 'merging':
         record['merge'], record['stage'] = merged['sha'], 'merged'
         ops.save(record)
     if record['stage'] == 'merged':
@@ -703,7 +727,7 @@ def resume(ops, now=None):
     outcomes = {}
     for record in due_records(ops.open_records(), now or ops.now()):
         record['attempts'] = int(record.get('attempts') or 0) + 1
-        if record['attempts'] > RESUME_LIMIT and record.get('stage') not in ('revert-confirmed', 'abandoned'):
+        if record['attempts'] > RESUME_LIMIT and record.get('stage') not in ('revert-confirmed', 'abandoned', 'refused'):
             stage = record.get('stage')
             record['stage'] = 'abandoned'
             record['notice'] = {'key': 'abandoned', 'title': 'Review gate: gave up on PR #%s at stage %s' % (record['pr'], stage),

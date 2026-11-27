@@ -194,6 +194,38 @@ class CodexReviewOf243(unittest.TestCase):
         self.assertFalse([c for c in ops.calls if c[0] in ('verify', 'revert')])
 
 
+class ForgedRecords(unittest.TestCase):
+    """Codex security review of PR #243: someone with Triage access can open and label an issue, so a record is
+    trusted only from the workflow's own account, and every stage must match what GitHub says about the PR."""
+
+    def issues(self, *rows):
+        return json.dumps([{'number': n, 'user': {'login': login}, 'created_at': created, 'body': gate.record_body(r)}
+                           for n, login, created, r in rows])
+
+    def test_only_issues_the_workflow_opened_are_records_and_their_time_comes_from_github(self):
+        ops = gate.GateOps()
+        body = self.issues((1, 'github-actions[bot]', at(0), record()), (2, 'someone', at(0), record()))
+        done = subprocess.CompletedProcess([], 0, stdout=body, stderr='')
+        with unittest.mock.patch.object(ops, 'gh', return_value=done):
+            records = ops.open_records()
+        self.assertEqual([r['issue'] for r in records], [1])
+        self.assertEqual(records[0]['created_at'], at(0))
+
+    def test_a_later_stage_github_does_not_back_is_refused_without_a_revert(self):
+        cases = [None,                                   # the PR was never merged
+                 dict(MERGED, head='other'),             # merged at another head
+                 dict(MERGED, sha='elsewhere'),          # merged as another commit than the record claims
+                 dict(MERGED, at=at(-60)),               # merged before the record existed
+                 dict(MERGED, at=at(300))]               # merged long after it
+        for merged in cases:
+            for stage in ('merged', 'reverting', 'reverted'):
+                ops = FakeOps(merged=merged, verify_results=[[]])
+                self.assertEqual(gate.settle(record(stage, merge='merge111', revert='revert222'), ops), 'refused', (merged, stage))
+                self.assertFalse([c for c in ops.calls if c == 'dispatch' or c[0] in ('verify', 'revert')], (merged, stage))
+                self.assertEqual(ops.alarms(), ['Review gate: refused a pending record for PR #7'])
+                self.assertEqual(ops.closed, [50])
+
+
 class Resume(unittest.TestCase):
     def test_only_records_whose_run_has_certainly_stopped_are_resumed(self):
         ops = FakeOps(merged=MERGED, verify_results=[[]])
