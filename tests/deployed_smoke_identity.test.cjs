@@ -57,6 +57,20 @@ test('a superseded publication turns a passing report into status "superseded" t
   assert.equal(report.deployment.head_sha, 'abc');
 });
 
+test('a stale manifest served to the browser is superseded even when the probes see the expected one', () => {
+  // Codex review of PR #243: both probes come from Node; the page's own manifest must be checked too.
+  const result = evaluatePublicationIdentity({ ...EXPECTED, before: SAME, after: SAME, browser: [{ run_id: 9000, published_at: '2026-11-27T07:23:01+00:00' }] });
+  assert.equal(result.superseded, true);
+  assert.match(result.reason, /in the browser check the site served run 9000/);
+});
+
+test('the browser seeing the expected manifest verifies; seeing none does not', () => {
+  assert.equal(evaluatePublicationIdentity({ ...EXPECTED, before: SAME, after: SAME, browser: [SAME, SAME] }).superseded, false);
+  const none = evaluatePublicationIdentity({ ...EXPECTED, before: SAME, after: SAME, browser: [] });
+  assert.equal(none.superseded, true);
+  assert.match(none.reason, /page loaded no manifest\.json/);
+});
+
 test('the workflow gives the browser step the expected publication', () => {
   const yml = fs.readFileSync(path.join(__dirname, '..', '.github', 'workflows', 'deployed-smoke.yml'), 'utf8');
   const browserStep = yml.slice(yml.indexOf('- name: Check the deployed site in a browser'), yml.indexOf('- name: Keep the deployed smoke report'));

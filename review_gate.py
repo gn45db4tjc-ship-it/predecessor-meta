@@ -422,7 +422,13 @@ def verify_live(sha, tiers, required, minutes=VERIFY_MINUTES, state=None, sleep=
     """Poll the live site until it carries the packet of `sha` (and the gold grades in `tiers`), or `minutes` pass.
     Returns the last problems, empty when verified. An unreadable or invalid answer is retried, never final."""
     state, sleep, clock = state or live_state, sleep or time.sleep, clock or time.time
-    expected_fp = fingerprint(sha)
+    try:
+        expected_fp = fingerprint(sha)
+    except (subprocess.CalledProcessError, OSError) as error:
+        # The commit is not in this checkout: never a crash that skips the revert, always a failed verification.
+        problem = 'cannot read the packet of %s in this checkout: %s' % (sha, error)
+        print('Live verification failed: ' + problem)
+        return [problem]
     deadline = clock() + minutes * 60
     problems = ['not checked yet']
     while clock() < deadline:
@@ -501,7 +507,17 @@ class GateOps:
             time.sleep(20)
         return False
 
+    def fetch_main(self):
+        """The merge happens on GitHub, so its commit (and a revert pushed elsewhere) must be fetched before its
+        packet can be fingerprinted (Codex review of PR #243)."""
+        for attempt in range(3):
+            if not subprocess.run(['git', 'fetch', '-q', 'origin', 'main'], capture_output=True).returncode:
+                return True
+            time.sleep(10)
+        return False
+
     def verify(self, sha, tiers, required):
+        self.fetch_main()
         return verify_live(sha, tiers, required)
 
     def merged(self, pr):
@@ -520,8 +536,14 @@ class GateOps:
         self.gh('pr', 'comment', str(pr), '--body', text, check=False)
 
     def alarm(self, title, body):
+        """Open an issue for the owner. True only when GitHub created it."""
         self.gh('label', 'create', 'freshness-watchdog', '--force', '--color', 'b60205', check=False)
-        self.gh('issue', 'create', '--label', 'freshness-watchdog', '--title', title, '--body', body + ' Run: ' + self.run_url, check=False)
+        for attempt in range(3):
+            if not self.gh('issue', 'create', '--label', 'freshness-watchdog', '--title', title, '--body',
+                           body + ' Run: ' + self.run_url, check=False).returncode:
+                return True
+            time.sleep(10)
+        return False
 
     def save(self, record):
         record['updated_at'] = self.now().isoformat()
@@ -577,10 +599,14 @@ def parse_record(body):
 
 
 def alarm_once(record, ops, key, title, body):
-    """One alarm per record and problem, however often a resume retries it."""
-    if key not in record.setdefault('alarmed', []):
-        ops.alarm(title, body)
+    """One alarm per record and problem, however often a resume retries it. An alarm GitHub did not create is not
+    counted, so the next resume sends it again. Returns whether the owner has been told."""
+    if key in record.setdefault('alarmed', []):
+        return True
+    if ops.alarm(title, body):
         record['alarmed'].append(key)
+        return True
+    return False
 
 
 def settle(record, ops):
@@ -588,6 +614,9 @@ def settle(record, ops):
     merged -> reverting -> reverted -> revert-confirmed. Each stage is saved before the next starts, so a run that
     stops anywhere leaves a record a later resume continues from. Returns the stage it ended on."""
     pr = record['pr']
+    if record['stage'] in ('revert-confirmed', 'abandoned'):
+        # Finished, but the owner's notice was not delivered: send it, and close only once it is.
+        return finish_with_notice(record, ops)
     if record['stage'] == 'merging':
         merged = ops.merged(pr)
         created = parse_time(record.get('created_at'))
@@ -635,14 +664,25 @@ def settle(record, ops):
         problems = ops.verify(record['revert'], {}, record.get('expected_ranks'))
         if not problems:
             record['stage'] = 'revert-confirmed'
-            ops.alarm('Review gate reverted PR #%s' % pr, 'Merge %s did not verify on the live site and was reverted as %s; '
-                      'the live site carries the reverted packet again.' % (record['merge'], record['revert']))
-            ops.close(record)
-            return record['stage']
+            record['notice'] = {'key': 'reverted', 'title': 'Review gate reverted PR #%s' % pr,
+                                'body': 'Merge %s did not verify on the live site and was reverted as %s; the live site '
+                                        'carries the reverted packet again.' % (record['merge'], record['revert'])}
+            return finish_with_notice(record, ops)
         record['problems'] = list(problems)
         alarm_once(record, ops, 'revert-not-live', 'Review gate: revert of %s not confirmed live (PR #%s)' % (record['merge'], pr),
                    'Merge %s did not verify and was reverted as %s on main, but the live site did not carry the reverted '
                    'packet (%s). The scheduled resume checks again.' % (record['merge'], record['revert'], '; '.join(problems)))
+        ops.save(record)
+    return record['stage']
+
+
+def finish_with_notice(record, ops):
+    """Close a finished record once its notice reached the owner; otherwise keep it open for the next resume."""
+    notice = record.get('notice') or {}
+    if alarm_once(record, ops, notice.get('key', 'notice'), notice.get('title', 'Review gate: PR #%s' % record['pr']),
+                  notice.get('body', 'The review gate finished PR #%s at stage %s.' % (record['pr'], record['stage']))):
+        ops.close(record)
+    else:
         ops.save(record)
     return record['stage']
 
@@ -663,14 +703,15 @@ def resume(ops, now=None):
     outcomes = {}
     for record in due_records(ops.open_records(), now or ops.now()):
         record['attempts'] = int(record.get('attempts') or 0) + 1
-        if record['attempts'] > RESUME_LIMIT:
+        if record['attempts'] > RESUME_LIMIT and record.get('stage') not in ('revert-confirmed', 'abandoned'):
             stage = record.get('stage')
             record['stage'] = 'abandoned'
-            ops.alarm('Review gate: gave up on PR #%s at stage %s' % (record['pr'], stage),
-                      'The review gate could not finish PR #%s after %d resumes (stage %s, merge %s, revert %s, last problems: %s). '
-                      'Check main and the live site by hand.' % (record['pr'], RESUME_LIMIT, stage, record.get('merge'),
-                                                                  record.get('revert'), '; '.join(record.get('problems') or []) or 'none'))
-            ops.close(record)
+            record['notice'] = {'key': 'abandoned', 'title': 'Review gate: gave up on PR #%s at stage %s' % (record['pr'], stage),
+                                'body': 'The review gate could not finish PR #%s after %d resumes (stage %s, merge %s, revert %s, '
+                                        'last problems: %s). Check main and the live site by hand.'
+                                        % (record['pr'], RESUME_LIMIT, stage, record.get('merge'), record.get('revert'),
+                                           '; '.join(record.get('problems') or []) or 'none')}
+            finish_with_notice(record, ops)
         else:
             ops.save(record)
             settle(record, ops)

@@ -184,7 +184,7 @@
     "publication_activity.py": "fa71f08db1cf77c4361c17bb4c06dee58557771a0425c02854e98b79c3e1d9ad",
     "rank_view.js": "b67ffe5b5cd98e8d45788353830347dd460edba66d37d9eb28ea2216de249464",
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
-    "review_gate.py": "3cccb6a0204a610fbdde174bd9f2c54e93f1b541f1e91b563ea760005d7ccd6f",
+    "review_gate.py": "1966eea1038e4b647384153a1c179a4dd76228490f60d2be38eb4974d7a04d81",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
     "reviewed_guidance.json": "81865d87a5261cc3f03b520d38ca31291dba3dd12d8cf69a55644addbde76dc2",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
@@ -374,7 +374,7 @@
     "docs/PATCH-IMPORTER.md": "c2f7e826d4582f0be673edda8c5de4ebdb1c5ae74ff9ea3baeb82e0cc40b9738",
     ".gitattributes": "e1b6cbc4f9d99dbf0ab6dbee765e81939635644207ebab4c267673a065a49c24",
     ".github/workflows/deployed-smoke.yml": "2d8a958e55e08280c43dfc08a0b007ab80b977374c99cd08c93bc510e2a7d789",
-    "tests/browser_deployed_smoke.cjs": "0f5a67bad6aad7cb5b503d00a4d9be1de3438db8becc0135d58873186a1d49ad",
+    "tests/browser_deployed_smoke.cjs": "99ae47673ca077e01551ca73e65b9962cfb47b93da1acbe365a4377c51b0028b",
     "tests/deployed_smoke.test.cjs": "8501f18cacf4ce5543a77e8ff2d5c9f5ceb53b5adfda575b861ce6f055b6a00e",
     "tests/test_static_statz_parser.py": "4576a83ad9e0493047da04984fcebdd64720e629f1ea40969eed45d199159fb4",
     "tests/fixtures/statz/hero-kaelen-jungle-gold.html": "b1432dbb9d8c7910fc738d8c8a3e36f0b5dea88f8432ad188a353ef0078ba8fc",
@@ -393,7 +393,7 @@
     "docs/rechecks/2026-11-15-2040.md": "87168f5054584ef1068df4b08fc7680285497fcf1ef4036a5c192e44e5c90bc7",
     "docs/rechecks/2026-11-22-2132-ledger.json": "cfcfad4be1fbf72c17e7d978c843dc5d463968ba6ada272320184b12a99c8df1",
     "docs/rechecks/2026-11-22-2132.md": "443d1c0143103558a080049acf67b0e18d7ffb7a03254476d7ff173326abedab",
-    "tests/deployed_smoke_identity.test.cjs": "580ceb9c07068b7ded441f9e2463ee7a33bebd6bf4ae599ee12ef762e5850983",
-    "tests/test_static_review_gate_settle.py": "d7a71d01a84079158bd556210f4aab206d42d2312799342f17dccb988904a5fb"
+    "tests/deployed_smoke_identity.test.cjs": "87a8e4759cdd98aeeab1827f9bfdb665a7b78d78ed03b38f50600c09a7db41f2",
+    "tests/test_static_review_gate_settle.py": "9d1153313f5af753f7b3b5d6c0c63a6c1b3696b7b276834ce5e45ded10e65a15"
   }
 }

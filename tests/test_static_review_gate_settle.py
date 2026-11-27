@@ -34,6 +34,7 @@ class FakeOps:
         self.revert_result = revert_result
         self.clock = now
         self.next_issue = 50
+        self.alarm_ok = True
 
     def now(self):
         return self.clock
@@ -61,6 +62,7 @@ class FakeOps:
 
     def alarm(self, title, body):
         self.calls.append(('alarm', title))
+        return self.alarm_ok
 
     def save(self, record):
         record['updated_at'] = self.clock.isoformat()
@@ -140,6 +142,56 @@ class Settle(unittest.TestCase):
             ops = FakeOps(merged=merged)
             self.assertEqual(gate.settle(record(), ops), 'not-merged')
             self.assertFalse([c for c in ops.calls if c == 'dispatch' or c[0] in ('verify', 'revert')])
+
+
+class CodexReviewOf243(unittest.TestCase):
+    """Findings of Codex's review of PR #243 at 855a996."""
+
+    def test_a_merge_commit_missing_from_the_checkout_fails_verification_instead_of_crashing(self):
+        error = subprocess.CalledProcessError(128, ['git', 'ls-tree'])
+        with unittest.mock.patch.object(gate, 'fingerprint', side_effect=error):
+            problems = gate.verify_live('merge111', {}, ['gold'], minutes=1, state=lambda: {}, sleep=lambda s: None)
+        self.assertEqual(len(problems), 1); self.assertIn('cannot read the packet of merge111', problems[0])
+
+    def test_the_real_verify_fetches_main_before_fingerprinting(self):
+        ops, order = gate.GateOps(), []
+        with unittest.mock.patch.object(ops, 'fetch_main', side_effect=lambda: order.append('fetch')), \
+                unittest.mock.patch.object(gate, 'verify_live', side_effect=lambda *a: order.append('verify') or []):
+            ops.verify('merge111', {}, ['gold'])
+        self.assertEqual(order, ['fetch', 'verify'])
+
+    def test_an_alarm_github_did_not_create_is_sent_again_on_the_next_resume(self):
+        ops = FakeOps(merged=MERGED, verify_results=[['not live']], revert_result=gate.RevertError('push rejected'))
+        ops.alarm_ok = False
+        gate.settle(record(), ops)
+        self.assertEqual(ops.records[50]['alarmed'], [])
+        ops.alarm_ok = True
+        gate.settle(ops.open_records()[0], ops)
+        self.assertEqual(len(ops.alarms()), 2); self.assertEqual(ops.records[50]['alarmed'], ['not-reverted'])
+
+    def test_a_confirmed_revert_stays_open_until_its_notice_is_delivered(self):
+        ops = FakeOps(merged=MERGED, verify_results=[['x'], []])
+        ops.alarm_ok = False
+        self.assertEqual(gate.settle(record(), ops), 'revert-confirmed')
+        self.assertEqual(ops.closed, [])
+        ops.alarm_ok = True
+        ops.clock += dt.timedelta(hours=3)
+        self.assertEqual(gate.resume(ops), {'7': 'revert-confirmed'})
+        self.assertEqual(ops.closed, [50])
+        self.assertNotIn(('revert', 'merge111'), ops.calls[-5:])   # finishing the notice does not redo the work
+
+    def test_a_record_given_up_on_stays_open_until_the_owner_is_told(self):
+        ops = FakeOps(merged=MERGED)
+        ops.save(record('reverted', merge='merge111', revert='revert222', attempts=gate.RESUME_LIMIT))
+        ops.alarm_ok = False
+        ops.clock += dt.timedelta(hours=3)
+        self.assertEqual(gate.resume(ops), {'7': 'abandoned'})
+        self.assertEqual(ops.closed, [])
+        ops.alarm_ok = True
+        ops.clock += dt.timedelta(hours=3)
+        self.assertEqual(gate.resume(ops), {'7': 'abandoned'})
+        self.assertEqual(ops.open_records(), [])
+        self.assertFalse([c for c in ops.calls if c[0] in ('verify', 'revert')])
 
 
 class Resume(unittest.TestCase):

@@ -480,12 +480,15 @@ function manifestIdentity(manifest) {
   return { run_id: runId || null, published_at: publishedAt || null };
 }
 
-function evaluatePublicationIdentity({ expectedRunId = null, expectedPublishedAt = null, before = null, after = null } = {}) {
+function evaluatePublicationIdentity({ expectedRunId = null, expectedPublishedAt = null, before = null, after = null, browser = null } = {}) {
   const expected = {
     run_id: expectedRunId ? String(expectedRunId).trim() : null,
     published_at: expectedPublishedAt ? String(expectedPublishedAt).trim() : null
   };
+  // browser: the manifest bodies the page itself received (null when the caller did not observe the page).
+  const seenByBrowser = Array.isArray(browser) ? browser.map(manifestIdentity) : null;
   const served = { before: manifestIdentity(before), after: manifestIdentity(after) };
+  if (seenByBrowser) served.browser = seenByBrowser;
   if (!expected.run_id && !expected.published_at) {
     return { expected: null, served, superseded: false, reason: 'No expected publication was given; recorded what the site served.' };
   }
@@ -493,9 +496,16 @@ function evaluatePublicationIdentity({ expectedRunId = null, expectedPublishedAt
     return { expected, served, superseded: true, reason: 'The expected publication needs both run_id and published_at.' };
   }
   const same = id => id.run_id === expected.run_id && id.published_at === expected.published_at;
-  const wrong = [['before', served.before], ['after', served.after]].filter(([, id]) => !same(id));
+  const readings = [['before', served.before], ['after', served.after]];
+  if (seenByBrowser) {
+    if (seenByBrowser.length === 0) {
+      return { expected, served, superseded: true, reason: 'The page loaded no manifest.json the check could read, so it cannot show which publication the browser checked.' };
+    }
+    seenByBrowser.forEach(id => readings.push(['in', id]));
+  }
+  const wrong = readings.filter(([, id]) => !same(id));
   if (wrong.length === 0) {
-    return { expected, served, superseded: false, reason: 'The site served run ' + expected.run_id + ' (published ' + expected.published_at + ') before and after the browser check.' };
+    return { expected, served, superseded: false, reason: 'The site served run ' + expected.run_id + ' (published ' + expected.published_at + ') before, during and after the browser check.' };
   }
   return {
     expected,
@@ -944,6 +954,7 @@ async function runDeployedSmoke(options = {}) {
     const consoleErrors = [];
     const nonGetRequests = [];
     const trackedAssetsByUrl = new Map();
+    const browserManifestBodies = [];
     let pageStatus = null;
     let manifestObservedStatus = manifestProbe.status;
     let bootInfo = { booted: false, bootError: 'Did not run boot check' };
@@ -987,6 +998,8 @@ async function runDeployedSmoke(options = {}) {
       }
       if (kind === 'manifest') {
         manifestObservedStatus = res.status();
+        // Keep the body the page itself received, so a stale copy served to the browser is caught (F17).
+        browserManifestBodies.push(res.status() === 200 ? res.text().catch(() => null) : Promise.resolve(null));
         return;
       }
       if (kind === 'sw' || kind === 'script' || kind === 'stylesheet' || kind === 'bundle') {
@@ -1212,6 +1225,13 @@ async function runDeployedSmoke(options = {}) {
     });
 
     await page.screenshot({ path: screenshotPath, fullPage: true });
+    const browserManifests = (await Promise.all(browserManifestBodies)).map(text => {
+      try {
+        return text ? JSON.parse(text) : null;
+      } catch (_) {
+        return null;
+      }
+    });
     await context.close();
 
     const effectiveManifestStatus =
@@ -1270,7 +1290,8 @@ async function runDeployedSmoke(options = {}) {
       expectedRunId,
       expectedPublishedAt,
       before: manifestJson,
-      after: finalManifestJson
+      after: finalManifestJson,
+      browser: browserManifests
     }));
 
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
