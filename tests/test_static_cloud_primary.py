@@ -367,8 +367,9 @@ class ImportNeverRegresses(unittest.TestCase):
             for incoming in (None, 12345, {'at': 'x'}, 'not a time', '9999-12-31T23:59:59-23:59'):
                 with self.subTest(incoming=incoming):
                     p.write_json(receipt_path, dict(receipt, checked_at=incoming))
-                    with self.assertRaisesRegex(ValueError, 'receipt time is unreadable'):
-                        import_feed(self.windows / 'feed', self.cloud)
+                    # Since PRED-M11 (audit #239 F3) a refused receipt is reported, not raised, so the cloud path runs.
+                    result = import_feed(self.windows / 'feed', self.cloud)
+                    self.assertEqual(result, {'status': 'rejected', 'reason': 'Local collector receipt time is unreadable'})
 
     def paragon(self, minutes, fetched, discontinued_at=None):
         """A synthetic Paragon+ bundle; with discontinued_at, Statz is discontinued with its last date there."""

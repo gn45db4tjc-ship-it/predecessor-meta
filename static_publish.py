@@ -38,6 +38,56 @@ def write_json(path, value):
     base.atomic_write(Path(path), json.dumps(value, ensure_ascii=False, separators=(',', ':')))
 
 
+STATE_TIMES = ('last_full_attempt_at', 'patch_transition_at')
+# Fields the publisher dereferences as objects. local_collector is read defensively already (VERIFY-8), so a wrong
+# local_collector never sets the whole state aside.
+STATE_OBJECTS = ('attempts', 'patch_check', 'last_verified_patch_check', 'required_retry', 'pred_retry', 'live_recovery')
+
+
+def state_problem(state):
+    """Why a parsed publication.json cannot be reused, or None (audit #239 F4)."""
+    if not isinstance(state, dict):
+        return 'state is not an object'
+    for key in STATE_OBJECTS:
+        if state.get(key) is not None and not isinstance(state[key], dict):
+            return key + ' is not an object'
+    if not all(isinstance(a, dict) for a in (state.get('attempts') or {}).values()):
+        return 'an attempt is not an object'
+    if not isinstance((state.get('live_recovery') or {}).get('pending') or {}, dict):
+        return 'live_recovery pending is not an object'
+    for key in STATE_TIMES:
+        if state.get(key) is not None:
+            try:
+                utc_time(state[key])
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                return key + ' is not a readable time'
+    return None
+
+
+def load_state(folder, default=None):
+    """The saved publication state, or `default` when there is none. A file that is not JSON or has the wrong shape
+    (a truncated cache, audit #239 F4) is moved aside as publication.json.invalid-<time>, never parsed again and never
+    saved back into the cache, so the next step (restore_from_live) recovers from the verified live publication."""
+    path = Path(folder) / 'publication.json'
+    try:
+        state = json.loads(path.read_text(encoding='utf8'))
+        problem = state_problem(state)
+    except FileNotFoundError:
+        return copy.deepcopy(default)
+    except (OSError, ValueError) as error:
+        problem = 'unreadable: ' + str(error)[:200]
+    if problem is None:
+        return state
+    target = path.with_name('publication.json.invalid-' + base.now_utc().strftime('%Y%m%dT%H%M%SZ'))
+    try:
+        path.replace(target)
+    except OSError:
+        path.unlink(missing_ok=True)
+    print('::warning::Saved publication state set aside (' + problem + '); recovering from the live publication.', flush=True)
+    base.log('Publication state set aside as ' + target.name + ': ' + problem)
+    return copy.deepcopy(default)
+
+
 def utc_time(value):
     date = dt.datetime.fromisoformat(value.replace('Z', '+00:00'))
     if not date.tzinfo:
@@ -454,15 +504,28 @@ def _live_get(url, attempts=3):
 def restore_from_live(folder, site_url=LIVE_SITE, fetch=None):
     """Restore a lost Actions cache from the live publication before anything older (2.43.0).
 
-    Runs only when the state is missing. Each bundle must match the live manifest's sha256 and date; it is stored exactly
+    Runs when the state is missing or was set aside as invalid (load_state), and again while an earlier restore left
+    ranks pending (`live_recovery`). Each bundle must match the live manifest's sha256 and date; it is stored exactly
     as published, so no source date, status or sample changes. The schedule state is taken from the live manifest, so
-    the run continues as if the cache had survived (no surprise full collection). Anything unreachable or failing its
-    checksum is skipped, and the older paths (the Windows feed, then the committed seed) remain in charge."""
+    the run continues as if the cache had survived (no surprise full collection). A rank the live site had available
+    that cannot be restored stays pending in `live_recovery` (audit #239 F5): render_site holds deployment while a
+    pending rank has no validated bundle, so a partial restore never replaces the working site with fewer ranks, and
+    the next run tries that rank again. Anything unreachable keeps the whole restore pending."""
     folder = Path(folder)
     report = {'restored': [], 'rejected': {}, 'error': None}
-    if (folder / 'publication.json').exists():
+    state = load_state(folder)
+    recovery = (state or {}).get('live_recovery') or {}
+    if state is not None and not recovery.get('pending'):
         return report
     fetch = fetch or _live_get
+    now = base.iso(base.now_utc())
+
+    def pending(ranks, why):
+        # A first failure starts the hold clock; a later one keeps it.
+        current = load_state(folder) or {'schema': 1, 'attempts': {}}
+        current['live_recovery'] = {'pending': ranks, 'since': recovery.get('since') or now, 'checked_at': now, 'reason': why}
+        write_json(folder / 'publication.json', current)
+
     try:
         manifest = json.loads(fetch(site_url + 'manifest.json'))
         cohorts = manifest['cohorts']
@@ -471,13 +534,18 @@ def restore_from_live(folder, site_url=LIVE_SITE, fetch=None):
     except Exception as error:
         report['error'] = 'Live manifest unavailable: ' + str(error)[:200]
         base.log('Cache restore from the live site skipped. ' + report['error'])
+        if state is None or recovery.get('pending'):
+            pending(dict(recovery.get('pending') or {}, **{'*': None}), report['error'])
         return report
+    wanted = [b for b in CONFIG['brackets'] if isinstance(cohorts.get(b), dict) and cohorts[b].get('status') == 'available']
+    if state is not None:
+        wanted = [b for b in wanted if not replaced(load_publication(folder, b), cohorts[b].get('generated_at'))]
     restored = {}
-    for bracket in CONFIG['brackets']:
+    for bracket in wanted:
         entry = cohorts.get(bracket) or {}
-        if entry.get('status') != 'available' or not entry.get('url') or not entry.get('sha256'):
-            continue
         try:
+            if not entry.get('url') or not entry.get('sha256'):
+                raise ValueError('the live manifest names no bundle and sha256')
             raw = fetch(site_url + entry['url'])
             if hashlib.sha256(raw).hexdigest() != entry['sha256']:
                 raise ValueError('sha256 differs from the live manifest')
@@ -489,7 +557,26 @@ def restore_from_live(folder, site_url=LIVE_SITE, fetch=None):
         except Exception as error:
             report['rejected'][bracket] = str(error)[:200]
             base.log('Cache restore rejected the live ' + bracket + ' bundle: ' + report['rejected'][bracket])
+    report['restored'] = sorted(restored)
+    left = {b: (cohorts.get(b) or {}).get('generated_at') for b in sorted(report['rejected'])}
+    if state is not None:
+        # A later pass over pending ranks: only the recovery record and the restored attempts change.
+        state = load_state(folder) or state
+        for k, e in restored.items():
+            if isinstance(e.get('last_attempt'), dict):
+                state.setdefault('attempts', {})[k] = copy.deepcopy(e['last_attempt'])
+        if left:
+            state['live_recovery'] = {'pending': left, 'since': recovery.get('since') or now, 'checked_at': now,
+                                      'reason': 'Live bundles could not be restored: ' + '; '.join(k + ': ' + v for k, v in report['rejected'].items())[:300]}
+        else:
+            state.pop('live_recovery', None)
+        write_json(folder / 'publication.json', state)
+        if restored:
+            base.log('Restored pending ' + ', '.join(report['restored']) + ' from the live publication (dates unchanged).')
+        return report
     if not restored:
+        if left:
+            pending(left, 'Live bundles could not be restored: ' + '; '.join(k + ': ' + v for k, v in report['rejected'].items())[:300])
         return report
     state = {'schema': 1, 'attempts': {k: copy.deepcopy(e['last_attempt']) for k, e in restored.items() if isinstance(e.get('last_attempt'), dict)}}
     for key in ('last_full_attempt_at', 'patch_check', 'last_verified_patch_check', 'local_collector', 'required_retry'):
@@ -500,12 +587,53 @@ def restore_from_live(folder, site_url=LIVE_SITE, fetch=None):
         state['last_attempted_signature'] = state['last_completed_signature'] = signatures.pop()
     if os.environ.get('COLLECTION_RELEASE'):
         state['collection_release'] = os.environ['COLLECTION_RELEASE']
-    state['restored_from_live'] = {'at': base.iso(base.now_utc()), 'site': site_url, 'published_at': manifest.get('published_at'),
+    state['restored_from_live'] = {'at': now, 'site': site_url, 'published_at': manifest.get('published_at'),
                                    'brackets': sorted(restored)}
+    if left:
+        state['live_recovery'] = {'pending': left, 'since': now, 'checked_at': now,
+                                  'reason': 'Live bundles could not be restored: ' + '; '.join(k + ': ' + v for k, v in report['rejected'].items())[:300]}
+    if state_problem(state):
+        # The live manifest's own fields have the wrong shape: keep the bundles, not a state that load_state refuses.
+        state = {'schema': 1, 'attempts': {}, 'live_recovery': {'pending': left or {}, 'since': now, 'checked_at': now,
+                 'reason': 'Live manifest fields unusable: ' + state_problem(state)}}
+        if not left: state.pop('live_recovery')
     write_json(folder / 'publication.json', state)
-    report['restored'] = sorted(restored)
     base.log('Restored ' + ', '.join(report['restored']) + ' from the live publication of ' + str(manifest.get('published_at')) + ' (dates unchanged).')
     return report
+
+
+def replaced(bundle, live_generated_at):
+    """True when a stored bundle can stand in for a live one: it exists and is no older than the live copy, so an old
+    committed seed never counts as the replacement of a newer live rank."""
+    if not bundle:
+        return False
+    if not live_generated_at:
+        return True
+    try:
+        return utc_time(bundle['generated_at']) >= utc_time(live_generated_at)
+    except (KeyError, AttributeError, TypeError, ValueError):
+        return False
+
+
+def held_ranks(folder, state, now=None):
+    """Ranks the live site had available that this state has no validated bundle for (none, or only an older one),
+    while the recovery hold lasts (`live_recovery_hold_hours`, 24 by default). '*' means the live manifest itself
+    could not be read. After the hold, publication goes ahead so a site that is really gone can still be rebuilt;
+    the pending record stays in the state, so the gap remains visible."""
+    recovery = (state or {}).get('live_recovery') or {}
+    ranks = recovery.get('pending') or {}
+    if not isinstance(ranks, dict) or not ranks:
+        return []
+    try:
+        since = utc_time(recovery.get('since'))
+    except (AttributeError, TypeError, ValueError):
+        since = None
+    now = now or base.now_utc()
+    if since is None or now - since > dt.timedelta(hours=CONFIG.get('live_recovery_hold_hours', 24)):
+        return []
+    if '*' in ranks:
+        return ['*']
+    return [r for r in sorted(ranks) if r in CONFIG['brackets'] and not replaced(load_publication(folder, r), ranks[r])]
 
 
 def output_flag(name, value):
@@ -533,7 +661,7 @@ def publication_report(state):
 def diagnose_pred(folder):
     """Explicit maintenance probe: one public page, no statistical collection."""
     folder = Path(folder)
-    state = read_json(folder / 'publication.json', {})
+    state = load_state(folder, {})
     if state.get('blocked_in_last_full'):
         result = {'status': 'withheld', 'reason': 'Previous source block; no new request sent'}
     else:
@@ -644,6 +772,8 @@ def render_site(folder, out, state):
                 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
                 'required_retry': state.get('required_retry', {})}
     manifest['local_collector'] = state.get('local_collector')
+    if state.get('local_receipt_rejected'):
+        manifest['local_receipt_rejected'] = state['local_receipt_rejected']
     manifest['collection_host'] = 'cloud' if not CONFIG.get('cloud_collection_paused_reason') else 'windows'
     manifest['source_pauses'] = {'pred': CONFIG['pred_collection_paused_reason']} if CONFIG.get('pred_collection_paused_reason') else {}
     # With an application token or credentials the collector reads Pred.gg's authorized API first (base.pred_source_fetch).
@@ -741,6 +871,12 @@ def render_site(folder, out, state):
         live_patch={'status': manifest['patch_check'].get('status'), 'version': manifest['patch_check'].get('version'),
                     'checked_at': manifest['patch_check'].get('checked_at')},
         last_attempt_at=state.get('last_full_attempt_at'), next_expected_attempt_at=manifest['next_expected_attempt_at'])
+    held = held_ranks(folder, state)
+    if held:
+        manifest['deploy_held'] = {'ranks': held, 'reason': (state.get('live_recovery') or {}).get('reason')}
+        print('::warning::Deployment held: the live site has ' + ('ranks' if held == ['*'] else ', '.join(held)) +
+              ' that this run could not restore or replace; the working site stays up and the next run retries.', flush=True)
+        available = False
     output_flag('publishable', available)
     if not available:
         return manifest
@@ -770,7 +906,7 @@ def render_site(folder, out, state):
 def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
     folder = Path(folder).resolve()
     folder.mkdir(parents=True, exist_ok=True)
-    state = read_json(folder / 'publication.json', {'schema': 1, 'attempts': {}})
+    state = load_state(folder, {'schema': 1, 'attempts': {}})
     configure_collector(folder / 'collector')
     if preview_seeds:
         for path in preview_seeds:
@@ -932,7 +1068,7 @@ def main():
     parser.add_argument('--check-only', action='store_true', help='Developer/maintenance check of official notes without statistical collection')
     parser.add_argument('--preview-seed', type=Path, action='append', default=[])
     parser.add_argument('--import-public-seed', type=Path, action='append', default=[])
-    parser.add_argument('--restore-live', metavar='SITE_URL', help='Only when the state is missing: restore it from the live publication, then exit')
+    parser.add_argument('--restore-live', metavar='SITE_URL', help='Only when the state is missing, invalid or has ranks pending: restore it from the live publication, then exit')
     args = parser.parse_args()
     if args.restore_live:
         print(json.dumps(restore_from_live(args.state_dir, args.restore_live.rstrip('/') + '/')))
