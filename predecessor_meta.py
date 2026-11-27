@@ -2325,6 +2325,28 @@ def verified_history_article(article,source):
                 official_article_fingerprint(article['blocks'])==source['fingerprint'])
 
 
+def release_year(day, month, year, anchor, weekday=None):
+    """An official release date as ISO text, or None when it cannot be dated safely. A written year is used as
+    written. Without one, the date is the day and month in the year (anchor's, the one before or the one after)
+    that lands nearest the anchor, the article's own publication date when it has one. A written weekday must
+    match that year. When no year lands within half a year of the anchor, or two years land within 60 days of
+    the same distance, the year is ambiguous and the date is withheld, so the article reads "release date
+    unverified" rather than a guessed year."""
+    try:
+        if year: return dt.datetime.strptime('%s %s %s' % (day, month, year), '%d %B %Y').date().isoformat()
+        options = []
+        for y in (anchor.year - 1, anchor.year, anchor.year + 1):
+            try: options.append(dt.datetime.strptime('%s %s %s' % (day, month, y), '%d %B %Y').date())
+            except ValueError: pass
+    except ValueError:
+        return None
+    if weekday: options = [d for d in options if d.strftime('%A').lower() == weekday.lower()]
+    options = sorted(options, key=lambda d: abs((d - anchor).days))
+    if not options or abs((options[0] - anchor).days) > 183: return None
+    if len(options) > 1 and abs((options[1] - anchor).days) - abs((options[0] - anchor).days) < 60: return None
+    return options[0].isoformat()
+
+
 def official_parse(html, url):
     p = OfficialReader(); p.feed(html)
     title = next((v for t, v in p.blocks if t == 'h1'), '')
@@ -2332,24 +2354,29 @@ def official_parse(html, url):
     if not version: raise ValueError('Official patch article has no version heading: ' + url)
     text = '\n'.join(v for t, v in p.blocks if t != 'image')
     # Prefer explicit release wording; publication date is not a release date.
+    # The article's own date (its "Nov 3, 2026" label) only anchors a day and month written without a year
+    # (release_year): reading the year off the clock made the 1.18 article "upcoming" again on 1 Jan 2027.
+    publication = re.search(r'>\s*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2}),\s*(20\d\d)\s*<',html,re.I)
+    published = None
+    if publication:
+        try: published = dt.datetime.strptime('%s %s %s' % (publication.group(1)[:3], publication.group(2), publication.group(3)), '%b %d %Y').date()
+        except ValueError: published = None
+    anchor = published or now_utc().date()
     released = None
-    match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?\b(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(20\d\d))?', text, re.I)
+    weekday = r'(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+)?'
+    match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?' + weekday + r'\b(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(20\d\d))?', text, re.I)
     if match:
-        year = int(match.group(3) or now_utc().year)
-        released = dt.datetime.strptime('%s %s %s' % (match.group(1), match.group(2), year), '%d %B %Y').date().isoformat()
+        released = release_year(match.group(2), match.group(3), match.group(4), anchor, match.group(1))
     if not released:
-        match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(20\d\d))?', text, re.I)
+        match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?' + weekday + r'\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(20\d\d))?', text, re.I)
         if match:
-            released = dt.datetime.strptime('%s %s %s' % (match.group(2), match.group(1), match.group(3) or now_utc().year), '%d %B %Y').date().isoformat()
+            released = release_year(match.group(3), match.group(2), match.group(4), anchor, match.group(1))
     today = now_utc().date().isoformat()
     status = 'announced' if released and released > today else ('live' if released else 'release date unverified')
     # Actual hotfix labels are dated paragraphs, not the related-news card headings.
-    publication = re.search(r'>\s*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},\s*(20\d\d)\s*<',html,re.I)
-    publication_year = int(publication.group(2)) if publication else now_utc().year
     hotfixes = []
     def hotfix_date(day,month,year):
-        try: return dt.datetime.strptime('%s %s %s'%(day,month,year or publication_year),'%d %B %Y').date().isoformat()
-        except ValueError: return None
+        return release_year(day,month,year,anchor)
     hotfix_status=lambda date:'announced' if date and date>today else 'live' if date else 'release date unverified'
     for i,(tag,value) in enumerate(p.blocks):
         h = re.fullmatch(r'\s*(?:hotfix\s*)?v?(\d+\.\d+\.\d+)\s*[-–:]\s*(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)(?:\s+(20\d\d))?\s*',value,re.I)
