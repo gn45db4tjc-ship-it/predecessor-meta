@@ -1139,7 +1139,13 @@ def omeda_fetch_items():
     data = json.loads(text)
     if not isinstance(data, list) or not data:
         raise OmedaParseError("items.json: expected a non-empty list")
-    return data, secs
+    # Only rows the bundle can use count (audit #239 F10): an HTTP 200 of [{}] used to be stamped a fresh "ok" with
+    # nothing in it. Unusable rows are dropped; none usable is a failure, so the source reads failed, never fresh.
+    usable = [it for it in data if isinstance(it, dict) and it.get("id") is not None
+              and isinstance(it.get("slug"), str) and it["slug"] and isinstance(it.get("display_name"), str) and it["display_name"]]
+    if not usable:
+        raise OmedaParseError("items.json: no usable item (each needs id, slug and display_name)")
+    return usable, secs
 
 
 def omeda_role_normalize(r):
