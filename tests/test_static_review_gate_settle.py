@@ -357,6 +357,29 @@ class VerifyLiveRetries(unittest.TestCase):
         self.assertEqual(answers, [])
 
 
+class SwitchFromCurrentMain(unittest.TestCase):
+    """Audit #239 F7: the auto-merge switch is read from main as it is now, not from the PR event's base."""
+
+    def test_the_newest_main_is_used_after_a_fetch(self):
+        calls = []
+
+        def git(*args, binary=False):
+            calls.append(args[0])
+            return 'c' * 40 + '\n' if args[0] == 'rev-parse' else ''
+        with unittest.mock.patch.object(gate, 'git', side_effect=git):
+            self.assertEqual(gate.current_main('a' * 40), 'c' * 40)
+        self.assertEqual(calls, ['fetch', 'rev-parse'])
+
+    def test_an_unreadable_main_falls_back_to_the_event_base(self):
+        with unittest.mock.patch.object(gate, 'git', side_effect=subprocess.CalledProcessError(128, ['git'])):
+            self.assertEqual(gate.current_main('a' * 40), 'a' * 40)
+
+    def test_decide_reads_the_switch_from_current_main(self):
+        text = Path(gate.__file__).read_text(encoding='utf-8')
+        self.assertIn("show_json(current_main(args.base), 'free_hosting.json')", text)
+        self.assertNotIn("show_json(args.base, 'free_hosting.json')", text)
+
+
 class NightlyAge(unittest.TestCase):
     def runs(self, *hours):
         return [{'conclusion': 'success', 'createdAt': (T0 - dt.timedelta(hours=h)).isoformat().replace('+00:00', 'Z')} for h in hours]

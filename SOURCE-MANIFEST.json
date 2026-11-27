@@ -184,7 +184,7 @@
     "publication_activity.py": "fa71f08db1cf77c4361c17bb4c06dee58557771a0425c02854e98b79c3e1d9ad",
     "rank_view.js": "b67ffe5b5cd98e8d45788353830347dd460edba66d37d9eb28ea2216de249464",
     "recommendation_view.js": "e91043d234099c260802a1c35e76bc0e963a85cc030d7f73a5b5c0cdc7b7a559",
-    "review_gate.py": "7aacfa949667c038f0e321c94f69f19fbcd6bf59fd189b0f32f904fd805fa9ba",
+    "review_gate.py": "1d2b6f03c6e04fbce3ce3d03176418944983b77a5ab08cf64bca57c6f7480e55",
     "review_queue.cjs": "b7404f4d870fa2147a0f979f1a1f619881140a46ec011aa3e17da1886e5bb585",
     "reviewed_guidance.json": "81865d87a5261cc3f03b520d38ca31291dba3dd12d8cf69a55644addbde76dc2",
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
@@ -394,6 +394,6 @@
     "docs/rechecks/2026-11-22-2132-ledger.json": "cfcfad4be1fbf72c17e7d978c843dc5d463968ba6ada272320184b12a99c8df1",
     "docs/rechecks/2026-11-22-2132.md": "443d1c0143103558a080049acf67b0e18d7ffb7a03254476d7ff173326abedab",
     "tests/deployed_smoke_identity.test.cjs": "87a8e4759cdd98aeeab1827f9bfdb665a7b78d78ed03b38f50600c09a7db41f2",
-    "tests/test_static_review_gate_settle.py": "b1c6260c5d978dddd734fa89cda8a1845b139749d25c6b42e857a334dc5d7c6e"
+    "tests/test_static_review_gate_settle.py": "a7e800ef2067da0426b543f8c4130b5ee59f06dd3b1a6e1e8666d3f52629c7aa"
   }
 }

@@ -339,6 +339,18 @@ def fetch_json(url):
     return json.loads(fetch_bytes(url))
 
 
+def current_main(fallback):
+    """The newest main commit (fetched now), or `fallback` when it cannot be read."""
+    try:
+        git('fetch', '-q', 'origin', 'main')
+    except (subprocess.CalledProcessError, OSError):
+        pass
+    try:
+        return git('rev-parse', '--verify', '-q', 'origin/main').strip() or fallback
+    except (subprocess.CalledProcessError, OSError):
+        return fallback
+
+
 def fingerprint(sha):
     """guidance_fingerprint() of a commit, from the same bytes the cloud publisher reads."""
     digest = hashlib.sha256()
@@ -763,7 +775,9 @@ def main(argv=None):
         files = changed_files(args.base, args.head)
         ledgers = {p: show_json(args.head, p) for p in files if re.fullmatch(r'docs/rechecks/[0-9A-Za-z._-]+\.json', p)}
         supplement = next((p for p in files if re.fullmatch(r'patch-[0-9.]+\.json', p)), None)
-        config = show_json(args.base, 'free_hosting.json') or {}
+        # The auto-merge switch is read from main as it is now, not from the PR event's base, which can be an hour old
+        # by the time CI finishes (audit #239 F7). If main can't be read, the event base is the fallback.
+        config = show_json(current_main(args.base), 'free_hosting.json') or {}
         result = evaluate(show_json(args.base, 'reviewed_guidance.json'), show_json(args.head, 'reviewed_guidance.json'), files, ledgers,
                           supplements=(show_json(args.base, supplement), show_json(args.head, supplement)) if supplement else (None, None),
                           manifests=(show_json(args.base, 'SOURCE-MANIFEST.json'), show_json(args.head, 'SOURCE-MANIFEST.json'))
