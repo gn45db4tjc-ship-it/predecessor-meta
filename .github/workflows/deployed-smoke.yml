@@ -100,6 +100,9 @@ jobs:
           SITE_URL: https://gn45db4tjc-ship-it.github.io/predecessor-meta/
           DEPLOY_HEAD_SHA: ${{ needs.gate.outputs.head_sha }}
           DEPLOY_FINISHED_AT: ${{ needs.gate.outputs.deployed_at }}
+          # The browser step checks the expected publication itself and reports a superseded one (audit #239 F17).
+          EXPECTED_RUN_ID: ${{ needs.gate.outputs.expected_run_id }}
+          EXPECTED_PUBLISHED_AT: ${{ needs.gate.outputs.expected_published_at }}
           BROWSER_CHANNEL: chrome
         run: node tests/browser_deployed_smoke.cjs
       - name: Keep the deployed smoke report and screenshot

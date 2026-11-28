@@ -22,6 +22,10 @@ Commands (used by .github/workflows/review-gate.yml):
   decide  --base SHA --head SHA --out FILE      the merge, hold, wait or fail decision
   validate-live BUNDLE...                       the packet validates against each live rank bundle
   verify-live --merge SHA --changes FILE        the live site carries the merged packet (polls up to 30 minutes)
+  record  --pr N --head SHA --changes FILE      before the merge: a durable pending record (an issue) for it
+  settle  --pr N                                after the merge: publish, verify, else revert and confirm the revert
+  pending                                       how many pending records a resume would pick up
+  resume                                        finish pending records whose own run stopped (scheduled)
   comment FILE                                  the PR comment for a decision
   update-manifest                               refresh SOURCE-MANIFEST.json hashes of changed review files
 """
@@ -51,6 +55,23 @@ PLAN_PARTS = ('core', 'finish', 'crest', 'augment', 'eternal', 'blessings')
 SUPPLEMENT_SECTIONS = ('heroes', 'perks', 'definitions', 'corrections', 'hero_context')
 MAX_GRADE_CHANGES = 10
 VERIFY_MINUTES = 30
+# The nightly live check runs once a day (live-check.yml), and GitHub drops some scheduled runs. Its newest completed
+# run must have started within NIGHTLY_HOURS, the one before within a day more; an older success reads "expired"
+# (audit #239 F7), so two old passes cannot keep auto-merge open after the nightly check stops running.
+NIGHTLY_HOURS = 50
+# Pending merges (audit #239 F2). The gate writes a record before it merges and updates it at each stage. A record
+# the decide job left behind (cancelled, timed out, runner lost) is resumed by the scheduled resume job, but only once
+# the decide job's 150-minute limit has certainly passed, and at most RESUME_LIMIT times.
+PENDING_LABEL = 'review-gate-pending'
+PENDING_MARK = '<!-- review-gate-pending -->'
+RESUME_AFTER_MINUTES = 160
+RESUME_LIMIT = 3
+MERGED_WITHIN_MINUTES = 20   # a merge long after the record was written was not the gate's
+# Only issues the workflow's own GITHUB_TOKEN opened are records: a person with Triage access can open and label an
+# issue, but not as this account, and cannot edit its body (Codex security review of PR #243).
+RECORD_AUTHOR = 'github-actions[bot]'
+# Stages after which nothing is left but closing the record (and, for some, telling the owner).
+FINISHED = ('verified', 'not-merged', 'revert-confirmed', 'abandoned', 'refused')
 
 
 def zoned(value):
@@ -284,11 +305,29 @@ def changed_files(base, head):
     return [p for p in git('diff', '--name-only', '%s...%s' % (base, head)).splitlines() if p]
 
 
-def nightly_conclusions():
-    """Conclusions of the latest completed nightly live checks on main, newest first."""
-    out = subprocess.run(['gh', 'run', 'list', '--workflow', 'live-check.yml', '--branch', 'main', '--status', 'completed',
-                          '--limit', '2', '--json', 'conclusion'], capture_output=True, check=True, text=True).stdout
-    return [r.get('conclusion') for r in json.loads(out)]
+def nightly_conclusions(now=None, runs=None):
+    """Conclusions of the latest completed nightly live checks on main, newest first; "expired" for a run that started
+    too long ago (NIGHTLY_HOURS for the newest, a day more for the one before) or has no readable start time."""
+    if runs is None:
+        out = subprocess.run(['gh', 'run', 'list', '--workflow', 'live-check.yml', '--branch', 'main', '--status', 'completed',
+                              '--limit', '2', '--json', 'conclusion,createdAt'], capture_output=True, check=True, text=True).stdout
+        runs = json.loads(out)
+    now = now or dt.datetime.now(dt.timezone.utc)
+    conclusions = []
+    for i, run in enumerate(runs):
+        started = parse_time(run.get('createdAt'))
+        fresh = started is not None and dt.timedelta(0) <= now - started <= dt.timedelta(hours=NIGHTLY_HOURS + 24 * i)
+        conclusions.append(run.get('conclusion') if fresh else 'expired')
+    return conclusions
+
+
+def parse_time(value):
+    """An ISO time with a zone, or None."""
+    try:
+        moment = dt.datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+    except ValueError:
+        return None
+    return moment if moment.tzinfo is not None else None
 
 
 def fetch_bytes(url):
@@ -300,6 +339,18 @@ def fetch_bytes(url):
 
 def fetch_json(url):
     return json.loads(fetch_bytes(url))
+
+
+def current_main(fallback):
+    """The newest main commit (fetched now), or `fallback` when it cannot be read."""
+    try:
+        git('fetch', '-q', 'origin', 'main')
+    except (subprocess.CalledProcessError, OSError):
+        pass
+    try:
+        return git('rev-parse', '--verify', '-q', 'origin/main').strip() or fallback
+    except (subprocess.CalledProcessError, OSError):
+        return fallback
 
 
 def fingerprint(sha):
@@ -360,9 +411,22 @@ def live_state(site=SITE, fetch=None):
     return {rank: live_rank(site, rank, cohort, fetch) for rank, cohort in cohorts.items()}
 
 
-def verified(ranks, expected_fp, expected_tiers):
-    """Problems with the live site against the merged packet: every rank carries it, and the gold grades match."""
-    problems = ['%s is missing from the live manifest' % r for r in RANKS if r not in ranks]
+def available_ranks(ranks):
+    """The ranks a live_state() reading shows with a trusted packet: the set a merge must keep (audit #239 F1)."""
+    return sorted(r for r, s in ranks.items() if not s.get('problem') and s.get('fingerprint'))
+
+
+def verified(ranks, expected_fp, expected_tiers, required=None):
+    """Problems with the live site against the merged packet: every rank carries it, and the gold grades match.
+    With `required` (the ranks live before the merge, recorded by decide), Gold+ and each of those ranks must be
+    present and carry the packet; a rank that was not live before may stay unavailable (audit #239 F1). Without it
+    every rank the site publishes must."""
+    if required is not None:
+        required = set(required) | {'gold'}
+        problems = ['%s was live before the merge and is missing now' % r for r in sorted(required) if r not in ranks]
+        ranks = {r: s for r, s in ranks.items() if r in required}
+    else:
+        problems = ['%s is missing from the live manifest' % r for r in RANKS if r not in ranks]
     problems += [s['problem'] for r, s in ranks.items() if s.get('problem')]
     problems += ['%s carries %s, not %s' % (r, s.get('fingerprint'), expected_fp) for r, s in ranks.items()
                  if not s.get('problem') and s.get('fingerprint') != expected_fp]
@@ -371,11 +435,387 @@ def verified(ranks, expected_fp, expected_tiers):
     return problems
 
 
+def verify_live(sha, tiers, required, minutes=VERIFY_MINUTES, state=None, sleep=None, clock=None):
+    """Poll the live site until it carries the packet of `sha` (and the gold grades in `tiers`), or `minutes` pass.
+    Returns the last problems, empty when verified. An unreadable or invalid answer is retried, never final."""
+    state, sleep, clock = state or live_state, sleep or time.sleep, clock or time.time
+    try:
+        expected_fp = fingerprint(sha)
+    except (subprocess.CalledProcessError, OSError) as error:
+        # The commit is not in this checkout: never a crash that skips the revert, always a failed verification.
+        problem = 'cannot read the packet of %s in this checkout: %s' % (sha, error)
+        print('Live verification failed: ' + problem)
+        return [problem]
+    deadline = clock() + minutes * 60
+    problems = ['not checked yet']
+    while clock() < deadline:
+        try:
+            problems = verified(state(), expected_fp, tiers, required)
+        except OSError as error:
+            problems = ['live site unreadable: %s' % error]
+        except ValueError as error:
+            problems = ['live manifest invalid: %s' % error]
+        if not problems:
+            print('Live site carries packet %s on every %srank; %d changed gold grades match.'
+                  % (expected_fp, 'previously live ' if required is not None else '', len(tiers)))
+            return []
+        sleep(60)
+    print('Live verification failed after %d minutes: %s' % (minutes, '; '.join(problems)))
+    return problems
+
+
+class RevertError(RuntimeError):
+    """The merge could not be reverted on main."""
+
+
+def revert_on_main(merge, pr, push_url, git_run=None, attempts=3, sleep=None, before_push=None):
+    """Revert `merge` on the newest main and push it; a push that main outran is retried from the new tip. A revert
+    already on main (an earlier attempt that pushed before its run stopped) is reused, never repeated (audit #239 F2)."""
+    git_run = git_run or (lambda *a: subprocess.run(['git', *a], capture_output=True, text=True))
+    sleep = sleep or time.sleep
+    last = ''
+    for attempt in range(attempts):
+        fetched = git_run('fetch', '-q', 'origin', 'main')
+        if fetched.returncode:
+            last = 'fetch failed: ' + fetched.stderr.strip()
+            sleep(10)
+            continue
+        existing = git_run('log', 'origin/main', '--format=%H', '-n', '1', '--grep', 'This reverts commit %s' % merge).stdout.strip()
+        if existing:
+            return existing
+        if git_run('merge-base', '--is-ancestor', merge, 'origin/main').returncode:
+            raise RevertError('merge %s is not on main any more' % merge)
+        git_run('checkout', '-q', '-B', 'revert-review-%s' % pr, 'origin/main')
+        reverted = git_run('revert', '-m', '1', '--no-edit', merge)
+        if reverted.returncode:
+            git_run('revert', '--abort')
+            raise RevertError('git revert of %s failed on main: %s' % (merge, (reverted.stderr or reverted.stdout).strip()))
+        if before_push:
+            before_push(attempt)
+        pushed = git_run('-c', 'http.https://github.com/.extraheader=', 'push', '-q', push_url, 'HEAD:main')
+        if not pushed.returncode:
+            return git_run('rev-parse', 'HEAD').stdout.strip()
+        last = 'push rejected: ' + pushed.stderr.strip()
+        sleep(10)
+    raise RevertError('could not push a revert of %s after %d attempts (%s)' % (merge, attempts, last))
+
+
+class GateOps:
+    """GitHub and git for the settle and resume commands (the gh CLI with GH_TOKEN; git pushes with WRITER)."""
+
+    def __init__(self):
+        self.repo = os.environ.get('GITHUB_REPOSITORY', 'gn45db4tjc-ship-it/predecessor-meta')
+        self.run_url = '%s/%s/actions/runs/%s' % (os.environ.get('GITHUB_SERVER_URL', 'https://github.com'), self.repo,
+                                                  os.environ.get('GITHUB_RUN_ID', 'local'))
+
+    def gh(self, *args, check=True):
+        done = subprocess.run(['gh', *args], capture_output=True, text=True)
+        if check and done.returncode:
+            raise RuntimeError('gh %s failed: %s' % (args[0], done.stderr.strip()))
+        return done
+
+    def now(self):
+        return dt.datetime.now(dt.timezone.utc)
+
+    def dispatch_publish(self):
+        for attempt in range(3):
+            if not self.gh('workflow', 'run', 'publish.yml', '--ref', 'main', check=False).returncode:
+                return True
+            time.sleep(20)
+        return False
+
+    def fetch_main(self):
+        """The merge happens on GitHub, so its commit (and a revert pushed elsewhere) must be fetched before its
+        packet can be fingerprinted (Codex review of PR #243)."""
+        for attempt in range(3):
+            if not subprocess.run(['git', 'fetch', '-q', 'origin', 'main'], capture_output=True).returncode:
+                return True
+            time.sleep(10)
+        return False
+
+    def verify(self, sha, tiers, required):
+        self.fetch_main()
+        return verify_live(sha, tiers, required)
+
+    def tiers(self, merge):
+        """The gold grades `merge` changed, read from git against its first parent, never from the record body."""
+        self.fetch_main()
+        try:
+            return merged_tiers(merge)
+        except (subprocess.CalledProcessError, OSError, ValueError):
+            return {}   # the fingerprint of an unreadable merge fails verification anyway
+
+    def find_revert(self, merge):
+        """The revert of `merge` on main, read from git (never from the record body), or None."""
+        self.fetch_main()
+        found = subprocess.run(['git', 'log', 'origin/main', '--format=%H', '-n', '1', '--grep', 'This reverts commit %s' % merge],
+                               cwd=ROOT, capture_output=True, text=True)
+        return found.stdout.strip() or None
+
+    def merged(self, pr):
+        data = json.loads(self.gh('api', 'repos/%s/pulls/%s' % (self.repo, pr)).stdout)
+        if not data.get('merged'):
+            return None
+        return {'sha': data.get('merge_commit_sha'), 'head': (data.get('head') or {}).get('sha'), 'at': data.get('merged_at')}
+
+    def revert(self, merge, pr):
+        writer = os.environ.get('WRITER')
+        if not writer:
+            raise RevertError('no WRITER token to push the revert')
+        return revert_on_main(merge, pr, 'https://x-access-token:%s@github.com/%s' % (writer, self.repo))
+
+    def comment(self, pr, text):
+        self.gh('pr', 'comment', str(pr), '--body', text, check=False)
+
+    def alarm(self, title, body):
+        """Open an issue for the owner. True only when GitHub created it."""
+        self.gh('label', 'create', 'freshness-watchdog', '--force', '--color', 'b60205', check=False)
+        for attempt in range(3):
+            if not self.gh('issue', 'create', '--label', 'freshness-watchdog', '--title', title, '--body',
+                           body + ' Run: ' + self.run_url, check=False).returncode:
+                return True
+            time.sleep(10)
+        return False
+
+    def save(self, record):
+        record['updated_at'] = self.now().isoformat()
+        body = record_body(record)
+        if record.get('issue'):
+            self.gh('api', '-X', 'PATCH', 'repos/%s/issues/%s' % (self.repo, record['issue']), '-f', 'body=' + body)
+            return record
+        self.gh('label', 'create', PENDING_LABEL, '--force', '--color', 'fbca04', check=False)
+        made = json.loads(self.gh('api', 'repos/%s/issues' % self.repo, '-f', 'title=Review gate: merge of PR #%s in progress' % record['pr'],
+                                  '-f', 'body=' + body, '-f', 'labels[]=' + PENDING_LABEL).stdout)
+        record['issue'] = made['number']
+        self.gh('api', '-X', 'PATCH', 'repos/%s/issues/%s' % (self.repo, record['issue']), '-f', 'body=' + record_body(record))
+        return record
+
+    def close(self, record):
+        """True only when GitHub closed the issue. A record left open keeps its finished stage, and the next resume
+        only retries the close (Codex review of PR #243)."""
+        self.save(record)
+        for attempt in range(3):
+            if not self.gh('api', '-X', 'PATCH', 'repos/%s/issues/%s' % (self.repo, record['issue']), '-f', 'state=closed',
+                           check=False).returncode:
+                return True
+            time.sleep(10)
+        return False
+
+    def open_records(self):
+        issues = json.loads(self.gh('api', 'repos/%s/issues?labels=%s&state=open&per_page=100' % (self.repo, PENDING_LABEL)).stdout)
+        records = []
+        for issue in issues:
+            if (issue.get('user') or {}).get('login') != RECORD_AUTHOR or issue.get('pull_request'):
+                continue
+            record = parse_record(issue.get('body'))
+            if record is not None:
+                record['issue'] = issue['number']
+                # The time comes from GitHub, never from the body.
+                record['created_at'] = issue.get('created_at')
+                records.append(record)
+        return records
+
+
+def merged_tiers(merge):
+    """The gold grades a merge changed (its packet against its first parent's), as evaluate() records them."""
+    base, head = entries(show_json(merge + '^1', 'reviewed_guidance.json'), 'grades'), entries(show_json(merge, 'reviewed_guidance.json'), 'grades')
+    return {'%s/%s' % k: e.get('tier') for k, e in head.items() if base.get(k) != e}
+
+
+def trusted_ranks(value):
+    """The recorded pre-merge ranks, kept to known rank names. None (unreadable before the merge) requires every rank."""
+    return sorted(r for r in value if r in RANKS) if isinstance(value, list) else None
+
+
+def new_record(pr, head, changes, run_url, now=None):
+    now = (now or dt.datetime.now(dt.timezone.utc)).isoformat()
+    return {'pr': pr, 'head': head, 'stage': 'merging', 'expected_ranks': changes.get('expected_ranks'),
+            'expected_tiers': changes.get('expected_tiers') or {}, 'merge': None, 'revert': None, 'problems': [],
+            'attempts': 0, 'alarmed': [], 'created_at': now, 'updated_at': now, 'run_url': run_url}
+
+
+def record_body(record):
+    return ('%s\nThe review gate is merging PR #%s and has not finished: stage **%s**. It closes this issue when the live '
+            'site is verified or the merge is reverted and the revert is live. If its run stops first, the scheduled '
+            'resume finishes the job.\n\n```json\n%s\n```\n' % (PENDING_MARK, record.get('pr'), record.get('stage'),
+                                                               json.dumps(record, indent=1, sort_keys=True)))
+
+
+def parse_record(body):
+    if not isinstance(body, str) or PENDING_MARK not in body:
+        return None
+    match = re.search(r'```json\n(.*?)\n```', body, re.S)
+    try:
+        record = json.loads(match.group(1)) if match else None
+    except ValueError:
+        return None
+    return record if isinstance(record, dict) and isinstance(record.get('pr'), int) else None
+
+
+def alarm_once(record, ops, key, title, body):
+    """One alarm per record and problem, however often a resume retries it. An alarm GitHub did not create is not
+    counted, so the next resume sends it again. Returns whether the owner has been told."""
+    if key in record.setdefault('alarmed', []):
+        return True
+    if ops.alarm(title, body):
+        record['alarmed'].append(key)
+        return True
+    return False
+
+
+def bound(record, merged):
+    """The record matches what GitHub says about its PR: merged at the recorded head, soon after the record was
+    written, and (once known) as the recorded merge commit. Anything else is never verified, reverted or pushed."""
+    created, at = parse_time(record.get('created_at')), parse_time((merged or {}).get('at'))
+    return bool(merged and merged.get('sha') and merged.get('head') == record.get('head') and created and at
+                and dt.timedelta(0) <= at - created <= dt.timedelta(minutes=MERGED_WITHIN_MINUTES)
+                and (record.get('merge') is None or record.get('merge') == merged.get('sha')))
+
+
+def settle(record, ops):
+    """Finish a pending merge from its recorded stage (audit #239 F2): merging -> merged -> verified, or
+    merged -> reverting -> reverted -> revert-confirmed. Each stage is saved before the next starts, so a run that
+    stops anywhere leaves a record a later resume continues from. Returns the stage it ended on."""
+    pr = record['pr']
+    if record['stage'] in ('revert-confirmed', 'abandoned', 'refused'):
+        # Finished, but the owner's notice was not delivered: send it, and close only once it is.
+        return finish_with_notice(record, ops)
+    if record['stage'] in ('verified', 'not-merged'):
+        # Finished, but the close did not reach GitHub: close it, and redo nothing (Codex review of PR #243).
+        ops.close(record)
+        return record['stage']
+    if record['stage'] not in ('merging', 'merged', 'reverting', 'reverted'):
+        return record['stage']
+    merged = ops.merged(pr)
+    if not bound(record, merged):
+        if record['stage'] == 'merging':
+            # Never merged by this gate: nothing to verify or revert.
+            record['stage'] = 'not-merged'
+            ops.close(record)
+            return record['stage']
+        # A later stage that GitHub does not back is refused outright: no verify, revert or push.
+        record['notice'] = {'key': 'unbound', 'title': 'Review gate: refused a pending record for PR #%s' % pr,
+                            'body': 'Issue #%s claims stage %s with merge %s, but GitHub does not show PR #%s merged at head %s '
+                                    'as that commit within %d minutes of the record. Nothing was verified, reverted or pushed.'
+                                    % (record.get('issue'), record['stage'], record.get('merge'), pr, record.get('head'),
+                                       MERGED_WITHIN_MINUTES)}
+        record['stage'] = 'refused'
+        return finish_with_notice(record, ops)
+    # The issue body can be edited by anyone with Write access (Codex security review of PR #243), so nothing in it
+    # decides a revert on its own: the merge commit comes from GitHub, the expected grades from git, the ranks are
+    # kept to known names, and a revert happens only after this run has seen the live site fail to verify.
+    record['merge'] = merged['sha']
+    record['expected_tiers'] = ops.tiers(record['merge'])
+    record['expected_ranks'] = trusted_ranks(record.get('expected_ranks'))
+    if record['stage'] in ('reverting', 'reverted'):
+        # Whether main holds a revert is read from git. Without one, the merge is checked live again first.
+        record['revert'] = ops.find_revert(record['merge'])
+        record['stage'] = 'reverted' if record['revert'] else 'merged'
+        ops.save(record)
+    if record['stage'] == 'merging':
+        record['stage'] = 'merged'
+        ops.save(record)
+    if record['stage'] == 'merged':
+        dispatched = ops.dispatch_publish()
+        # Verify even when the dispatch failed: the hourly publication may still carry the merge. A failure
+        # leads to the revert, never to an early exit with main merged and unverified.
+        problems = ops.verify(record['merge'], record['expected_tiers'], record['expected_ranks'])
+        if not problems:
+            ops.comment(pr, 'Merged as %s, published, and verified live: every rank carries the merged packet and the '
+                            'changed Gold+ grades match.' % record['merge'])
+            record['stage'] = 'verified'
+            ops.close(record)
+            return record['stage']
+        record['problems'] = ([] if dispatched else ['publish.yml could not be dispatched']) + list(problems)
+        record['stage'] = 'reverting'
+        ops.save(record)
+    if record['stage'] == 'reverting':
+        try:
+            record['revert'] = ops.revert(record['merge'], pr)
+        except (RevertError, RuntimeError, OSError) as error:
+            why = '; '.join(record.get('problems') or []) or 'not verified'
+            record['problems'] = [why, 'revert failed: %s' % error]
+            alarm_once(record, ops, 'not-reverted', 'Review gate: merge %s NOT reverted (PR #%s)' % (record['merge'], pr),
+                       'Merge %s was not verified live (%s), and its revert failed: %s. main still holds it: revert it by '
+                       'hand, or wait for the scheduled resume to try again.' % (record['merge'], why, error))
+            ops.save(record)
+            return record['stage']
+        record['stage'] = 'reverted'
+        ops.save(record)
+        ops.comment(pr, 'The merged packet was not published and verified live within %d minutes, so merge %s was '
+                        'reverted as %s. See the review gate run for the diagnosis.' % (VERIFY_MINUTES, record['merge'], record['revert']))
+    if record['stage'] == 'reverted':
+        ops.dispatch_publish()
+        # Confirm the reverted packet on every rank that was live before the merge; the merged grades are not expected.
+        problems = ops.verify(record['revert'], {}, record['expected_ranks'])
+        if not problems:
+            record['stage'] = 'revert-confirmed'
+            record['notice'] = {'key': 'reverted', 'title': 'Review gate reverted PR #%s' % pr,
+                                'body': 'Merge %s did not verify on the live site and was reverted as %s; the live site '
+                                        'carries the reverted packet again.' % (record['merge'], record['revert'])}
+            return finish_with_notice(record, ops)
+        record['problems'] = list(problems)
+        alarm_once(record, ops, 'revert-not-live', 'Review gate: revert of %s not confirmed live (PR #%s)' % (record['merge'], pr),
+                   'Merge %s did not verify and was reverted as %s on main, but the live site did not carry the reverted '
+                   'packet (%s). The scheduled resume checks again.' % (record['merge'], record['revert'], '; '.join(problems)))
+        ops.save(record)
+    return record['stage']
+
+
+def finish_with_notice(record, ops):
+    """Close a finished record once its notice reached the owner; otherwise keep it open for the next resume."""
+    notice = record.get('notice') or {}
+    if alarm_once(record, ops, notice.get('key', 'notice'), notice.get('title', 'Review gate: PR #%s' % record['pr']),
+                  notice.get('body', 'The review gate finished PR #%s at stage %s.' % (record['pr'], record['stage']))):
+        ops.close(record)
+    else:
+        ops.save(record)
+    return record['stage']
+
+
+def due_records(records, now=None):
+    """Records whose writing run has certainly stopped (its job limit passed since the last update)."""
+    now = now or dt.datetime.now(dt.timezone.utc)
+    due = []
+    for record in records:
+        updated = parse_time(record.get('updated_at'))
+        if updated is None or now - updated >= dt.timedelta(minutes=RESUME_AFTER_MINUTES):
+            due.append(record)
+    return due
+
+
+def resume(ops, now=None):
+    """Continue each stopped pending record; after RESUME_LIMIT tries it is handed to the owner and closed."""
+    outcomes = {}
+    for record in due_records(ops.open_records(), now or ops.now()):
+        if record.get('stage') in FINISHED:
+            # Only a close or a notice is left: retried every time, never counted toward giving up.
+            settle(record, ops)
+            outcomes[str(record['pr'])] = record['stage']
+            continue
+        record['attempts'] = int(record.get('attempts') or 0) + 1
+        if record['attempts'] > RESUME_LIMIT:
+            stage = record.get('stage')
+            record['stage'] = 'abandoned'
+            record['notice'] = {'key': 'abandoned', 'title': 'Review gate: gave up on PR #%s at stage %s' % (record['pr'], stage),
+                                'body': 'The review gate could not finish PR #%s after %d resumes (stage %s, merge %s, revert %s, '
+                                        'last problems: %s). Check main and the live site by hand.'
+                                        % (record['pr'], RESUME_LIMIT, stage, record.get('merge'), record.get('revert'),
+                                           '; '.join(record.get('problems') or []) or 'none')}
+            finish_with_notice(record, ops)
+        else:
+            ops.save(record)
+            settle(record, ops)
+        outcomes[str(record['pr'])] = record['stage']
+    return outcomes
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    parser.add_argument('command', choices=['scope', 'decide', 'comment', 'validate-live', 'verify-live', 'update-manifest'])
+    parser.add_argument('command', choices=['scope', 'decide', 'comment', 'validate-live', 'verify-live', 'update-manifest',
+                                            'record', 'settle', 'pending', 'resume'])
     parser.add_argument('paths', nargs='*')
-    parser.add_argument('--base'); parser.add_argument('--head'); parser.add_argument('--merge')
+    parser.add_argument('--base'); parser.add_argument('--head'); parser.add_argument('--merge'); parser.add_argument('--pr')
     parser.add_argument('--out', type=Path); parser.add_argument('--changes', type=Path)
     parser.add_argument('--minutes', type=int, default=VERIFY_MINUTES)
     args = parser.parse_args(argv)
@@ -390,7 +830,9 @@ def main(argv=None):
         files = changed_files(args.base, args.head)
         ledgers = {p: show_json(args.head, p) for p in files if re.fullmatch(r'docs/rechecks/[0-9A-Za-z._-]+\.json', p)}
         supplement = next((p for p in files if re.fullmatch(r'patch-[0-9.]+\.json', p)), None)
-        config = show_json(args.base, 'free_hosting.json') or {}
+        # The auto-merge switch is read from main as it is now, not from the PR event's base, which can be an hour old
+        # by the time CI finishes (audit #239 F7). If main can't be read, the event base is the fallback.
+        config = show_json(current_main(args.base), 'free_hosting.json') or {}
         result = evaluate(show_json(args.base, 'reviewed_guidance.json'), show_json(args.head, 'reviewed_guidance.json'), files, ledgers,
                           supplements=(show_json(args.base, supplement), show_json(args.head, supplement)) if supplement else (None, None),
                           manifests=(show_json(args.base, 'SOURCE-MANIFEST.json'), show_json(args.head, 'SOURCE-MANIFEST.json'))
@@ -399,6 +841,13 @@ def main(argv=None):
                           if 'SOURCE-MANIFEST.json' in files else (None, None),
                           nightly=nightly_conclusions(), auto_merge=bool(config.get('review_auto_merge')))
         result['files'] = files
+        # The ranks live before the merge, so verification afterwards requires each of them (audit #239 F1). An
+        # unreadable site records None, and verification then requires every rank the site publishes.
+        try:
+            result['expected_ranks'] = available_ranks(live_state())
+        except (OSError, ValueError) as error:
+            result['expected_ranks'] = None
+            print('Live ranks before the merge are unreadable (%s); verification will require every rank.' % error, file=sys.stderr)
         if args.out:
             args.out.write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(result, indent=1))
@@ -423,22 +872,38 @@ def main(argv=None):
 
     if args.command == 'verify-live':
         changes = json.loads(args.changes.read_text(encoding='utf-8')) if args.changes else {}
-        expected_fp, tiers = fingerprint(args.merge), changes.get('expected_tiers') or {}
-        deadline = time.time() + args.minutes * 60
-        problems = ['not checked yet']
-        while time.time() < deadline:
-            try:
-                problems = verified(live_state(), expected_fp, tiers)
-            except OSError as error:
-                problems = ['live site unreadable: %s' % error]
-            except LiveManifestError as error:
-                problems = ['live manifest invalid: %s' % error]
-            if not problems:
-                print('Live site carries packet %s on every rank; %d changed gold grades match.' % (expected_fp, len(tiers)))
-                return 0
-            time.sleep(60)
-        print('Live verification failed after %d minutes: %s' % (args.minutes, '; '.join(problems)))
-        return 1
+        problems = verify_live(args.merge, changes.get('expected_tiers') or {}, changes.get('expected_ranks'), args.minutes)
+        return 1 if problems else 0
+
+    if args.command == 'record':
+        ops = GateOps()
+        changes = json.loads(args.changes.read_text(encoding='utf-8'))
+        record = new_record(int(args.pr), args.head, changes, ops.run_url)
+        ops.save(record)
+        print('Pending record for PR #%s: issue #%s' % (args.pr, record['issue']))
+        return 0
+
+    if args.command == 'settle':
+        ops = GateOps()
+        record = next((r for r in ops.open_records() if r.get('pr') == int(args.pr)), None)
+        if record is None:
+            print('No pending record for PR #%s.' % args.pr)
+            return 1
+        return 0 if settle(record, ops) == 'verified' else 1
+
+    if args.command == 'pending':
+        due = due_records(GateOps().open_records())
+        print('%d pending record(s) to resume' % len(due))
+        output = os.environ.get('GITHUB_OUTPUT')
+        if output:
+            with open(output, 'a', encoding='utf-8') as stream:
+                stream.write('count=%d\n' % len(due))
+        return 0
+
+    if args.command == 'resume':
+        outcomes = resume(GateOps())
+        print(json.dumps(outcomes))
+        return 0
 
     if args.command == 'update-manifest':
         path = ROOT / 'SOURCE-MANIFEST.json'

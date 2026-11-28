@@ -260,6 +260,8 @@ if name == 'gh':
         print('' if 'no-merge-sha' in scene else 'merge111')
     elif args[:1] == ['api'] and 'compare/' in line:
         print('0')
+    elif args[:2] == ['pr', 'merge']:
+        sys.exit(1 if 'merge-fails' in scene else 0)
     elif args[:2] == ['workflow', 'run']:
         runs = open(os.environ['CALLS']).read().count('gh workflow run')
         sys.exit(1 if 'publish-fails' in scene or ('first-publish-fails' in scene and runs == 1) else 0)
@@ -278,22 +280,23 @@ if name == 'python':
     if 'decide' in args:
         open('gate-now.json', 'w').write('{"decision": "merge"}')
         sys.exit(0)
-    if 'verify-live' in args:
-        sha = args[args.index('--merge') + 1]
-        sys.exit(0 if (sha == 'merge111' and 'merge-verifies' in scene) or (sha == 'revert222' and 'revert-verifies' in scene) else 1)
+    if 'record' in args:
+        sys.exit(1 if 'record-fails' in scene else 0)
+    if 'settle' in args:
+        sys.exit(0 if 'settle-verifies' in scene else 1)
 sys.exit(0)
 """
 
 
 @unittest.skipIf(os.name == 'nt' or not shutil.which('bash'), 'runs the workflow step under bash')
 class MergeStepOutcomes(unittest.TestCase):
-    """The merge step itself, run under bash -e with gh, git and python stubbed: after the merge, every path ends in a
-    verified site, a confirmed revert or an issue for the owner (PRED-M10 audit: a failed publish used to stop the
-    step with main merged, unverified and not reverted)."""
+    """The merge step itself, run under bash -e with gh, git and python stubbed. Since PRED-M12 (audit #239 F2) the
+    step writes a durable pending record before the merge and hands everything after the merge to
+    `review_gate.py settle`, whose outcomes are tested in test_static_review_gate_settle.py."""
 
     def run_step(self, *scene):
         text = (ROOT / '.github' / 'workflows' / 'review-gate.yml').read_text(encoding='utf-8')
-        body = text.split('- name: Merge, publish and verify', 1)[1].split('run: |\n', 1)[1]
+        body = text.split('- name: Merge, publish and verify', 1)[1].split('run: |\n', 1)[1].split('\n  resume:\n', 1)[0]
         script = '\n'.join(line[10:] for line in body.splitlines())
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -309,35 +312,25 @@ class MergeStepOutcomes(unittest.TestCase):
             code = subprocess.run(['bash', '-e', str(root / 'step.sh')], cwd=temp, env=env, capture_output=True).returncode
             return code, (root / 'calls').read_text(encoding='utf-8')
 
-    def test_a_verified_merge_ends_green_without_a_revert(self):
-        code, calls = self.run_step('merge-verifies')
-        self.assertEqual(code, 0); self.assertNotIn('revert -m 1', calls); self.assertNotIn('issue create', calls)
+    def test_the_record_comes_before_the_merge_and_settle_after_it(self):
+        code, calls = self.run_step('settle-verifies')
+        self.assertEqual(code, 0)
+        record, merge, settle = (calls.index(x) for x in ('python -B review_gate.py record --pr 7 --head head999 --changes gate-now.json',
+                                                          'gh pr merge 7 --admin --merge', 'python -B review_gate.py settle --pr 7'))
+        self.assertLess(record, merge); self.assertLess(merge, settle)
 
-    def test_a_failed_publish_is_reverted_and_the_revert_confirmed(self):
-        code, calls = self.run_step('first-publish-fails', 'revert-verifies')
-        self.assertEqual(code, 1)
-        self.assertIn('git revert -m 1 --no-edit merge111', calls); self.assertIn('HEAD:main', calls)
-        self.assertIn('verify-live --merge revert222', calls); self.assertIn('Review gate reverted PR #7', calls)
+    def test_the_step_fails_when_settle_does(self):
+        code, calls = self.run_step()
+        self.assertEqual(code, 1); self.assertIn('review_gate.py settle --pr 7', calls)
 
-    def test_a_failed_verification_is_reverted_and_the_revert_confirmed(self):
-        code, calls = self.run_step('revert-verifies')
-        self.assertEqual(code, 1)
-        self.assertIn('verify-live --merge merge111', calls); self.assertIn('git revert -m 1 --no-edit merge111', calls)
-        self.assertIn('Review gate reverted PR #7', calls)
+    def test_no_merge_without_a_pending_record(self):
+        code, calls = self.run_step('record-fails', 'settle-verifies')
+        self.assertEqual(code, 1); self.assertNotIn('pr merge', calls); self.assertNotIn('settle', calls)
 
-    def test_a_revert_that_does_not_show_live_opens_an_issue(self):
-        code, calls = self.run_step('publish-fails')
-        self.assertEqual(code, 1); self.assertIn('revert of merge111 not confirmed live', calls)
-
-    def test_a_revert_that_cannot_be_pushed_opens_an_issue(self):
-        code, calls = self.run_step('push-fails')
-        self.assertEqual(code, 1); self.assertIn('merge merge111 NOT reverted', calls)
-        self.assertNotIn('verify-live --merge revert222', calls)
-
-    def test_an_unreadable_merge_commit_opens_an_issue(self):
-        code, calls = self.run_step('no-merge-sha')
-        self.assertEqual(code, 1); self.assertIn('merged, not verified or reverted', calls)
-        self.assertNotIn('workflow run', calls)
+    def test_a_failed_merge_is_not_settled(self):
+        # The record stays at stage "merging"; the scheduled resume closes it as not merged.
+        code, calls = self.run_step('merge-fails', 'settle-verifies')
+        self.assertEqual(code, 1); self.assertNotIn('settle', calls)
 
 
 class ManifestRefresh(unittest.TestCase):
@@ -388,9 +381,13 @@ class WorkflowContract(unittest.TestCase):
         self.assertLess(target, redecide); self.assertLess(redecide, merge)   # the whole decision, not only scope
         self.assertIn('if [ "$target" != "main $HEAD" ]', decide[target:merge])
         self.assertIn('if [ "$now" != merge ]', decide[redecide:merge])
-        self.assertIn('gh workflow run publish.yml --ref main', decide)
-        self.assertIn('verify-live --merge "$merge"', decide)
-        self.assertIn('git revert -m 1 --no-edit "$merge"', decide)
+        record = decide.index('review_gate.py record --pr "$PR" --head "$HEAD" --changes gate-now.json')
+        self.assertLess(redecide, record); self.assertLess(record, merge)   # a durable record before main changes (F2)
+        self.assertIn('review_gate.py settle --pr "$PR"', decide[merge:])
+        resume = text.split('\n  resume:\n', 1)[1]
+        self.assertIn("github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'", resume)
+        self.assertIn('review_gate.py resume', resume)
+        self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request_target' }}", text)   # a resume is never cancelled
         for use in [l.split('uses:')[1].strip() for l in text.splitlines() if 'uses:' in l]:
             self.assertRegex(use, r'@[0-9a-f]{40}', use)
 
