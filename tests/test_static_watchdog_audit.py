@@ -25,7 +25,9 @@ class UnreadableQueue(unittest.TestCase):
     def test_an_unreadable_index_keeps_the_overdue_alert_open(self):
         state = watchdog.next_state({}, watchdog.check(manifest(), OVERDUE, NOW), {'dispatch': False}, NOW - dt.timedelta(hours=2))
         api = FakeIssues([{'number': 4, 'title': 'Watchdog: Rechecks are overdue', 'body': '<!-- watchdog:queue-overdue -->'}])
-        for index in (None, [], {'something': 1}, {'rechecks': 'x'}):
+        # Muse review of PR #241: a wrong-typed rechecks beside a packets list, and non-object entries.
+        for index in (None, [], {'something': 1}, {'rechecks': 'x'}, {'rechecks': 'x', 'packets': []},
+                      {'rechecks': {'a': 1}, 'packets': []}, {'rechecks': ['x']}, {'rechecks': [], 'packets': [3]}):
             with self.subTest(index=index):
                 problems = watchdog.check(manifest(), index, NOW)
                 self.assertNotIn('queue-overdue', ids(problems))

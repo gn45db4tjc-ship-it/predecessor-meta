@@ -59,6 +59,17 @@ class YearResolution(unittest.TestCase):
         wrong = parse(article('It launches on Friday 3rd November.'), at(2027, 1, 1))
         self.assertEqual((wrong['status'], wrong['release_date']), ('release date unverified', None))
 
+    def test_a_written_weekday_must_match_a_written_year(self):
+        # Muse review of PR #241: with the year written, the weekday was not checked at all.
+        good = parse(article('It launches on Tuesday 3rd November 2026.', published=None), at(2027, 1, 1))
+        self.assertEqual(good['release_date'], '2026-11-03')
+        wrong = parse(article('It launches on Friday 3rd November 2026.', published=None), at(2027, 1, 1))
+        self.assertEqual((wrong['status'], wrong['release_date']), ('release date unverified', None))
+        self.assertIsNone(m.release_year('3', 'November', '2026', dt.date(2026, 11, 3), 'Friday'))
+        # The month-first fallback must not then read "November 2026" as 20 November.
+        self.assertEqual(parse(article('It launches in November 2026.', published=None), at(2027, 1, 1))['release_date'], None)
+        self.assertEqual(parse(article('It launches on November 20, 2026.', published=None), at(2027, 1, 1))['release_date'], '2026-11-20')
+
     def test_without_a_publication_date_the_clock_anchors_the_nearest_year(self):
         self.assertEqual(parse(article('Update 1.18 launches on 3rd November.', published=None), at(2027, 1, 1))['release_date'], '2026-11-03')
 

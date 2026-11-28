@@ -365,8 +365,14 @@ if (APP_CONFIG.mode === 'static') {
     };
     // PRED-M11 (audit #239 F16): another tab may have saved a newer publication while this one waited for the lock.
     // An older one never overwrites it, unless the site itself now serves this older publication (a verified rollback).
+    // A saved rollback names the newest publication it withdrew (saved_rollback.withdrawn), so a tab still holding
+    // that withdrawn publication, or one between, must also find it served before it replaces the rollback (Muse
+    // review of PR #241). A publication newer than everything withdrawn is a new release and saves as usual.
+    const withdrawnBy = saved => saved?.saved_rollback?.withdrawn;
+    const mustBeServed = saved => olderPublication(manifest, saved) || (!!withdrawnBy(saved) && saved.published_at !== manifest.published_at
+      && !olderPublication({published_at: withdrawnBy(saved)}, manifest));
     let rollback = false;
-    if (olderPublication(manifest, previous)) {
+    if (mustBeServed(previous)) {
       if (!(await liveServes(manifestURL, manifest))) return keepUnderNewer(previous);
       rollback = true;
     }
@@ -396,14 +402,20 @@ if (APP_CONFIG.mode === 'static') {
     if (overtaken()) return 'superseded';
     // Read the newest saved publication again just before writing: another tab may have saved since.
     const latest = await savedManifest();
-    if (olderPublication(manifest, latest)) {
+    if (mustBeServed(latest)) {
       if (!(await liveServes(manifestURL, manifest))) {
         if (wroteTarget && !describedBy(latest).has(target)) await data.delete(target);
         return keepUnderNewer(latest);
       }
       rollback = true;
     }
-    const body = JSON.stringify({...manifest, cohorts});
+    // What this commit withdraws: on a rollback, the newest saved publication it replaces (and any withdrawn before);
+    // a re-save of the same rollback keeps the mark; any other commit drops it.
+    let withdrawn = null;
+    const later = value => { if (value && (!withdrawn || Date.parse(value) > Date.parse(withdrawn)) && olderPublication(manifest, {published_at: value})) withdrawn = value; };
+    if (rollback) { later(latest?.published_at); later(withdrawnBy(latest)); for (const url of await copies()) later((await readJSON(url))?.published_at); }
+    else if (latest?.published_at === manifest.published_at) later(withdrawnBy(latest));
+    const body = JSON.stringify({...manifest, cohorts, ...(withdrawn ? {saved_rollback: {withdrawn}} : {})});
     const write = async () => {
       if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
       if (rollback) for (const url of await copies()) if (olderPublication(manifest, await readJSON(url))) await data.delete(url);
@@ -430,10 +442,16 @@ if (APP_CONFIG.mode === 'static') {
       return kept;
     }
     for (const url of await copies()) if (url !== copyURL(manifest) && olderPublication(await readJSON(url), manifest)) await data.delete(url);
-    for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL && !(await savedForNewer(data, url, manifest))) await data.delete(url);
+    // A file saved for a newer publication is kept, unless this commit is the rollback that withdrew that publication.
+    const keep = async url => {
+      if (!(await savedForNewer(data, url, manifest))) return false;
+      if (!withdrawn) return true;
+      try { return olderPublication({published_at: withdrawn}, {published_at: (await data.match(url))?.headers.get(PUBLISHED_HEADER)}); } catch { return true; }
+    };
+    for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL && !(await keep(url))) await data.delete(url);
     // Evidence saved for an older publication of this rank is removed with it.
     const current = new Set([entry.projection?.guide, entry.projection?.catalog, entry.projection?.history, entry.projection?.shared, ...Object.values(entry.projection?.heroes || {})].filter(Boolean).map(p => siteURL(p.url)));
-    for (const url of saved) if (evidenceBracket(url) === bracket && !current.has(url) && !(await savedForNewer(data, url, manifest))) await data.delete(url);
+    for (const url of saved) if (evidenceBracket(url) === bracket && !current.has(url) && !(await keep(url))) await data.delete(url);
     return true;
   }
   // ---- Evidence annexes (audit item 11). The core holds everything the engine and the main screens read; display-only

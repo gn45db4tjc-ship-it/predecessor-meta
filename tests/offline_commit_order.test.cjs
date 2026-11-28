@@ -158,3 +158,37 @@ test('F16: a manifest copy is named by its publication and never overwritten by 
   const copies = [...shared.entries.keys()].filter(url => url.includes('/saved-manifests/'));
   assert.deepEqual(copies, [SITE + 'saved-manifests/2026-11-27T09-23-00Z.json'], 'the older copy is pruned by the newer save');
 });
+
+test('F16: a stale tab holding the withdrawn newer publication cannot undo a saved rollback', async () => {
+  // Muse review of #241 at a3498fc: the live check ran only for an older incoming publication, so after a verified
+  // rollback a tab still holding the newer, no longer served, publication overwrote it unchecked.
+  const newer = publication('2026-11-27T09:23:00Z', 'b'), rolledBack = publication('2026-11-27T08:23:00Z', 'a');
+  for (const live of [rolledBack.manifest, null]) {   // the site serves the rollback, or the stale tab is offline
+    const shared = store();
+    await client(shared, newer.manifest).commitNow(newer.manifest, 'gold', newer.entry, newer.loaded);
+    assert.equal(await client(shared, rolledBack.manifest).commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded), true);
+    const marked = JSON.parse(shared.entries.get(SITE + 'manifest.json'));
+    assert.deepEqual(marked.saved_rollback, {withdrawn: newer.manifest.published_at}, 'the rollback names what it withdrew');
+    assert.equal(await client(shared, live).commitNow(newer.manifest, 'gold', newer.entry, newer.loaded), 'superseded', live ? 'online' : 'offline');
+    assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, rolledBack.manifest.published_at);
+    assert.ok(shared.entries.has(SITE + rolledBack.entry.url), 'the rolled-back bundle is still saved');
+    assert.ok(!shared.entries.has(SITE + newer.entry.url), 'the withdrawn bundle was not saved again');
+  }
+});
+
+test('F16: after a rollback, a re-save keeps its mark and a new release replaces it', async () => {
+  const shared = store(), newer = publication('2026-11-27T09:23:00Z', 'b'), rolledBack = publication('2026-11-27T08:23:00Z', 'a');
+  const next = publication('2026-11-27T10:23:00Z', 'c');
+  await client(shared, newer.manifest).commitNow(newer.manifest, 'gold', newer.entry, newer.loaded);
+  await client(shared, rolledBack.manifest).commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded);
+  assert.equal(await client(shared, null).commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded), true);
+  assert.deepEqual(JSON.parse(shared.entries.get(SITE + 'manifest.json')).saved_rollback, {withdrawn: newer.manifest.published_at});
+  // The site was withdrawn back while it was being served again by a stale tab that is now served: it saves.
+  assert.equal(await client(shared, newer.manifest).commitNow(newer.manifest, 'gold', newer.entry, newer.loaded), true, 'a served re-release saves');
+  assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).saved_rollback, undefined);
+  await client(shared, rolledBack.manifest).commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded);
+  assert.equal(await client(shared, null).commitNow(next.manifest, 'gold', next.entry, next.loaded), true, 'a release newer than the withdrawn one saves offline');
+  const saved = JSON.parse(shared.entries.get(SITE + 'manifest.json'));
+  assert.equal(saved.published_at, next.manifest.published_at);
+  assert.equal(saved.saved_rollback, undefined);
+});

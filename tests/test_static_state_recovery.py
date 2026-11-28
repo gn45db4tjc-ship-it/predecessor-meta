@@ -105,7 +105,12 @@ class CorruptState(unittest.TestCase):
                       {'attempts': {}, 'required_retry': {'attempts': '2'}}, {'attempts': {}, 'required_retry': {'attempts': True}},
                       {'attempts': {}, 'required_retry': {'next_at': 'soon'}}, {'attempts': {}, 'pred_retry': {'attempts': -1}},
                       {'attempts': {}, 'pred_retry': {'limit': 'four'}}, {'attempts': {}, 'patch_check': {'signature': 7}},
-                      {'attempts': {}, 'live_recovery': {'pending': {'silver': None}, 'since': 'yesterday'}}):
+                      {'attempts': {}, 'live_recovery': {'pending': {'silver': None}, 'since': 'yesterday'}},
+                      # Muse round 2: the watchdog int()s required_retry.limit, and the retry rules match each error's
+                      # source and detail as text.
+                      {'attempts': {}, 'required_retry': {'limit': 'two'}}, {'attempts': {}, 'required_retry': {'limit': -1}},
+                      {'attempts': {'gold': {'errors': [{'source': 5}]}}}, {'attempts': {'gold': {'errors': [{'detail': ['HTTP 403']}]}}},
+                      {'attempts': {'gold': {'errors': [{'severity': {'x': 1}}]}}}):
             self.write(json.dumps(state))
             self.assertIsNone(sp.load_state(self.dir), state)
             self.assertFalse((self.dir / 'publication.json').exists(), state)
@@ -116,13 +121,22 @@ class CorruptState(unittest.TestCase):
     def test_states_the_publisher_writes_are_kept(self):
         for state in ({'schema': 1, 'attempts': {}},
                       {'schema': 1, 'attempts': {'gold': {'at': '2026-11-28T00:00:00+00:00', 'status': 'interrupted', 'reason': 'daily',
-                                                          'errors': [{'source': 'Daily collection', 'severity': 'error', 'detail': 'x'}]}},
+                                                          'errors': [{'source': 'Daily collection', 'severity': 'error', 'detail': 'x'},
+                                                                     {'source': 'Pred.gg', 'severity': 'error', 'detail': None}]}},
                        'required_retry': {'pending': False, 'blocked': False, 'attempts': 0, 'limit': 2, 'next_at': None, 'reason': None},
                        'pred_retry': {'pending': True, 'attempts': 1, 'limit': 4, 'next_at': '2026-11-28T02:30:00+00:00'},
                        'patch_check': {'status': 'verified', 'signature': None, 'version': '1.18'},
                        'live_recovery': {'pending': {'silver': SILVER_AT}, 'since': '2026-11-28T00:00:00+00:00', 'checked_at': '2026-11-28T00:00:00+00:00', 'reason': 'x'}}):
             self.write(json.dumps(state))
             self.assertEqual(sp.load_state(self.dir), state)
+
+    def test_an_error_without_a_source_or_detail_is_read_as_empty_text(self):
+        # Muse round 2: a kept state may carry an error whose source or detail is null; the retry rules read it as ''.
+        attempt = {'status': 'partial', 'errors': [{'source': None, 'severity': 'error', 'detail': None}]}
+        self.assertFalse(sp.required_source_block(attempt))
+        self.assertFalse(sp.pred_retryable(attempt))
+        self.assertTrue(sp.required_source_failure(attempt))
+        self.assertFalse(sp.optional_pred_only(attempt, None))
 
     def test_valid_state_is_kept_and_restore_leaves_it_alone(self):
         self.write('{"schema": 1, "attempts": {}, "marker": 1}')

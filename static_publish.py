@@ -93,7 +93,12 @@ def state_problem(state):
         errors = attempt.get('errors', [])
         if not isinstance(errors, list) or not all(isinstance(e, dict) for e in errors):
             return 'attempt ' + str(name)[:40] + ' errors is not a list of objects'
-    for key, fields in (('required_retry', {'pending': bool, 'blocked': bool, 'attempts': COUNT, 'next_at': TIME, 'reason': str}),
+        # Muse round 2: optional_pred_only and required_source_block match each error's source and detail as text.
+        for error in errors:
+            problem = nested_problem(error, {'source': str, 'detail': str, 'severity': str})
+            if problem:
+                return 'attempt ' + str(name)[:40] + ' error ' + problem
+    for key, fields in (('required_retry', {'pending': bool, 'blocked': bool, 'attempts': COUNT, 'limit': COUNT, 'next_at': TIME, 'reason': str}),
                         ('pred_retry', {'pending': bool, 'attempts': COUNT, 'limit': COUNT, 'next_at': TIME}),
                         ('patch_check', {'signature': str, 'status': str}),
                         ('last_verified_patch_check', {'signature': str, 'status': str}),
@@ -747,7 +752,7 @@ def optional_pred_only(attempt, bundle):
     errors = attempt.get('errors', [])
     return bool(CONFIG.get('pred_optional') and attempt.get('status') == 'partial'
                 and bundle and (base.bundle_has_fresh_statz(bundle) or base.bundle_has_discontinued_statz_update(bundle)) and errors
-                and all(re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')) for e in errors))
+                and all(re.fullmatch(r'Pred\.gg(?: .*|)', str(e.get('source') or '')) for e in errors))
 
 
 def attempt_satisfied(attempt, bundle):
@@ -755,8 +760,8 @@ def attempt_satisfied(attempt, bundle):
 
 
 def required_source_block(attempt):
-    return any(re.search(r'403|429|blocked|rate.limit', e.get('detail', ''), re.I)
-               and not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')))
+    return any(re.search(r'403|429|blocked|rate.limit', str(e.get('detail') or ''), re.I)
+               and not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', str(e.get('source') or '')))
                for e in attempt.get('errors', []))
 
 
@@ -770,14 +775,14 @@ def pred_retryable(attempt):
     """A Pred.gg error worth another collection the same day (2.53.3): a dropped connection or a server error, never an
     access answer, a pause or a stop (Pred.gg's access stops are never retried around)."""
     errors = [e for e in attempt.get('errors', []) if e.get('severity') == 'error'
-              and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')) and e.get('source') != 'Pred.gg retained data']
+              and re.fullmatch(r'Pred\.gg(?: .*|)', str(e.get('source') or '')) and e.get('source') != 'Pred.gg retained data']
     details = [str(e.get('detail', '')) for e in errors]
     return any(PRED_TRANSIENT.search(d) for d in details) and not any(PRED_STOP.search(d) for d in details)
 
 
 def required_source_failure(attempt):
     """Required-source errors only; optional Pred never controls core refresh health."""
-    return any(not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', e.get('source', '')))
+    return any(not (CONFIG.get('pred_optional') and re.fullmatch(r'Pred\.gg(?: .*|)', str(e.get('source') or '')))
                for e in attempt.get('errors', []) if e.get('severity') == 'error')
 
 

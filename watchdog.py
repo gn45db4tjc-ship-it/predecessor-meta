@@ -281,7 +281,9 @@ def check(manifest, review_index, now, release=None):
 
     # 2.47.0: the recheck queue (review/index.json rechecks) lists each item with the date it was first queued; one
     # waiting over 24 hours is overdue (the scheduled reviewer runs once a day since 28 Oct 2026). Older indexes have only packets.
-    rechecks = (review_index or {}).get('rechecks')
+    if not queue_readable(review_index):
+        return problems   # unknown, never cleared: unknown_ids keeps an open overdue alert open
+    rechecks = review_index.get('rechecks')
     if isinstance(rechecks, list):
         late = [r for r in rechecks if (hours_since(r.get('first_queued_at'), now) or 0) > LIMITS['queue_overdue_hours']]
         if late:
@@ -293,7 +295,7 @@ def check(manifest, review_index, now, release=None):
                 'Next attempt: the scheduled reviewer, which runs once a day (docs/RECHECK-RUNNER.md).', False))
         return problems
     # The queue's current state is its newest packet: older packets stay listed as history, superseded by later ones.
-    packets = sorted((p for p in (review_index or {}).get('packets') or [] if utc(p.get('generated_at'))),
+    packets = sorted((p for p in review_index.get('packets') or [] if utc(p.get('generated_at'))),
                      key=lambda p: utc(p['generated_at']))
     overdue = [p for p in packets[-1:]
                if p.get('review_due') and hours_since(p['generated_at'], now) > LIMITS['queue_overdue_hours']]
@@ -307,6 +309,23 @@ def check(manifest, review_index, now, release=None):
     return problems
 
 
+def queue_readable(review_index):
+    """Whether the review index can be judged (audit #239 F11): an object whose rechecks and packets are each absent
+    or a list of objects, with at least one of them a list. A wrong-typed rechecks beside a packets list (Muse review of
+    PR #241) is unreadable, so packets alone never clear the overdue alert, and a non-object entry never raises."""
+    if not isinstance(review_index, dict):
+        return False
+    lists = 0
+    for key in ('rechecks', 'packets'):
+        value = review_index.get(key)
+        if value is None:
+            continue
+        if not isinstance(value, list) or not all(isinstance(entry, dict) for entry in value):
+            return False
+        lists += 1
+    return lists > 0
+
+
 def unknown_ids(manifest, review_index, state):
     """Problems this check could not judge, so their open alerts stay open (audit #239 F11). An unreadable manifest
     leaves every earlier problem unknown; an unreadable review index (missing, not JSON, or without a rechecks or
@@ -314,9 +333,7 @@ def unknown_ids(manifest, review_index, state):
     previous = set(((state or {}).get('open') or {}))
     if not isinstance(manifest, dict):
         return previous - {'site-unreachable'}
-    readable = isinstance(review_index, dict) and (isinstance(review_index.get('rechecks'), list)
-                                                   or isinstance(review_index.get('packets'), list))
-    return set() if readable else {'queue-overdue'}
+    return set() if queue_readable(review_index) else {'queue-overdue'}
 
 
 def clean_state(raw):

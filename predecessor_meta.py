@@ -2363,7 +2363,12 @@ def release_year(day, month, year, anchor, weekday=None):
     the same distance, the year is ambiguous and the date is withheld, so the article reads "release date
     unverified" rather than a guessed year."""
     try:
-        if year: return dt.datetime.strptime('%s %s %s' % (day, month, year), '%d %B %Y').date().isoformat()
+        if year:
+            # Muse review of PR #241: a written year skipped the weekday check. A written weekday that does not fall
+            # on that date means the text is wrong somewhere, so the date is withheld rather than trusted.
+            date = dt.datetime.strptime('%s %s %s' % (day, month, year), '%d %B %Y').date()
+            if weekday and date.strftime('%A').lower() != weekday.lower(): return None
+            return date.isoformat()
         options = []
         for y in (anchor.year - 1, anchor.year, anchor.year + 1):
             try: options.append(dt.datetime.strptime('%s %s %s' % (day, month, y), '%d %B %Y').date())
@@ -2398,7 +2403,8 @@ def official_parse(html, url):
     if match:
         released = release_year(match.group(2), match.group(3), match.group(4), anchor, match.group(1))
     if not released:
-        match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?' + weekday + r'\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(20\d\d))?', text, re.I)
+        # The day ends at a word boundary: "November 2026" is a month and year, never 20 November (Muse review of PR #241).
+        match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?' + weekday + r'\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?\b(?:,?\s+(20\d\d))?', text, re.I)
         if match:
             released = release_year(match.group(3), match.group(2), match.group(4), anchor, match.group(1))
     today = now_utc().date().isoformat()
