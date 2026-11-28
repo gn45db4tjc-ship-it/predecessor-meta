@@ -80,19 +80,63 @@ def own_import(record, published, row):
             and record.get('collector')==published.get('collector') and p.bundle_digest(published) in record['contents'])
 
 
+def receipt_problem(receipt):
+    """Why a parsed collector.json cannot be imported, or None. The whole receipt is checked before anything is read
+    from it, so a wrong-shaped field (bundles as a list, an attempt that is not an object) is one rejection with its
+    reason, never an exception halfway through the brackets (audit #239 F3)."""
+    if not isinstance(receipt,dict) or receipt.get('schema')!=1 or not isinstance(receipt.get('bundles'),dict):
+        return 'Local collector receipt schema changed'
+    if not readable_time(receipt.get('checked_at')):
+        # A receipt without a readable check time is invalid, refused like a changed schema.
+        return 'Local collector receipt time is unreadable'
+    if not all(isinstance(row,dict) for row in receipt['bundles'].values()):
+        return 'Local collector receipt has a bundle row that is not an object'
+    attempts=receipt.get('attempts',{})
+    if attempts is None: attempts={}
+    if not isinstance(attempts,dict) or not all(isinstance(a,dict) for a in attempts.values()):
+        return 'Local collector receipt attempts are not objects'
+    for attempt in attempts.values():
+        errors=attempt.get('errors',[])
+        if not isinstance(errors,list) or not all(isinstance(e,dict) for e in errors):
+            return 'Local collector receipt attempt errors are not a list of objects'
+        # The fields kept from an attempt must pass the publisher's own state check (static_publish.state_problem),
+        # or an accepted receipt would leave a state the next run sets aside whole (Codex review of #241 at 7c5dc11).
+        problem=p.nested_problem(attempt,{'status':str,'at':str,'seconds':p.NUMBER})
+        if problem:
+            return 'Local collector receipt attempt '+problem
+        for error in errors:
+            problem=p.nested_problem(error,{'source':str,'severity':str,'detail':str})
+            if problem:
+                return 'Local collector receipt attempt error '+problem
+    return None
+
+
+def reject_receipt(state_folder,reason):
+    """Record a refused receipt beside the last valid one and change nothing else: no bundle, attempt, clock or
+    previous collector check moves, and the cloud publisher runs as if no receipt had come. The reason reaches the
+    manifest (local_receipt_rejected) so the owner sees it."""
+    state=p.load_state(state_folder,{'schema':1,'attempts':{}})
+    state['local_receipt_rejected']={'at':p.base.iso(p.base.now_utc()),'reason':str(reason)[:300]}
+    p.write_json(state_folder/'publication.json',state)
+    return {'status':'rejected','reason':state['local_receipt_rejected']['reason']}
+
+
 def import_feed(feed, state_folder):
+    """Import a Windows feed. A receipt that cannot be trusted is refused as a whole (reject_receipt) and returns
+    status "rejected" instead of raising, so publish.yml's cloud path still runs (audit #239 F3)."""
     feed=Path(feed);state_folder=Path(state_folder)
     receipt_path=feed/'collector.json'
     if receipt_path.is_symlink() or not receipt_path.is_file() or receipt_path.stat().st_size>1_000_000:
-        raise ValueError('Local collector receipt is missing or invalid')
-    receipt=json.loads(receipt_path.read_text(encoding='utf8'))
-    if receipt.get('schema')!=1 or not isinstance(receipt.get('bundles'),dict):
-        raise ValueError('Local collector receipt schema changed')
+        return reject_receipt(state_folder,'Local collector receipt is missing or invalid')
+    try:
+        receipt=json.loads(receipt_path.read_text(encoding='utf8'))
+    except (OSError,ValueError) as error:
+        return reject_receipt(state_folder,'Local collector receipt is not readable JSON: '+str(error)[:200])
+    problem=receipt_problem(receipt)
+    if problem:
+        return reject_receipt(state_folder,problem)
     checked=readable_time(receipt.get('checked_at'))
-    if not checked:
-        # A receipt without a readable check time is invalid, refused like a changed schema.
-        raise ValueError('Local collector receipt time is unreadable')
-    state=p.read_json(state_folder/'publication.json',{'schema':1,'attempts':{}})
+    state=p.load_state(state_folder,{'schema':1,'attempts':{}})
     previous=state.get('local_collector')
     previous=readable_time(previous.get('checked_at')) if isinstance(previous,dict) else None
     # An unreadable saved check time never blocks a valid receipt (VERIFY-8).
@@ -100,7 +144,7 @@ def import_feed(feed, state_folder):
         return {'status':'older receipt ignored'}
     results={};attempts={};same_bundle=set()
     for bracket in p.CONFIG['brackets']:
-        source=(receipt.get('attempts') or {}).get(bracket,{})
+        source=(receipt.get('attempts') or {}).get(bracket) or {}
         attempts[bracket]={k:source.get(k) for k in ('status','at','seconds')}
         attempts[bracket]['errors']=[{k:e.get(k) for k in ('source','severity','detail')}
                                     for e in source.get('errors',[])]
@@ -191,6 +235,7 @@ def import_feed(feed, state_folder):
         state['last_full_attempt_at']=incoming_at
         state['last_full_seconds']=receipt.get('last_full_seconds')
     state['local_collector']={'checked_at':receipt['checked_at'],'status':'connected','results':results}
+    state.pop('local_receipt_rejected',None)
     p.write_json(state_folder/'publication.json',state)
     return state['local_collector']
 
@@ -201,4 +246,8 @@ if __name__=='__main__':
     parser.add_argument('feed',type=Path)
     parser.add_argument('--state-dir',type=Path,default=p.ROOT/'.cloud-state')
     args=parser.parse_args()
-    print(json.dumps(import_feed(args.feed,args.state_dir)))
+    result=import_feed(args.feed,args.state_dir)
+    if result.get('status')=='rejected':
+        # A GitHub warning annotation, so a refused Windows receipt is visible on the run (the cloud path continues).
+        print('::warning::Windows collector receipt rejected; the cloud publisher continues: '+result['reason'])
+    print(json.dumps(result))

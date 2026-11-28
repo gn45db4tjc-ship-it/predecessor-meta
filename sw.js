@@ -19,8 +19,18 @@ const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|master|paragon)-
 const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|master|paragon)-(core|guide|catalog|history|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
 const CORE = /\/bundles\/(bronze|silver|gold|platinum|diamond|master|paragon)-core-([a-f0-9]{64})\.json$/;
 
+// PRED-M11 (Codex verify of PR #241, F15): the app document is saved at install only when it is the app. A
+// maintenance or error page served with HTTP 200 fails the install, so this release's worker is not activated and
+// the previous one, with its good shell, stays in charge until a later visit installs it again.
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
+  event.waitUntil(caches.open(SHELL_CACHE).then(async cache => {
+    const root = new URL('./', ROOT).href;
+    const response = await fetch(new Request(root, {cache: 'no-store'}));
+    const text = response.ok ? await response.text() : '';
+    if (!response.ok || !appDocument(text, response)) throw new Error('Install stopped: the page is not the app document.');
+    await cache.put(root, new Response(text, {status: response.status, statusText: response.statusText, headers: response.headers}));
+    await cache.addAll(SHELL.filter(entry => entry !== './'));
+  }));
   self.skipWaiting();
 });
 
@@ -54,10 +64,32 @@ async function migrateLegacy(name) {
   await reconcileManifest(data, reference);
 }
 
+// The page saves each publication's manifest once under its own name as well (static_client.js, MANIFEST_COPIES).
+// Two tabs without Web Locks can leave an older publication in the main copy if one stopped mid-save; the newest
+// named copy is then put back as the main copy before anything is served (Muse review of PR #241).
+const MANIFEST_COPY = /\/saved-manifests\/[0-9A-Za-z-]+\.json$/;
+async function adoptNewestCopy(data, manifestURL) {
+  const read = async url => { try { return (await (await data.match(url))?.json()) ?? null; } catch { return null; } };
+  const when = value => Date.parse(value?.published_at);
+  // The same order as static_client.js standsOver: the later publication, except that a saved rollback stands over
+  // every publication it withdrew (saved_rollback.withdrawn and anything between).
+  const withdrew = (a, b) => { const w = Date.parse(a?.saved_rollback?.withdrawn); return Number.isFinite(w) && when(a) < when(b) && when(b) <= w; };
+  const standsOver = (a, b) => !!a && Number.isFinite(when(a)) && (!b || !Number.isFinite(when(b)) || (when(a) !== when(b) && (withdrew(a, b) || (!withdrew(b, a) && when(a) > when(b)))));
+  let main = await read(manifestURL), newest = main;
+  for (const key of await data.keys()) {
+    if (!MANIFEST_COPY.test(new URL(key.url).pathname)) continue;
+    const copy = await read(key.url);
+    if (standsOver(copy, newest)) newest = copy;
+  }
+  if (newest && newest !== main) await data.put(manifestURL, new Response(JSON.stringify(newest), {headers: {'Content-Type': 'application/json'}}));
+}
+
 // The saved manifest must describe the bundles that are actually saved, each with its own checksum and
 // dates. An entry is rewritten only when its bundle is not saved but another bundle for that bracket is.
 async function reconcileManifest(data, reference) {
-  const manifestURL = new URL('manifest.json', ROOT).href, saved = await data.match(manifestURL);
+  const manifestURL = new URL('manifest.json', ROOT).href;
+  await adoptNewestCopy(data, manifestURL);
+  const saved = await data.match(manifestURL);
   if (!saved) return;
   let manifest; try { manifest = await saved.json(); } catch { return; }
   const urls = (await data.keys()).map(key => key.url);
@@ -99,9 +131,22 @@ function localRequest(request) {
 
 // 2.52.0: the response goes to the page at once; its copy is saved in the background, kept alive by the fetch
 // event (keep). Awaiting the write first made a slow return visit wait for the whole page to be stored.
-function rememberShell(request, response, keep = null) {
+// PRED-M11 (audit #239 F15): a page answer replaces the offline app document only when it is the app: HTML that
+// carries the published app's version marker. A maintenance or error page served with HTTP 200 is shown, never saved
+// over the last good shell, so a later offline launch still opens the app with its verified data.
+const APP_MARKER = /<meta name="predecessor-app-version" content="[^"]+">/;
+function appDocument(text, response) {
+  return /text\/html/i.test(response.headers.get('Content-Type') || 'text/html') && APP_MARKER.test(text);
+}
+
+function rememberShell(request, response, keep = null, document = false) {
   if (response.ok) {
-    const copy = response.clone(), save = caches.open(SHELL_CACHE).then(cache => cache.put(request, copy)).catch(error => console.warn('Shell copy not saved:', error));
+    const copy = response.clone();
+    const save = (document
+      ? copy.text().then(text => appDocument(text, copy)
+        ? caches.open(SHELL_CACHE).then(cache => cache.put(request, new Response(text, {status: copy.status, statusText: copy.statusText, headers: copy.headers})))
+        : console.warn('Shell copy not saved: the page is not the app document.'))
+      : caches.open(SHELL_CACHE).then(cache => cache.put(request, copy))).catch(error => console.warn('Shell copy not saved:', error));
     if (keep) keep(save);
   }
   return response;
@@ -118,7 +163,7 @@ async function networkFirst(request, {data = false, fallback = null, keep = null
   try {
     const response = await fetch(new Request(request, {cache: 'no-store'}));
     if (!response.ok) { refused = response; throw new Error('Publication unavailable'); }
-    return data ? response : rememberShell(request, response, keep);   // data is stored by the page, after verification
+    return data ? response : rememberShell(request, response, keep, true);   // data is stored by the page, after verification
   } catch (error) {
     // Before serving the saved manifest, make sure it describes bundles that are actually saved (a backstop for
     // browsers without Web Locks, where two tabs could commit at the same moment).

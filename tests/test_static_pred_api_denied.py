@@ -52,7 +52,13 @@ class DenialIsRemembered(unittest.TestCase):
             self.assertEqual(public.call_count, 1)   # the run continued on the public pages
             self.assertTrue((Path(d) / 'pred-api-denied.json').exists())
             self.assertNotIn(TOKEN, (Path(d) / 'pred-api-denied.json').read_text(encoding='utf8'))   # never the credential itself
-            self.assertIsNone(m.pred_source_fetch({'PRED_API_TOKEN': TOKEN}))          # the next run does not ask again
+            # The next run does not ask the API again. Since PRED-M11 (audit #239 F8) it says so instead of looking
+            # like a run without the API, so the bundle can record the API's health.
+            again = m.pred_source_fetch({'PRED_API_TOKEN': TOKEN})
+            self.assertEqual(again.api_failed, ['denied earlier for these credentials'])
+            with patch.object(pred_api, '_post', side_effect=AssertionError('the API was asked again')):
+                again('https://pred.gg/heroes')
+            self.assertEqual(public.call_count, 2)
             self.assertIsNotNone(m.pred_source_fetch({'PRED_API_TOKEN': 'a-new-token'}))  # new credentials may try
 
 

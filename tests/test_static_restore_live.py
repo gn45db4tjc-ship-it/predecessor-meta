@@ -66,15 +66,18 @@ class RestoreLiveState(unittest.TestCase):
         self.assertEqual(report['restored'], [])
         self.assertIn('gold', report['rejected'])
         self.assertIsNone(sp.load_publication(self.dir, 'gold'))
-        self.assertFalse((self.dir / 'publication.json').exists())   # nothing restored: the seed path stays in charge
+        # Nothing restored. Since PRED-M11 (audit #239 F5) the rank stays pending, so the seed path cannot replace the
+        # newer live Gold+ during the hold, and the next run tries the restore again.
+        state = json.loads((self.dir / 'publication.json').read_text(encoding='utf8'))
+        self.assertEqual(state['live_recovery']['pending'], {'gold': self.bundle['generated_at']})
 
-    def test_an_unreachable_site_changes_nothing(self):
+    def test_an_unreachable_site_keeps_the_whole_restore_pending(self):
         def fetch(url):
             raise OSError('offline')
         report = sp.restore_from_live(self.dir, SITE, fetch=fetch)
         self.assertEqual(report['restored'], [])
-        self.assertFalse((self.dir / 'publication.json').exists())
-
+        state = json.loads((self.dir / 'publication.json').read_text(encoding='utf8'))
+        self.assertEqual(list(state['live_recovery']['pending']), ['*'])
 
 if __name__ == '__main__':
     unittest.main()

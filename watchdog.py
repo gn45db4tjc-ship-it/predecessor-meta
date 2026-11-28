@@ -82,15 +82,46 @@ def daily_boundary(now):
     return boundary if now >= boundary else boundary - dt.timedelta(days=1)
 
 
-def next_scheduled(manifest):
+PUBLISH_MINUTE = 23   # publish.yml's hourly schedule ('23 * * * *')
+RETRY_GRACE = dt.timedelta(minutes=90)   # the first hourly slot after a retry is eligible, plus a queued run
+
+
+def retry_due(manifest):
+    """When a pending required-source retry becomes eligible, or None. The publisher retries only once
+    required_retry_hours have passed since the last full attempt (static_publish.py), so an attempt after next_at
+    was set moves the real retry later (4 Nov 2026)."""
+    retry = manifest.get('required_retry') or {}
+    if not (retry.get('pending') and retry.get('next_at')):
+        return None
+    due, last = utc(retry['next_at']), utc(manifest.get('last_full_attempt_at'))
+    if due and last:
+        due = max(due, last + dt.timedelta(hours=float(CONFIG.get('required_retry_hours', 3))))
+    return due
+
+
+def first_slot(when):
+    """The first hourly publish.yml run at or after `when`."""
+    slot = when.replace(minute=PUBLISH_MINUTE, second=0, microsecond=0)
+    return slot if slot >= when else slot + dt.timedelta(hours=1)
+
+
+def retry_missed(manifest, now):
+    """A pending retry whose first eligible hourly run has passed (plus a queued run) without a new attempt: the run
+    was dropped or failed before it saved state, and nothing else would recover it (audit #239 F14)."""
+    due = retry_due(manifest)
+    return bool(due and now > first_slot(due) + RETRY_GRACE)
+
+
+def next_scheduled(manifest, now=None):
     retry = manifest.get('required_retry') or {}
     if retry.get('pending') and retry.get('next_at'):
-        # The publisher retries only once required_retry_hours have passed since the last full attempt
-        # (static_publish.py), so an attempt after next_at was set moves the real retry later (4 Nov 2026).
-        due, last = utc(retry['next_at']), utc(manifest.get('last_full_attempt_at'))
-        if due and last:
-            due = max(due, last + dt.timedelta(hours=float(CONFIG.get('required_retry_hours', 3))))
-        return 'Next attempt: a required-source retry at ' + when_text(due.isoformat() if due else retry['next_at']) + '.'
+        due = retry_due(manifest)
+        text = 'Next attempt: a required-source retry at ' + when_text(due.isoformat() if due else retry['next_at'])
+        if due:
+            text += ' (the first hourly run after it is at ' + when_text(first_slot(due).isoformat()) + ')'
+            if now and retry_missed(manifest, now):
+                text += '. That run has not happened; the watchdog may request a refresh'
+        return text + '.'
     return 'Next scheduled attempt: ' + when_text(manifest.get('next_expected_attempt_at')) + '.'
 
 
@@ -108,6 +139,16 @@ def source_release(root=ROOT):
     except (OSError, subprocess.SubprocessError):
         committed = ''
     return {'version': found.group(1) if found else None, 'committed_at': committed or None}
+
+
+PRED_SOURCE = re.compile(r'Pred\.gg(?: .*|)')
+
+
+def optional_pred_attempt(attempt):
+    """static_publish.optional_pred_only as the manifest shows it: a partial attempt with errors, all from Pred.gg."""
+    errors = attempt.get('errors') or []
+    return bool(CONFIG.get('pred_optional') and attempt.get('status') == 'partial' and errors
+                and all(isinstance(e, dict) and PRED_SOURCE.fullmatch(str(e.get('source', ''))) for e in errors))
 
 
 def check(manifest, review_index, now, release=None):
@@ -136,6 +177,19 @@ def check(manifest, review_index, now, release=None):
                  % when_text(manifest.get('published_at'))],
                 'Next attempt: the next hourly publication run (every hour at :23) publishes main again.', False))
 
+    # Will's decision of 28 Nov 2026 (PR #241): the publisher keeps its 24-hour recovery hold, and when the hold ends
+    # with a rank still not restored or replaced it publishes anyway and names that rank here, so this alert opens.
+    expired = manifest.get('recovery_expired')
+    if isinstance(expired, dict) and isinstance(expired.get('ranks'), list) and expired['ranks']:
+        named = 'the live manifest' if expired['ranks'] == ['*'] else ', '.join(str(r) for r in expired['ranks'])
+        problems.append(problem(
+            'recovery-expired', 'A rank the live site had is still missing after the recovery hold',
+            'The %s-hour recovery hold ended with %s still not restored or replaced, so the site was published without it.'
+            % (expired.get('hold_hours') or 24, named),
+            ['Pending since %s. Reason recorded: %s' % (when_text(expired.get('since')), expired.get('reason') or 'none'),
+             'Each publication run retries the restore from the live site; a fresh collection of the rank replaces it.'],
+            'Next attempt: the next hourly publication run retries the restore.', False))
+
     missing = [r for r in ranks if (cohorts.get(r) or {}).get('status') != 'available']
     if missing:
         problems.append(problem(
@@ -143,7 +197,7 @@ def check(manifest, review_index, now, release=None):
             'No available publication for ' + ', '.join(label(r, cohorts.get(r)) for r in missing) + '.',
             [label(r, cohorts.get(r)) + ': ' + ('not in the manifest' if r not in cohorts
                                                  else 'status ' + str(cohorts[r].get('status'))) for r in missing],
-            next_scheduled(manifest), True))
+            next_scheduled(manifest, now), True))
 
     late, lines = [], []
     for rank in ranks:
@@ -163,7 +217,7 @@ def check(manifest, review_index, now, release=None):
                                                     'has no date' if age is None else 'is %.1f hours old' % age, when_text(updated)))
     if late:
         problems.append(problem('stats-age', 'Rank statistics are over 24 hours old',
-                                'Statistics older than 24 hours: ' + ', '.join(late) + '.', lines, next_scheduled(manifest), True))
+                                'Statistics older than 24 hours: ' + ', '.join(late) + '.', lines, next_scheduled(manifest, now), True))
 
     late, lines = [], []
     for rank in ranks:
@@ -190,13 +244,25 @@ def check(manifest, review_index, now, release=None):
 
     failed = [(r, cohorts[r].get('last_attempt') or {}) for r in ranks
               if r in cohorts and r not in missing and (cohorts[r].get('last_attempt') or {}).get('status') not in (None, 'ok')]
+    # A partial attempt whose only errors are optional Pred.gg sources is the publisher's optional_pred_only: GitHub
+    # cannot read Pred.gg, so a cloud collection cannot fix it and must not be requested (audit #239 F13).
+    optional = [(r, a) for r, a in failed if optional_pred_attempt(a)]
+    failed = [(r, a) for r, a in failed if not optional_pred_attempt(a)]
+    if optional:
+        problems.append(problem(
+            'attempt-pred-only', "A rank's last attempt missed only optional Pred.gg data",
+            'Optional Pred.gg data missing from the last attempt for ' + ', '.join(label(r, cohorts[r]) for r, _ in optional) + '.',
+            ['%s: %s at %s: %s' % (label(r, cohorts[r]), a.get('status'), when_text(a.get('at')),
+                                   '; '.join(str(e) for e in a.get('errors') or [])) for r, a in optional] +
+            ['Required sources validated. Only the Windows collector reads Pred.gg, so no cloud refresh is requested for this.'],
+            "Next attempt: the Windows collector's next run, or the next daily collection.", False))
     if failed:
         problems.append(problem(
             'attempt-failed', "A rank's last collection attempt did not finish",
             'Last attempt not ok for ' + ', '.join(label(r, cohorts[r]) for r, _ in failed) + '.',
             ['%s: %s at %s%s' % (label(r, cohorts[r]), a.get('status'), when_text(a.get('at')),
                                  (': ' + '; '.join(str(e) for e in a.get('errors') or [])) if a.get('errors') else '')
-             for r, a in failed], next_scheduled(manifest), True))
+             for r, a in failed], next_scheduled(manifest, now), True))
 
     patch = manifest.get('patch_check') or {}
     if patch.get('status') != 'verified':
@@ -228,7 +294,9 @@ def check(manifest, review_index, now, release=None):
 
     # 2.47.0: the recheck queue (review/index.json rechecks) lists each item with the date it was first queued; one
     # waiting over 24 hours is overdue (the scheduled reviewer runs once a day since 28 Oct 2026). Older indexes have only packets.
-    rechecks = (review_index or {}).get('rechecks')
+    if not queue_readable(review_index):
+        return problems   # unknown, never cleared: unknown_ids keeps an open overdue alert open
+    rechecks = review_index.get('rechecks')
     if isinstance(rechecks, list):
         late = [r for r in rechecks if (hours_since(r.get('first_queued_at'), now) or 0) > LIMITS['queue_overdue_hours']]
         if late:
@@ -240,7 +308,7 @@ def check(manifest, review_index, now, release=None):
                 'Next attempt: the scheduled reviewer, which runs once a day (docs/RECHECK-RUNNER.md).', False))
         return problems
     # The queue's current state is its newest packet: older packets stay listed as history, superseded by later ones.
-    packets = sorted((p for p in (review_index or {}).get('packets') or [] if utc(p.get('generated_at'))),
+    packets = sorted((p for p in review_index.get('packets') or [] if utc(p.get('generated_at'))),
                      key=lambda p: utc(p['generated_at']))
     overdue = [p for p in packets[-1:]
                if p.get('review_due') and hours_since(p['generated_at'], now) > LIMITS['queue_overdue_hours']]
@@ -252,6 +320,58 @@ def check(manifest, review_index, now, release=None):
                                                    hours_since(p.get('generated_at'), now)) for p in overdue],
             'Next attempt: the scheduled reviewer, which runs once a day (docs/RECHECK-RUNNER.md).', False))
     return problems
+
+
+def queue_readable(review_index):
+    """Whether the review index can be judged (audit #239 F11): an object whose rechecks and packets are each absent
+    or a list of objects, with at least one of them a list. A wrong-typed rechecks beside a packets list (Muse review of
+    PR #241) is unreadable, so packets alone never clear the overdue alert, and a non-object entry never raises."""
+    if not isinstance(review_index, dict):
+        return False
+    lists = 0
+    for key in ('rechecks', 'packets'):
+        value = review_index.get(key)
+        if value is None:
+            continue
+        if not isinstance(value, list) or not all(isinstance(entry, dict) for entry in value):
+            return False
+        lists += 1
+    return lists > 0
+
+
+def unknown_ids(manifest, review_index, state):
+    """Problems this check could not judge, so their open alerts stay open (audit #239 F11). An unreadable manifest
+    leaves every earlier problem unknown; an unreadable review index (missing, not JSON, or without a rechecks or
+    packets list) leaves the overdue queue unknown. Unknown is never "cleared"."""
+    previous = set(((state or {}).get('open') or {}))
+    if not isinstance(manifest, dict):
+        return previous - {'site-unreachable'}
+    return set() if queue_readable(review_index) else {'queue-overdue'}
+
+
+def clean_state(raw):
+    """The saved state with each field checked (audit #239 F12): valid open problems and dispatch times are kept,
+    anything of the wrong shape is dropped and named, so one bad file never stops the watchdog for good."""
+    notes = []
+    if not isinstance(raw, dict):
+        return {}, ['state is not an object'] if raw not in (None, {}) else []
+    state = dict(raw)
+    opened = state.get('open')
+    if opened is not None and not isinstance(opened, dict):
+        notes.append('open is not an object'); opened = {}
+    good = {k: v for k, v in (opened or {}).items() if isinstance(k, str) and isinstance(v, dict)}
+    if opened and len(good) != len(opened):
+        notes.append('%d open record(s) were not objects' % (len(opened) - len(good)))
+    state['open'] = good
+    for key in ('dispatches', 'misses'):
+        value = state.get(key)
+        if value is not None and not isinstance(value, list):
+            notes.append(key + ' is not a list'); value = []
+        kept = [v for v in value or [] if (isinstance(v, str) if key == 'dispatches' else isinstance(v, dict))]
+        if value and len(kept) != len(value):
+            notes.append('%d %s entr%s had the wrong type' % (len(value) - len(kept), key, 'y' if len(value) - len(kept) == 1 else 'ies'))
+        state[key] = kept
+    return state, notes
 
 
 def persistent(state, pid, now):
@@ -277,8 +397,9 @@ def refresh_decision(manifest, problems, state, now):
     if int(retry.get('attempts') or 0) >= int(retry.get('limit') or CONFIG.get('required_retry_limit', 2)):
         return {'dispatch': False, 'reason': 'The required-source retry limit (%s) is reached; the next daily collection tries again.'
                 % (retry.get('limit') or CONFIG.get('required_retry_limit', 2))}
-    if retry.get('pending'):
-        return {'dispatch': False, 'reason': 'A required-source retry is already due at ' + when_text(retry.get('next_at')) + '.'}
+    if retry.get('pending') and not retry_missed(manifest, now):
+        return {'dispatch': False, 'reason': 'A required-source retry is due at ' + when_text((retry_due(manifest) or utc(retry.get('next_at')) or now).isoformat())
+                + '; the first hourly run after it is at ' + when_text(first_slot(retry_due(manifest) or now).isoformat()) + '.'}
     scheduled = utc(manifest.get('next_expected_attempt_at'))
     if scheduled and dt.timedelta(0) <= scheduled - now <= dt.timedelta(hours=LIMITS['scheduled_within_hours']):
         return {'dispatch': False, 'reason': 'A scheduled attempt at ' + when_text(manifest['next_expected_attempt_at']) + ' is within the hour.'}
@@ -299,11 +420,17 @@ def refresh_decision(manifest, problems, state, now):
     return {'dispatch': True, 'reason': 'Refresh requested: ' + ' '.join(p['summary'] for p in fixable)}
 
 
-def next_state(state, problems, decision, now):
-    """The watchdog's saved state: open problems, recent refresh requests and the miss log (automation-state)."""
+def next_state(state, problems, decision, now, unknown=(), notes=()):
+    """The watchdog's saved state: open problems, recent refresh requests and the miss log (automation-state).
+    A problem in `unknown` keeps its record and is not logged as cleared; `notes` (from clean_state) are logged."""
     state = state or {}
     previous, opened, misses = state.get('open') or {}, {}, list(state.get('misses') or [])
     stamp = now.isoformat()
+    if notes:
+        misses.append({'id': 'watchdog-state', 'event': 'repaired', 'at': stamp, 'summary': '; '.join(notes)})
+    for pid in unknown:
+        if pid in previous and pid not in {p['id'] for p in problems}:
+            opened[pid] = dict(previous[pid], unknown_since=previous[pid].get('unknown_since') or stamp)
     for p in problems:
         opened[p['id']] = {'first_seen': (previous.get(p['id']) or {}).get('first_seen') or stamp}
         if p['id'] not in previous:
@@ -338,8 +465,9 @@ def issue_text(p, decision):
     return 'Watchdog: ' + p['title'], '\n'.join(lines)
 
 
-def sync_issues(problems, state, decision, api, now):
-    """One open issue per persistent problem: created, kept current, closed when cleared. Other issues are untouched."""
+def sync_issues(problems, state, decision, api, now, unknown=()):
+    """One open issue per persistent problem: created, kept current, closed when cleared. Other issues are untouched.
+    An issue whose problem could not be checked this time (`unknown`) stays open as it is."""
     ours = {}
     for issue in api.list_open():
         found = MARKER.search(issue.get('body') or '')
@@ -355,7 +483,7 @@ def sync_issues(problems, state, decision, api, now):
         elif persistent(state, p['id'], now):
             api.create(title, body)
     for pid, issue in ours.items():
-        if pid not in current:
+        if pid not in current and pid not in unknown:
             api.close(issue['number'], 'Cleared at %s: the watchdog no longer sees this problem.' % when_text(now.isoformat()))
 
 
@@ -422,22 +550,27 @@ def main(argv=None):
     parser.add_argument('--sync-issues', action='store_true', help='open, update and close GitHub issues')
     args = parser.parse_args(argv)
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
-    state = {}
+    state, notes = {}, []
     if args.state and args.state.exists():
         try:
-            state = json.loads(args.state.read_text(encoding='utf-8') or '{}')
+            state, notes = clean_state(json.loads(args.state.read_text(encoding='utf-8') or '{}'))
         except ValueError:
-            state = {}
+            state, notes = {}, ['state is not JSON']
+    for note in notes:
+        print('::warning::Watchdog state repaired: ' + note + '. Valid history was kept.')
     manifest = json.loads(args.manifest.read_text(encoding='utf-8')) if args.manifest else fetch_json(args.site + 'manifest.json')
     index = (json.loads(args.review_index.read_text(encoding='utf-8')) if args.review_index
              else fetch_json(args.site + 'review/index.json') if manifest is not None else None)
     problems = check(manifest, index, now, release=None if args.manifest else source_release())
+    unknown = unknown_ids(manifest, index, state)
+    if 'queue-overdue' in unknown and isinstance(manifest, dict):
+        print('::warning::The review queue index could not be read; an open overdue-queue alert stays open.')
     decision = refresh_decision(manifest or {}, problems, state, now)
-    new = next_state(state, problems, decision, now)
+    new = next_state(state, problems, decision, now, unknown, notes)
     if args.sync_issues:
         api = GitHubIssues(os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_TOKEN'])
         api.ensure_label()
-        sync_issues(problems, new, decision, api, now)
+        sync_issues(problems, new, decision, api, now, unknown)
     if args.out:
         args.out.write_text(json.dumps(new, indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
     for p in problems:

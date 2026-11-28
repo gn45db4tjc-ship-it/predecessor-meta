@@ -115,6 +115,7 @@ In order. Grades first, as the brief asks.
 - **Prerequisite:** the nightly live check passed on main twice in a row on 2 Oct (15:48Z and 21:04Z, both manual dispatches; the 18:47Z schedule was skipped by GitHub). `review_auto_merge` is on, and the gate re-checks the last two nightly runs at every decision.
 - **Watchdog:** a recheck queued for over 24 hours is reported as `queue-overdue`.
 - **Watchdog (2.57.0):** a live site whose manifest app release differs from main's `VERSION` 90 minutes after main last changed is reported as `release-behind` (no refresh request; the next hourly publication publishes main again).
+- **Watchdog (PRED-M11, owner's decision of 28 Nov 2026):** when the publisher's 24-hour recovery hold (`live_recovery_hold_hours`) ends with a rank the live site had still not restored or replaced, the site is published without it and the manifest names that rank in `recovery_expired` (`static_publish.expired_hold`); the watchdog reports it as `recovery-expired` (no refresh request; each publication run retries the restore).
 - **Tests:**
   - `tests/recheck_queue.test.cjs` (5);
   - `tests/test_static_recheck_log.py` (3);

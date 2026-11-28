@@ -70,9 +70,14 @@ function cacheStorage() {
 }
 function worker(source, storage, network) {
   const listeners = {}, self = {location: {href: SITE + 'sw.js'}, addEventListener: (type, fn) => { listeners[type] = fn; }, skipWaiting() {}, clients: {claim: async () => {}}};
-  vm.runInNewContext(source, {self, caches: storage, fetch: request => network(request), crypto: crypto.webcrypto, TextDecoder, URL, Request, Response, Headers, console: {warn() {}, log() {}}});
+  // A release is installed while online: during install the worker reads the app page itself (sw.js checks it is the
+  // app document before saving it, PRED-M11 F15); every other request goes to the test's network.
+  let installing = false;
+  const APP_PAGE = '<!doctype html><meta name="predecessor-app-version" content="test"><title>Predecessor Meta</title>';
+  const fetchFor = request => installing && urlOf(request) === SITE ? Promise.resolve(new Response(APP_PAGE, {status: 200, headers: {'Content-Type': 'text/html'}})) : network(request);
+  vm.runInNewContext(source, {self, caches: storage, fetch: fetchFor, crypto: crypto.webcrypto, TextDecoder, URL, Request, Response, Headers, console: {warn() {}, log() {}}});
   const lifecycle = async type => { let pending = Promise.resolve(); listeners[type]?.({waitUntil: p => { pending = p; }}); await pending; };
-  return {install: () => lifecycle('install'), activate: () => lifecycle('activate'),
+  return {install: async () => { installing = true; try { await lifecycle('install'); } finally { installing = false; } }, activate: () => lifecycle('activate'),
     async fetch(url) { let reply; listeners.fetch({request: new Request(url), respondWith: p => { reply = p; }}); return reply; }};
 }
 /* The next release: only the release-specific cache name changes. The data cache keeps its name. */
@@ -213,6 +218,38 @@ test('F: the saved manifest is re-described from what is actually saved before i
   assert.equal(served.cohorts.gold.sha256, digest(kept));
   assert.equal(served.cohorts.gold.source_signature, 'unverified-saved-copy', 'a re-described copy is never presented as matching the current patch');
   assert.equal(JSON.parse(await (await sw.fetch(SITE + served.cohorts.gold.url)).text()).note, 'the copy that is saved');
+});
+
+test('F16: offline, the newest saved manifest copy is served even when an older tab wrote the main copy last', async () => {
+  // Muse review of PR #241: without Web Locks an older tab could write the main manifest after the newer tab finished
+  // and then stop before repairing it. The page also saves each manifest under its own name; the worker serves the newest.
+  const storage = cacheStorage(), sw = worker(SW, storage, offline), body = bundleBody('gold', 'newer gold');
+  await sw.install(); await sw.activate();
+  await pageCommits(storage, 'gold', body);
+  const entry = {label: 'Gold+', status: 'available', sha256: digest(body), url: 'bundles/gold-' + digest(body) + '.json', generated_at: '2026-11-27T09:00:00Z', source_signature: 'sig'};
+  const data = await storage.open(DATA), put = (url, value) => data.put(new Request(SITE + url), new Response(JSON.stringify(value)));
+  await put('saved-manifests/2026-11-27T09-23-00Z.json', {schema: 2, published_at: '2026-11-27T09:23:00Z', note: 'newer', cohorts: {gold: entry}});
+  await put('saved-manifests/2026-11-27T08-23-00Z.json', {schema: 2, published_at: '2026-11-27T08:23:00Z', note: 'older', cohorts: {gold: entry}});
+  await put('manifest.json', {schema: 2, published_at: '2026-11-27T08:23:00Z', note: 'older', cohorts: {gold: entry}});
+  const served = await (await sw.fetch(SITE + 'manifest.json')).json();
+  assert.equal(served.note, 'newer');
+  assert.equal(JSON.parse(await (await data.match(new Request(SITE + 'manifest.json'))).text()).note, 'newer', 'the main copy is repaired');
+});
+
+test('F16: offline, a saved rollback copy is served over the publication it withdrew', async () => {
+  // Muse review of PR #241 at 54c017c: a rollback tab paused after writing its copy but before main must still stand.
+  const storage = cacheStorage(), sw = worker(SW, storage, offline), body = bundleBody('gold', 'gold');
+  await sw.install(); await sw.activate();
+  await pageCommits(storage, 'gold', body);
+  const entry = {label: 'Gold+', status: 'available', sha256: digest(body), url: 'bundles/gold-' + digest(body) + '.json', generated_at: '2026-11-27T08:00:00Z', source_signature: 'sig'};
+  const data = await storage.open(DATA), put = (url, value) => data.put(new Request(SITE + url), new Response(JSON.stringify(value)));
+  await put('saved-manifests/2026-11-27T08-23-00Z.json', {schema: 2, published_at: '2026-11-27T08:23:00Z', note: 'rollback', saved_rollback: {withdrawn: '2026-11-27T09:23:00Z'}, cohorts: {gold: entry}});
+  await put('saved-manifests/2026-11-27T09-23-00Z.json', {schema: 2, published_at: '2026-11-27T09:23:00Z', note: 'withdrawn', cohorts: {gold: entry}});
+  await put('manifest.json', {schema: 2, published_at: '2026-11-27T09:23:00Z', note: 'withdrawn', cohorts: {gold: entry}});
+  assert.equal((await (await sw.fetch(SITE + 'manifest.json')).json()).note, 'rollback');
+  // A publication newer than everything withdrawn is a new release, and it is served.
+  await put('saved-manifests/2026-11-27T10-23-00Z.json', {schema: 2, published_at: '2026-11-27T10:23:00Z', note: 'new release', cohorts: {gold: entry}});
+  assert.equal((await (await sw.fetch(SITE + 'manifest.json')).json()).note, 'new release');
 });
 
 test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {

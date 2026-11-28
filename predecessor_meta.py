@@ -1134,12 +1134,24 @@ def omeda_fetch_heroes():
     return data, secs
 
 
+def omeda_item_id_ok(value):
+    return (isinstance(value, int) and not isinstance(value, bool)) or (isinstance(value, str) and bool(value.strip()))
+
+
 def omeda_fetch_items():
     text, status, secs = http_get(OMEDA_BASE + "/items.json", timeout=OMEDA_TIMEOUT, retries=0)
     data = json.loads(text)
     if not isinstance(data, list) or not data:
         raise OmedaParseError("items.json: expected a non-empty list")
-    return data, secs
+    # Only rows the bundle can use count (audit #239 F10): an HTTP 200 of [{}] used to be stamped a fresh "ok" with
+    # nothing in it. Unusable rows are dropped; none usable is a failure, so the source reads failed, never fresh.
+    # The id must work as the item index's key (Codex verify of PR #241: a list or object id passed here and was then
+    # dropped from the index, leaving a fresh "ok" with no items): a whole number or non-empty text, never a boolean.
+    usable = [it for it in data if isinstance(it, dict) and omeda_item_id_ok(it.get("id"))
+              and isinstance(it.get("slug"), str) and it["slug"] and isinstance(it.get("display_name"), str) and it["display_name"]]
+    if not usable:
+        raise OmedaParseError("items.json: no usable item (each needs id, slug and display_name)")
+    return usable, secs
 
 
 def omeda_role_normalize(r):
@@ -1844,6 +1856,10 @@ def bundle_is_complete(b):
                 return False, "hero pages were %s" % (src.get("status") or "incomplete")
         if b["sources"]["omeda_heroes"].get("status") != "ok":
             return False, "omeda.city kit data was missing"
+        # Muse review of PR #241 (audit F10): a failed items.json used to leave a complete bundle with an empty item
+        # index and a fresh date. Items kept from an earlier collection are not this collection's either.
+        if (b["sources"].get("omeda_items") or {}).get("status") != "ok":
+            return False, "omeda.city item data was missing"
         if b.get("failed_pages") or b.get("patch_conflicts"):
             return False, "%d hero page(s) were missing or conflicting" % (len(b.get("failed_pages") or []) + len(b.get("patch_conflicts") or []))
         if any(e.get("severity") == "error" for e in b.get("errors", [])):
@@ -2073,8 +2089,13 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
     elif omeda_meta.get("heroes_retained"):
         errors.append({"source": "omeda.city heroes.json", "severity": "error", "detail": (omeda_meta.get("heroes_error") or "unavailable") +
                        ". Hero kits are kept from the collection fetched " + omeda_meta["heroes_retained"]["fetched_at"] + "; Pred.gg kits replace them where collected."})
-    if omeda_items is None and omeda_meta.get("items_error"):
-        errors.append({"source": "omeda.city items.json", "severity": "warning", "detail": omeda_meta["items_error"]})
+    # A failed items.json is a required-source error, kept items or not (bundle_is_complete refuses the collection), so
+    # the publisher retries it and never reads the attempt as optional-Pred.gg-only (Codex review of #241 at 7c5dc11).
+    if omeda_meta.get("items_retained"):
+        errors.append({"source": "omeda.city items.json", "severity": "error", "detail": (omeda_meta.get("items_error") or "unavailable") +
+                       ". Item definitions are kept from the collection fetched " + omeda_meta["items_retained"]["fetched_at"] + "; Pred.gg items replace them where collected."})
+    elif not omeda_items and omeda_meta.get("items_error"):
+        errors.append({"source": "omeda.city items.json", "severity": "error", "detail": omeda_meta["items_error"]})
     for p in SETTINGS_PROBLEMS:
         warnings.append({"source": "settings.json", "detail": p})
     for w in warnings:
@@ -2112,8 +2133,19 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
                              "count": len(omeda_heroes or []), "status": "retained", "error": omeda_meta.get("heroes_error"),
                              "attempted_at": omeda_meta.get("fetched_at"),
                              "note": "This collection could not read omeda.city heroes.json; the kits of the previous collection are kept with their original fetch date. Pred.gg kits replace them where collected."},
-            "omeda_items": {"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("items_secs"),
-                            "count": len(omeda_items or []), "status": ("offline (read from disk)" if omeda_meta.get("offline") else "ok") if omeda_items else "failed", "error": omeda_meta.get("items_error")},
+            # A failed items.json is never dated as fetched now (Muse review of PR #241, audit F10); items kept from
+            # an earlier collection keep that collection's date, like retained kits.
+            "omeda_items": ({"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("items_secs"),
+                             "count": len(omeda_items or []), "status": "offline (read from disk)" if omeda_meta.get("offline") else "ok", "error": None}
+                            if omeda_items and not omeda_meta.get("items_retained") else
+                            {"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta["items_retained"]["fetched_at"], "secs": None,
+                             "count": len(omeda_items or []), "status": "retained", "error": omeda_meta.get("items_error"),
+                             "attempted_at": omeda_meta.get("fetched_at"),
+                             "note": "This collection could not read omeda.city items.json; the item definitions of the previous collection are kept with their original fetch date. Pred.gg items replace them where collected."}
+                            if omeda_meta.get("items_retained") else
+                            {"url": OMEDA_BASE + "/items.json", "fetched_at": None, "secs": omeda_meta.get("items_secs"),
+                             "count": 0, "status": "failed", "error": omeda_meta.get("items_error") or "unavailable",
+                             "attempted_at": omeda_meta.get("fetched_at")}),
         },
         "errors": errors,
         "roles_order": ROLES, "role_label": ROLE_LABEL, "tier_order": TIER_ORDER,
@@ -2325,6 +2357,33 @@ def verified_history_article(article,source):
                 official_article_fingerprint(article['blocks'])==source['fingerprint'])
 
 
+def release_year(day, month, year, anchor, weekday=None):
+    """An official release date as ISO text, or None when it cannot be dated safely. A written year is used as
+    written. Without one, the date is the day and month in the year (anchor's, the one before or the one after)
+    that lands nearest the anchor, the article's own publication date when it has one. A written weekday must
+    match that year. When no year lands within half a year of the anchor, or two years land within 60 days of
+    the same distance, the year is ambiguous and the date is withheld, so the article reads "release date
+    unverified" rather than a guessed year."""
+    try:
+        if year:
+            # Muse review of PR #241: a written year skipped the weekday check. A written weekday that does not fall
+            # on that date means the text is wrong somewhere, so the date is withheld rather than trusted.
+            date = dt.datetime.strptime('%s %s %s' % (day, month, year), '%d %B %Y').date()
+            if weekday and date.strftime('%A').lower() != weekday.lower(): return None
+            return date.isoformat()
+        options = []
+        for y in (anchor.year - 1, anchor.year, anchor.year + 1):
+            try: options.append(dt.datetime.strptime('%s %s %s' % (day, month, y), '%d %B %Y').date())
+            except ValueError: pass
+    except ValueError:
+        return None
+    if weekday: options = [d for d in options if d.strftime('%A').lower() == weekday.lower()]
+    options = sorted(options, key=lambda d: abs((d - anchor).days))
+    if not options or abs((options[0] - anchor).days) > 183: return None
+    if len(options) > 1 and abs((options[1] - anchor).days) - abs((options[0] - anchor).days) < 60: return None
+    return options[0].isoformat()
+
+
 def official_parse(html, url):
     p = OfficialReader(); p.feed(html)
     title = next((v for t, v in p.blocks if t == 'h1'), '')
@@ -2332,24 +2391,30 @@ def official_parse(html, url):
     if not version: raise ValueError('Official patch article has no version heading: ' + url)
     text = '\n'.join(v for t, v in p.blocks if t != 'image')
     # Prefer explicit release wording; publication date is not a release date.
+    # The article's own date (its "Nov 3, 2026" label) only anchors a day and month written without a year
+    # (release_year): reading the year off the clock made the 1.18 article "upcoming" again on 1 Jan 2027.
+    publication = re.search(r'>\s*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2}),\s*(20\d\d)\s*<',html,re.I)
+    published = None
+    if publication:
+        try: published = dt.datetime.strptime('%s %s %s' % (publication.group(1)[:3], publication.group(2), publication.group(3)), '%b %d %Y').date()
+        except ValueError: published = None
+    anchor = published or now_utc().date()
     released = None
-    match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?\b(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(20\d\d))?', text, re.I)
+    weekday = r'(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+)?'
+    match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?' + weekday + r'\b(\d{1,2})(?:st|nd|rd|th)?\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(20\d\d))?', text, re.I)
     if match:
-        year = int(match.group(3) or now_utc().year)
-        released = dt.datetime.strptime('%s %s %s' % (match.group(1), match.group(2), year), '%d %B %Y').date().isoformat()
+        released = release_year(match.group(2), match.group(3), match.group(4), anchor, match.group(1))
     if not released:
-        match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(20\d\d))?', text, re.I)
+        # The day ends at a word boundary: "November 2026" is a month and year, never 20 November (Muse review of PR #241).
+        match = re.search(r'(?:launch(?:es|ing)?|releases?|available|live)[^\n]{0,70}?' + weekday + r'\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?\b(?:,?\s+(20\d\d))?', text, re.I)
         if match:
-            released = dt.datetime.strptime('%s %s %s' % (match.group(2), match.group(1), match.group(3) or now_utc().year), '%d %B %Y').date().isoformat()
+            released = release_year(match.group(3), match.group(2), match.group(4), anchor, match.group(1))
     today = now_utc().date().isoformat()
     status = 'announced' if released and released > today else ('live' if released else 'release date unverified')
     # Actual hotfix labels are dated paragraphs, not the related-news card headings.
-    publication = re.search(r'>\s*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},\s*(20\d\d)\s*<',html,re.I)
-    publication_year = int(publication.group(2)) if publication else now_utc().year
     hotfixes = []
     def hotfix_date(day,month,year):
-        try: return dt.datetime.strptime('%s %s %s'%(day,month,year or publication_year),'%d %B %Y').date().isoformat()
-        except ValueError: return None
+        return release_year(day,month,year,anchor)
     hotfix_status=lambda date:'announced' if date and date>today else 'live' if date else 'release date unverified'
     for i,(tag,value) in enumerate(p.blocks):
         h = re.fullmatch(r'\s*(?:hotfix\s*)?v?(\d+\.\d+\.\d+)\s*[-–:]\s*(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)(?:\s+(20\d\d))?\s*',value,re.I)
@@ -3242,6 +3307,7 @@ def attach_scoped_statistics(bundle,progress=lambda s:None,fetch=None,pages=None
     except Exception as e:scoped['errors'].append({'source':'Pred.gg current-patch statistics','severity':'error','detail':str(e)})
     scoped['records']=records;scoped['seconds']=round(time.perf_counter()-t,2)
     bundle.setdefault('errors',[]).extend(scoped['errors'])
+    if pages is not None:note_pred_api_health(bundle,getattr(pages,'fetch',None))
     bundle.setdefault('sources',{})['pred_scoped']={'url':PRED_BASE+'/heroes','status':scoped['status'],'fetched_at':records[-1]['fetched_at'] if records else None,'secs':scoped['seconds']}
     # The original Statz data are intact. Its selective, wider sample never inherits this cohort.
     bundle['sampling_policy']={'default_performance_source':'Pred.gg','pair_source':'Statz','pair_patch':bundle.get('patch'),
@@ -3310,9 +3376,12 @@ def pred_api_approved():
 
 
 def pred_api_fingerprint(environ):
-    """A short hash naming which credentials a denial applies to; the credentials themselves are never stored."""
+    """A short hash naming which credentials a denial applies to; the credentials themselves are never stored. It covers
+    the client secret as well as the client ID (audit #239 F8), so rotating the secret under the same ID is a new
+    credential generation and is tried again, not held back by the old denial."""
     value=lambda k:environ.get(k,'').strip()
-    return hashlib.sha256(('pred-api:'+(value('PRED_API_TOKEN') or value('PRED_API_CLIENT_ID'))).encode('utf8')).hexdigest()[:16]
+    named=value('PRED_API_TOKEN') or (value('PRED_API_CLIENT_ID')+'\n'+value('PRED_API_CLIENT_SECRET'))
+    return hashlib.sha256(('pred-api:'+named).encode('utf8')).hexdigest()[:16]
 
 
 def pred_source_fetch(environ=None):
@@ -3327,26 +3396,63 @@ def pred_source_fetch(environ=None):
     if not pred_api_configured(env) or not pred_api_approved():return None
     # A refusal is remembered for these credentials, so later runs do not ask again until the credentials change.
     fingerprint=pred_api_fingerprint(env);stop=DATA_DIR/'pred-api-denied.json'
-    try:
-        if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:return None
-    except (OSError,ValueError,AttributeError):pass
-    try:import pred_api
-    except ImportError:return None
-    failed=[];token=[]
+    failed=[];details=[];token=[]
+    def public(url):
+        # The API is not answering this run: the public pages, unless their own access stop holds (audit #239 F9).
+        blocked=getattr(fetch,'public_blocked',None)
+        reason=blocked() if blocked else None
+        if reason:raise FetchError('Pred.gg collection paused: '+reason+' The authorized API failed this run ('+failed[0]+'); no public request was sent.')
+        return http_get(url)
     def fetch(url):
         if not failed:
             try:
                 if not token:token.append(pred_api.token_for_run(env))
                 return pred_api.page_fetch(url,token=token[0])
             except pred_api.PredApiUnauthorized as e:
-                failed.append(type(e).__name__)
-                try:atomic_write(stop,json.dumps({'at':iso(now_utc()),'fingerprint':fingerprint,'reason':str(e)[:200]}))
+                failed.append(type(e).__name__);details.append(api_failure_detail(e))
+                try:atomic_write(stop,json.dumps({'at':iso(now_utc()),'fingerprint':fingerprint,'reason':api_failure_detail(e)}))
                 except OSError:pass
             except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
-                failed.append(type(e).__name__)
-        return http_get(url)
+                failed.append(type(e).__name__);details.append(api_failure_detail(e))
+        return public(url)
     fetch.api_failed=failed
+    # The failure's type and HTTP status only (api_failure_detail) for the bundle's diagnostics.
+    fetch.api_details=details
+    try:
+        if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:
+            failed.append('denied earlier for these credentials')
+    except (OSError,ValueError,AttributeError):pass
+    try:import pred_api
+    except ImportError:return None
     return fetch
+
+
+def api_failure_detail(error):
+    """The exception's type and, when its text names one, its HTTP status: never the rest of the text. Pred.gg's own
+    error messages are server-controlled and could echo a credential, and this text reaches the public bundle's
+    errors (Codex security review of PR #241)."""
+    status=getattr(error,'code',None)
+    if not isinstance(status,int):
+        found=re.search(r'\bHTTP(?: Error)? ([1-5][0-9][0-9])\b',str(error))
+        status=int(found.group(1)) if found else None
+    return type(error).__name__+(': HTTP %d'%status if isinstance(status,int) and 100<=status<=599 else '')
+
+
+def pred_api_health(fetch):
+    """A redacted note on the authorized API for the bundle's errors, or None (audit #239 F8): a healthy public fallback
+    used to hide a refused or failing API. Only the failure's type is recorded, never a credential or token."""
+    failed=getattr(fetch,'api_failed',None)
+    if not isinstance(failed,list) or not failed:return None
+    details=getattr(fetch,'api_details',None)
+    named=str((details if isinstance(details,list) and details else failed)[0])
+    return {'source':'Pred.gg API','severity':'warning',
+            'detail':'The authorized Pred.gg API was not used ('+named+'); Pred.gg data came from the public pages where they answered.'}
+
+
+def note_pred_api_health(bundle,fetch):
+    """Add the API's health note to the bundle's errors once, as soon as the Pred.gg collection that met it ends."""
+    note=pred_api_health(fetch)
+    if note and note not in bundle.setdefault('errors',[]):bundle['errors'].append(note)
 
 
 # 2.53.3: a dropped Pred.gg request is tried again after these waits (seconds). On 11 Oct 2026 one SSL EOF on the first
@@ -3363,14 +3469,21 @@ class PredPages:
         self.force=force; self.root=Path(cache_dir or DATA_DIR/'pred_pages'); self.fetch=fetch or http_get
         self.paused_reason=paused_reason; self.sleep=sleep or time.sleep; self.failed_in_a_row=0
         self.lock=threading.Lock(); self.blocked=threading.Event(); self.memory={}; self.records=[]; self.next_start=0
-        self.access_file=self.root/'public-access.json'
+        self.access_file=self.root/'public-access.json'; self.public_stop=None
         if self.access_file.exists():
             try:
                 access=json.loads(self.access_file.read_text(encoding='utf-8'))
                 if access.get('status')=='blocked':
-                    self.paused_reason='Public access stopped at '+access['checked_at']+': '+access['reason']
-            except (ValueError,KeyError,TypeError):
-                self.paused_reason='Public access state is invalid; review it before requesting this source again.'
+                    self.public_stop='Public access stopped at '+access['checked_at']+': '+access['reason']
+            except (ValueError,KeyError,TypeError,AttributeError):
+                self.public_stop='Public access state is invalid; review it before requesting this source again.'
+        # A public-page stop belongs to the public pages (audit #239 F9): an approved API client (pred_source_fetch) is
+        # still asked, and its fallback to the pages honours the stop. Without the API the stop pauses every request.
+        self.api=isinstance(getattr(self.fetch,'api_failed',None),list)
+        if self.api:
+            self.fetch.public_blocked=lambda:self.public_stop or ('Pred.gg stopped after source block' if self.blocked.is_set() else None)
+        elif self.public_stop and not self.paused_reason:
+            self.paused_reason=self.public_stop
     def fetch_retrying(self,url):
         """self.fetch, tried again after PRED_RETRY_WAITS on a network error or HTTP 5xx (2.53.3). A source block, an
         access answer or any other 4xx is raised at once, and nothing is retried once access has stopped."""
@@ -3400,6 +3513,8 @@ class PredPages:
             raise ValueError('Pred.gg accepts public game pages only; API and authentication routes are disabled')
         if self.paused_reason:
             raise FetchError('Pred.gg collection paused: '+self.paused_reason+' No request was sent.')
+        if self.api and self.public_stop and self.fetch.api_failed:
+            raise FetchError('Pred.gg collection paused: '+self.public_stop+' The authorized API failed this run; no request was sent.')
         # Locks reserve a unique URL and start time. Futures prevent duplicate concurrent fetches.
         with self.lock:
             future=self.memory.get(url)
@@ -4094,8 +4209,8 @@ def bundle_has_fresh_statz(b):
         for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items'):
             source = b['sources'][key]
             age = timestamp_age(source.get('fetched_at'))
-            if key == 'omeda_heroes' and source.get('status') == 'retained' and not source.get('offline') and age is not None:
-                continue   # kits kept from the previous collection keep their own date; they are not called fresh (2.53.2)
+            if key in ('omeda_heroes', 'omeda_items') and source.get('status') == 'retained' and not source.get('offline') and age is not None:
+                continue   # kits and items kept from the previous collection keep their own date; they are not called fresh (2.53.2)
             if source.get('status') != expected.get(key, 'ok') or source.get('offline') or age is None:
                 return False
             # Fresh means fetched in this collection, not recently repackaged.
@@ -4173,7 +4288,7 @@ def bundle_has_discontinued_statz_update(b):
         for key in ('omeda_heroes', 'omeda_items'):
             source = b['sources'][key]
             age = timestamp_age(source.get('fetched_at'))
-            if key == 'omeda_heroes' and source.get('status') == 'retained' and not source.get('offline') and age is not None:
+            if key in ('omeda_heroes', 'omeda_items') and source.get('status') == 'retained' and not source.get('offline') and age is not None:
                 continue
             if source.get('status') != 'ok' or source.get('offline') or age is None:
                 return False
@@ -4429,6 +4544,48 @@ def previous_kit_records(bracket):
     return None
 
 
+def previous_omeda_items(bracket):
+    """The omeda.city item list of the newest saved collection of this bracket that read or kept it, or None.
+
+    {'items': [items.json rows], 'fetched_at': that list's own date, 'collector': who fetched it}. Rebuilt from the
+    saved item index (omeda_items) and, for effects, the saved items that came from items.json. A list that collection
+    itself kept keeps its original date and collector, so a repeated failure never makes old items look newer
+    (Muse review of PR #241, audit F10)."""
+    candidates = []
+    for name in ('last_available_', 'last_successful_', 'last_primary_'):
+        try:
+            value = load_bundle(DATA_DIR / (name + bracket + '.json'))
+            if isinstance(value, dict) and value.get('schema') == 3 and (value.get('bracket') or {}).get('segment') == bracket:
+                age = timestamp_age(value.get('generated_at'))
+                if age is not None: candidates.append((age, value))
+        except Exception:   # a damaged saved file is skipped
+            pass
+    for _, value in sorted(candidates, key=lambda pair: pair[0]):
+        source = (value.get('sources') or {}).get('omeda_items') or {}
+        index = value.get('omeda_items')
+        if source.get('status') not in ('ok', 'retained') or source.get('offline') or timestamp_age(source.get('fetched_at')) is None or not isinstance(index, dict):
+            continue
+        saved = value.get('items') if isinstance(value.get('items'), dict) else {}
+        rows = []
+        for key, entry in index.items():
+            if not isinstance(entry, dict):
+                continue
+            item_id = int(key) if isinstance(key, str) and key.isdigit() else key
+            row = {'id': item_id, **{k: entry.get(k) for k in ('display_name', 'slug', 'image', 'slot_type', 'total_price', 'rarity', 'build_paths', 'requirements', 'stats')}}
+            kept = saved.get(entry.get('slug')) if isinstance(entry.get('slug'), str) else None
+            if isinstance(kept, dict) and kept.get('source') == 'omeda.city/items.json':
+                row['effects'] = [{'name': e.get('name'), 'active': e.get('active'), 'cooldown': e.get('cooldown'), 'condition': e.get('condition'),
+                                   'menu_description': e.get('text')} for e in kept.get('effects') or [] if isinstance(e, dict)]
+            if omeda_item_id_ok(row['id']) and isinstance(row['slug'], str) and row['slug'] and isinstance(row['display_name'], str) and row['display_name']:
+                rows.append(row)
+        if not rows:
+            continue
+        kept_by = ((value.get('retained_sources') or {}).get('omeda_items') or {}).get('collector') if source.get('status') == 'retained' else None
+        return {'items': rows, 'fetched_at': source['fetched_at'],
+                'collector': kept_by or (value.get('collector') or {}).get('host') or 'unrecorded'}
+    return None
+
+
 def keep_previous_kits(bundle, bracket):
     """A hero with no kit in this collection (no omeda.city entry and its Statz page failed) keeps its kit from the
     previous collection, marked kit_kept_from_previous with that collection's date, instead of failing the rank.
@@ -4517,7 +4674,11 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
                 if previous_kits and previous_kits['omeda']:
                     kits=previous_kits['omeda']; omeda_meta['heroes_retained']={'fetched_at':previous_kits['omeda_fetched_at'],'collector':previous_kits['omeda_collector']}
             try: omitems, omeda_meta['items_secs'] = fi.result()
-            except Exception as e: omitems=None; omeda_meta['items_error']=str(e)
+            except Exception as e:
+                omitems=None; omeda_meta['items_error']=str(e)
+                previous_items=previous_omeda_items(bracket)
+                if previous_items:
+                    omitems=previous_items['items']; omeda_meta['items_retained']={'fetched_at':previous_items['fetched_at'],'collector':previous_items['collector']}
             progress('Verifying official patch notes and supporting history…')
             try: official=fetch_official(force_history=settings.get('force_history_refresh',False))
             except Exception as e: official={'status':'failed','error':str(e),'checked_at':iso(now_utc()),'index_url':OFFICIAL_INDEX}
@@ -4543,17 +4704,22 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         # Like the Statz and Pred.gg partitions, retained omeda.city kits name who fetched them (2.53.2).
         bundle.setdefault('retained_sources',{})['omeda']={'collector':omeda_meta['heroes_retained']['collector'],
             'fetched_at':omeda_meta['heroes_retained']['fetched_at'],'attempted_at':omeda_meta['fetched_at']}
+    if omeda_meta.get('items_retained'):
+        bundle.setdefault('retained_sources',{})['omeda_items']={'collector':omeda_meta['items_retained']['collector'],
+            'fetched_at':omeda_meta['items_retained']['fetched_at'],'attempted_at':omeda_meta['fetched_at']}
     if not fixture_dir:keep_previous_kits(bundle,bracket)
     enrich_bundle(bundle,official)
     if not fixture_dir:
         previous_pred=previous_pred_bundle(bracket)
         progress('Checking current-patch Pred.gg community guides…')
         attach_community_builds(bundle,previous_guides_bundle(bracket))
-        pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=pred_source_fetch(),
+        api_fetch=pred_source_fetch()
+        pred_pages=PredPages(force=settings.get("force_history_refresh",False),fetch=api_fetch,
                              paused_reason=settings.get('pred_collection_paused_reason'))
         attach_scoped_statistics(bundle,progress,pages=pred_pages)
         keep_previous_pred_roles(bundle,previous_pred)
         attach_pred_game_data(bundle,progress,pages=pred_pages,previous=previous_pred)
+        note_pred_api_health(bundle,api_fetch)
         retain_pred_partition(bundle, previous_pred)
         patch_support.apply(bundle, json.loads(guidance_packet_path().read_text(encoding='utf8')), validate_guidance_packet, clean_text, derive_capabilities)
     if official.get('status')!='verified': bundle['errors'].append({'source':'Official Predecessor patch notes','severity':'error','detail':official.get('error','Unverified')})
