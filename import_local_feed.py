@@ -99,6 +99,15 @@ def receipt_problem(receipt):
         errors=attempt.get('errors',[])
         if not isinstance(errors,list) or not all(isinstance(e,dict) for e in errors):
             return 'Local collector receipt attempt errors are not a list of objects'
+        # The fields kept from an attempt must pass the publisher's own state check (static_publish.state_problem),
+        # or an accepted receipt would leave a state the next run sets aside whole (Codex review of #241 at 7c5dc11).
+        problem=p.nested_problem(attempt,{'status':str,'at':str,'seconds':p.NUMBER})
+        if problem:
+            return 'Local collector receipt attempt '+problem
+        for error in errors:
+            problem=p.nested_problem(error,{'source':str,'severity':str,'detail':str})
+            if problem:
+                return 'Local collector receipt attempt error '+problem
     return None
 
 

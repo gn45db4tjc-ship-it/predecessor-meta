@@ -2089,11 +2089,13 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
     elif omeda_meta.get("heroes_retained"):
         errors.append({"source": "omeda.city heroes.json", "severity": "error", "detail": (omeda_meta.get("heroes_error") or "unavailable") +
                        ". Hero kits are kept from the collection fetched " + omeda_meta["heroes_retained"]["fetched_at"] + "; Pred.gg kits replace them where collected."})
+    # A failed items.json is a required-source error, kept items or not (bundle_is_complete refuses the collection), so
+    # the publisher retries it and never reads the attempt as optional-Pred.gg-only (Codex review of #241 at 7c5dc11).
     if omeda_meta.get("items_retained"):
-        errors.append({"source": "omeda.city items.json", "severity": "warning", "detail": (omeda_meta.get("items_error") or "unavailable") +
+        errors.append({"source": "omeda.city items.json", "severity": "error", "detail": (omeda_meta.get("items_error") or "unavailable") +
                        ". Item definitions are kept from the collection fetched " + omeda_meta["items_retained"]["fetched_at"] + "; Pred.gg items replace them where collected."})
     elif not omeda_items and omeda_meta.get("items_error"):
-        errors.append({"source": "omeda.city items.json", "severity": "warning", "detail": omeda_meta["items_error"]})
+        errors.append({"source": "omeda.city items.json", "severity": "error", "detail": omeda_meta["items_error"]})
     for p in SETTINGS_PROBLEMS:
         warnings.append({"source": "settings.json", "detail": p})
     for w in warnings:

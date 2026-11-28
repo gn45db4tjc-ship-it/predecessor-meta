@@ -37,7 +37,13 @@ class Rejection(unittest.TestCase):
                  'not an object': [1], 'row not object': dict(base, bundles={'gold': 'gold.json'}),
                  'attempts list': dict(base, attempts=[1]), 'attempt not object': dict(base, attempts={'gold': 3}),
                  'errors not list': dict(base, attempts={'gold': {'errors': 'x'}}),
-                 'error not object': dict(base, attempts={'gold': {'errors': ['x']}})}
+                 'error not object': dict(base, attempts={'gold': {'errors': ['x']}}),
+                 # Codex review of #241 at 7c5dc11: fields the publisher's state check refuses are refused here too,
+                 # so an accepted receipt never leaves a state the next run sets aside whole.
+                 'seconds not a number': dict(base, attempts={'gold': {'at': '2026-11-27T07:00:00+00:00', 'seconds': 'slow', 'errors': []}}),
+                 'status not text': dict(base, attempts={'gold': {'status': 5, 'errors': []}}),
+                 'error source not text': dict(base, attempts={'gold': {'errors': [{'source': 5}]}}),
+                 'error detail not text': dict(base, attempts={'gold': {'errors': [{'detail': ['HTTP 403']}]}})}
         before_bundle = sp.load_publication(self.state, 'gold')['generated_at']
         for name, value in cases.items():
             with self.subTest(name):

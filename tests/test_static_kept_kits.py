@@ -8,6 +8,7 @@ had no kit, and validating the reviewed packet against it aborted the rank. The 
 date (status retained, never called fresh), and any hero still without a kit keeps its previous source kit, named in
 a warning. Nothing is invented: a hero with no previous kit stays without one."""
 import copy, gzip, inspect, json, shutil, tempfile, unittest
+from unittest import mock
 from pathlib import Path
 
 import predecessor_meta as m
@@ -199,6 +200,23 @@ class KeptItems(unittest.TestCase):
         warning = [e for e in b['errors'] if e['source'] == 'omeda.city items.json']
         self.assertEqual(len(warning), 1)
         self.assertIn('kept from the collection fetched ' + previous['fetched_at'], warning[0]['detail'])
+        self.assertEqual(warning[0]['severity'], 'error')
+
+    def test_a_failed_item_list_is_a_required_source_error_even_beside_a_pred_failure(self):
+        # Codex review of #241 at 7c5dc11: kept items were a warning, so an attempt whose only other error was optional
+        # Pred.gg read as Pred-only and suppressed the required-source retry.
+        import static_publish as sp
+        for meta in ({'items_error': 'URLError: timed out'},
+                     {'items_error': 'URLError: timed out', 'items_retained': {'fetched_at': '2026-09-01T18:00:00-05:00', 'collector': 'cloud'}}):
+            items = None if 'items_retained' not in meta else [{'id': 1, 'slug': 'x', 'display_name': 'X', 'name': 'X', 'price': 100,
+                                                                 'total_price': 100, 'slot_type': 'Passive', 'rarity': 'Common', 'stats': {}, 'effects': []}]
+            _, b = self.build(items, meta)
+            found = [e for e in b['errors'] if e['source'] == 'omeda.city items.json']
+            self.assertEqual([e['severity'] for e in found], ['error'], meta)
+            attempt = {'status': 'partial', 'errors': [e for e in b['errors'] if e['severity'] == 'error'] + [{'source': 'Pred.gg', 'severity': 'error', 'detail': 'HTTP 503'}]}
+            with mock.patch.dict(sp.CONFIG, {'pred_optional': True}):
+                self.assertFalse(sp.optional_pred_only(attempt, b), meta)
+                self.assertTrue(sp.required_source_failure(attempt), meta)
 
     def test_items_kept_again_keep_their_original_date_and_collector(self):
         older = '2026-09-01T18:00:00-05:00'

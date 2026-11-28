@@ -613,6 +613,13 @@ def restore_from_live(folder, site_url=LIVE_SITE, fetch=None):
     if state is not None:
         # A later pass over pending ranks: only the recovery record and the restored attempts change.
         state = load_state(folder) or state
+        # A rank published as unavailable after the hold expired is no longer available on the live site, so it is
+        # not in `wanted`; it stays pending, with its original date, until a validated bundle replaces it (Codex
+        # review of #241 at 7c5dc11: the record, and with it the watchdog alert, vanished on the next pass).
+        for b, at in (recovery.get('pending') or {}).items():
+            if b != '*' and b in CONFIG['brackets'] and b not in wanted and b not in left and not replaced(load_publication(folder, b), at):
+                left[b] = at
+                report['rejected'].setdefault(b, 'not on the live site any more and not replaced')
         for k, e in restored.items():
             if isinstance(e.get('last_attempt'), dict):
                 state.setdefault('attempts', {})[k] = copy.deepcopy(e['last_attempt'])

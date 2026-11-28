@@ -208,6 +208,13 @@ class PartialRecovery(unittest.TestCase):
         self.assertEqual(manifest['recovery_expired']['ranks'], ['silver'])
         flag.assert_any_call('publishable', True)
         self.assertEqual(json.loads((out / 'manifest.json').read_text(encoding='utf8'))['recovery_expired']['ranks'], ['silver'])
+        # Codex review of #241 at 7c5dc11: the next pass reads a live site that now lists Silver as unavailable; Silver
+        # stays pending with its original date and start, so the alert stays until a bundle replaces it.
+        first = copy.deepcopy(state['live_recovery'])
+        sp.restore_from_live(self.dir, SITE, fetch=live_site({'gold': self.live['gold']}))
+        kept = sp.load_state(self.dir)['live_recovery']
+        self.assertEqual((kept['pending'], kept['since']), (first['pending'], first['since']))
+        self.assertEqual(sp.expired_hold(self.dir, sp.load_state(self.dir), now=since + dt.timedelta(hours=26))['ranks'], ['silver'])
         # Without a readable start time the hold lasts, so nothing has expired.
         self.assertEqual(sp.expired_hold(self.dir, {'live_recovery': {'pending': {'silver': SILVER_AT}}}), {})
 
