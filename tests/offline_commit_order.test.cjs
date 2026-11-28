@@ -212,3 +212,24 @@ test('F16: a rollback that lands between a tab\'s copy and main writes still sta
   const copies = [...shared.entries.keys()].filter(url => url.includes('/saved-manifests/'));
   assert.deepEqual(copies.map(url => JSON.parse(shared.entries.get(url)).published_at), [rolledBack.manifest.published_at]);
 });
+
+test('F16: a stale tab that runs while the rollback tab is paused before its main write cannot undo it', async () => {
+  // Muse review of #241 at 54c017c: the rollback tab had written its copy (marked saved_rollback.withdrawn) but not
+  // main; the stale tab saw only the date-newest manifest, the withdrawn one, and wrote over the rollback.
+  const newer = publication('2026-11-27T09:23:00Z', 'b'), rolledBack = publication('2026-11-27T08:23:00Z', 'a');
+  for (const live of [rolledBack.manifest, null]) {
+    const shared = store();
+    await client(shared, newer.manifest).commitNow(newer.manifest, 'gold', newer.entry, newer.loaded);
+    let reached, release;
+    const atMain = new Promise(resolve => { reached = resolve; }), go = new Promise(resolve => { release = resolve; });
+    const hold = async url => { if (url === SITE + 'manifest.json') { reached(); await go; } };
+    const rollbackRun = client(shared, rolledBack.manifest, hold).commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded);
+    await atMain;                                  // the rollback's copy is written; its main write waits
+    assert.equal(await client(shared, live).commitNow(newer.manifest, 'gold', newer.entry, newer.loaded), 'superseded', live ? 'online' : 'offline');
+    release();
+    assert.equal(await rollbackRun, true);
+    assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, rolledBack.manifest.published_at, 'the rollback stands');
+    assert.ok(shared.entries.has(SITE + rolledBack.entry.url), 'the rolled-back bundle is still saved');
+    assert.ok(!shared.entries.has(SITE + newer.entry.url), 'the withdrawn bundle is gone');
+  }
+});

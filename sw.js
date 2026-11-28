@@ -71,11 +71,15 @@ const MANIFEST_COPY = /\/saved-manifests\/[0-9A-Za-z-]+\.json$/;
 async function adoptNewestCopy(data, manifestURL) {
   const read = async url => { try { return (await (await data.match(url))?.json()) ?? null; } catch { return null; } };
   const when = value => Date.parse(value?.published_at);
+  // The same order as static_client.js standsOver: the later publication, except that a saved rollback stands over
+  // every publication it withdrew (saved_rollback.withdrawn and anything between).
+  const withdrew = (a, b) => { const w = Date.parse(a?.saved_rollback?.withdrawn); return Number.isFinite(w) && when(a) < when(b) && when(b) <= w; };
+  const standsOver = (a, b) => !!a && Number.isFinite(when(a)) && (!b || !Number.isFinite(when(b)) || (when(a) !== when(b) && (withdrew(a, b) || (!withdrew(b, a) && when(a) > when(b)))));
   let main = await read(manifestURL), newest = main;
   for (const key of await data.keys()) {
     if (!MANIFEST_COPY.test(new URL(key.url).pathname)) continue;
     const copy = await read(key.url);
-    if (copy && Number.isFinite(when(copy)) && (!newest || !Number.isFinite(when(newest)) || when(copy) > when(newest))) newest = copy;
+    if (standsOver(copy, newest)) newest = copy;
   }
   if (newest && newest !== main) await data.put(manifestURL, new Response(JSON.stringify(newest), {headers: {'Content-Type': 'application/json'}}));
 }

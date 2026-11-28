@@ -336,6 +336,11 @@ if (APP_CONFIG.mode === 'static') {
   // only published paths). The name holds letters, digits and dashes only.
   const copyURL = manifest => new URL(MANIFEST_COPIES + String(manifest?.published_at || 'undated').replace(/[^0-9A-Za-z]/g, '-') + '.json', baseURL).href;
   const isCopy = url => new URL(url).pathname.includes('/' + MANIFEST_COPIES);
+  // Which saved manifest stands: the later publication, except that a saved rollback stands over every publication
+  // it withdrew (saved_rollback.withdrawn and anything between), so a rollback whose copy is written stands even
+  // while its tab has not yet written main (Muse review of PR #241). sw.js adoptNewestCopy uses the same order.
+  const withdrew = (a, b) => { const w = Date.parse(a?.saved_rollback?.withdrawn), p = Date.parse(b?.published_at); return Number.isFinite(w) && Number.isFinite(p) && olderPublication(a, b) && p <= w; };
+  const standsOver = (a, b) => !!a && (!b || (a.published_at !== b.published_at && (withdrew(a, b) || (!withdrew(b, a) && olderPublication(b, a)))));
   async function commitNow(manifest, bracket, entry, loaded) {
     const overtaken = () => S.bracket === bracket && !!site.loadedEntry && site.loadedEntry !== entry
       && (site.loadedEntry.sha256 !== entry.sha256 || site.loadedEntry.projection?.core?.sha256 !== entry.projection?.core?.sha256);
@@ -347,7 +352,7 @@ if (APP_CONFIG.mode === 'static') {
     // The newest saved publication: the main copy, or a newer one another tab saved under its own name.
     const savedManifest = async () => {
       let newest = await readJSON(manifestURL);
-      for (const url of await copies()) { const copy = await readJSON(url); if (copy && (!newest || olderPublication(newest, copy))) newest = copy; }
+      for (const url of await copies()) { const copy = await readJSON(url); if (standsOver(copy, newest)) newest = copy; }
       return newest;
     };
     const previous = await savedManifest();
@@ -418,7 +423,9 @@ if (APP_CONFIG.mode === 'static') {
     const body = JSON.stringify({...manifest, cohorts, ...(withdrawn ? {saved_rollback: {withdrawn}} : {})});
     const write = async () => {
       if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
-      if (rollback) for (const url of await copies()) if (olderPublication(manifest, await readJSON(url))) await data.delete(url);
+      // A served publication removes the copies it replaces: newer ones (a rollback), or a rollback that had withdrawn
+      // this publication and is itself withdrawn now (a re-release).
+      if (rollback) for (const url of await copies()) { const copy = await readJSON(url); if (olderPublication(manifest, copy) || withdrew(copy, manifest)) await data.delete(url); }
       await data.put(copyURL(manifest), new Response(body, {headers: {'Content-Type': 'application/json'}}));
       await data.put(manifestURL, new Response(body, {headers: {'Content-Type': 'application/json'}}));
     };
@@ -430,7 +437,7 @@ if (APP_CONFIG.mode === 'static') {
       if (await readJSON(copyURL(manifest))) break;
       if (await liveServes(manifestURL, manifest)) { await write(); continue; }
       let standing = null;
-      for (const url of await copies()) { const copy = await readJSON(url); if (copy && (!standing || olderPublication(standing, copy))) standing = copy; }
+      for (const url of await copies()) { const copy = await readJSON(url); if (standsOver(copy, standing)) standing = copy; }
       if (standing) await data.put(manifestURL, new Response(JSON.stringify(standing), {headers: {'Content-Type': 'application/json'}}));
       break;
     }
