@@ -94,3 +94,26 @@ test('F16: without Web Locks, one tab runs its own commits one at a time', async
   assert.equal(most, 1, 'the second commit waited for the first');
   assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, newer.manifest.published_at);
 });
+
+test('F16: a rank unchanged in a newer saved publication is still saved for offline use', async () => {
+  // Codex review of #241 at 2519bdc: tab A loaded Gold from P1 while tab B saved Silver from the newer P2, and P2
+  // lists exactly the same Gold bundle. The newer manifest stands, and Gold's verified bytes are saved under it.
+  const shared = store(), gold = publication('2026-11-27T08:23:00Z', 'a');
+  const silverEntry = {status: 'available', sha256: sha('c'), url: 'bundles/silver-' + sha('c') + '.json', generated_at: '2026-11-27T09:23:00Z'};
+  const newer = {published_at: '2026-11-27T09:23:00Z', cohorts: {gold: gold.entry, silver: silverEntry}};
+  const older = {published_at: gold.manifest.published_at, cohorts: {gold: gold.entry, silver: silverEntry}};
+  const tabB = client(shared, newer), tabA = client(shared, newer);
+  tabB.S.bracket = 'silver';
+  assert.equal(await tabB.commitNow(newer, 'silver', silverEntry, {url: silverEntry.url, bytes: '{"bundle":"c"}'}), true);
+  assert.equal(await tabA.commitNow(older, 'gold', gold.entry, gold.loaded), true, 'the unchanged rank counts as saved');
+  assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, newer.published_at, 'the newer manifest stands');
+  assert.ok(shared.entries.has(SITE + gold.entry.url), 'the Gold bundle the newer manifest describes is saved');
+  assert.ok(shared.entries.has(SITE + silverEntry.url), 'the Silver bundle is still saved');
+});
+
+test('F16: a changed rank from an older publication is still refused and not saved', async () => {
+  const shared = store(), oldGold = publication('2026-11-27T08:23:00Z', 'a'), newGold = publication('2026-11-27T09:23:00Z', 'b');
+  await client(shared, newGold.manifest).commitNow(newGold.manifest, 'gold', newGold.entry, newGold.loaded);
+  assert.equal(await client(shared, newGold.manifest).commitNow(oldGold.manifest, 'gold', oldGold.entry, oldGold.loaded), 'superseded');
+  assert.ok(!shared.entries.has(SITE + oldGold.entry.url));
+});

@@ -332,12 +332,21 @@ if (APP_CONFIG.mode === 'static') {
     const data = await caches.open(DATA_CACHE), manifestURL = siteURL(APP_CONFIG.manifest);
     if (overtaken()) return 'superseded';
     let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
-    // PRED-M11 (audit #239 F16): another tab may have saved a newer publication while this one waited for the lock.
-    // An older one never overwrites it, unless the site itself now serves this older publication (a verified rollback).
-    if (olderPublication(manifest, previous) && !(await liveServes(manifestURL, manifest))) return 'superseded';
     // The bytes are stored at the address they were loaded from (the core, or the full bundle); the address
     // contains the checksum, so a copy already saved there holds these exact bytes.
     const target = loaded?.bytes && publicationBytes(entry, loaded.url) ? siteURL(loaded.url) : null;
+    // When a newer saved publication stands, its manifest is left as it is. If it describes exactly the bundle this
+    // tab verified (a rank unchanged between the two publications), those bytes are still saved, so the rank opens
+    // offline; otherwise this tab's bytes are not this rank's newest and nothing is saved.
+    const describedBy = newer => new Set([newer?.cohorts?.[bracket]].filter(Boolean).flatMap(v => [v.url && siteURL(v.url), v.projection?.core?.url && siteURL(v.projection.core.url)]).filter(Boolean));
+    const keepUnderNewer = async newer => {
+      if (!target || !describedBy(newer).has(target)) return 'superseded';
+      if (!(await data.match(target))) await data.put(target, new Response(loaded.bytes, {headers: stamped(newer)}));
+      return true;
+    };
+    // PRED-M11 (audit #239 F16): another tab may have saved a newer publication while this one waited for the lock.
+    // An older one never overwrites it, unless the site itself now serves this older publication (a verified rollback).
+    if (olderPublication(manifest, previous) && !(await liveServes(manifestURL, manifest))) return keepUnderNewer(previous);
     let wroteTarget = false;
     if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
     const saved = new Set((await data.keys()).map(key => key.url));
@@ -367,8 +376,8 @@ if (APP_CONFIG.mode === 'static') {
     // if an older publication replaced this newer one, write this one (and its bundle) back. Only the tab whose
     // publication is saved at the end removes anything, and only what that saved manifest does not describe.
     const savedManifest = async () => { try { return await (await data.match(manifestURL))?.json(); } catch { return null; } };
-    const refuse = async () => (olderPublication(manifest, await savedManifest()) && !(await liveServes(manifestURL, manifest)));
-    if (await refuse()) return 'superseded';
+    const latest = await savedManifest();
+    if (olderPublication(manifest, latest) && !(await liveServes(manifestURL, manifest))) return keepUnderNewer(latest);
     const write = async () => {
       if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
       await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
@@ -382,10 +391,11 @@ if (APP_CONFIG.mode === 'static') {
     }
     const final = await savedManifest();
     if (final?.published_at !== manifest.published_at) {
-      // Another tab's newer publication stands; leave its files alone and take back only this tab's own bundle.
-      const keep = new Set([final?.cohorts?.[bracket]].filter(Boolean).flatMap(v => [v.url && siteURL(v.url), v.projection?.core?.url && siteURL(v.projection.core.url)]).filter(Boolean));
-      if (wroteTarget && !keep.has(target)) await data.delete(target);
-      return 'superseded';
+      // Another tab's newer publication stands; leave its files alone and take back only this tab's own bundle,
+      // unless that publication describes it too.
+      const kept = await keepUnderNewer(final);
+      if (kept !== true && wroteTarget) await data.delete(target);
+      return kept;
     }
     for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL && !(await savedForNewer(data, url, manifest))) await data.delete(url);
     // Evidence saved for an older publication of this rank is removed with it.
