@@ -218,6 +218,24 @@ class PartialRecovery(unittest.TestCase):
         # Without a readable start time the hold lasts, so nothing has expired.
         self.assertEqual(sp.expired_hold(self.dir, {'live_recovery': {'pending': {'silver': SILVER_AT}}}), {})
 
+    def test_an_expired_hold_on_an_unreadable_live_manifest_names_the_manifest(self):
+        # Muse round 5 on PR #241: the '*' case (the live manifest itself could not be read) had no expiry test.
+        sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))
+        state = sp.load_state(self.dir)
+        state['live_recovery']['pending'] = {'*': None}
+        since = sp.utc_time(state['live_recovery']['since'])
+        self.assertEqual(sp.held_ranks(self.dir, state), ['*'])
+        self.assertEqual(sp.expired_hold(self.dir, state, now=since + dt.timedelta(hours=23)), {})
+        self.assertEqual(sp.expired_hold(self.dir, state, now=since + dt.timedelta(hours=25))['ranks'], ['*'])
+        out = Path(tempfile.mkdtemp())
+        with mock.patch.object(sp.base, 'now_utc', return_value=since + dt.timedelta(hours=25)), \
+                mock.patch.object(sp, 'output_flag') as flag, mock.patch('builtins.print') as said:
+            manifest = sp.render_site(self.dir, out, state)
+        self.assertNotIn('deploy_held', manifest)
+        self.assertEqual(manifest['recovery_expired']['ranks'], ['*'])
+        flag.assert_any_call('publishable', True)
+        self.assertTrue(any('the live manifest' in str(c) for c in said.call_args_list), said.call_args_list)
+
     def test_a_pending_rank_without_a_start_time_stays_held(self):
         # Muse review of PR #241: a missing or unreadable `since` lifted the hold at once while Silver+ was missing.
         sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))

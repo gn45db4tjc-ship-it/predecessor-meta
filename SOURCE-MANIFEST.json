@@ -398,7 +398,7 @@
     "tests/test_static_omeda_items.py": "637b167aa88de9367da616801875da9e32b16751aaad5f5f4fb01e70e6341e21",
     "tests/test_static_pred_access_scope.py": "5c27548461da378cdb400c609e9db4ad08e42a410b4e0486eb0110c936be174b",
     "tests/test_static_receipt_rejection.py": "6973b48fb74662c4f7f6448843767b79a13440f66ff67919906653ebed2bcfa9",
-    "tests/test_static_state_recovery.py": "af5ae33e5e69bea1fe0e4e0c59cc25060fddc5e92ddd5fda5bf4c7d976f59c4e",
-    "tests/test_static_watchdog_audit.py": "9618eb64988fb7cc6123ea6916e047522ddc1e078c79ca65997d8425585c203e"
+    "tests/test_static_state_recovery.py": "b3dc0fef83c65795e2f3afbd7d68a780870586372ccf0e5086d2ef73f37d410d",
+    "tests/test_static_watchdog_audit.py": "3ad853205f1c1f6b6eb0de33cbc8dc2db4c6ca7f9b43717c9a0155f0e678da54"
   }
 }

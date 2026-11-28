@@ -171,6 +171,15 @@ class ExpiredRecoveryHold(unittest.TestCase):
         watchdog.sync_issues([found[0]], state, {'dispatch': False}, api, NOW)
         self.assertTrue(any('watchdog:recovery-expired' in (i.get('body') or '') for i in api.issues.values()))
 
+    def test_an_expired_hold_on_the_live_manifest_names_the_manifest(self):
+        # Muse round 5 on PR #241: '*' means the live manifest itself could not be read.
+        live = manifest()
+        live['recovery_expired'] = {'ranks': ['*'], 'since': iso(26), 'hold_hours': 24, 'reason': 'unreadable'}
+        found = [p for p in watchdog.check(live, OVERDUE, NOW) if p['id'] == 'recovery-expired']
+        self.assertEqual(len(found), 1)
+        self.assertIn('the live manifest still not restored', found[0]['summary'])
+        self.assertNotIn('*', found[0]['summary'])
+
     def test_no_alert_without_an_expired_hold(self):
         for extra in ({}, {'recovery_expired': {}}, {'recovery_expired': {'ranks': []}}, {'recovery_expired': 'x'}):
             live = dict(manifest(), **extra)
