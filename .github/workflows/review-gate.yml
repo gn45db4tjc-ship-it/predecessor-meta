@@ -90,7 +90,7 @@ jobs:
   decide:
     needs: checks
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 150   # an hour for CI, 30 minutes to verify a merge, 30 more to confirm its revert
     permissions:
       contents: write        # merge, and revert if the live site does not verify
       pull-requests: write   # comments and labels
@@ -152,22 +152,64 @@ jobs:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
-          # The automation App holds main's bypass (Agent HQ).
-          GH_TOKEN="$WRITER" gh pr merge "$PR" --merge --match-head-commit "$HEAD"
-          merge=$(gh pr view "$PR" --json mergeCommit --jq .mergeCommit.oid)
-          git fetch origin main
-          gh workflow run publish.yml --ref main
-          if python -B review_gate.py verify-live --merge "$merge" --changes gate.json; then
+          # The automation App is main's only "always" bypass actor (Agent HQ ruleset autopilot-main). main requires
+          # muse-review and independent-verify, which never report on review PRs, so gh's own pre-check calls the PR
+          # blocked ("the base branch policy prohibits the merge"); --admin skips that pre-check only, and GitHub then
+          # applies the App's bypass. CI ("verify") already passed on this head above. The bypass would also skip the
+          # ruleset's up-to-date rule, so the PR must not be behind main.
+          # The scope job and the decision read BASE...HEAD for the base the PR had then, and a PR's base can be
+          # changed without rerunning this workflow. So right before the merge: the PR still targets main at the same
+          # head, and the whole decision (scope, holds, ledgers, grade moves), run again against main as it is now,
+          # is still merge.
+          target=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq '.base.ref + " " + .head.sha')
+          if [ "$target" != "main $HEAD" ]; then
+            gh pr comment "$PR" --body "Not merged: this review PR no longer targets main at the head the gate checked ($target)."
+            exit 1
+          fi
+          git fetch -q origin main
+          GITHUB_OUTPUT= python -B review_gate.py decide --base "$(git rev-parse origin/main)" --head "$HEAD" --out gate-now.json >/dev/null
+          now=$(python -B -c 'import json; print(json.load(open("gate-now.json"))["decision"])')
+          if [ "$now" != merge ]; then
+            gh pr comment "$PR" --body "Not merged: decided again against main as it is now, the gate says $now, not merge."
+            exit 1
+          fi
+          behind=$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$HEAD" --jq .behind_by)
+          if [ "$behind" != 0 ]; then
+            gh pr comment "$PR" --body "Not merged: this review PR is $behind commit(s) behind main. Update the branch and the gate decides again."
+            exit 1
+          fi
+          GH_TOKEN="$WRITER" gh pr merge "$PR" --admin --merge --match-head-commit "$HEAD"
+          # From here main holds the merge, so no failure may end the step early: each one leads to a revert, and a
+          # merge that is neither verified nor confirmed reverted on the live site opens an issue for the owner.
+          set +e
+          alarm() {
+            gh label create freshness-watchdog --force --color b60205 >/dev/null
+            gh issue create --label freshness-watchdog --title "Review gate: $1 (PR #$PR)" \
+              --body "$2 Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            exit 1
+          }
+          merge=
+          for attempt in 1 2 3 4 5; do
+            merge=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq 'select(.merged) | .merge_commit_sha')
+            [ -n "$merge" ] && break
+            sleep 10
+          done
+          [ -n "$merge" ] || alarm 'merged, not verified or reverted' "PR #$PR was merged, but the gate could not read its merge commit, so it neither verified nor reverted it. Check the live site and revert the merge by hand if it is wrong."
+          git fetch -q origin main
+          if gh workflow run publish.yml --ref main && python -B review_gate.py verify-live --merge "$merge" --changes gate.json; then
             gh pr comment "$PR" --body "Merged as $merge, published, and verified live: every rank carries the merged packet and the changed Gold+ grades match."
             exit 0
           fi
           # Revert first, diagnose second.
-          git checkout -B "revert-review-$PR" origin/main
-          git revert -m 1 --no-edit "$merge"
-          git -c http.https://github.com/.extraheader= push -q "https://x-access-token:${WRITER}@github.com/${GITHUB_REPOSITORY}" HEAD:main
-          gh workflow run publish.yml --ref main
-          gh pr comment "$PR" --body "The live site did not carry the merged packet within 30 minutes, so merge $merge was reverted and the site republished. See the review gate run for the diagnosis."
-          gh label create freshness-watchdog --force --color b60205 >/dev/null
-          gh issue create --label freshness-watchdog --title "Review gate reverted PR #$PR" \
-            --body "Merge $merge did not verify on the live site within 30 minutes and was reverted. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          exit 1
+          git fetch -q origin main && git checkout -B "revert-review-$PR" origin/main && git revert -m 1 --no-edit "$merge" &&
+            git -c http.https://github.com/.extraheader= push -q "https://x-access-token:${WRITER}@github.com/${GITHUB_REPOSITORY}" HEAD:main ||
+            alarm "merge $merge NOT reverted" "Merge $merge was not published and verified live within 30 minutes, and its revert failed. main still holds it: revert it by hand."
+          revert=$(git rev-parse HEAD)
+          gh pr comment "$PR" --body "The merged packet was not published and verified live within 30 minutes, so merge $merge was reverted as $revert. See the review gate run for the diagnosis."
+          if gh workflow run publish.yml --ref main && python -B review_gate.py verify-live --merge "$revert"; then
+            gh label create freshness-watchdog --force --color b60205 >/dev/null
+            gh issue create --label freshness-watchdog --title "Review gate reverted PR #$PR" \
+              --body "Merge $merge did not verify on the live site within 30 minutes and was reverted as $revert; the live site carries the reverted packet again. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            exit 1
+          fi
+          alarm "revert of $merge not confirmed live" "Merge $merge did not verify and was reverted as $revert on main, but the live site did not carry the reverted packet within 30 minutes. Check publish.yml and the live site."
