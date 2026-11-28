@@ -1134,6 +1134,10 @@ def omeda_fetch_heroes():
     return data, secs
 
 
+def omeda_item_id_ok(value):
+    return (isinstance(value, int) and not isinstance(value, bool)) or (isinstance(value, str) and bool(value.strip()))
+
+
 def omeda_fetch_items():
     text, status, secs = http_get(OMEDA_BASE + "/items.json", timeout=OMEDA_TIMEOUT, retries=0)
     data = json.loads(text)
@@ -1141,7 +1145,9 @@ def omeda_fetch_items():
         raise OmedaParseError("items.json: expected a non-empty list")
     # Only rows the bundle can use count (audit #239 F10): an HTTP 200 of [{}] used to be stamped a fresh "ok" with
     # nothing in it. Unusable rows are dropped; none usable is a failure, so the source reads failed, never fresh.
-    usable = [it for it in data if isinstance(it, dict) and it.get("id") is not None
+    # The id must work as the item index's key (Codex verify of PR #241: a list or object id passed here and was then
+    # dropped from the index, leaving a fresh "ok" with no items): a whole number or non-empty text, never a boolean.
+    usable = [it for it in data if isinstance(it, dict) and omeda_item_id_ok(it.get("id"))
               and isinstance(it.get("slug"), str) and it["slug"] and isinstance(it.get("display_name"), str) and it["display_name"]]
     if not usable:
         raise OmedaParseError("items.json: no usable item (each needs id, slug and display_name)")

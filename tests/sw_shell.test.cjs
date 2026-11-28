@@ -18,7 +18,10 @@ function worker({putNever = false, page = APP_PAGE} = {}) {
   // it replaces the offline shell.
   const network = async () => new Response(page, {status: 200, headers: {'Content-Type': 'text/html'}});
   vm.runInNewContext(SW, {self, caches, fetch: network, crypto: require('node:crypto').webcrypto, TextDecoder, URL, Request, Response, Headers, console: {warn() {}, log() {}}});
-  return {saved, kept, fetch(url, mode = 'navigate') {
+  return {saved, kept, install() {
+    let done; listeners.install({waitUntil: p => { done = p; }});
+    return done;
+  }, fetch(url, mode = 'navigate') {
     let reply; const request = new Request(url);
     Object.defineProperty(request, 'mode', {value: mode});
     listeners.fetch({request, respondWith: p => { reply = p; }, waitUntil: p => { kept.push(p); }});
@@ -48,4 +51,16 @@ test('F15: an HTTP 200 maintenance page is shown but never replaces the offline 
   assert.match(await response.text(), /maintenance/, 'the visitor still sees what the server sent');
   await Promise.all(sw.kept);
   assert.equal(sw.saved.size, 0, 'the last good shell is kept');
+});
+
+test('F15: install saves the app document', async () => {
+  const sw = worker();
+  await sw.install();
+  assert.match(sw.saved.get(SITE) || '', /predecessor-app-version/, 'the root is saved as the app');
+});
+
+test('F15: an HTTP 200 maintenance page at install fails the install and saves nothing', async () => {
+  const sw = worker({page: '<!doctype html><title>Down for maintenance</title>'});
+  await assert.rejects(sw.install(), /not the app document/);
+  assert.equal(sw.saved.size, 0, 'the previous worker keeps its good shell');
 });

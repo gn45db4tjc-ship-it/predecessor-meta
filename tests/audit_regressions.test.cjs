@@ -70,9 +70,14 @@ function cacheStorage() {
 }
 function worker(source, storage, network) {
   const listeners = {}, self = {location: {href: SITE + 'sw.js'}, addEventListener: (type, fn) => { listeners[type] = fn; }, skipWaiting() {}, clients: {claim: async () => {}}};
-  vm.runInNewContext(source, {self, caches: storage, fetch: request => network(request), crypto: crypto.webcrypto, TextDecoder, URL, Request, Response, Headers, console: {warn() {}, log() {}}});
+  // A release is installed while online: during install the worker reads the app page itself (sw.js checks it is the
+  // app document before saving it, PRED-M11 F15); every other request goes to the test's network.
+  let installing = false;
+  const APP_PAGE = '<!doctype html><meta name="predecessor-app-version" content="test"><title>Predecessor Meta</title>';
+  const fetchFor = request => installing && urlOf(request) === SITE ? Promise.resolve(new Response(APP_PAGE, {status: 200, headers: {'Content-Type': 'text/html'}})) : network(request);
+  vm.runInNewContext(source, {self, caches: storage, fetch: fetchFor, crypto: crypto.webcrypto, TextDecoder, URL, Request, Response, Headers, console: {warn() {}, log() {}}});
   const lifecycle = async type => { let pending = Promise.resolve(); listeners[type]?.({waitUntil: p => { pending = p; }}); await pending; };
-  return {install: () => lifecycle('install'), activate: () => lifecycle('activate'),
+  return {install: async () => { installing = true; try { await lifecycle('install'); } finally { installing = false; } }, activate: () => lifecycle('activate'),
     async fetch(url) { let reply; listeners.fetch({request: new Request(url), respondWith: p => { reply = p; }}); return reply; }};
 }
 /* The next release: only the release-specific cache name changes. The data cache keeps its name. */

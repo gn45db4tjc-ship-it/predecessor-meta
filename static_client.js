@@ -301,12 +301,15 @@ if (APP_CONFIG.mode === 'static') {
       return (await response.json())?.published_at === manifest.published_at;
     } catch { return false; }
   }
+  // Without Web Locks, this tab's own commits still run one at a time (other tabs are handled inside commitNow).
+  let commitChain = Promise.resolve();
+  function serialCommit(run) { const next = commitChain.then(run, run); commitChain = next.catch(() => {}); return next; }
   async function commitPublication(manifest, bracket, entry, loaded) {
     if (!globalThis.caches || connectionLost) return;
     // One commit at a time across every open tab, so no tab writes a manifest from an outdated view of what is saved.
     const commit = () => commitNow(manifest, bracket, entry, loaded);
     try {
-      const saved = await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : commit());
+      const saved = await (navigator.locks?.request ? navigator.locks.request('predecessor-offline-commit', commit) : serialCommit(commit));
       if (saved === 'superseded') return;   // a newer check of this rank saves it
       if (saved) { site.offlineProblem = null; if (loaded && site.loadedBytes === loaded) site.loadedBytes = null; }
       else site.offlineProblem = 'This rank is not saved for offline use yet. Reload latest data while online to save it.';
@@ -314,6 +317,13 @@ if (APP_CONFIG.mode === 'static') {
       site.offlineProblem = error?.name === 'QuotaExceededError' ? 'This device is out of storage for offline copies. The app still works online; free some space to keep ranks available offline.'
         : 'The offline copy could not be saved. The app still works online.';
     }
+  }
+  // Each saved bundle and evidence file names the publication it was saved for, so a tab only removes files that
+  // belong to its own or an older publication, never a newer one another tab saved at the same moment.
+  const PUBLISHED_HEADER = 'X-Predecessor-Published';
+  const stamped = manifest => ({'Content-Type': 'application/json', [PUBLISHED_HEADER]: String(manifest?.published_at || '')});
+  async function savedForNewer(data, url, manifest) {
+    try { return olderPublication(manifest, {published_at: (await data.match(url))?.headers.get(PUBLISHED_HEADER)}); } catch { return true; }
   }
   async function commitNow(manifest, bracket, entry, loaded) {
     const overtaken = () => S.bracket === bracket && !!site.loadedEntry && site.loadedEntry !== entry
@@ -328,7 +338,8 @@ if (APP_CONFIG.mode === 'static') {
     // The bytes are stored at the address they were loaded from (the core, or the full bundle); the address
     // contains the checksum, so a copy already saved there holds these exact bytes.
     const target = loaded?.bytes && publicationBytes(entry, loaded.url) ? siteURL(loaded.url) : null;
-    if (target && !(await data.match(target))) await data.put(target, new Response(loaded.bytes, {headers: {'Content-Type': 'application/json'}}));
+    let wroteTarget = false;
+    if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
     const saved = new Set((await data.keys()).map(key => key.url));
     const bundleURL = [target, entry.projection?.core?.url && siteURL(entry.projection.core.url), siteURL(entry.url)].find(url => url && saved.has(url));
     if (!bundleURL) return false;   // nothing verified is saved for this bracket, so there is nothing to describe
@@ -351,11 +362,35 @@ if (APP_CONFIG.mode === 'static') {
       } catch { cohorts[key] = value; }
     }
     if (overtaken()) return 'superseded';
-    await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
-    for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL) await data.delete(url);
+    // Without Web Locks another tab can save between the read above and this write, and the Cache API has no
+    // compare-and-set. So: read the saved manifest again just before writing; after writing, read it once more and,
+    // if an older publication replaced this newer one, write this one (and its bundle) back. Only the tab whose
+    // publication is saved at the end removes anything, and only what that saved manifest does not describe.
+    const savedManifest = async () => { try { return await (await data.match(manifestURL))?.json(); } catch { return null; } };
+    const refuse = async () => (olderPublication(manifest, await savedManifest()) && !(await liveServes(manifestURL, manifest)));
+    if (await refuse()) return 'superseded';
+    const write = async () => {
+      if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
+      await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
+    };
+    await write();
+    for (let tries = 0; tries < 3; tries++) {
+      const now = await savedManifest();
+      if (now?.published_at === manifest.published_at || !olderPublication(now, manifest)) break;
+      if (await liveServes(manifestURL, now)) break;   // the site rolled back to it: the older one is right
+      await write();   // an older publication landed after this newer one: put this one back
+    }
+    const final = await savedManifest();
+    if (final?.published_at !== manifest.published_at) {
+      // Another tab's newer publication stands; leave its files alone and take back only this tab's own bundle.
+      const keep = new Set([final?.cohorts?.[bracket]].filter(Boolean).flatMap(v => [v.url && siteURL(v.url), v.projection?.core?.url && siteURL(v.projection.core.url)]).filter(Boolean));
+      if (wroteTarget && !keep.has(target)) await data.delete(target);
+      return 'superseded';
+    }
+    for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL && !(await savedForNewer(data, url, manifest))) await data.delete(url);
     // Evidence saved for an older publication of this rank is removed with it.
     const current = new Set([entry.projection?.guide, entry.projection?.catalog, entry.projection?.history, entry.projection?.shared, ...Object.values(entry.projection?.heroes || {})].filter(Boolean).map(p => siteURL(p.url)));
-    for (const url of saved) if (evidenceBracket(url) === bracket && !current.has(url)) await data.delete(url);
+    for (const url of saved) if (evidenceBracket(url) === bracket && !current.has(url) && !(await savedForNewer(data, url, manifest))) await data.delete(url);
     return true;
   }
   // ---- Evidence annexes (audit item 11). The core holds everything the engine and the main screens read; display-only
@@ -492,7 +527,7 @@ if (APP_CONFIG.mode === 'static') {
   };
   // Views that read display-only evidence are guarded in ui.js (annexGuard, annexHTML); dialogs refresh through detail().
   async function saveEvidence(url, bytes) {
-    try { if (globalThis.caches && !connectionLost) await (await caches.open(DATA_CACHE)).put(siteURL(url), new Response(bytes, {headers: {'Content-Type': 'application/json'}})); }
+    try { if (globalThis.caches && !connectionLost) await (await caches.open(DATA_CACHE)).put(siteURL(url), new Response(bytes, {headers: stamped(site.manifest)})); }
     catch { /* offline copies of evidence are optional; the view works online */ }
   }
   function displayedBundle(raw, entry) {

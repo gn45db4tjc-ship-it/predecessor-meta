@@ -19,8 +19,18 @@ const BUNDLE = /\/bundles\/(bronze|silver|gold|platinum|diamond|master|paragon)-
 const PART = /\/bundles\/(bronze|silver|gold|platinum|diamond|master|paragon)-(core|guide|catalog|history|shared|hero-[a-z0-9-]+)-([a-f0-9]{64})\.json$/;
 const CORE = /\/bundles\/(bronze|silver|gold|platinum|diamond|master|paragon)-core-([a-f0-9]{64})\.json$/;
 
+// PRED-M11 (Codex verify of PR #241, F15): the app document is saved at install only when it is the app. A
+// maintenance or error page served with HTTP 200 fails the install, so this release's worker is not activated and
+// the previous one, with its good shell, stays in charge until a later visit installs it again.
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
+  event.waitUntil(caches.open(SHELL_CACHE).then(async cache => {
+    const root = new URL('./', ROOT).href;
+    const response = await fetch(new Request(root, {cache: 'no-store'}));
+    const text = response.ok ? await response.text() : '';
+    if (!response.ok || !appDocument(text, response)) throw new Error('Install stopped: the page is not the app document.');
+    await cache.put(root, new Response(text, {status: response.status, statusText: response.statusText, headers: response.headers}));
+    await cache.addAll(SHELL.filter(entry => entry !== './'));
+  }));
   self.skipWaiting();
 });
 

@@ -11,10 +11,11 @@ const start = SOURCE.indexOf("  const DATA_CACHE = 'predecessor-meta-data-v1';")
 assert.ok(start > 0 && end > start, 'the offline saving code was found');
 
 function store() {
-  const entries = new Map();
+  // Like the Cache API, the store keeps each response's headers with its body; `entries` maps an address to the body.
+  const entries = new Map(), headers = new Map();
   const cache = {
-    match: async url => entries.has(String(url)) ? new Response(entries.get(String(url))) : undefined,
-    put: async (url, response) => { entries.set(String(url), await response.text()); },
+    match: async url => entries.has(String(url)) ? new Response(entries.get(String(url)), {headers: headers.get(String(url))}) : undefined,
+    put: async (url, response) => { headers.set(String(url), [...response.headers]); entries.set(String(url), await response.text()); },
     delete: async url => entries.delete(String(url)),
     keys: async () => [...entries.keys()].map(url => ({url}))};
   return {entries, caches: {open: async () => cache}};
@@ -25,7 +26,7 @@ function client({entries, caches}, liveManifest) {
     fetch: async () => liveManifest ? new Response(JSON.stringify(liveManifest), {status: 200}) : (() => { throw new Error('offline'); })(),
     S: {bracket: 'gold'}, site: {}, connectionLost: false, APP_CONFIG: {manifest: 'manifest.json'},
     siteURL: value => new URL(value, SITE).toString(), publicationBytes: (entry, url) => url === entry.url};
-  vm.runInNewContext(SOURCE.slice(start, end) + '\nthis.commitNow = commitNow; this.olderPublication = olderPublication;', sandbox);
+  vm.runInNewContext(SOURCE.slice(start, end) + '\nthis.commitNow = commitNow; this.olderPublication = olderPublication; this.serialCommit = typeof serialCommit === "function" ? serialCommit : undefined;', sandbox);
   return sandbox;
 }
 
@@ -65,4 +66,31 @@ test('F16: equal or undated publications are not "older"', () => {
   assert.equal(olderPublication({published_at: '2026-11-27T09:00:00Z'}, {published_at: '2026-11-27T09:00:00Z'}), false);
   assert.equal(olderPublication({}, {published_at: '2026-11-27T09:00:00Z'}), false);
   assert.equal(olderPublication({published_at: '2026-11-27T08:00:00Z'}, null), false);
+});
+
+test('F16: without Web Locks, overlapping commits never leave the older publication saved', async () => {
+  // Two tabs, no navigator.locks: both read the empty saved manifest before either writes. The older one must not
+  // replace the newer save or delete the newer bundle, whichever order their writes land in.
+  for (const first of ['newer', 'older']) {
+    const shared = store(), newer = publication('2026-11-27T09:23:00Z', 'b'), older = publication('2026-11-27T08:23:00Z', 'a');
+    const tabNew = client(shared, newer.manifest), tabOld = client(shared, newer.manifest);
+    const runNew = () => tabNew.commitNow(newer.manifest, 'gold', newer.entry, newer.loaded);
+    const runOld = () => tabOld.commitNow(older.manifest, 'gold', older.entry, older.loaded);
+    await Promise.all(first === 'newer' ? [runNew(), runOld()] : [runOld(), runNew()]);
+    const saved = JSON.parse(shared.entries.get(SITE + 'manifest.json'));
+    assert.equal(saved.published_at, newer.manifest.published_at, first + ' first: the newer manifest is saved');
+    assert.ok(shared.entries.has(SITE + newer.entry.url), first + ' first: the newer bundle is still saved');
+  }
+});
+
+test('F16: without Web Locks, one tab runs its own commits one at a time', async () => {
+  const shared = store(), newer = publication('2026-11-27T09:23:00Z', 'b'), older = publication('2026-11-27T08:23:00Z', 'a');
+  const tab = client(shared, newer.manifest);
+  let running = 0, most = 0;
+  const original = tab.commitNow;
+  tab.commitNow = async (...args) => { running++; most = Math.max(most, running); try { return await original(...args); } finally { running--; } };
+  await Promise.all([tab.serialCommit(() => tab.commitNow(newer.manifest, 'gold', newer.entry, newer.loaded)),
+    tab.serialCommit(() => tab.commitNow(older.manifest, 'gold', older.entry, older.loaded))]);
+  assert.equal(most, 1, 'the second commit waited for the first');
+  assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, newer.manifest.published_at);
 });

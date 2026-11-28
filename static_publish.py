@@ -49,7 +49,9 @@ def state_problem(state):
     if not isinstance(state, dict):
         return 'state is not an object'
     for key in STATE_OBJECTS:
-        if state.get(key) is not None and not isinstance(state[key], dict):
+        # Present means an object: the publisher reads these with state.get(key, {}), which returns an explicit null
+        # and then fails (Codex verify of PR #241: "attempts": null skipped the quarantine).
+        if key in state and not isinstance(state[key], dict):
             return key + ' is not an object'
     if not all(isinstance(a, dict) for a in (state.get('attempts') or {}).values()):
         return 'an attempt is not an object'

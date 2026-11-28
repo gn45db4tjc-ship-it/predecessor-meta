@@ -85,6 +85,17 @@ class CorruptState(unittest.TestCase):
             self.assertIsNone(sp.load_state(self.dir), text)
             self.assertFalse((self.dir / 'publication.json').exists(), text)
 
+    def test_a_null_object_field_is_set_aside_and_recovered(self):
+        # Codex verify of PR #241 (item c): "attempts": null passed validation, skipped the restore, then crashed the
+        # manifest step on state.get('attempts', {}).get(...).
+        for key in sp.STATE_OBJECTS:
+            self.write(json.dumps({'schema': 1, 'attempts': {}, key: None}))
+            self.assertIsNone(sp.load_state(self.dir), key)
+            self.assertFalse((self.dir / 'publication.json').exists(), key)
+        self.write('{"schema": 1, "attempts": null}')
+        self.assertEqual(sp.restore_from_live(self.dir, SITE, fetch=live_site(bundles()))['restored'], ['gold', 'silver'])
+        self.assertIsInstance(sp.load_state(self.dir)['attempts'], dict)
+
     def test_valid_state_is_kept_and_restore_leaves_it_alone(self):
         self.write('{"schema": 1, "attempts": {}, "marker": 1}')
         self.assertEqual(sp.restore_from_live(self.dir, SITE, fetch=live_site(bundles()))['restored'], [])
