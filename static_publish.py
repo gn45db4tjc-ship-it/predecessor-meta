@@ -44,6 +44,32 @@ STATE_TIMES = ('last_full_attempt_at', 'patch_transition_at')
 STATE_OBJECTS = ('attempts', 'patch_check', 'last_verified_patch_check', 'required_retry', 'pred_retry', 'live_recovery')
 
 
+NUMBER, COUNT, TIME = object(), object(), object()   # markers for nested_problem
+
+
+def nested_problem(value, fields):
+    """Why a present field of `value` has a type the publisher cannot use, or None. A missing or null field is
+    allowed: the publisher reads each one with a default."""
+    for key, kind in fields.items():
+        item = value.get(key)
+        if item is None:
+            continue
+        if kind is NUMBER:
+            ok = isinstance(item, (int, float)) and not isinstance(item, bool)
+        elif kind is COUNT:
+            ok = isinstance(item, int) and not isinstance(item, bool) and item >= 0
+        elif kind is TIME:
+            try:
+                utc_time(item); ok = True
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                ok = False
+        else:
+            ok = isinstance(item, kind)
+        if not ok:
+            return key + ' has the wrong type'
+    return None
+
+
 def state_problem(state):
     """Why a parsed publication.json cannot be reused, or None (audit #239 F4)."""
     if not isinstance(state, dict):
@@ -53,10 +79,28 @@ def state_problem(state):
         # and then fails (Codex verify of PR #241: "attempts": null skipped the quarantine).
         if key in state and not isinstance(state[key], dict):
             return key + ' is not an object'
-    if not all(isinstance(a, dict) for a in (state.get('attempts') or {}).values()):
-        return 'an attempt is not an object'
-    if not isinstance((state.get('live_recovery') or {}).get('pending') or {}, dict):
-        return 'live_recovery pending is not an object'
+    # Muse review of PR #241: a shape-valid but incomplete state such as {} passed, and run() then failed on
+    # state['attempts'][bracket] or on int() of a nested count. Every written state carries attempts, and each nested
+    # field the publisher reads or converts is checked here, so a wrong one is set aside instead of stopping a run.
+    if not isinstance(state.get('attempts'), dict):
+        return 'attempts is missing'
+    for name, attempt in state['attempts'].items():
+        if not isinstance(attempt, dict):
+            return 'an attempt is not an object'
+        problem = nested_problem(attempt, {'status': str, 'at': str, 'reason': str, 'seconds': NUMBER})
+        if problem:
+            return 'attempt ' + str(name)[:40] + ' ' + problem
+        errors = attempt.get('errors', [])
+        if not isinstance(errors, list) or not all(isinstance(e, dict) for e in errors):
+            return 'attempt ' + str(name)[:40] + ' errors is not a list of objects'
+    for key, fields in (('required_retry', {'pending': bool, 'blocked': bool, 'attempts': COUNT, 'next_at': TIME, 'reason': str}),
+                        ('pred_retry', {'pending': bool, 'attempts': COUNT, 'limit': COUNT, 'next_at': TIME}),
+                        ('patch_check', {'signature': str, 'status': str}),
+                        ('last_verified_patch_check', {'signature': str, 'status': str}),
+                        ('live_recovery', {'pending': dict, 'since': TIME, 'checked_at': TIME, 'reason': str})):
+        problem = nested_problem(state.get(key) or {}, fields)
+        if problem:
+            return key + ' ' + problem
     for key in STATE_TIMES:
         if state.get(key) is not None:
             try:
@@ -631,7 +675,9 @@ def held_ranks(folder, state, now=None):
     except (AttributeError, TypeError, ValueError):
         since = None
     now = now or base.now_utc()
-    if since is None or now - since > dt.timedelta(hours=CONFIG.get('live_recovery_hold_hours', 24)):
+    # A pending rank with no readable start time stays held (Muse review of PR #241: a missing `since` lifted the
+    # hold at once). restore_from_live gives it a start time on its next pass, so the window still ends.
+    if since is not None and now - since > dt.timedelta(hours=CONFIG.get('live_recovery_hold_hours', 24)):
         return []
     if '*' in ranks:
         return ['*']
@@ -982,8 +1028,9 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
                     # Retained partitions keep their original dates; name who collected each one (recorded when it was
                     # retained), not only who assembled this bundle.
                     sources, kept = bundle.get('sources') or {}, bundle.get('retained_sources') or {}
-                    origin = {name: (kept.get(name) or {}).get('collector') or 'unrecorded'
-                              for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')), ('omeda', ('omeda_heroes',)))
+                    # omeda.city kits and items can be kept from different collections; the kits' collector is named first.
+                    origin = {name: (kept.get(name) or kept.get(name + '_items') or {}).get('collector') or 'unrecorded'
+                              for name, keys in (('statz', ('statz_tierlist', 'statz_hero_pages')), ('pred', ('pred_scoped', 'pred_game_data')), ('omeda', ('omeda_heroes', 'omeda_items')))
                               if any((sources.get(k) or {}).get('status') == 'retained' or (name == 'statz' and (sources.get(k) or {}).get('status') == 'discontinued' and (sources.get(k) or {}).get('fetched_at')) for k in keys)}
                     if origin:
                         bundle['collector']['retained_from'] = {k: (v if v in COLLECTOR_HOSTS else 'unrecorded') for k, v in origin.items()}

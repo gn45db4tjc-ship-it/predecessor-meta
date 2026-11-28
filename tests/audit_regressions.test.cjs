@@ -220,6 +220,22 @@ test('F: the saved manifest is re-described from what is actually saved before i
   assert.equal(JSON.parse(await (await sw.fetch(SITE + served.cohorts.gold.url)).text()).note, 'the copy that is saved');
 });
 
+test('F16: offline, the newest saved manifest copy is served even when an older tab wrote the main copy last', async () => {
+  // Muse review of PR #241: without Web Locks an older tab could write the main manifest after the newer tab finished
+  // and then stop before repairing it. The page also saves each manifest under its own name; the worker serves the newest.
+  const storage = cacheStorage(), sw = worker(SW, storage, offline), body = bundleBody('gold', 'newer gold');
+  await sw.install(); await sw.activate();
+  await pageCommits(storage, 'gold', body);
+  const entry = {label: 'Gold+', status: 'available', sha256: digest(body), url: 'bundles/gold-' + digest(body) + '.json', generated_at: '2026-11-27T09:00:00Z', source_signature: 'sig'};
+  const data = await storage.open(DATA), put = (url, value) => data.put(new Request(SITE + url), new Response(JSON.stringify(value)));
+  await put('saved-manifests/2026-11-27T09-23-00Z.json', {schema: 2, published_at: '2026-11-27T09:23:00Z', note: 'newer', cohorts: {gold: entry}});
+  await put('saved-manifests/2026-11-27T08-23-00Z.json', {schema: 2, published_at: '2026-11-27T08:23:00Z', note: 'older', cohorts: {gold: entry}});
+  await put('manifest.json', {schema: 2, published_at: '2026-11-27T08:23:00Z', note: 'older', cohorts: {gold: entry}});
+  const served = await (await sw.fetch(SITE + 'manifest.json')).json();
+  assert.equal(served.note, 'newer');
+  assert.equal(JSON.parse(await (await data.match(new Request(SITE + 'manifest.json'))).text()).note, 'newer', 'the main copy is repaired');
+});
+
 test('F: a failed offline save is retried with the verified bytes of the loaded publication', () => {
   const client = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), 'utf8');
   assert.match(client, /site\.loadedBytes = site\.verifiedBytes/, 'the verified bytes of the loaded publication are kept');

@@ -30,7 +30,7 @@ def sparse_complete(bracket='gold'):
             'tier_list': [{'slug': 'unit-test-fixture', 'role': 'jungle'}],
             'official': official(), 'errors': [], 'pairs': {},
             'sources': {'statz_tierlist': {'status': 'ok'}, 'statz_hero_pages': {'status': 'ok'},
-                        'omeda_heroes': {'status': 'ok'}}}
+                        'omeda_heroes': {'status': 'ok'}, 'omeda_items': {'status': 'ok'}}}
 
 
 def valid_complete():

@@ -64,10 +64,28 @@ async function migrateLegacy(name) {
   await reconcileManifest(data, reference);
 }
 
+// The page saves each publication's manifest once under its own name as well (static_client.js, MANIFEST_COPIES).
+// Two tabs without Web Locks can leave an older publication in the main copy if one stopped mid-save; the newest
+// named copy is then put back as the main copy before anything is served (Muse review of PR #241).
+const MANIFEST_COPY = /\/saved-manifests\/[0-9A-Za-z-]+\.json$/;
+async function adoptNewestCopy(data, manifestURL) {
+  const read = async url => { try { return (await (await data.match(url))?.json()) ?? null; } catch { return null; } };
+  const when = value => Date.parse(value?.published_at);
+  let main = await read(manifestURL), newest = main;
+  for (const key of await data.keys()) {
+    if (!MANIFEST_COPY.test(new URL(key.url).pathname)) continue;
+    const copy = await read(key.url);
+    if (copy && Number.isFinite(when(copy)) && (!newest || !Number.isFinite(when(newest)) || when(copy) > when(newest))) newest = copy;
+  }
+  if (newest && newest !== main) await data.put(manifestURL, new Response(JSON.stringify(newest), {headers: {'Content-Type': 'application/json'}}));
+}
+
 // The saved manifest must describe the bundles that are actually saved, each with its own checksum and
 // dates. An entry is rewritten only when its bundle is not saved but another bundle for that bracket is.
 async function reconcileManifest(data, reference) {
-  const manifestURL = new URL('manifest.json', ROOT).href, saved = await data.match(manifestURL);
+  const manifestURL = new URL('manifest.json', ROOT).href;
+  await adoptNewestCopy(data, manifestURL);
+  const saved = await data.match(manifestURL);
   if (!saved) return;
   let manifest; try { manifest = await saved.json(); } catch { return; }
   const urls = (await data.keys()).map(key => key.url);

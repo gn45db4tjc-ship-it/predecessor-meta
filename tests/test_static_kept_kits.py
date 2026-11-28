@@ -93,7 +93,7 @@ class KeptKits(unittest.TestCase):
         self.assertIn("bundle.setdefault('retained_sources',{})['omeda']", src)
         self.assertLess(src.index('attach_retained_statz(bundle'), src.index("['omeda']={'collector'"),
                         'attach_retained_statz replaces retained_sources, so the omeda record is added after it')
-        self.assertIn("('omeda', ('omeda_heroes',))", inspect.getsource(p))
+        self.assertIn("('omeda', ('omeda_heroes', 'omeda_items'))", inspect.getsource(p))
 
     def test_nothing_is_invented_without_a_previous_kit(self):
         bundle = copy.deepcopy(self.records)
@@ -137,6 +137,94 @@ class KeptKits(unittest.TestCase):
         src = inspect.getsource(m.collect_bundle)
         self.assertIn('previous_kit_records(bracket)', src)
         self.assertLess(src.index('keep_previous_kits(bundle,bracket)'), src.index('enrich_bundle(bundle,official)'))
+
+
+
+class KeptItems(unittest.TestCase):
+    """Muse review of PR #241 (audit F10): after items.json failed, the bundle still counted as complete, with an empty
+    omeda.city item index and the failed source dated as fetched now. Now the previous collection's items are kept
+    with their original date (status retained), a failed source has no fetch date, and neither is called complete."""
+
+    def setUp(self):
+        self.saved = json.loads(gzip.open(SEED).read().decode('utf-8'))
+        self.tmp = Path(tempfile.mkdtemp())
+        self.data_dir, m.DATA_DIR = m.DATA_DIR, self.tmp
+        m.save_bundle(self.saved, self.tmp / 'last_available_gold.json', False)
+
+    def tearDown(self):
+        m.DATA_DIR = self.data_dir
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def build(self, items, meta):
+        now = m.iso(m.now_utc())
+        kits = [{'id': 1, 'slug': 'grux', 'name': 'Grux', 'display_name': 'Grux', 'roles': ['jungle'], 'classes': [], 'image': None,
+                 'abilities': [{'key': 'LMB', 'display_name': 'Warclubs', 'menu_description': 'Deals damage'}]}]
+        meta = dict({'fetched_at': now}, **meta)
+        return now, m.build_bundle({'rows': [], 'patch': '1.17', 'bracket_label': 'Gold+'}, {'fetched_at': now, 'secs': 0}, {}, kits, items, meta,
+                                   dict(m.DEFAULT_SETTINGS, bracket='gold'), 'gold', {'fetched_at': now, 'secs': 0})
+
+    def test_a_failed_item_list_is_never_dated_now(self):
+        now, b = self.build(None, {'items_error': 'OmedaParseError: items.json: no usable item'})
+        source = b['sources']['omeda_items']
+        self.assertEqual((source['status'], source['fetched_at'], source['attempted_at']), ('failed', None, now))
+        self.assertIn('no usable item', source['error'])
+        self.assertEqual(b['omeda_items'], {})
+
+    def test_a_failed_or_kept_item_list_is_not_a_complete_collection(self):
+        good = copy.deepcopy(self.saved)
+        self.assertTrue(m.bundle_is_complete(good)[0])
+        for status in ('failed', 'retained'):
+            b = copy.deepcopy(self.saved)
+            b['sources']['omeda_items'] = dict(b['sources']['omeda_items'], status=status)
+            self.assertEqual(m.bundle_is_complete(b), (False, 'omeda.city item data was missing'), status)
+
+    def test_previous_items_keep_their_date_fields_and_effects(self):
+        # In this seed every item text comes from Pred.gg; one is marked as omeda.city's so its effects travel too.
+        slug = next(v['slug'] for v in self.saved['omeda_items'].values() if self.saved['items'].get(v['slug'], {}).get('effects'))
+        self.saved['items'][slug]['source'] = 'omeda.city/items.json'
+        m.save_bundle(self.saved, self.tmp / 'last_available_gold.json', False)
+        previous = m.previous_omeda_items('gold')
+        self.assertEqual(previous['fetched_at'], self.saved['sources']['omeda_items']['fetched_at'])
+        self.assertEqual(previous['collector'], (self.saved.get('collector') or {}).get('host') or 'unrecorded')
+        self.assertEqual(len(previous['items']), len(self.saved['omeda_items']))
+        rows = {r['slug']: r for r in previous['items']}
+        self.assertEqual([e['menu_description'] for e in rows[slug]['effects']], [e['text'] for e in self.saved['items'][slug]['effects']])
+        self.assertFalse(any('effects' in r for s, r in rows.items() if s != slug), 'Pred.gg item text is not passed off as omeda.city text')
+        # The rows pass the same checks omeda_fetch_items applies, and rebuild the same item index.
+        _, b = self.build(previous['items'], {'items_error': 'URLError: timed out',
+                                              'items_retained': {'fetched_at': previous['fetched_at'], 'collector': previous['collector']}})
+        self.assertEqual({str(k): v['slug'] for k, v in b['omeda_items'].items()}, {str(k): v['slug'] for k, v in self.saved['omeda_items'].items()})
+        source = b['sources']['omeda_items']
+        self.assertEqual((source['status'], source['fetched_at']), ('retained', previous['fetched_at']))
+        warning = [e for e in b['errors'] if e['source'] == 'omeda.city items.json']
+        self.assertEqual(len(warning), 1)
+        self.assertIn('kept from the collection fetched ' + previous['fetched_at'], warning[0]['detail'])
+
+    def test_items_kept_again_keep_their_original_date_and_collector(self):
+        older = '2026-09-01T18:00:00-05:00'
+        saved = copy.deepcopy(self.saved)
+        saved['sources']['omeda_items'] = dict(saved['sources']['omeda_items'], status='retained', fetched_at=older)
+        saved['collector'] = {'host': 'cloud'}
+        saved['retained_sources'] = {'omeda_items': {'collector': 'windows', 'fetched_at': older}}
+        m.save_bundle(saved, self.tmp / 'last_available_gold.json', False)
+        previous = m.previous_omeda_items('gold')
+        self.assertEqual((previous['fetched_at'], previous['collector']), (older, 'windows'))
+
+    def test_nothing_is_invented_without_previous_items(self):
+        saved = copy.deepcopy(self.saved)
+        saved['sources']['omeda_items'] = dict(saved['sources']['omeda_items'], status='failed', fetched_at=None)
+        m.save_bundle(saved, self.tmp / 'last_available_gold.json', False)
+        self.assertIsNone(m.previous_omeda_items('gold'))
+        m.DATA_DIR = self.tmp / 'empty'
+        self.assertIsNone(m.previous_omeda_items('gold'))
+
+    def test_collection_keeps_items_and_names_who_fetched_them(self):
+        src = inspect.getsource(m.collect_bundle)
+        self.assertIn('previous_omeda_items(bracket)', src)
+        self.assertIn("bundle.setdefault('retained_sources',{})['omeda_items']", src)
+        self.assertLess(src.index('attach_retained_statz(bundle'), src.index("['omeda_items']={'collector'"))
+        for check in (m.bundle_has_fresh_statz, m.bundle_has_discontinued_statz_update):
+            self.assertIn("key in ('omeda_heroes', 'omeda_items') and source.get('status') == 'retained'", inspect.getsource(check))
 
 
 if __name__ == '__main__':

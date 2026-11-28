@@ -29,7 +29,7 @@ def bundle(bracket='gold'):
             'tier_list': [{'slug': 'unit-test-fixture', 'role': 'jungle', 'winRate': 50.0, 'pickRate': 10.0, 'matches': 200}],
             'official': official(), 'errors': [], 'pairs': {},
             'sources': {key: {'status': 'ok', 'fetched_at': NOW.isoformat()}
-                        for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes')}}
+                        for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items')}}
 
 
 class ScheduleTests(unittest.TestCase):
@@ -309,7 +309,7 @@ class PublicationTests(unittest.TestCase):
         self.assertNotIn('private token',json.dumps(report))
 
     def test_diagnostic_does_not_retry_after_known_block(self):
-        s.write_json(self.state/'publication.json',{'blocked_in_last_full':True})
+        s.write_json(self.state/'publication.json',{'schema':1,'attempts':{},'blocked_in_last_full':True})
         with patch.object(s.base,'http_get') as fetch:
             report=s.diagnose_pred(self.state)
         fetch.assert_not_called()

@@ -21,7 +21,12 @@ function store() {
   return {entries, caches: {open: async () => cache}};
 }
 
-function client({entries, caches}, liveManifest) {
+function client(shared, liveManifest, beforePut = null) {
+  // beforePut lets a test hold one tab at a chosen write while another tab runs (an interleaving without Web Locks).
+  const caches = !beforePut ? shared.caches : {open: async name => {
+    const cache = await shared.caches.open(name);
+    return {...cache, put: async (url, response) => { await beforePut(String(url)); return cache.put(url, response); }};
+  }};
   const sandbox = {caches, Response, URL, JSON, Date, Set, Object, console, navigator: {},
     fetch: async () => liveManifest ? new Response(JSON.stringify(liveManifest), {status: 200}) : (() => { throw new Error('offline'); })(),
     S: {bracket: 'gold'}, site: {}, connectionLost: false, APP_CONFIG: {manifest: 'manifest.json'},
@@ -53,6 +58,9 @@ test('F16: a verified online rollback is saved', async () => {
   const tab = client(shared, rolledBack.manifest);   // the site now serves the older publication again
   assert.equal(await tab.commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded), true);
   assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, rolledBack.manifest.published_at);
+  const copies = [...shared.entries.keys()].filter(url => url.includes('/saved-manifests/'));
+  assert.deepEqual(copies.map(url => JSON.parse(shared.entries.get(url)).published_at), [rolledBack.manifest.published_at],
+    'the newer copy is removed, so no later read brings the newer publication back');
 });
 
 test('F16: offline, an older publication is refused', async () => {
@@ -116,4 +124,33 @@ test('F16: a changed rank from an older publication is still refused and not sav
   await client(shared, newGold.manifest).commitNow(newGold.manifest, 'gold', newGold.entry, newGold.loaded);
   assert.equal(await client(shared, newGold.manifest).commitNow(oldGold.manifest, 'gold', oldGold.entry, oldGold.loaded), 'superseded');
   assert.ok(!shared.entries.has(SITE + oldGold.entry.url));
+});
+
+test('F16: without Web Locks, an older tab that writes after the newer tab finished never stands', async () => {
+  // Muse review of #241 at ce4997e: the older tab checked the saved manifest, the newer tab then saved, checked and
+  // pruned, and only after that did the older tab write. Its manifest used to stand, with its bundle kept.
+  const shared = store(), newer = publication('2026-11-27T09:23:00Z', 'b'), older = publication('2026-11-27T08:23:00Z', 'a');
+  let reached, release;
+  const atWrite = new Promise(resolve => { reached = resolve; }), go = new Promise(resolve => { release = resolve; });
+  const hold = async url => { if (url.includes('/saved-manifests/') || url === SITE + 'manifest.json') { reached(); await go; } };
+  const tabOld = client(shared, newer.manifest, hold), tabNew = client(shared, newer.manifest);
+  const oldRun = tabOld.commitNow(older.manifest, 'gold', older.entry, older.loaded);
+  await atWrite;                                   // the older tab has passed every check and is about to write
+  assert.equal(await tabNew.commitNow(newer.manifest, 'gold', newer.entry, newer.loaded), true);
+  release();
+  assert.equal(await oldRun, 'superseded');
+  assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, newer.manifest.published_at, 'the main copy is the newer one');
+  assert.ok(shared.entries.has(SITE + newer.entry.url), 'the newer bundle is still saved');
+  assert.ok(!shared.entries.has(SITE + older.entry.url), 'the older tab took its own bundle back');
+  const copies = [...shared.entries.keys()].filter(url => url.includes('/saved-manifests/'));
+  assert.deepEqual(copies.map(url => JSON.parse(shared.entries.get(url)).published_at), [newer.manifest.published_at]);
+});
+
+test('F16: a manifest copy is named by its publication and never overwritten by another', async () => {
+  const shared = store(), first = publication('2026-11-27T08:23:00Z', 'a'), second = publication('2026-11-27T09:23:00Z', 'b');
+  const tab = client(shared, null);
+  await tab.commitNow(first.manifest, 'gold', first.entry, first.loaded);
+  await tab.commitNow(second.manifest, 'gold', second.entry, second.loaded);
+  const copies = [...shared.entries.keys()].filter(url => url.includes('/saved-manifests/'));
+  assert.deepEqual(copies, [SITE + 'saved-manifests/2026-11-27T09-23-00Z.json'], 'the older copy is pruned by the newer save');
 });

@@ -325,13 +325,30 @@ if (APP_CONFIG.mode === 'static') {
   async function savedForNewer(data, url, manifest) {
     try { return olderPublication(manifest, {published_at: (await data.match(url))?.headers.get(PUBLISHED_HEADER)}); } catch { return true; }
   }
+  // Every commit also saves its manifest under its own name (saved-manifests/<published_at>.json), written once and
+  // never overwritten, and whoever reads the saved manifest takes the newest of the main copy and these. So two tabs
+  // writing at the same moment without Web Locks can only ever leave the newer publication standing, whatever order
+  // their writes land in (Muse review of PR #241): the older tab's main write is repaired by the next read, and the
+  // worker does the same before it serves the manifest offline (sw.js adoptNewestCopy). A verified rollback removes
+  // the newer copies first, so the older publication it saves is the newest left.
+  const MANIFEST_COPIES = 'saved-manifests/';
+  const copyURL = manifest => siteURL(MANIFEST_COPIES + String(manifest?.published_at || 'undated').replace(/[^0-9A-Za-z]/g, '-') + '.json');
+  const isCopy = url => new URL(url).pathname.includes('/' + MANIFEST_COPIES);
   async function commitNow(manifest, bracket, entry, loaded) {
     const overtaken = () => S.bracket === bracket && !!site.loadedEntry && site.loadedEntry !== entry
       && (site.loadedEntry.sha256 !== entry.sha256 || site.loadedEntry.projection?.core?.sha256 !== entry.projection?.core?.sha256);
     if (overtaken()) return 'superseded';
     const data = await caches.open(DATA_CACHE), manifestURL = siteURL(APP_CONFIG.manifest);
     if (overtaken()) return 'superseded';
-    let previous = null; try { previous = await (await data.match(manifestURL))?.json(); } catch { previous = null; }
+    const readJSON = async url => { try { return (await (await data.match(url))?.json()) ?? null; } catch { return null; } };
+    const copies = async () => (await data.keys()).map(key => key.url).filter(isCopy);
+    // The newest saved publication: the main copy, or a newer one another tab saved under its own name.
+    const savedManifest = async () => {
+      let newest = await readJSON(manifestURL);
+      for (const url of await copies()) { const copy = await readJSON(url); if (copy && (!newest || olderPublication(newest, copy))) newest = copy; }
+      return newest;
+    };
+    const previous = await savedManifest();
     // The bytes are stored at the address they were loaded from (the core, or the full bundle); the address
     // contains the checksum, so a copy already saved there holds these exact bytes.
     const target = loaded?.bytes && publicationBytes(entry, loaded.url) ? siteURL(loaded.url) : null;
@@ -346,7 +363,11 @@ if (APP_CONFIG.mode === 'static') {
     };
     // PRED-M11 (audit #239 F16): another tab may have saved a newer publication while this one waited for the lock.
     // An older one never overwrites it, unless the site itself now serves this older publication (a verified rollback).
-    if (olderPublication(manifest, previous) && !(await liveServes(manifestURL, manifest))) return keepUnderNewer(previous);
+    let rollback = false;
+    if (olderPublication(manifest, previous)) {
+      if (!(await liveServes(manifestURL, manifest))) return keepUnderNewer(previous);
+      rollback = true;
+    }
     let wroteTarget = false;
     if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
     const saved = new Set((await data.keys()).map(key => key.url));
@@ -371,32 +392,42 @@ if (APP_CONFIG.mode === 'static') {
       } catch { cohorts[key] = value; }
     }
     if (overtaken()) return 'superseded';
-    // Without Web Locks another tab can save between the read above and this write, and the Cache API has no
-    // compare-and-set. So: read the saved manifest again just before writing; after writing, read it once more and,
-    // if an older publication replaced this newer one, write this one (and its bundle) back. Only the tab whose
-    // publication is saved at the end removes anything, and only what that saved manifest does not describe.
-    const savedManifest = async () => { try { return await (await data.match(manifestURL))?.json(); } catch { return null; } };
+    // Read the newest saved publication again just before writing: another tab may have saved since.
     const latest = await savedManifest();
-    if (olderPublication(manifest, latest) && !(await liveServes(manifestURL, manifest))) return keepUnderNewer(latest);
+    if (olderPublication(manifest, latest)) {
+      if (!(await liveServes(manifestURL, manifest))) {
+        if (wroteTarget && !describedBy(latest).has(target)) await data.delete(target);
+        return keepUnderNewer(latest);
+      }
+      rollback = true;
+    }
+    const body = JSON.stringify({...manifest, cohorts});
     const write = async () => {
       if (target && !(await data.match(target))) { await data.put(target, new Response(loaded.bytes, {headers: stamped(manifest)})); wroteTarget = true; }
-      await data.put(manifestURL, new Response(JSON.stringify({...manifest, cohorts}), {headers: {'Content-Type': 'application/json'}}));
+      if (rollback) for (const url of await copies()) if (olderPublication(manifest, await readJSON(url))) await data.delete(url);
+      await data.put(copyURL(manifest), new Response(body, {headers: {'Content-Type': 'application/json'}}));
+      await data.put(manifestURL, new Response(body, {headers: {'Content-Type': 'application/json'}}));
     };
     await write();
     for (let tries = 0; tries < 3; tries++) {
+      // Only a verified rollback removes this tab's copy; then the older publication it saved is right.
+      if (await readJSON(copyURL(manifest))) break;
       const now = await savedManifest();
-      if (now?.published_at === manifest.published_at || !olderPublication(now, manifest)) break;
-      if (await liveServes(manifestURL, now)) break;   // the site rolled back to it: the older one is right
-      await write();   // an older publication landed after this newer one: put this one back
+      if (!now || !olderPublication(now, manifest) || await liveServes(manifestURL, now)) break;
+      await write();
     }
     const final = await savedManifest();
+    // The main copy always holds the newest saved publication, whichever tab wrote last.
+    if (final && (await readJSON(manifestURL))?.published_at !== final.published_at) await data.put(manifestURL, new Response(JSON.stringify(final), {headers: {'Content-Type': 'application/json'}}));
     if (final?.published_at !== manifest.published_at) {
-      // Another tab's newer publication stands; leave its files alone and take back only this tab's own bundle,
-      // unless that publication describes it too.
+      // Another tab's publication stands; leave its files alone and take back only this tab's own bundle and
+      // manifest copy, unless that publication describes the bundle too.
       const kept = await keepUnderNewer(final);
       if (kept !== true && wroteTarget) await data.delete(target);
+      await data.delete(copyURL(manifest));
       return kept;
     }
+    for (const url of await copies()) if (url !== copyURL(manifest) && olderPublication(await readJSON(url), manifest)) await data.delete(url);
     for (const url of saved) if (savedBracket(url) === bracket && url !== bundleURL && !(await savedForNewer(data, url, manifest))) await data.delete(url);
     // Evidence saved for an older publication of this rank is removed with it.
     const current = new Set([entry.projection?.guide, entry.projection?.catalog, entry.projection?.history, entry.projection?.shared, ...Object.values(entry.projection?.heroes || {})].filter(Boolean).map(p => siteURL(p.url)));

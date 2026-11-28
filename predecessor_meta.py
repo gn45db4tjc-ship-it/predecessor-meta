@@ -1856,6 +1856,10 @@ def bundle_is_complete(b):
                 return False, "hero pages were %s" % (src.get("status") or "incomplete")
         if b["sources"]["omeda_heroes"].get("status") != "ok":
             return False, "omeda.city kit data was missing"
+        # Muse review of PR #241 (audit F10): a failed items.json used to leave a complete bundle with an empty item
+        # index and a fresh date. Items kept from an earlier collection are not this collection's either.
+        if (b["sources"].get("omeda_items") or {}).get("status") != "ok":
+            return False, "omeda.city item data was missing"
         if b.get("failed_pages") or b.get("patch_conflicts"):
             return False, "%d hero page(s) were missing or conflicting" % (len(b.get("failed_pages") or []) + len(b.get("patch_conflicts") or []))
         if any(e.get("severity") == "error" for e in b.get("errors", [])):
@@ -2085,7 +2089,10 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
     elif omeda_meta.get("heroes_retained"):
         errors.append({"source": "omeda.city heroes.json", "severity": "error", "detail": (omeda_meta.get("heroes_error") or "unavailable") +
                        ". Hero kits are kept from the collection fetched " + omeda_meta["heroes_retained"]["fetched_at"] + "; Pred.gg kits replace them where collected."})
-    if omeda_items is None and omeda_meta.get("items_error"):
+    if omeda_meta.get("items_retained"):
+        errors.append({"source": "omeda.city items.json", "severity": "warning", "detail": (omeda_meta.get("items_error") or "unavailable") +
+                       ". Item definitions are kept from the collection fetched " + omeda_meta["items_retained"]["fetched_at"] + "; Pred.gg items replace them where collected."})
+    elif not omeda_items and omeda_meta.get("items_error"):
         errors.append({"source": "omeda.city items.json", "severity": "warning", "detail": omeda_meta["items_error"]})
     for p in SETTINGS_PROBLEMS:
         warnings.append({"source": "settings.json", "detail": p})
@@ -2124,8 +2131,19 @@ def build_bundle(tier, tier_fetch, page_results, omeda_heroes, omeda_items, omed
                              "count": len(omeda_heroes or []), "status": "retained", "error": omeda_meta.get("heroes_error"),
                              "attempted_at": omeda_meta.get("fetched_at"),
                              "note": "This collection could not read omeda.city heroes.json; the kits of the previous collection are kept with their original fetch date. Pred.gg kits replace them where collected."},
-            "omeda_items": {"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("items_secs"),
-                            "count": len(omeda_items or []), "status": ("offline (read from disk)" if omeda_meta.get("offline") else "ok") if omeda_items else "failed", "error": omeda_meta.get("items_error")},
+            # A failed items.json is never dated as fetched now (Muse review of PR #241, audit F10); items kept from
+            # an earlier collection keep that collection's date, like retained kits.
+            "omeda_items": ({"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta.get("fetched_at"), "secs": omeda_meta.get("items_secs"),
+                             "count": len(omeda_items or []), "status": "offline (read from disk)" if omeda_meta.get("offline") else "ok", "error": None}
+                            if omeda_items and not omeda_meta.get("items_retained") else
+                            {"url": OMEDA_BASE + "/items.json", "fetched_at": omeda_meta["items_retained"]["fetched_at"], "secs": None,
+                             "count": len(omeda_items or []), "status": "retained", "error": omeda_meta.get("items_error"),
+                             "attempted_at": omeda_meta.get("fetched_at"),
+                             "note": "This collection could not read omeda.city items.json; the item definitions of the previous collection are kept with their original fetch date. Pred.gg items replace them where collected."}
+                            if omeda_meta.get("items_retained") else
+                            {"url": OMEDA_BASE + "/items.json", "fetched_at": None, "secs": omeda_meta.get("items_secs"),
+                             "count": 0, "status": "failed", "error": omeda_meta.get("items_error") or "unavailable",
+                             "attempted_at": omeda_meta.get("fetched_at")}),
         },
         "errors": errors,
         "roles_order": ROLES, "role_label": ROLE_LABEL, "tier_order": TIER_ORDER,
@@ -4183,8 +4201,8 @@ def bundle_has_fresh_statz(b):
         for key in ('statz_tierlist', 'statz_hero_pages', 'omeda_heroes', 'omeda_items'):
             source = b['sources'][key]
             age = timestamp_age(source.get('fetched_at'))
-            if key == 'omeda_heroes' and source.get('status') == 'retained' and not source.get('offline') and age is not None:
-                continue   # kits kept from the previous collection keep their own date; they are not called fresh (2.53.2)
+            if key in ('omeda_heroes', 'omeda_items') and source.get('status') == 'retained' and not source.get('offline') and age is not None:
+                continue   # kits and items kept from the previous collection keep their own date; they are not called fresh (2.53.2)
             if source.get('status') != expected.get(key, 'ok') or source.get('offline') or age is None:
                 return False
             # Fresh means fetched in this collection, not recently repackaged.
@@ -4262,7 +4280,7 @@ def bundle_has_discontinued_statz_update(b):
         for key in ('omeda_heroes', 'omeda_items'):
             source = b['sources'][key]
             age = timestamp_age(source.get('fetched_at'))
-            if key == 'omeda_heroes' and source.get('status') == 'retained' and not source.get('offline') and age is not None:
+            if key in ('omeda_heroes', 'omeda_items') and source.get('status') == 'retained' and not source.get('offline') and age is not None:
                 continue
             if source.get('status') != 'ok' or source.get('offline') or age is None:
                 return False
@@ -4518,6 +4536,48 @@ def previous_kit_records(bracket):
     return None
 
 
+def previous_omeda_items(bracket):
+    """The omeda.city item list of the newest saved collection of this bracket that read or kept it, or None.
+
+    {'items': [items.json rows], 'fetched_at': that list's own date, 'collector': who fetched it}. Rebuilt from the
+    saved item index (omeda_items) and, for effects, the saved items that came from items.json. A list that collection
+    itself kept keeps its original date and collector, so a repeated failure never makes old items look newer
+    (Muse review of PR #241, audit F10)."""
+    candidates = []
+    for name in ('last_available_', 'last_successful_', 'last_primary_'):
+        try:
+            value = load_bundle(DATA_DIR / (name + bracket + '.json'))
+            if isinstance(value, dict) and value.get('schema') == 3 and (value.get('bracket') or {}).get('segment') == bracket:
+                age = timestamp_age(value.get('generated_at'))
+                if age is not None: candidates.append((age, value))
+        except Exception:   # a damaged saved file is skipped
+            pass
+    for _, value in sorted(candidates, key=lambda pair: pair[0]):
+        source = (value.get('sources') or {}).get('omeda_items') or {}
+        index = value.get('omeda_items')
+        if source.get('status') not in ('ok', 'retained') or source.get('offline') or timestamp_age(source.get('fetched_at')) is None or not isinstance(index, dict):
+            continue
+        saved = value.get('items') if isinstance(value.get('items'), dict) else {}
+        rows = []
+        for key, entry in index.items():
+            if not isinstance(entry, dict):
+                continue
+            item_id = int(key) if isinstance(key, str) and key.isdigit() else key
+            row = {'id': item_id, **{k: entry.get(k) for k in ('display_name', 'slug', 'image', 'slot_type', 'total_price', 'rarity', 'build_paths', 'requirements', 'stats')}}
+            kept = saved.get(entry.get('slug')) if isinstance(entry.get('slug'), str) else None
+            if isinstance(kept, dict) and kept.get('source') == 'omeda.city/items.json':
+                row['effects'] = [{'name': e.get('name'), 'active': e.get('active'), 'cooldown': e.get('cooldown'), 'condition': e.get('condition'),
+                                   'menu_description': e.get('text')} for e in kept.get('effects') or [] if isinstance(e, dict)]
+            if omeda_item_id_ok(row['id']) and isinstance(row['slug'], str) and row['slug'] and isinstance(row['display_name'], str) and row['display_name']:
+                rows.append(row)
+        if not rows:
+            continue
+        kept_by = ((value.get('retained_sources') or {}).get('omeda_items') or {}).get('collector') if source.get('status') == 'retained' else None
+        return {'items': rows, 'fetched_at': source['fetched_at'],
+                'collector': kept_by or (value.get('collector') or {}).get('host') or 'unrecorded'}
+    return None
+
+
 def keep_previous_kits(bundle, bracket):
     """A hero with no kit in this collection (no omeda.city entry and its Statz page failed) keeps its kit from the
     previous collection, marked kit_kept_from_previous with that collection's date, instead of failing the rank.
@@ -4606,7 +4666,11 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
                 if previous_kits and previous_kits['omeda']:
                     kits=previous_kits['omeda']; omeda_meta['heroes_retained']={'fetched_at':previous_kits['omeda_fetched_at'],'collector':previous_kits['omeda_collector']}
             try: omitems, omeda_meta['items_secs'] = fi.result()
-            except Exception as e: omitems=None; omeda_meta['items_error']=str(e)
+            except Exception as e:
+                omitems=None; omeda_meta['items_error']=str(e)
+                previous_items=previous_omeda_items(bracket)
+                if previous_items:
+                    omitems=previous_items['items']; omeda_meta['items_retained']={'fetched_at':previous_items['fetched_at'],'collector':previous_items['collector']}
             progress('Verifying official patch notes and supporting history…')
             try: official=fetch_official(force_history=settings.get('force_history_refresh',False))
             except Exception as e: official={'status':'failed','error':str(e),'checked_at':iso(now_utc()),'index_url':OFFICIAL_INDEX}
@@ -4632,6 +4696,9 @@ def collect_bundle(settings, progress=lambda s: None, fixture_dir=None):
         # Like the Statz and Pred.gg partitions, retained omeda.city kits name who fetched them (2.53.2).
         bundle.setdefault('retained_sources',{})['omeda']={'collector':omeda_meta['heroes_retained']['collector'],
             'fetched_at':omeda_meta['heroes_retained']['fetched_at'],'attempted_at':omeda_meta['fetched_at']}
+    if omeda_meta.get('items_retained'):
+        bundle.setdefault('retained_sources',{})['omeda_items']={'collector':omeda_meta['items_retained']['collector'],
+            'fetched_at':omeda_meta['items_retained']['fetched_at'],'attempted_at':omeda_meta['fetched_at']}
     if not fixture_dir:keep_previous_kits(bundle,bracket)
     enrich_bundle(bundle,official)
     if not fixture_dir:

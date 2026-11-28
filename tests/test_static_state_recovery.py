@@ -96,6 +96,34 @@ class CorruptState(unittest.TestCase):
         self.assertEqual(sp.restore_from_live(self.dir, SITE, fetch=live_site(bundles()))['restored'], ['gold', 'silver'])
         self.assertIsInstance(sp.load_state(self.dir)['attempts'], dict)
 
+    def test_an_incomplete_or_nested_wrong_state_is_set_aside(self):
+        # Muse review of PR #241: {} and wrong nested fields passed, then run() failed on state['attempts'][bracket]
+        # or on int() of a nested count, every hourly run.
+        for state in ({}, {'schema': 1},
+                      {'attempts': {'gold': {'errors': 'x'}}}, {'attempts': {'gold': {'errors': [3]}}},
+                      {'attempts': {'gold': {'status': 5}}}, {'attempts': {'gold': {'seconds': 'slow'}}},
+                      {'attempts': {}, 'required_retry': {'attempts': '2'}}, {'attempts': {}, 'required_retry': {'attempts': True}},
+                      {'attempts': {}, 'required_retry': {'next_at': 'soon'}}, {'attempts': {}, 'pred_retry': {'attempts': -1}},
+                      {'attempts': {}, 'pred_retry': {'limit': 'four'}}, {'attempts': {}, 'patch_check': {'signature': 7}},
+                      {'attempts': {}, 'live_recovery': {'pending': {'silver': None}, 'since': 'yesterday'}}):
+            self.write(json.dumps(state))
+            self.assertIsNone(sp.load_state(self.dir), state)
+            self.assertFalse((self.dir / 'publication.json').exists(), state)
+        self.write('{}')
+        self.assertEqual(sp.restore_from_live(self.dir, SITE, fetch=live_site(bundles()))['restored'], ['gold', 'silver'])
+        self.assertIsInstance(sp.load_state(self.dir)['attempts'], dict)
+
+    def test_states_the_publisher_writes_are_kept(self):
+        for state in ({'schema': 1, 'attempts': {}},
+                      {'schema': 1, 'attempts': {'gold': {'at': '2026-11-28T00:00:00+00:00', 'status': 'interrupted', 'reason': 'daily',
+                                                          'errors': [{'source': 'Daily collection', 'severity': 'error', 'detail': 'x'}]}},
+                       'required_retry': {'pending': False, 'blocked': False, 'attempts': 0, 'limit': 2, 'next_at': None, 'reason': None},
+                       'pred_retry': {'pending': True, 'attempts': 1, 'limit': 4, 'next_at': '2026-11-28T02:30:00+00:00'},
+                       'patch_check': {'status': 'verified', 'signature': None, 'version': '1.18'},
+                       'live_recovery': {'pending': {'silver': SILVER_AT}, 'since': '2026-11-28T00:00:00+00:00', 'checked_at': '2026-11-28T00:00:00+00:00', 'reason': 'x'}}):
+            self.write(json.dumps(state))
+            self.assertEqual(sp.load_state(self.dir), state)
+
     def test_valid_state_is_kept_and_restore_leaves_it_alone(self):
         self.write('{"schema": 1, "attempts": {}, "marker": 1}')
         self.assertEqual(sp.restore_from_live(self.dir, SITE, fetch=live_site(bundles()))['restored'], [])
@@ -138,6 +166,16 @@ class PartialRecovery(unittest.TestCase):
         state = sp.load_state(self.dir)
         later = sp.utc_time(state['live_recovery']['since']) + dt.timedelta(hours=25)
         self.assertEqual(sp.held_ranks(self.dir, state, now=later), [])
+
+    def test_a_pending_rank_without_a_start_time_stays_held(self):
+        # Muse review of PR #241: a missing or unreadable `since` lifted the hold at once while Silver+ was missing.
+        sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))
+        state = sp.load_state(self.dir)
+        state['live_recovery'].pop('since')
+        self.assertEqual(sp.held_ranks(self.dir, state), ['silver'])
+        (self.dir / 'publication.json').write_text(json.dumps(state), encoding='utf8')
+        sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))
+        self.assertIsNotNone(sp.utc_time(sp.load_state(self.dir)['live_recovery']['since']), 'the next pass starts the clock')
 
     def test_render_site_publishes_nothing_while_a_rank_is_held(self):
         sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))
