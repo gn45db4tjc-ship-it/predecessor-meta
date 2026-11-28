@@ -192,3 +192,23 @@ test('F16: after a rollback, a re-save keeps its mark and a new release replaces
   assert.equal(saved.published_at, next.manifest.published_at);
   assert.equal(saved.saved_rollback, undefined);
 });
+
+test('F16: a rollback that lands between a tab\'s copy and main writes still stands', async () => {
+  // Muse review of #241 at 0634819: write() puts this publication's copy, then the main manifest. A verified
+  // rollback that completed between the two had its main copy overwritten by the withdrawn publication.
+  const shared = store(), newer = publication('2026-11-27T09:23:00Z', 'b'), rolledBack = publication('2026-11-27T08:23:00Z', 'a');
+  let reached, release;
+  const atMain = new Promise(resolve => { reached = resolve; }), go = new Promise(resolve => { release = resolve; });
+  const hold = async url => { if (url === SITE + 'manifest.json') { reached(); await go; } };
+  const stale = client(shared, rolledBack.manifest, hold);   // the site already serves the rollback again
+  const staleRun = stale.commitNow(newer.manifest, 'gold', newer.entry, newer.loaded);
+  await atMain;                                    // its copy is written; its main write waits
+  assert.equal(await client(shared, rolledBack.manifest).commitNow(rolledBack.manifest, 'gold', rolledBack.entry, rolledBack.loaded), true);
+  release();
+  assert.equal(await staleRun, 'superseded');
+  assert.equal(JSON.parse(shared.entries.get(SITE + 'manifest.json')).published_at, rolledBack.manifest.published_at, 'the rollback stands');
+  assert.ok(shared.entries.has(SITE + rolledBack.entry.url), 'the rolled-back bundle is still saved');
+  assert.ok(!shared.entries.has(SITE + newer.entry.url), 'the withdrawn bundle was taken back');
+  const copies = [...shared.entries.keys()].filter(url => url.includes('/saved-manifests/'));
+  assert.deepEqual(copies.map(url => JSON.parse(shared.entries.get(url)).published_at), [rolledBack.manifest.published_at]);
+});

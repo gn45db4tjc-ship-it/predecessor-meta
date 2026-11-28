@@ -197,18 +197,18 @@ def collection_reason(state, official, now, manual=False):
         return 'Daily update'
     retry = state.get('required_retry') or {}
     if (retry.get('pending') and not retry.get('blocked')
-            and int(retry.get('attempts', 0)) < int(CONFIG.get('required_retry_limit', 2))
+            and int(retry.get('attempts') or 0) < int(CONFIG.get('required_retry_limit', 2))
             and now-utc_time(last) >= dt.timedelta(hours=CONFIG.get('required_retry_hours', 3))):
         return 'Automatic required-source retry'
     pred = state.get('pred_retry') or {}
     if (COLLECTOR_HOST == 'windows' and pred.get('pending')
-            and int(pred.get('attempts', 0)) < int(CONFIG.get('pred_retry_limit', 4))
+            and int(pred.get('attempts') or 0) < int(CONFIG.get('pred_retry_limit', 4))
             and now-utc_time(last) >= dt.timedelta(hours=CONFIG.get('pred_retry_hours', 2.5))):
         return PRED_RETRY
     # Remember attempts as well as successes: an unavailable source is not hammered every check.
     if signature and signature != state.get('last_attempted_signature'):
         return 'Live patch or hotfix article changed'
-    if retry and (retry.get('blocked') or int(retry.get('attempts', 0)) >= int(CONFIG.get('required_retry_limit', 2))):
+    if retry and (retry.get('blocked') or int(retry.get('attempts') or 0) >= int(CONFIG.get('required_retry_limit', 2))):
         return None
     transition = state.get('patch_transition_at')
     if (signature and transition and not state.get('blocked_in_last_full')
@@ -1000,10 +1000,10 @@ def run(folder, out, *, manual=False, preview_seeds=(), check_only=False):
         if reason:
             if release: state['collection_release'] = release
             changed_patch = live_signature(official) != state.get('last_attempted_signature')
-            prior_retry_count = int((state.get('required_retry') or {}).get('attempts', 0))
+            prior_retry_count = int((state.get('required_retry') or {}).get('attempts') or 0)
             retry_count = (prior_retry_count + 1 if reason == 'Automatic required-source retry'
                            else prior_retry_count if reason == PRED_RETRY else 0)
-            pred_count = int((state.get('pred_retry') or {}).get('attempts', 0)) + 1 if reason == PRED_RETRY else 0
+            pred_count = int((state.get('pred_retry') or {}).get('attempts') or 0) + 1 if reason == PRED_RETRY else 0
             state['last_full_attempt_at'] = base.iso(now)
             state['last_attempted_signature'] = live_signature(official)
             state['blocked_in_last_full'] = False

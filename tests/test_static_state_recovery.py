@@ -130,6 +130,17 @@ class CorruptState(unittest.TestCase):
             self.write(json.dumps(state))
             self.assertEqual(sp.load_state(self.dir), state)
 
+    def test_a_null_retry_count_is_kept_and_read_as_zero(self):
+        # Muse round 3: nested_problem allows a null count, and collection_reason then failed on int(None).
+        state = {'schema': 1, 'attempts': {}, 'last_full_attempt_at': '2026-11-28T00:00:00+00:00',
+                 'required_retry': {'pending': True, 'blocked': False, 'attempts': None},
+                 'pred_retry': {'pending': True, 'attempts': None}}
+        self.write(json.dumps(state))
+        self.assertEqual(sp.load_state(self.dir), state)
+        now = dt.datetime(2026, 11, 28, 6, tzinfo=dt.timezone.utc)
+        with mock.patch.object(sp, 'daily_boundary', return_value=now - dt.timedelta(hours=7)):
+            self.assertEqual(sp.collection_reason(state, {}, now), 'Automatic required-source retry')
+
     def test_an_error_without_a_source_or_detail_is_read_as_empty_text(self):
         # Muse round 2: a kept state may carry an error whose source or detail is null; the retry rules read it as ''.
         attempt = {'status': 'partial', 'errors': [{'source': None, 'severity': 'error', 'detail': None}]}

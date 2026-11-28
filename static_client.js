@@ -424,11 +424,15 @@ if (APP_CONFIG.mode === 'static') {
     };
     await write();
     for (let tries = 0; tries < 3; tries++) {
-      // Only a verified rollback removes this tab's copy; then the older publication it saved is right.
+      // Only another commit removes this tab's copy: a verified rollback, or a newer publication's prune. If that
+      // happened between this tab's copy and main writes (Muse review of PR #241), the main copy now holds this
+      // publication over theirs: unless the site serves this one, main goes back to the newest remaining copy.
       if (await readJSON(copyURL(manifest))) break;
-      const now = await savedManifest();
-      if (!now || !olderPublication(now, manifest) || await liveServes(manifestURL, now)) break;
-      await write();
+      if (await liveServes(manifestURL, manifest)) { await write(); continue; }
+      let standing = null;
+      for (const url of await copies()) { const copy = await readJSON(url); if (copy && (!standing || olderPublication(standing, copy))) standing = copy; }
+      if (standing) await data.put(manifestURL, new Response(JSON.stringify(standing), {headers: {'Content-Type': 'application/json'}}));
+      break;
     }
     const final = await savedManifest();
     // The main copy always holds the newest saved publication, whichever tab wrote last.
