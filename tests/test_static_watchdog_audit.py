@@ -152,3 +152,26 @@ class MissedRetry(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ExpiredRecoveryHold(unittest.TestCase):
+    """Will's decision of 28 Nov 2026 on PR #241: keep the 24-hour recovery hold, and alert when it ends with a rank
+    still missing."""
+    def test_an_expired_hold_with_a_rank_missing_opens_an_alert(self):
+        live = manifest()
+        live['recovery_expired'] = {'ranks': ['silver'], 'since': iso(26), 'hold_hours': 24, 'reason': 'sha256 differs'}
+        found = [p for p in watchdog.check(live, OVERDUE, NOW) if p['id'] == 'recovery-expired']
+        self.assertEqual(len(found), 1)
+        self.assertIn('silver', found[0]['summary'])
+        self.assertFalse(found[0]['refresh'])
+        api = FakeIssues([])
+        # Like every watchdog alert, the issue opens once the problem has persisted past one hourly check.
+        state = watchdog.next_state({}, [found[0]], {'dispatch': False}, NOW - dt.timedelta(hours=2))
+        state = watchdog.next_state(state, [found[0]], {'dispatch': False}, NOW)
+        watchdog.sync_issues([found[0]], state, {'dispatch': False}, api, NOW)
+        self.assertTrue(any('watchdog:recovery-expired' in (i.get('body') or '') for i in api.issues.values()))
+
+    def test_no_alert_without_an_expired_hold(self):
+        for extra in ({}, {'recovery_expired': {}}, {'recovery_expired': {'ranks': []}}, {'recovery_expired': 'x'}):
+            live = dict(manifest(), **extra)
+            self.assertNotIn('recovery-expired', ids(watchdog.check(live, OVERDUE, NOW)), extra)

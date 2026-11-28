@@ -132,7 +132,7 @@
     "docs/CALCULATED-TIERS.md": "c269eacd688ce882bcec09c11fbb85b24f0657497fd31d222c786a74a102fed8",
     "docs/DESIGN-SYSTEM.md": "1c956fdd14ef1c3744d1595f077558765a643c5792bb1084ed5a93139bd64f15",
     "docs/FRESHNESS-BASELINE.md": "1fafca30ba6a91470b1a6df5ed08d24b86489a57b48ff48867f52a72d473e75e",
-    "docs/FRESHNESS-STATUS.md": "0da25c3f49a341425a3baadfb60c8ff9256281d2ee7943638882b942d00dd83d",
+    "docs/FRESHNESS-STATUS.md": "41a1fcd2361090f70f1bc7422e8d1085d110e4b8bc4a4c1297dcbe30f20f3f75",
     "docs/GRADE-RECHECK-2026-09-27.md": "ced25869a808d266158d280ad9fdab7ad4262682bea8e380b301a99463459753",
     "docs/GUIDANCE-AVAILABILITY-REPAIR.md": "8ea92177bfcf7344761d9de622460fbf7669da1cdcb58bee139ebe87bdd55de3",
     "docs/PRODUCT-REVIEW-RESULTS.md": "9a7a76a05bc95e210955a51dafbdaf8e24806f9f4005b1621a35128cc6d948a6",
@@ -190,7 +190,7 @@
     "shared_server.py": "1fff1e172f74d5764ed1ee9671fba59ec4c1eb7b4f87b0959eaf532602a339f7",
     "skill_guide.js": "d5b9d7c9d5cbb2d0bd5e41b2c9c9d73116caf9f0ef1e82cb58c211a4dc6c1312",
     "static_client.js": "aca99b48eeec4c167976193e6ff85ae977be3ef1549c3c6d0e392cdde13d6f19",
-    "static_publish.py": "c2c43025456da2a26ed23f961251ea6c33b2900b287cf429ef636688f698bf18",
+    "static_publish.py": "e9890d52fd7a149bc5d42265d12c6bf25ef0718681b6a14b07ccfe8059b9508d",
     "strategy-reviews/2026-09-22-build-review.json": "e30549901d0d97c6b0adaab8ef718a5c585fb9281f17fca6207a105bb274e391",
     "strategy-reviews/2026-09-22-patch-release/ledger.json": "6223759c15cc3d393a32b75f28e16af76dbf3ec190b47ff162a8b8d294ff1872",
     "strategy-reviews/2026-09-22-trial/PATCH-COVERAGE.md": "2b6d6638e79f8e29209c29d651edd5537401356647ac9baa05b930c3eb0a49cb",
@@ -325,7 +325,7 @@
     "ui.html": "8bd863321678462c0e9e549365da9f543e149a4b527dc8bd997d27e0f892a28e",
     "ui.js": "c10e03474fa9fc0496664a535c9f9c9b96e136639af33f8d019c8c1316a5399e",
     "visor_look.js": "9f4bb6bfe9829c12cf4fec21729c4ba18bde6cd9be4d34b9aa206c9efc90f1a9",
-    "watchdog.py": "e8bc819e3b2b3ed551ac0c2222066fc462a9bc73395d0760f4fb0115d35cdd29",
+    "watchdog.py": "9487e59daa120d1543d716dd23619bef6907c04bbce5f02318ed3ee445552686",
     "docs/rechecks/2026-10-17-1247-ledger.json": "838b8f5daa7e155c997301ef1b39104d05fc08cf34dfa967db0bb3ae17819a22",
     "docs/rechecks/2026-10-17-1247.md": "b168f59e4898f2c1db5c6658af7bdf1ffac87b04dd015dda1d6699a0dde8ca2e",
     "docs/STRATEGY-REVIEW-1.17.2.md": "206bef7d9befb8d3428b821a389dd47d6b5ceb8a556c526e7bfdc2585207339a",
@@ -398,7 +398,7 @@
     "tests/test_static_omeda_items.py": "637b167aa88de9367da616801875da9e32b16751aaad5f5f4fb01e70e6341e21",
     "tests/test_static_pred_access_scope.py": "5c27548461da378cdb400c609e9db4ad08e42a410b4e0486eb0110c936be174b",
     "tests/test_static_receipt_rejection.py": "669a4a682c58fa35bf4c98dbf513f17dd2e3c7937942291cd0c43cdfdccdb5c0",
-    "tests/test_static_state_recovery.py": "129ffdad4f5352e21116dedd2d393e1d3f8f172ce76f8566fa1af48aaa433224",
-    "tests/test_static_watchdog_audit.py": "c8e62b80a102cfea22f3f8d37149bb7dc6e3082a30ea1c03312d371c8b875802"
+    "tests/test_static_state_recovery.py": "412ac3d615aac0d31c2e3d3a4dde81a86d3c4add780f9e124a26682c912b4087",
+    "tests/test_static_watchdog_audit.py": "9618eb64988fb7cc6123ea6916e047522ddc1e078c79ca65997d8425585c203e"
   }
 }

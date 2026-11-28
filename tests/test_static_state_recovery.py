@@ -192,6 +192,25 @@ class PartialRecovery(unittest.TestCase):
         later = sp.utc_time(state['live_recovery']['since']) + dt.timedelta(hours=25)
         self.assertEqual(sp.held_ranks(self.dir, state, now=later), [])
 
+    def test_an_expired_hold_publishes_and_names_the_missing_rank(self):
+        # Will's decision of 28 Nov 2026 on PR #241: keep the 24-hour limit, and alert. After the hold the site is
+        # published, and the manifest names the rank still missing so the watchdog opens an issue.
+        sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))
+        state = sp.load_state(self.dir)
+        since = sp.utc_time(state['live_recovery']['since'])
+        self.assertEqual(sp.expired_hold(self.dir, state, now=since + dt.timedelta(hours=23)), {})
+        expired = sp.expired_hold(self.dir, state, now=since + dt.timedelta(hours=25))
+        self.assertEqual((expired['ranks'], expired['hold_hours'], expired['since']), (['silver'], 24, state['live_recovery']['since']))
+        out = Path(tempfile.mkdtemp())
+        with mock.patch.object(sp.base, 'now_utc', return_value=since + dt.timedelta(hours=25)), mock.patch.object(sp, 'output_flag') as flag:
+            manifest = sp.render_site(self.dir, out, state)
+        self.assertNotIn('deploy_held', manifest)
+        self.assertEqual(manifest['recovery_expired']['ranks'], ['silver'])
+        flag.assert_any_call('publishable', True)
+        self.assertEqual(json.loads((out / 'manifest.json').read_text(encoding='utf8'))['recovery_expired']['ranks'], ['silver'])
+        # Without a readable start time the hold lasts, so nothing has expired.
+        self.assertEqual(sp.expired_hold(self.dir, {'live_recovery': {'pending': {'silver': SILVER_AT}}}), {})
+
     def test_a_pending_rank_without_a_start_time_stays_held(self):
         # Muse review of PR #241: a missing or unreadable `since` lifted the hold at once while Silver+ was missing.
         sp.restore_from_live(self.dir, SITE, fetch=live_site(self.live, broken={'silver'}))

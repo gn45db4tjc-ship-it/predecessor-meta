@@ -177,6 +177,19 @@ def check(manifest, review_index, now, release=None):
                  % when_text(manifest.get('published_at'))],
                 'Next attempt: the next hourly publication run (every hour at :23) publishes main again.', False))
 
+    # Will's decision of 28 Nov 2026 (PR #241): the publisher keeps its 24-hour recovery hold, and when the hold ends
+    # with a rank still not restored or replaced it publishes anyway and names that rank here, so this alert opens.
+    expired = manifest.get('recovery_expired')
+    if isinstance(expired, dict) and isinstance(expired.get('ranks'), list) and expired['ranks']:
+        named = 'the live manifest' if expired['ranks'] == ['*'] else ', '.join(str(r) for r in expired['ranks'])
+        problems.append(problem(
+            'recovery-expired', 'A rank the live site had is still missing after the recovery hold',
+            'The %s-hour recovery hold ended with %s still not restored or replaced, so the site was published without it.'
+            % (expired.get('hold_hours') or 24, named),
+            ['Pending since %s. Reason recorded: %s' % (when_text(expired.get('since')), expired.get('reason') or 'none'),
+             'Each publication run retries the restore from the live site; a fresh collection of the rank replaces it.'],
+            'Next attempt: the next hourly publication run retries the restore.', False))
+
     missing = [r for r in ranks if (cohorts.get(r) or {}).get('status') != 'available']
     if missing:
         problems.append(problem(

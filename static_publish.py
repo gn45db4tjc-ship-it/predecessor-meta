@@ -689,6 +689,27 @@ def held_ranks(folder, state, now=None):
     return [r for r in sorted(ranks) if r in CONFIG['brackets'] and not replaced(load_publication(folder, r), ranks[r])]
 
 
+def expired_hold(folder, state, now=None):
+    """Ranks still pending and unreplaced after the recovery hold ended (Will's decision of 28 Nov 2026 on PR #241:
+    keep the 24-hour limit, and alert). Publication goes ahead; the manifest names these ranks so the watchdog opens
+    an issue. Empty while the hold lasts, when nothing is pending, or when every pending rank was replaced."""
+    recovery = (state or {}).get('live_recovery') or {}
+    ranks = recovery.get('pending') or {}
+    if not isinstance(ranks, dict) or not ranks:
+        return {}
+    try:
+        since = utc_time(recovery.get('since'))
+    except (AttributeError, TypeError, ValueError):
+        return {}   # no readable start time: the hold still lasts (held_ranks)
+    hours = CONFIG.get('live_recovery_hold_hours', 24)
+    if (now or base.now_utc()) - since <= dt.timedelta(hours=hours):
+        return {}
+    left = ['*'] if '*' in ranks else [r for r in sorted(ranks) if r in CONFIG['brackets'] and not replaced(load_publication(folder, r), ranks[r])]
+    if not left:
+        return {}
+    return {'ranks': left, 'since': recovery.get('since'), 'hold_hours': hours, 'reason': recovery.get('reason')}
+
+
 def output_flag(name, value):
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf8') as stream:
@@ -930,6 +951,13 @@ def render_site(folder, out, state):
         print('::warning::Deployment held: the live site has ' + ('ranks' if held == ['*'] else ', '.join(held)) +
               ' that this run could not restore or replace; the working site stays up and the next run retries.', flush=True)
         available = False
+    else:
+        expired = expired_hold(folder, state)
+        if expired:
+            manifest['recovery_expired'] = expired
+            print('::warning::The ' + str(expired['hold_hours']) + '-hour recovery hold ended with ' +
+                  ('the live manifest' if expired['ranks'] == ['*'] else ', '.join(expired['ranks'])) +
+                  ' still not restored or replaced; publishing anyway, and the watchdog opens an issue.', flush=True)
     output_flag('publishable', available)
     if not available:
         return manifest
