@@ -9,6 +9,8 @@ const SOURCE = fs.readFileSync(path.join(__dirname, '..', 'static_client.js'), '
 const SITE = 'https://example.test/predecessor-meta/';
 const start = SOURCE.indexOf("  const DATA_CACHE = 'predecessor-meta-data-v1';"), end = SOURCE.indexOf('  // ---- Evidence annexes');
 assert.ok(start > 0 && end > start, 'the offline saving code was found');
+const siteStart = SOURCE.indexOf('  function siteURL(path) {'), SITE_URL = SOURCE.slice(siteStart, SOURCE.indexOf('\n  }\n', siteStart) + 4);
+assert.ok(siteStart > 0 && /Invalid publication path/.test(SITE_URL), 'the page siteURL was found');
 
 function store() {
   // Like the Cache API, the store keeps each response's headers with its body; `entries` maps an address to the body.
@@ -30,8 +32,10 @@ function client(shared, liveManifest, beforePut = null) {
   const sandbox = {caches, Response, URL, JSON, Date, Set, Object, console, navigator: {},
     fetch: async () => liveManifest ? new Response(JSON.stringify(liveManifest), {status: 200}) : (() => { throw new Error('offline'); })(),
     S: {bracket: 'gold'}, site: {}, connectionLost: false, APP_CONFIG: {manifest: 'manifest.json'},
-    siteURL: value => new URL(value, SITE).toString(), publicationBytes: (entry, url) => url === entry.url};
-  vm.runInNewContext(SOURCE.slice(start, end) + '\nthis.commitNow = commitNow; this.olderPublication = olderPublication; this.serialCommit = typeof serialCommit === "function" ? serialCommit : undefined;', sandbox);
+    baseURL: SITE, publicationBytes: (entry, url) => url === entry.url};
+  // The page's own siteURL, which accepts only published paths (Codex review of #241 at bbed6ae: a stand-in that
+  // accepted any path hid that the manifest copies could not be saved at all).
+  vm.runInNewContext(SITE_URL + '\n' + SOURCE.slice(start, end) + '\nthis.commitNow = commitNow; this.olderPublication = olderPublication; this.serialCommit = typeof serialCommit === "function" ? serialCommit : undefined;', sandbox);
   return sandbox;
 }
 

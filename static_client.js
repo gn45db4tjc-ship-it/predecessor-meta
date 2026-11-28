@@ -332,7 +332,9 @@ if (APP_CONFIG.mode === 'static') {
   // worker does the same before it serves the manifest offline (sw.js adoptNewestCopy). A verified rollback removes
   // the newer copies first, so the older publication it saves is the newest left.
   const MANIFEST_COPIES = 'saved-manifests/';
-  const copyURL = manifest => siteURL(MANIFEST_COPIES + String(manifest?.published_at || 'undated').replace(/[^0-9A-Za-z]/g, '-') + '.json');
+  // A cache-only address, never fetched from the site, so it is built here rather than by siteURL (which accepts
+  // only published paths). The name holds letters, digits and dashes only.
+  const copyURL = manifest => new URL(MANIFEST_COPIES + String(manifest?.published_at || 'undated').replace(/[^0-9A-Za-z]/g, '-') + '.json', baseURL).href;
   const isCopy = url => new URL(url).pathname.includes('/' + MANIFEST_COPIES);
   async function commitNow(manifest, bracket, entry, loaded) {
     const overtaken = () => S.bracket === bracket && !!site.loadedEntry && site.loadedEntry !== entry
