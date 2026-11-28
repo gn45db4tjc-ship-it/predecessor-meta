@@ -177,7 +177,7 @@
     "patch_support.py": "b1575a9a1d9793125c7f3d10a95faae3f8d55bd3d252e3bbf16a5c8b72150676",
     "pred_api.py": "a7715f742c212ba5654a4fa56b9f734f0af7a0c1f5620160142c8768cd7b4922",
     "pred_api_queries.json": "d51514f3167e1be2faf57d3e7412a4df5f21df0eb03a7f2f4794aebce788f43a",
-    "predecessor_meta.py": "b14a619143f194690a69e127cebbadb296702f25d0c38d14584c7bd02896f26e",
+    "predecessor_meta.py": "8781443183b7627d9db1c80dd5213af4c4d963274af86dc42f812d6e060d7742",
     "projection.py": "d15579f676d26e5c171a077fc975ec1a281771623351ad39d0c4c19992ecbae4",
     "projection_client.js": "b6954734ae53ddf5d242d8f5155dd5f2c8a292b291ccf5b208bc9b22ebad2426",
     "public-seed-gold.json.gz": "281f22d572cb6b7f4071b368b1b64e5c605cd577907a0ea65d76442add6840b8",
@@ -396,7 +396,7 @@
     "tests/offline_commit_order.test.cjs": "3a7a4773e483f96b4a1956b5b7e5fcd4a4e936d48482c6712e97cab2355d288d",
     "tests/test_static_official_year.py": "0d74a3eeccc3cdc226b58859f58fc7aaad33528445b20c009d7465f9a32e8594",
     "tests/test_static_omeda_items.py": "9adce697c8cfc83f29dd4d8a33c4c767b930ac93283990e5896cd8361a724429",
-    "tests/test_static_pred_access_scope.py": "0ef346b9303acceb00d767c129ed1875974e543dd7600e39922e8696d2163966",
+    "tests/test_static_pred_access_scope.py": "5c27548461da378cdb400c609e9db4ad08e42a410b4e0486eb0110c936be174b",
     "tests/test_static_receipt_rejection.py": "669a4a682c58fa35bf4c98dbf513f17dd2e3c7937942291cd0c43cdfdccdb5c0",
     "tests/test_static_state_recovery.py": "965bec3c3a8fade97de94008ec33d3f02e09dcc66f386c98918de5de9ceb6515",
     "tests/test_static_watchdog_audit.py": "6572143ba93fe0f9989b5a915c9f4abe83da25a58469ee89d02e2efca99f0136"

@@ -3377,14 +3377,14 @@ def pred_source_fetch(environ=None):
                 if not token:token.append(pred_api.token_for_run(env))
                 return pred_api.page_fetch(url,token=token[0])
             except pred_api.PredApiUnauthorized as e:
-                failed.append(type(e).__name__);details.append(type(e).__name__+': '+str(e)[:160])
-                try:atomic_write(stop,json.dumps({'at':iso(now_utc()),'fingerprint':fingerprint,'reason':str(e)[:200]}))
+                failed.append(type(e).__name__);details.append(api_failure_detail(e))
+                try:atomic_write(stop,json.dumps({'at':iso(now_utc()),'fingerprint':fingerprint,'reason':api_failure_detail(e)}))
                 except OSError:pass
             except (pred_api.PredApiError,urllib.error.URLError,OSError,ValueError) as e:
-                failed.append(type(e).__name__);details.append(type(e).__name__+': '+str(e)[:160])
+                failed.append(type(e).__name__);details.append(api_failure_detail(e))
         return public(url)
     fetch.api_failed=failed
-    # The failure's message (an HTTP status such as 401, never a credential or token) for the bundle's diagnostics.
+    # The failure's type and HTTP status only (api_failure_detail) for the bundle's diagnostics.
     fetch.api_details=details
     try:
         if json.loads(stop.read_text(encoding='utf8')).get('fingerprint')==fingerprint:
@@ -3393,6 +3393,17 @@ def pred_source_fetch(environ=None):
     try:import pred_api
     except ImportError:return None
     return fetch
+
+
+def api_failure_detail(error):
+    """The exception's type and, when its text names one, its HTTP status: never the rest of the text. Pred.gg's own
+    error messages are server-controlled and could echo a credential, and this text reaches the public bundle's
+    errors (Codex security review of PR #241)."""
+    status=getattr(error,'code',None)
+    if not isinstance(status,int):
+        found=re.search(r'\bHTTP(?: Error)? ([1-5][0-9][0-9])\b',str(error))
+        status=int(found.group(1)) if found else None
+    return type(error).__name__+(': HTTP %d'%status if isinstance(status,int) and 100<=status<=599 else '')
 
 
 def pred_api_health(fetch):

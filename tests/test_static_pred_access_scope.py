@@ -127,6 +127,33 @@ class ApiFailureNamedInStatus(unittest.TestCase):
         self.assertIn('HTTP 401', notes[0]['detail'])
         self.assertNotIn(token, json.dumps(bundle))
 
+    def test_a_server_message_that_echoes_the_credential_is_never_published(self):
+        """Codex security review of PR #241: Pred.gg's error text is server-controlled, so only the type and HTTP
+        status reach the bundle and the saved denial."""
+        token = 'reflected-token-not-real'
+
+        def echo(body, headers, **kw):
+            return 200, json.dumps({'errors': [{'message': 'bad header Authorization: Bearer ' + token}], 'data': None}).encode()
+
+        def echo_denied(body, headers, **kw):
+            return 200, json.dumps({'errors': [{'message': 'Forbidden ' + token}], 'data': None}).encode()
+        for post in (echo, echo_denied):
+            bundle = {'errors': [], 'sources': {}}
+            with patch.object(m, 'pred_api_approved', return_value=True), tempfile.TemporaryDirectory() as d, \
+                    patch.object(m, 'DATA_DIR', Path(d)), patch.object(pred_api, '_post', post), patch.object(m, 'http_get', return_value=PAGE):
+                fetch = m.pred_source_fetch({'PRED_API_TOKEN': token})
+                fetch('https://pred.gg/heroes')
+                m.note_pred_api_health(bundle, fetch)
+                saved = ''.join(f.read_text(encoding='utf-8') for f in Path(d).glob('*.json'))
+            self.assertTrue(bundle['errors'], post.__name__)
+            self.assertNotIn(token, json.dumps(bundle), post.__name__)
+            self.assertNotIn(token, saved, post.__name__)
+
+    def test_the_detail_keeps_only_the_type_and_status(self):
+        self.assertEqual(m.api_failure_detail(urllib.error.HTTPError('u', 401, 'Unauthorized', {}, None)), 'HTTPError: HTTP 401')
+        self.assertEqual(m.api_failure_detail(pred_api.PredApiError('Pred.gg API returned HTTP 503')), 'PredApiError: HTTP 503')
+        self.assertEqual(m.api_failure_detail(pred_api.PredApiError('Pred.gg API: secret text')), 'PredApiError')
+
 
 if __name__ == '__main__':
     unittest.main()
